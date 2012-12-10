@@ -14,6 +14,8 @@ package nl.surfnet.bod.domain;
 
 import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
 
+import java.util.Collection;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +24,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -145,8 +148,10 @@ public class VirtualPort implements Loggable, PersistableDomain {
   }
 
   @Override
-  public String getAdminGroup() {
-    return virtualResourceGroup.getAdminGroup();
+  public Collection<String> getAdminGroups() {
+    return ImmutableList.of(
+        physicalPort.getPhysicalResourceGroup().getAdminGroup(),
+        virtualResourceGroup.getAdminGroup());
   }
 
   @Override

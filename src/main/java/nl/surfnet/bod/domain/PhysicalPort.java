@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +23,7 @@ import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 @Indexed
 @AnalyzerDef(name = "customanalyzer", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = { @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
@@ -218,8 +221,8 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   }
 
   @Override
-  public String getAdminGroup() {
-    return physicalResourceGroup.getAdminGroup();
+  public Collection<String> getAdminGroups() {
+    return ImmutableList.of(physicalResourceGroup.getAdminGroup());
   }
 
   @Override

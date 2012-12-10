@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -24,6 +26,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Entity which represents a Reservation for a specific connection between a
@@ -358,8 +361,12 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   @Override
-  public String getAdminGroup() {
-    return virtualResourceGroup.getAdminGroup();
+  public Collection<String> getAdminGroups() {
+    return ImmutableSet.of(
+      virtualResourceGroup.getAdminGroup(),
+      sourcePort.getPhysicalResourceGroup().getAdminGroup(),
+      destinationPort.getPhysicalResourceGroup().getAdminGroup()
+    );
   }
 
   @Override

@@ -13,15 +13,20 @@
 package nl.surfnet.bod.search;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
 import nl.surfnet.bod.event.LogEvent;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Iterables;
 
 public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent> {
 
@@ -32,6 +37,7 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
   @Before
   public void setUp() {
     initEntityManager();
+    index();
   }
 
   @After
@@ -40,29 +46,41 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
   }
 
   @Test
-  public void testIndexAndSearch() throws Exception {
-    List<LogEvent> logEvents = getSearchQuery("klimaat");
-    // nothing indexed so nothing should be found
-    assertThat(logEvents.size(), is(0));
+  public void findByNonExistingStringShouldGiveNoLogEvents() throws ParseException {
+    List<LogEvent> logEvents = getSearchQuery("gamma");
+    assertThat(logEvents, hasSize(0));
+  }
 
-    index();
+  @Test
+  public void findLogEventsWithSpace() throws ParseException {
+    List<LogEvent> logEvents = getSearchQuery("NOC engineers");
+    assertThat(logEvents, hasSize(2));
+  }
 
-    logEvents = getSearchQuery("gamma");
-    // (N.A.)
-    assertThat(logEvents.size(), is(0));
-
-    logEvents = getSearchQuery("NOC engineers");
-    // (1st & 2nd event)
-    assertThat(logEvents.size(), is(2));
-
-    logEvents = getSearchQuery("klimaat1");
-    // (2nd event)
-    assertThat(logEvents.size(), is(1));
+  @Test
+  public void findLogEventsByPartialString() throws Exception {
+    List<LogEvent> logEvents = getSearchQuery("klimaat1");
+    assertThat(logEvents, hasSize(1));
 
     logEvents = getSearchQuery("klimaat");
-    // (1st & /2nd event)
-    assertThat(logEvents.size(), is(2));
+    assertThat(logEvents, hasSize(2));
+  }
 
+  @Test
+  public void findLogEventByAdminGroup() throws ParseException {
+    final String adminGroup = "urn:surfguest:ict-managers";
+    List<LogEvent> logEvents = getSearchQuery("\"".concat(adminGroup).concat("\""));
+
+    assertThat(logEvents, hasSize(1));
+    assertThat(Iterables.getOnlyElement(logEvents).getAdminGroups(), hasItem(adminGroup));
+  }
+
+  @Test
+  public void findLogEventsByMultipleAdminGroups() throws ParseException {
+    List<LogEvent> firstLogEvents = getSearchQuery("\"urn:surfguest:oneusers\"");
+    List<LogEvent> secondLogEvents = getSearchQuery("\"urn:surfguest:twousers\"");
+
+    assertThat(Iterables.getOnlyElement(firstLogEvents), is(Iterables.getOnlyElement(secondLogEvents)));
   }
 
 }

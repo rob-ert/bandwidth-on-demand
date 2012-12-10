@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -22,6 +24,8 @@ import nl.surfnet.bod.web.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
+
+import com.google.common.collect.ImmutableList;
 
 public class EmailSenderOffline extends EmailSenderOnline {
 
@@ -58,8 +62,8 @@ public class EmailSenderOffline extends EmailSenderOnline {
     }
 
     @Override
-    public String getAdminGroup() {
-      return environment.getNocGroup();
+    public Collection<String> getAdminGroups() {
+      return ImmutableList.of(environment.getNocGroup());
     }
 
     @Override

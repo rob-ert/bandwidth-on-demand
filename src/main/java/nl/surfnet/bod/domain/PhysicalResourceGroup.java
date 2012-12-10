@@ -23,6 +23,8 @@ import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.collect.ImmutableList;
+
 @Indexed
 @Entity
 public class PhysicalResourceGroup implements Loggable, PersistableDomain {
@@ -90,9 +92,13 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
     return institute != null ? institute.getName() : null;
   }
 
-  @Override
   public String getAdminGroup() {
     return adminGroup;
+  }
+
+  @Override
+  public Collection<String> getAdminGroups() {
+    return ImmutableList.of(adminGroup);
   }
 
   @Override

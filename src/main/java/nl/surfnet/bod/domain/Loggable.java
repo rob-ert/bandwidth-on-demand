@@ -12,25 +12,25 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+
 /**
  * Enables logging domain objects in a consistent way.
- * 
+ *
  */
 public interface Loggable {
-/**
- * 
- * @return Long Id of the domain object
- */
-  Long getId();
-  
-  /**
-   * 
-   * @return String the group which has the right to view the domain object.
-   */
-  String getAdminGroup();
 
   /**
-   * 
+   * @return Long Id of the domain object
+   */
+  Long getId();
+
+  /**
+   * @return String the group which has the right to view the domain object.
+   */
+  Collection<String> getAdminGroups();
+
+  /**
    * @return String A short label which represents the domain object.
    */
   String getLabel();

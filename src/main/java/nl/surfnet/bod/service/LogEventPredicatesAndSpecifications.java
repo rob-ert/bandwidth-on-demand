@@ -12,6 +12,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,9 +33,8 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.web.WebUtils.not;
 
 public final class LogEventPredicatesAndSpecifications {
 
@@ -40,13 +42,12 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   static Specification<LogEvent> specLogEventsByAdminGroups(final Collection<String> adminGroups) {
-
     return new Specification<LogEvent>() {
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return getPredicateInAdminGroups(adminGroups, root, cb);
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return inAdminGroups(adminGroups, root, cb);
       }
+
     };
   }
 
@@ -54,8 +55,8 @@ public final class LogEventPredicatesAndSpecifications {
       final DateTime before, final Collection<String> adminGroups, final ReservationStatus... states) {
 
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
-    return new Specification<LogEvent>() {
 
+    return new Specification<LogEvent>() {
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
@@ -129,7 +130,7 @@ public final class LogEventPredicatesAndSpecifications {
       predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds));
     }
 
-    Predicate inAdminGroups = getPredicateInAdminGroups(adminGroups, root, cb);
+    Predicate inAdminGroups = inAdminGroups(adminGroups, root, cb);
     if (inAdminGroups != null) {
       predicate = cb.and(predicate, inAdminGroups);
     }
@@ -137,16 +138,12 @@ public final class LogEventPredicatesAndSpecifications {
     return predicate;
   }
 
-  private static Predicate getPredicateInAdminGroups(Collection<String> adminGroups, Root<LogEvent> root,
-      CriteriaBuilder cb) {
-
-    Predicate predicate = null;
-
-    if (not(CollectionUtils.isEmpty(adminGroups))) {
-      predicate = root.get(LogEvent_.adminGroup).in(adminGroups);
+  private static Predicate inAdminGroups(final Collection<String> adminGroups, Root<LogEvent> root, CriteriaBuilder cb) {
+    Collection<Predicate> restrictions = new ArrayList<>();
+    for (String adminGroup: adminGroups) {
+      restrictions.add(cb.isMember(adminGroup, root.get(LogEvent_.adminGroups)));
     }
-
-    return predicate;
+    return cb.or(Iterables.toArray(restrictions, Predicate.class));
   }
 
   private static Predicate getPredicateForStateTransition(Root<LogEvent> root, CriteriaBuilder cb,

@@ -12,6 +12,9 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.*;
 
 import nl.surfnet.bod.util.TimeStampBridge;
@@ -243,8 +246,8 @@ public class Connection implements Loggable, PersistableDomain {
   }
 
   @Override
-  public String getAdminGroup() {
-    return reservation != null ? reservation.getAdminGroup() : null;
+  public Collection<String> getAdminGroups() {
+    return reservation != null ? reservation.getAdminGroups() : Collections.<String>emptyList();
   }
 
   @Override

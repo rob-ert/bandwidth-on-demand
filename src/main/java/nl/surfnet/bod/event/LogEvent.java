@@ -12,6 +12,9 @@
  */
 package nl.surfnet.bod.event;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.*;
 
 import nl.surfnet.bod.domain.Loggable;
@@ -21,7 +24,11 @@ import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.bridge.builtin.impl.BuiltinIterableBridge;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
@@ -37,49 +44,51 @@ public class LogEvent implements PersistableDomain {
   private Long id;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(store = Store.YES)
+  @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private final DateTime created;
 
-  @Field(store = Store.YES)
+  @Field
   @Basic
   private final String userId;
 
-  @Field(store = Store.YES)
-  @Basic
-  private final String adminGroup;
+  @Field
+  @FieldBridge(impl = BuiltinIterableBridge.class)
+  @ElementCollection
+  @Column(name="ADMIN_GROUP")
+  private final Collection<String> adminGroups;
 
-  @Field(store = Store.YES)
+  @Field
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
 
-  @Field(store = Store.YES)
+  @Field
   private final String domainObjectClass;
 
-  @Field(store = Store.YES)
+  @Field
   private final String description;
 
-  @Field(store = Store.YES)
+  @Field
   @Type(type = "text")
   private final String serializedObject;
 
-  @Field(store = Store.YES)
+  @Field
   @Type(type = "text")
   private final String details;
 
-  @Field(store = Store.YES)
+  @Field
   @Basic
   private String correlationId;
 
-  @Field(store = Store.YES)
+  @Field
   @Basic
   private final Long domainObjectId;
 
-  @Field(store = Store.YES)
+  @Field
   @Enumerated(EnumType.STRING)
   private final ReservationStatus oldReservationStatus;
 
-  @Field(store = Store.YES)
+  @Field
   @Enumerated(EnumType.STRING)
   private final ReservationStatus newReservationStatus;
 
@@ -88,19 +97,19 @@ public class LogEvent implements PersistableDomain {
    */
   @SuppressWarnings("unused")
   private LogEvent() {
-    this((String) null, (String) null, (LogEventType) null, null);
+    this((String) null, Collections.<String>emptyList(), (LogEventType) null, null);
   }
 
-  public LogEvent(String userId, String adminGroup, LogEventType type, Loggable domainObject) {
-    this(userId, adminGroup, type, Optional.fromNullable(domainObject), null, Optional.<ReservationStatus> absent(),
+  public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Loggable domainObject) {
+    this(userId, adminGroups, type, Optional.fromNullable(domainObject), "", Optional.<ReservationStatus> absent(),
         Optional.<ReservationStatus> absent());
   }
 
-  public LogEvent(String userId, String adminGroup, LogEventType type, Optional<Loggable> domainObject, String details,
+  public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Optional<Loggable> domainObject, String details,
       Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
     super();
     this.userId = userId;
-    this.adminGroup = adminGroup;
+    this.adminGroups = adminGroups;
     this.eventType = type;
     this.details = details;
 
@@ -114,7 +123,7 @@ public class LogEvent implements PersistableDomain {
     }
     else {
       this.domainObjectId = null;
-      this.description = null;
+      this.description = "";
       this.domainObjectClass = null;
       this.serializedObject = null;
     }
@@ -141,12 +150,8 @@ public class LogEvent implements PersistableDomain {
     return created != null ? created.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER) : "";
   }
 
-  public String getAdminGroup() {
-    return StringUtils.deleteAny(adminGroup, "[]");
-  }
-
-  public String getShortAdminGroup() {
-    return WebUtils.shortenAdminGroup(getAdminGroup());
+  public Collection<String> getAdminGroups() {
+    return adminGroups;
   }
 
   public String getUserId() {
@@ -230,11 +235,6 @@ public class LogEvent implements PersistableDomain {
     if (userId != null) {
       builder.append("userId=");
       builder.append(userId);
-      builder.append(", ");
-    }
-    if (adminGroup != null) {
-      builder.append("adminGroup=");
-      builder.append(adminGroup);
       builder.append(", ");
     }
     if (eventType != null) {

@@ -12,12 +12,15 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
-
-import nl.surfnet.bod.support.PhysicalPortFactory;
 
 public class PhysicalPortTest {
 
@@ -42,5 +45,14 @@ public class PhysicalPortTest {
 
     assertThat(port.getManagerLabel(), is("Manager label"));
     assertThat(port.hasManagerLabel(), is(true));
+  }
+
+  @Test
+  public void getAdminGroupsShouldReturnAdminGroup(){
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:ict-baas").create();
+    PhysicalPort subject = new PhysicalPortFactory().setPhysicalResourceGroup(prg).create();
+
+    assertThat(subject.getAdminGroups(), hasSize(1));
+    assertThat(subject.getAdminGroups(), contains("urn:ict-baas"));
   }
 }

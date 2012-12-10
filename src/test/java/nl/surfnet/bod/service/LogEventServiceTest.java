@@ -13,10 +13,7 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -29,7 +26,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.support.*;
@@ -86,7 +85,7 @@ public class LogEventServiceTest {
       LogEvent logEvent = Iterables.getOnlyElement(logEvents);
 
       assertThat(logEvent.getUserId(), is(user.getUsername()));
-      assertThat(logEvent.getAdminGroup(), is(vrg.getAdminGroup()));
+      assertThat(logEvent.getAdminGroups(), hasItem(vrg.getAdminGroup()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Create"));
 
       assertThat(logEvent.getDomainObjectId(), is(vrg.getId()));
@@ -116,7 +115,7 @@ public class LogEventServiceTest {
       LogEvent logEvent = subject.logReservationStatusChangeEvent(user, reservation, ReservationStatus.RESERVED);
 
       assertThat(logEvent.getUserId(), is(user.getUsername()));
-      assertThat(logEvent.getAdminGroup(), is(reservation.getAdminGroup()));
+      assertThat(logEvent.getAdminGroups(), is(reservation.getAdminGroups()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Update"));
 
       assertThat(logEvent.getDomainObjectId(), is(reservation.getId()));
@@ -170,84 +169,6 @@ public class LogEventServiceTest {
 
     verify(logMock).info(anyString(), eq(logEvent));
     verifyZeroInteractions(logEventRepoMock);
-  }
-
-  @Test
-  public void shouldDetermineManagerAdminGroupWithoutReservation() {
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-    BodRole manager = BodRole.createManager(prg);
-
-    when(userMock.isSelectedManagerRole()).thenReturn(true);
-    when(userMock.getSelectedRole()).thenReturn(manager);
-
-    when(physicalResourceGroupService.find(prg.getId())).thenReturn(prg);
-    prg.getAdminGroup();
-    String adminGroup = subject.determineAdminGroup(userMock, null);
-
-    assertThat(adminGroup, is(prg.getAdminGroup()));
-  }
-
-  @Test
-  public void shouldDetermineManagerAdminGroupWithReservation() {
-    Reservation res = new ReservationFactory().create();
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-    BodRole manager = BodRole.createManager(prg);
-
-    when(userMock.isSelectedManagerRole()).thenReturn(true);
-    when(userMock.getSelectedRole()).thenReturn(manager);
-
-    when(physicalResourceGroupService.find(prg.getId())).thenReturn(prg);
-    prg.getAdminGroup();
-    String adminGroup = subject.determineAdminGroup(userMock, res);
-
-    assertThat(adminGroup, is(res.getVirtualResourceGroup().getAdminGroup()));
-  }
-
-  @Test
-  public void shouldDetermineNocGroupWithoutReservation() {
-    when(environmentMock.getNocGroup()).thenReturn("nocje");
-    when(userMock.isSelectedNocRole()).thenReturn(true);
-
-    String adminGroup = subject.determineAdminGroup(userMock, null);
-
-    assertThat(adminGroup, is("nocje"));
-  }
-
-  @Test
-  public void shouldDetermineNocGroupWithReservation() {
-    Reservation res = new ReservationFactory().create();
-    when(userMock.isSelectedNocRole()).thenReturn(true);
-
-    String adminGroup = subject.determineAdminGroup(userMock, res);
-
-    assertThat(adminGroup, is(res.getVirtualResourceGroup().getAdminGroup()));
-  }
-
-  @Test
-  public void shouldDetermineReservationGroupForUser() {
-    Reservation reservation = new ReservationFactory().create();
-    when(userMock.isSelectedUserRole()).thenReturn(true);
-
-    String adminGroup = subject.determineAdminGroup(userMock, reservation);
-
-    assertThat(adminGroup, is(reservation.getVirtualResourceGroup().getAdminGroup()));
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void shouldThrowForForUserWithoutReservation() {
-    when(userMock.isSelectedUserRole()).thenReturn(true);
-
-    subject.determineAdminGroup(userMock, null);
-  }
-
-  @Test
-  public void shouldReturnNocGroupForNullUserAndNullAdminGroupFromDomainObject() {
-    String nocGroup = "NOCje";
-    when(environmentMock.getNocGroup()).thenReturn(nocGroup);
-
-    String adminGroup = subject.determineAdminGroup(null, new InstituteFactory().create());
-
-    assertThat(adminGroup, is(nocGroup));
   }
 
   @Test

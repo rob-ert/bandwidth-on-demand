@@ -12,14 +12,14 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-
-import org.junit.Test;
-
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+
+import org.junit.Test;
 
 public class VirtualPortTest {
 
@@ -69,6 +69,15 @@ public class VirtualPortTest {
     VirtualPort port = new VirtualPortFactory().setManagerLabel("manager label").setUserLabel("user label").create();
 
     assertThat(port.getUserLabel(), is("user label"));
+  }
+
+  @Test
+  public void getAdminGroupsShouldReturnAdminGroups() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:user1").create();
+    VirtualPort subject = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:user2").create();
+
+    assertThat(subject.getAdminGroups(), hasSize(2));
+    assertThat(subject.getAdminGroups(), hasItems("urn:user1", "urn:user2"));
   }
 
 }

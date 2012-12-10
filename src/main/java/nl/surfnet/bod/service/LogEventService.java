@@ -12,24 +12,16 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import static com.google.common.collect.Iterables.toArray;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
+
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -44,24 +36,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import static com.google.common.collect.Iterables.toArray;
-
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
-
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "System";
-  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(LogEvent
-      .getDomainObjectName(Reservation.class), LogEvent.getDomainObjectName(VirtualPort.class), LogEvent
-      .getDomainObjectName(PhysicalPort.class), LogEvent.getDomainObjectName(PhysicalResourceGroup.class), LogEvent
-      .getDomainObjectName(Institute.class));
+  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(
+      LogEvent.getDomainObjectName(Reservation.class),
+      LogEvent.getDomainObjectName(VirtualPort.class),
+      LogEvent.getDomainObjectName(PhysicalPort.class),
+      LogEvent.getDomainObjectName(PhysicalResourceGroup.class),
+      LogEvent.getDomainObjectName(Institute.class),
+      LogEvent.getDomainObjectName(VirtualPortRequestLink.class));
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -128,8 +118,14 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
       Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
 
-    return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), determineAdminGroup(user, domainObject),
-        eventType, Optional.fromNullable(domainObject), details, oldStatus, newStatus);
+    return new LogEvent(
+        user == null ? SYSTEM_USER : user.getUsername(),
+        domainObject.getAdminGroups(),
+        eventType,
+        Optional.fromNullable(domainObject),
+        details,
+        oldStatus,
+        newStatus);
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
@@ -154,28 +150,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     }
 
     return logEvents;
-  }
-
-  @VisibleForTesting
-  String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
-    if (domainObject != null && StringUtils.hasText(domainObject.getAdminGroup())) {
-      return domainObject.getAdminGroup();
-    }
-
-    if (user == null) {
-      //TODO dangerous?
-      return environment.getNocGroup();
-    }
-
-    if (user.isSelectedManagerRole()) {
-      return user.getSelectedRole().getAdminGroup().get();
-    }
-
-    if (user.isSelectedNocRole()) {
-      return environment.getNocGroup();
-    }
-
-    throw new IllegalStateException("Could not determine adminGroup for user: " + user);
   }
 
   public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {

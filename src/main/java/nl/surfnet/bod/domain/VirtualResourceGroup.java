@@ -23,6 +23,8 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
@@ -135,7 +137,6 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
     return this.virtualPorts.remove(port);
   }
 
-  @Override
   public String getAdminGroup() {
     return adminGroup;
   }
@@ -144,10 +145,10 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
     this.adminGroup = adminGroup;
   }
 
-//  @Override
-//  public Collection<String> getAdminGroups() {
-//    return ImmutableList.of(adminGroup);
-//  }
+  @Override
+  public Collection<String> getAdminGroups() {
+    return ImmutableList.of(adminGroup);
+  }
 
   @Override
   public String getLabel() {

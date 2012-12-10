@@ -24,6 +24,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LogEventRepo extends JpaSpecificationExecutor<LogEvent>, JpaRepository<LogEvent, Long>, LogEventRepoCustom {
 
-  List<LogEvent> findByAdminGroupIn(Collection<String> adminGroups);
+  List<LogEvent> findByAdminGroupsIn(Collection<String> adminGroups);
 
 }

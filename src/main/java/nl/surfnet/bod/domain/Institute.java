@@ -12,6 +12,9 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -84,9 +87,8 @@ public class Institute implements Loggable {
   }
 
   @Override
-  public String getAdminGroup() {
-    //Noc group should be read from environment, LogeventService will take care of this
-    return null;
+  public Collection<String> getAdminGroups() {
+    return Collections.<String>emptyList();
   }
 
   @Override

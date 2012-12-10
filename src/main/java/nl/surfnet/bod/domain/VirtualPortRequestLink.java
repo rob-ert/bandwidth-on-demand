@@ -12,6 +12,7 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import javax.persistence.*;
@@ -20,6 +21,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+
+import com.google.common.collect.ImmutableList;
 
 @Entity
 public class VirtualPortRequestLink implements Loggable {
@@ -178,8 +181,11 @@ public class VirtualPortRequestLink implements Loggable {
   }
 
   @Override
-  public String getAdminGroup() {
-    return virtualResourceGroup.getAdminGroup();
+  public Collection<String> getAdminGroups() {
+    return ImmutableList.of(
+      virtualResourceGroup.getAdminGroup(),
+      physicalResourceGroup.getAdminGroup()
+    );
   }
 
   @Override

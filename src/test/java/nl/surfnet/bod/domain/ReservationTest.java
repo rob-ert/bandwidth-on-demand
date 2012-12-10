@@ -12,10 +12,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -123,32 +120,30 @@ public class ReservationTest {
 
   @Test
   public void shouldSetNullEndDate() {
-    Reservation reservation = new ReservationFactory().create();
+    Reservation subject = new ReservationFactory().create();
 
-    reservation.setEndDate(null);
+    subject.setEndDate(null);
 
-    assertThat(reservation.getEndDate(), nullValue());
-    assertThat(reservation.getEndTime(), nullValue());
-    assertThat(reservation.getEndDateTime(), nullValue());
+    assertThat(subject.getEndDate(), nullValue());
+    assertThat(subject.getEndTime(), nullValue());
+    assertThat(subject.getEndDateTime(), nullValue());
 
-    assertThat(reservation.getStartDate(), notNullValue());
-    assertThat(reservation.getStartTime(), notNullValue());
-    assertThat(reservation.getStartDateTime(), notNullValue());
+    assertThat(subject.getStartDate(), notNullValue());
+    assertThat(subject.getStartTime(), notNullValue());
+    assertThat(subject.getStartDateTime(), notNullValue());
   }
 
   @Test
   public void shouldSetNullEndTime() {
-    Reservation reservation = new ReservationFactory().create();
+    Reservation subject = new ReservationFactory().setEndDateTime(null).create();
 
-    reservation.setEndTime(null);
+    assertThat(subject.getEndDate(), nullValue());
+    assertThat(subject.getEndTime(), nullValue());
+    assertThat(subject.getEndDateTime(), nullValue());
 
-    assertThat(reservation.getEndDate(), nullValue());
-    assertThat(reservation.getEndTime(), nullValue());
-    assertThat(reservation.getEndDateTime(), nullValue());
-
-    assertThat(reservation.getStartDate(), notNullValue());
-    assertThat(reservation.getStartTime(), notNullValue());
-    assertThat(reservation.getStartDateTime(), notNullValue());
+    assertThat(subject.getStartDate(), notNullValue());
+    assertThat(subject.getStartTime(), notNullValue());
+    assertThat(subject.getStartDateTime(), notNullValue());
   }
 
   @Test(expected = IllegalStateException.class)
@@ -167,6 +162,30 @@ public class ReservationTest {
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create();
 
     new ReservationFactory().setDestinationPort(port).create();
+  }
+
+  @Test
+  public void determineAdminGroupsWithDifferentPhysicalResourceGroups() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:vrg").create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg1").create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg2").create();
+
+    Reservation subject = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
+
+    assertThat(subject.getAdminGroups(), hasSize(3));
+    assertThat(subject.getAdminGroups(), hasItems("urn:prg1", "urn:prg2", "urn:vrg"));
+  }
+
+  @Test
+  public void determineAdminGroupsForTheSamePhysicalResourceGroup() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:vrg").create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg").create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg").create();
+
+    Reservation subject = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
+
+    assertThat(subject.getAdminGroups(), hasSize(2));
+    assertThat(subject.getAdminGroups(), hasItems("urn:prg", "urn:vrg"));
   }
 
 }

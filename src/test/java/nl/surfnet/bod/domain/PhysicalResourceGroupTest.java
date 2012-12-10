@@ -12,31 +12,40 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
-import org.junit.Test;
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+
+import org.junit.Test;
 
 public class PhysicalResourceGroupTest {
 
   @Test
   public void physicalResourceGroupgetNameShouldContainInstituteName() {
     Institute institute = new InstituteFactory().setName("InstituteOne").create();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
-    group.setInstitute(institute);
 
-    assertThat(group.getName(), is("InstituteOne"));
+    PhysicalResourceGroup subject = new PhysicalResourceGroupFactory().setInstitute(institute).create();
+
+    assertThat(subject.getName(), is("InstituteOne"));
   }
 
   @Test
   public void physicalResourceGroupShouldCountItsPorts() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().addPhysicalPort(
+    PhysicalResourceGroup subject = new PhysicalResourceGroupFactory().addPhysicalPort(
         new PhysicalPortFactory().create(), new PhysicalPortFactory().create()).create();
 
-    assertThat(group.getPhysicalPortCount(), is(2));
+    assertThat(subject.getPhysicalPortCount(), is(2));
+  }
+
+  @Test
+  public void shouldCalculateAdminGroups() {
+    PhysicalResourceGroup subject = new PhysicalResourceGroupFactory().setAdminGroup("urn:surfguest:ict-managers").create();
+
+    assertThat(subject.getAdminGroups(), hasSize(1));
+    assertThat(subject.getAdminGroups(), contains("urn:surfguest:ict-managers"));
   }
 }

@@ -18,15 +18,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import nl.surfnet.bod.util.BoDInitializer;
+import nl.surfnet.bod.util.FullTextSearchContext;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.lucene.queryParser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
-
-import nl.surfnet.bod.util.BoDInitializer;
-import nl.surfnet.bod.util.FullTextSearchContext;
 
 public class AbstractIndexAndSearch<T> {
 

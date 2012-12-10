@@ -12,12 +12,13 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.junit.Test;
-
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 public class VirtualResourceGroupTest {
 
@@ -26,6 +27,15 @@ public class VirtualResourceGroupTest {
     VirtualResourceGroup group = new VirtualResourceGroupFactory().setName("test group").create();
 
     assertThat(group.toString(), containsString("test group"));
+  }
+
+
+  @Test
+  public void getAdminGroupsShouldReturnAdminGroups(){
+    VirtualResourceGroup subject = new VirtualResourceGroupFactory().setAdminGroup("urn:manager").create();
+
+    assertThat(subject.getAdminGroups(), hasSize(1));
+    assertThat(subject.getAdminGroups(), contains("urn:manager"));
   }
 
 }

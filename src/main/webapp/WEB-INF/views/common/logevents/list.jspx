@@ -20,8 +20,8 @@
         <table:rowDetailsHeader />
         <table:sortableHeader labelCode="label_logevent_created"
           property="created" />
-        <table:sortableHeader labelCode="label_logevent_groupid"
-          property="adminGroup" />
+        <!-- <table:sortableHeader labelCode="label_logevent_groupid"
+          property="adminGroups" />-->
         <table:sortableHeader labelCode="label_logevent_eventtype"
           property="eventType" />
         <table:sortableHeader labelCode="label_logevent_object"
@@ -63,16 +63,16 @@
               <dd>
                 <c:out value="${item.userId}" />
               </dd>
-              <dt>Group</dt>
+              <!--  <dt>Group</dt>
               <dd>
-                <c:out value="${item.adminGroup}" />
-              </dd>
+                <c:out value="${item.adminGroups}" />
+              </dd>-->
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="createdAsText"
             styleClass="cw80" />
-          <table:column item="${item}" property="shortAdminGroup"
-            styleClass="cw80" />
+          <!--  <table:column item="${item}" property="shortAdminGroup"
+            styleClass="cw80" />-->
           <table:column item="${item}" property="eventTypeWithCorrelationId"
             styleClass="cw80" />
           <table:column item="${item}" property="domainObjectClass" />

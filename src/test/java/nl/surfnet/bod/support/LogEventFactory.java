@@ -13,6 +13,8 @@
 package nl.surfnet.bod.support;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -30,7 +32,7 @@ public class LogEventFactory {
   private Integer version = 0;
 
   private String userId = "test";
-  private String adminGroup = "urn:admin";
+  private Collection<String> adminGroups = new ArrayList<>();
   private final String details = "details go here";
   private DateTime created = DateTime.now();
   private LogEventType eventType = LogEventType.UPDATE;
@@ -40,7 +42,10 @@ public class LogEventFactory {
   private ReservationStatus newReservationStatus = ReservationStatus.RESERVED;
 
   public LogEvent create() {
-    LogEvent logEvent = new LogEvent(userId, adminGroup, eventType, Optional.<Loggable> fromNullable(domainObject),
+    if (domainObject != null) {
+      this.adminGroups = domainObject.getAdminGroups();
+    }
+    LogEvent logEvent = new LogEvent(userId, adminGroups, eventType, Optional.<Loggable> fromNullable(domainObject),
         details, Optional.<ReservationStatus> fromNullable(oldReservationStatus), Optional
             .<ReservationStatus> fromNullable(newReservationStatus));
 
@@ -61,12 +66,8 @@ public class LogEventFactory {
     return this;
   }
 
-  public String getAdminGroup() {
-    return adminGroup;
-  }
-
-  public LogEventFactory setAdminGroup(String adminGroup) {
-    this.adminGroup = adminGroup;
+  public LogEventFactory setAdminGroups(Collection<String> adminGroups) {
+    this.adminGroups = adminGroups;
     return this;
   }
 

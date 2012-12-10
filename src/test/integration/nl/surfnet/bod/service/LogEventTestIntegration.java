@@ -12,6 +12,13 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -34,19 +41,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -78,8 +72,10 @@ public class LogEventTestIntegration {
     Reservation reservationInfinite = new ReservationFactory().setId(THREE).setEndDateTime(null).setStatus(REQUESTED)
         .create();
 
-    adminGroups = Lists.newArrayList(reservationOne.getAdminGroup(), reservationTwo.getAdminGroup(),
-        reservationInfinite.getAdminGroup());
+    adminGroups = new ArrayList<>();
+    adminGroups.addAll(reservationOne.getAdminGroups());
+    adminGroups.addAll(reservationTwo.getAdminGroups());
+    adminGroups.addAll(reservationInfinite.getAdminGroups());
 
     LogEvent logEventCreateOne = createCreateLogEvent(reservationOne, now.minusHours(4));
 
@@ -256,13 +252,13 @@ public class LogEventTestIntegration {
   private LogEvent createUpdateLogEvent(Reservation reservation, ReservationStatus oldStatus,
       ReservationStatus newStatus, DateTime timeStamp) {
     return new LogEventFactory().setEventType(LogEventType.UPDATE).setOldReservationStatus(oldStatus)
-        .setNewReservationStatus(newStatus).setDomainObject(reservation).setCreated(timeStamp).setAdminGroup(
-            reservation.getAdminGroup()).create();
+        .setNewReservationStatus(newStatus).setDomainObject(reservation).setCreated(timeStamp).setAdminGroups(
+            reservation.getAdminGroups()).create();
   }
 
   private LogEvent createCreateLogEvent(Reservation reservation, DateTime timeStamp) {
     LogEvent logEventCreateOne = new LogEventFactory().setEventType(LogEventType.CREATE).setDomainObject(reservation)
-        .setCreated(timeStamp).setAdminGroup(reservation.getAdminGroup()).create();
+        .setCreated(timeStamp).setAdminGroups(reservation.getAdminGroups()).create();
     return logEventCreateOne;
   }
 }

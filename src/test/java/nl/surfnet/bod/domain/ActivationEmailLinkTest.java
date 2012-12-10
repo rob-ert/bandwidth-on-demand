@@ -13,12 +13,10 @@
 package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import junit.framework.Assert;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -126,6 +124,15 @@ public class ActivationEmailLinkTest {
     link.setEmailSentDateTime(DateTime.now());
 
     assertThat(link.isValid(), is(true));
+  }
+
+  @Test
+  public void getAdminGroups() {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:ict-managers").create();
+    ActivationEmailLink subject = new ActivationEmailLinkFactory().setPhysicalResourceGroup(prg).create();
+
+    assertThat(subject.getAdminGroups(), hasSize(1));
+    assertThat(subject.getAdminGroups(), contains("urn:ict-managers"));
   }
 
 }

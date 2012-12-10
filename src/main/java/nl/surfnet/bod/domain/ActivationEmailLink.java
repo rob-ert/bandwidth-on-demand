@@ -12,17 +12,10 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -161,10 +154,10 @@ public class ActivationEmailLink implements Loggable {
   }
 
   @Override
-  public String getAdminGroup() {
-    return sourceObject != null ? ((Loggable) sourceObject).getAdminGroup() : null;
+  public Collection<String> getAdminGroups() {
+    return sourceObject.getAdminGroups();
   }
-  
+
   @Override
   public String getLabel() {
    return "To: " + getToEmail();

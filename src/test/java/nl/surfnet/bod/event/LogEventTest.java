@@ -13,14 +13,16 @@
 package nl.surfnet.bod.event;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class LogEventTest {
   private static final String USER_ID = "user";
@@ -33,11 +35,10 @@ public class LogEventTest {
       DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
 
       VirtualPort virtualPort = new VirtualPortFactory().create();
-      LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, virtualPort);
+      LogEvent logEvent = new LogEvent(USER_ID, Lists.newArrayList(GROUP_ID), LogEventType.CREATE, virtualPort);
 
       assertThat(logEvent.getUserId(), is(USER_ID));
-      assertThat(logEvent.getAdminGroup(), is(GROUP_ID));
-      assertThat(logEvent.getShortAdminGroup(), is("group"));
+      assertThat(logEvent.getAdminGroups(), hasItem(GROUP_ID));
       assertThat(logEvent.getCreated(), is(now));
       assertThat(logEvent.getDomainObjectClass(), is(virtualPort.getClass().getSimpleName()));
       assertThat(logEvent.getDescription(), is(virtualPort.getLabel()));
@@ -47,15 +48,6 @@ public class LogEventTest {
     finally {
       DateTimeUtils.setCurrentMillisSystem();
     }
-  }
-
-  @Test
-  public void shouldLogNullDomainObject() {
-    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, null);
-
-    assertThat(logEvent.getDescription(), nullValue());
-    assertThat(logEvent.getDomainObjectClass(), nullValue());
-    assertThat(logEvent.getDomainObjectId(), nullValue());
   }
 
 }
