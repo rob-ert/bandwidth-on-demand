@@ -20,18 +20,19 @@ import org.junit.Test;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 
+  private static final String CREATE_ACTION = "Create";
+
   protected static final String ICT_USER_GROUP_2 = //
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
 
   private static final String GROUP_NAME_ONE = "SIDN";
   private static final String GROUP_NAME_TWO = "SURFnet bv";
-  private static final String GROUP_NAME_FOUR = "ROC Rijn Ijssel";
+  private static final String GROUP_NAME_THREE = "ROC Rijn Ijssel";
   private static final String PORT_LABEL_1 = "NOC Port 1";
   private static final String PORT_LABEL_2 = "NOC Port 2";
-  private static final String PORT_LABEL_4 = "NOC Port 4";
+  private static final String PORT_LABEL_3 = "NOC Port 3";
   private static final String VP_LABEL_1 = "VP Port 1";
   private static final String VP_LABEL_2 = "VP Port 2";
-  private static final String VP_LABEL_4 = "VP Port 4";
 
   @Before
   public void prepareUser() {
@@ -41,12 +42,12 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_TWO, ICT_MANAGERS_GROUP_2, "test2@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_FOUR, ICT_USER_GROUP_2, "test4@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_THREE, ICT_USER_GROUP_2, "test3@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_NAME_ONE);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_NAME_TWO);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, PORT_LABEL_4, GROUP_NAME_FOUR);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_NAME_THREE);
   }
 
   @After
@@ -60,178 +61,102 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToNoc();
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
   }
 
   @Test
-  public void shouldShowLogEventForOwnPhysicalPortAlignment() {
-    // Allocation of port should visible in log for noc...
-    getNocDriver().verifyLogEventExists(PORT_LABEL_1);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_4);
-
-    getManagerDriver().switchToManager(GROUP_NAME_ONE);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-
-    getManagerDriver().switchToManager(GROUP_NAME_TWO);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-
-    createVPOne();
-    createVPTwo();
-
-    // ... and for manager One ...
-    getManagerDriver().switchToManager(GROUP_NAME_ONE);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-
-    // ... and for manager One ...
-    getManagerDriver().switchToManager(GROUP_NAME_TWO);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-
-    // ... and for user manager 2 ...
-    getManagerDriver().switchToManager(GROUP_NAME_FOUR);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_4);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-
-    // ... and does exist for user
-    getManagerDriver().switchToUser();
-    getUserDriver().verifyLogEventExists(VP_LABEL_1);
-    getUserDriver().verifyLogEventExists(VP_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_4);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-  }
-
-  @Test
-  public void shouldShowVirtualPortAndReservationLogEvents() {
+  public void shouldOnlyShowLogEventsForSelectedRole() {
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_1);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_4);
 
-    // Not visible for managers
-    getNocDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_NAME_FOUR);
+    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_4);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
 
-    // Neither for users
     getManagerDriver().switchToUser();
     getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    // Create reservation, which links the VP in a VRG and therefore from now on
-    // Both managers should see the related events
-    createVPOne();
+    createVPOneForGroupOne();
+    createVPTwoForGroupTwo();
 
+    // NOC sees all
     getUserDriver().switchToNoc();
-    getNocDriver().verifyLogEventExists(VP_LABEL_1);
-    getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_1);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_4);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
+    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
 
+    // Manager 1 only sees his pp and vp
     getManagerDriver().switchToManager(GROUP_NAME_ONE);
-    getManagerDriver().verifyLogEventExists(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
+    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    // Not in same VRG yet...
+    // Manager 2 only sees his pp and vp
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_NAME_FOUR);
+    // Manager 3 only sees his pp
+    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_4);
 
+    // User sees only the vp
     getManagerDriver().switchToUser();
-    getUserDriver().verifyLogEventExists(VP_LABEL_1);
-    getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
+    getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
+    getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    // Put manager two in same vrg, now VP events should be visible for each
-    // other, PP not
-    createVPTwo();
+    getUserDriver().createNewReservation("Testing log events");
+    getUserDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getUserDriver().switchToNoc();
-    getNocDriver().verifyLogEventExists(VP_LABEL_1);
-    getNocDriver().verifyLogEventExists(VP_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_1);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_2);
-    getNocDriver().verifyLogEventExists(PORT_LABEL_4);
-
-    getManagerDriver().switchToManager(GROUP_NAME_ONE);
-    getManagerDriver().verifyLogEventExists(VP_LABEL_1);
-    getManagerDriver().verifyLogEventExists(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getUserDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
-    getManagerDriver().verifyLogEventExists(VP_LABEL_1);
-    getManagerDriver().verifyLogEventExists(VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+    getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    // Manager four is not in VRG
-    getManagerDriver().switchToManager(GROUP_NAME_FOUR);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_4);
-
-    getManagerDriver().switchToUser();
-    getUserDriver().verifyLogEventExists(VP_LABEL_1);
-    getUserDriver().verifyLogEventExists(VP_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
-
+    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().verifyLogEventDoesNotExist("Testing log events");
   }
 
-  private void createVPOne() {
+  private void createVPOneForGroupOne() {
     // Now create Virtual Ports, and thereby group PhysicalPorts in same group
     getUserDriver().requestVirtualPort("selenium-users");
     getUserDriver().selectInstituteAndRequest(GROUP_NAME_ONE, 1200, "port 1");
@@ -239,7 +164,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getManagerDriver().createVirtualPort(VP_LABEL_1);
   }
 
-  private void createVPTwo() {
+  private void createVPTwoForGroupTwo() {
     getUserDriver().requestVirtualPort("selenium-users");
     getUserDriver().selectInstituteAndRequest(GROUP_NAME_TWO, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();

@@ -12,6 +12,10 @@
  */
 package nl.surfnet.bod.pages;
 
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,10 +33,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Uninterruptibles;
-
-import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class AbstractListPage extends AbstractPage {
 
@@ -160,7 +160,7 @@ public class AbstractListPage extends AbstractPage {
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
-   * 
+   *
    * @param table
    *          Table to set.
    */
@@ -169,20 +169,16 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void verifyRowsWithLabelExists(String... labels) {
-    for (String label : labels) {
-      findRow(label);
-    }
+    findRow(labels);
   }
 
   public void verifyRowsWithLabelDoesNotExist(String... labels) {
-    for (String label : labels) {
-      try {
-        findRow(label);
-        fail(String.format("Row related to [%s] exists, but should not be visible", label));
-      }
-      catch (NoSuchElementException e) {
-        // as expected
-      }
+    try {
+      findRow(labels);
+      fail(String.format("Row related to [%s] exists, but should not be visible", Joiner.on(',').join(labels)));
+    }
+    catch (NoSuchElementException e) {
+      // as expected
     }
   }
 
