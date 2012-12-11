@@ -156,7 +156,7 @@ public class BodUserWebDriver {
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
-    page.verifyRowsWithLabelDoesNotExist(fields);
+    page.verifyRowWithLabelDoesNotExist(fields);
   }
 
   public void switchToNoc() {
@@ -193,7 +193,7 @@ public class BodUserWebDriver {
 
     assertThat(page.getInfoMessages(), Matchers.<String> hasItem(containsString(label)));
 
-    page.verifyRowsWithLabelExists(label);
+    page.verifyRowWithLabelExists(label);
   }
 
   public void verifyNotMemberOf(String teamName) {
@@ -217,7 +217,9 @@ public class BodUserWebDriver {
     int expectedAmount = reservationLabels == null ? 0 : reservationLabels.length;
     assertThat(page.getNumberOfRows(), is(expectedAmount));
 
-    page.verifyRowsWithLabelExists(reservationLabels);
+    for (String label : reservationLabels) {
+      page.verifyRowWithLabelExists(label);
+    }
   }
 
   public void verifyDashboardToComingReservationsLink(String team) {

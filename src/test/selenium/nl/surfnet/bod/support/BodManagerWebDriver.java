@@ -176,7 +176,7 @@ public class BodManagerWebDriver {
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
-    page.verifyRowsWithLabelDoesNotExist(fields);
+    page.verifyRowWithLabelDoesNotExist(fields);
   }
 
   public void createVirtualPort(String name) {

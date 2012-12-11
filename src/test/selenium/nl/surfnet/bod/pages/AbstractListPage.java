@@ -169,11 +169,11 @@ public class AbstractListPage extends AbstractPage {
     this.table = table;
   }
 
-  public void verifyRowsWithLabelExists(String... labels) {
+  public void verifyRowWithLabelExists(String... labels) {
     findRow(labels);
   }
 
-  public void verifyRowsWithLabelDoesNotExist(String... labels) {
+  public void verifyRowWithLabelDoesNotExist(String... labels) {
     try {
       findRow(labels);
       fail(String.format("Row related to [%s] exists, but should not be visible", Joiner.on(',').join(labels)));
@@ -196,7 +196,9 @@ public class AbstractListPage extends AbstractPage {
     int expectedAmount = labels == null ? 0 : labels.length;
     assertThat(getNumberOfRows(), is(expectedAmount));
 
-    verifyRowsWithLabelExists(labels);
+    for(String label : labels) {
+      verifyRowWithLabelExists(label);
+    }
   }
 
   public void verifyAmountOfRowsWithLabel(int expectedAmount, String... labels) {

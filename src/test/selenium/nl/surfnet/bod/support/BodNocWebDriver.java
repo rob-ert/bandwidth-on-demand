@@ -12,21 +12,11 @@
  */
 package nl.surfnet.bod.support;
 
-import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.DashboardPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
-import nl.surfnet.bod.pages.noc.ListLogEventsPage;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListReservationPage;
-import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
-import nl.surfnet.bod.pages.noc.ListVirtualPortPage;
-import nl.surfnet.bod.pages.noc.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
-import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
-import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ReportPage;
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.noc.*;
 import nl.surfnet.bod.web.InstituteController;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -34,11 +24,6 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class BodNocWebDriver {
 
@@ -184,12 +169,7 @@ public class BodNocWebDriver {
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.filterReservations(filterValue);
-    page.search(searchString);
-
-    int expectedAmount = reservationLabels == null ? 0 : reservationLabels.length;
-    assertThat(page.getNumberOfRows(), is(expectedAmount));
-
-    page.verifyRowsWithLabelExists(reservationLabels);
+    verifyBySearch(page, searchString, reservationLabels);
   }
 
   public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
@@ -269,7 +249,7 @@ public class BodNocWebDriver {
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
-    page.verifyRowsWithLabelDoesNotExist(fields);
+    page.verifyRowWithLabelDoesNotExist(fields);
   }
 
   public void refreshInstitutes() {
@@ -283,24 +263,23 @@ public class BodNocWebDriver {
 
   public void verifyUnallocatedPortsBySearch(String searchString, String... portLabels) {
     ListUnallocatedPortsPage page = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
-
-    page.search(searchString);
-
-    int expectedAmount = portLabels == null ? 0 : portLabels.length;
-    assertThat(page.getNumberOfRows(), is(expectedAmount));
-
-    page.verifyRowsWithLabelExists(portLabels);
+    verifyBySearch(page, searchString, portLabels);
   }
 
   public void verifyAllocatedPortsBySearch(String searchString, String... portLabels) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    verifyBySearch(page, searchString, portLabels);
+  }
 
+  private void verifyBySearch(AbstractListPage page, String searchString, String... labels) {
     page.search(searchString);
 
-    int expectedAmount = portLabels == null ? 0 : portLabels.length;
+    int expectedAmount = labels == null ? 0 : labels.length;
     assertThat(page.getNumberOfRows(), is(expectedAmount));
 
-    page.verifyRowsWithLabelExists(portLabels);
+    for (String label : labels) {
+      page.verifyRowWithLabelExists(label);
+    }
   }
 
   public void verifyPhysicalResourceGroupToPhysicalPortsLink(String groupName) {

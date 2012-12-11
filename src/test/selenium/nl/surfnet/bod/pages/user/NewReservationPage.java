@@ -94,25 +94,11 @@ public class NewReservationPage extends AbstractFormPage {
   private void sendDate(WebElement input, LocalDate date) {
     String dateString = DATE_FORMATTER.print(date);
 
-    System.out.println("Entering a date in " + input.getAttribute("name") + " date: " + dateString);
-
     input.click();
-
     input.sendKeys(ObjectArrays.concat(Keys.END, FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15)
         .toArray(Keys.class)));
-
-    System.out.println(String.format("Text before send keys 1 of %s: %s", input.getAttribute("name"),
-        input.getAttribute("value")));
-
     input.clear();
-
-    System.out.println(String.format("Text before send keys  2 of %s: %s", input.getAttribute("name"),
-        input.getAttribute("value")));
-
     input.sendKeys(Keys.chord(Keys.CONTROL, "a"), dateString);
-
-    System.out.println(String.format("Text after send keys of %s: %s", input.getAttribute("name"),
-        input.getAttribute("value")));
   }
 
   public void sendEndTime(LocalTime endTime) {
