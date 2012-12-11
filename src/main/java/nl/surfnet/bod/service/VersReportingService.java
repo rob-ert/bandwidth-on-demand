@@ -85,9 +85,7 @@ public class VersReportingService {
     sendReportToAll("Active Reservations Running", "=",
         Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart());
     final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
-
     for (final Institute institute : institutes) {
-      System.out.println(institute.getShortName());
       final ReservationReportView adminReport = reportingService.determineReport(new ReportIntervalView(
           versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())), institute
           .getAdminGroups());
@@ -106,24 +104,25 @@ public class VersReportingService {
         new ArrayList<String>());
     sendReportToAll("Active Reservations Scheduled", "=",
         Long.toString(nocReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart());
+    final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
+    for (final Institute institute : institutes) {
+      final ReservationReportView adminReport = reportingService.determineReport(new ReportIntervalView(
+          versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())), institute
+          .getAdminGroups());
+      sendReportToOrganization("Active Reservations Scheduled", "=",
+          Long.toString(adminReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart(),
+          institute.getShortName());
+    }
+
   }
 
   @VisibleForTesting
   VersResponse sendReportToAll(final String type, final String delimiter, final String value, DateTime start)
       throws IOException {
-    final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType(type);
-    insertReportInput.setNormComp(delimiter);
-    insertReportInput.setNormValue(value);
-    insertReportInput.setDepartmentList("NWD");
-    insertReportInput.setIsKPI(true);
-    insertReportInput.setIsHidden(false);
-    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
-    insertReportInput.setOrganisation(ORGANIZATION);
-    versRequest.setErInsertReport(getErInsertReport(insertReportInput));
+    final ErInsertReportDocument versRequest = getVersRequest(type, delimiter, value, start, ORGANIZATION);
     final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
+
   }
 
   private VersResponse sendReportToOrganization(final String type, final String delimiter, final String value,
