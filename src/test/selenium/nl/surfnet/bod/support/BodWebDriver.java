@@ -12,6 +12,10 @@
  */
 package nl.surfnet.bod.support;
 
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -39,10 +43,6 @@ import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
-
-import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 public class BodWebDriver {
 
@@ -73,7 +73,8 @@ public class BodWebDriver {
 
     if (driver == null) {
       this.driver = new FirefoxDriver();
-      this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+      this.driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
+
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
