@@ -31,6 +31,7 @@ import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
