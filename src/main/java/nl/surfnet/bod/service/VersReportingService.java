@@ -14,10 +14,13 @@ package nl.surfnet.bod.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
@@ -56,6 +59,9 @@ public class VersReportingService {
   @Resource
   private ReportingService reportingService;
 
+  @Resource
+  private InstituteIddService instituteIddService;
+
   private SURFnetErStub surfNetErStub;
 
   @SuppressWarnings("unused")
@@ -64,7 +70,7 @@ public class VersReportingService {
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("MM-yyyy");
-  private final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMM");
+  private final DateTimeFormatter bodLabelFormatter = DateTimeFormat.forPattern("yyyy MMM");
 
   @PostConstruct
   void init() throws IOException {
@@ -72,19 +78,27 @@ public class VersReportingService {
   }
 
   // @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendActiveReservationsRunningReportToAll() throws IOException {
+  public void sendActiveReservationsRunningReport() throws IOException {
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReport = reportingService.determineReport(
-        new ReportIntervalView(versReportPeriod.getInterval(), labelFormatter.print(versReportPeriod.getStart())),
+        new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
         new ArrayList<String>());
     sendReportToAll("Active Reservations Running", "=",
         Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart());
+    final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
+    for (final Institute institute : institutes) {
+      sendReportToOrganization("Active Reservations Running", "=",
+          Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart(),
+          new ArrayList<String>(institute.getAdminGroups()));
+    }
+
   }
 
-  public void sendActiveReservationsScheduledReportToAll() throws IOException {
+  // @Scheduled(cron = firstDayOfTheMonthCronExpression)
+  public void sendActiveReservationsScheduledReport() throws IOException {
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReport = reportingService.determineReport(
-        new ReportIntervalView(versReportPeriod.getInterval(), labelFormatter.print(versReportPeriod.getStart())),
+        new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
         new ArrayList<String>());
     sendReportToAll("Active Reservations Scheduled", "=",
         Long.toString(nocReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart());
@@ -108,13 +122,10 @@ public class VersReportingService {
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
 
-  private VersResponse sendReportToOrganization(final InsertReportInput insertReportInput, final String iddShortName,
-      DateTime start) throws IOException {
+  private VersResponse sendReportToOrganization(final String type, final String delimiter, final String value,
+      DateTime start, final List<String> adminGroups) throws IOException {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
-    versRequest.setErInsertReport(getErInsertReport(insertReportInput));
-    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
-    return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
+    return null;
   }
 
   private ErInsertReport getErInsertReport(final InsertReportInput reportData) {

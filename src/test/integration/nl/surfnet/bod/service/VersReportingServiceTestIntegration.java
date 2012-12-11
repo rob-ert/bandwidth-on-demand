@@ -67,7 +67,7 @@ public class VersReportingServiceTestIntegration {
   public void should_fail_authentication() throws IOException {
     // authentication fails currently
 
-    versReportingService.sendActiveReservationsRunningReportToAll();
+    versReportingService.sendActiveReservationsRunningReport();
 
     final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10",
         DateTime.now());
