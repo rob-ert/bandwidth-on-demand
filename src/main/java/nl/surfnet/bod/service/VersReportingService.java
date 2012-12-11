@@ -13,30 +13,36 @@
 package nl.surfnet.bod.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.vers.SURFnetErStub;
-import nl.surfnet.bod.web.view.NocStatisticsView;
+import nl.surfnet.bod.web.view.ReportIntervalView;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import com.google.common.annotations.VisibleForTesting;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
 import surfnet_er.InsertReportInput;
 
+import com.google.common.annotations.VisibleForTesting;
+
 @Service
 public class VersReportingService {
+
+  private static final String ORGANIZATION = "BoD";
 
   @Value("${vers.url}")
   private String serviceURL;
@@ -48,10 +54,7 @@ public class VersReportingService {
   private String versUserPassword;
 
   @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private ReservationService reservationService;
+  private ReportingService reportingService;
 
   private SURFnetErStub surfNetErStub;
 
@@ -65,15 +68,19 @@ public class VersReportingService {
     surfNetErStub = new SURFnetErStub(serviceURL);
   }
 
-//  @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendActiveReservationsReportToAll() throws IOException {
-    sendReportToAll("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
-  }
+  // @Scheduled(cron = firstDayOfTheMonthCronExpression)
+  public void sendActiveReservationsRunningReportToAll() throws IOException {
 
-//  @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendUnalignedPhysicalPortsReportToAll() throws IOException {
-    sendReportToAll("Unaligned physical ports", "=",
-        Long.toString(getNocStatistics().getUnalignedPhysicalPortsAmount()));
+    final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
+    final DateTime end = LocalDateTime.now().toDateTime();
+    final Interval interval = new Interval(start, end);
+    final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMM");
+
+    final ReservationReportView nocReport = reportingService.determineReport(new ReportIntervalView(interval,
+        labelFormatter.print(end)), new ArrayList<String>());
+
+    sendReportToAll("Active Reservations Running", "=",
+        Long.toString(nocReport.getAmountRunningReservationsStillRunning()));
   }
 
   @VisibleForTesting
@@ -87,6 +94,7 @@ public class VersReportingService {
     insertReportInput.setIsKPI(true);
     insertReportInput.setIsHidden(false);
     insertReportInput.setPeriod(getReportPeriod());
+    insertReportInput.setOrganisation(ORGANIZATION);
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
@@ -120,29 +128,6 @@ public class VersReportingService {
     }
     period.append(monthOfYear);
     return period.toString();
-  }
-
-  // TODO: Code duplication, copied from DashboardController
-  private NocStatisticsView getNocStatistics() {
-    final ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
-
-    final long countPhysicalPorts = physicalPortService.countAllocated();
-
-    final long countElapsedReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ELAPSED));
-
-    final long countActiveReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ACTIVE));
-
-    final long countComingReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.COMING));
-
-    final long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
-
-    final NocStatisticsView nocStatisticsView = new NocStatisticsView(countPhysicalPorts, countElapsedReservations,
-        countActiveReservations, countComingReservations, countMissingPhysicalPorts);
-
-    return nocStatisticsView;
   }
 
   public static class VersResponse {

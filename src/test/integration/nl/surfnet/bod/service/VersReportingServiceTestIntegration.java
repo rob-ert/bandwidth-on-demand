@@ -65,7 +65,7 @@ public class VersReportingServiceTestIntegration {
   @Test
   public void should_fail_authentication() throws IOException {
     // authentication fails currently
-    final VersResponse versResponse = versReportingService.sendReportToAll("Active reservations", "=", "10");
+    final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10");
     assertThat(versResponse.getErrorCode(), is(-1));
     assertThat(versResponse.getErrorMessage(), containsString("Authentication failed"));
   }
