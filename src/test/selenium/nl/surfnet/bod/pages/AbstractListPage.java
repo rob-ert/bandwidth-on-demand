@@ -116,6 +116,7 @@ public class AbstractListPage extends AbstractPage {
         return row;
       }
     }
+
     throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'", Joiner.on(',').join(
         fields), Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
       @Override

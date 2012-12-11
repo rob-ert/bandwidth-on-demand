@@ -69,33 +69,23 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
-    getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
 
     getManagerDriver().switchToManager(GROUP_NAME_ONE);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     getManagerDriver().switchToManager(GROUP_NAME_THREE);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
 
     getManagerDriver().switchToUser();
-    getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
@@ -107,41 +97,26 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().switchToNoc();
     getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
-    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
-    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
-    getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
 
     // Manager 1 only sees his pp and vp
     getManagerDriver().switchToManager(GROUP_NAME_ONE);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
-    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     // Manager 2 only sees his pp and vp
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
-    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     // Manager 3 only sees his pp
     getManagerDriver().switchToManager(GROUP_NAME_THREE);
-    getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
 
     // User sees only the vp
     getManagerDriver().switchToUser();
     getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
-    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
     getUserDriver().createNewReservation("Testing log events");
     getUserDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
