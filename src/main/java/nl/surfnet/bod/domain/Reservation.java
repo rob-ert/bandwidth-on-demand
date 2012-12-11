@@ -522,12 +522,12 @@ public class Reservation implements Loggable, PersistableDomain {
     }
     else if (!connection.equals(other.connection))
       return false;
-//    if (creationDateTime == null) {
-//      if (other.creationDateTime != null)
-//        return false;
-//    }
-//    else if (!creationDateTime.equals(other.creationDateTime))
-//      return false;
+    if (creationDateTime == null) {
+      if (other.creationDateTime != null)
+        return false;
+    }
+    else if (!creationDateTime.equals(other.creationDateTime))
+      return false;
     if (destinationPort == null) {
       if (other.destinationPort != null)
         return false;
