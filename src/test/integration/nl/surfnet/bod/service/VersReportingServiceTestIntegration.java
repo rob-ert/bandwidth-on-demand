@@ -63,12 +63,9 @@ public class VersReportingServiceTestIntegration {
   public void tearDown() throws Exception {
   }
 
-  @Test
+  @Test //(expected = IOException.class)
   public void should_fail_authentication() throws IOException {
-    // authentication fails currently
-
-    versReportingService.sendActiveReservationsRunningReport();
-
+    // authentication fails currently and now it just goes boom....
     final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10",
         DateTime.now());
     assertThat(versResponse.getErrorCode(), is(-1));

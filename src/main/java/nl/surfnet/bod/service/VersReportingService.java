@@ -15,7 +15,6 @@ package nl.surfnet.bod.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -48,7 +47,7 @@ public class VersReportingService {
   private static final String ORGANIZATION = "BoD";
 
   @Value("${vers.url}")
-  private String serviceURL;
+  private String serviceURL;// = "http://localhost:1234";
 
   @Value("${vers.user}")
   private String versUserName;
@@ -86,10 +85,15 @@ public class VersReportingService {
     sendReportToAll("Active Reservations Running", "=",
         Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart());
     final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
+
     for (final Institute institute : institutes) {
+      System.out.println(institute.getShortName());
+      final ReservationReportView adminReport = reportingService.determineReport(new ReportIntervalView(
+          versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())), institute
+          .getAdminGroups());
       sendReportToOrganization("Active Reservations Running", "=",
-          Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart(),
-          new ArrayList<String>(institute.getAdminGroups()));
+          Long.toString(adminReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart(),
+          institute.getShortName());
     }
 
   }
@@ -123,9 +127,26 @@ public class VersReportingService {
   }
 
   private VersResponse sendReportToOrganization(final String type, final String delimiter, final String value,
-      DateTime start, final List<String> adminGroups) throws IOException {
+      DateTime start, final String instituteShortName) throws IOException {
+    final ErInsertReportDocument versRequest = getVersRequest(type, delimiter, value, start, instituteShortName);
+    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
+    return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
+  }
+
+  private ErInsertReportDocument getVersRequest(final String type, final String delimiter, final String value,
+      DateTime start, final String instituteShortName) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    return null;
+    final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
+    insertReportInput.setType(type);
+    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setNormValue(value);
+    insertReportInput.setDepartmentList("NWD");
+    insertReportInput.setIsKPI(true);
+    insertReportInput.setIsHidden(false);
+    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
+    insertReportInput.setOrganisation(instituteShortName);
+    versRequest.setErInsertReport(getErInsertReport(insertReportInput));
+    return versRequest;
   }
 
   private ErInsertReport getErInsertReport(final InsertReportInput reportData) {
