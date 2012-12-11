@@ -86,4 +86,10 @@ public class VirtualResourceGroupFactory {
     return this;
   }
 
+  public VirtualResourceGroupFactory withNoId() {
+    this.version = null;
+    this.id = null;
+    return this;
+  }
+
 }

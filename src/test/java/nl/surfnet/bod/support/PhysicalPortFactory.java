@@ -83,4 +83,10 @@ public class PhysicalPortFactory {
   public void setBodPortId(String portId) {
     this.bodPortId = portId;
   }
+
+  public PhysicalPortFactory withNoId() {
+    this.id = null;
+    this.version = null;
+    return this;
+  }
 }

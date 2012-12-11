@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import nl.surfnet.bod.domain.Institute;
 
 /**
@@ -21,7 +23,9 @@ import nl.surfnet.bod.domain.Institute;
  */
 public class InstituteFactory {
 
-  private Long id = null;
+  private static final AtomicLong COUNTER = new AtomicLong();
+
+  private Long id = COUNTER.incrementAndGet();
   private String name = "Customer One";
   private String shortName = "One";
   private boolean alignedWithIDD = false;
@@ -49,6 +53,11 @@ public class InstituteFactory {
 
   public InstituteFactory setAlignedWithIDD(boolean alignedWithIDD) {
     this.alignedWithIDD = alignedWithIDD;
+    return this;
+  }
+
+  public InstituteFactory withNoId() {
+    this.id = null;
     return this;
   }
 }

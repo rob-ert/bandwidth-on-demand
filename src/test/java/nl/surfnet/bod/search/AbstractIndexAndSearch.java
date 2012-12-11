@@ -76,4 +76,12 @@ public class AbstractIndexAndSearch<T> {
     entityManagerFactory.close();
   }
 
+  protected void persist(Object... entities) {
+    entityManager.getTransaction().begin();
+    for (Object entity : entities) {
+      entityManager.persist(entity);
+    }
+    entityManager.getTransaction().commit();
+  }
+
 }

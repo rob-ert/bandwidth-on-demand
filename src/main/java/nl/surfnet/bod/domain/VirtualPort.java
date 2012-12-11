@@ -19,7 +19,10 @@ import java.util.Collection;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
@@ -33,6 +36,7 @@ import com.google.common.collect.ImmutableList;
  */
 @Entity
 @Indexed
+@Analyzer(definition = "customanalyzer")
 public class VirtualPort implements Loggable, PersistableDomain {
 
   @Id
@@ -42,14 +46,12 @@ public class VirtualPort implements Loggable, PersistableDomain {
   @Version
   private Integer version;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   @Column(nullable = false)
   private String managerLabel;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Column
   private String userLabel;
 
@@ -63,14 +65,12 @@ public class VirtualPort implements Loggable, PersistableDomain {
   @ManyToOne(optional = false)
   private PhysicalPort physicalPort;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotNull
   @Column(nullable = false)
   private Integer maxBandwidth;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Range(min = 1, max = 4095)
   private Integer vlanId;
 

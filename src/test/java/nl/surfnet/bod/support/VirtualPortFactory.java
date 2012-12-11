@@ -14,11 +14,11 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.util.StringUtils;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+
+import org.springframework.util.StringUtils;
 
 /**
  * Factory for creation of {@link VirtualPort}
@@ -95,6 +95,12 @@ public class VirtualPortFactory {
 
   public VirtualPortFactory setPhysicalPortAdminGroup(String group) {
     this.physicalPortAdminGroup = group;
+    return this;
+  }
+
+  public VirtualPortFactory withNodId() {
+    this.id = null;
+    this.version = null;
     return this;
   }
 

@@ -20,7 +20,6 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.collect.ImmutableList;
@@ -42,16 +41,16 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
   @Version
   private Integer version;
 
-  @Field(store = Store.YES)
+  @Field
   @NotEmpty
   @Column(nullable = false)
   private String name;
 
-  @Field(store = Store.YES)
+  @Field
   @Basic
   private String description;
 
-  @Field(store = Store.YES)
+  @Field
   @NotEmpty
   @Column(unique = true, nullable = false)
   private String adminGroup;
