@@ -32,12 +32,14 @@ public class ConnectionFactory {
   private String destinationStpId = "destination port";
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
   private Reservation reservation = new ReservationFactory().create();
-  private String globalReservationId = UUID.randomUUID().toString();
-  private ServiceParametersType serviceParameters = new ServiceParametersType();
+  private final String globalReservationId = UUID.randomUUID().toString();
+  private final ServiceParametersType serviceParameters = new ServiceParametersType();
+  private long id = 0L;
 
   public Connection create() {
     Connection connection = new Connection();
 
+    connection.setId(id);
     connection.setDesiredBandwidth(desiredBandwidth);
     connection.setRequesterNsa(requesterNSA);
     connection.setProviderNsa(providerNSA);
@@ -99,6 +101,11 @@ public class ConnectionFactory {
 
   public ConnectionFactory setCurrentState(ConnectionStateType currentState) {
     this.currentState = currentState;
+    return this;
+  }
+
+  public ConnectionFactory setId(long id) {
+    this.id = id;
     return this;
   }
 }

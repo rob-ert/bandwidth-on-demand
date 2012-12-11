@@ -58,20 +58,27 @@ public class ReservationServiceDbTest {
   @Resource
   private ReservationServiceDbTestHelper helper;
 
-  private final DateTime rightDateTime = DateTime.now().withTime(0, 0, 0, 0);
-  private final DateTime beforeDateTime = rightDateTime.minusMinutes(1);
+  private final DateTime nowMidnight = DateMidnight.now().toDateTime();
+  private final DateTime anHourAgo = nowMidnight.minusHours(1);
 
   private Reservation rightReservationOnStartTime;
   private Reservation rightReservationOnEndTime;
+  private Reservation beforeAnHourAgoReservation;
+  private Reservation anHourAgoReservation;
 
   @BeforeTransaction
   public void setUp() {
-    rightReservationOnStartTime = createAndSaveReservation(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
-    rightReservationOnEndTime = createAndSaveReservation(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
-    createAndSaveReservation(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
-    createAndSaveReservation(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
-    createAndSaveReservation(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
-    createAndSaveReservation(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    helper.cleanUp();
+
+    rightReservationOnStartTime = createAndSaveReservation(nowMidnight, nowMidnight.plusHours(1),
+        ReservationStatus.AUTO_START);
+    rightReservationOnEndTime = createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.AUTO_START);
+
+    beforeAnHourAgoReservation = createAndSaveReservation(anHourAgo.minusMinutes(10), nowMidnight.plusHours(1),
+        ReservationStatus.AUTO_START);
+    createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.CANCELLED);
+    createAndSaveReservation(nowMidnight, nowMidnight.plusMinutes(1), ReservationStatus.CANCELLED);
+    anHourAgoReservation = createAndSaveReservation(anHourAgo, anHourAgo.plusMinutes(1), ReservationStatus.AUTO_START);
   }
 
   @AfterTransaction
@@ -83,21 +90,21 @@ public class ReservationServiceDbTest {
   @Test
   public void shouldFindAll() {
     List<Reservation> allReservations = reservationRepo.findAll();
-
     assertThat(allReservations, hasSize(6));
   }
 
   @Test
   public void shouldFindScheduledReservations() {
-    Collection<Reservation> reservations = reservationService.findReservationsToPoll(DateTime.now().withHourOfDay(1));
+    Collection<Reservation> reservations = reservationService.findReservationsToPoll(anHourAgo);
 
-    assertThat(reservations, hasSize(4));
+    assertThat(reservations, hasSize(3));
+    assertThat(reservations, hasItems(rightReservationOnEndTime, beforeAnHourAgoReservation, anHourAgoReservation));
   }
 
   @Test
   public void shouldFindReservationsAfterMidnight() {
     DateTimeUtils.setCurrentMillisFixed(DateMidnight.now().getMillis());
-    Collection<Reservation> reservations = reservationService.findReservationsToPoll(rightDateTime);
+    Collection<Reservation> reservations = reservationService.findReservationsToPoll(nowMidnight);
 
     assertThat(reservations, hasSize(4));
     assertThat(reservations, hasItems(rightReservationOnEndTime, rightReservationOnStartTime));
@@ -107,5 +114,4 @@ public class ReservationServiceDbTest {
     Reservation reservation = helper.createReservation(start, end, status);
     return helper.saveReservation(reservation);
   }
-
 }

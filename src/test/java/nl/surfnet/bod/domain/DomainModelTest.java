@@ -12,8 +12,13 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +28,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class DomainModelTest {
 
@@ -46,11 +50,15 @@ public class DomainModelTest {
   private VirtualPortRequestLink link;
   private VirtualResourceGroup vrg;
 
+  private PhysicalResourceGroup prg;
+
+  private PhysicalPort pp1;
+
   @Before
   public void onSetup() {
-    PhysicalPort pp1 = ppFactory.create();
+    pp1 = ppFactory.create();
     PhysicalPort pp2 = ppFactory.create();
-    PhysicalResourceGroup prg = prgFactory.addPhysicalPort(pp1, pp2).create();
+    prg = prgFactory.addPhysicalPort(pp1, pp2).create();
     pp1.setPhysicalResourceGroup(prg);
     pp2.setPhysicalResourceGroup(prg);
 
@@ -62,9 +70,9 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
-    
+
     reservationTwo = reservationFactory.create();
-    
+
     ReflectionTestUtils.setField(reservationTwo, "creationDateTime", reservation.getCreationDateTime());
 
     reservation.setVirtualResourceGroup(vrg);
@@ -109,14 +117,6 @@ public class DomainModelTest {
   @Test
   public void shouldNotOverflowInReservationHashCode() {
     assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
-    // for (int i = 0; i < 200; i++) {
-    // this.onSetup();
-    // // assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
-    // assertEquals(
-    // "Run: " + i + ", reservation# " + reservation.hashCode() +
-    // ", reservationTwo#: " + reservationTwo.hashCode(),
-    // reservationTwo.hashCode(), reservation.hashCode());
-    // }
   }
 
   /**
@@ -124,10 +124,16 @@ public class DomainModelTest {
    * specific equal methods, to prevent stackoverFlow.
    */
   @Test
-  public void shouldOnlyConsiderIdInVirtualPortRequestLinkEquals() {
-    VirtualPortRequestLink requestLink = new VirtualPortRequestLink();
+  public void shouldOnlyConsiderIdAndVersionInVirtualPortRequestLinkEquals() {
+    VirtualPortRequestLink requestLink = new VirtualPortRequestLinkFactory().create();
+    requestLink.setId(3l);
+
+    assertThat("Only on Id and version", link, not(requestLink));
+
     requestLink.setId(link.getId());
-    assertTrue("Only on Id", link.equals(requestLink));
+    requestLink.setVersion(link.getVersion());
+
+    assertThat("Only on Id and version", link, is(requestLink));
   }
 
   /**
@@ -135,10 +141,15 @@ public class DomainModelTest {
    * specific equal methods, to prevent stackoverFlow.
    */
   @Test
-  public void shouldOnlyConsiderIdInVirtualPortRequestLinkHashCode() {
-    VirtualPortRequestLink requestLink = new VirtualPortRequestLink();
+  public void shouldOnlyConsiderIdAndVersionInVirtualPortRequestLinkHashCode() {
+    VirtualPortRequestLink requestLink = new VirtualPortRequestLinkFactory().create();
+    requestLink.setId(3l);
+
+    assertThat("Only on Id and version", link.hashCode(), not(requestLink.hashCode()));
+
     requestLink.setId(link.getId());
-    assertThat("Only on Id", link.hashCode(), is(requestLink.hashCode()));
+    requestLink.setVersion(link.getVersion());
+    assertThat("Only on Id and version", link.hashCode(), is(requestLink.hashCode()));
   }
 
   /**
@@ -146,16 +157,121 @@ public class DomainModelTest {
    * specific equal methods, to prevent stackoverFlow.
    */
   @Test
-  public void shouldOnlyConsiderIdInVirtualResourceGroupEquals() {
-    VirtualResourceGroup vrgTwo = new VirtualResourceGroup();
+  public void shouldOnlyConsiderIdAndVersionInVirtualResourceGroupEquals() {
+    VirtualResourceGroup vrgTwo = new VirtualResourceGroupFactory().create();
+
+    assertThat("Only on Id and version", vrg, not(vrgTwo));
+
     vrgTwo.setId(vrg.getId());
-    assertTrue("Only on Id", vrg.equals(vrgTwo));
+    vrgTwo.setVersion(vrg.getVersion());
+    assertThat("Only on Id and version", vrg, is(vrgTwo));
   }
 
   @Test
-  public void shouldOnlyconsiderIdInVirturalResourceGroupHashCode() {
-    VirtualResourceGroup vrgTwo = new VirtualResourceGroup();
+  public void shouldOnlyconsiderIdAndVersionInVirturalResourceGroupHashCode() {
+    VirtualResourceGroup vrgTwo = new VirtualResourceGroupFactory().create();
+
+    assertFalse("Only on Id and version", vrg.hashCode() == vrgTwo.hashCode());
+
     vrgTwo.setId(vrg.getId());
-    assertTrue("Only on Id", vrg.hashCode() == vrgTwo.hashCode());
+    vrgTwo.setVersion(vrg.getVersion());
+    assertTrue("Only on Id and version", vrg.hashCode() == vrgTwo.hashCode());
   }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInPhysicalResourceGroupEquals() {
+    PhysicalResourceGroup prgTwo = new PhysicalResourceGroupFactory().create();
+
+    assertThat("Only on id and version", prg, not(prgTwo));
+
+    prgTwo.setId(prg.getId());
+    prgTwo.setVersion(prg.getVersion());
+    assertThat("Only on id and version", prg, is(prgTwo));
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInPhysicalResourceGroupHashcode() {
+    PhysicalResourceGroup prgTwo = new PhysicalResourceGroupFactory().create();
+
+    assertFalse("Only on id and version", prg.hashCode() == prgTwo.hashCode());
+
+    prgTwo.setId(prg.getId());
+    prgTwo.setVersion(prg.getVersion());
+    assertTrue("Only on id and version", prg.hashCode() == prgTwo.hashCode());
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInPhysicalPortEquals() {
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+
+    assertThat("Only on id and version", physicalPort, not(pp1));
+
+    physicalPort.setId(pp1.getId());
+    physicalPort.setVersion(pp1.getVersion());
+    assertThat("Only on id and version", physicalPort, is(pp1));
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInPhysicalPortHashcode() {
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+
+    assertFalse("Only consider id and version", physicalPort.hashCode() == pp1.hashCode());
+
+    physicalPort.setId(pp1.getId());
+    physicalPort.setVersion(pp1.getVersion());
+    assertTrue("Only consider id and version", physicalPort.hashCode() == pp1.hashCode());
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInConnectionEquals() {
+    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
+    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
+    connection.setId(3l);
+    connection.setVersion(3);
+    assertThat("Only on id and version", connection, not(con));
+
+    con.setId(connection.getId());
+    con.setVersion(connection.getVersion());
+    assertThat("Only on id and version", connection, is(con));
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInConnectionHashcode() {
+    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
+    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
+    connection.setId(3l);
+    connection.setVersion(3);
+
+    assertFalse("Only consider id and version", connection.hashCode() == con.hashCode());
+
+    con.setId(connection.getId());
+    con.setVersion(connection.getVersion());
+    assertTrue("Only consider id and version", connection.hashCode() == con.hashCode());
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInNsiRequestHashcode() {
+    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
+    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
+    connection.setId(3l);
+    connection.setVersion(3);
+    assertFalse("Only consider id and version", connection.hashCode() == con.hashCode());
+
+    con.setId(connection.getId());
+    con.setVersion(connection.getVersion());
+    assertTrue("Only consider id and version", connection.hashCode() == con.hashCode());
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInNsiRequestEquals() {
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    nsiReqDetails.setId(4l);
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
+
+    assertThat("Only on id and version", nsiReqDetails, not(nsiRequestDetails));
+
+    nsiRequestDetails.setId(nsiReqDetails.getId());
+    assertThat("Only on id and version", nsiReqDetails, is(nsiRequestDetails));
+  }
+
 }

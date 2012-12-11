@@ -15,11 +15,26 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -85,7 +100,7 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
   /**
    * This class will not have a name, instead it has a one-one relation to an
    * {@link Institute} and we will use the name of an Institute instead.
-   *
+   * 
    * @return Name of the related institute
    */
   public String getName() {
@@ -197,14 +212,8 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((active == null) ? 0 : active.hashCode());
-    result = prime * result + ((adminGroup == null) ? 0 : adminGroup.hashCode());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((institute == null) ? 0 : institute.hashCode());
-    result = prime * result + ((managerEmail == null) ? 0 : managerEmail.hashCode());
-    result = prime * result + ((physicalPorts == null) ? 0 : physicalPorts.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result = prime * result + ((virtualPortRequestLinks == null) ? 0 : virtualPortRequestLinks.hashCode());
     return result;
   }
 
@@ -217,53 +226,17 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
     if (getClass() != obj.getClass())
       return false;
     PhysicalResourceGroup other = (PhysicalResourceGroup) obj;
-    if (active == null) {
-      if (other.active != null)
-        return false;
-    }
-    else if (!active.equals(other.active))
-      return false;
-    if (adminGroup == null) {
-      if (other.adminGroup != null)
-        return false;
-    }
-    else if (!adminGroup.equals(other.adminGroup))
-      return false;
     if (id == null) {
       if (other.id != null)
         return false;
     }
     else if (!id.equals(other.id))
       return false;
-    if (institute == null) {
-      if (other.institute != null)
-        return false;
-    }
-    else if (!institute.equals(other.institute))
-      return false;
-    if (managerEmail == null) {
-      if (other.managerEmail != null)
-        return false;
-    }
-    else if (!managerEmail.equals(other.managerEmail))
-      return false;
-    if (physicalPorts == null) {
-      if (other.physicalPorts != null)
-        return false;
-    }
-    else if (!physicalPorts.equals(other.physicalPorts))
-      return false;
     if (version == null) {
       if (other.version != null)
         return false;
     }
     else if (!version.equals(other.version))
-      return false;
-    if (virtualPortRequestLinks == null) {
-      if (other.virtualPortRequestLinks != null)
-        return false;
-    }
-    else if (!virtualPortRequestLinks.equals(other.virtualPortRequestLinks))
       return false;
     return true;
   }

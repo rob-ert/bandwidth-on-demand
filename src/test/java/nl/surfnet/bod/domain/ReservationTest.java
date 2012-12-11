@@ -12,14 +12,21 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 public class ReservationTest {
 
@@ -38,9 +45,8 @@ public class ReservationTest {
 
     String toString = reservation.toString();
 
-    assertThat(toString, containsString("id=null"));
+    assertFalse(toString.contains("id=null"));
   }
-
 
   @Test
   public void shouldSetStartDateTimeTimeFirst() {
@@ -167,8 +173,10 @@ public class ReservationTest {
   @Test
   public void determineAdminGroupsWithDifferentPhysicalResourceGroups() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:vrg").create();
-    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg1").create();
-    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg2").create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg1")
+        .create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup(
+        "urn:prg2").create();
 
     Reservation subject = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
@@ -179,8 +187,10 @@ public class ReservationTest {
   @Test
   public void determineAdminGroupsForTheSamePhysicalResourceGroup() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:vrg").create();
-    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg").create();
-    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg").create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).setPhysicalPortAdminGroup("urn:prg")
+        .create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg)
+        .setPhysicalPortAdminGroup("urn:prg").create();
 
     Reservation subject = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 

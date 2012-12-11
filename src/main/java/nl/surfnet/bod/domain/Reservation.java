@@ -14,13 +14,29 @@ package nl.surfnet.bod.domain;
 
 import java.util.Collection;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -31,7 +47,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  */
 @Entity
 @Indexed
@@ -149,7 +165,7 @@ public class Reservation implements Loggable, PersistableDomain {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   *
+   * 
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -175,7 +191,7 @@ public class Reservation implements Loggable, PersistableDomain {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   *
+   * 
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -195,7 +211,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   *
+   * 
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -204,7 +220,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   *
+   * 
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -218,8 +234,8 @@ public class Reservation implements Loggable, PersistableDomain {
       startDateTime = new DateTime(startTime);
     }
     else {
-      startDateTime = startDateTime.withTime(startTime.getHourOfDay(), startTime.getMinuteOfHour(),
-          startTime.getSecondOfMinute(), startTime.getMillisOfSecond());
+      startDateTime = startDateTime.withTime(startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime
+          .getSecondOfMinute(), startTime.getMillisOfSecond());
     }
   }
 
@@ -232,7 +248,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   *
+   * 
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -241,7 +257,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -261,7 +277,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   *
+   * 
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -270,7 +286,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -288,7 +304,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   *
+   * 
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -297,7 +313,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   *
+   * 
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -354,11 +370,8 @@ public class Reservation implements Loggable, PersistableDomain {
 
   @Override
   public Collection<String> getAdminGroups() {
-    return ImmutableSet.of(
-      virtualResourceGroup.getAdminGroup(),
-      sourcePort.getPhysicalResourceGroup().getAdminGroup(),
-      destinationPort.getPhysicalResourceGroup().getAdminGroup()
-    );
+    return ImmutableSet.of(virtualResourceGroup.getAdminGroup(), sourcePort.getPhysicalResourceGroup().getAdminGroup(),
+        destinationPort.getPhysicalResourceGroup().getAdminGroup());
   }
 
   @Override
@@ -370,83 +383,89 @@ public class Reservation implements Loggable, PersistableDomain {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Reservation [");
-    builder.append("id=");
-    builder.append(id);
-
-    builder.append(", ");
-    builder.append("version=");
-    builder.append(version);
-
-    if (name != null) {
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
       builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (name != null) {
       builder.append("name=");
       builder.append(name);
+      builder.append(", ");
     }
     if (virtualResourceGroup != null) {
-      builder.append(", ");
       builder.append("virtualResourceGroup=");
-      builder.append(virtualResourceGroup.getName());
+      builder.append(virtualResourceGroup);
+      builder.append(", ");
     }
     if (status != null) {
-      builder.append(", ");
       builder.append("status=");
       builder.append(status);
+      builder.append(", ");
     }
     if (failedReason != null) {
-      builder.append(", ");
       builder.append("failedReason=");
       builder.append(failedReason);
+      builder.append(", ");
     }
     if (cancelReason != null) {
-      builder.append(", ");
       builder.append("cancelReason=");
       builder.append(cancelReason);
+      builder.append(", ");
     }
     if (sourcePort != null) {
-      builder.append(", ");
       builder.append("sourcePort=");
       builder.append(sourcePort);
+      builder.append(", ");
     }
     if (destinationPort != null) {
-      builder.append(", ");
       builder.append("destinationPort=");
       builder.append(destinationPort);
+      builder.append(", ");
     }
     if (startDateTime != null) {
-      builder.append(", ");
       builder.append("startDateTime=");
       builder.append(startDateTime);
+      builder.append(", ");
     }
     if (endDateTime != null) {
-      builder.append(", ");
       builder.append("endDateTime=");
       builder.append(endDateTime);
+      builder.append(", ");
     }
     if (userCreated != null) {
-      builder.append(", ");
       builder.append("userCreated=");
       builder.append(userCreated);
+      builder.append(", ");
     }
     if (bandwidth != null) {
-      builder.append(", ");
       builder.append("bandwidth=");
       builder.append(bandwidth);
+      builder.append(", ");
     }
     if (reservationId != null) {
-      builder.append(", ");
       builder.append("reservationId=");
       builder.append(reservationId);
+      builder.append(", ");
     }
     if (creationDateTime != null) {
-      builder.append(", ");
       builder.append("creationDateTime=");
       builder.append(creationDateTime);
-    }
-
-    if (connection != null) {
       builder.append(", ");
+    }
+    if (connection != null) {
       builder.append("connection=");
-      builder.append(connection.getLabel());
+      builder.append(connection);
+      builder.append(", ");
+    }
+    if (protectionType != null) {
+      builder.append("protectionType=");
+      builder.append(protectionType);
     }
     builder.append("]");
     return builder.toString();
@@ -472,7 +491,7 @@ public class Reservation implements Loggable, PersistableDomain {
     result = prime * result + ((status == null) ? 0 : status.hashCode());
     result = prime * result + ((userCreated == null) ? 0 : userCreated.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.getLabel().hashCode());
+    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.hashCode());
     return result;
   }
 
@@ -503,12 +522,12 @@ public class Reservation implements Loggable, PersistableDomain {
     }
     else if (!connection.equals(other.connection))
       return false;
-    if (creationDateTime == null) {
-      if (other.creationDateTime != null)
-        return false;
-    }
-    else if (!creationDateTime.equals(other.creationDateTime))
-      return false;
+//    if (creationDateTime == null) {
+//      if (other.creationDateTime != null)
+//        return false;
+//    }
+//    else if (!creationDateTime.equals(other.creationDateTime))
+//      return false;
     if (destinationPort == null) {
       if (other.destinationPort != null)
         return false;
@@ -577,7 +596,7 @@ public class Reservation implements Loggable, PersistableDomain {
       if (other.virtualResourceGroup != null)
         return false;
     }
-    else if (!virtualResourceGroup.getLabel().equals(other.virtualResourceGroup.getLabel()))
+    else if (!virtualResourceGroup.equals(other.virtualResourceGroup))
       return false;
     return true;
   }

@@ -14,7 +14,15 @@ package nl.surfnet.bod.domain;
 
 import java.util.Collection;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.search.annotations.Analyzer;
@@ -161,29 +169,31 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (obj == null) {
+    if (obj == null)
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     VirtualResourceGroup other = (VirtualResourceGroup) obj;
     if (id == null) {
-      if (other.id != null) {
+      if (other.id != null)
         return false;
-      }
     }
-    else if (!id.equals(other.id)) {
+    else if (!id.equals(other.id))
       return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
     }
+    else if (!version.equals(other.version))
+      return false;
     return true;
   }
 

@@ -15,12 +15,27 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -238,7 +253,7 @@ public class Connection implements Loggable, PersistableDomain {
 
   @Override
   public Collection<String> getAdminGroups() {
-    return reservation != null ? reservation.getAdminGroups() : Collections.<String>emptyList();
+    return reservation != null ? reservation.getAdminGroups() : Collections.<String> emptyList();
   }
 
   @Override
@@ -280,6 +295,39 @@ public class Connection implements Loggable, PersistableDomain {
     builder.append("]");
 
     return builder.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Connection other = (Connection) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    }
+    else if (!version.equals(other.version))
+      return false;
+    return true;
   }
 
   public NsiRequestDetails getProvisionRequestDetails() {
