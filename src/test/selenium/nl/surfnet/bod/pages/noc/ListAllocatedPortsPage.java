@@ -38,7 +38,7 @@ public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
   }
 
   public void unlinkPhysicalPort(String bodPortId) {
-    deleteForIcon("icon-resize-full", bodPortId);
+    deleteForIcon("icon-remove", bodPortId);
   }
 
   public EditPhysicalPortPage edit(String nmsPortId) {
