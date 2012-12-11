@@ -17,10 +17,8 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.support.*;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.junit.After;

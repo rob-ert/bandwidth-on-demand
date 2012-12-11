@@ -27,10 +27,12 @@ import com.google.common.collect.ImmutableList;
 
 @Indexed
 @Entity
+@Analyzer(definition = "customanalyzer")
 public class PhysicalResourceGroup implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @DocumentId
   private Long id;
 
   @Version
@@ -41,13 +43,11 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
   @JoinColumn(name = "institute_id")
   private Institute institute;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   private String adminGroup;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   @Email(message = "Not a valid email address")
   private String managerEmail;

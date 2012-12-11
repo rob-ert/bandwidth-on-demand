@@ -30,10 +30,12 @@ import com.google.common.base.Optional;
 
 @Entity
 @Indexed
+@Analyzer(definition = "customanalyzer")
 public class Connection implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @DocumentId
   private Long id;
 
   /**
@@ -43,64 +45,53 @@ public class Connection implements Loggable, PersistableDomain {
    * in the storage structure
    */
   @Column(unique = true, nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String connectionId;
 
   @Version
   private Integer version;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String requesterNsa;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String providerNsa;
 
   @Column(unique = true, nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String globalReservationId;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String description;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime startTime;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime endTime;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private int desiredBandwidth;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String sourceStpId;
 
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String destinationStpId;
 
   @Column(nullable = false, length = 4096)

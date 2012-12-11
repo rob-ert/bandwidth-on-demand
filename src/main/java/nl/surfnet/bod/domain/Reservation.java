@@ -35,17 +35,18 @@ import com.google.common.collect.ImmutableSet;
  */
 @Entity
 @Indexed
+@Analyzer(definition = "customanalyzer")
 public class Reservation implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @DocumentId
   private Long id;
 
   @Version
   private Integer version;
 
   @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
   private String name;
 
   @IndexedEmbedded
@@ -53,16 +54,13 @@ public class Reservation implements Loggable, PersistableDomain {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String failedReason;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String cancelReason;
 
   @NotNull
@@ -76,31 +74,26 @@ public class Reservation implements Loggable, PersistableDomain {
   private VirtualPort destinationPort;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime startDateTime;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime endDateTime;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Column(nullable = false)
   private String userCreated;
 
   @NotNull
   @Column(nullable = false)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private Integer bandwidth;
 
   @Basic
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String reservationId;
 
   @NotNull
@@ -113,8 +106,7 @@ public class Reservation implements Loggable, PersistableDomain {
   private Connection connection;
 
   @Enumerated(EnumType.STRING)
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
   public Reservation() {

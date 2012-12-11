@@ -20,7 +20,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -34,18 +37,18 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Indexed
 @Entity
+@Analyzer(definition = "customanalyzer")
 public class Institute implements Loggable {
 
   @Id
+  @DocumentId
   private Long id;
 
+  @Field
   @NotEmpty
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
   private String name;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   private String shortName;
 

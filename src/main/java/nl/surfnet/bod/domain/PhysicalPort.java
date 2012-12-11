@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 
 @Indexed
 @AnalyzerDef(name = "customanalyzer", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = { @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
+@Analyzer(definition = "customanalyzer")
 @Entity
 public class PhysicalPort implements Loggable, PersistableDomain {
 
@@ -38,22 +39,18 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Version
   private Integer version;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   private String nocLabel;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   private String managerLabel;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   private String bodPortId;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @NotEmpty
   @Column(unique = true)
   private String nmsPortId;
@@ -70,18 +67,15 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Column(name = "aligned_nms")
   private boolean alignedWithNMS;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Basic
   private String nmsNeId;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Basic
   private String nmsPortSpeed;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Basic
   private String nmsSapName;
 
@@ -89,8 +83,7 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Basic
   private String signalingType;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field
   @Basic
   private String supportedServiceType;
 
