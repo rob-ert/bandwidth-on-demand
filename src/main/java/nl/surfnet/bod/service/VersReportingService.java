@@ -63,6 +63,9 @@ public class VersReportingService {
 
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
+  private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("MM-yyyy");
+  private final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMM");
+
   @PostConstruct
   void init() throws IOException {
     surfNetErStub = new SURFnetErStub(serviceURL);
@@ -70,21 +73,26 @@ public class VersReportingService {
 
   // @Scheduled(cron = firstDayOfTheMonthCronExpression)
   public void sendActiveReservationsRunningReportToAll() throws IOException {
-
-    final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
-    final DateTime end = LocalDateTime.now().toDateTime();
-    final Interval interval = new Interval(start, end);
-    final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMM");
-
-    final ReservationReportView nocReport = reportingService.determineReport(new ReportIntervalView(interval,
-        labelFormatter.print(end)), new ArrayList<String>());
-
+    final VersReportPeriod versReportPeriod = new VersReportPeriod();
+    final ReservationReportView nocReport = reportingService.determineReport(
+        new ReportIntervalView(versReportPeriod.getInterval(), labelFormatter.print(versReportPeriod.getStart())),
+        new ArrayList<String>());
     sendReportToAll("Active Reservations Running", "=",
-        Long.toString(nocReport.getAmountRunningReservationsStillRunning()));
+        Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart());
+  }
+
+  public void sendActiveReservationsScheduledReportToAll() throws IOException {
+    final VersReportPeriod versReportPeriod = new VersReportPeriod();
+    final ReservationReportView nocReport = reportingService.determineReport(
+        new ReportIntervalView(versReportPeriod.getInterval(), labelFormatter.print(versReportPeriod.getStart())),
+        new ArrayList<String>());
+    sendReportToAll("Active Reservations Scheduled", "=",
+        Long.toString(nocReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart());
   }
 
   @VisibleForTesting
-  VersResponse sendReportToAll(final String type, final String delimiter, final String value) throws IOException {
+  VersResponse sendReportToAll(final String type, final String delimiter, final String value, DateTime start)
+      throws IOException {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
     insertReportInput.setType(type);
@@ -93,17 +101,17 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setIsHidden(false);
-    insertReportInput.setPeriod(getReportPeriod());
+    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
     insertReportInput.setOrganisation(ORGANIZATION);
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
 
-  private VersResponse sendReportToOrganization(final InsertReportInput insertReportInput, final String iddShortName)
-      throws IOException {
+  private VersResponse sendReportToOrganization(final InsertReportInput insertReportInput, final String iddShortName,
+      DateTime start) throws IOException {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    insertReportInput.setPeriod(getReportPeriod());
+    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
@@ -115,19 +123,6 @@ public class VersReportingService {
     messageBody.setPassword(versUserPassword);
     messageBody.setParameters(reportData);
     return messageBody;
-  }
-
-  private String getReportPeriod() {
-    final LocalDateTime now = LocalDateTime.now();
-    final StringBuilder period = new StringBuilder();
-    final int monthOfYear = now.getMonthOfYear();
-    period.append(now.getYear());
-    period.append('-');
-    if (monthOfYear <= 9) {
-      period.append("0");
-    }
-    period.append(monthOfYear);
-    return period.toString();
   }
 
   public static class VersResponse {
@@ -145,6 +140,25 @@ public class VersReportingService {
 
     public String getErrorMessage() {
       return errorMessage;
+    }
+  }
+
+  public class VersReportPeriod {
+
+    private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
+    private final DateTime end = LocalDateTime.now().toDateTime();
+    private final Interval interval = new Interval(start, end);
+
+    public final DateTime getStart() {
+      return start;
+    }
+
+    public final DateTime getEnd() {
+      return end;
+    }
+
+    public final Interval getInterval() {
+      return interval;
     }
 
   }

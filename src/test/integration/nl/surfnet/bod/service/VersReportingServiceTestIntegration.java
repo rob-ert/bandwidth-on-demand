@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.VersReportingService.VersResponse;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -65,7 +66,11 @@ public class VersReportingServiceTestIntegration {
   @Test
   public void should_fail_authentication() throws IOException {
     // authentication fails currently
-    final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10");
+
+    versReportingService.sendActiveReservationsRunningReportToAll();
+
+    final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10",
+        DateTime.now());
     assertThat(versResponse.getErrorCode(), is(-1));
     assertThat(versResponse.getErrorMessage(), containsString("Authentication failed"));
   }
