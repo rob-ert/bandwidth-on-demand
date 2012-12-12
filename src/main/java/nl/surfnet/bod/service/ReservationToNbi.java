@@ -55,7 +55,7 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservationId);
 
