@@ -10,7 +10,7 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.mtosi;
+package nl.surfnet.bod.nbi.mtosi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,6 +21,8 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,20 +37,14 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
-import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
-import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
-import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
-import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
-import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
+import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-
-@Service("mtosiInventoryRetrievalLiveClient")
-public class MtosiInventoryRetrievalLiveClient {
+@Service("mtosiInventoryRetrievalClient")
+public class MtosiInventoryRetrievalClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -60,7 +56,7 @@ public class MtosiInventoryRetrievalLiveClient {
   private boolean isInited = false;
 
   @Autowired
-  public MtosiInventoryRetrievalLiveClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
+  public MtosiInventoryRetrievalClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
       @Value("${mtosi.inventory.sender.uri}") String senderUri) {
     this.resourceInventoryRetrievalUrl = retrievalUrl;
     this.senderUri = senderUri;

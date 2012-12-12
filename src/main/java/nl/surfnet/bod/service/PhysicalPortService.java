@@ -28,8 +28,8 @@ import javax.persistence.PersistenceContext;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiInventoryRetrievalClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.security.Security;
@@ -74,7 +74,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   private NbiClient nbiClient;
 
   @Resource
-  private MtosiInventoryRetrievalLiveClient mtosiClient;
+  private MtosiInventoryRetrievalClient mtosiClient;
 
   @Resource
   private LogEventService logEventService;

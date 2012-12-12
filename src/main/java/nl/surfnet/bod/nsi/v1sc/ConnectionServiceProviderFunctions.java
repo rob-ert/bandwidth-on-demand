@@ -16,15 +16,11 @@ import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -32,9 +28,9 @@ import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
@@ -44,7 +40,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
@@ -111,7 +106,7 @@ public final class ConnectionServiceProviderFunctions {
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
 
-        Optional<DateTime> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
+        Optional<DateTime> startTime = XmlUtils.getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
         connection.setStartTime(startTime.orNull());
 
         Optional<DateTime> endTime = calculateEndTime(reservation.getServiceParameters().getSchedule().getEndTime(),
@@ -142,7 +137,7 @@ public final class ConnectionServiceProviderFunctions {
       private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
           Optional<DateTime> startTime) {
         if (endTimeCalendar != null) {
-          return getDateFrom(endTimeCalendar);
+          return XmlUtils.getDateFrom(endTimeCalendar);
         }
 
         if (duration != null && startTime.isPresent()) {
@@ -161,38 +156,6 @@ public final class ConnectionServiceProviderFunctions {
     };
 
   private ConnectionServiceProviderFunctions() {
-  }
-
-  @VisibleForTesting
-  static Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
-    if (calendar == null) {
-      return Optional.absent();
-    }
-
-    GregorianCalendar gregorianCalendar = calendar.toGregorianCalendar();
-    int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
-    // Create Timestamp while preserving the timezone, NO conversion
-    return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
-  }
-
-  @VisibleForTesting
-  public static Optional<XMLGregorianCalendar> getXmlTimeStampFromDateTime(DateTime timeStamp) {
-
-    if (timeStamp == null) {
-      return Optional.absent();
-    }
-
-    XMLGregorianCalendar calendar = null;
-    try {
-      calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(BigInteger.valueOf(timeStamp.getYear()),
-          timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
-          timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
-    }
-    catch (DatatypeConfigurationException e) {
-      throw new RuntimeException(e);
-    }
-
-    return Optional.of(calendar);
   }
 
 }

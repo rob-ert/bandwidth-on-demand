@@ -37,6 +37,7 @@ import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -536,8 +537,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
     scheduleType.setDuration(null);
-    scheduleType.setStartTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(start.orNull()).orNull());
-    scheduleType.setEndTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(end.orNull()).orNull());
+    scheduleType.setStartTime(XmlUtils.getXmlTimeStampFromDateTime(start.orNull()).orNull());
+    scheduleType.setEndTime(XmlUtils.getXmlTimeStampFromDateTime(end.orNull()).orNull());
 
     return reservationRequest;
   }
