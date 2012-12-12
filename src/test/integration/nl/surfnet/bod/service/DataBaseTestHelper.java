@@ -150,6 +150,8 @@ public class DataBaseTestHelper {
         throw new RuntimeException(e);
       }
     }
-    return props.getProperty(key);
+
+    // Try to get key from environement, is not present use from properties
+    return (System.getProperty(key, props.getProperty(key)));
   }
 }
