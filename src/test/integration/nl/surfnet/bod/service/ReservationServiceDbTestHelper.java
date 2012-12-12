@@ -92,16 +92,10 @@ public class ReservationServiceDbTestHelper {
     virtualPortRepo.save(reservation.getDestinationPort());
 
     reservation.setId(null);
-    return saveReservation(reservation);
+    return reservation;
   }
 
-  Reservation saveReservation(Reservation reservation) {
-
-    return reservationRepo.saveAndFlush(reservation);
-  }
-
-  Reservation createThroughService(Long id) {
-    Reservation reservation = reservationService.find(id);
+  Reservation createThroughService(Reservation reservation) {
     Future<Long> future = reservationService.create(reservation);
     Long reservationId = null;
 

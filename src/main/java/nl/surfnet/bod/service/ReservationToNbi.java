@@ -54,14 +54,13 @@ public class ReservationToNbi {
   @Resource
   private LogEventService logEventService;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
+  @Transactional(propagation = Propagation.REQUIRED)
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservationId);
 
     Reservation reservation = reservationRepo.findOne(reservationId);
     while (reservation == null) {
-      System.err.println("Could not find reservation {} in the database, waiting.." + reservationId);
       logger.debug("Could not find reservation {} in the database, waiting..", reservationId);
       Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
       reservation = reservationRepo.findOne(reservationId);

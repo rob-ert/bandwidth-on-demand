@@ -12,6 +12,7 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -43,7 +44,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TransactionConfiguration(defaultRollback = false)
+@TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
@@ -83,7 +84,7 @@ public class ReportReservationServiceDbTest {
   private Reservation reservationInPeriod;
   private Reservation reservationAfterPeriod;
 
-  private List<String> adminGroups;
+  private final List<String> adminGroups = new ArrayList<>();
 
   private boolean needsInit = true;
 
@@ -103,26 +104,29 @@ public class ReportReservationServiceDbTest {
       nbiClient.setShouldSleep(false);
 
       // Five (5) reservations in reporting period
-      reservationOnStartPeriod = createReservation(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
-//      reservationOnEndPeriod = createReservation(periodStart.plusHours(1), periodEnd, ReservationStatus.REQUESTED);
-//      reservationAfterStartAndOnEndPeriod = createReservation(periodStart.plusHours(1), periodEnd,
-//          ReservationStatus.REQUESTED);
-//      reservationAfterStartAndAfterEndPeriod = createReservation(periodStart.plusHours(1), periodEnd.plusDays(1),
-//          ReservationStatus.REQUESTED);
-//      reservationInPeriod = createReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
-//          ReservationStatus.REQUESTED);
-//
-//      // Two (2) reservations related to reporting period
-//      reservationBeforeStartAndAfterEndPeriod = createReservation(periodStart.minusHours(1), periodEnd.plusDays(1),
-//          ReservationStatus.REQUESTED);
-//      reservationBeforeStartAndOnEndPeriod = createReservation(periodStart.minusHours(1), periodEnd,
-//          ReservationStatus.REQUESTED);
-//
-//      // Two (2) reservations not related to reporting period
-//      reservationBeforePeriod = createReservation(periodStart.minusDays(1), periodStart.minusHours(1),
-//          ReservationStatus.REQUESTED);
-//      reservationAfterPeriod = createReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
-//          ReservationStatus.REQUESTED);
+      reservationOnStartPeriod = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
+          ReservationStatus.REQUESTED);
+
+      reservationOnEndPeriod = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
+          ReservationStatus.REQUESTED);
+      reservationAfterStartAndOnEndPeriod = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
+          ReservationStatus.REQUESTED);
+      reservationAfterStartAndAfterEndPeriod = createAndSaveReservation(periodStart.plusHours(1),
+          periodEnd.plusDays(1), ReservationStatus.REQUESTED);
+      reservationInPeriod = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
+          ReservationStatus.REQUESTED);
+
+      // Two (2) reservations related to reporting period
+      reservationBeforeStartAndAfterEndPeriod = createAndSaveReservation(periodStart.minusHours(1), periodEnd
+          .plusDays(1), ReservationStatus.REQUESTED);
+      reservationBeforeStartAndOnEndPeriod = createAndSaveReservation(periodStart.minusHours(1), periodEnd,
+          ReservationStatus.REQUESTED);
+
+      // Two (2) reservations not related to reporting period
+      reservationBeforePeriod = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1),
+          ReservationStatus.REQUESTED);
+      reservationAfterPeriod = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
+          ReservationStatus.REQUESTED);
 
       needsInit = false;
     }
@@ -138,7 +142,7 @@ public class ReportReservationServiceDbTest {
     System.err.println("checkSetup");
     long amountOfReservations = subject.count();
 
-//    FIXME assertThat(amountOfReservations, is(AMOUNT_OF_RESERVATIONS));
+    assertThat(amountOfReservations, is(AMOUNT_OF_RESERVATIONS));
   }
 
   @Ignore
@@ -168,7 +172,6 @@ public class ReportReservationServiceDbTest {
     assertThat(count, is(1L));
   }
 
-  @Ignore
   @Test
   public void shouldCountExistingStateAfterPeriod() {
     long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusDays(2), periodEnd
@@ -177,7 +180,6 @@ public class ReportReservationServiceDbTest {
     assertThat(count, is(0L));
   }
 
-  @Ignore
   @Test
   public void shouldCountNonExistingStateInPeriod() {
     long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
@@ -195,7 +197,6 @@ public class ReportReservationServiceDbTest {
     assertThat(count, is(5L));
   }
 
-  @Ignore
   @Test
   public void shouldCountNonExsitingTransitionInPeriod() {
     long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd,
@@ -221,7 +222,6 @@ public class ReportReservationServiceDbTest {
     assertThat("Should be one more, because search for extra status", count, is(7L));
   }
 
-  @Ignore
   @Test
   public void shouldNotFindActiveReservationsBecauseOfState() {
     long count = subject.countActiveReservationsBetweenWithState(periodStart, periodEnd, REQUESTED, adminGroups);
@@ -229,7 +229,6 @@ public class ReportReservationServiceDbTest {
     assertThat(count, is(0L));
   }
 
-  @Ignore
   @Test
   public void shouldNotFindActiveReservationsBecauseBeforePeriod() {
     long count = subject.countActiveReservationsBetweenWithState(periodStart.minusDays(3), periodStart.minusDays(2),
@@ -238,13 +237,13 @@ public class ReportReservationServiceDbTest {
     assertThat(count, is(0L));
   }
 
-  private Reservation createReservation(DateTime start, DateTime end, ReservationStatus status) {
+  private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {
     // Make sure all events are created with the time related to the reservation
     DateTimeUtils.setCurrentMillisFixed(start.getMillis());
     try {
       Reservation reservation = reservationHelper.createReservation(start, end, status);
 
-      return reservationHelper.createThroughService(reservation.getId());
+      return reservationHelper.createThroughService(reservation);
     }
     finally {
       DateTimeUtils.currentTimeMillis();

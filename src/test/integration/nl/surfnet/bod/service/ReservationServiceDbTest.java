@@ -57,7 +57,7 @@ public class ReservationServiceDbTest {
   private ReservationRepo reservationRepo;
 
   @Resource
-  private ReservationServiceDbTestHelper helper;
+  private ReservationServiceDbTestHelper reservationHelper;
 
   private final DateTime nowMidnight = DateMidnight.now().toDateTime();
   private final DateTime anHourAgo = nowMidnight.minusHours(1);
@@ -119,7 +119,7 @@ public class ReservationServiceDbTest {
   }
 
   private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {
-    Reservation reservation = helper.createReservation(start, end, status);
-    return helper.saveReservation(reservation);
+    Reservation reservation = reservationHelper.createReservation(start, end, status);
+    return reservationRepo.save(reservation);
   }
 }
