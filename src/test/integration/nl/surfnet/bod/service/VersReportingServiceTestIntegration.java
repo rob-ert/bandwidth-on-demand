@@ -63,13 +63,12 @@ public class VersReportingServiceTestIntegration {
   public void tearDown() throws Exception {
   }
 
-  @Test //(expected = IOException.class)
+  @Test
   public void should_fail_authentication() throws IOException {
-    // authentication fails currently and now it just goes boom....
     final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10",
         DateTime.now());
+    assertThat(versResponse.getErrorMessage(), containsString("Insert failed: Duplicate reporting value detected."));
     assertThat(versResponse.getErrorCode(), is(-1));
-    assertThat(versResponse.getErrorMessage(), containsString("Authentication failed"));
   }
 
 }

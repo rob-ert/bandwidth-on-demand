@@ -68,7 +68,7 @@ public class VersReportingService {
 
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
-  private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("MM-yyyy");
+  private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
   private final DateTimeFormatter bodLabelFormatter = DateTimeFormat.forPattern("yyyy MMM");
 
   @PostConstruct
@@ -141,6 +141,7 @@ public class VersReportingService {
     insertReportInput.setNormValue(value);
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
+    insertReportInput.setValue(value);
     insertReportInput.setIsHidden(false);
     insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
     insertReportInput.setOrganisation(instituteShortName);
