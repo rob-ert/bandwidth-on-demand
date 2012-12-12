@@ -12,18 +12,23 @@
  */
 package nl.surfnet.bod.service;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
@@ -37,14 +42,16 @@ import org.springframework.stereotype.Service;
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
+import surfnet_er.ErInsertTypeDocument;
+import surfnet_er.ErInsertTypeDocument.ErInsertType;
+import surfnet_er.ErInsertTypeResponseDocument;
 import surfnet_er.InsertReportInput;
-
-import com.google.common.annotations.VisibleForTesting;
+import surfnet_er.InsertTypeInput;
 
 @Service
 public class VersReportingService {
 
-  private static final String ORGANIZATION = "BoD";
+  public static final String DEFAULT_ORGANIZATION = "BoD";
 
   @Value("${vers.url}")
   private String serviceURL;// = "http://localhost:1234";
@@ -77,60 +84,58 @@ public class VersReportingService {
   }
 
   // @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendActiveReservationsRunningReport() throws IOException {
+  public List<VersResponse> sendReportToAll(final DateTime start) throws Exception {
+
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReport = reportingService.determineReport(
         new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
         new ArrayList<String>());
-    sendReportToAll("Active Reservations Running", "=",
-        Long.toString(nocReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart());
-    final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
-    for (final Institute institute : institutes) {
-      final ReservationReportView adminReport = reportingService.determineReport(new ReportIntervalView(
-          versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())), institute
-          .getAdminGroups());
-      sendReportToOrganization("Active Reservations Running", "=",
-          Long.toString(adminReport.getAmountRunningReservationsStillRunning()), versReportPeriod.getStart(),
-          institute.getShortName());
+
+    final Map<String, String> nocReportValues = BeanUtils.describe(nocReport);
+    final List<VersResponse> versResponses = new ArrayList<>();
+
+    for (final Entry<String, String> entry : nocReportValues.entrySet()) {
+      final String value = entry.getValue();
+      final String humanReadableKey = String.format(" %s:", camelCaseToHumanReadable(entry.getKey()));
+      if (StringUtils.isNumeric(value)) {
+        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start,
+            DEFAULT_ORGANIZATION);
+        final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest)
+            .getErInsertReportResponse();
+        versResponses.add(new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText()));
+      }
+      else {
+        log.warn("Unable to send attribute {} with value {} to VERS", humanReadableKey, value);
+      }
     }
 
+    // final Collection<Institute> institutes =
+    // instituteIddService.findAlignedWithIDD();
+    // for (final Institute institute : institutes) {
+    // final ReservationReportView adminReport =
+    // reportingService.determineReport(new ReportIntervalView(
+    // versReportPeriod.getInterval(),
+    // bodLabelFormatter.print(versReportPeriod.getStart())), institute
+    // .getAdminGroups());
+    // sendReportToOrganization("Active Reservations Scheduled", "=",
+    // Long.toString(adminReport.getAmountRunningReservationsStillScheduled()),
+    // versReportPeriod.getStart(),
+    // institute.getShortName());
+    // }
+
+    return versResponses;
   }
 
-  // @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendActiveReservationsScheduledReport() throws IOException {
-    final VersReportPeriod versReportPeriod = new VersReportPeriod();
-    final ReservationReportView nocReport = reportingService.determineReport(
-        new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
-        new ArrayList<String>());
-    sendReportToAll("Active Reservations Scheduled", "=",
-        Long.toString(nocReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart());
-    final Collection<Institute> institutes = instituteIddService.findAlignedWithIDD();
-    for (final Institute institute : institutes) {
-      final ReservationReportView adminReport = reportingService.determineReport(new ReportIntervalView(
-          versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())), institute
-          .getAdminGroups());
-      sendReportToOrganization("Active Reservations Scheduled", "=",
-          Long.toString(adminReport.getAmountRunningReservationsStillScheduled()), versReportPeriod.getStart(),
-          institute.getShortName());
-    }
-
-  }
-
-  @VisibleForTesting
-  VersResponse sendReportToAll(final String type, final String delimiter, final String value, DateTime start)
-      throws IOException {
-    final ErInsertReportDocument versRequest = getVersRequest(type, delimiter, value, start, ORGANIZATION);
-    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
-    return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
-
-  }
-
-  private VersResponse sendReportToOrganization(final String type, final String delimiter, final String value,
-      DateTime start, final String instituteShortName) throws IOException {
-    final ErInsertReportDocument versRequest = getVersRequest(type, delimiter, value, start, instituteShortName);
-    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
-    return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
-  }
+  // private VersResponse sendReportToOrganization(final String type, final
+  // String delimiter, final String value,
+  // DateTime start, final String instituteShortName) throws IOException {
+  // final ErInsertReportDocument versRequest = getVersRequest(type, delimiter,
+  // value, start, instituteShortName);
+  // final ErInsertReportResponse versRepsonse =
+  // surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
+  // return new VersResponse(versRepsonse.getReturnCode(),
+  // versRepsonse.getReturnText());
+  // }
 
   private ErInsertReportDocument getVersRequest(final String type, final String delimiter, final String value,
       DateTime start, final String instituteShortName) {
@@ -144,9 +149,28 @@ public class VersReportingService {
     insertReportInput.setValue(value);
     insertReportInput.setIsHidden(false);
     insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
+    insertReportInput.setInstance(DEFAULT_ORGANIZATION + " Prod");
     insertReportInput.setOrganisation(instituteShortName);
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     return versRequest;
+  }
+
+  public VersResponse insertType(final String type, final String delimiter, final String value) throws IOException {
+    final ErInsertTypeDocument versRequest = ErInsertTypeDocument.Factory.newInstance();
+    final ErInsertType insertType = ErInsertType.Factory.newInstance();
+    insertType.setUsername(versUserName);
+    insertType.setPassword(versUserPassword);
+    final InsertTypeInput insertReportInput = insertType.addNewParameters();
+
+    insertReportInput.setType(type);
+    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setNormValue(value);
+    insertReportInput.setDepartmentList("NWD");
+    insertReportInput.setIsKPI(true);
+    final ErInsertTypeResponseDocument versResponse = surfNetErStub.er_InsertType(versRequest);
+    return new VersResponse(versResponse.getErInsertTypeResponse().getReturnCode(), versResponse
+        .getErInsertTypeResponse().getReturnText());
+
   }
 
   private ErInsertReport getErInsertReport(final InsertReportInput reportData) {
@@ -173,6 +197,17 @@ public class VersReportingService {
     public String getErrorMessage() {
       return errorMessage;
     }
+
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append("VersResponse [errorMessage=");
+      builder.append(errorMessage);
+      builder.append(", errorCode=");
+      builder.append(errorCode);
+      builder.append("]");
+      return builder.toString();
+    }
   }
 
   public class VersReportPeriod {
@@ -192,6 +227,30 @@ public class VersReportingService {
     public final Interval getInterval() {
       return interval;
     }
+
+  }
+
+  private static String camelCaseToHumanReadable(final String s) {
+    final char[] chars = s.replaceAll(
+        String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"),
+        " ").toCharArray();
+    chars[0] = Character.toUpperCase(chars[0]);
+    return new String(chars);
+  }
+
+  public static void main(String args[]) throws Exception {
+    final ReservationReportView reservationReportViewNoc = new ReservationReportView(DateTime.now(), DateTime.now()
+        .plusHours(1));
+    for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(ReservationReportView.class)
+        .getPropertyDescriptors()) {
+      if (propertyDescriptor.getPropertyType() == java.lang.Class.class) {
+
+      }
+      else {
+        System.out.println(propertyDescriptor);
+      }
+    }
+    System.out.println();
 
   }
 

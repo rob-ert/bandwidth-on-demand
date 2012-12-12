@@ -16,7 +16,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
+import static nl.surfnet.bod.service.VersReportingService.DEFAULT_ORGANIZATION;
 import java.io.IOException;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -64,11 +66,25 @@ public class VersReportingServiceTestIntegration {
   }
 
   @Test
-  public void should_fail_authentication() throws IOException {
-    final VersResponse versResponse = versReportingService.sendReportToAll("Active Reservations Running", "=", "10",
-        DateTime.now());
-    assertThat(versResponse.getErrorMessage(), containsString("Insert failed: Duplicate reporting value detected."));
-    assertThat(versResponse.getErrorCode(), is(-1));
+  public void should_insert_and_delete_item() throws Exception {
+    // VersResponse versResponse =
+    // versReportingService.insertType("Active Reservations Running", "=",
+    // "10");
+    // assertThat(versResponse.getErrorMessage(),
+    // containsString("Insert failed: Duplicate reporting value detected."));
+    // assertThat(versResponse.getErrorCode(), is(-1));
+
+    List<VersResponse> versResponse = versReportingService.sendReportToAll(DateTime.now().minusMonths(4));
+    assertThat(versResponse.size(), is(22));
+    // assertThat(versResponse.getErrorMessage(),
+    // containsString("Insert failed: Duplicate reporting value detected."));
+    // assertThat(versResponse.getErrorCode(), is(-1));
+
+    // versResponse = versReportingService.updateItem(DEFAULT_ORGANIZATION,
+    // DateTime.now(), "Active Reservations Running", "15");
+    // assertThat(versResponse.getErrorMessage(),
+    // containsString("Insert failed: Duplicate reporting value detected."));
+    // assertThat(versResponse.getErrorCode(), is(-1));
   }
 
 }
