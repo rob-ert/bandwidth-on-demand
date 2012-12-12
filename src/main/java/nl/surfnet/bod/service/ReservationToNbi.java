@@ -12,8 +12,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -31,9 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 public class ReservationToNbi {
@@ -52,12 +54,14 @@ public class ReservationToNbi {
   @Resource
   private LogEventService logEventService;
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservationId);
 
     Reservation reservation = reservationRepo.findOne(reservationId);
     while (reservation == null) {
+      System.err.println("Could not find reservation {} in the database, waiting.." + reservationId);
       logger.debug("Could not find reservation {} in the database, waiting..", reservationId);
       Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
       reservation = reservationRepo.findOne(reservationId);
@@ -106,7 +110,8 @@ public class ReservationToNbi {
     if (activateReservation) {
       ReservationStatus orgStatus = reservation.getStatus();
 
-      // FIXME this could also be running in case the start time already passed..
+      // FIXME this could also be running in case the start time already
+      // passed..
       reservation.setStatus(ReservationStatus.AUTO_START);
       reservationRepo.save(reservation);
 

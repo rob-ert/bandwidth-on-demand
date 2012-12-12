@@ -24,12 +24,13 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.AfterTransaction;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,26 +66,33 @@ public class ReservationServiceDbTest {
   private Reservation rightReservationOnEndTime;
   private Reservation beforeAnHourAgoReservation;
   private Reservation anHourAgoReservation;
+  private boolean needsInit = true;
 
-  @BeforeTransaction
-  public void setUp() {
-    helper.cleanUp();
-
-    rightReservationOnStartTime = createAndSaveReservation(nowMidnight, nowMidnight.plusHours(1),
-        ReservationStatus.AUTO_START);
-    rightReservationOnEndTime = createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.AUTO_START);
-
-    beforeAnHourAgoReservation = createAndSaveReservation(anHourAgo.minusMinutes(10), nowMidnight.plusHours(1),
-        ReservationStatus.AUTO_START);
-    createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.CANCELLED);
-    createAndSaveReservation(nowMidnight, nowMidnight.plusMinutes(1), ReservationStatus.CANCELLED);
-    anHourAgoReservation = createAndSaveReservation(anHourAgo, anHourAgo.plusMinutes(1), ReservationStatus.AUTO_START);
+  @BeforeClass
+  public static void init() {
+    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
-  @AfterTransaction
-  public void teardown() {
-    System.err.println("Tear down");
-    helper.cleanUp();
+  @Before
+  public void setUp() {
+    if (needsInit) {
+      rightReservationOnStartTime = createAndSaveReservation(nowMidnight, nowMidnight.plusHours(1),
+          ReservationStatus.AUTO_START);
+      rightReservationOnEndTime = createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.AUTO_START);
+
+      beforeAnHourAgoReservation = createAndSaveReservation(anHourAgo.minusMinutes(10), nowMidnight.plusHours(1),
+          ReservationStatus.AUTO_START);
+      createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.CANCELLED);
+      createAndSaveReservation(nowMidnight, nowMidnight.plusMinutes(1), ReservationStatus.CANCELLED);
+      anHourAgoReservation = createAndSaveReservation(anHourAgo, anHourAgo.plusMinutes(1), ReservationStatus.AUTO_START);
+
+      needsInit = false;
+    }
+  }
+
+  @AfterClass
+  public static void teardown() {
+    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Test

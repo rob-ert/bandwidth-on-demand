@@ -70,6 +70,7 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
+    reservation.setConnection(new ConnectionFactory().create());
 
     reservationTwo = reservationFactory.create();
 
@@ -89,6 +90,9 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationToString() {
+    Connection connection = new ConnectionFactory().create();
+    connection.setReservation(reservation);
+    reservation.setConnection(connection);
     logger.info(reservation.toString());
   }
 
@@ -107,7 +111,14 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationEquals() {
-    assertTrue(reservation.equals(reservationTwo));
+    reservation.setConnection(new ConnectionFactory().create());
+    reservation.equals(reservationTwo);
+  }
+
+  @Test
+  public void shouldNotOverflowInConnectionToString() {
+    Connection connection = new ConnectionFactory().create();
+    connection.toString();
   }
 
   /**
@@ -116,7 +127,32 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationHashCode() {
-    assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
+    reservation.setConnection(new ConnectionFactory().create());
+    reservation.hashCode();
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInReservationEquals() {
+    reservation.setId(reservationTwo.getId() + 1);
+    reservation.setName("myReservation");
+    assertThat(reservation, not(reservationTwo));
+
+    reservation.setId(reservationTwo.getId());
+    reservation.setVersion(reservationTwo.getVersion());
+
+    assertThat(reservation, is(reservationTwo));
+  }
+
+  @Test
+  public void shouldOnlyConsiderIdAndVersionInReservationHashcode() {
+    reservation.setId(reservationTwo.getId() + 1);
+    reservation.setName("myReservation");
+    assertFalse(reservation.hashCode() == reservationTwo.hashCode());
+
+    reservation.setId(reservationTwo.getId());
+    reservation.setVersion(reservationTwo.getVersion());
+
+    assertTrue(reservation.hashCode() == reservationTwo.hashCode());
   }
 
   /**
@@ -251,15 +287,14 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestHashcode() {
-    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
-    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
-    connection.setId(3l);
-    connection.setVersion(3);
-    assertFalse("Only consider id and version", connection.hashCode() == con.hashCode());
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    nsiReqDetails.setId(4l);
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
 
-    con.setId(connection.getId());
-    con.setVersion(connection.getVersion());
-    assertTrue("Only consider id and version", connection.hashCode() == con.hashCode());
+    assertFalse("Only consider id", nsiReqDetails.hashCode() == nsiRequestDetails.hashCode());
+
+    nsiRequestDetails.setId(nsiReqDetails.getId());
+    assertTrue("Only consider id", nsiReqDetails.hashCode() == nsiRequestDetails.hashCode());
   }
 
   @Test
@@ -268,10 +303,10 @@ public class DomainModelTest {
     nsiReqDetails.setId(4l);
     NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
 
-    assertThat("Only on id and version", nsiReqDetails, not(nsiRequestDetails));
+    assertThat("Only on id", nsiReqDetails, not(nsiRequestDetails));
 
     nsiRequestDetails.setId(nsiReqDetails.getId());
-    assertThat("Only on id and version", nsiReqDetails, is(nsiRequestDetails));
+    assertThat("Only on id", nsiReqDetails, is(nsiRequestDetails));
   }
 
 }

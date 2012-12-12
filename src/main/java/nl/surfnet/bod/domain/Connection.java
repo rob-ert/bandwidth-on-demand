@@ -263,36 +263,90 @@ public class Connection implements Loggable, PersistableDomain {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("Connection [id=");
-    builder.append(id);
-    builder.append(", version=");
-    builder.append(version);
-    builder.append(", requesterNsa=");
-    builder.append(requesterNsa);
-    builder.append(", providerNsa=");
-    builder.append(providerNsa);
-    builder.append(", sourceStpId=");
-    builder.append(sourceStpId);
-    builder.append(", destinationStpId=");
-    builder.append(destinationStpId);
-    builder.append(", globalReservationId=");
-    builder.append(globalReservationId);
-    builder.append(", description=");
-    builder.append(description);
-    builder.append(", connectionId=");
-    builder.append(connectionId);
-    builder.append(", currentState=");
-    builder.append(currentState);
-    builder.append(", startTime=");
-    builder.append(startTime);
-    builder.append(", endTime=");
-    builder.append(endTime);
-    builder.append(", desiredBandwidth=");
+    builder.append("Connection [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (connectionId != null) {
+      builder.append("connectionId=");
+      builder.append(connectionId);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (requesterNsa != null) {
+      builder.append("requesterNsa=");
+      builder.append(requesterNsa);
+      builder.append(", ");
+    }
+    if (providerNsa != null) {
+      builder.append("providerNsa=");
+      builder.append(providerNsa);
+      builder.append(", ");
+    }
+    if (globalReservationId != null) {
+      builder.append("globalReservationId=");
+      builder.append(globalReservationId);
+      builder.append(", ");
+    }
+    if (description != null) {
+      builder.append("description=");
+      builder.append(description);
+      builder.append(", ");
+    }
+    if (currentState != null) {
+      builder.append("currentState=");
+      builder.append(currentState);
+      builder.append(", ");
+    }
+    if (startTime != null) {
+      builder.append("startTime=");
+      builder.append(startTime);
+      builder.append(", ");
+    }
+    if (endTime != null) {
+      builder.append("endTime=");
+      builder.append(endTime);
+      builder.append(", ");
+    }
+    builder.append("desiredBandwidth=");
     builder.append(desiredBandwidth);
-    builder.append(", reservation=");
-    builder.append(reservation);
+    builder.append(", ");
+    if (sourceStpId != null) {
+      builder.append("sourceStpId=");
+      builder.append(sourceStpId);
+      builder.append(", ");
+    }
+    if (destinationStpId != null) {
+      builder.append("destinationStpId=");
+      builder.append(destinationStpId);
+      builder.append(", ");
+    }
+    if (path != null) {
+      builder.append("path=");
+      builder.append(path);
+      builder.append(", ");
+    }
+    if (serviceParameters != null) {
+      builder.append("serviceParameters=");
+      builder.append(serviceParameters);
+      builder.append(", ");
+    }
+    if (reservation != null) {
+      builder.append("reservation=");
+      builder.append(reservation.getId()).append(" ").append(reservation.getName());
+      builder.append(", ");
+    }
+    if (provisionRequestDetails != null) {
+      builder.append("provisionRequestDetails=");
+      builder.append(provisionRequestDetails);
+    }
     builder.append("]");
-
     return builder.toString();
   }
 

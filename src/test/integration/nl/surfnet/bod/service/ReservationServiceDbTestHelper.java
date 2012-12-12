@@ -13,12 +13,12 @@
 package nl.surfnet.bod.service;
 
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManagerFactory;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -34,13 +34,13 @@ import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.fail;
 
 @Component
+@Transactional
 public class ReservationServiceDbTestHelper {
-
-  private static Properties props;
 
   @Resource
   private ReservationService reservationService;
@@ -56,8 +56,6 @@ public class ReservationServiceDbTestHelper {
   private InstituteRepo instituteRepo;
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
-  @Resource
-  private EntityManagerFactory entityManagerFactory;
 
   Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
@@ -94,22 +92,24 @@ public class ReservationServiceDbTestHelper {
     virtualPortRepo.save(reservation.getDestinationPort());
 
     reservation.setId(null);
-    return reservation;
+    return saveReservation(reservation);
   }
 
   Reservation saveReservation(Reservation reservation) {
 
-    return reservationRepo.save(reservation);
+    return reservationRepo.saveAndFlush(reservation);
   }
 
-  Reservation createThroughService(Reservation reservation) {
+  Reservation createThroughService(Long id) {
+    Reservation reservation = reservationService.find(id);
     Future<Long> future = reservationService.create(reservation);
     Long reservationId = null;
 
     try {
-      reservationId = future.get();
+      reservationId = future.get(2L, TimeUnit.SECONDS);
     }
-    catch (InterruptedException | ExecutionException e) {
+    catch (InterruptedException | ExecutionException | TimeoutException e) {
+      e.printStackTrace();
       fail(e.getMessage());
     }
     return reservationService.find(reservationId);
@@ -131,8 +131,4 @@ public class ReservationServiceDbTestHelper {
     return physicalResourceGroupRepo.save(group);
   }
 
-  public void cleanUp() {
-
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
-  }
 }
