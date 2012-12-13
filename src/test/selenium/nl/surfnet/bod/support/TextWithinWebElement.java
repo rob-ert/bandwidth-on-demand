@@ -29,6 +29,7 @@ public class TextWithinWebElement implements Probe {
   @Override
   public void sample() {
     satisfied = element.getText().contains(text);
+    System.err.println(String.format("%d: could not find '%s' in '%s'", System.currentTimeMillis(), text, element.getText()));
   }
 
   @Override
@@ -38,7 +39,7 @@ public class TextWithinWebElement implements Probe {
 
   @Override
   public String message() {
-    return String.format("Expected to find %s in %s, but could not", text, element.getText());
+    return String.format("Expected to find '%s' in '%s', but could not", text, element.getText());
   }
 
 }
