@@ -13,11 +13,8 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-import static nl.surfnet.bod.service.VersReportingService.DEFAULT_ORGANIZATION;
-import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -76,6 +73,7 @@ public class VersReportingServiceTestIntegration {
 
     List<VersResponse> versResponse = versReportingService.sendReportToAll(DateTime.now().minusMonths(4));
     assertThat(versResponse.size(), is(22));
+    log.info("versResponse: "+versResponse.toString());
     // assertThat(versResponse.getErrorMessage(),
     // containsString("Insert failed: Duplicate reporting value detected."));
     // assertThat(versResponse.getErrorCode(), is(-1));

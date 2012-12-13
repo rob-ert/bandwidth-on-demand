@@ -48,10 +48,12 @@ import surfnet_er.ErInsertTypeResponseDocument;
 import surfnet_er.InsertReportInput;
 import surfnet_er.InsertTypeInput;
 
+import com.google.common.base.Optional;
+
 @Service
 public class VersReportingService {
 
-  public static final String DEFAULT_ORGANIZATION = "BoD";
+  // public static final String DEFAULT_ORGANIZATION = "SURFNET";
 
   @Value("${vers.url}")
   private String serviceURL;// = "http://localhost:1234";
@@ -70,7 +72,6 @@ public class VersReportingService {
 
   private SURFnetErStub surfNetErStub;
 
-  @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
@@ -91,15 +92,15 @@ public class VersReportingService {
         new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
         new ArrayList<String>());
 
+    @SuppressWarnings("unchecked")
     final Map<String, String> nocReportValues = BeanUtils.describe(nocReport);
     final List<VersResponse> versResponses = new ArrayList<>();
 
     for (final Entry<String, String> entry : nocReportValues.entrySet()) {
       final String value = entry.getValue();
-      final String humanReadableKey = String.format(" %s:", camelCaseToHumanReadable(entry.getKey()));
+      final String humanReadableKey = String.format("%s", camelCaseToHumanReadable(entry.getKey()));
       if (StringUtils.isNumeric(value)) {
-        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start,
-            DEFAULT_ORGANIZATION);
+        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start, Optional.<String>absent());
         final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest)
             .getErInsertReportResponse();
         versResponses.add(new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText()));
@@ -138,7 +139,7 @@ public class VersReportingService {
   // }
 
   private ErInsertReportDocument getVersRequest(final String type, final String delimiter, final String value,
-      DateTime start, final String instituteShortName) {
+      DateTime start, Optional<String> instituteShortName) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
     insertReportInput.setType(type);
@@ -147,10 +148,17 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-    insertReportInput.setIsHidden(false);
     insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
-    insertReportInput.setInstance(DEFAULT_ORGANIZATION + " Prod");
-    insertReportInput.setOrganisation(instituteShortName);
+
+    // insertReportInput.setInstance(DEFAULT_ORGANIZATION + " Prod");
+
+    if (instituteShortName.isPresent()) {
+      insertReportInput.setOrganisation(instituteShortName.get());
+      insertReportInput.setIsHidden(false);
+    }
+    else {
+      insertReportInput.setIsHidden(true);
+    }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     return versRequest;
   }
