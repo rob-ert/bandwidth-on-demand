@@ -27,6 +27,8 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.*;
 
+import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
+
 public class ReserveRequestBuilder {
 
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
@@ -48,14 +50,13 @@ public class ReserveRequestBuilder {
   }
 
   private void createVendorExtensionsAndAdd(ResourceFacingServiceType rfsCreateData, DateTime startDateTime) {
-
     AnyListType anyListType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
-
     List<Object> anyList = anyListType.getAny();
 
-    JAXBElement<NamingAttributeType> start = new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory()
-        .createCommonObjectInfoTypeName(createNamingAttrib("startTime", convertToXml(startDateTime)));
-    anyList.add(start);
+    Nvs nvs = new Nvs();
+    nvs.setName("startTime");
+    nvs.setValue(convertToXml(startDateTime));
+    anyList.add(nvs);
 
     JAXBElement<AnyListType> vendorExtensions = new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory()
         .createCommonObjectInfoTypeVendorExtensions(anyListType);
@@ -106,8 +107,9 @@ public class ReserveRequestBuilder {
   private void createDescribedByList(List<ServiceCharacteristicValueType> describedByList, DateTime timeStamp) {
     createServiceCharacsteristicsAndAddToList("EVPL", createNamingAttrib("SSC", "ServiceType"), describedByList);
 
-    createServiceCharacsteristicsAndAddToList(convertToXml(timeStamp), createNamingAttrib("SSC", "startTime"),
-        describedByList);
+    createServiceCharacsteristicsAndAddToList(
+        convertToXml(timeStamp),
+        createNamingAttrib("SSC", "startTime"), describedByList);
 
     createServiceCharacsteristicsAndAddToList("Strict", createNamingAttrib("SSC", "AdmissionControl"), describedByList);
 

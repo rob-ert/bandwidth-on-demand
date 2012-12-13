@@ -82,9 +82,6 @@ public class Environment {
   @Value("${oauth.resource.secret}")
   private String resourceSecret;
 
-  @Value("${mtosi.service.reserve.endpoint")
-  private String mtosiReserveEndPoint;
-
   public Environment() {
   }
 
@@ -224,9 +221,5 @@ public class Environment {
 
   public boolean isFeedbackToolEnabled() {
     return feedbackToolEnabled;
-  }
-
-  public String getMtosiReserveEndPoint() {
-    return mtosiReserveEndPoint;
   }
 }

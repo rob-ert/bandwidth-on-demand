@@ -27,7 +27,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import nl.surfnet.bod.domain.MtosiNotificationHolder;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
 
 @Service("mtosiNotificationCenterWs")
 @WebService(endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")

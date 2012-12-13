@@ -12,29 +12,26 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
-import org.junit.Test;
+public class MtosiNotificationHolder {
 
+  private final Header header;
+  private final Notify body;
 
-public class MtosiInventoryRetrievalClientTest {
-
-  private MtosiInventoryRetrievalClient subject = new MtosiInventoryRetrievalClient("", "");
-
-  @Test
-  public void convertPortName() {
-    final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
-    final String expectedPortName = "1-1-1-48";
-    final String convertedPortName = subject.convertPortName(mtosiPortName);
-    assertThat(convertedPortName, is(expectedPortName));
+  public MtosiNotificationHolder(Header header, Notify body) {
+    super();
+    this.header = header;
+    this.body = body;
   }
 
-  @Test
-  public void convertSubPortName() {
-    final String mtosiPortName = "/rack=1/shelf=1/slot=3/sub_slot=1";
-    final String expectedPortName = "1-1-3-1";
-    final String convertedPortName = subject.convertPortName(mtosiPortName);
-    assertThat(convertedPortName, is(expectedPortName));
+  public final Header getHeader() {
+    return header;
   }
+
+  public final Notify getBody() {
+    return body;
+  }
+
 }

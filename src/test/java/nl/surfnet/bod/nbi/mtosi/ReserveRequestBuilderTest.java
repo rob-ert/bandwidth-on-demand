@@ -32,19 +32,13 @@ import org.junit.Test;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.xml.sax.SAXException;
 
+import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
+
 
 public class ReserveRequestBuilderTest {
 
   private final ReserveRequestBuilder subject = new ReserveRequestBuilder();
   private boolean schemaValidation;
-
-  static {
-//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-  }
 
   @Test
   public void shouldProduceString() throws JAXBException {
@@ -56,7 +50,7 @@ public class ReserveRequestBuilderTest {
 
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false);
 
-    final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class);
+    final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 
     final Marshaller marshaller = context.createMarshaller();
     // Enable schema validation
@@ -64,10 +58,13 @@ public class ReserveRequestBuilderTest {
     if (schemaValidation) {
       marshaller.setSchema(getMtosiSchema());
     }
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
     // Create a stringWriter to hold the XML
     final StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
+
+    System.err.println(stringWriter.toString());
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {

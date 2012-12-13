@@ -14,6 +14,5 @@ package nl.surfnet.bod.nbi;
 
 public class NbiMtosiClientTest {
 
-  private final NbiMtosiClient subject = new NbiMtosiClient(false);
 }
 

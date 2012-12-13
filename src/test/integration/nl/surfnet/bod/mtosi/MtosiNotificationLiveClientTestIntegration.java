@@ -40,7 +40,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
-import nl.surfnet.bod.domain.MtosiNotificationHolder;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
 
 public class MtosiNotificationLiveClientTestIntegration {
 

@@ -10,28 +10,31 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.domain;
+package nl.surfnet.bod.nbi.mtosi;
 
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-public class MtosiNotificationHolder {
+import org.junit.Test;
 
-  private final Header header;
-  private final Notify body;
 
-  public MtosiNotificationHolder(Header header, Notify body) {
-    super();
-    this.header = header;
-    this.body = body;
+public class InventoryRetrievalClientTest {
+
+  private InventoryRetrievalClient subject = new InventoryRetrievalClient("");
+
+  @Test
+  public void convertPortName() {
+    final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
+    final String expectedPortName = "1-1-1-48";
+    final String convertedPortName = subject.convertPortName(mtosiPortName);
+    assertThat(convertedPortName, is(expectedPortName));
   }
 
-  public final Header getHeader() {
-    return header;
+  @Test
+  public void convertSubPortName() {
+    final String mtosiPortName = "/rack=1/shelf=1/slot=3/sub_slot=1";
+    final String expectedPortName = "1-1-3-1";
+    final String convertedPortName = subject.convertPortName(mtosiPortName);
+    assertThat(convertedPortName, is(expectedPortName));
   }
-
-  public final Notify getBody() {
-    return body;
-  }
-
 }

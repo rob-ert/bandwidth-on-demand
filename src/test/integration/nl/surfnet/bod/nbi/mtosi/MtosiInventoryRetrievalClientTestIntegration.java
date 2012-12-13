@@ -28,13 +28,13 @@ public class MtosiInventoryRetrievalClientTestIntegration {
 
   private final Properties properties = new Properties();
 
-  private MtosiInventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
+  private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
 
   @Before
   public void setup() throws IOException {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
-    mtosiInventoryRetrievalLiveClient = new MtosiInventoryRetrievalClient(properties.get(
-        "mtosi.inventory.retrieval.endpoint").toString(), properties.get("mtosi.inventory.sender.uri").toString());
+    mtosiInventoryRetrievalLiveClient = new InventoryRetrievalClient(
+        properties.get("mtosi.inventory.retrieval.endpoint").toString());
   }
 
   @Test

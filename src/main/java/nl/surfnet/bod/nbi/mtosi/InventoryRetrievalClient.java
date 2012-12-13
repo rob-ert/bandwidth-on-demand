@@ -20,7 +20,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
@@ -29,10 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
@@ -43,23 +38,20 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 import com.google.common.annotations.VisibleForTesting;
 
-@Service("mtosiInventoryRetrievalClient")
-public class MtosiInventoryRetrievalClient {
+@Service
+public class InventoryRetrievalClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private ServiceInventoryRetrievalHttp serviceInventoryRetrievalHttp;
 
   private final String resourceInventoryRetrievalUrl;
-  private final String senderUri;
 
   private boolean isInited = false;
 
   @Autowired
-  public MtosiInventoryRetrievalClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
-      @Value("${mtosi.inventory.sender.uri}") String senderUri) {
-    this.resourceInventoryRetrievalUrl = retrievalUrl;
-    this.senderUri = senderUri;
+  public InventoryRetrievalClient(@Value("${mtosi.inventory.retrieval.endpoint}") String endPoint) {
+    this.resourceInventoryRetrievalUrl = endPoint;
   }
 
   // If we do this using a postconstruct then spring will try to initialise this
@@ -95,7 +87,7 @@ public class MtosiInventoryRetrievalClient {
       final GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
       inventoryRequest.setFilter(getInventoryRequestSimpleFilter());
       return serviceInventoryRetrievalHttp.getServiceInventoryRetrievalSoapHttp()
-          .getServiceInventory(getInventoryRequestHeaders(), inventoryRequest).getInventoryData();
+          .getServiceInventory(HeaderBuilder.buildInventoryHeader(resourceInventoryRetrievalUrl), inventoryRequest).getInventoryData();
     }
     catch (GetServiceInventoryException e) {
       log.error("Error: ", e);
@@ -109,11 +101,11 @@ public class MtosiInventoryRetrievalClient {
     final SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
     scope.setServiceObjectType("SAP");
     simpleFilter.getScopeAndSelection().add(scope);
+
     return simpleFilter;
   }
 
   public List<PhysicalPort> getUnallocatedPorts() {
-
     // [x] nmsPortId = sapList.sap.resourceRef.rdn.value where
     // sapList.sap.resourceRef.rdn.type == PTP
 
@@ -191,22 +183,5 @@ public class MtosiInventoryRetrievalClient {
   public int getUnallocatedMtosiPortCount() {
     return getInventory().getSapList().getSap().size();
   }
-
-  private Holder<Header> getInventoryRequestHeaders() {
-    final Header header = new Header();
-    header.setDestinationURI(resourceInventoryRetrievalUrl);
-    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setActivityName("getServiceInventory");
-    header.setMsgName("getServiceInventoryRequest");
-    header.setSenderURI(senderUri);
-    header.setMsgType(MessageTypeType.REQUEST);
-    return new Holder<Header>(header);
-  }
-
-  // static {
-  // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
-  // Boolean.toString(true));
-  // }
 
 }
