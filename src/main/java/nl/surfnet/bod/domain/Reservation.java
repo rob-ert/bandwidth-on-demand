@@ -401,7 +401,7 @@ public class Reservation implements Loggable, PersistableDomain {
     }
     if (virtualResourceGroup != null) {
       builder.append("virtualResourceGroup=");
-      builder.append(virtualResourceGroup);
+      builder.append(virtualResourceGroup.getName());
       builder.append(", ");
     }
     if (status != null) {
@@ -461,7 +461,7 @@ public class Reservation implements Loggable, PersistableDomain {
     }
     if (connection != null) {
       builder.append("connection=");
-      builder.append(connection);
+      builder.append(connection.getLabel());
       builder.append(", ");
     }
     if (protectionType != null) {
