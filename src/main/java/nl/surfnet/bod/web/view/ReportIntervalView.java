@@ -41,4 +41,17 @@ public class ReportIntervalView {
     return label;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("ReportIntervalView [id=");
+    builder.append(id);
+    builder.append(", interval=");
+    builder.append(interval);
+    builder.append(", label=");
+    builder.append(label);
+    builder.append("]");
+    return builder.toString();
+  }
+
 }
