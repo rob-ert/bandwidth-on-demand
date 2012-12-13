@@ -28,6 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.collect.Lists;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
@@ -94,6 +95,17 @@ public class DomainModelTest {
     connection.setReservation(reservation);
     reservation.setConnection(connection);
     logger.info(reservation.toString());
+  }
+
+  @Test
+  public void shouldOnlyContainLabelsOfConnectionAndVirtualResourceGroupInReservation() {
+    Connection connection = new ConnectionFactory().create();
+    connection.setReservation(reservation);
+    reservation.setConnection(connection);
+    String reservationString = reservation.toString();
+
+    assertThat(reservationString, not(containsString("Connection [")));
+    assertThat(reservationString, not(containsString("VirtualResourceGroup [")));
   }
 
   /**
