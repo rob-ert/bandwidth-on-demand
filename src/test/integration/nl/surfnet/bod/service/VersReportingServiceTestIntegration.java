@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 public class VersReportingServiceTestIntegration {
 
   @SuppressWarnings("unused")

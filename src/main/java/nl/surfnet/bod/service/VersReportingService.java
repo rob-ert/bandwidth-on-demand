@@ -55,7 +55,7 @@ public class VersReportingService {
 
   // public static final String DEFAULT_ORGANIZATION = "SURFNET";
 
-  @Value("${vers.url}")
+   @Value("${vers.url}")
   private String serviceURL;// = "http://localhost:1234";
 
   @Value("${vers.user}")
@@ -79,6 +79,12 @@ public class VersReportingService {
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
   private final DateTimeFormatter bodLabelFormatter = DateTimeFormat.forPattern("yyyy MMM");
 
+  @Resource(name = "reportToVersReservationMap")
+  private Map<String, String> reportToVersReservationMap;
+
+  @Resource(name = "reportToVersReportMap")
+  private Map<String, String> reportToVersReportMap;
+
   @PostConstruct
   void init() throws IOException {
     surfNetErStub = new SURFnetErStub(serviceURL);
@@ -98,9 +104,15 @@ public class VersReportingService {
 
     for (final Entry<String, String> entry : nocReportValues.entrySet()) {
       final String value = entry.getValue();
-      final String humanReadableKey = String.format("%s", camelCaseToHumanReadable(entry.getKey()));
+      // TODO: Report item for cancelled and another one for  failed
+      String humanReadableKey = String.format("%s", reportToVersReservationMap.get(value));
+      if (StringUtils.isBlank(humanReadableKey)) {
+        log.warn("Unmapped reporting value found for iten {}", value);
+        humanReadableKey = reportToVersReportMap.get(entry.getKey());
+      }
       if (StringUtils.isNumeric(value)) {
-        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start, Optional.<String>absent());
+        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start,
+            Optional.<String> absent());
         final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest)
             .getErInsertReportResponse();
         versResponses.add(new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText()));
@@ -124,6 +136,7 @@ public class VersReportingService {
     // institute.getShortName());
     // }
 
+    // TODO: @Scheduled can not have a return type
     return versResponses;
   }
 
@@ -142,7 +155,7 @@ public class VersReportingService {
       DateTime start, Optional<String> instituteShortName) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType(type);
+    insertReportInput.setType(type); // Requests Canceled
     insertReportInput.setNormComp(delimiter);
     insertReportInput.setNormValue(value);
     insertReportInput.setDepartmentList("NWD");
@@ -150,6 +163,7 @@ public class VersReportingService {
     insertReportInput.setValue(value);
     insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
 
+    // Failed, cancelled
     // insertReportInput.setInstance(DEFAULT_ORGANIZATION + " Prod");
 
     if (instituteShortName.isPresent()) {
@@ -160,6 +174,10 @@ public class VersReportingService {
       insertReportInput.setIsHidden(true);
     }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
+
+    // System.out.println(ReflectionToStringBuilder.toString(insertReportInput,
+    // ToStringStyle.MULTI_LINE_STYLE));
+
     return versRequest;
   }
 
@@ -236,14 +254,6 @@ public class VersReportingService {
       return interval;
     }
 
-  }
-
-  private static String camelCaseToHumanReadable(final String s) {
-    final char[] chars = s.replaceAll(
-        String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"),
-        " ").toCharArray();
-    chars[0] = Character.toUpperCase(chars[0]);
-    return new String(chars);
   }
 
   public static void main(String args[]) throws Exception {
