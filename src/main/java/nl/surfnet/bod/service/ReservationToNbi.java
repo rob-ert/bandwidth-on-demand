@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -55,7 +53,6 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservationId);
 
