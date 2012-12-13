@@ -72,7 +72,7 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendActivationMail(ActivationEmailLink activationEmailLink) {
-    String bodyText = ActivationEmail.body(generateActivationUrl(activationEmailLink).toExternalForm());
+    String bodyText = ActivationEmail.body(generateActivationUrl(activationEmailLink).toExternalForm(), activationEmailLink.getSourceObject().getName());
     String subject = ActivationEmail.subject(activationEmailLink.getSourceObject().getName());
 
     SimpleMailMessage mail = new MailMessageBuilder().withTo(activationEmailLink.getToEmail()).withSubject(subject)

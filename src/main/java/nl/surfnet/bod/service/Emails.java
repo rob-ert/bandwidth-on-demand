@@ -34,15 +34,15 @@ public final class Emails {
   public static class ActivationEmail {
     private static final String ACTIVATION_BODY = //
     "Dear BoD Administrator,\n\n" //
-        + "Please click the link to activate the email address for institute: %s" //
+        + "Please use the link below to verify the email address of the BoD administrators of institute: %s" //
         + FOOTER;
 
-    public static String body(String link) {
+    public static String body(String link, String institute) {
       return String.format(ACTIVATION_BODY, link);
     }
 
     public static String subject(String prg) {
-      return String.format("[BoD] Activate email of %s", prg);
+      return String.format("[SURFnet BoD] Verify email address of %s", prg);
     }
   }
 
