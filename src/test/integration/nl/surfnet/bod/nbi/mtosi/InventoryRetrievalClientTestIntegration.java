@@ -24,7 +24,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MtosiInventoryRetrievalClientTestIntegration {
+public class InventoryRetrievalClientTestIntegration {
 
   private final Properties properties = new Properties();
 

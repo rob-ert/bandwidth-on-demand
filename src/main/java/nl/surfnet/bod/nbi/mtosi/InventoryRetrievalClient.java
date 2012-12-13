@@ -12,11 +12,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -41,53 +38,31 @@ import com.google.common.annotations.VisibleForTesting;
 @Service
 public class InventoryRetrievalClient {
 
+  private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ServiceInventoryRetrievalHttp serviceInventoryRetrievalHttp;
+  private final ServiceInventoryRetrievalHttp service;
 
-  private final String resourceInventoryRetrievalUrl;
-
-  private boolean isInited = false;
+  private final String endPoint;
 
   @Autowired
   public InventoryRetrievalClient(@Value("${mtosi.inventory.retrieval.endpoint}") String endPoint) {
-    this.resourceInventoryRetrievalUrl = endPoint;
-  }
-
-  // If we do this using a postconstruct then spring will try to initialise this
-  // bean (using it's annotation scan path thingie), fails and therefore the
-  // complete context will fail during (junit) testing when there is no
-  // connection with the mtosi server.
-  private void init() {
-    if (isInited) {
-      return;
-    }
-    else {
-      try {
-        serviceInventoryRetrievalHttp = new ServiceInventoryRetrievalHttp(new URL(resourceInventoryRetrievalUrl),
-            new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
-
-        final Map<String, Object> requestContext = ((BindingProvider) serviceInventoryRetrievalHttp
-            .getPort(ServiceInventoryRetrievalRPC.class)).getRequestContext();
-
-        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
-        isInited = true;
-      }
-      catch (MalformedURLException e) {
-        log.error("Error: ", e);
-      }
-    }
-
+    this.endPoint = endPoint;
+    this.service = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION),
+        new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
   }
 
   private ServiceInventoryDataType getInventory() {
-    log.info("Retrieving inventory at: {} ", resourceInventoryRetrievalUrl);
-    this.init();
     try {
       final GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
       inventoryRequest.setFilter(getInventoryRequestSimpleFilter());
-      return serviceInventoryRetrievalHttp.getServiceInventoryRetrievalSoapHttp()
-          .getServiceInventory(HeaderBuilder.buildInventoryHeader(resourceInventoryRetrievalUrl), inventoryRequest).getInventoryData();
+
+      ServiceInventoryRetrievalRPC proxy = this.service.getServiceInventoryRetrievalSoapHttp();
+      ((BindingProvider)proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+      log.info("Retrieving inventory at: {} ", endPoint);
+      return proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest).getInventoryData();
     }
     catch (GetServiceInventoryException e) {
       log.error("Error: ", e);
