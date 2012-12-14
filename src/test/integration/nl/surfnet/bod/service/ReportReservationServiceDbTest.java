@@ -46,7 +46,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 @Transactional
 public class ReportReservationServiceDbTest {
   private final static long AMOUNT_OF_RESERVATIONS = 9;

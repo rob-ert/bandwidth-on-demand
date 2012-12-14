@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml" })
+    "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class VirtualResourceGroupRepoDbTest {

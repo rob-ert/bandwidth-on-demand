@@ -30,7 +30,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/appCtx-nbi-client.xml", "classpath:/spring/appCtx.xml",
-    "classpath:/spring/appCtx-jpa-integration.xml","classpath:/spring/appCtx-idd-client.xml" })
+    "classpath:/spring/appCtx-jpa-integration.xml","classpath:/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class NbiClientTestIntegration {
 
