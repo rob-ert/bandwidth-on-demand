@@ -12,7 +12,7 @@
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" description="" />
     <jsp:directive.attribute name="renderActions" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Should the action buttons be rendered" />
-    
+
     <c:if test="${empty renderActions}">
         <c:set var="renderActions" value="true" />
     </c:if>

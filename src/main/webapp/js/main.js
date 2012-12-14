@@ -6,7 +6,7 @@ app.register = function(module) {
 
     app.modules[app.modules.length] = module;
 
-}
+};
 
 app.bootstrap = function() {
 
@@ -14,22 +14,18 @@ app.bootstrap = function() {
         if(typeof module.init === 'function') {
             module.init.call(module);
         }
-    })
+    });
 
-}
+};
 
 app.loadPlugin = function(condition, url, callback) {
 
-    if(condition) {
-
+    if (condition) {
         $.getScript(url, callback);
-
     } else {
-
         callback.call();
-
     }
 
-}
+};
 
 $(app.bootstrap);

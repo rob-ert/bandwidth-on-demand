@@ -36,4 +36,9 @@
     <!-- No menu item yet -->
   </definition>
 
+  <definition extends="noc" name="noc/report/graph">
+    <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
+    <!-- No menu item yet -->
+  </definition>
+  
 </tiles-definitions>
