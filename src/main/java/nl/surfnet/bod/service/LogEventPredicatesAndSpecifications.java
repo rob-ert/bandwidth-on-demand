@@ -130,9 +130,11 @@ public final class LogEventPredicatesAndSpecifications {
       predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds));
     }
 
-    Predicate inAdminGroups = inAdminGroups(adminGroups, root, cb);
-    if (inAdminGroups != null) {
-      predicate = cb.and(predicate, inAdminGroups);
+    if (!adminGroups.isEmpty()) {
+      Predicate inAdminGroups = inAdminGroups(adminGroups, root, cb);
+      if (inAdminGroups != null) {
+        predicate = cb.and(predicate, inAdminGroups);
+      }
     }
 
     return predicate;
