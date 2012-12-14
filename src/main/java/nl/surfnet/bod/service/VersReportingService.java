@@ -15,16 +15,13 @@ package nl.surfnet.bod.service;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.vers.SURFnetErStub;
-import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -39,14 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import surfnet_er.ErInsertReportDocument;
+import surfnet_er.*;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
-import surfnet_er.ErInsertTypeDocument;
 import surfnet_er.ErInsertTypeDocument.ErInsertType;
-import surfnet_er.ErInsertTypeResponseDocument;
-import surfnet_er.InsertReportInput;
-import surfnet_er.InsertTypeInput;
 
 import com.google.common.base.Optional;
 
@@ -95,8 +88,7 @@ public class VersReportingService {
 
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReport = reportingService.determineReport(
-        new ReportIntervalView(versReportPeriod.getInterval(), bodLabelFormatter.print(versReportPeriod.getStart())),
-        new ArrayList<String>());
+        versReportPeriod.getInterval(), Collections.<String>emptyList());
 
     @SuppressWarnings("unchecked")
     final Map<String, String> nocReportValues = BeanUtils.describe(nocReport);

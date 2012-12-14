@@ -26,26 +26,25 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 
 @Service
 public class ReportingService {
-  
+
   @Resource
   private ReservationService reservationService;
-  
+
   @Resource
   private LogEventService logEventService;
-  
-  public ReservationReportView determineReport(ReportIntervalView selectedInterval, Collection<String> adminGroups) {
-    ReservationReportView reservationReport = new ReservationReportView(selectedInterval.getInterval().getStart(),
-        selectedInterval.getInterval().getEnd());
+
+  public ReservationReportView determineReport(Interval interval, Collection<String> adminGroups) {
+    ReservationReportView reservationReport = new ReservationReportView(interval.getStart(), interval.getEnd());
 
     determineReservationRequestsForGroups(reservationReport, adminGroups);
     determineReservationsInAdminGroupsForProtectionType(reservationReport, adminGroups);

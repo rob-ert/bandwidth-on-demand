@@ -51,8 +51,6 @@ public abstract class AbstractReportController {
   public String index(@PathVariable final Integer selectedIntervalId, Model model) {
 
     List<ReportIntervalView> intervals = determineReportIntervals();
-    model.addAttribute("intervalList", intervals);
-    model.addAttribute("baseReportIntervalUrl", getPageUrl());
 
     ReportIntervalView selectedInterval = intervals.get(0);
     if (selectedIntervalId != null) {
@@ -63,8 +61,12 @@ public abstract class AbstractReportController {
         }
       });
     }
+
+    model.addAttribute("intervalList", intervals);
+    model.addAttribute("baseReportIntervalUrl", getPageUrl());
     model.addAttribute("selectedInterval", selectedInterval);
-    model.addAttribute("report", reportingService.determineReport(selectedInterval, getAdminGroups()));
+    model.addAttribute("report", reportingService.determineReport(selectedInterval.getInterval(), getAdminGroups()));
+
     return getPageUrl();
   }
 
@@ -100,5 +102,4 @@ public abstract class AbstractReportController {
     return reportIntervals;
   }
 
-  
 }
