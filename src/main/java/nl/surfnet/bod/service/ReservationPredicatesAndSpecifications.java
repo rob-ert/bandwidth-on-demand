@@ -195,7 +195,7 @@ public class ReservationPredicatesAndSpecifications {
   /**
    * Specification to find {@link Reservation}s which have started in or before
    * the given period and which end in or after the given period.
-   *
+   * 
    * @param start
    *          {@link DateTime} start of the period
    * @param end
@@ -256,6 +256,23 @@ public class ReservationPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Predicate connectionPredicate = cb.isNotNull(root.get(Reservation_.connection));
+
+        final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
+
+        return cb.and(connectionPredicate, reservationIdIn);
+      }
+    };
+    return spec;
+  }
+
+  static Specification<Reservation> specReservationWithoutConnection(final List<Long> reservationIds) {
+    final Specification<Reservation> spec = new Specification<Reservation>() {
+
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        // TODO this is not correct, should check for each reservation id if the
+        // connection is null
+        final Predicate connectionPredicate = cb.isNull(root.get(Reservation_.connection));
 
         final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
 

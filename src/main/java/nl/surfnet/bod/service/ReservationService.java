@@ -262,7 +262,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public long countReservationsCreatedThroughChannelNSIInAdminGroups(DateTime start, DateTime end,
       Collection<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenInAdminGroups(start, end, adminGroups);
+    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
+        ReservationStatus.REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
@@ -270,6 +271,47 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
+
+  public long countReservationsCancelledThroughChannelNSIInAdminGroups(DateTime start, DateTime end,
+      Collection<String> adminGroups) {
+
+    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenWithStateInAdminGroups(start, end,
+        adminGroups, CANCELLED, CANCEL_FAILED);
+
+    if (CollectionUtils.isEmpty(reservationIds)) {
+      return 0;
+    }
+
+    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
+  }
+  
+  public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
+      Collection<String> adminGroups) {
+    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
+        ReservationStatus.REQUESTED, adminGroups);
+
+    if (CollectionUtils.isEmpty(reservationIds)) {
+      return 0;
+    }
+
+    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithoutConnection(reservationIds));
+  }
+
+  public long countReservationsCancelledThroughChannelGUInAdminGroups(DateTime start, DateTime end,
+      Collection<String> adminGroups) {
+
+    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenWithStateInAdminGroups(start, end,
+        adminGroups, CANCELLED, CANCEL_FAILED);
+
+    if (CollectionUtils.isEmpty(reservationIds)) {
+      return 0;
+    }
+
+    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithoutConnection(reservationIds));
+  }
+  
+  
+  
 
   public long countReservationsBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
       Collection<String> adminGroups, ReservationStatus... states) {
@@ -285,8 +327,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
-  public long countReservationsWhichHadStateTransitionBetweenInAdminGroups(final DateTime start,
-      final DateTime end, final ReservationStatus oldStatus, final ReservationStatus newStatus,Collection<String> adminGroups) {
+  public long countReservationsWhichHadStateTransitionBetweenInAdminGroups(final DateTime start, final DateTime end,
+      final ReservationStatus oldStatus, final ReservationStatus newStatus, Collection<String> adminGroups) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(oldStatus, newStatus, null, start, end,

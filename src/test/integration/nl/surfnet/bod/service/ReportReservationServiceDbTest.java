@@ -130,7 +130,7 @@ public class ReportReservationServiceDbTest {
 
   @AfterClass
   public static void teardown() {
-//    FIXME Franky DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+    // FIXME Franky DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Test
@@ -234,10 +234,31 @@ public class ReportReservationServiceDbTest {
   }
 
   @Test
-  public void shouldCountReservationsThroughNSI() {
+  public void shouldCountCreatesThroughNSI() {
     long count = subject.countReservationsCreatedThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
 
+    assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldCountCancelsThroughNSI() {
+    long count = subject.countReservationsCancelledThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
+
+    assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldCountCreatesThroughGUI() {
+    long count = subject.countReservationsCreatedThroughChannelGUIInAdminGroups(periodStart, periodEnd, adminGroups);
+
     assertThat(count, is(4L));
+  }
+
+  @Test
+  public void shouldCountCancelsThroughGUI() {
+    long count = subject.countReservationsCancelledThroughChannelGUInAdminGroups(periodStart, periodEnd, adminGroups);
+
+    assertThat(count, is(0L));
   }
 
   private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {

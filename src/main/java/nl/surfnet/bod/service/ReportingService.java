@@ -95,10 +95,12 @@ public class ReportingService {
 
     // Actual Reservations by channel
     reservationReport.setAmountRequestsThroughNSI(reservationService
-        .countReservationsCreatedThroughChannelNSIInAdminGroups(start, end, adminGroups));
+        .countReservationsCreatedThroughChannelNSIInAdminGroups(start, end, adminGroups)
+        + reservationService.countReservationsCancelledThroughChannelNSIInAdminGroups(start, end, adminGroups));
 
-    reservationReport.setAmountRequestsThroughGUI(reservationReport.getTotalRequests()
-        - reservationReport.getAmountRequestsThroughNSI());
+    reservationReport.setAmountRequestsThroughGUI(reservationService
+        .countReservationsCreatedThroughChannelGUIInAdminGroups(start, end, adminGroups)
+        + reservationService.countReservationsCancelledThroughChannelGUInAdminGroups(start, end, adminGroups));
   }
 
   @VisibleForTesting
