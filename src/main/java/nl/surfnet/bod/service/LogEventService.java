@@ -12,6 +12,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.toArray;
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
@@ -164,7 +165,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
   }
 
-  public List<LogEvent> findByManagerRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
+  public List<LogEvent> findByAdministratorRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
+    checkArgument(managerRole.isManagerRole());
+
     return findByAdminGroups(Lists.newArrayList(managerRole.getAdminGroup().get()), firstResult, maxResults, sort);
   }
 

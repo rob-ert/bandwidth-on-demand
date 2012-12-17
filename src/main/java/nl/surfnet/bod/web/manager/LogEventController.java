@@ -29,7 +29,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return getLogEventService().findByManagerRole(Security.getSelectedRole(), firstPage, maxItems, sort);
+    return getLogEventService().findByAdministratorRole(Security.getSelectedRole(), firstPage, maxItems, sort);
   }
 
   @Override

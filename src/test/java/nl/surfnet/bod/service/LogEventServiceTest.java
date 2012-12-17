@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -213,6 +214,12 @@ public class LogEventServiceTest {
 
     assertThat(logEvents, hasSize(0));
     verifyZeroInteractions(logEventRepoMock);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailIfRoleIsNotManager() {
+    BodRole userRole = BodRole.createUser();
+    subject.findByAdministratorRole(userRole, 1, 100, new Sort("userId"));
   }
 
 }
