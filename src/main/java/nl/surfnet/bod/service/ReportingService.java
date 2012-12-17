@@ -12,6 +12,11 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,11 +37,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
-import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
 
 @Service
 public class ReportingService {
@@ -94,11 +94,11 @@ public class ReportingService {
         .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.CANCEL_FAILED));
 
     // Actual Reservations by channel
-    reservationReport.setAmountRequestsThroughGUI(reservationService
-        .countReservationsCreatedThroughChannelGUIInAdminGroups(start, end, adminGroups));
+    reservationReport.setAmountRequestsThroughNSI(reservationService
+        .countReservationsCreatedThroughChannelNSIInAdminGroups(start, end, adminGroups));
 
-    reservationReport.setAmountRequestsThroughNSI(reservationReport.getTotalRequests()
-        - reservationReport.getAmountRequestsThroughGUI());
+    reservationReport.setAmountRequestsThroughGUI(reservationReport.getTotalRequests()
+        - reservationReport.getAmountRequestsThroughNSI());
   }
 
   @VisibleForTesting

@@ -12,6 +12,10 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterables.toArray;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,15 +25,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -48,11 +44,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterables.toArray;
-
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -184,6 +175,14 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
     Specification<LogEvent> spec = LogEventPredicatesAndSpecifications
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, state);
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
+  }
+
+  public List<Long> findReservationsIdsCreatedBetweenInAdminGroups(DateTime start, DateTime end,
+      Collection<String> adminGroups) {
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specReservationCreatedBetweenForAdminGroups(
+        start, end, adminGroups);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }

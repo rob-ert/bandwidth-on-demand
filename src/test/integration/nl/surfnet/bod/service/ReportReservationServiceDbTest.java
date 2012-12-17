@@ -12,6 +12,11 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,19 +42,13 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 @Transactional
 public class ReportReservationServiceDbTest {
-  private final static long AMOUNT_OF_RESERVATIONS = 9;
+  private final static long AMOUNT_OF_RESERVATIONS = 8;
 
   // override bod.properties to run test and bod server at the same time
   static {
@@ -103,11 +102,8 @@ public class ReportReservationServiceDbTest {
       // Speed up setup time
       nbiClient.setShouldSleep(false);
 
-      // Five (5) reservations in reporting period
+      // Five (4) reservations in reporting period
       reservationOnStartPeriod = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
-          ReservationStatus.REQUESTED);
-
-      reservationOnEndPeriod = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
           ReservationStatus.REQUESTED);
       reservationAfterStartAndOnEndPeriod = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
           ReservationStatus.REQUESTED);
@@ -134,7 +130,7 @@ public class ReportReservationServiceDbTest {
 
   @AfterClass
   public static void teardown() {
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+//    FIXME Franky DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Test
@@ -235,6 +231,13 @@ public class ReportReservationServiceDbTest {
         AUTO_START, adminGroups);
 
     assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldCountReservationsThroughNSI() {
+    long count = subject.countReservationsCreatedThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
+
+    assertThat(count, is(4L));
   }
 
   private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {

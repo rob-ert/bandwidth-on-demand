@@ -33,7 +33,7 @@ public class VirtualPortFactory {
   private String managerLabel = "A virtual port " + id;
   private String userLabel = "A user virtual port " + id;;
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
-  private String physicalPortAdminGroup = "urn:test:group";
+  private String physicalPortAdminGroup = null;
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();

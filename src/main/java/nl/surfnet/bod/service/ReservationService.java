@@ -12,30 +12,21 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
+
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.ProtectionType;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
@@ -65,34 +56,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByPhysicalPort;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPort;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPortAndManager;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservations;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForManager;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForUser;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForVirtualResourceGroup;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatAreTimedOutAndTransitionally;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
+import com.google.common.collect.*;
 
 @Service
 @Transactional
@@ -215,7 +179,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countActiveReservationsBetweenWithState(DateTime start, DateTime end, ReservationStatus state,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
     long count = 0;
 
     for (Long id : findReservationIdsStartBeforeAndEndInOrAfter(start, end)) {
@@ -296,10 +260,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(forVirtualResourceGroup(vrg));
   }
 
-  public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
-     Collection<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenWithStateInAdminGroups(start,
-        end, ReservationStatus.REQUESTED, adminGroups);
+  public long countReservationsCreatedThroughChannelNSIInAdminGroups(DateTime start, DateTime end,
+      Collection<String> adminGroups) {
+    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenInAdminGroups(start, end, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
@@ -309,14 +272,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countReservationsBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
-     Collection<String> adminGroups, ReservationStatus... states) {
+      Collection<String> adminGroups, ReservationStatus... states) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
   public List<Long> findReservationIdsInAdminGroupsWhichHadStateBetween(DateTime start, DateTime end,
-     Collection<String> adminGroups, ReservationStatus... states) {
+      Collection<String> adminGroups, ReservationStatus... states) {
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
@@ -331,7 +294,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countReservationsWithEndStateBetweenInAdminGroups(DateTime start, DateTime end,
-     Collection<String> adminGroups, ReservationStatus... states) {
+      Collection<String> adminGroups, ReservationStatus... states) {
 
     if (states != null) {
       for (ReservationStatus status : states)
@@ -366,12 +329,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return long totalAmount
    */
   public long countSuccesfullReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
     return findSuccessfullReservationRequestsInAdminGroups(start, end, adminGroups).size();
   }
 
   public List<Long> findSuccessfullReservationRequestsInAdminGroups(DateTime start, DateTime end,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
     Set<Long> reservationIds = new HashSet<>();
 
     // ReservationRequests
@@ -394,7 +357,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return long totalAmount
    */
   public long countFailedReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
 
     long failedRequests = countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups,
         ReservationStatus.NOT_ACCEPTED);
@@ -415,7 +378,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return long totalAmount
    */
   public long countRunningReservationsInAdminGroupsSucceeded(final DateTime start, final DateTime end,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
     List<Long> reservationIdsInPeriod = findReservationIdsStartBeforeAndEndInOrAfter(start, end);
 
     final Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
@@ -448,7 +411,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return long totalAmount
    */
   public long countRunningReservationsInAdminGroupsFailed(final DateTime start, final DateTime end,
-     Collection<String> adminGroups) {
+      Collection<String> adminGroups) {
     List<Long> reservationIdsInPeriod = findReservationIdsStartBeforeAndEndInOrAfter(start, end);
 
     final Specification<LogEvent> specRunningToFailed = LogEventPredicatesAndSpecifications
@@ -587,7 +550,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
 
-  public List<Long> findReservationIdsBeforeInAdminGroupsWithState(DateTime before,Collection<String> adminGroups,
+  public List<Long> findReservationIdsBeforeInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
       ReservationStatus... states) {
     final Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
         .specForReservationBeforeInAdminGroupsWithStateIn(null, before, adminGroups, states);

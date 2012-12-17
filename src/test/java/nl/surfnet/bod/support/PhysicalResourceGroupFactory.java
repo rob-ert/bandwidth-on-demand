@@ -27,8 +27,8 @@ public class PhysicalResourceGroupFactory {
 
   private Long id = COUNTER.incrementAndGet();
   private Integer version = 0;
-  private String adminGroup = "urn:my-group";
-  private List<PhysicalPort> physicalPorts = Lists.newArrayList();
+  private String adminGroup = "urn:my-group-"+id;
+  private final List<PhysicalPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
   private String managerEmail = "email@example.com";
   private boolean active;

@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +26,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -34,8 +37,6 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.web.WebUtils.not;
 
 public final class LogEventPredicatesAndSpecifications {
 
@@ -105,6 +106,28 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
+  public static Specification<LogEvent> specReservationCreatedBetweenForAdminGroups(final DateTime start,
+      final DateTime end, final Collection<String> adminGroups) {
+
+    return new Specification<LogEvent>() {
+      private final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.eventType), LogEventType.CREATE), cb.equal(root
+            .get(LogEvent_.domainObjectClass), domainObjectName), cb.between(root.get(LogEvent_.created), start, end));
+
+        if (not(CollectionUtils.isEmpty(adminGroups))) {
+          Predicate inAdminGroups = inAdminGroups(adminGroups, root, cb);
+          if (inAdminGroups != null) {
+            predicate = cb.and(predicate, inAdminGroups);
+          }
+        }
+        return predicate;
+      }
+    };
+  }
+
   private static Predicate getPredicateForDomainObjectInAdminGroupsBetween(final Root<LogEvent> root,
       final CriteriaBuilder cb, final List<Long> reservationIds, final DateTime start, final DateTime end,
       final String domainObjectName, final Collection<String> adminGroups) {
@@ -168,4 +191,5 @@ public final class LogEventPredicatesAndSpecifications {
     }
     return predicate;
   }
+
 }
