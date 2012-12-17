@@ -17,7 +17,7 @@
         idd.client.class = nl.surfnet.bod.idd.IddOfflineClient
         nbi.client.class = nl.surfnet.bod.nbi.NbiOfflineClient
 
-* Not using SURFconext authentication makes it easier to test/run the application. To do this you can set some properties in the `bod.properties`. An example mock implementation of is our [SoS][sos-git-repo].
+* Not using SURFconext authentication makes it easier to test/run the application. To do this you can set some properties in the `bod.properties`. An example mock implementation of is our [SoS][sos].
 
     hibboleth.imitate = true
     shibboleth.imitate.displayName = John Doe
@@ -53,7 +53,7 @@ And restarting postgresql (for example) like
 
 ## Running the Selenium tests
 
-The easiest way to run the selenium tests is to run the mock open social server, [SoS][sos-git-repo].
+The easiest way to run the selenium tests is to run the mock open social server, [SoS][sos].
 Further a (empty) `bod-selenium` database is expected.
 
     mvn verify -Pselenium
@@ -68,6 +68,11 @@ Load testing is done with [Gatling][gatling]. The simulations are located in `sr
 To run them type:
 
     mvn gatling:execute -Dgatling.simulation=XXSimulation
+
+## OAuth2 and NSI requests
+
+For making NSI requests an OAuth2 access token is needed. If you want to generate or validate these tokens in BoD an OAuth2 server is needed.  
+We use a the [apis][apis] server for this.
 
 ## Network Managment System (NMS)
 
@@ -91,5 +96,6 @@ How to setup Shibboleth can be found on the [SURFconext wiki](https://wiki.surfn
 [sonar]: https://atlas.dlp.surfnet.nl/sonar/
 [nexus]: https://atlas.dlp.surfnet.nl/nexus/
 [jenkins]: https://atlas.dlp.surfnet.nl/jenkins/
-[sos-git-repo]: gitolite@atlas.dlp.surfnet.nl:sos-server
+[sos]: https://github.com/BandwidthOnDemand/sos-server
 [gatling]: http://gatling-tool.org
+[apis]: https://github.com/OpenConextApps/apis
