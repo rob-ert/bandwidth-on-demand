@@ -5,18 +5,6 @@
 * BoD connects to the SURFnet Customer Relation Management system called IDD to retrieve customer information and to a Network Management System (NMS) to retrieve network information and to delegate the reservation requests. Currently OpenDrac is the underlying NMS, but in 2013 the newly build OneControl NMS of Cienna will be used.
 * This project consists out of the following projects:
 
-|Project name           |Description                                                   |Repository url                                    |
-|:-                     |:-                                                            |:-                                                |
-|**Bandwidth-on-demand**|Web UI, NSI services                                          |gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand |
-|**BoD IDD**            |Soap client for the SURFnet CRM system                        |gitolite@atlas.dlp.surfnet.nl:bod-idd             |
-|**BoD mtosi**          |MTOSI webservices to interact with the OneControl NMS         |gitolite@atlas.dlp.surfnet.nl:bod-mtosi           |
-|**Open social server** |Mock implementation of an open social autorisation            |gitolite@atlas.dlp.surfnet.nl:sos-server          |
-|**Nsi requester**      |Web UI, which acts as test client for the NSI services        |gitolite@atlas.dlp.surfnet.nl:nsi-requester       |
-|**Open DRAC**          |Legacy Network Management System                              |https://svn.surfnet.nl/svn/opendrac/              |
-|**BoD infra**          |Configuration scripts runtime environment                     |gitolite@atlas.dlp.surfnet.nl:bod-infra           |
-|**BoD build tools**    |Tools and configuration files for the development environment |gitolite@atlas.dlp.surfnet.nl:bod-build-tools     |
-
-
 ## Getting the project to work
 * The whole application is configured in a properties file called `bod-default.properties`.
 * The properties can be overridden in a `bod.properties` file that should be on the classpath.
