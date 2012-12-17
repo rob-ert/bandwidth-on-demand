@@ -13,13 +13,13 @@
 package nl.surfnet.bod.web.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.ReportingService;
 import nl.surfnet.bod.web.view.ReportIntervalView;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -37,7 +37,7 @@ import com.google.common.collect.Iterables;
 
 public abstract class AbstractReportController {
   protected static final int AMOUNT_OF_REPORT_PERIODS = 8;
-   
+
   @Resource
   private ReportingService reportingService;
 
@@ -65,14 +65,14 @@ public abstract class AbstractReportController {
     model.addAttribute("intervalList", intervals);
     model.addAttribute("baseReportIntervalUrl", getPageUrl());
     model.addAttribute("selectedInterval", selectedInterval);
-    model.addAttribute("report", reportingService.determineReport(selectedInterval.getInterval(), getAdminGroups()));
+    model.addAttribute("report", determineReport(selectedInterval.getInterval()));
 
     return getPageUrl();
   }
 
   protected abstract String getPageUrl();
 
-  protected abstract Collection<String> getAdminGroups();
+  protected abstract ReservationReportView determineReport(Interval interval);
 
   @VisibleForTesting
   List<ReportIntervalView> determineReportIntervals() {
@@ -102,4 +102,7 @@ public abstract class AbstractReportController {
     return reportIntervals;
   }
 
+  protected ReportingService getReportingService() {
+    return reportingService;
+  }
 }

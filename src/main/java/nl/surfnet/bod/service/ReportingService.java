@@ -12,20 +12,18 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
-import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateTime;
@@ -33,6 +31,12 @@ import org.joda.time.Interval;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
 
 @Service
 public class ReportingService {
@@ -43,7 +47,22 @@ public class ReportingService {
   @Resource
   private LogEventService logEventService;
 
-  public ReservationReportView determineReport(Interval interval, Collection<String> adminGroups) {
+  @Resource
+  private VirtualResourceGroupService virtualResourceGroupService;
+
+  public ReservationReportView determineReportForUser(Interval interval, RichUserDetails user) {
+    return determineReport(interval, virtualResourceGroupService.determineAdminGroupsForUser(user));
+  }
+
+  public ReservationReportView determineReportForAdmin(Interval interval, BodRole managerRole) {
+    return determineReport(interval, ImmutableList.of(managerRole.getAdminGroup().get()));
+  }
+
+  public ReservationReportView determineReportForNoc(Interval interval) {
+    return determineReport(interval, Collections.<String> emptyList());
+  }
+
+  private ReservationReportView determineReport(Interval interval, Collection<String> adminGroups) {
     ReservationReportView reservationReport = new ReservationReportView(interval.getStart(), interval.getEnd());
 
     determineReservationRequestsForGroups(reservationReport, adminGroups);
@@ -72,8 +91,7 @@ public class ReportingService {
         .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.CANCELLED));
 
     reservationReport.setAmountRequestsCancelFailed(reservationService
-        .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups,
-            ReservationStatus.CANCEL_FAILED));
+        .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.CANCEL_FAILED));
 
     // Actual Reservations by channel
     reservationReport.setAmountRequestsThroughGUI(reservationService

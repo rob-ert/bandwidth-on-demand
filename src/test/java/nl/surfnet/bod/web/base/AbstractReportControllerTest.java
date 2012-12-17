@@ -12,10 +12,10 @@
  */
 package nl.surfnet.bod.web.base;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.web.view.ReportIntervalView;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -92,7 +92,7 @@ public class AbstractReportControllerTest {
       ReportIntervalView lastReportView = reportIntervals.get(0);
       assertThat(lastReportView.getInterval().getStart(), is(august2012.withDayOfMonth(1)));
       assertThat(lastReportView.getInterval().getEnd(), is(august2012));
-      assertThat(lastReportView.getId(), is(201208));      
+      assertThat(lastReportView.getId(), is(201208));
       assertTrue(lastReportView.getLabel().equalsIgnoreCase("2012 aug - now"));
     }
     finally {
@@ -114,8 +114,8 @@ public class AbstractReportControllerTest {
     }
 
     @Override
-    protected List<String> getAdminGroups() {
-      return new ArrayList<>();
+    protected ReservationReportView determineReport(Interval interval) {
+      throw new UnsupportedOperationException();
     }
 
   }

@@ -12,15 +12,13 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.List;
-
 import nl.surfnet.bod.web.base.AbstractReportController;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.joda.time.Interval;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.google.common.collect.Lists;
 
 @Controller("managerReportController")
 @RequestMapping(ReportController.PAGE_URL)
@@ -33,11 +31,7 @@ public class ReportController extends AbstractReportController {
   }
 
   @Override
-  protected List<String> getAdminGroups() {
-    if (Security.isSelectedManagerRole()) {
-      return Lists.newArrayList(Security.getSelectedRole().getAdminGroup().get());
-    }
-
-    throw new IllegalStateException("User has no manager role");
+  protected ReservationReportView determineReport(Interval interval) {
+    return getReportingService().determineReportForAdmin(interval, Security.getSelectedRole());
   }
 }

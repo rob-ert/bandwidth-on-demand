@@ -12,10 +12,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +24,14 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -44,7 +47,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -135,9 +144,8 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<VirtualPort> subRoot = subquery.from(VirtualPort.class);
         subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
-        subquery.where(cb.equal(
-            subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
+        subquery.where(cb.equal(subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
 
         return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);
       }
@@ -147,7 +155,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   public void save(final VirtualResourceGroup virtualResourceGroup) {
     virtualResourceGroupRepo.save(virtualResourceGroup);
 
-    //Log event after creation, so the ID is set by hibernate
+    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), virtualResourceGroup);
   }
 
@@ -181,6 +189,16 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
         return group.getId();
       }
     })));
+  }
+
+  public List<String> determineAdminGroupsForUser(RichUserDetails user) {
+
+    return ImmutableList.copyOf(Collections2.filter(user.getUserGroupIds(), new Predicate<String>() {
+      @Override
+      public boolean apply(String groupId) {
+        return findByAdminGroup(groupId) != null;
+      }
+    }));
   }
 
   private Collection<VirtualResourceGroup> findBySurfconextGroupId(Collection<String> groupIds) {

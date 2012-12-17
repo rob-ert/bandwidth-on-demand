@@ -15,7 +15,9 @@ package nl.surfnet.bod.service;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -36,10 +38,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import surfnet_er.*;
+import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
+import surfnet_er.ErInsertTypeDocument;
 import surfnet_er.ErInsertTypeDocument.ErInsertType;
+import surfnet_er.ErInsertTypeResponseDocument;
+import surfnet_er.InsertReportInput;
+import surfnet_er.InsertTypeInput;
 
 import com.google.common.base.Optional;
 
@@ -48,7 +54,7 @@ public class VersReportingService {
 
   // public static final String DEFAULT_ORGANIZATION = "SURFNET";
 
-   @Value("${vers.url}")
+  @Value("${vers.url}")
   private String serviceURL;// = "http://localhost:1234";
 
   @Value("${vers.user}")
@@ -87,8 +93,7 @@ public class VersReportingService {
   public List<VersResponse> sendReportToAll(final DateTime start) throws Exception {
 
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
-    final ReservationReportView nocReport = reportingService.determineReport(
-        versReportPeriod.getInterval(), Collections.<String>emptyList());
+    final ReservationReportView nocReport = reportingService.determineReportForNoc(versReportPeriod.getInterval());
 
     @SuppressWarnings("unchecked")
     final Map<String, String> nocReportValues = BeanUtils.describe(nocReport);
@@ -96,15 +101,15 @@ public class VersReportingService {
 
     for (final Entry<String, String> entry : nocReportValues.entrySet()) {
       final String value = entry.getValue();
-      // TODO: Report item for cancelled and another one for  failed
+      // TODO: Report item for cancelled and another one for failed
       String humanReadableKey = String.format("%s", reportToVersReservationMap.get(value));
       if (StringUtils.isBlank(humanReadableKey)) {
         log.warn("Unmapped reporting value found for iten {}", value);
         humanReadableKey = reportToVersReportMap.get(entry.getKey());
       }
       if (StringUtils.isNumeric(value)) {
-        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start,
-            Optional.<String> absent());
+        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start, Optional
+            .<String> absent());
         final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest)
             .getErInsertReportResponse();
         versResponses.add(new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText()));

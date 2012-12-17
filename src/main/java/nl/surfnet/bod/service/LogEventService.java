@@ -12,10 +12,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterables.toArray;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +21,15 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -42,22 +46,22 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterables.toArray;
+
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "System";
-  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(
-      LogEvent.getDomainObjectName(Reservation.class),
-      LogEvent.getDomainObjectName(VirtualPort.class),
-      LogEvent.getDomainObjectName(PhysicalPort.class),
-      LogEvent.getDomainObjectName(PhysicalResourceGroup.class),
-      LogEvent.getDomainObjectName(Institute.class),
-      LogEvent.getDomainObjectName(VirtualPortRequestLink.class));
+  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(LogEvent
+      .getDomainObjectName(Reservation.class), LogEvent.getDomainObjectName(VirtualPort.class), LogEvent
+      .getDomainObjectName(PhysicalPort.class), LogEvent.getDomainObjectName(PhysicalResourceGroup.class), LogEvent
+      .getDomainObjectName(Institute.class), LogEvent.getDomainObjectName(VirtualPortRequestLink.class));
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -117,8 +121,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       ReservationStatus oldStatus) {
 
     String details = getStateChangeMessage(reservation, oldStatus);
-    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus),
-        Optional.of(reservation.getStatus()));
+    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(reservation
+        .getStatus()));
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
@@ -129,8 +133,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
-    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(),
-        Optional.<ReservationStatus> absent());
+    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(), Optional
+        .<ReservationStatus> absent());
   }
 
   private List<LogEvent> createLogEvents(RichUserDetails user, LogEventType logEventType, String details,
@@ -185,11 +189,13 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findIdsForManager(BodRole managerRole) {
-    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup().get())));
+    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup()
+        .get())));
   }
 
   public List<Long> findIdsForUser(RichUserDetails user) {
-    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(determineAdminGroupsForUser(user)));
+    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(virtualResourceGroupService
+        .determineAdminGroupsForUser(user)));
   }
 
   public List<Long> findAllIds() {
@@ -217,10 +223,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
@@ -290,20 +296,12 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public long countByUser(RichUserDetails user) {
-    return countByAdminGroups(determineAdminGroupsForUser(user));
-  }
-
-  private List<String> determineAdminGroupsForUser(RichUserDetails user) {
-    return ImmutableList.copyOf(Collections2.filter(user.getUserGroupIds(), new Predicate<String>() {
-      @Override
-      public boolean apply(String groupId) {
-        return virtualResourceGroupService.findByAdminGroup(groupId) != null;
-      }
-    }));
+    return countByAdminGroups(virtualResourceGroupService.determineAdminGroupsForUser(user));
   }
 
   public List<LogEvent> findByUser(RichUserDetails userDetails, int firstResult, int maxResults, Sort sort) {
-    return findByAdminGroups(determineAdminGroupsForUser(userDetails), firstResult, maxResults, sort);
+    return findByAdminGroups(virtualResourceGroupService.determineAdminGroupsForUser(userDetails), firstResult,
+        maxResults, sort);
   }
 
 }

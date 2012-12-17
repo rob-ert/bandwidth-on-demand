@@ -12,16 +12,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +21,11 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.LogEventFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -51,6 +45,20 @@ import org.springframework.data.jpa.domain.Specification;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -180,9 +188,8 @@ public class LogEventServiceTest {
   public void shouldRelatedItemsInList() {
     when(userMock.isSelectedNocRole()).thenReturn(true);
 
-    List<LogEvent> logEvents = subject.logUpdateEvent(
-        userMock, "show my the details",
-        new InstituteFactory().create(), new InstituteFactory().create());
+    List<LogEvent> logEvents = subject.logUpdateEvent(userMock, "show my the details", new InstituteFactory().create(),
+        new InstituteFactory().create());
 
     assertThat(logEvents, hasSize(2));
     assertThat(logEvents.get(0).getEventTypeWithCorrelationId().toString(), is("Update 1/2"));
@@ -191,14 +198,12 @@ public class LogEventServiceTest {
 
   @Test
   public void shouldFindLogEventsForAUser() {
-    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
-    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
+        when(userMock.getUserGroupIds()).thenReturn(ImmutableList.of("urn:first", "urn:second", "urn:third"));
+    when(virtualResourceGroupServiceMock.determineAdminGroupsForUser(userMock)).thenReturn(
+        Lists.newArrayList("urn:first", "urn:second"));
 
-    when(userMock.getUserGroupIds()).thenReturn(ImmutableList.of("urn:first", "urn:second", "urn:third"));
-    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:first")).thenReturn(vrg1);
-    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:second")).thenReturn(vrg2);
-    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:third")).thenReturn(null);
-    when(logEventRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl(Lists.newArrayList(new LogEventFactory().create())));
+    when(logEventRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(
+        new PageImpl(Lists.newArrayList(new LogEventFactory().create())));
 
     List<LogEvent> logEvents = subject.findByUser(userMock, 1, 100, new Sort("userId"));
 

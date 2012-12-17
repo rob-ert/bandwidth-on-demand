@@ -12,12 +12,10 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.surfnet.bod.web.base.AbstractReportController;
-import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.joda.time.Interval;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -32,13 +30,8 @@ public class ReportController extends AbstractReportController {
   }
 
   @Override
-  protected List<String> getAdminGroups() {
-
-    if (Security.isSelectedNocRole()) {
-      return new ArrayList<>();
-    }
-
-    throw new IllegalStateException("User has no NOC role");
+  protected ReservationReportView determineReport(Interval interval) {
+    return getReportingService().determineReportForNoc(interval);
   }
 
 }

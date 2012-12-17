@@ -12,8 +12,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.web.WebUtils.not;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,8 +31,11 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.not;
 
 public final class LogEventPredicatesAndSpecifications {
 
@@ -130,7 +131,7 @@ public final class LogEventPredicatesAndSpecifications {
       predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds));
     }
 
-    if (!adminGroups.isEmpty()) {
+    if (not(CollectionUtils.isEmpty(adminGroups))) {
       Predicate inAdminGroups = inAdminGroups(adminGroups, root, cb);
       if (inAdminGroups != null) {
         predicate = cb.and(predicate, inAdminGroups);
@@ -141,8 +142,10 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   private static Predicate inAdminGroups(final Collection<String> adminGroups, Root<LogEvent> root, CriteriaBuilder cb) {
+    Preconditions.checkArgument(not(CollectionUtils.isEmpty(adminGroups)), "Admingroups to check should not be empty");
+
     Collection<Predicate> restrictions = new ArrayList<>();
-    for (String adminGroup: adminGroups) {
+    for (String adminGroup : adminGroups) {
       restrictions.add(cb.isMember(adminGroup, root.get(LogEvent_.adminGroups)));
     }
     return cb.or(Iterables.toArray(restrictions, Predicate.class));

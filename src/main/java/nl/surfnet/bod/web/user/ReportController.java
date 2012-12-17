@@ -12,11 +12,11 @@
  */
 package nl.surfnet.bod.web.user;
 
-import java.util.Collection;
-
 import nl.surfnet.bod.web.base.AbstractReportController;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.joda.time.Interval;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -31,11 +31,8 @@ public class ReportController extends AbstractReportController {
   }
 
   @Override
-  protected Collection<String> getAdminGroups() {
-    if (Security.isSelectedUserRole()) {
-      return Security.getUserDetails().getUserGroupIds();
-    }
-
-    throw new IllegalStateException("User has no user role");
+  protected ReservationReportView determineReport(Interval interval) {
+    return getReportingService().determineReportForUser(interval, Security.getUserDetails());
   }
+
 }
