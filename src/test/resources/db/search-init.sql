@@ -22,7 +22,7 @@ INSERT INTO institute (id, name, short_name, aligned_idd) VALUES (449, 'Design A
 INSERT INTO institute (id, name, short_name, aligned_idd) VALUES (480, 'Dienst Uitvoering Onderwijs (DUO, voorheen IB-groep)', 'IB-GROEP', true);
 
 INSERT INTO physical_resource_group (id, active, admin_group, institute_id, manager_email, version) VALUES (5, true, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-uu', 564, 'me@me.com', 1);
-INSERT INTO physical_resource_group (id, active, admin_group, institute_id, manager_email, version) VALUES (3, true, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-uu', 620, 'i@i.com', 1);
+INSERT INTO physical_resource_group (id, active, admin_group, institute_id, manager_email, version) VALUES (3, true, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-sara', 620, 'i@i.com', 1);
 
 INSERT INTO physical_port (id, manager_label, nms_port_id, noc_label, bod_port_id, version, vlan_required, physical_resource_group, aligned_nms, nms_ne_id, nms_port_speed, nms_sap_name, signaling_type, supported_service_type) VALUES (1, 'UT One', '00-20-D8-DF-33-86_ETH-1-13-1', 'Mock_Ut002A_OME01_ETH-1-2-1', 'Mock_Ut002A_OME01_ETH-1-2-1', 2, false, 5, true, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO physical_port (id, manager_label, nms_port_id, noc_label, bod_port_id, version, vlan_required, physical_resource_group, aligned_nms, nms_ne_id, nms_port_speed, nms_sap_name, signaling_type, supported_service_type) VALUES (2, 'UT Two', '00-02-F8-EF-35-96_ETH-1-15-2', 'Mock_Ut001A_OME01_ETH-1-2-2', 'Mock_Ut001A_OME01_ETH-1-2-2', 2, false, 5, true, NULL, NULL, NULL, NULL, NULL);

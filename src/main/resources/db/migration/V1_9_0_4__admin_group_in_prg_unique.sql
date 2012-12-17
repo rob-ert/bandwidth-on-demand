@@ -1,0 +1,1 @@
+ALTER TABLE physical_resource_group ADD UNIQUE(admin_group);

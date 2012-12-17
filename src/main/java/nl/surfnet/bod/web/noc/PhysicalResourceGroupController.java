@@ -86,9 +86,11 @@ public class PhysicalResourceGroupController extends
     command.copyFieldsTo(physicalResourceGroup);
     fillInstitute(command, physicalResourceGroup);
 
+    validateAdminGroupUnique(physicalResourceGroup, bindingResult);
+
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
-      return PAGE_URL + CREATE;
+      return "noc/" + PAGE_URL + CREATE;
     }
 
     model.asMap().clear();
@@ -103,6 +105,15 @@ public class PhysicalResourceGroupController extends
     SecurityContextHolder.clearContext();
 
     return "redirect:" + PAGE_URL;
+  }
+
+  private void validateAdminGroupUnique(PhysicalResourceGroup prg, BindingResult bindingResult) {
+    List<PhysicalResourceGroup> groups = physicalResourceGroupService.findByAdminGroup(prg.getAdminGroup());
+
+    if(!groups.isEmpty()) {
+      bindingResult.rejectValue("adminGroup", "validation.not.unique");
+    }
+
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
