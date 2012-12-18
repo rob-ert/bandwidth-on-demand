@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <scm>
-        <developerConnection>scm:git:gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand.git</developerConnection>
     </scm>
     <dependencies>
         <dependency>
