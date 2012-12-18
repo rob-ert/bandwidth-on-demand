@@ -12,6 +12,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.Matchers.hasItems;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
@@ -323,7 +324,7 @@ public class ReportReservationServiceDbTest {
         ReservationStatus.TRANSITION_STATES_AS_ARRAY);
 
     assertThat(reservationIds, hasSize(4));
-    assertThat(reservationIds, contains(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
+    assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
         .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId(), reservationBeforePeriodNSI.getId()));
   }
 
