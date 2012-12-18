@@ -158,6 +158,14 @@ public class ReportReservationServiceDbTest {
   }
 
   @Test
+  public void shouldCountExistingStateInPeriodGUIAndNSI() {
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
+        ReservationStatus.RESERVED, AUTO_START);
+
+    assertThat(count, is(4L));
+  }
+
+  @Test
   public void shouldCountExistingStateBeforePeriodOnCornerGUI() {
     long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
         .minusHours(1), adminGroups, ReservationStatus.AUTO_START);
@@ -171,6 +179,14 @@ public class ReportReservationServiceDbTest {
         .minusHours(1), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(2L));
+  }
+
+  @Test
+  public void shouldCountExistingStateBeforePeriodOnCornerGUIAndNSI() {
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
+        .minusHours(1), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+
+    assertThat(count, is(3L));
   }
 
   @Test
@@ -190,6 +206,14 @@ public class ReportReservationServiceDbTest {
   }
 
   @Test
+  public void shouldCountExistingStateBeforePeriodGUIAndNSI() {
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
+        .minusHours(2), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+
+    assertThat(count, is(1L));
+  }
+
+  @Test
   public void shouldCountExistingStateAfterPeriodGUI() {
     long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd
         .plusDays(3), adminGroups, ReservationStatus.AUTO_START);
@@ -203,6 +227,14 @@ public class ReportReservationServiceDbTest {
         .plusDays(3), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldCountExistingStateAfterPeriodGUIAndNSI() {
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd
+        .plusDays(3), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+
+    assertThat(count, is(1L));
   }
 
   @Test
