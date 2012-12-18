@@ -172,7 +172,6 @@ public class VersReportingService {
           surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", Long.toString(valuePos),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
-
         break;
 
       case "amountRequestsModifiedSucceeded":
@@ -244,7 +243,7 @@ public class VersReportingService {
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-//       System.out.println(interval.getStart() +" "+ interval.getEnd());
+      // System.out.println(interval.getStart() +" "+ interval.getEnd());
       return interval;
     }
 
