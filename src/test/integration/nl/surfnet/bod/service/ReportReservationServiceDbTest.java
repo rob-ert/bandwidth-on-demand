@@ -16,6 +16,8 @@ import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.web.WebUtils.not;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -135,7 +137,6 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void checkSetup() {
-    System.err.println("checkSetup");
     long amountOfReservations = subject.count();
 
     assertThat(amountOfReservations, is(AMOUNT_OF_RESERVATIONS));
@@ -314,6 +315,16 @@ public class ReportReservationServiceDbTest {
     long count = subject.countReservationsCancelledThroughChannelGUInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldFindReservationIdsBeforeInAdminGroupsWithState() {
+    List<Long> reservationIds = subject.findReservationIdsBeforeOrOnInAdminGroupsWithState(periodStart, adminGroups,
+        ReservationStatus.TRANSITION_STATES_AS_ARRAY);
+
+    assertThat(reservationIds, hasSize(4));
+    assertThat(reservationIds, contains(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
+        .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId(), reservationBeforePeriodNSI.getId()));
   }
 
   private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status,

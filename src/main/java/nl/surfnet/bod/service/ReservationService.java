@@ -595,10 +595,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
 
-  public List<Long> findReservationIdsBeforeInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
+  public List<Long> findReservationIdsBeforeOrOnInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
       ReservationStatus... states) {
     final Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specForReservationBeforeInAdminGroupsWithStateIn(null, before, adminGroups, states);
+        .specForReservationBeforeInAdminGroupsWithStateIn(Optional.<Long>absent(), before, adminGroups, states);
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }

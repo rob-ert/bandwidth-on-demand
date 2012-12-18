@@ -33,9 +33,9 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 public final class LogEventPredicatesAndSpecifications {
 
@@ -52,17 +52,23 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  static Specification<LogEvent> specForReservationBeforeInAdminGroupsWithStateIn(final Long reservationId,
+  static Specification<LogEvent> specForReservationBeforeInAdminGroupsWithStateIn(final Optional<Long> reservationId,
       final DateTime before, final Collection<String> adminGroups, final ReservationStatus... states) {
 
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
+    final List<Long> reservationIds = new ArrayList<>();
+    if (reservationId.isPresent()) {
+      reservationIds.add(reservationId.get());
+    }
+
     return new Specification<LogEvent>() {
+
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = getPredicateForDomainObjectBeforeInAdminGroups(root, cb, Lists
-            .newArrayList(reservationId), before, domainObjectName, adminGroups);
+        Predicate predicate = getPredicateForDomainObjectBeforeInAdminGroups(root, cb, reservationIds, before,
+            domainObjectName, adminGroups);
         Predicate predicateStateIn = getPredicateForStateIn(root, cb, states);
 
         return predicateStateIn == null ? predicate : cb.and(predicate, predicateStateIn);
@@ -86,7 +92,7 @@ public final class LogEventPredicatesAndSpecifications {
       }
     };
   }
-  
+
   static Specification<LogEvent> specForReservationBetweenForAdminGroupsWithOldStateIn(final List<Long> reservationIds,
       final DateTime start, final DateTime end, final Collection<String> adminGroups, final ReservationStatus... states) {
 

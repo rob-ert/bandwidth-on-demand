@@ -35,7 +35,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.springframework.stereotype.Service;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 @Service
@@ -103,15 +102,14 @@ public class ReportingService {
         + reservationService.countReservationsCancelledThroughChannelGUInAdminGroups(start, end, adminGroups));
   }
 
-  @VisibleForTesting
-  void determineReservationsInAdminGroupsForProtectionType(ReservationReportView reservationReport,
+  private void determineReservationsInAdminGroupsForProtectionType(ReservationReportView reservationReport,
       Collection<String> adminGroups) {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 
     List<Long> reservationIds = new ArrayList<>();
 
-    for (Long id : reservationService.findReservationIdsBeforeInAdminGroupsWithState(start, adminGroups,
+    for (Long id : reservationService.findReservationIdsBeforeOrOnInAdminGroupsWithState(start, adminGroups,
         TRANSITION_STATES_AS_ARRAY)) {
       LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeInAdminGroups(id, start,
           adminGroups);
@@ -132,8 +130,8 @@ public class ReportingService {
         .countReservationsForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.REDUNDANT));
   }
 
-  @VisibleForTesting
-  void determineActiveRunningReservations(ReservationReportView reservationReport, Collection<String> adminGroups) {
+  private void determineActiveRunningReservations(ReservationReportView reservationReport,
+      Collection<String> adminGroups) {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 
