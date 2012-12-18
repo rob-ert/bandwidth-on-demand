@@ -31,6 +31,8 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Optional;
+
 @Component
 @Transactional
 public class ReservationServiceDbTestHelper {
@@ -90,8 +92,8 @@ public class ReservationServiceDbTestHelper {
     return reservation;
   }
 
-  Reservation createThroughService(Reservation reservation) {
-    Future<Long> future = reservationService.create(reservation);
+  Reservation createThroughService(Reservation reservation, boolean autoProvision) {
+    Future<Long> future = reservationService.create(reservation, autoProvision, Optional.<NsiRequestDetails> absent());
     Long reservationId = null;
 
     try {
