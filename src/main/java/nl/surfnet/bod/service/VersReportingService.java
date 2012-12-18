@@ -88,31 +88,25 @@ public class VersReportingService {
 
       switch (entry.getKey()) {
 
-      // TODO Will come up with something to reduce this code duplicity.
+      // TODO Will come up with something to reduce this mess.
       case "amountReservationsProtected":
         valuePos = nocReports.getAmountReservationsProtected();
         valueNeg = nocReports.getAmountReservationsUnprotected();
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest(
-              "Reservation Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
+              "Protection Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
               text));
         }
         if (entry.getValue().get("FALSE") != null) {
           text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation Types", Long.toString(valueNeg),
+          surfNetErStub.er_InsertReport(getVersRequest("Protection Types", Long.toString(valueNeg),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
-        break;
-
-      case "amountReservationsRedundant":
-        valuePos = nocReports.getAmountReservationsRedundant();
-        valueNeg = 0L;
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Redundant Reservations", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
+        text = "Redundant";
+        surfNetErStub.er_InsertReport(getVersRequest("Protection Types",
+            Long.toString(nocReports.getAmountReservationsRedundant()), nocReports.getPeriodStart(),
+            Optional.<String> absent(), text));
         break;
 
       case "amountRunningReservationsSucceeded":
@@ -131,18 +125,29 @@ public class VersReportingService {
         break;
 
       case "amountRunningReservationsStillRunning":
-        valuePos = nocReports.getAmountRunningReservationsStillRunning();
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Still running", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsStillRunning()), nocReports.getPeriodStart(),
+              Optional.<String> absent(), text));
+          
+          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
+              Optional.<String> absent(), "Execution succeeded"));
+          
+          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsFailed()), nocReports.getPeriodStart(),
+              Optional.<String> absent(), "Execution failed"));
+          
+          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
+              Optional.<String> absent(), "Execution succeeded"));
+          
+          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsStillScheduled()), nocReports.getPeriodStart(),
+              Optional.<String> absent(), "Scheduled"));
         }
         break;
 
       case "amountRequestsThroughGUI":
         valuePos = nocReports.getAmountRequestsThroughNSI();
         valueNeg = nocReports.getAmountRequestsThroughGUI();
-//        System.out.println(valueNeg);
+        // System.out.println(valueNeg);
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valuePos),
@@ -163,6 +168,22 @@ public class VersReportingService {
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
 
+        break;
+
+      case "amountRequestsModifiedSucceeded":
+        valuePos = nocReports.getAmountRequestsModifiedSucceeded();
+        valueNeg = nocReports.getAmountRequestsModifiedFailed();
+        // System.out.println(valueNeg);
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation Modified", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        if (entry.getValue().get("FALSE") != null) {
+          text = entry.getValue().get("FALSE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation Modified", Long.toString(valueNeg),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
         break;
 
       default:
@@ -186,7 +207,7 @@ public class VersReportingService {
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
     final String date = versFormatter.print(DateTime.now().minusMonths(1));
-//    System.out.println(date);
+    // System.out.println(date);
     insertReportInput.setPeriod(date);
 
     if (instituteShortName.isPresent()) {
@@ -242,12 +263,12 @@ public class VersReportingService {
   }
 
   public class VersReportPeriod {
-    private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
-    private final DateTime end = LocalDateTime.now().toDateTime();
+    private final DateTime start = LocalDateTime.now().toDateTime();
+    private final DateTime end = LocalDateTime.now().minusMonths(1).toDateTime();
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-//      System.out.println(interval.getStart() +" "+ interval.getEnd());
+      // System.out.println(interval.getStart() +" "+ interval.getEnd());
       return interval;
     }
 
