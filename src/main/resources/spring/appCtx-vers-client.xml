@@ -291,7 +291,6 @@
             </util:map>
         </entry>
 
-
         <entry>
             <key>
                 <value>amountRunningReservationsStillScheduled</value>
@@ -302,6 +301,48 @@
                         <value>TRUE</value>
                     </key>
                     <value>Still Scheduled</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
+        </entry>
+
+
+        <entry>
+            <key>
+                <value>amountRequestsThroughGUI</value>
+            </key>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>NSI</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>GUI</value>
+                </entry>
+            </util:map>
+        </entry>
+        
+        
+        <entry>
+            <key>
+                <value>amountRunningReservationsNeverProvisioned</value>
+            </key>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Timed Out</value>
                 </entry>
                 <entry>
                     <key>
