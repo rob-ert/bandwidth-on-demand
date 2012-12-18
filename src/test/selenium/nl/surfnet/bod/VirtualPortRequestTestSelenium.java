@@ -22,7 +22,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup("SIDN", ICT_MANAGERS_GROUP, "test@test.nl");
-    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP_2, "test@test.nl");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "Request a virtual port", "SURFnet bv");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "SIDN");
 
