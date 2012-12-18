@@ -30,6 +30,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import surfnet_er.ErInsertReportDocument;
@@ -63,7 +64,7 @@ public class VersReportingService {
 
   // private final Logger log = LoggerFactory.getLogger(getClass());
 
-  // private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
+   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
 
@@ -75,8 +76,8 @@ public class VersReportingService {
     surfNetErStub = new SURFnetErStub(serviceURL);
   }
 
-  // @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public VersResponse sendReportToAll() throws Exception {
+   @Scheduled(cron = firstDayOfTheMonthCronExpression)
+  public void sendReportToAll() throws Exception {
 
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReports = reportingService.determineReportForNoc(versReportPeriod.getInterval());
@@ -96,7 +97,6 @@ public class VersReportingService {
           final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest(
               "Protected Reservations", Long.toString(valuePos), nocReports.getPeriodStart(),
               Optional.<String> absent(), text));
-          System.out.println(er_InsertReport.getErInsertReportResponse().getReturnText());
         }
         if (entry.getValue().get("FALSE") != null) {
           text = entry.getValue().get("FALSE");
@@ -134,7 +134,7 @@ public class VersReportingService {
         valuePos = nocReports.getAmountRunningReservationsStillRunning();
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Running", Long.toString(valuePos),
+          surfNetErStub.er_InsertReport(getVersRequest("Still running", Long.toString(valuePos),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
         break;
@@ -145,9 +145,7 @@ public class VersReportingService {
         break;
 
       }
-
     }
-    return null;
   }
 
   private ErInsertReportDocument getVersRequest(final String type, final String value, DateTime start,
@@ -228,8 +226,9 @@ public class VersReportingService {
   }
 
   public static void main(String args[]) throws Exception {
-//    final ReservationReportView reservationReportViewNoc = new ReservationReportView(DateTime.now(), DateTime.now()
-//        .plusHours(1));
+    // final ReservationReportView reservationReportViewNoc = new
+    // ReservationReportView(DateTime.now(), DateTime.now()
+    // .plusHours(1));
     for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(ReservationReportView.class)
         .getPropertyDescriptors()) {
       if (propertyDescriptor.getPropertyType() == java.lang.Class.class) {
