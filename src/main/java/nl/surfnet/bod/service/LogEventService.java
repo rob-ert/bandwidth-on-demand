@@ -181,8 +181,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   public List<Long> findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(DateTime start, DateTime end,
       ReservationStatus state, Collection<String> adminGroups) {
+    
     Specification<LogEvent> spec = LogEventPredicatesAndSpecifications
-        .specForReservationBetweenForAdminGroupsWithOldStateIn(null, start, end, adminGroups, state);
+        .specForReservationBetweenForAdminGroupsWithOldStateIn(Collections.<Long>emptyList(), start, end, adminGroups, state);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }

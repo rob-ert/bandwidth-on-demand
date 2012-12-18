@@ -26,4 +26,6 @@ public interface LogEventRepo extends JpaSpecificationExecutor<LogEvent>, JpaRep
 
   List<LogEvent> findByAdminGroupsIn(Collection<String> adminGroups);
 
+  List<LogEvent> findByDomainObjectId(Long id);
+
 }

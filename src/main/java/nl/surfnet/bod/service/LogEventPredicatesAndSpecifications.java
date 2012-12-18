@@ -86,7 +86,7 @@ public final class LogEventPredicatesAndSpecifications {
       }
     };
   }
-
+  
   static Specification<LogEvent> specForReservationBetweenForAdminGroupsWithOldStateIn(final List<Long> reservationIds,
       final DateTime start, final DateTime end, final Collection<String> adminGroups, final ReservationStatus... states) {
 

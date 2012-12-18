@@ -29,7 +29,6 @@ import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,8 +85,6 @@ public class ReportReservationServiceDbTest {
 
   private final List<String> adminGroups = new ArrayList<>();
 
-  private boolean needsInit = true;
-
   @BeforeClass
   public static void init() {
     DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
@@ -94,53 +92,49 @@ public class ReportReservationServiceDbTest {
 
   @BeforeTransaction
   public void setUp() {
-    if (needsInit) {
-      periodStart = DateTime.now().plusDays(2).plusHours(1);
-      periodEnd = periodStart.plusDays(1);
+    periodStart = DateTime.now().plusDays(2).plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
+    periodEnd = periodStart.plusDays(1);
 
-      logger.warn("Start of period [{}], end [{}]", periodStart, periodEnd);
-      // Speed up setup time
-      nbiClient.setShouldSleep(false);
+    logger.warn("Start of period [{}], end [{}]", periodStart, periodEnd);
+    // Speed up setup time
+    nbiClient.setShouldSleep(false);
 
-      // Five (4) reservations in reporting period, 2 GUI and 2 NSI
-      reservationAfterStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
-          ReservationStatus.REQUESTED);
+    // Five (4) reservations in reporting period, 2 GUI and 2 NSI
+    reservationAfterStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
+        ReservationStatus.REQUESTED);
 
-      reservationInPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
-          ReservationStatus.REQUESTED);
+    reservationInPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
+        ReservationStatus.REQUESTED);
 
-      reservationOnStartPeriodNSI = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
-          ReservationStatus.REQUESTED);
-      reservationOnStartPeriodNSI = reservationHelper.addConnectionToReservation(reservationOnStartPeriodNSI);
+    reservationOnStartPeriodNSI = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
+        ReservationStatus.REQUESTED);
+    reservationOnStartPeriodNSI = reservationHelper.addConnectionToReservation(reservationOnStartPeriodNSI);
 
-      reservationAfterStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.plusHours(1), periodEnd
-          .plusDays(1), ReservationStatus.REQUESTED);
-      reservationAfterStartAndAfterEndPeriodNSI = reservationHelper
-          .addConnectionToReservation(reservationAfterStartAndAfterEndPeriodNSI);
+    reservationAfterStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.plusHours(1), periodEnd
+        .plusDays(1), ReservationStatus.REQUESTED);
+    reservationAfterStartAndAfterEndPeriodNSI = reservationHelper
+        .addConnectionToReservation(reservationAfterStartAndAfterEndPeriodNSI);
 
-      // Two (2) reservations related to reporting period, 1 GUI and 1 NSI
-      reservationBeforeStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.minusHours(1), periodEnd,
-          ReservationStatus.REQUESTED);
+    // Two (2) reservations related to reporting period, 1 GUI and 1 NSI
+    reservationBeforeStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.minusHours(1), periodEnd,
+        ReservationStatus.REQUESTED);
 
-      reservationBeforeStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.minusHours(1), periodEnd
-          .plusDays(1), ReservationStatus.REQUESTED);
-      reservationBeforeStartAndAfterEndPeriodNSI = reservationHelper
-          .addConnectionToReservation(reservationBeforeStartAndAfterEndPeriodNSI);
+    reservationBeforeStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.minusHours(1), periodEnd
+        .plusDays(1), ReservationStatus.REQUESTED);
+    reservationBeforeStartAndAfterEndPeriodNSI = reservationHelper
+        .addConnectionToReservation(reservationBeforeStartAndAfterEndPeriodNSI);
 
-      // Two (2) reservations not related to reporting period, 1 GUI and 1 NSI
-      reservationAfterPeriodGUI = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
-          ReservationStatus.REQUESTED);
+    // Two (2) reservations not related to reporting period, 1 GUI and 1 NSI
+    reservationAfterPeriodGUI = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
+        ReservationStatus.REQUESTED);
 
-      reservationBeforePeriodNSI = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1),
-          ReservationStatus.REQUESTED);
-      reservationBeforePeriodNSI = reservationHelper.addConnectionToReservation(reservationBeforePeriodNSI);
-
-      needsInit = false;
-    }
+    reservationBeforePeriodNSI = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1),
+        ReservationStatus.REQUESTED);
+    reservationBeforePeriodNSI = reservationHelper.addConnectionToReservation(reservationBeforePeriodNSI);
   }
 
-  @AfterClass
-  public static void teardown() {
+  @AfterTransaction
+  public void teardown() {
     DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
@@ -281,7 +275,7 @@ public class ReportReservationServiceDbTest {
       return reservationHelper.createThroughService(reservation);
     }
     finally {
-      DateTimeUtils.currentTimeMillis();
+      DateTimeUtils.setCurrentMillisSystem();
     }
   }
 }

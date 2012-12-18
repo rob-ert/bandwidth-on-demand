@@ -55,7 +55,7 @@ public class LogEvent implements PersistableDomain {
   @Field
   @FieldBridge(impl = BuiltinIterableBridge.class)
   @ElementCollection
-  @Column(name="ADMIN_GROUP")
+  @Column(name = "ADMIN_GROUP")
   private final Collection<String> adminGroups;
 
   @Field
@@ -97,7 +97,7 @@ public class LogEvent implements PersistableDomain {
    */
   @SuppressWarnings("unused")
   private LogEvent() {
-    this((String) null, Collections.<String>emptyList(), (LogEventType) null, null);
+    this((String) null, Collections.<String> emptyList(), (LogEventType) null, null);
   }
 
   public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Loggable domainObject) {
@@ -105,8 +105,8 @@ public class LogEvent implements PersistableDomain {
         Optional.<ReservationStatus> absent());
   }
 
-  public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Optional<Loggable> domainObject, String details,
-      Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
+  public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Optional<Loggable> domainObject,
+      String details, Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
     super();
     this.userId = userId;
     this.adminGroups = adminGroups;
@@ -142,7 +142,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Includes seconds in the string since the default conversion does not.
-   *
+   * 
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */
@@ -184,7 +184,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @return String CorreleationId
    */
   public String getCorrelationId() {
@@ -198,7 +198,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @param correlationId
    */
   public void setCorrelationId(String correlationId) {

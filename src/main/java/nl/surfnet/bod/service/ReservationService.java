@@ -284,7 +284,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
-  
+
   public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
       Collection<String> adminGroups) {
     List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
@@ -294,7 +294,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return 0;
     }
 
-    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithoutConnection(reservationIds));
+    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications
+        .specReservationWithConnection(reservationIds));
+
+    return reservationIds.size() - withConnection;
   }
 
   public long countReservationsCancelledThroughChannelGUInAdminGroups(DateTime start, DateTime end,
@@ -307,11 +310,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return 0;
     }
 
-    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithoutConnection(reservationIds));
+    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications
+        .specReservationWithConnection(reservationIds));
+
+    return reservationIds.size() - withConnection;
   }
-  
-  
-  
 
   public long countReservationsBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
       Collection<String> adminGroups, ReservationStatus... states) {
