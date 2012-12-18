@@ -77,7 +77,7 @@ public class VersReportingService {
   }
 
   @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendReportToAll() throws Exception {
+  public void sendInternalReport() throws Exception {
 
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReports = reportingService.determineReportForNoc(versReportPeriod.getInterval());
@@ -88,7 +88,7 @@ public class VersReportingService {
 
       switch (entry.getKey()) {
 
-      // TODO Will come up with something to reduce this mess.
+      // TODO Will come up with something to reduce this mess, hopefully.
       case "amountReservationsProtected":
         valuePos = nocReports.getAmountReservationsProtected();
         valueNeg = nocReports.getAmountReservationsUnprotected();
@@ -127,19 +127,24 @@ public class VersReportingService {
       case "amountRunningReservationsStillRunning":
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsStillRunning()), nocReports.getPeriodStart(),
+          surfNetErStub.er_InsertReport(getVersRequest("Status",
+              Long.toString(nocReports.getAmountRunningReservationsStillRunning()), nocReports.getPeriodStart(),
               Optional.<String> absent(), text));
-          
-          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
+
+          surfNetErStub.er_InsertReport(getVersRequest("Status",
+              Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution succeeded"));
-          
-          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsFailed()), nocReports.getPeriodStart(),
+
+          surfNetErStub.er_InsertReport(getVersRequest("Status",
+              Long.toString(nocReports.getAmountRunningReservationsFailed()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution failed"));
-          
-          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
+
+          surfNetErStub.er_InsertReport(getVersRequest("Status",
+              Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution succeeded"));
-          
-          surfNetErStub.er_InsertReport(getVersRequest("Status", Long.toString(nocReports.getAmountRunningReservationsStillScheduled()), nocReports.getPeriodStart(),
+
+          surfNetErStub.er_InsertReport(getVersRequest("Status",
+              Long.toString(nocReports.getAmountRunningReservationsStillScheduled()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Scheduled"));
         }
         break;
@@ -233,42 +238,13 @@ public class VersReportingService {
     return messageBody;
   }
 
-  public static class VersResponse {
-    private final String errorMessage;
-    private final int errorCode;
-
-    public VersResponse(final int errorCode, final String errorMessage) {
-      this.errorCode = errorCode;
-      this.errorMessage = errorMessage;
-    }
-
-    public int getErrorCode() {
-      return errorCode;
-    }
-
-    public String getErrorMessage() {
-      return errorMessage;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append("VersResponse [errorMessage=");
-      builder.append(errorMessage);
-      builder.append(", errorCode=");
-      builder.append(errorCode);
-      builder.append("]");
-      return builder.toString();
-    }
-  }
-
   public class VersReportPeriod {
-    private final DateTime start = LocalDateTime.now().toDateTime();
-    private final DateTime end = LocalDateTime.now().minusMonths(1).toDateTime();
+    private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
+    private final DateTime end = LocalDateTime.now().toDateTime();
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-      // System.out.println(interval.getStart() +" "+ interval.getEnd());
+//       System.out.println(interval.getStart() +" "+ interval.getEnd());
       return interval;
     }
 

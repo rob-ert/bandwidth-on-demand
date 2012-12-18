@@ -12,16 +12,10 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-import java.util.List;
+import static org.junit.Assert.*;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.service.VersReportingService.VersResponse;
-
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,7 +32,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
 public class VersReportingServiceTestIntegration {
 
-  @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource
@@ -62,28 +55,18 @@ public class VersReportingServiceTestIntegration {
   public void tearDown() throws Exception {
   }
 
-  // Currently just testing if the insert will not bomb out at all. Will test the return values later on.
+  // Currently just testing if the insert will not bomb out at all. Will test
+  // the return values later on.
   @Test
-  public void should_insert_and_delete_item() throws Exception {
-    // VersResponse versResponse =
-    // versReportingService.insertType("Active Reservations Running", "=",
-    // "10");
-    // assertThat(versResponse.getErrorMessage(),
-    // containsString("Insert failed: Duplicate reporting value detected."));
-    // assertThat(versResponse.getErrorCode(), is(-1));
+  public void should_insert_and_delete_item() {
 
-     versReportingService.sendReportToAll();
-//    assertThat(versResponse.size(), is(22));
-//    log.info("versResponse: "+versResponse.toString());
-    // assertThat(versResponse.getErrorMessage(),
-    // containsString("Insert failed: Duplicate reporting value detected."));
-    // assertThat(versResponse.getErrorCode(), is(-1));
-
-    // versResponse = versReportingService.updateItem(DEFAULT_ORGANIZATION,
-    // DateTime.now(), "Active Reservations Running", "15");
-    // assertThat(versResponse.getErrorMessage(),
-    // containsString("Insert failed: Duplicate reporting value detected."));
-    // assertThat(versResponse.getErrorCode(), is(-1));
+    try {
+      versReportingService.sendInternalReport();
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+      fail();
+    }
   }
 
 }
