@@ -12,6 +12,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.junit.Assert.fail;
+
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -20,23 +22,14 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.fail;
 
 @Component
 @Transactional
@@ -56,6 +49,8 @@ public class ReservationServiceDbTestHelper {
   private InstituteRepo instituteRepo;
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Resource
+  private ConnectionRepo connectionRepo;
 
   Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
@@ -107,6 +102,14 @@ public class ReservationServiceDbTestHelper {
       fail(e.getMessage());
     }
     return reservationService.find(reservationId);
+  }
+
+  Reservation addConnectionToReservation(Reservation reservation) {
+    Connection connection = new ConnectionFactory().setReservation(reservation).create();
+    connection = connectionRepo.saveAndFlush(connection);
+
+    reservation.setConnection(connection);
+    return reservationRepo.saveAndFlush(reservation);
   }
 
   private Institute findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup(Long... instituteIdsInUse) {
