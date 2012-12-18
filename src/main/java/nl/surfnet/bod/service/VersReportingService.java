@@ -180,12 +180,28 @@ public class VersReportingService {
         // System.out.println(valueNeg);
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation Modified", Long.toString(valuePos),
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valuePos),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
         if (entry.getValue().get("FALSE") != null) {
           text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation Modified", Long.toString(valueNeg),
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valueNeg),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        break;
+
+      case "amountRequestsCancelSucceeded":
+        valuePos = nocReports.getAmountRequestsCancelSucceeded();
+        valueNeg = nocReports.getAmountRequestsCancelFailed();
+         System.out.println(valueNeg);
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        if (entry.getValue().get("FALSE") != null) {
+          text = entry.getValue().get("FALSE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valueNeg),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
         break;
@@ -210,7 +226,8 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-    final String date = versFormatter.print(DateTime.now().minusMonths(1));
+//    final String date = versFormatter.print(DateTime.now().minusMonths(1));
+    final String date = versFormatter.print(DateTime.now().minusMonths(11));
     // System.out.println(date);
     insertReportInput.setPeriod(date);
 
@@ -239,7 +256,7 @@ public class VersReportingService {
 
   public class VersReportPeriod {
     private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
-    private final DateTime end = LocalDateTime.now().toDateTime();
+    private final DateTime end = LocalDateTime.now().toDateTime().plusDays(10);
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {

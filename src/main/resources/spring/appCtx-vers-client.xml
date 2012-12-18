@@ -107,6 +107,27 @@
                 </entry>
             </util:map>
         </entry>
+        
+        
+         <entry>
+            <key>
+                <value>amountRequestsCancelSucceeded</value>
+            </key>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Succeeded</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+            </util:map>
+        </entry>
 
 
 
