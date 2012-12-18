@@ -15,8 +15,6 @@ package nl.surfnet.bod.service;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,21 +24,17 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
-import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
+import surfnet_er.ErInsertReportResponseDocument;
 import surfnet_er.ErInsertTypeDocument;
 import surfnet_er.ErInsertTypeDocument.ErInsertType;
 import surfnet_er.ErInsertTypeResponseDocument;
@@ -71,18 +65,14 @@ public class VersReportingService {
 
   private SURFnetErStub surfNetErStub;
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  // private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
+  // private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
-  private final DateTimeFormatter bodLabelFormatter = DateTimeFormat.forPattern("yyyy MMM");
 
-  @Resource(name = "reportToVersReservationMap")
-  private Map<String, String> reportToVersReservationMap;
-
-  @Resource(name = "reportToVersReportMap")
-  private Map<String, String> reportToVersReportMap;
+  @Resource(name = "reportToVersMap")
+  private Map<String, Map<String, String>> reportToVersMapping;
 
   @PostConstruct
   void init() throws IOException {
@@ -90,78 +80,96 @@ public class VersReportingService {
   }
 
   // @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public List<VersResponse> sendReportToAll(final DateTime start) throws Exception {
+  public VersResponse sendReportToAll() throws Exception {
 
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
-    final ReservationReportView nocReport = reportingService.determineReportForNoc(versReportPeriod.getInterval());
+    final ReservationReportView nocReports = reportingService.determineReportForNoc(versReportPeriod.getInterval());
 
-    @SuppressWarnings("unchecked")
-    final Map<String, String> nocReportValues = BeanUtils.describe(nocReport);
-    final List<VersResponse> versResponses = new ArrayList<>();
+    for (final Entry<String, Map<String, String>> entry : reportToVersMapping.entrySet()) {
+      String text = entry.getKey();
+      long valuePos, valueNeg;
 
-    for (final Entry<String, String> entry : nocReportValues.entrySet()) {
-      final String value = entry.getValue();
-      // TODO: Report item for cancelled and another one for failed
-      String humanReadableKey = String.format("%s", reportToVersReservationMap.get(value));
-      if (StringUtils.isBlank(humanReadableKey)) {
-        log.warn("Unmapped reporting value found for iten {}", value);
-        humanReadableKey = reportToVersReportMap.get(entry.getKey());
+      switch (entry.getKey()) {
+
+      // TODO Will come up wit something more generic and uniform.
+      case "amountReservationsProtected":
+        valuePos = nocReports.getAmountReservationsProtected();
+        valueNeg = nocReports.getAmountReservationsUnprotected();
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+          final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest("Protected Reservations", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+          
+          System.out.println(er_InsertReport.getErInsertReportResponse().getReturnText());
+
+        }
+        if (entry.getValue().get("FALSE") != null) {
+          text = entry.getValue().get("FALSE");
+          surfNetErStub.er_InsertReport(getVersRequest("Protected Reservations", Long.toString(valueNeg),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        ;
+
+        // //
+      case "amountReservationsRedundant":
+        valuePos = nocReports.getAmountReservationsRedundant();
+        valueNeg = 0L;
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+          surfNetErStub.er_InsertReport(getVersRequest("Redundant Reservations", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        ;
+        //
+      case "amountRunningReservationsSucceeded":
+        valuePos = nocReports.getAmountRunningReservationsSucceeded();
+        valueNeg = nocReports.getAmountRunningReservationsFailed();
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservations succeeded", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        if (entry.getValue().get("FALSE") != null) {
+          text = entry.getValue().get("FALSE");
+          surfNetErStub.er_InsertReport(getVersRequest("Reservation failed", Long.toString(valueNeg),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        ;
+
+      case "amountRunningReservationsStillRunning":
+        valuePos = nocReports.getAmountRunningReservationsStillRunning();
+        if (entry.getValue().get("TRUE") != null) {
+          text = entry.getValue().get("TRUE");
+
+          surfNetErStub.er_InsertReport(getVersRequest("Still running", Long.toString(valuePos),
+              nocReports.getPeriodStart(), Optional.<String> absent(), text));
+        }
+        ;
+
+      default:
+
+        surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(), "TBD", nocReports.getPeriodStart(),
+            Optional.<String> absent(), "TBD"));
+        ;
+
       }
-      if (StringUtils.isNumeric(value)) {
-        final ErInsertReportDocument versRequest = getVersRequest(humanReadableKey, "=", value, start, Optional
-            .<String> absent());
-        final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest)
-            .getErInsertReportResponse();
-        versResponses.add(new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText()));
-      }
-      else {
-        log.warn("Unable to send attribute {} with value {} to VERS", humanReadableKey, value);
-      }
+
     }
-
-    // final Collection<Institute> institutes =
-    // instituteIddService.findAlignedWithIDD();
-    // for (final Institute institute : institutes) {
-    // final ReservationReportView adminReport =
-    // reportingService.determineReport(new ReportIntervalView(
-    // versReportPeriod.getInterval(),
-    // bodLabelFormatter.print(versReportPeriod.getStart())), institute
-    // .getAdminGroups());
-    // sendReportToOrganization("Active Reservations Scheduled", "=",
-    // Long.toString(adminReport.getAmountRunningReservationsStillScheduled()),
-    // versReportPeriod.getStart(),
-    // institute.getShortName());
-    // }
-
-    // TODO: @Scheduled can not have a return type
-    return versResponses;
+    return null;
   }
 
-  // private VersResponse sendReportToOrganization(final String type, final
-  // String delimiter, final String value,
-  // DateTime start, final String instituteShortName) throws IOException {
-  // final ErInsertReportDocument versRequest = getVersRequest(type, delimiter,
-  // value, start, instituteShortName);
-  // final ErInsertReportResponse versRepsonse =
-  // surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
-  // return new VersResponse(versRepsonse.getReturnCode(),
-  // versRepsonse.getReturnText());
-  // }
-
-  private ErInsertReportDocument getVersRequest(final String type, final String delimiter, final String value,
-      DateTime start, Optional<String> instituteShortName) {
+  private ErInsertReportDocument getVersRequest(final String type, final String value, DateTime start,
+      Optional<String> instituteShortName, String instance) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType(type); // Requests Canceled
-    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setType(type);
+    insertReportInput.setInstance(instance);
+    insertReportInput.setNormComp("=");
     insertReportInput.setNormValue(value);
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-    insertReportInput.setPeriod(versFormatter.print(start.toLocalDateTime()));
-
-    // Failed, cancelled
-    // insertReportInput.setInstance(DEFAULT_ORGANIZATION + " Prod");
+    insertReportInput.setPeriod(versFormatter.print(DateTime.now().minusMonths(7)));
 
     if (instituteShortName.isPresent()) {
       insertReportInput.setOrganisation(instituteShortName.get());
@@ -178,7 +186,8 @@ public class VersReportingService {
     return versRequest;
   }
 
-  public VersResponse insertType(final String type, final String delimiter, final String value) throws IOException {
+  public VersResponse insertType(final String type, final String value, DateTime i,
+      Optional<String> instituteShortName, String instance) throws IOException {
     final ErInsertTypeDocument versRequest = ErInsertTypeDocument.Factory.newInstance();
     final ErInsertType insertType = ErInsertType.Factory.newInstance();
     insertType.setUsername(versUserName);
@@ -186,10 +195,13 @@ public class VersReportingService {
     final InsertTypeInput insertReportInput = insertType.addNewParameters();
 
     insertReportInput.setType(type);
-    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setNormComp("=");
     insertReportInput.setNormValue(value);
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
+    insertReportInput.setInstance(instance);
+
+    versRequest.setErInsertType(insertType);
     final ErInsertTypeResponseDocument versResponse = surfNetErStub.er_InsertType(versRequest);
     return new VersResponse(versResponse.getErInsertTypeResponse().getReturnCode(), versResponse
         .getErInsertTypeResponse().getReturnText());
@@ -236,7 +248,7 @@ public class VersReportingService {
   public class VersReportPeriod {
 
     private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
-    private final DateTime end = LocalDateTime.now().toDateTime();
+    private final DateTime end = LocalDateTime.now().toDateTime().minusDays(1);
     private final Interval interval = new Interval(start, end);
 
     public final DateTime getStart() {

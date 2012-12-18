@@ -25,126 +25,291 @@
     <!-- -->
     <!-- This contains all ReservationReportView attributes that belong to a RESERVATION -->
     <!-- -->
-    <util:map id="reportToVersReservationMap">
+    <util:map id="reportToVersMap">
 
         <entry>
             <key>
                 <value>amountReservationsProtected</value>
             </key>
-            <value>Protected</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Protected</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>Unprotected</value>
+                </entry>
+            </util:map>
         </entry>
 
-        <entry>
-            <key>
-                <value>amountReservationsUnprotected</value>
-            </key>
-            <value>Unprotected</value>
-        </entry>
 
         <entry>
             <key>
                 <value>amountReservationsRedundant</value>
             </key>
-            <value>Redundant</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Redundant</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsSucceeded</value>
             </key>
-            <value>Succeeded</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Succeeded</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+            </util:map>
         </entry>
 
-        <entry>
-            <key>
-                <value>amountRunningReservationsFailed</value>
-            </key>
-            <value>Failed</value>
-        </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsStillRunning</value>
             </key>
-            <value>Still Running</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Still Running</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsNeverProvisioned</value>
             </key>
-            <value>Never Provisioned</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Never Provisioned</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
+
 
         <entry>
             <key>
                 <value>amountRunningReservationsStillScheduled</value>
             </key>
-            <value>Still Scheduled</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Still Scheduled</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
-    </util:map>
 
-
-    <!-- -->
-    <!-- This contains all ReservationReportView attributes that belong to a REQUEST -->
-    <!-- -->
-
-    <util:map id="reportToVersReportMap">
         <entry>
             <key>
                 <value>amountReservationsProtected</value>
             </key>
-            <value>Protected</value>
-        </entry>
-
-        <entry>
-            <key>
-                <value>amountReservationsUnprotected</value>
-            </key>
-            <value>Unprotected</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Protected</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>Unprotected</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
                 <value>amountReservationsRedundant</value>
             </key>
-            <value>Redundant</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Redundant</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
-                <value>amountRunningReservationsSucceeded</value>
+                <value>amountReservationsRedundant</value>
             </key>
-            <value>Succeeded</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Succeeded</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsFailed</value>
             </key>
-            <value>Failed</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
+        </entry>
+
+        <entry>
+            <key>
+                <value>amountRunningReservationsFailed</value>
+            </key>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
+        </entry>
+
+        <entry>
+            <key>
+                <value>amountRunningReservationsFailed</value>
+            </key>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Failed</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsStillRunning</value>
             </key>
-            <value>Still Running</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Still Running</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
-        <entry>
-            <key>
-                <value>amountRunningReservationsNeverProvisioned</value>
-            </key>
-            <value>Never Provisioned</value>
-        </entry>
 
         <entry>
             <key>
                 <value>amountRunningReservationsStillScheduled</value>
             </key>
-            <value>Still Scheduled</value>
+            <util:map>
+                <entry>
+                    <key>
+                        <value>TRUE</value>
+                    </key>
+                    <value>Still Scheduled</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>FALSE</value>
+                    </key>
+                    <value>N.A</value>
+                </entry>
+            </util:map>
         </entry>
 
     </util:map>
