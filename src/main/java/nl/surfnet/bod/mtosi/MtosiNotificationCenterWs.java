@@ -34,7 +34,7 @@ import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   @VisibleForTesting
-  public static final String DEFAULT_ADDRESS = "http://localhost:8079/bod/mtosi/fmw/notificationconsumer";
+  public static final String DEFAULT_ADDRESS = "http://localhost:8095/bod/mtosi/fmw/notificationconsumer";
   
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
   private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
@@ -90,7 +90,7 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
   }
 
   public static void main(String[] args) {
-    Endpoint.publish(DEFAULT_ADDRESS, new MtosiNotificationCenterWs());
+//    Endpoint.publish(DEFAULT_ADDRESS, new MtosiNotificationCenterWs());
   }
 
 }
