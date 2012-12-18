@@ -65,7 +65,6 @@ public class MtosiNotificationLiveClientTestIntegration {
     assertThat(unsubscribeResponse, notNullValue());
   }
 
-  @Ignore("Have to find out why it's get started for a 2nd time during int test")
   @Test
   public void sendNotification() throws Exception {
 
