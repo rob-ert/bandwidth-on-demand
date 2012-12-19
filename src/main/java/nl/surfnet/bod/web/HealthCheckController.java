@@ -29,6 +29,8 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +39,8 @@ import com.google.common.collect.Lists;
 
 @Controller
 public class HealthCheckController {
+
+  private Logger logger = LoggerFactory.getLogger(HealthCheckController.class);
 
   @Resource
   private IddClient iddClient;
@@ -58,12 +62,22 @@ public class HealthCheckController {
       public boolean healty() {
         return iddClient.getKlanten().size() > 0;
       }
+
+      @Override
+      public String getName() {
+        return "IDD";
+      }
     };
 
     final ServiceCheck nbiServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() {
         return nbiClient.getPhysicalPortsCount() > 0;
+      }
+
+      @Override
+      public String getName() {
+        return "NBI";
       }
     };
 
@@ -76,6 +90,11 @@ public class HealthCheckController {
         httpGet.releaseConnection();
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN;
       }
+
+      @Override
+      public String getName() {
+        return "OAuth server";
+      }
     };
 
     final ServiceCheck apiServiceCheck = new ServiceCheck() {
@@ -83,6 +102,11 @@ public class HealthCheckController {
       public boolean healty() throws IOException {
         Collection<UserGroup> groups = groupService.getGroups("urn:collab:person:surfguest.nl:alanvdam");
         return groups.size() > 0;
+      }
+
+      @Override
+      public String getName() {
+        return "API (groupService)";
       }
     };
 
@@ -133,15 +157,28 @@ public class HealthCheckController {
   }
 
   public boolean isServiceHealthy(ServiceCheck check) {
+    boolean result;
     try {
-      return check.healty();
+      result = check.healty();
     }
     catch (Exception e) {
-      return false;
+      logger.error("Healthcheck failed: ", e);
+      result = false;
     }
+
+    if (!result) {
+      logger.error("HealthCheck for '{}' failed", check.getName());
+    }
+
+    return result;
   }
 
   interface ServiceCheck {
     boolean healty() throws Exception;
+    String getName();
+  }
+
+  protected void setLogger(Logger logger) {
+    this.logger = logger;
   }
 }
