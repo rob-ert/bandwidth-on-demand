@@ -138,19 +138,9 @@ section h2 {
 }
 
 #csrf-token {
-    display: none;
+  display: none;
 }
 
-.report-list .content h3 {
-    display:inline-block;
-    margin-right:1em;
-}
-
-.report-list .content .form-inline {
-    display:inline-block;
-    float:none;
-}
-
-.report-list #idReport > tbody > tr > .right {
+#idReport > tbody > tr > .right {
   padding-right: 17px;
 }

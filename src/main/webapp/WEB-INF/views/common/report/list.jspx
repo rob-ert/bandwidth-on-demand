@@ -10,177 +10,167 @@
 <jsp:output omit-xml-declaration="yes" />
 <spring:url value="/${baseReportIntervalUrl}/" var="reportIntervalUrl" />
 
-<div class="row report-list">
-  <div class="span12">
-    <section>
-      <h1>
-        Welcome NOC Engineer
-        <util:timeZone />
-      </h1>
-      <div class="content">
-          <h3 >Reporting period</h3>
-          <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
-            <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
-          </form>
-      </div>
-    </section>
+<section>
+  <h1>Usage Report <util:timeZone /></h1>
+  <div class="content">
+      <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
+        <label>Reporting period</label>
+        <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
+      </form>
   </div>
-  <div>
-    <section>
-      <div class="content">
-        <table id="idReport" class="table table-bordered">
-          <thead>
-            <td colspan="3">Item</td>
-            <td>Amount</td>
-          </thead>
-          <tbody>
-            <tr>
-              <td colspan="3">Reservation Requests</td>
-              <td class="right">${report.totalRequests}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">Create</td>
-              <td class="right">${report.totalAmountRequestsCreated}</td>
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Succeeded</td>
-                    <td class="right">${report.amountRequestsCreatedSucceeded}</td>
-                  </tr>
-                  <tr>
-                    <td>Failed</td>
-                    <td class="right">${report.amountRequestsCreatedFailed}</td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">Modify</td>
-              <td class="right">${report.totalAmountRequestsModified}</td>
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Succeeded</td>
-                    <td class="right">${report.amountRequestsModifiedSucceeded}</td>
-                  </tr>
-                  <tr>
-                    <td>Failed</td>
-                    <td class="right">${report.amountRequestsModifiedFailed}</td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">Cancel</td>
-              <td class="right">${report.totalAmountRequestsCancelled}</td>
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Succeeded</td>
-                    <td class="right">${report.amountRequestsCancelSucceeded}</td>
-                  </tr>
-                  <tr>
-                    <td>Failed</td>
-                    <td class="right">${report.amountRequestsCancelFailed}</td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">NSI</td>
-              <td class="right">${report.amountRequestsThroughNSI}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">GUI</td>
-              <td class="right">${report.amountRequestsThroughGUI}</td>
-            </tr>
-            <tr>
-              <td colspan="3">Reservations</td>
-              <td class="right">${report.totalReservations}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">ProtectionType</td>
-              <td class="right">${report.totalReservations}</td>
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Protected</td>
-                    <td class="right">${report.amountReservationsProtected}</td>
-                  </tr>
-                  <br />
-                  <tr>
-                    <td>Unprotected</td>
-                    <td class="right">${report.amountReservationsUnprotected}</td>
-                  </tr>
-                  <tr>
-                    <td>Redundant</td>
-                    <td class="right">${report.amountReservationsRedundant}</td>
-                  </tr>
-                </table> <br />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3">Active Reservations</td>
-              <td class="right">${report.totalActiveReservations}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">Running</td>
-              <td />
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Execution succeeded</td>
-                    <td class="right">${report.amountRunningReservationsSucceeded}</td>
-                  </tr>
-                  <tr>
-                    <td>Execution failed</td>
-                    <td class="right">${report.amountRunningReservationsFailed}</td>
-                  </tr>
-                  <tr>
-                    <td>Running</td>
-                    <td class="right">${report.amountRunningReservationsStillRunning}</td>
-                  </tr>
-                  <tr>
-                    <td>Scheduled</td>
-                    <td class="right">${report.amountRunningReservationsStillScheduled}</td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3" class="right">Never provisioned</td>
-              <td />
-            </tr>
-            <tr>
-              <td colspan="3" />
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td>Time-out</td>
-                    <td class="right">${report.amountRunningReservationsNeverProvisioned}</td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+
+  <div class="content">
+    <table id="idReport" class="table table-bordered">
+      <thead>
+        <td colspan="3">Item</td>
+        <td>Amount</td>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="3">Reservation Requests</td>
+          <td class="right">${report.totalRequests}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">Create</td>
+          <td class="right">${report.totalAmountRequestsCreated}</td>
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Succeeded</td>
+                <td class="right">${report.amountRequestsCreatedSucceeded}</td>
+              </tr>
+              <tr>
+                <td>Failed</td>
+                <td class="right">${report.amountRequestsCreatedFailed}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">Modify</td>
+          <td class="right">${report.totalAmountRequestsModified}</td>
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Succeeded</td>
+                <td class="right">${report.amountRequestsModifiedSucceeded}</td>
+              </tr>
+              <tr>
+                <td>Failed</td>
+                <td class="right">${report.amountRequestsModifiedFailed}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">Cancel</td>
+          <td class="right">${report.totalAmountRequestsCancelled}</td>
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Succeeded</td>
+                <td class="right">${report.amountRequestsCancelSucceeded}</td>
+              </tr>
+              <tr>
+                <td>Failed</td>
+                <td class="right">${report.amountRequestsCancelFailed}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">NSI</td>
+          <td class="right">${report.amountRequestsThroughNSI}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">GUI</td>
+          <td class="right">${report.amountRequestsThroughGUI}</td>
+        </tr>
+        <tr>
+          <td colspan="3">Reservations</td>
+          <td class="right">${report.totalReservations}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">ProtectionType</td>
+          <td class="right">${report.totalReservations}</td>
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Protected</td>
+                <td class="right">${report.amountReservationsProtected}</td>
+              </tr>
+              <br />
+              <tr>
+                <td>Unprotected</td>
+                <td class="right">${report.amountReservationsUnprotected}</td>
+              </tr>
+              <tr>
+                <td>Redundant</td>
+                <td class="right">${report.amountReservationsRedundant}</td>
+              </tr>
+            </table> <br />
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">Active Reservations</td>
+          <td class="right">${report.totalActiveReservations}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">Running</td>
+          <td />
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Execution succeeded</td>
+                <td class="right">${report.amountRunningReservationsSucceeded}</td>
+              </tr>
+              <tr>
+                <td>Execution failed</td>
+                <td class="right">${report.amountRunningReservationsFailed}</td>
+              </tr>
+              <tr>
+                <td>Running</td>
+                <td class="right">${report.amountRunningReservationsStillRunning}</td>
+              </tr>
+              <tr>
+                <td>Scheduled</td>
+                <td class="right">${report.amountRunningReservationsStillScheduled}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="right">Never provisioned</td>
+          <td />
+        </tr>
+        <tr>
+          <td colspan="3" />
+          <td>
+            <table class="table  table-striped table-bordered">
+              <tr>
+                <td>Time-out</td>
+                <td class="right">${report.amountRunningReservationsNeverProvisioned}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-</div>
+</section>
 </html>
