@@ -116,11 +116,7 @@ public class PhysicalResourceGroupController extends
     }
 
     if (command.getId() != null) {
-      if (groups.size() > 1) {
-        result.rejectValue("adminGroup", "validation.not.unique");
-      }
-      PhysicalResourceGroup foundGroup = Iterables.getOnlyElement(groups);
-      if (!foundGroup.getId().equals(command.getId())) {
+      if (groups.size() > 1 || groups.size() == 1 && !Iterables.getOnlyElement(groups).getId().equals(command.getId())) {
         result.rejectValue("adminGroup", "validation.not.unique");
       }
     }

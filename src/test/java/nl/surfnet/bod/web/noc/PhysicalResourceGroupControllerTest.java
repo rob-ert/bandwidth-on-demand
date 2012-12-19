@@ -22,6 +22,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -222,4 +223,18 @@ public class PhysicalResourceGroupControllerTest {
     assertThat(result.hasFieldErrors("adminGroup"), is(true));
   }
 
+  @Test
+  public void updateShouldSucceedIfAdminGroupIsNew() {
+    RedirectAttributes model = new ModelStub();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+    BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY);
+
+    when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
+    when(physicalResourceGroupServiceMock.findByAdminGroup(group.getAdminGroup())).thenReturn(Collections.<PhysicalResourceGroup>emptyList());
+
+    String page = subject.update(command, result, model, model);
+
+    assertThat(page, is("redirect:institutes"));
+  }
 }
