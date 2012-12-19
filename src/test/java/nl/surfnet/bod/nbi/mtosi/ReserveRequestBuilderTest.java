@@ -63,8 +63,6 @@ public class ReserveRequestBuilderTest {
     // Create a stringWriter to hold the XML
     final StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
-
-    System.err.println(stringWriter.toString());
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {
