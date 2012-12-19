@@ -47,6 +47,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -79,16 +80,16 @@ public class PhysicalResourceGroupController extends
   private EntityManager entityManager;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult bindingResult,
+  public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult result,
       final RedirectAttributes redirectAttributes, final Model model) {
 
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
     command.copyFieldsTo(physicalResourceGroup);
     fillInstitute(command, physicalResourceGroup);
 
-    validateAdminGroupUnique(physicalResourceGroup, bindingResult);
+    validateAdminGroupUnique(command, result);
 
-    if (bindingResult.hasErrors()) {
+    if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
       return "noc/" + PAGE_URL + CREATE;
     }
@@ -107,13 +108,22 @@ public class PhysicalResourceGroupController extends
     return "redirect:" + PAGE_URL;
   }
 
-  private void validateAdminGroupUnique(PhysicalResourceGroup prg, BindingResult bindingResult) {
-    List<PhysicalResourceGroup> groups = physicalResourceGroupService.findByAdminGroup(prg.getAdminGroup());
+  private void validateAdminGroupUnique(PhysicalResourceGroupCommand command, BindingResult result) {
+    List<PhysicalResourceGroup> groups = physicalResourceGroupService.findByAdminGroup(command.getAdminGroup());
 
-    if(!groups.isEmpty()) {
-      bindingResult.rejectValue("adminGroup", "validation.not.unique");
+    if (command.getId() == null && !groups.isEmpty()) {
+      result.rejectValue("adminGroup", "validation.not.unique");
     }
 
+    if (command.getId() != null) {
+      if (groups.size() > 1) {
+        result.rejectValue("adminGroup", "validation.not.unique");
+      }
+      PhysicalResourceGroup foundGroup = Iterables.getOnlyElement(groups);
+      if (!foundGroup.getId().equals(command.getId())) {
+        result.rejectValue("adminGroup", "validation.not.unique");
+      }
+    }
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
@@ -133,12 +143,14 @@ public class PhysicalResourceGroupController extends
       return "redirect:" + PAGE_URL;
     }
 
-    command.copyFieldsTo(physicalResourceGroup);
+    validateAdminGroupUnique(command, result);
+
     fillInstitute(command, physicalResourceGroup);
+    command.copyFieldsTo(physicalResourceGroup);
 
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
-      return PAGE_URL + UPDATE;
+      return "noc/" + PAGE_URL + UPDATE;
     }
 
     model.asMap().clear();

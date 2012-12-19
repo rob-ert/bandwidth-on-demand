@@ -12,7 +12,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -23,28 +22,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-
-import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
 import nl.surfnet.bod.web.view.PhysicalResourceGroupView;
@@ -72,19 +58,19 @@ public class PhysicalResourceGroupControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   @Mock
-  private InstituteService instituteService;
-  
+  private InstituteService instituteServiceMock;
+
   @Mock
-  private PhysicalPortService physicalPortService;
+  private PhysicalPortService physicalPortServiceMock;
 
   @Mock
   private MessageSource messageSourceMock;
 
   @Mock
-  private VirtualPortService virtualPortService;
+  private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  private ReservationService reservationService;
+  private ReservationService reservationServiceMock;
 
   @Test
   public void listShouldSetGroupsAndMaxPages() {
@@ -95,11 +81,11 @@ public class PhysicalResourceGroupControllerTest {
     List<PhysicalPort> physicalPorts = Lists.newArrayList(physicalResourceGroup.getPhysicalPorts());
     List<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
     List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create());
-    
-    when(physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(any(PhysicalResourceGroup.class),
+
+    when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(any(PhysicalResourceGroup.class),
         anyInt(), anyInt(), any(Sort.class))).thenReturn(physicalPorts);
-    when(virtualPortService.findAllForPhysicalPort(any(PhysicalPort.class))).thenReturn(virtualPorts);
-    when(reservationService.findActiveByPhysicalPort(any(PhysicalPort.class))).thenReturn(reservations);
+    when(virtualPortServiceMock.findAllForPhysicalPort(any(PhysicalPort.class))).thenReturn(virtualPorts);
+    when(reservationServiceMock.findActiveByPhysicalPort(any(PhysicalPort.class))).thenReturn(reservations);
     when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(groups);
 
     subject.list(1, null, null, model);
@@ -126,6 +112,7 @@ public class PhysicalResourceGroupControllerTest {
     when(messageSourceMock.getMessage(eq("info_activation_request_send"), any(Object[].class), any(Locale.class)))
         .thenReturn("SEND");
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
+    when(physicalResourceGroupServiceMock.findByAdminGroup("urn:ict-manager")).thenReturn(Lists.newArrayList(group));
 
     String page = subject.update(command, new BeanPropertyBindingResult(changedGroup,
         PhysicalResourceGroupController.MODEL_KEY), model, redirectAttribs);
@@ -144,6 +131,7 @@ public class PhysicalResourceGroupControllerTest {
         .create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
+    when(physicalResourceGroupServiceMock.findByAdminGroup(group.getAdminGroup())).thenReturn(Lists.newArrayList(group));
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
     String page = subject.update(command, new BeanPropertyBindingResult(group,
@@ -164,7 +152,8 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
 
     when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
-    when(instituteService.find(group.getInstitute().getId())).thenReturn(new InstituteFactory().create());
+    when(instituteServiceMock.find(group.getInstitute().getId())).thenReturn(new InstituteFactory().create());
+    when(physicalResourceGroupServiceMock.findByAdminGroup(group.getAdminGroup())).thenReturn(Lists.newArrayList(group));
 
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY) {
       @Override
@@ -176,12 +165,12 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
     String page = subject.update(command, result, model, redirectAtribs);
 
-    assertThat(page, is(PhysicalResourceGroupController.PAGE_URL + "/update"));
+    assertThat(page, is("noc/" + PhysicalResourceGroupController.PAGE_URL + "/update"));
+
     PhysicalResourceGroupCommand newCommand = (PhysicalResourceGroupCommand) model.asMap().get(
         PhysicalResourceGroupController.MODEL_KEY);
 
     assertThat(newCommand, is(command));
-
     assertThat(newCommand.getInstitute(), not(nullValue()));
 
     verify(physicalResourceGroupServiceMock, never()).update(any(PhysicalResourceGroup.class));
@@ -195,6 +184,7 @@ public class PhysicalResourceGroupControllerTest {
     when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(null);
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+
     String page = subject.update(command, new BeanPropertyBindingResult(group,
         PhysicalResourceGroupController.MODEL_KEY), model, model);
 
@@ -214,6 +204,22 @@ public class PhysicalResourceGroupControllerTest {
     subject.copyFieldsTo(group);
 
     assertThat(group.getAdminGroup(), is("urn:surfguest:group-one"));
+  }
+
+  @Test
+  public void updateShouldFailIfAdminGroupIsNotUnqiue() {
+    RedirectAttributes model = new ModelStub();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+    BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY);
+
+    when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
+    when(physicalResourceGroupServiceMock.findByAdminGroup(group.getAdminGroup())).thenReturn(Lists.newArrayList(new PhysicalResourceGroupFactory().create()));
+
+    String page = subject.update(command, result, model, model);
+
+    assertThat(page, is("noc/institutes/update"));
+    assertThat(result.hasFieldErrors("adminGroup"), is(true));
   }
 
 }
