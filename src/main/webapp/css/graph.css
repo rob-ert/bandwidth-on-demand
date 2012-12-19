@@ -1,0 +1,19 @@
+#graph {
+  fill: rgb(51, 51, 51);
+}
+
+svg {
+  background-color: white;
+  border: 1px solid black;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgb(51, 51, 51);
+  shape-rendering: crispEdges;
+}
+
+.axis line.tick {
+  stroke: lightgray;
+}

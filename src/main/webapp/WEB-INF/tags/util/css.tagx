@@ -22,6 +22,7 @@
             <bod:css value="/resources/css/bootstrap-table.css" />
             <bod:css value="/resources/css/bootstrap-tooltip.css" />
             <bod:css value="/resources/css/bootstrap-modal.css" />
+            <bod:css value="/resources/css/graph.css" />
             <bod:css value="/resources/css/layout.css" />
             <bod:css value="/resources/css/generic.css" />
             <bod:css value="/resources/css/component-userbox.css" />

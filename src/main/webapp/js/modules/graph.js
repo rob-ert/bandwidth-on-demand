@@ -38,6 +38,7 @@ app.graph = function(){
     var yAxis = d3.svg.axis()
       .scale(y)
       .tickSize(-width, 0)
+      .tickFormat(d3.format("d"))
       .orient("left");
 
     var outer = graph.append("svg")
