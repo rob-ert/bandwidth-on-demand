@@ -1,6 +1,6 @@
 var app = app || {};
 
-app.graph = function(){
+app.graph = function() {
 
   var init = function() {
     initReportGraph();
