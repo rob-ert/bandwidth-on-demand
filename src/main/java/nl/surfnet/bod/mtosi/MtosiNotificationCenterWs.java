@@ -16,7 +16,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
+
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +28,13 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
-
 @Service("mtosiNotificationCenterWs")
 @WebService(endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   @VisibleForTesting
   public static final String DEFAULT_ADDRESS = "http://localhost:8095/bod/mtosi/fmw/notificationconsumer";
-  
+
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
   private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
 
