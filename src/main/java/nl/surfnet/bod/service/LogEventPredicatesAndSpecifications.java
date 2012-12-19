@@ -79,6 +79,12 @@ public final class LogEventPredicatesAndSpecifications {
   static Specification<LogEvent> specForReservationBetweenForAdminGroupsWithStateIn(final List<Long> reservationIds,
       final DateTime start, final DateTime end, final Collection<String> adminGroups, final ReservationStatus... states) {
 
+    Preconditions 
+        .checkArgument(
+            !ArrayUtils.contains(states, ReservationStatus.REQUESTED),
+            "The given state %s can only occur in the old reservation status column, this query will only search the new reservation status column. Therefore the query will never be successfull",
+            ReservationStatus.REQUESTED);
+
     return new Specification<LogEvent>() {
       private final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 

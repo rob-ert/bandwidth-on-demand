@@ -29,6 +29,7 @@ import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
@@ -128,6 +129,11 @@ public class ReservationServiceDbTestHelper {
   private PhysicalResourceGroup persistPhysicalResourceGroup(PhysicalResourceGroup group) {
     group.setId(null);
     return physicalResourceGroupRepo.save(group);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateStatus(Reservation reservation, ReservationStatus status) {
+    reservationService.updateStatus(reservation, status);
   }
 
 }

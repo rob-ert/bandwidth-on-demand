@@ -54,8 +54,8 @@ public class ReservationReportView {
   }
 
   public long getTotalReservations() {
-    return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant
-        + amountRequestsCreatedSucceeded;
+    return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant;
+
   }
 
   public long getTotalActiveReservations() {

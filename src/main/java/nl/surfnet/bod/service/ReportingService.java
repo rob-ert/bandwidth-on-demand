@@ -17,10 +17,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -36,6 +33,7 @@ import org.joda.time.Interval;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Service
 public class ReportingService {
@@ -107,7 +105,7 @@ public class ReportingService {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 
-    List<Long> reservationIds = new ArrayList<>();
+    Set<Long> reservationIds = new HashSet<>();
 
     for (Long id : reservationService.findReservationIdsBeforeOrOnInAdminGroupsWithState(start, adminGroups,
         TRANSITION_STATES_AS_ARRAY)) {
@@ -117,17 +115,18 @@ public class ReportingService {
         reservationIds.add(id);
       }
     }
-
     reservationIds.addAll(reservationService.findSuccessfullReservationRequestsInAdminGroups(start, end, adminGroups));
 
-    reservationReport.setAmountReservationsProtected(reservationService
-        .countReservationsForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.PROTECTED));
+    List<Long> reservationIdList = Lists.newArrayList(reservationIds);
 
-    reservationReport.setAmountReservationsUnprotected(reservationService
-        .countReservationsForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.UNPROTECTED));
+    reservationReport.setAmountReservationsProtected(reservationService.countReservationsForIdsWithProtectionType(
+        reservationIdList, ProtectionType.PROTECTED));
 
-    reservationReport.setAmountReservationsRedundant(reservationService
-        .countReservationsForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.REDUNDANT));
+    reservationReport.setAmountReservationsUnprotected(reservationService.countReservationsForIdsWithProtectionType(
+        reservationIdList, ProtectionType.UNPROTECTED));
+
+    reservationReport.setAmountReservationsRedundant(reservationService.countReservationsForIdsWithProtectionType(
+        reservationIdList, ProtectionType.REDUNDANT));
   }
 
   private void determineActiveRunningReservations(ReservationReportView reservationReport,
@@ -135,20 +134,23 @@ public class ReportingService {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 
+    List<Long> reservationIdsInPeriod = ImmutableList.copyOf(reservationService
+        .findReservationIdsStartBeforeAndEndInOrAfter(start, end));
+
     reservationReport.setAmountRunningReservationsSucceeded(reservationService
-        .countRunningReservationsInAdminGroupsSucceeded(start, end, adminGroups));
+        .countRunningReservationsInAdminGroupsSucceeded(reservationIdsInPeriod, start, end, adminGroups));
 
     reservationReport.setAmountRunningReservationsFailed(reservationService
-        .countRunningReservationsInAdminGroupsFailed(start, end, adminGroups));
+        .countRunningReservationsInAdminGroupsFailed(reservationIdsInPeriod, start, end, adminGroups));
 
     reservationReport.setAmountRunningReservationsStillRunning(reservationService
-        .countActiveReservationsBetweenWithState(start, end, RUNNING, adminGroups));
+        .countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, RUNNING, adminGroups));
 
     reservationReport.setAmounRunningReservationsStillScheduled(reservationService
-        .countActiveReservationsBetweenWithState(start, end, SCHEDULED, adminGroups));
+        .countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, SCHEDULED, adminGroups));
 
     reservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countActiveReservationsBetweenWithState(start, end, ReservationStatus.TIMED_OUT, adminGroups));
+        .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.TIMED_OUT));
   }
 
 }
