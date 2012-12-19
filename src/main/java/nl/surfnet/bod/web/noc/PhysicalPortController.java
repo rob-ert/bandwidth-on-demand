@@ -22,6 +22,20 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.util.FullTextSearchResult;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.ReflectiveFieldComparator;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortView;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -41,26 +55,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.ConnectionService;
-import nl.surfnet.bod.service.NocService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.FullTextSearchResult;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.util.ReflectiveFieldComparator;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.PhysicalPortView;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -87,7 +81,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Resource
   private MessageSource messageSource;
-  
+
   @Resource
   private ConnectionService connectionService;
 
@@ -304,7 +298,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.addAttribute(DATA_LIST, transformUnallocatedPhysicalPorts);
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
+    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.MTOSI);
     model.addAttribute(FILTER_LIST, getAvailableFilters());
 
     return PAGE_URL + "/listunallocated";
