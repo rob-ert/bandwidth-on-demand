@@ -12,12 +12,13 @@
  */
 package nl.surfnet.bod.db;
 
+import static com.googlecode.flyway.core.api.MigrationState.MISSING_SUCCESS;
+import static com.googlecode.flyway.core.api.MigrationState.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-
-import java.util.List;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -32,8 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.MigrationState;
+import com.googlecode.flyway.core.api.MigrationInfo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -55,12 +55,15 @@ public class DatabaseMigrationTestIntegration extends AbstractTransactionalJUnit
     flyway.init();
     flyway.migrate();
 
-    List<MetaDataTableRow> history = flyway.history();
+    MigrationInfo[] appliedMigrations = flyway.info().applied();
+    MigrationInfo[] pendingMigrations = flyway.info().pending();
 
-    assertThat(history, hasSize(greaterThan(0)));
 
-    for (MetaDataTableRow metaDataTableRow : history) {
-      assertThat(metaDataTableRow.getState(), is(MigrationState.SUCCESS));
+    assertThat(appliedMigrations, arrayWithSize(greaterThan(0)));
+    assertThat(pendingMigrations, arrayWithSize(0));
+
+    for (MigrationInfo migrationInfo : appliedMigrations) {
+      assertThat(migrationInfo.getState(), anyOf(is(SUCCESS), is(MISSING_SUCCESS)));
     }
   }
 }
