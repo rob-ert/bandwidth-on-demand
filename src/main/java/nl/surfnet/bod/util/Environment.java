@@ -43,7 +43,7 @@ public class Environment {
   @Value("${os.oauth-secret}")
   private String openSocialOAuthSecret;
 
-  @Value("${external.bod.url}")
+  @Value("${bod.external.url}")
   private String externalBodUrl;
 
   @Value("${bod.development}")

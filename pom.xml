@@ -827,7 +827,7 @@
                              <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                             <systemProperties>
                                 <systemProperty>
-                                    <name>external.bod.url</name>
+                                    <name>bod.external.url</name>
                                     <value>http://localhost:8083/bod</value>
                                 </systemProperty>
                                 <systemProperty>
@@ -937,7 +937,7 @@
                             <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                             <systemProperties>
                                 <systemProperty>
-                                    <name>external.bod.url</name>
+                                    <name>bod.external.url</name>
                                     <value>http://localhost:${jetty.port}/bod</value>
                                 </systemProperty>
                             </systemProperties>

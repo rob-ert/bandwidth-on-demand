@@ -51,7 +51,7 @@ public class EmailSenderOnline implements EmailSender {
   @Value("${mail.bodTeamAddress}")
   private String bodTeamMailAddress;
 
-  @Value("${external.bod.url}")
+  @Value("${bod.external.url}")
   private String externalBodUrl;
 
   @Resource

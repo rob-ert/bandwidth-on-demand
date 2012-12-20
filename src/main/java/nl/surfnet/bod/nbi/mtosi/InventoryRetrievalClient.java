@@ -47,7 +47,7 @@ public class InventoryRetrievalClient {
   private final String endPoint;
 
   @Autowired
-  public InventoryRetrievalClient(@Value("${mtosi.inventory.retrieval.endpoint}") String endPoint) {
+  public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
     this.service = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION),
         new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));

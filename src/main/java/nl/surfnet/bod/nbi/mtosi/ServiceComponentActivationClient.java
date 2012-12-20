@@ -41,7 +41,7 @@ public class ServiceComponentActivationClient {
   private final ServiceComponentActivationInterfaceHttp client;
 
   @Autowired
-  public ServiceComponentActivationClient(@Value("${mtosi.service.reserve.endpoint}") String endPoint) {
+  public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
       this.endPoint = endPoint;
       URL wsdlUrl = this.getClass().getResource(WSDL_LOCATION);
       this.client = new ServiceComponentActivationInterfaceHttp(

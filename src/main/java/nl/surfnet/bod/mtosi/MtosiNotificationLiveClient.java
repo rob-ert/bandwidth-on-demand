@@ -52,8 +52,8 @@ public class MtosiNotificationLiveClient {
   private final String senderUri;
 
   @Autowired
-  public MtosiNotificationLiveClient(@Value("${mtosi.notification.retrieval.endpoint}") String eventRetrievalUrl,
-      @Value("${mtosi.notification.sender.uri}") String senderUri) {
+  public MtosiNotificationLiveClient(@Value("${nbi.mtosi.notification.retrieval.endpoint}") String eventRetrievalUrl,
+      @Value("${nbi.mtosi.notification.sender.uri}") String senderUri) {
     this.notificationRetrievalUrl = eventRetrievalUrl;
     this.senderUri = senderUri;
   }
