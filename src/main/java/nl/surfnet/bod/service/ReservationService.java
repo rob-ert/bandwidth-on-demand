@@ -429,28 +429,18 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     final Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
         .specForReservationBetweenForAdminGroupsWithStateIn(reservationIdsInPeriod, start, end, adminGroups, SUCCEEDED);
 
-    List<LogEvent> list = logEventRepo.findAll(specSucceeded);
+    final Specification<LogEvent> specScheduledToCancelled = LogEventPredicatesAndSpecifications
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(ReservationStatus.SCHEDULED, CANCELLED,
+            reservationIdsInPeriod, start, end, adminGroups);
 
-    return logEventService.countDistinctDomainObjectId(specSucceeded);
+    final Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING, CANCELLED, reservationIdsInPeriod,
+            start, end, adminGroups);
 
-    // final Specification<LogEvent> specScheduledToCancelled =
-    // LogEventPredicatesAndSpecifications
-    // .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(ReservationStatus.SCHEDULED,
-    // CANCELLED,
-    // reservationIdsInPeriod, start, end, adminGroups);
-    //
-    // final Specification<LogEvent> specRunningToCancelled =
-    // LogEventPredicatesAndSpecifications
-    // .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING,
-    // CANCELLED, reservationIdsInPeriod,
-    // start, end, adminGroups);
-    //
-    // final Specifications<LogEvent> specRunningReservations =
-    // Specifications.where(specSucceeded).or(
-    // specScheduledToCancelled).or(specRunningToCancelled);
+    final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
+        specScheduledToCancelled).or(specRunningToCancelled);
 
-    // return
-    // logEventService.countDistinctDomainObjectId(specRunningReservations);
+    return logEventService.countDistinctDomainObjectId(specRunningReservations);
   }
 
   /**

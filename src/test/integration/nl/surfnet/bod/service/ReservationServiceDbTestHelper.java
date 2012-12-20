@@ -131,9 +131,17 @@ public class ReservationServiceDbTestHelper {
     return physicalResourceGroupRepo.save(group);
   }
 
+  /**
+   * Force a new transactions so at the end of this method the update status is
+   * committed to the database.
+   * 
+   * @param reservation
+   * @param status
+   * @return 
+   */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateStatus(Reservation reservation, ReservationStatus status) {
-    reservationService.updateStatus(reservation, status);
+  public Reservation updateStatusAndCommit(Reservation reservation, ReservationStatus status) {
+    return reservationService.updateStatus(reservation, status);
   }
 
 }
