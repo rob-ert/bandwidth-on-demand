@@ -15,8 +15,10 @@ package nl.surfnet.bod.util;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
@@ -25,10 +27,7 @@ import nl.surfnet.bod.web.view.UserGroupView;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 public final class Functions {
@@ -137,31 +136,6 @@ public final class Functions {
     }
 
     return transformers;
-  }
-
-  public static Optional<Institute> transformKlant(Klanten klant, boolean alignedWithIDD) {
-    if (Strings.isNullOrEmpty(klant.getKlantnaam()) && Strings.isNullOrEmpty(klant.getKlantafkorting())) {
-      return Optional.absent();
-    }
-
-    return Optional.of(new Institute(Long.valueOf(klant.getKlant_id()), trimIfNotNull(klant.getKlantnaam()),
-        trimIfNotNull(klant.getKlantafkorting()), alignedWithIDD));
-  }
-
-  private static String trimIfNotNull(String value) {
-    return value != null ? value.trim() : value;
-  }
-
-  public static Collection<Institute> transformKlanten(Collection<Klanten> klanten, final boolean alignedWithIDD) {
-    Collection<Optional<Institute>> institutes = Collections2.transform(klanten,
-        new Function<Klanten, Optional<Institute>>() {
-          @Override
-          public Optional<Institute> apply(Klanten klant) {
-            return transformKlant(klant, alignedWithIDD);
-          }
-        });
-
-    return Lists.newArrayList(Optional.presentInstances(institutes));
   }
 
 }

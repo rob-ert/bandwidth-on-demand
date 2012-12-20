@@ -20,7 +20,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
@@ -67,7 +66,7 @@ public class InstituteIddService implements InstituteService {
     logger.info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
 
     List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
-    Collection<Institute> iddInstitutes = Functions.transformKlanten(iddClient.getKlanten(), true);
+    Collection<Institute> iddInstitutes = iddClient.getInstitutes();
 
     detectRemovedInstitutes(currentAlignedInstitutes, iddInstitutes);
 

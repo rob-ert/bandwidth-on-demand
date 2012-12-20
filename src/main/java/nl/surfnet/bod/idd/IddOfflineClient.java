@@ -17,6 +17,7 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.idd.generated.Klantnamen;
 
@@ -39,12 +40,12 @@ public class IddOfflineClient implements IddClient {
   }
 
   @Override
-  public Collection<Klanten> getKlanten() {
+  public Collection<Institute> getInstitutes() {
     Message message = getStaticMessage();
 
     Klanten[] klantnamen = extractKlantNamen(message);
 
-    return Arrays.asList(klantnamen);
+    return IddUtils.transformKlanten(Arrays.asList(klantnamen), true);
   }
 
   private Klanten[] extractKlantNamen(Message message) {

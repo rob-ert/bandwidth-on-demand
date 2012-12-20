@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.support.KlantenFactory;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
 
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class HealthCheckControllerTest {
     supressErrorOutput();
     ModelStub model = new ModelStub();
 
-    when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(new KlantenFactory().create()));
+    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(new InstituteFactory().create()));
 
     subject.index(model);
 

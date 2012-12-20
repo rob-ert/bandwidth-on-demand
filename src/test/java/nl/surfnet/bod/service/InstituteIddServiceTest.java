@@ -12,13 +12,23 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.support.InstituteFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +37,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.KlantenFactory;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteIddServiceTest {
@@ -49,21 +53,18 @@ public class InstituteIddServiceTest {
 
   @Mock
   private LogEventService logEventService;
-  
+
   @Mock
   private SnmpAgentService snmpAgentService;
 
   @Test
   public void whenAllInstituesEqualDontUpdate() {
     List<Institute> institutes = ImmutableList.of(
-        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(), new InstituteFactory()
-            .setId(2L).setName("Zilverline").setShortName("Z").create());
-    List<Klanten> klanten = ImmutableList.of(new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet")
-        .setKlantafkorting("SURF").create(), new KlantenFactory().setKlantid(2).setKlantnaam("Zilverline")
-        .setKlantafkorting("Z").create());
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
 
     when(instituteRepoMock.findByAlignedWithIDD(true)).thenReturn(institutes);
-    when(iddClientMock.getKlanten()).thenReturn(klanten);
+    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(institutes));
 
     subject.refreshInstitutes();
 
@@ -73,14 +74,15 @@ public class InstituteIddServiceTest {
   @Test
   public void whenAKlantHasChangedUpdateIt() {
     List<Institute> institutes = ImmutableList.of(
-        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(), new InstituteFactory()
-            .setId(2L).setName("Zilverline").setShortName("Z").create());
-    List<Klanten> klanten = ImmutableList.of(new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet")
-        .setKlantafkorting("SURF").create(), new KlantenFactory().setKlantid(2).setKlantnaam("Zilverline BV")
-        .setKlantafkorting("Z").create());
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
+
+    List<Institute> changedInstitutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline BV").setShortName("Z").create());
 
     when(instituteRepoMock.findByAlignedWithIDD(true)).thenReturn(institutes);
-    when(iddClientMock.getKlanten()).thenReturn(klanten);
+    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(changedInstitutes));
 
     subject.refreshInstitutes();
 
@@ -98,11 +100,12 @@ public class InstituteIddServiceTest {
     List<Institute> institutes = ImmutableList.of(
         new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").setAlignedWithIDD(true).create(),
         new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").setAlignedWithIDD(true).create());
-    List<Klanten> klanten = ImmutableList.of(new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet")
-        .setKlantafkorting("SURF").create());
+
+    List<Institute> changedInstitutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create());
 
     when(instituteRepoMock.findByAlignedWithIDD(true)).thenReturn(institutes);
-    when(iddClientMock.getKlanten()).thenReturn(klanten);
+    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(changedInstitutes));
 
     subject.refreshInstitutes();
 
@@ -118,21 +121,21 @@ public class InstituteIddServiceTest {
 
   @Test
   public void whenAnUnalignedInstituteReappearsAgainInIDDItShouldBeAligned() {
-    List<Institute> institutes = ImmutableList.of(new InstituteFactory().setId(1L).setName("SURFnet")
-        .setShortName("SURF").setAlignedWithIDD(true).create());
+    List<Institute> institutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").setAlignedWithIDD(true).create());
 
-    List<Klanten> klanten = ImmutableList.of(new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet")
-        .setKlantafkorting("SURF").create(), new KlantenFactory().setKlantid(2).setKlantnaam("Zilverline")
-        .setKlantafkorting("Z").create());
+    List<Institute> changedInstitutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
 
     when(instituteRepoMock.findByAlignedWithIDD(true)).thenReturn(institutes);
-    when(iddClientMock.getKlanten()).thenReturn(klanten);
+    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(changedInstitutes));
 
     subject.refreshInstitutes();
 
     verify(instituteRepoMock).save(eq(Collections.<Institute> emptyList()));
 
-    //TODO setAlignedWithIDD Attribute is not matched
+    // TODO setAlignedWithIDD Attribute is not matched
     verify(instituteRepoMock).save(
         argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z")
             .setAlignedWithIDD(true).create())));

@@ -15,15 +15,16 @@ package nl.surfnet.bod.idd;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.generated.InvoerKlant;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.idd.generated.KsrBindingStub;
 import nl.surfnet.bod.idd.generated.KsrLocator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 public class IddLiveClient implements IddClient {
 
@@ -44,7 +45,7 @@ public class IddLiveClient implements IddClient {
   }
 
   @Override
-  public synchronized Collection<Klanten> getKlanten() {
+  public synchronized Collection<Institute> getInstitutes() {
     logger.info("Calling IDD");
 
     try {
@@ -56,7 +57,8 @@ public class IddLiveClient implements IddClient {
       port.setPassword(password);
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
-      return Arrays.asList(klantnamen);
+
+      return IddUtils.transformKlanten(Arrays.asList(klantnamen), true);
     }
     catch (Exception e) {
       throw new RuntimeException(e);

@@ -14,14 +14,12 @@ package nl.surfnet.bod.idd;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.domain.Institute;
 
 public interface IddClient {
 
   /**
-   * Finds all klanten.
-   * 
-   * @return Collection<Klanten>
+   * Retrieve all institutes from IDD.
    */
-  Collection<Klanten> getKlanten();
+  Collection<Institute> getInstitutes();
 }

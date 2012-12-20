@@ -60,7 +60,7 @@ public class HealthCheckController {
     final ServiceCheck iddServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() {
-        return iddClient.getKlanten().size() > 0;
+        return iddClient.getInstitutes().size() > 0;
       }
 
       @Override

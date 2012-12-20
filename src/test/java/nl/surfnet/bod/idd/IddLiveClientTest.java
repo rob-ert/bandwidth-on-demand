@@ -12,21 +12,18 @@
  */
 package nl.surfnet.bod.idd;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.Collection;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.support.MockHttpServer;
+
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.core.io.ClassPathResource;
-
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.support.MockHttpServer;
 
 public class IddLiveClientTest {
 
@@ -58,7 +55,7 @@ public class IddLiveClientTest {
 
   @Test
   public void shouldGet5Klanten() {
-    Collection<Klanten> result = subject.getKlanten();
+    Collection<Institute> result = subject.getInstitutes();
 
     assertThat(result, hasSize(5));
   }
@@ -69,7 +66,7 @@ public class IddLiveClientTest {
     thrown.expect(RuntimeException.class);
     thrown.expectMessage(containsString("401"));
 
-    subject.getKlanten();
+    subject.getInstitutes();
   }
 
 }
