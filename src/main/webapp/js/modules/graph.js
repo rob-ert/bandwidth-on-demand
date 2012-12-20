@@ -19,9 +19,12 @@ app.graph = function() {
 
     var margin = {top: 20, right: 20, bottom: 50, left: 40},
         width = 900 - margin.left - margin.right,
-        height = 450 - margin.top - margin.bottom,
-        colorSuccess = "#367D8F",
-        colorFailure = "#1E454F";
+        height = 450 - margin.top - margin.bottom;
+
+    var colorSuccess = d3.scale.ordinal()
+     .range(["#3479A1", "#344954", "#1B3754"]);
+
+    var labels = d3.scale.ordinal().range(["Create Success/Failure", "Cancel Success/Failure", "NSI/GUI"]);
 
     var x0 = d3.scale.ordinal()
       .rangeRoundBands([0, width], .1);
@@ -57,37 +60,8 @@ app.graph = function() {
 
     var sucLegend = outer.append("g")
       .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(" + (+margin.left - 100) + ", 425)"; });
+      .attr("transform", function(d, i) { return "translate(" + 155 + ", 425)"; });
 
-    var failLegend = outer.append("g")
-      .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(" + margin.left + ", 425)"; });
-
-    sucLegend.append("rect")
-      .attr("x", width - 18)
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", colorSuccess);
-
-    failLegend.append("rect")
-      .attr("x", width - 18)
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", colorFailure);
-
-    sucLegend.append("text")
-      .attr("x", width - 24)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-      .text("Success/NSI");
-
-    failLegend.append("text")
-      .attr("x", width - 24)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-      .text("Failure/GUI");
     d3.csv(graph.attr("data-url"), function(error, data) {
       if (error) {
         alert("Request resulted in " + error.status);
@@ -130,7 +104,11 @@ app.graph = function() {
         .attr("y", function(d) { return y(d.success); })
         .attr("width", x1.rangeBand())
         .attr("height", function(d) { return height - y(d.success); })
-        .style("fill", colorSuccess );
+        .style("fill", function(d) { return colorSuccess(d.name); })
+        .on("mouseover", mover)
+        .on("mouseout", mout)
+        .attr("rel", "tooltip")
+        .attr("data-original-title", function(d) { return d.success; });
 
       month.selectAll(".failure")
         .data(function(d) { return d.cats; })
@@ -140,19 +118,57 @@ app.graph = function() {
         .attr("width", x1.rangeBand())
         .attr("x", function(d) { return x1(d.name); })
         .attr("y", function(d) { return y(d.success) - (height - y(d.failure)); })
-        .style("fill", colorFailure );
+        .style("fill", function(d) { return d3.rgb(colorSuccess(d.name)).darker(1); })
+        .on("mouseover", mover)
+        .on("mouseout", mout)
+        .attr("rel", "tooltip")
+        .attr("data-original-title", function(d) { return d.failure; });
 
-      month.selectAll("text")
-        .data(function(d) { return d.cats; })
+      sucLegend.selectAll(".legend")
+        .data(catNames)
+        .enter().append("rect")
+        .attr("x", function(d, i) { return width - (catNames.length - i) * 185 - 18; })
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", function(d) { return colorSuccess(d); });
+
+      sucLegend.selectAll(".legend")
+        .data(catNames)
+        .enter().append("rect")
+        .attr("x", function(d, i) { return width - (catNames.length - i) * 185; })
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", function(d) { return d3.rgb(colorSuccess(d)).darker(1); });
+
+      sucLegend.selectAll(".legend")
+        .data(catNames)
         .enter().append("text")
-        .attr("y", function(d) { return x1(d.name) + x1.rangeBand() / 2 + 4; })
-        .attr("x", -height + 2)
+        .attr("x", function(d, i) { return width - (catNames.length - i) * 185 + 20; })
+        .attr("y", 9)
+        .attr("dy", ".35em")
         .style("text-anchor", "begin")
-        .style("font-size", 10)
-        .attr("transform", "rotate(-90)")
-        .text(function(d) { if (d.name == "NSI") return ""; else return d.name; })
-        .style("fill", "white");
+        .text(function(d) { return labels(d); });
+
+      $("rect[rel=tooltip]").tooltip({ placement: "left" });
+
     });
+
+    function mover(d) {
+      d3.select(this).transition()
+        .attr("x", function(d) { return x1(d.name) - 1; })
+        .attr("width", x1.rangeBand() + 2)
+        .style("fill-opacity", .9);
+      $(this).tooltip('show');
+    }
+
+    function mout(d) {
+      d3.select(this).transition()
+        .attr("x", function(d) { return x1(d.name); })
+        .attr("width", x1.rangeBand())
+        .style("fill-opacity", 1);
+      $(this).tooltip('hide');
+    }
+
   };
 
   return {
