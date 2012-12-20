@@ -14,6 +14,8 @@ package nl.surfnet.bod.web.view;
 
 import org.joda.time.DateTime;
 
+import com.google.common.base.Preconditions;
+
 public class ReservationReportView {
 
   private final DateTime periodStart;
@@ -44,6 +46,8 @@ public class ReservationReportView {
   private long amountRunningReservationsStillScheduled;
 
   public ReservationReportView(DateTime start, DateTime end) {
+    Preconditions.checkArgument(start.isBefore(end));
+
     this.periodStart = start;
     this.periodEnd = end;
   }
@@ -55,7 +59,6 @@ public class ReservationReportView {
 
   public long getTotalReservations() {
     return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant;
-
   }
 
   public long getTotalActiveReservations() {

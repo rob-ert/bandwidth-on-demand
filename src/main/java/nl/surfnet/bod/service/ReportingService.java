@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -61,7 +62,6 @@ public class ReportingService {
 
   private ReservationReportView determineReport(Interval interval, Collection<String> adminGroups) {
     ReservationReportView reservationReport = new ReservationReportView(interval.getStart(), interval.getEnd());
-
     determineReservationRequestsForGroups(reservationReport, adminGroups);
     determineReservationsInAdminGroupsForProtectionType(reservationReport, adminGroups);
     determineActiveRunningReservations(reservationReport, adminGroups);
@@ -69,8 +69,8 @@ public class ReportingService {
     return reservationReport;
   }
 
-  private void determineReservationRequestsForGroups(ReservationReportView reservationReport,
-      Collection<String> adminGroups) {
+  @VisibleForTesting
+  void determineReservationRequestsForGroups(ReservationReportView reservationReport, Collection<String> adminGroups) {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 
@@ -100,7 +100,8 @@ public class ReportingService {
         + reservationService.countReservationsCancelledThroughChannelGUInAdminGroups(start, end, adminGroups));
   }
 
-  private void determineReservationsInAdminGroupsForProtectionType(ReservationReportView reservationReport,
+  @VisibleForTesting
+  void determineReservationsInAdminGroupsForProtectionType(ReservationReportView reservationReport,
       Collection<String> adminGroups) {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
@@ -129,8 +130,8 @@ public class ReportingService {
         reservationIdList, ProtectionType.REDUNDANT));
   }
 
-  private void determineActiveRunningReservations(ReservationReportView reservationReport,
-      Collection<String> adminGroups) {
+  @VisibleForTesting
+  void determineActiveRunningReservations(ReservationReportView reservationReport, Collection<String> adminGroups) {
     final DateTime start = reservationReport.getPeriodStart();
     final DateTime end = reservationReport.getPeriodEnd();
 

@@ -447,121 +447,106 @@ public class ReportReservationServiceDbTest {
   }
 
   @Test
-  public void shouldCountRunningReservations() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
+  public void shouldVerifyNoActiveReservation() {
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
 
-    long count = subject.countRunningReservationsInAdminGroupsSucceeded(reservationIds, periodStart, periodEnd,
-        adminGroups);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(0L));
 
-    count = subject.countRunningReservationsInAdminGroupsFailed(reservationIds, periodStart, periodEnd, adminGroups);
-    assertThat(count, is(0L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
-    assertThat(count, is(3L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, RESERVED,
-        adminGroups);
-    assertThat(count, is(3L));
-
-    count = subject.countReservationsWithEndStateBetweenInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.TIMED_OUT);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getTotalActiveReservations(), is(0L));
   }
 
   @Test
-  public void shouldCountRunningReservationsWichSucceeded() {
+  public void shouldVerifyActiveReservationsSucceeded() {
     updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.SUCCEEDED);
 
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
 
-    long count = subject.countRunningReservationsInAdminGroupsSucceeded(reservationIds, periodStart, periodEnd,
-        adminGroups);
-    assertThat(count, is(1L));
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(1L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(0L));
 
-    count = subject.countRunningReservationsInAdminGroupsFailed(reservationIds, periodStart, periodEnd, adminGroups);
-    assertThat(count, is(0L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
-    assertThat(count, is(2L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, RESERVED,
-        adminGroups);
-    assertThat(count, is(3L));
-
-    count = subject.countReservationsWithEndStateBetweenInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.TIMED_OUT);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getTotalActiveReservations(), is(1L));
   }
 
   @Test
-  public void shouldCountRunningReservationsWichFailed() {
+  public void shouldVerifyActiveReservationsStillScheduled() {
+    updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.SCHEDULED);
+
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
+
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(1L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(0L));
+
+    assertThat(reservationReport.getTotalActiveReservations(), is(1L));
+  }
+
+  @Test
+  public void shouldVerifyActiveReservationsStillRunning() {
+    updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.RUNNING);
+
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
+
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(1L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(0L));
+
+    assertThat(reservationReport.getTotalActiveReservations(), is(1L));
+  }
+
+  @Test
+  public void shouldVerifyActiveReservationsFailed() {
     reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
         ReservationStatus.SCHEDULED);
     reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart.plusSeconds(1),
         reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.FAILED);
 
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
 
-    long count = subject.countRunningReservationsInAdminGroupsSucceeded(reservationIds, periodStart, periodEnd,
-        adminGroups);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(1L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(0L));
 
-    count = subject.countRunningReservationsInAdminGroupsFailed(reservationIds, periodStart, periodEnd, adminGroups);
-    assertThat(count, is(1L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
-    assertThat(count, is(2L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, RESERVED,
-        adminGroups);
-    assertThat(count, is(3L));
-
-    count = subject.countReservationsWithEndStateBetweenInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.TIMED_OUT);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getTotalActiveReservations(), is(1L));
   }
 
   @Test
-  public void shouldCountTimedOut() {
+  public void shouldVerifyActiveReservationsNeverProvisioned() {
     reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
         ReservationStatus.TIMED_OUT);
 
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
+    ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
+    reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
 
-    long count = subject.countRunningReservationsInAdminGroupsSucceeded(reservationIds, periodStart, periodEnd,
-        adminGroups);
-    assertThat(count, is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reservationReport.getAmountRunningReservationsNeverProvisioned(), is(1L));
 
-    count = subject.countRunningReservationsInAdminGroupsFailed(reservationIds, periodStart, periodEnd, adminGroups);
-    assertThat(count, is(0L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
-    assertThat(count, is(2L));
-
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, RESERVED,
-        adminGroups);
-    assertThat(count, is(3L));
-
-    count = subject.countReservationsWithEndStateBetweenInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.TIMED_OUT);
-    assertThat(count, is(1L));
+    assertThat(reservationReport.getTotalActiveReservations(), is(1L));
   }
 
   @Test
   public void shouldVerifyNocReport() {
     ReservationReportView reportView = reportingService.determineReportForNoc(reportInterval);
-
-    assertThat(reportView.getTotalAmountRequestsCancelled(), is(0L));
-    assertThat(reportView.getTotalAmountRequestsCreated(), is(4L));
-    assertThat(reportView.getTotalAmountRequestsModified(), is(0L));
-    assertThat(reportView.getTotalRequests(), is(4L));
-    assertThat(reportView.getTotalReservations(), is(7L));
-    // TODO assertThat(reportView.getTotalActiveReservations(), is(1L));
 
     assertThat(reportView.getAmountRequestsCancelFailed(), is(0L));
     assertThat(reportView.getAmountRequestsCancelSucceeded(), is(0L));
@@ -574,6 +559,19 @@ public class ReportReservationServiceDbTest {
     assertThat(reportView.getAmountReservationsProtected(), is(7L));
     assertThat(reportView.getAmountReservationsUnprotected(), is(0L));
     assertThat(reportView.getAmountReservationsRedundant(), is(0L));
+
+    assertThat(reportView.getAmountRunningReservationsSucceeded(), is(0L));
+    assertThat(reportView.getAmountRunningReservationsFailed(), is(0L));
+    assertThat(reportView.getAmountRunningReservationsStillRunning(), is(0L));
+    assertThat(reportView.getAmountRunningReservationsStillScheduled(), is(0L));
+    assertThat(reportView.getAmountRunningReservationsNeverProvisioned(), is(0L));
+
+    assertThat(reportView.getTotalAmountRequestsCancelled(), is(0L));
+    assertThat(reportView.getTotalAmountRequestsCreated(), is(4L));
+    assertThat(reportView.getTotalAmountRequestsModified(), is(0L));
+    assertThat(reportView.getTotalRequests(), is(4L));
+    assertThat(reportView.getTotalReservations(), is(7L));
+    assertThat(reportView.getTotalActiveReservations(), is(0L));
   }
 
   private Reservation createAndSaveReservation(final DateTime start, final DateTime end,
