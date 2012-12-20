@@ -16,26 +16,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.service.ReportingService;
 import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.YearMonth;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Optional;
 
 public abstract class AbstractReportController {
+
   protected static final int AMOUNT_OF_REPORT_PERIODS = 8;
 
   @Resource
@@ -43,23 +42,18 @@ public abstract class AbstractReportController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-
-    return index(null, model);
+    return index(ReportIntervalView.idFormatter.print(YearMonth.now()), model);
   }
 
-  @RequestMapping(value = "/{selectedIntervalId}", method = RequestMethod.GET)
-  public String index(@PathVariable final Integer selectedIntervalId, Model model) {
+  @RequestMapping(value = "/{selectedYearMonth}", method = RequestMethod.GET)
+  public String index(@PathVariable final String selectedYearMonth, Model model) {
+
+    Optional<YearMonth> yearMonth = parseYearMonth(selectedYearMonth);
+    ReportIntervalView selectedInterval = new ReportIntervalView(yearMonth.or(YearMonth.now()).toInterval());
 
     List<ReportIntervalView> intervals = determineReportIntervals();
-
-    ReportIntervalView selectedInterval = intervals.get(0);
-    if (selectedIntervalId != null) {
-      selectedInterval = Iterables.find(intervals, new Predicate<ReportIntervalView>() {
-        @Override
-        public boolean apply(ReportIntervalView interval) {
-          return selectedIntervalId.equals(interval.getId());
-        }
-      });
+    if (!intervals.contains(selectedInterval)) {
+      intervals.add(selectedInterval);
     }
 
     model.addAttribute("intervalList", intervals);
@@ -70,33 +64,21 @@ public abstract class AbstractReportController {
     return getPageUrl();
   }
 
-  protected abstract String getPageUrl();
-
-  protected abstract ReservationReportView determineReport(Interval interval);
+  private Optional<YearMonth> parseYearMonth(String yearMonth) {
+    try {
+      return Optional.of(YearMonth.parse(yearMonth, ReportIntervalView.idFormatter));
+    } catch (IllegalArgumentException e) {
+      return Optional.absent();
+    }
+  }
 
   @VisibleForTesting
   List<ReportIntervalView> determineReportIntervals() {
-    final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMM");
     final List<ReportIntervalView> reportIntervals = new ArrayList<>();
 
-    String label;
-    Interval reportInterval;
-    DateTime firstDayOfInterval;
-    DateTime lastDayOfInterval;
-
     for (int i = 0; i < AMOUNT_OF_REPORT_PERIODS; i++) {
-      firstDayOfInterval = DateMidnight.now().withDayOfMonth(1).minusMonths(i).toDateTime();
-      lastDayOfInterval = firstDayOfInterval.dayOfMonth().withMaximumValue().toDateTime();
-
-      label = labelFormatter.print(firstDayOfInterval);
-
-      // Correct to today
-      if (lastDayOfInterval.isAfterNow()) {
-        lastDayOfInterval = firstDayOfInterval.withDayOfMonth(DateTime.now().getDayOfMonth());
-        label += " - now";
-      }
-      reportInterval = new Interval(firstDayOfInterval, lastDayOfInterval);
-      reportIntervals.add(new ReportIntervalView(reportInterval, label));
+      Interval interval  = YearMonth.now().minusMonths(i).toInterval();
+      reportIntervals.add(new ReportIntervalView(interval));
     }
 
     return reportIntervals;
@@ -105,4 +87,42 @@ public abstract class AbstractReportController {
   protected ReportingService getReportingService() {
     return reportingService;
   }
+
+  @RequestMapping("/graph")
+  public String graph(Model model) {
+    model.addAttribute("dataUrl", getPageUrl() + "/data.csv");
+    return getPageUrl() + "/graph";
+  }
+
+  @RequestMapping(value = "/data", method = RequestMethod.GET)
+  @ResponseBody
+  public String graphData(HttpServletResponse response) {
+    response.setContentType("text/plain");
+
+    StringBuffer responseBuffer = new StringBuffer("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f").append("\n");
+
+    YearMonth currentMonth = YearMonth.now();
+    for (int i = 4; i >= 0; i--) {
+      final YearMonth month = currentMonth.minusMonths(i);
+      ReservationReportView report = determineReport(month.toInterval());
+      addReport(responseBuffer, report, month.toString("MMM"));
+    }
+
+    return responseBuffer.toString();
+  }
+
+  private void addReport(StringBuffer buffer, ReservationReportView report, String month) {
+    buffer.append(month).append(",");
+    buffer.append(report.getAmountRequestsCreatedSucceeded()).append(",");
+    buffer.append(report.getAmountRequestsCreatedFailed()).append(",");
+    buffer.append(report.getAmountRequestsCancelSucceeded()).append(",");
+    buffer.append(report.getAmountRequestsCancelFailed()).append(",");
+    buffer.append(report.getAmountRequestsThroughNSI()).append(",");
+    buffer.append(report.getAmountRequestsThroughGUI()).append("\n");
+  }
+
+  protected abstract String getPageUrl();
+
+  protected abstract ReservationReportView determineReport(Interval interval);
+
 }

@@ -11,7 +11,7 @@
 
 <section>
   <h2>Requests graph</h2>
-  <spring:url var="data_url" value="/noc/report/data.csv" />
+  <spring:url var="data_url" value="/${dataUrl}" />
   <spring:url var="spinner_url" value="/resources/images/spinner2.gif" />
   <div class="content" id="graph" data-url="${data_url}" data-spinner="${spinner_url}">
   <!--  -->

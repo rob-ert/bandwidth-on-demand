@@ -45,4 +45,9 @@
     <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
     <!-- No menu item yet -->
   </definition>
+
+  <definition extends="manager" name="manager/report/graph">
+    <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
+    <!-- No menu item yet -->
+  </definition>
 </tiles-definitions>

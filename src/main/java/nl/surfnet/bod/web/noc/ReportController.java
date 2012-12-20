@@ -12,29 +12,18 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import nl.surfnet.bod.service.ReportingService;
 import nl.surfnet.bod.web.base.AbstractReportController;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.Interval;
-import org.joda.time.YearMonth;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller("nocReportController")
 @RequestMapping(ReportController.PAGE_URL)
 public class ReportController extends AbstractReportController {
 
   public static final String PAGE_URL = "noc/report";
-
-  @Resource
-  private ReportingService reportingService;
 
   @Override
   protected String getPageUrl() {
@@ -44,37 +33,5 @@ public class ReportController extends AbstractReportController {
   @Override
   protected ReservationReportView determineReport(Interval interval) {
     return getReportingService().determineReportForNoc(interval);
-  }
-
-  @RequestMapping("/graph")
-  public String listWithGraph(Model model) {
-    return "noc/report/graph";
-  }
-
-  @RequestMapping(value = "/data", method = RequestMethod.GET)
-  @ResponseBody
-  public String graphData(HttpServletResponse response) {
-    response.setContentType("text/plain");
-
-    StringBuffer responseBuffer = new StringBuffer("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f").append("\n");
-
-    YearMonth currentMonth = YearMonth.now();
-    for (int i = 4; i >= 0; i--) {
-      final YearMonth month = currentMonth.minusMonths(i);
-      ReservationReportView report = determineReport(month.toInterval());
-      addReport(responseBuffer, report, month.toString("MMM"));
-    }
-
-    return responseBuffer.toString();
-  }
-
-  private void addReport(StringBuffer buffer, ReservationReportView report, String month) {
-    buffer.append(month).append(",");
-    buffer.append(report.getAmountRequestsCreatedSucceeded()).append(",");
-    buffer.append(report.getAmountRequestsCreatedFailed()).append(",");
-    buffer.append(report.getAmountRequestsCancelSucceeded()).append(",");
-    buffer.append(report.getAmountRequestsCancelFailed()).append(",");
-    buffer.append(report.getAmountRequestsThroughNSI()).append(",");
-    buffer.append(report.getAmountRequestsThroughGUI()).append("\n");
   }
 }

@@ -13,23 +13,27 @@
 package nl.surfnet.bod.web.view;
 
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.google.common.base.Objects;
 
 public class ReportIntervalView {
 
-  private final int id;
+  public static final DateTimeFormatter idFormatter = DateTimeFormat.forPattern("yyyyMM");
+  private static final DateTimeFormatter labelFormatter = DateTimeFormat.forPattern("yyyy MMMM");
+
+  private final String id;
   private final Interval interval;
   private final String label;
 
-  public ReportIntervalView(Interval interval, String label) {
-    super();
+  public ReportIntervalView(Interval interval) {
     this.interval = interval;
-    this.label = label;
-
-    // Id will be 201210 when start is oct 2012
-    this.id = (interval.getStart().getYear() * 100) + interval.getStart().getMonthOfYear();
+    this.label = labelFormatter.print(interval.getStart());
+    this.id = idFormatter.print(interval.getStart());
   }
 
-  public int getId() {
+  public String getId() {
     return id;
   }
 
@@ -43,15 +47,36 @@ public class ReportIntervalView {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ReportIntervalView [id=");
-    builder.append(id);
-    builder.append(", interval=");
-    builder.append(interval);
-    builder.append(", label=");
-    builder.append(label);
-    builder.append("]");
-    return builder.toString();
+    return Objects.toStringHelper(this)
+      .add("id", id)
+      .add("interval", interval)
+      .add("label", label).toString();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ReportIntervalView other = (ReportIntervalView) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    return true;
   }
 
 }

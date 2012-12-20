@@ -38,4 +38,9 @@
         <!-- No menu item yet -->
     </definition>
 
+    <definition extends="default" name="report/graph">
+        <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
+        <!-- No menu item yet -->
+    </definition>
+
 </tiles-definitions>
