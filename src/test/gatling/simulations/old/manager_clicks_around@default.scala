@@ -15,6 +15,7 @@ package old
 import com.excilys.ebi.gatling.core.Predef._
 
 import com.excilys.ebi.gatling.http.Predef._
+import akka.util.duration._
 
 class ManagerSimulation extends Simulation {
 	val urlBase = "http://localhost:8082"
@@ -142,110 +143,106 @@ class ManagerSimulation extends Simulation {
 	)
 
 
-	def apply = {
-  	val scn = scenario("Manager clicking around")
-			.exec(
-			http("Get virutal resource groups")
-			.get("/bod/manager/teams")
-			.headers(headers_1)
-		)
-			.pause(2, 3)
-			.exec(
-			http("Get physical resource groups")
-			.get("/bod/manager/physicalresourcegroups")
-			.headers(headers_2)
-		)
-			.pause(1, 2)
-			.exec(
-			http("Get virtual ports")
-			.get("/bod/manager/virtualports")
-			.headers(headers_3)
-		)
-			.pause(1, 2)
-			.exec(
-			http("Get physical ports")
-			.get("/bod/manager/physicalports")
-			.headers(headers_4)
-		)
-			.pause(1, 2)
-			.exec(
-			http("Show virutal port (JSON)")
-			.get("/bod/manager/physicalports/5/virtualports")
-			.headers(headers_5)
-		)
-			.pause(900, 1000, MILLISECONDS)
-			.exec(
-			http("Show virutal port (JSON)")
-			.get("/bod/manager/physicalports/6/virtualports")
-			.headers(headers_5)
-		)
-			.pause(1, 2)
-			.exec(
-			http("Show virutal port (JSON)")
-			.get("/bod/manager/physicalports/7/virtualports")
-			.headers(headers_5)
-		)
-			.pause(2, 3)
-			.exec(
-			http("List virtual resource groups")
-			.get("/bod/manager/teams")
-			.headers(headers_8)
-		)
-			.pause(1, 2)
-			.exec(
-			http("Show virtual resource groups")
-			.get("/bod/manager/teams")
-			.queryParam("id", "12")
-			.headers(headers_2)
-		)
-			.pause(0, 100, MILLISECONDS)
-			.exec(
-			http("request_10")
-			.get("/bod/resources/images/list.png")
-			.headers(headers_10)
-		)
-			.pause(0, 100, MILLISECONDS)
-			.exec(
-			http("request_11")
-			.get("/bod/resources/images/create.png")
-			.headers(headers_10)
-		)
-			.pause(1, 2)
-			.exec(
-			http("request_12")
-			.get("/bod/manager/physicalresourcegroups")
-			.headers(headers_12)
-		)
-			.pause(1, 2)
-			.exec(
-			http("request_13")
-			.get("/bod/manager/physicalresourcegroups/edit")
-			.queryParam("id", "1")
-			.headers(headers_3)
-		)
-			.pause(1, 2)
-			.exec(
-			http("request_14")
-			.get("/bod/manager/virtualports")
-			.headers(headers_14)
-		)
-			.pause(1, 2)
-			.exec(
-			http("request_15")
-			.get("/bod/manager/virtualports")
-			.queryParam("id", "13")
-			.headers(headers_4)
-		)
-			.pause(2, 3)
-			.exec(
-			http("request_16")
-			.get("/bod/manager/virtualports/edit")
-			.queryParam("id", "13")
-			.headers(headers_16)
-		)
+	val scn = scenario("Manager clicking around")
+		.exec(
+		http("Get virutal resource groups")
+		.get("/bod/manager/teams")
+		.headers(headers_1)
+	)
+		.pause(2, 3)
+		.exec(
+		http("Get physical resource groups")
+		.get("/bod/manager/physicalresourcegroups")
+		.headers(headers_2)
+	)
+		.pause(1, 2)
+		.exec(
+		http("Get virtual ports")
+		.get("/bod/manager/virtualports")
+		.headers(headers_3)
+	)
+		.pause(1, 2)
+		.exec(
+		http("Get physical ports")
+		.get("/bod/manager/physicalports")
+		.headers(headers_4)
+	)
+		.pause(1, 2)
+		.exec(
+		http("Show virutal port (JSON)")
+		.get("/bod/manager/physicalports/5/virtualports")
+		.headers(headers_5)
+	)
+	.pause(0 milliseconds, 100 milliseconds)
+		.exec(
+		http("Show virutal port (JSON)")
+		.get("/bod/manager/physicalports/6/virtualports")
+		.headers(headers_5)
+	)
+		.pause(1, 2)
+		.exec(
+		http("Show virutal port (JSON)")
+		.get("/bod/manager/physicalports/7/virtualports")
+		.headers(headers_5)
+	)
+		.pause(2, 3)
+		.exec(
+		http("List virtual resource groups")
+		.get("/bod/manager/teams")
+		.headers(headers_8)
+	)
+		.pause(1, 2)
+		.exec(
+		http("Show virtual resource groups")
+		.get("/bod/manager/teams")
+		.queryParam("id", "12")
+		.headers(headers_2)
+	)
+		.pause(0 milliseconds, 100 milliseconds)
+		.exec(
+		http("request_10")
+		.get("/bod/resources/images/list.png")
+		.headers(headers_10)
+	)
+		.pause(0 milliseconds, 100 milliseconds)
+		.exec(
+		http("request_11")
+		.get("/bod/resources/images/create.png")
+		.headers(headers_10)
+	)
+		.pause(1, 2)
+		.exec(
+		http("request_12")
+		.get("/bod/manager/physicalresourcegroups")
+		.headers(headers_12)
+	)
+		.pause(1, 2)
+		.exec(
+		http("request_13")
+		.get("/bod/manager/physicalresourcegroups/edit")
+		.queryParam("id", "1")
+		.headers(headers_3)
+	)
+		.pause(1, 2)
+		.exec(
+		http("request_14")
+		.get("/bod/manager/virtualports")
+		.headers(headers_14)
+	)
+		.pause(1, 2)
+		.exec(
+		http("request_15")
+		.get("/bod/manager/virtualports")
+		.queryParam("id", "13")
+		.headers(headers_4)
+	)
+		.pause(2, 3)
+		.exec(
+		http("request_16")
+		.get("/bod/manager/virtualports/edit")
+		.queryParam("id", "13")
+		.headers(headers_16)
+	)
 
-  	List(
-  		scn.configure.users(1000).ramp(10)protocolConfig(httpConf)
-  	)
-	}
+	setUp(scn.users(1000).ramp(10).protocolConfig(httpConf))
 }

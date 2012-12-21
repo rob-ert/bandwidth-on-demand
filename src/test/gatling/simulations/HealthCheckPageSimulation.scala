@@ -18,16 +18,14 @@ import akka.util.duration._
 
 class HealthCheckPageSimulation extends Simulation {
 
-  def apply = {
+  val baseUrl = "http://localhost:8082/bod"
+//  val baseUrl = "https://bod.surfnet.nl"
+  val httpConf = httpConfig.baseURL(baseUrl)
 
-    val baseUrl = "http://localhost:8082/bod"
-    val httpConf = httpConfig.baseURL(baseUrl)
+  val scn = scenario("Health check page")
+    .repeat(10) {
+      exec(http("Healthcheck page").get("/healthcheck"))
+    }
 
-    val scn = scenario("Health check page")
-      .repeat(10) {
-        exec(http("Healthcheck page").get("/healthcheck"))
-      }
-
-    List(scn.configure.protocolConfig(httpConf).users(1))
-  }
+  setUp(scn.users(5).protocolConfig(httpConf))
 }
