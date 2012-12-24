@@ -610,6 +610,7 @@
                             <sources>
                                 <source>${basedir}/src/test/selenium</source>
                                 <source>${basedir}/src/test/integration</source>
+                                <source>${basedir}/src/test/scala</source>
                             </sources>
                         </configuration>
                     </execution>
