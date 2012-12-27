@@ -33,6 +33,13 @@ public class IddOfflineClient implements IddClient {
 
   private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
+  public IddOfflineClient(String username, String password, String endPoint) {
+    // arguments are ignored but gives the same constructor as the iddLiveClient
+  }
+
+  public IddOfflineClient() {
+  }
+
   @SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @PostConstruct
   private void init() {

@@ -7,7 +7,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.IddOfflineClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.EmailSender;
 
@@ -118,16 +117,26 @@ public class AppConfiguration implements SchedulingConfigurer {
   }
 
   @Bean
-  @Lazy
   public NbiClient nbiClient(@Value("${nbi.client.class}") String nbiClientClass)
       throws InstantiationException, IllegalAccessException, ClassNotFoundException {
     return (NbiClient) Class.forName(nbiClientClass).newInstance();
   }
 
   @Bean
-  public IddClient iddclient(@Value("${idd.client.class") String iddClientClass) {
-    // FIXME
-    return new IddOfflineClient();
+  public IddClient iddclient(
+    @Value("${idd.client.class}") String iddClientClass,
+    @Value("${idd.user}") String username,
+    @Value("${idd.password}") String password,
+    @Value("${idd.url}") String endPoint) {
+
+    try {
+      return (IddClient) Class.forName(iddClientClass)
+          .getConstructor(String.class, String.class, String.class)
+          .newInstance(username, password, endPoint);
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Bean(initMethod = "migrate")
