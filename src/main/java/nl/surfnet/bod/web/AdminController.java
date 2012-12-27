@@ -17,7 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.util.BoDInitializer;
+import nl.surfnet.bod.service.TextSearchIndexer;
 
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.stereotype.Controller;
@@ -35,7 +35,7 @@ public class AdminController {
   private ReloadableResourceBundleMessageSource messageSource;
 
   @Resource
-  private BoDInitializer boDInitializer;
+  private TextSearchIndexer textSearchIndexer;
 
   @RequestMapping(value = "refreshMessages", method = RequestMethod.GET)
   public String refreshMessageSource(HttpServletRequest request) {
@@ -51,7 +51,7 @@ public class AdminController {
 
   @RequestMapping(value = "index", method = RequestMethod.GET)
   public String indexData() {
-    boDInitializer.indexDatabaseContent();
+    textSearchIndexer.indexDatabaseContent();
 
     return "redirect:/";
   }

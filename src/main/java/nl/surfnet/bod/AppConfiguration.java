@@ -10,7 +10,6 @@ import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.IddOfflineClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.EmailSender;
-import nl.surfnet.bod.util.BoDInitializer;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
 import org.jasypt.util.text.StrongTextEncryptor;
@@ -66,10 +65,9 @@ public class AppConfiguration implements SchedulingConfigurer {
     encryptor.setPassword(System.getenv("BOD_ENCRYPTION_PASSWORD"));
 
     EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
-    configurer.setIgnoreResourceNotFound(false);
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
-    String env = (String) System.getProperties().get("bod.env");
+    String env = System.getProperties().getProperty("bod.env");
     Resource envProperties;
     if (env == null || env.isEmpty() || env.equals("dev")) {
       envProperties = new ClassPathResource("bod.properties");
@@ -85,12 +83,6 @@ public class AppConfiguration implements SchedulingConfigurer {
     configurer.setLocations(resources);
 
     return configurer;
-  }
-
-  @Bean(initMethod = "init")
-  @DependsOn("messageSource")
-  public BoDInitializer BoDInitializer() {
-    return new BoDInitializer();
   }
 
   @Bean
@@ -146,7 +138,7 @@ public class AppConfiguration implements SchedulingConfigurer {
     return flyway;
   }
 
-  @Bean
+  @Bean(destroyMethod = "close")
   public DataSource dataSource() throws PropertyVetoException {
     ComboPooledDataSource dataSource = new ComboPooledDataSource();
     dataSource.setJdbcUrl(jdbcUrl);

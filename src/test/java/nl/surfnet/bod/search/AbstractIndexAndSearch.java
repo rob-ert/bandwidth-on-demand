@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import nl.surfnet.bod.util.BoDInitializer;
+import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
 import org.apache.log4j.Level;
@@ -38,7 +38,7 @@ public class AbstractIndexAndSearch<T> {
 
   private final Class<T> clazz;
 
-  private final BoDInitializer boDInitializer = new BoDInitializer();
+  private final TextSearchIndexer textSearchIndexer = new TextSearchIndexer();
 
   public AbstractIndexAndSearch(final Class<T> clazz) {
     this.clazz = clazz;
@@ -62,8 +62,8 @@ public class AbstractIndexAndSearch<T> {
   }
 
   protected void index() {
-    boDInitializer.setEntityManager(entityManager);
-    boDInitializer.init();
+    textSearchIndexer.setEntityManager(entityManager);
+    textSearchIndexer.indexDatabaseContent();
   }
 
   @SuppressWarnings("unchecked")
