@@ -43,10 +43,8 @@ import com.google.common.base.Optional;
 @Service
 public class VersReportingService {
 
-  // public static final String DEFAULT_ORGANIZATION = "SURFNET";
-
   @Value("${vers.url}")
-  private String serviceURL;// = "http://localhost:1234";
+  private String serviceURL;
 
   @Value("${vers.user}")
   private String versUserName;
@@ -60,16 +58,14 @@ public class VersReportingService {
   @Resource
   private InstituteIddService instituteIddService;
 
-  private SURFnetErStub surfNetErStub;
+  @Resource
+  private Map<String, Map<String, String>> reportToVersMap;
 
-  // private final Logger log = LoggerFactory.getLogger(getClass());
+  private SURFnetErStub surfNetErStub;
 
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
 
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
-
-  @Resource(name = "reportToVersMap")
-  private Map<String, Map<String, String>> reportToVersMapping;
 
   @PostConstruct
   void init() throws IOException {
@@ -82,7 +78,7 @@ public class VersReportingService {
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
     final ReservationReportView nocReports = reportingService.determineReportForNoc(versReportPeriod.getInterval());
 
-    for (final Entry<String, Map<String, String>> entry : reportToVersMapping.entrySet()) {
+    for (final Entry<String, Map<String, String>> entry : reportToVersMap.entrySet()) {
       String text = entry.getKey();
       long valuePos, valueNeg;
 

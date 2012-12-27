@@ -26,6 +26,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -51,8 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(defaultRollback = true)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 public class ReportReservationServiceDbTest {
   private final static long AMOUNT_OF_RESERVATIONS = 8;

@@ -15,8 +15,13 @@
     </context-param>
 
     <context-param>
+        <param-name>contextClass</param-name>
+        <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+    </context-param>
+
+    <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:spring/appCtx*.xml</param-value>
+        <param-value>nl.surfnet.bod.AppConfiguration</param-value>
     </context-param>
 
     <!-- JAX-WS Spring bridge -->

@@ -23,6 +23,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.InMemoryDbConfiguration;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -38,16 +40,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, InMemoryDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class PhysicalResourceGroupDbTest {
-
-  // override bod.properties to run test and bod server at the same time
-  static {
-    System.setProperty("snmp.host", "localhost/1622");
-  }
 
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;

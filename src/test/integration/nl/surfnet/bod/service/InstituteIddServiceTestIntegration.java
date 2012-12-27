@@ -12,14 +12,22 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Collection;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.support.InstituteFactory;
 
 import org.hibernate.internal.SessionImpl;
 import org.junit.Test;
@@ -30,13 +38,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.support.InstituteFactory;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class InstituteIddServiceTestIntegration {

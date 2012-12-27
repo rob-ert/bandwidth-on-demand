@@ -277,7 +277,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>1.1.0.RELEASE</version>
+            <version>1.2.0.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.data</groupId>
@@ -654,7 +654,6 @@
                 <version>${jetty.version}</version>
                 <configuration>
                     <scanIntervalSeconds>0</scanIntervalSeconds>
-                    <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
                     </webAppConfig>

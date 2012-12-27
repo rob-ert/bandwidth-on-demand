@@ -12,12 +12,19 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
+import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,11 +33,9 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-
+//FIXME [AvD] this runs against the offline NBI client
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/spring/appCtx-nbi-client.xml", "classpath:/spring/appCtx.xml",
-    "classpath:/spring/appCtx-jpa-integration.xml","classpath:/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class NbiClientTestIntegration {
 

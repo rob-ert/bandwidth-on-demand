@@ -12,58 +12,51 @@
  */
 package nl.surfnet.bod.db;
 
-import static com.googlecode.flyway.core.api.MigrationState.MISSING_SUCCESS;
-import static com.googlecode.flyway.core.api.MigrationState.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
+import java.sql.SQLException;
+
 import javax.annotation.Resource;
-import javax.sql.DataSource;
+
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class DatabaseMigrationTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+public class DatabaseMigrationTestIntegration {
 
   @Resource
-  private DataSource dataSource;
+  private Flyway flyway;
 
   @Test
-  public void shouldBuildDatabaseFromScratch() {
-    Flyway flyway = new Flyway();
-    flyway.setDataSource(dataSource);
-    flyway.setLocations("nl.surfnet.bod.db.migration");
-
+  public void shouldBuildDatabaseFromScratch() throws SQLException {
     flyway.clean();
+
+    assertThat(flyway.info().applied(), arrayWithSize(0));
+
     flyway.init();
     flyway.migrate();
 
     MigrationInfo[] appliedMigrations = flyway.info().applied();
-    MigrationInfo[] pendingMigrations = flyway.info().pending();
-
 
     assertThat(appliedMigrations, arrayWithSize(greaterThan(0)));
-    assertThat(pendingMigrations, arrayWithSize(0));
+    assertThat(flyway.info().pending(), arrayWithSize(0));
 
     for (MigrationInfo migrationInfo : appliedMigrations) {
-      assertThat(migrationInfo.getState(), anyOf(is(SUCCESS), is(MISSING_SUCCESS)));
+      assertThat(migrationInfo.getState(), anyOf(is(MigrationState.SUCCESS), is(MigrationState.MISSING_SUCCESS)));
     }
   }
 }

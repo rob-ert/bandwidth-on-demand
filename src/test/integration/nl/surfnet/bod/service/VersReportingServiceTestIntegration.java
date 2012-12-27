@@ -12,14 +12,15 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
+
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,23 +29,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 public class VersReportingServiceTestIntegration {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource
-  private VersReportingService versReportingService;// = new
-                                                    // VersReportingService();
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  private VersReportingService versReportingService;
 
   @Before
   public void setUp() throws Exception {

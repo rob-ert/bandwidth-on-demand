@@ -1,0 +1,3 @@
+[submodule "src/main/resources/env-properties"]
+	path = src/main/resources/env-properties
+	url = git@github.com:BandwidthOnDemand/bod-env-properties.git

@@ -52,6 +52,9 @@ public class Environment {
   @Value("${bod.version}")
   private String version;
 
+  @Value("${bod.env}")
+  private String environment;
+
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
@@ -221,5 +224,9 @@ public class Environment {
 
   public boolean isFeedbackToolEnabled() {
     return feedbackToolEnabled;
+  }
+
+  public String getEnvironment() {
+    return environment;
   }
 }

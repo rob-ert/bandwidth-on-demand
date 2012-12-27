@@ -22,6 +22,8 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
@@ -38,16 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class VirtualResourceGroupRepoDbTest {
-
-  // override bod.properties to run test and bod server at the same time
-  static {
-    System.setProperty("snmp.host", "localhost/1622");
-  }
 
   @Resource
   private VirtualResourceGroupRepo subject;

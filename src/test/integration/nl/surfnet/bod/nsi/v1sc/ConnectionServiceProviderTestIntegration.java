@@ -32,6 +32,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.*;
@@ -71,8 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.base.Optional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml", "/spring/appCtx-vers-client.xml" })
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
@@ -252,7 +253,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
    * After reading from the database the timestamps are converted to the default
    * jvm timezone by the @See {@link PersistentDateTime} annotation on the
    * timestamp fields
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -298,7 +299,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
    * After reading from the database the timestamps are converted to the default
    * jvm timezone by the @See {@link PersistentDateTime} annotation on the
    * timestamp fields
-   * 
+   *
    * @throws Exception
    */
   @Test
