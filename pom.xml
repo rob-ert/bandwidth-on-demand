@@ -861,8 +861,7 @@
                         <version>2.10</version>
                         <configuration>
                            <skipTests>true</skipTests>
-                           <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m
-                                -XX:+CMSClassUnloadingEnabled</argLine>
+                           <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
                         </configuration>
                     </plugin>
                     <plugin>

@@ -12,6 +12,8 @@ import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
 import org.jasypt.util.text.StrongTextEncryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
@@ -30,7 +32,9 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ObjectArrays;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -46,6 +50,8 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableScheduling
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer {
+
+  private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
   @Value("${jdbc.jdbcUrl}") private String jdbcUrl;
   @Value("${jdbc.driverClass}") private String driverClass;
@@ -66,22 +72,31 @@ public class AppConfiguration implements SchedulingConfigurer {
     EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
-    String env = System.getProperties().getProperty("bod.env");
-    Resource envProperties;
-    if (env == null || env.isEmpty() || env.equals("dev")) {
-      envProperties = new ClassPathResource("bod.properties");
-    } else {
-      envProperties = new ClassPathResource(String.format("env-properties/bod-%s.properties", env));
-    }
+    Resource[] resources = addEnvPropertyResource(new Resource[] {
+      new ClassPathResource("bod-default.properties")
+    });
 
-    Resource[] resources = new Resource[] {
-      new ClassPathResource("bod-default.properties"),
-      envProperties
-    };
+    logger.info("Using property files: {}", Joiner.on(",").join(resources));
 
     configurer.setLocations(resources);
 
     return configurer;
+  }
+
+  private static Resource[] addEnvPropertyResource(Resource[] resources) {
+    String env = System.getProperties().getProperty("bod.env");
+
+    if (env == null || env.isEmpty()) {
+      Resource devProperties = new ClassPathResource(getPropertyEnvName("dev"));
+
+      return devProperties.exists() ? ObjectArrays.concat(resources, devProperties) : resources;
+    } else {
+      return ObjectArrays.concat(resources, new ClassPathResource(getPropertyEnvName(env)));
+    }
+  }
+
+  private static String getPropertyEnvName(String env) {
+    return String.format("env-properties/bod-%s.properties", env);
   }
 
   @Bean
