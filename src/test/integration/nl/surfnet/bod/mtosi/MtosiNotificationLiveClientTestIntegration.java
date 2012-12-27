@@ -12,10 +12,13 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import static nl.surfnet.bod.mtosi.MtosiNotificationCenterWs.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static nl.surfnet.bod.mtosi.MtosiNotificationCenterWs.DEFAULT_ADDRESS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
@@ -27,6 +30,9 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
+
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,8 +46,6 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
-
 public class MtosiNotificationLiveClientTestIntegration {
 
   private final Properties properties = new Properties();
@@ -50,9 +54,15 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   @Before
   public void setup() throws IOException {
-    properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
-    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(properties.get(
-        "mtosi.notification.retrieval.endpoint").toString(), properties.get("mtosi.notification.sender.uri").toString());
+    try {
+    properties.load(new FileInputStream("src/main/resources/env-properties/bod-test.properties"));
+    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(
+        properties.getProperty("nbi.mtosi.notification.retrieval.endpoint"),
+        properties.getProperty("nbi.mtosi.notification.sender.uri"));
+    } catch (IOException e) {
+      System.err.println("Ignoring test because 'env-properties/bod-test.properties' not found.");
+      Assume.assumeNoException(e);
+    }
   }
 
   @Ignore
@@ -82,8 +92,8 @@ public class MtosiNotificationLiveClientTestIntegration {
         .getNotificationConsumerSoapHttp();
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, DEFAULT_ADDRESS);
-    
-    
+
+
     // Create notification header
     final Header header = new Header();
     final String activity = "notify";
@@ -96,16 +106,16 @@ public class MtosiNotificationLiveClientTestIntegration {
     // Create an alarm notification message which is part of the body
     final AlarmType alarm = new org.tmforum.mtop.nra.xsd.alm.v1.ObjectFactory().createAlarmType();
     alarm.setNotificationId(UUID.randomUUID().toString());
-    
+
     final ServiceObjectCreationType serviceObjectCreation = new org.tmforum.mtop.sb.xsd.soc.v1.ObjectFactory().createServiceObjectCreationType();
     serviceObjectCreation.setNotificationId(UUID.randomUUID().toString());
-    
+
     final Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
-    
+
     message.getCommonEventInformation().add(serviceObjectCreation);
 //    message.getCommonEventInformation().add(alarm);
     body.setMessage(message);
-    
+
 
     // make sure that there are no old messages
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());

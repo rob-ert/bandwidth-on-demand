@@ -19,7 +19,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,10 +39,6 @@ public class VersReportingServiceTestIntegration {
   @Before
   public void setUp() throws Exception {
     versReportingService.init();
-  }
-
-  @After
-  public void tearDown() throws Exception {
   }
 
   // Currently just testing if the insert will not bomb out at all. Will test
