@@ -98,9 +98,11 @@ public class HealthCheckController {
     };
 
     final ServiceCheck apiServiceCheck = new ServiceCheck() {
+      private final String personUri = "urn:collab:person:surfnet.nl:hanst";
+
       @Override
       public boolean healty() throws IOException {
-        Collection<UserGroup> groups = groupService.getGroups("urn:collab:person:surfguest.nl:alanvdam");
+        Collection<UserGroup> groups = groupService.getGroups(personUri);
         return groups.size() > 0;
       }
 
