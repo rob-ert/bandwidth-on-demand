@@ -75,7 +75,7 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
     // Four reservations should appear in 2012 filter, the two new above and the
     // two cancelled old ones.
-    getNocDriver().verifyReservationByFilterAndSearch("2012", null,
+    getNocDriver().verifyReservationByFilterAndSearch("" + LocalDateTime.now().plusDays(1).getYear(), null,
         "First reservation", "First reservation", "Second reservation", "Second reservation");
   }
 
