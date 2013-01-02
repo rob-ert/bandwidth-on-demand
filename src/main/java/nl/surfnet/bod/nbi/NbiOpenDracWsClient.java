@@ -63,7 +63,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
  * class so that only this class is linked to OpenDRAC related classes.
  *
  */
-class NbiOpenDracWsClient implements NbiClient {
+public class NbiOpenDracWsClient implements NbiClient {
 
   private static final String ROUTING_ALGORITHM = "VCAT";
   private static final String DEFAULT_VID = "Untagged";
