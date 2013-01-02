@@ -31,13 +31,18 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @Configuration
 public class IntegrationDbConfiguration {
 
+  public static final String DB_URL = "jdbc:postgresql://localhost/bod-integration";
+  public static final String DB_USER = "bod-integration_user";
+  public static final String DB_PASSWORD = "secret";
+  public static final String DB_DRIVER_CLASS = "org.postgresql.Driver";
+
   @Bean
   public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName("org.postgresql.Driver");
-    dataSource.setUrl("jdbc:postgresql://localhost/bod-integration");
-    dataSource.setUsername("bod-integration_user");
-    dataSource.setPassword("secret");
+    dataSource.setDriverClassName(DB_DRIVER_CLASS);
+    dataSource.setUrl(DB_URL);
+    dataSource.setUsername(DB_USER);
+    dataSource.setPassword(DB_PASSWORD);
     return dataSource;
   }
 

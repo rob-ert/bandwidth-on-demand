@@ -22,10 +22,10 @@
  */
 package nl.surfnet.bod.repo;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
@@ -79,12 +79,12 @@ public class VirtualResourceGroupRepoDbTest {
 
     try {
       subject.save(vrGroupTwo);
+      subject.flush();
 
       fail("ConstraintViolation excpected");
     }
     catch (JpaSystemException exc) {
-
-      assertEquals(exc.getCause().getCause().getClass(), ConstraintViolationException.class);
+      assertThat("", exc.getCause().getCause(), instanceOf(ConstraintViolationException.class));
     }
   }
 

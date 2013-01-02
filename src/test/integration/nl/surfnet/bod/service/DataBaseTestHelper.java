@@ -24,18 +24,17 @@ package nl.surfnet.bod.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
+
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataBaseTestHelper {
+public final class DataBaseTestHelper {
+
   public static final String DB_DRIVER_CLASS = "jdbc.driverClass";
   public static final String DB_PASS = "jdbc.password";
   public static final String DB_URL = "jdbc.jdbcUrl";
@@ -47,9 +46,9 @@ public class DataBaseTestHelper {
   public static final InputStream PROP_SELENIUM = DataBaseTestHelper.class
       .getResourceAsStream("/bod-selenium.properties");
 
-  private static final Logger logger = LoggerFactory.getLogger(DataBaseTestHelper.class);
-
   private static Properties props;
+
+  private static final Logger logger = LoggerFactory.getLogger(DataBaseTestHelper.class);
 
   private DataBaseTestHelper() {
   };
@@ -64,12 +63,11 @@ public class DataBaseTestHelper {
   }
 
   public static void clearIntegrationDatabaseSkipBaseData() {
-    String dbUrl = getProperty(DB_URL, PROP_DEFAULT, PROP_BOD).concat("-integration");
-    String dbUser = getProperty(DB_USER, PROP_DEFAULT, PROP_BOD);
-    String dbPassword = getProperty(DB_PASS, PROP_DEFAULT, PROP_BOD);
-    String dbDriverClass = getProperty(DB_DRIVER_CLASS, PROP_DEFAULT, PROP_BOD);
-
-    clearDatabaseSkipBaseData(dbUrl, dbUser, dbPassword, dbDriverClass);
+    clearDatabaseSkipBaseData(
+      IntegrationDbConfiguration.DB_URL,
+      IntegrationDbConfiguration.DB_USER,
+      IntegrationDbConfiguration.DB_PASSWORD,
+      IntegrationDbConfiguration.DB_DRIVER_CLASS);
   }
 
   private static void clearDatabaseSkipBaseData(String dbUrl, String dbUser, String dbPassword, String dbDriverClass) {
