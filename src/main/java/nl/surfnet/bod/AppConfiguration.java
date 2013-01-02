@@ -2,6 +2,7 @@ package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -33,6 +34,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.googlecode.flyway.core.Flyway;
@@ -42,8 +44,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @ComponentScan(basePackages = "nl.surfnet.bod")
 @ImportResource({
   "classpath:spring/appCtx-security.xml",
-  "classpath:spring/appCtx-ws.xml",
-  "classpath:spring/appCtx-vers-client.xml"})
+  "classpath:spring/appCtx-ws.xml"})
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
@@ -199,10 +200,31 @@ public class AppConfiguration implements SchedulingConfigurer {
     return Lists.newArrayList("urn:ogf:network:nsa:surfnet.nl");
   }
 
-//  @Bean
-//  public Map<String, Map<String, String>> reportToVersMap() {
-//    return ImmutableMap.<String, Map<String, String>>of("Test", new HashMap<String, String>());
-//  }
+  @Bean
+  public Map<String, Map<String, String>> reportToVersMap() {
+    return ImmutableMap.<String, Map<String, String>>builder()
+      .put("amountRunningReservationsSucceeded",
+          ImmutableMap.of("TRUE", "Succeeded", "FALSE", "Failed"))
+      .put("amountRunningReservationsFailed",
+          ImmutableMap.of("TRUE", "Failed", "FALSE", "N.A."))
+      .put("amountRunningReservationsStillRunning",
+          ImmutableMap.of("TRUE", "Running", "FALSE", "N.A."))
+      .put("amountRunningReservationsStillScheduled",
+          ImmutableMap.of("TRUE", "Still Scheduled", "FALSE", "N.A."))
+      .put("amountRunningReservationsNeverProvisioned",
+          ImmutableMap.of("TRUE", "Timed Out", "FALSE", "N.A."))
+      .put("amountRequestsModifiedSucceeded",
+          ImmutableMap.of("TRUE", "Succeeded", "FALSE", "Failed"))
+      .put("amountRequestsCancelSucceeded",
+          ImmutableMap.of("TRUE", "Succeeded", "FALSE", "Failed"))
+      .put("amountReservationsProtected",
+          ImmutableMap.of("TRUE", "Protected Scheduled", "FALSE", "Unprotected"))
+      .put("amountReservationsRedundant",
+          ImmutableMap.of("TRUE", "Succeeded", "FALSE", "Failed"))
+      .put("amountRequestsThroughGUI",
+          ImmutableMap.of("TRUE", "NSI", "FALSE", "GUI"))
+      .build();
+  }
 
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
