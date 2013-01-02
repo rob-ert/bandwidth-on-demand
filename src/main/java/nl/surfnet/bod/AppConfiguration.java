@@ -56,7 +56,7 @@ public class AppConfiguration implements SchedulingConfigurer {
   @Value("${jdbc.jdbcUrl}") private String jdbcUrl;
   @Value("${jdbc.driverClass}") private String driverClass;
   @Value("${jdbc.user}") private String user;
-  @Value("${jdbc.password") private String password;
+  @Value("${jdbc.password}") private String password;
   @Value("${jdbc.initialPoolSize}") private int initialPoolSize;
   @Value("${jdbc.maxPoolSize}") private int maxPoolSize;
   @Value("${jdbc.minPoolSize}") private int minPoolSize;
