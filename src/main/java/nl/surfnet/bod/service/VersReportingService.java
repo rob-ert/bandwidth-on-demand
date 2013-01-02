@@ -2,13 +2,23 @@
  * Copyright (c) 2012, SURFnet BV
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
  *
- *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *     disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package nl.surfnet.bod.service;
 
@@ -35,7 +45,6 @@ import org.springframework.stereotype.Service;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
-import surfnet_er.ErInsertReportResponseDocument;
 import surfnet_er.InsertReportInput;
 
 import com.google.common.base.Optional;
@@ -90,7 +99,7 @@ public class VersReportingService {
         valueNeg = nocReports.getAmountReservationsUnprotected();
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest(
+          surfNetErStub.er_InsertReport(getVersRequest(
               "Protection Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
               text));
         }
@@ -148,7 +157,6 @@ public class VersReportingService {
       case "amountRequestsThroughGUI":
         valuePos = nocReports.getAmountRequestsThroughNSI();
         valueNeg = nocReports.getAmountRequestsThroughGUI();
-        // System.out.println(valueNeg);
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valuePos),
@@ -173,7 +181,6 @@ public class VersReportingService {
       case "amountRequestsModifiedSucceeded":
         valuePos = nocReports.getAmountRequestsModifiedSucceeded();
         valueNeg = nocReports.getAmountRequestsModifiedFailed();
-        // System.out.println(valueNeg);
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valuePos),
@@ -189,7 +196,6 @@ public class VersReportingService {
       case "amountRequestsCancelSucceeded":
         valuePos = nocReports.getAmountRequestsCancelSucceeded();
         valueNeg = nocReports.getAmountRequestsCancelFailed();
-         System.out.println(valueNeg);
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valuePos),
@@ -224,7 +230,6 @@ public class VersReportingService {
     insertReportInput.setValue(value);
 //    final String date = versFormatter.print(DateTime.now().minusMonths(1));
     final String date = versFormatter.print(DateTime.now().minusMonths(11));
-    // System.out.println(date);
     insertReportInput.setPeriod(date);
 
     if (instituteShortName.isPresent()) {
@@ -236,7 +241,6 @@ public class VersReportingService {
     }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
 
-    // System.out.println(ReflectionToStringBuilder.toString(insertReportInput,
     // ToStringStyle.MULTI_LINE_STYLE));
 
     return versRequest;
@@ -256,13 +260,12 @@ public class VersReportingService {
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-      // System.out.println(interval.getStart() +" "+ interval.getEnd());
       return interval;
     }
 
   }
 
-  public static void main(String args[]) throws Exception {
+  public static void main(String[] args) throws Exception {
     // final ReservationReportView reservationReportViewNoc = new
     // ReservationReportView(DateTime.now(), DateTime.now()
     // .plusHours(1));

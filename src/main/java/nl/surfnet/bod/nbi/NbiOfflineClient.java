@@ -2,15 +2,27 @@
  * Copyright (c) 2012, SURFnet BV
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
  *
- *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *     disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package nl.surfnet.bod.nbi;
+
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,28 +43,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
 
 public class NbiOfflineClient implements NbiClient {
 
@@ -177,13 +173,18 @@ public class NbiOfflineClient implements NbiClient {
     if (status.isTransitionState()) {
       if (status == RESERVED && reservation.getStartDateTime().isBeforeNow()) {
         status = ReservationStatus.SCHEDULED;
-      } else if (status == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
+      }
+      else if (status == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
         status = RUNNING;
-      } else if (status == REQUESTED) {
+      }
+      else if (status == REQUESTED) {
         status = AUTO_START; // could be NOT_ACCEPTED as well..
-      } else if (status == RUNNING && reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
+      }
+      else if (status == RUNNING
+          && reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
         status = SUCCEEDED;
-      } else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
+      }
+      else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
         status = TIMED_OUT;
       }
 
@@ -203,7 +204,8 @@ public class NbiOfflineClient implements NbiClient {
       if (reservation.getStatus() == RESERVED) {
         scheduleIds.put(scheduleId, reservation.withStatus(AUTO_START));
         return true;
-      } else if (reservation.getStatus() == SCHEDULED) {
+      }
+      else if (reservation.getStatus() == SCHEDULED) {
         scheduleIds.put(scheduleId, reservation.withStatus(RUNNING));
         return true;
       }

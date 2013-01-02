@@ -2,13 +2,23 @@
  * Copyright (c) 2012, SURFnet BV
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
  *
- *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *     disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package nl.surfnet.bod.service;
 
@@ -48,21 +58,22 @@ import com.google.common.collect.ImmutableMap;
 @Service
 public class ConnectionService {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
+  protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
+    new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
+      .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
+      .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
+      .put(CANCELLED, ConnectionStateType.TERMINATED)
+      .put(FAILED, ConnectionStateType.TERMINATED)
+      .put(REQUESTED, ConnectionStateType.INITIAL)
+      .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
+      .put(RESERVED, ConnectionStateType.RESERVED)
+      .put(RUNNING, ConnectionStateType.PROVISIONED)
+      .put(SCHEDULED, ConnectionStateType.SCHEDULED)
+      .put(SUCCEEDED, ConnectionStateType.TERMINATED)
+      .put(TIMED_OUT, ConnectionStateType.TERMINATED)
+      .build();
 
-  protected final static Map<ReservationStatus, ConnectionStateType> STATE_MAPPING = new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
-        .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
-        .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
-        .put(CANCELLED, ConnectionStateType.TERMINATED)
-        .put(FAILED, ConnectionStateType.TERMINATED)
-        .put(REQUESTED, ConnectionStateType.INITIAL)
-        .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
-        .put(RESERVED, ConnectionStateType.RESERVED)
-        .put(RUNNING, ConnectionStateType.PROVISIONED)
-        .put(SCHEDULED, ConnectionStateType.SCHEDULED)
-        .put(SUCCEEDED, ConnectionStateType.TERMINATED)
-        .put(TIMED_OUT, ConnectionStateType.TERMINATED).
-        build();
+  private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
   @Resource
   private ConnectionRepo connectionRepo;
@@ -138,14 +149,18 @@ public class ConnectionService {
           "Terminate request by NSI",
           Security.getUserDetails(),
           Optional.of(requestDetails));
-    } else {
+    }
+    else {
       log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
       connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
     }
   }
 
   private boolean isTerminatePossible(Connection connection) {
-    return !ImmutableList.of(ConnectionStateType.TERMINATING, ConnectionStateType.TERMINATED, ConnectionStateType.CLEANING).contains(connection.getCurrentState());
+    return !ImmutableList.of(
+        ConnectionStateType.TERMINATING,
+        ConnectionStateType.TERMINATED,
+        ConnectionStateType.CLEANING).contains(connection.getCurrentState());
   }
 
   @Async
@@ -153,7 +168,8 @@ public class ConnectionService {
       Collection<String> globalReservationIds, QueryOperationType operation, String requesterNsa, String providerNsa) {
     Preconditions.checkArgument(!connectionIds.isEmpty());
 
-    QueryConfirmedType confirmedType = queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
+    QueryConfirmedType confirmedType =
+      queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
 
     connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
   }
@@ -271,7 +287,8 @@ public class ConnectionService {
   protected boolean hasValidState(Connection connection) {
     if (connection.getReservation() == null) {
       return connection.getCurrentState() == ConnectionStateType.TERMINATED;
-    } else {
+    }
+    else {
         return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
     }
   }
