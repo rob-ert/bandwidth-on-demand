@@ -280,6 +280,6 @@ public class BodUserWebDriver {
     dashboardPage.verifyMenuReservations();
     dashboardPage.verifyMenuVirtualPorts();
     dashboardPage.verifyMenuLogEvents();
-
+    dashboardPage.verifyMenuAdvanced();
   }
 }

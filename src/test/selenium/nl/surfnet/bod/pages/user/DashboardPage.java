@@ -22,6 +22,9 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import java.util.List;
 
 import nl.surfnet.bod.pages.AbstractListPage;
@@ -36,9 +39,6 @@ import org.openqa.selenium.support.PageFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class DashboardPage extends AbstractListPage {
 
@@ -90,37 +90,38 @@ public class DashboardPage extends AbstractListPage {
   }
 
   public void verifyMenuReservations() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
+    clickMenuLink("Reservations");
     ListReservationPage page = ListReservationPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuVirtualPorts() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
+    clickMenuLink("Virtual");
     ListVirtualPortPage page = ListVirtualPortPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuLogEvents() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
+    clickMenuLink("Log");
     ListLogEventsPage page = ListLogEventsPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
-  /**
-   * TODO page not finished yet, so nothing to assert
-   */
-  public void verifyMenuNSI() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'NSI')]"));
+  public void verifyMenuAdvanced() {
+    clickMenuLink("Advanced");
   }
 
   public void verifyMenuOverview() {
-    getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
+    clickMenuLink("Overview");
     verifyIsCurrentPage();
     verifyHasNoTimeZone();
+  }
+
+  private void clickMenuLink(String link) {
+    navBar.findElement(By.xpath(String.format(".//a[contains(text(), '%s')]", link))).click();
   }
 
   public void verifyIsCurrentPage() {

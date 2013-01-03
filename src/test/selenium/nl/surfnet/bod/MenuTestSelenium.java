@@ -30,20 +30,25 @@ import org.junit.Test;
 public class MenuTestSelenium extends TestExternalSupport {
 
   @Before
-  public void onSetup() {
-    // Just what this test needs... :-)
-    new ReservationTestSelenium().setup();
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet Netwerk", ICT_MANAGERS_GROUP, "test@example.com");
+    getWebDriver().clickLinkInLastEmail();
   }
 
   @Test
-  public void shouldNavigateMenus() {
-
+  public void verifyNocMenuStructure() {
     getManagerDriver().switchToNoc();
     getNocDriver().verifyMenu();
+  }
 
+  @Test
+  public void verifyManagerMenuStructure() {
     getNocDriver().switchToManager();
     getManagerDriver().verifyMenu();
+  }
 
+  @Test
+  public void verifyUserMenuStructure() {
     getManagerDriver().switchToUser();
     getUserDriver().verifyMenu();
   }

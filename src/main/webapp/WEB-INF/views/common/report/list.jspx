@@ -4,7 +4,7 @@
   xmlns:jsp="http://java.sun.com/JSP/Page"
   xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
-   xmlns:sform="http://www.springframework.org/tags/form">
+  xmlns:sform="http://www.springframework.org/tags/form">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
@@ -13,10 +13,14 @@
 <section>
   <h1>Usage Report <util:timeZone /></h1>
   <div class="content">
-      <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
-        <label>Reporting period</label>
-        <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
-      </form>
+    <div class="actions">
+      <spring:url value="report/graph" var="graphsUrl" />
+      <a href="${graphsUrl}" class="btn btn-primary"><i class="icon-bar-chart"><!-- --></i><c:out value=" "/>Graphs</a>
+    </div>
+    <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
+      <label>Reporting period</label>
+      <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
+    </form>
   </div>
 
   <div class="content">

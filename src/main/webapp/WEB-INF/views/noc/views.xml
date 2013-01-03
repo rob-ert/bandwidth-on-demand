@@ -13,16 +13,13 @@
   </definition>
 
   <definition extends="noc" name="noc/reservations/list">
-    <put-attribute name="body"
-      value="/WEB-INF/views/common/reservations/list.jspx" />
-    <put-attribute name="active_menu" value="reservations"
-      cascade="true" />
+    <put-attribute name="body" value="/WEB-INF/views/common/reservations/list.jspx" />
+    <put-attribute name="active_menu" value="reservations" cascade="true" />
     <put-attribute name="renderActions" value="false" cascade="true" />
   </definition>
 
   <definition extends="noc" name="noc/logevents">
-    <put-attribute name="body"
-      value="/WEB-INF/views/common/logevents/list.jspx" />
+    <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
     <put-attribute name="active_menu" value="logevent" cascade="true" />
   </definition>
 
@@ -33,12 +30,12 @@
 
   <definition extends="noc" name="noc/report">
     <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
-    <!-- No menu item yet -->
+    <put-attribute name="active_menu" value="report" cascade="true" />
   </definition>
 
   <definition extends="noc" name="noc/report/graph">
     <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
-    <!-- No menu item yet -->
+    <put-attribute name="active_menu" value="report" cascade="true" />
   </definition>
-  
+
 </tiles-definitions>

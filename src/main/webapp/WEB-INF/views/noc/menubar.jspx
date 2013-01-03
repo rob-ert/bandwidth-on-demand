@@ -1,9 +1,10 @@
 <menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:bod="BodTags">
-    <item id="i_overview" messageCode="menu_overview_label" url="/noc" menu="overview" />
-    <item id="i_res_list" messageCode="menu_reservation_label" url="/noc/reservations" menu="reservations" />
-    <item id="i_team_list" messageCode="menu_virtualresourcegroup_label" url="/noc/teams" menu="teams" />
-    <item id="i_prg_list" messageCode="menu_physicalresourcegroup_label" url="/noc/institutes" menu="institutes" />
-    <item id="i_vp_list" messageCode="menu_virtualport_label" url="/noc/virtualports" menu="virtualport" />
-    <item id="i_pp_list" messageCode="menu_physicalport_label" url="/noc/physicalports" menu="physicalport" />
-    <item id="i_le_list" url="/noc/logevents" messageCode="menu_logevent_label" menu="logevent" />
+    <item id="i_overview"  messageCode="menu_overview_label"              url="/noc"               menu="overview" />
+    <item id="i_res_list"  messageCode="menu_reservation_label"           url="/noc/reservations"  menu="reservations" />
+    <item id="i_team_list" messageCode="menu_virtualresourcegroup_label"  url="/noc/teams"         menu="teams" />
+    <item id="i_prg_list"  messageCode="menu_physicalresourcegroup_label" url="/noc/institutes"    menu="institutes" />
+    <item id="i_vp_list"   messageCode="menu_virtualport_label"           url="/noc/virtualports"  menu="virtualport" />
+    <item id="i_pp_list"   messageCode="menu_physicalport_label"          url="/noc/physicalports" menu="physicalport" />
+    <item id="i_le_list"   messageCode="menu_logevent_label"              url="/noc/logevents"     menu="logevent" />
+    <item id="i_re_list"   messageCode="menu_report_label"                url="/noc/report"        menu="report" />
 </menu>

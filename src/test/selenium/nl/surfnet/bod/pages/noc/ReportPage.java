@@ -49,6 +49,10 @@ public class ReportPage extends AbstractListPage {
     return get(driver);
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
+
   public void verifyAmountOfFailedReservationRequests() {
     WebElement row =  findRow("Failed");
     String text = row.getText();

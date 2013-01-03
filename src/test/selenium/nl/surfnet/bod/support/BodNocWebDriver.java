@@ -367,6 +367,7 @@ public class BodNocWebDriver {
     dashboardPage.verifyMenuVirtualPorts();
     dashboardPage.verifyMenuPhysicalPorts();
     dashboardPage.verifyMenuLogEvents();
+    dashboardPage.verifyMenuReport();
   }
 
   public void verifyReport() {

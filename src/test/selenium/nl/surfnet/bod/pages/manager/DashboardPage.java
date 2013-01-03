@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.openqa.selenium.By;
@@ -29,9 +31,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class DashboardPage extends AbstractListPage {
 
@@ -65,34 +64,35 @@ public class DashboardPage extends AbstractListPage {
   }
 
   public void verifyMenuReservations() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
+    clickMenuLink("Reservations");
     ListReservationPage page = ListReservationPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuTeams() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Teams')]")).click();
+    clickMenuLink("Teams");
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuVirtualPorts() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
+    clickMenuLink("Virtual");
     ListVirtualPortPage page = ListVirtualPortPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuPhysicalPorts() {
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Physical')]")).click();
+    clickMenuLink("Physical");
     ListPhysicalPortsPage page = ListPhysicalPortsPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuLogEvents() {
+    clickMenuLink("Log");
     navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
     ListLogEventsPage page = ListLogEventsPage.get(getDriver());
     page.verifyIsCurrentPage();
@@ -100,9 +100,13 @@ public class DashboardPage extends AbstractListPage {
   }
 
   public void verifyMenuOverview() {
-    getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
+    clickMenuLink("Overview");
     verifyIsCurrentPage();
     verifyHasNoTimeZone();
+  }
+
+  private void clickMenuLink(String link) {
+    navBar.findElement(By.xpath(String.format(".//a[contains(text(), '%s')]", link))).click();
   }
 
   public void verifyIsCurrentPage() {
