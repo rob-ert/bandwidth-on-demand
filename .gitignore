@@ -6,6 +6,7 @@
 .checkstyle
 .springBeans
 .cache
+.buildpath
 log.roo
 rebel.xml
 bod.log
