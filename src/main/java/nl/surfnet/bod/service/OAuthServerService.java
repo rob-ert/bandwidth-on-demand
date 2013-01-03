@@ -115,7 +115,7 @@ public class OAuthServerService {
         public NsiScope apply(String scope) {
           return NsiScope.valueOf(scope.toUpperCase());
         }
-      }).toImmutableList();
+      }).toList();
       return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
     }
     else {

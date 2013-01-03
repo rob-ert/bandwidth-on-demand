@@ -116,7 +116,7 @@ public class DashboardController {
       public TeamView apply(UserGroup group) {
         return new TeamView(group);
       }
-    }).toImmutableList();
+    }).toList();
 
     return Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams));
   }

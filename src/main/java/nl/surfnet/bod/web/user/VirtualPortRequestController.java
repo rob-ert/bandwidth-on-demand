@@ -111,7 +111,7 @@ public class VirtualPortRequestController {
           public boolean apply(UserGroup group) {
             return !existingIds.contains(group.getId());
           }
-        }).transform(Functions.FROM_USER_GROUP_TO_USER_GROUP_VIEW).toImmutableList();
+        }).transform(Functions.FROM_USER_GROUP_TO_USER_GROUP_VIEW).toList();
 
     // Put result sorted on model
     model.addAttribute("userGroupViews", Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams)));

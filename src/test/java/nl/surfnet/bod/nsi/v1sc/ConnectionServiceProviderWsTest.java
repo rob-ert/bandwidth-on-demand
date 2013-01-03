@@ -22,11 +22,11 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static junit.framework.Assert.fail;
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +36,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import junit.framework.Assert;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -117,7 +116,7 @@ public class ConnectionServiceProviderWsTest {
 
     try {
       subject.reserve(connection, request, userDetails);
-      Assert.fail("Exception expected");
+      fail("Exception expected");
     }
     catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
@@ -130,7 +129,7 @@ public class ConnectionServiceProviderWsTest {
 
     try {
       subject.reserve(connection, request, userDetails);
-      Assert.fail("Exception expected");
+      fail("Exception expected");
     }
     catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
@@ -148,7 +147,7 @@ public class ConnectionServiceProviderWsTest {
 
     try {
       subject.reserve(connection, request, userDetails);
-      Assert.fail("Exception expected");
+      fail("Exception expected");
     }
     catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));
@@ -161,7 +160,7 @@ public class ConnectionServiceProviderWsTest {
 
     try {
       subject.reserve(connection, request, userDetails);
-      Assert.fail("Exception expected");
+      fail("Exception expected");
     }
     catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));

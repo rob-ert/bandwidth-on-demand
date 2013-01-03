@@ -52,14 +52,14 @@ public class ReportPage extends AbstractListPage {
   public void verifyAmountOfFailedReservationRequests() {
     WebElement row =  findRow("Failed");
     String text = row.getText();
-    
-  //*[@id="idReport"]/tbody/tr[1]/td[3]/table/tbody/tr[1]/td[2]
 
+    // TODO not implemented yet???
+
+    //*[@id="idReport"]/tbody/tr[1]/td[3]/table/tbody/tr[1]/td[2]
   }
 
   public void verifyAmountOfSucceededReservationRequests() {
     Assert.fail("not implemented");
-
   }
 
   public void verifyAmountOfProtectedReservations() {

@@ -22,9 +22,9 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;

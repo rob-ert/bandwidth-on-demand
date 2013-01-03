@@ -136,7 +136,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
       public boolean apply(PersistableDomain domain) {
         return filterResults.contains(domain.getId());
       }
-    }).toImmutableList();
+    }).toList();
   }
 
 }

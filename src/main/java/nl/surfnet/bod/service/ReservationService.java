@@ -657,7 +657,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
           public Integer apply(Double d) {
             return d.intValue();
           }
-        }).toImmutableList();
+        }).toList();
 
     return Ordering.natural().sortedCopy(years);
   }

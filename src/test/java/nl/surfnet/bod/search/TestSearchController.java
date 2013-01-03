@@ -78,7 +78,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
       public TestView apply(TestEntity input) {
         return new TestView(input);
       }
-    }).toImmutableList();
+    }).toList();
   }
 
   @Override

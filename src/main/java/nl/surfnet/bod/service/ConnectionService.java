@@ -301,6 +301,6 @@ public class ConnectionService {
       public boolean apply(Connection connection) {
         return !hasValidState(connection);
       }
-    }).toImmutableList();
+    }).toList();
   }
 }

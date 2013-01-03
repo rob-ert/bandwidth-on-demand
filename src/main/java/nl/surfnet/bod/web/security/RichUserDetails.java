@@ -143,7 +143,7 @@ public class RichUserDetails implements UserDetails {
           return bodRole.getRole() == RoleEnum.ICT_MANAGER;
         }
       })
-      .toImmutableList();
+      .toList();
   }
 
   public BodRole getSelectedRole() {

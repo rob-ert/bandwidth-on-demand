@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
@@ -95,7 +95,7 @@ public class ActivationEmailLinkTest {
     linkOne.activate();
 
     assertThat(linkOne.isActivated(), is(true));
-    Assert.assertEquals(new Long(linkOne.getActivationDateTime().toDate().getTime()), millis);
+    assertEquals(new Long(linkOne.getActivationDateTime().toDate().getTime()), millis);
 
     DateTimeUtils.setCurrentMillisSystem();
   }

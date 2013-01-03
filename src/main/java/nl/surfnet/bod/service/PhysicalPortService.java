@@ -277,7 +277,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS_PRED)
-        .transform(Functions.TO_NMS_PORT_ID_FUNC).toImmutableSet();
+        .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
     logger.info("Found {} ports realigned in the NMS", reAlignedPortIds.size());
@@ -310,7 +310,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values())
-        .filter(Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toImmutableSet();
+        .filter(Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
     logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());

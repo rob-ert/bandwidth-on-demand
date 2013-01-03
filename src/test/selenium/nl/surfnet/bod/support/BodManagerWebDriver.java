@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import nl.surfnet.bod.pages.manager.*;
 
 import org.apache.commons.lang.ArrayUtils;
