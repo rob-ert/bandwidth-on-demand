@@ -22,11 +22,14 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.util.TestHelper.productionProperties;
+
 import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,12 +44,19 @@ public class ServiceComponentActivationClientTest {
 //    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
 
-  private final ServiceComponentActivationClient subject = new ServiceComponentActivationClient("http://62.190.191.48:9006/mtosi/sa/ServiceComponentActivationInterface");
+  private ServiceComponentActivationClient subject;
+
+  @Before
+  public void setup() {
+    String endPoint = productionProperties().getProperty("bi.mtosi.service.reserve.endpoint");
+    subject = new ServiceComponentActivationClient(endPoint);
+  }
 
   @Test
   @Ignore("Needs access to london server... is more like integration, but now only for testing..")
   public void reserve() {
     Reservation reservation = new ReservationFactory().create();
     subject.reserve(reservation, false);
+
   }
 }

@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.util;
 
+import static org.junit.Assume.assumeNoException;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -56,22 +58,46 @@ public class TestHelper {
     }
   }
 
-  public static String decryptProperty(String name, String env) {
-    try {
-      Properties props = new Properties();
-      props.load(new FileInputStream(String.format("src/main/resources/env-properties/bod-%s.properties", env)));
-      return decryptProperty(name, props);
-    }
-    catch (IOException e) {
-      throw new AssertionError(e);
-    }
+  public static PropertiesEnvironment testProperties() {
+    return loadProperties("test");
   }
 
-  public static String decryptProperty(String name, Properties properties) {
-    StrongTextEncryptor encryptor = new StrongTextEncryptor();
-    encryptor.setPassword(System.getenv("BOD_ENCRYPTION_PASSWORD"));
+  public static PropertiesEnvironment accProperties() {
+    return loadProperties("acc");
+  }
 
-    return PropertyValueEncryptionUtils.decrypt(properties.getProperty(name), encryptor);
+  public static PropertiesEnvironment productionProperties() {
+    return loadProperties("prod");
+  }
+
+  private static PropertiesEnvironment loadProperties(String env) {
+    PropertiesEnvironment environment = new PropertiesEnvironment();
+    try {
+      environment.load(new FileInputStream(String.format("src/main/resources/env-properties/bod-%s.properties", env)));
+    } catch (IOException e) {
+      System.err.println("Could not load the environment properties file for " + env);
+      // Ignoring/skipping test
+      assumeNoException(e);
+    }
+    return environment;
+  }
+
+  @SuppressWarnings("serial")
+  public static class PropertiesEnvironment extends Properties {
+
+    private StrongTextEncryptor encryptor = new StrongTextEncryptor();
+
+    public PropertiesEnvironment() {
+      encryptor.setPassword(System.getenv("BOD_ENCRYPTION_PASSWORD"));
+    }
+
+    public String getDecryptedProperty(String name) {
+      return decryptProperty(name, this);
+    }
+
+    private String decryptProperty(String name, Properties properties) {
+      return PropertyValueEncryptionUtils.decrypt(properties.getProperty(name), encryptor);
+    }
   }
 
 }
