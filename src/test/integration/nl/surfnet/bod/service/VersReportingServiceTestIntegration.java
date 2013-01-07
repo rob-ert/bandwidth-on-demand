@@ -51,10 +51,8 @@ public class VersReportingServiceTestIntegration {
     versReportingService.init();
   }
 
-  // Currently just testing if the insert will not bomb out at all. Will test
-  // the return values later on.
   @Test
-  public void should_insert() {
+  public void smoketest() {
 
     try {
       versReportingService.sendInternalReport();
