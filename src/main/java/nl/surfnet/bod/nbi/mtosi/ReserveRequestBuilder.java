@@ -132,19 +132,19 @@ public class ReserveRequestBuilder {
   }
 
   private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port) {
-    ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceAccessPointType();
 
-    NamingAttributeType resourceRef = createNamingAttrib(null, null);
-    serviceAccessPoint.setResourceRef(resourceRef);
+    NamingAttributeType resourceRef = createNamingAttrib();
+    List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 
-    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
-
-    List<RelativeDistinguishNameType> resourceRefList = serviceAccessPoint.getResourceRef().getRdn();
     resourceRefList.add(createRdn("MD", "CIENA/OneControl"));
     resourceRefList.add(createRdn("ME", port.getNmsNeId()));
     resourceRefList.add(createRdn("PTP", "/rack=1/shelf=1/slot=1/port=4"));
     resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
+
+    ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
+        .createServiceAccessPointType();
+    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
+    serviceAccessPoint.setResourceRef(resourceRef);
 
     return serviceAccessPoint;
   }
@@ -169,6 +169,10 @@ public class ReserveRequestBuilder {
     rel.setType(type);
     rel.setValue(value);
     return rel;
+  }
+
+  private NamingAttributeType createNamingAttrib() {
+    return new NamingAttributeType();
   }
 
   private NamingAttributeType createNamingAttrib(String type, String value) {
