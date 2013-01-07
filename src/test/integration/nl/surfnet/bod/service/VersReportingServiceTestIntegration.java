@@ -54,7 +54,7 @@ public class VersReportingServiceTestIntegration {
   // Currently just testing if the insert will not bomb out at all. Will test
   // the return values later on.
   @Test
-  public void should_insert_and_delete_item() {
+  public void should_insert() {
 
     try {
       versReportingService.sendInternalReport();

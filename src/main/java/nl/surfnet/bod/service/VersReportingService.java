@@ -53,7 +53,7 @@ import com.google.common.base.Optional;
 public class VersReportingService {
 
   @Value("${vers.url}")
-  private String serviceURL;
+  private String serviceURL;// = "http://localhost:1234";
 
   @Value("${vers.user}")
   private String versUserName;
@@ -71,9 +71,9 @@ public class VersReportingService {
   private Map<String, Map<String, String>> reportToVersMap;
 
   private SURFnetErStub surfNetErStub;
-
+  
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
-
+  
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
 
   @PostConstruct
@@ -100,16 +100,16 @@ public class VersReportingService {
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
           surfNetErStub.er_InsertReport(getVersRequest(
-              "Protection Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
+              "Reservations: Protection Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
               text));
         }
         if (entry.getValue().get("FALSE") != null) {
           text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Protection Types", Long.toString(valueNeg),
+          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valueNeg),
               nocReports.getPeriodStart(), Optional.<String> absent(), text));
         }
         text = "Redundant";
-        surfNetErStub.er_InsertReport(getVersRequest("Protection Types",
+        surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types",
             Long.toString(nocReports.getAmountReservationsRedundant()), nocReports.getPeriodStart(),
             Optional.<String> absent(), text));
         break;
@@ -132,23 +132,23 @@ public class VersReportingService {
       case "amountRunningReservationsStillRunning":
         if (entry.getValue().get("TRUE") != null) {
           text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Status",
+          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
               Long.toString(nocReports.getAmountRunningReservationsStillRunning()), nocReports.getPeriodStart(),
               Optional.<String> absent(), text));
 
-          surfNetErStub.er_InsertReport(getVersRequest("Status",
+          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
               Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution succeeded"));
 
-          surfNetErStub.er_InsertReport(getVersRequest("Status",
+          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
               Long.toString(nocReports.getAmountRunningReservationsFailed()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution failed"));
 
-          surfNetErStub.er_InsertReport(getVersRequest("Status",
+          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
               Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Execution succeeded"));
 
-          surfNetErStub.er_InsertReport(getVersRequest("Status",
+          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
               Long.toString(nocReports.getAmountRunningReservationsStillScheduled()), nocReports.getPeriodStart(),
               Optional.<String> absent(), "Scheduled"));
         }
@@ -228,8 +228,8 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-//    final String date = versFormatter.print(DateTime.now().minusMonths(1));
-    final String date = versFormatter.print(DateTime.now().minusMonths(11));
+    final String date = versFormatter.print(DateTime.now().minusMonths(1));
+//    final String date = versFormatter.print(DateTime.now().minusYears(2).minusMonths(1));
     insertReportInput.setPeriod(date);
 
     if (instituteShortName.isPresent()) {
@@ -241,6 +241,7 @@ public class VersReportingService {
     }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
 
+    // System.out.println(ReflectionToStringBuilder.toString(insertReportInput,
     // ToStringStyle.MULTI_LINE_STYLE));
 
     return versRequest;
@@ -260,12 +261,13 @@ public class VersReportingService {
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
+      // System.out.println(interval.getStart() +" "+ interval.getEnd());
       return interval;
     }
 
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String args[]) throws Exception {
     // final ReservationReportView reservationReportViewNoc = new
     // ReservationReportView(DateTime.now(), DateTime.now()
     // .plusHours(1));
