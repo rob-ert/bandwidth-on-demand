@@ -22,15 +22,17 @@
  */
 package nl.surfnet.bod.service;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
@@ -65,15 +67,15 @@ public class VersReportingService {
   private ReportingService reportingService;
 
   @Resource
-  private InstituteIddService instituteIddService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Resource
   private Map<String, Map<String, String>> reportToVersMap;
 
   private SURFnetErStub surfNetErStub;
-  
+
   private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
-  
+
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
 
   @PostConstruct
@@ -84,141 +86,162 @@ public class VersReportingService {
   @Scheduled(cron = firstDayOfTheMonthCronExpression)
   public void sendInternalReport() throws Exception {
 
-    final VersReportPeriod versReportPeriod = new VersReportPeriod();
-    final ReservationReportView nocReports = reportingService.determineReportForNoc(versReportPeriod.getInterval());
+    final Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews();
 
-    for (final Entry<String, Map<String, String>> entry : reportToVersMap.entrySet()) {
-      String text = entry.getKey();
-      long valuePos, valueNeg;
+    for (final Entry<Optional<String>, ReservationReportView> reservationReportViewEntry : reportViews.entrySet()) {
 
-      switch (entry.getKey()) {
+      for (final Entry<String, Map<String, String>> entry : reportToVersMap.entrySet()) {
+        String text = entry.getKey();
+        long valuePos, valueNeg;
 
-      // TODO Will come up with something to reduce this mess, hopefully.
-      case "amountReservationsProtected":
-        valuePos = nocReports.getAmountReservationsProtected();
-        valueNeg = nocReports.getAmountReservationsUnprotected();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest(
-              "Reservations: Protection Types", Long.toString(valuePos), nocReports.getPeriodStart(), Optional.<String> absent(),
-              text));
+        switch (entry.getKey()) {
+
+        case "amountReservationsProtected":
+          valuePos = reservationReportViewEntry.getValue().getAmountReservationsProtected();
+          valueNeg = reservationReportViewEntry.getValue().getAmountReservationsUnprotected();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          if (entry.getValue().get("FALSE") != null) {
+            text = entry.getValue().get("FALSE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valueNeg),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          text = "Redundant";
+          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types",
+              Long.toString(reservationReportViewEntry.getValue().getAmountReservationsRedundant()),
+              reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          break;
+
+        case "amountRunningReservationsSucceeded":
+          valuePos = reservationReportViewEntry.getValue().getAmountRequestsCreatedSucceeded();
+          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCreatedFailed();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          if (entry.getValue().get("FALSE") != null) {
+            text = entry.getValue().get("FALSE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valueNeg),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          break;
+
+        case "amountRunningReservationsStillRunning":
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
+                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsStillRunning()),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
+                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsSucceeded()),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
+                "Execution succeeded"));
+
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
+                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsFailed()),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
+                "Execution failed"));
+
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
+                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsSucceeded()),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
+                "Execution succeeded"));
+
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
+                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsStillScheduled()),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
+                "Scheduled"));
+          }
+          break;
+
+        case "amountRequestsThroughGUI":
+          valuePos = reservationReportViewEntry.getValue().getAmountRequestsThroughNSI();
+          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsThroughGUI();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          if (entry.getValue().get("FALSE") != null) {
+            text = entry.getValue().get("FALSE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valueNeg),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          break;
+
+        case "amountRunningReservationsNeverProvisioned":
+          valuePos = reservationReportViewEntry.getValue().getAmountRunningReservationsNeverProvisioned();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          break;
+
+        case "amountRequestsModifiedSucceeded":
+          valuePos = reservationReportViewEntry.getValue().getAmountRequestsModifiedSucceeded();
+          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsModifiedFailed();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          if (entry.getValue().get("FALSE") != null) {
+            text = entry.getValue().get("FALSE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valueNeg),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          break;
+
+        case "amountRequestsCancelSucceeded":
+          valuePos = reservationReportViewEntry.getValue().getAmountRequestsCancelSucceeded();
+          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCancelFailed();
+          if (entry.getValue().get("TRUE") != null) {
+            text = entry.getValue().get("TRUE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valuePos),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          if (entry.getValue().get("FALSE") != null) {
+            text = entry.getValue().get("FALSE");
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valueNeg),
+                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          }
+          break;
+
+        default:
+          surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(), "-TBD-", reservationReportViewEntry.getValue()
+              .getPeriodStart(), reservationReportViewEntry.getKey(), "-TBD-"));
+          break;
         }
-        if (entry.getValue().get("FALSE") != null) {
-          text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valueNeg),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        text = "Redundant";
-        surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types",
-            Long.toString(nocReports.getAmountReservationsRedundant()), nocReports.getPeriodStart(),
-            Optional.<String> absent(), text));
-        break;
-
-      case "amountRunningReservationsSucceeded":
-        valuePos = nocReports.getAmountRunningReservationsSucceeded();
-        valueNeg = nocReports.getAmountRunningReservationsFailed();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        if (entry.getValue().get("FALSE") != null) {
-          text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valueNeg),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        break;
-
-      case "amountRunningReservationsStillRunning":
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-              Long.toString(nocReports.getAmountRunningReservationsStillRunning()), nocReports.getPeriodStart(),
-              Optional.<String> absent(), text));
-
-          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-              Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
-              Optional.<String> absent(), "Execution succeeded"));
-
-          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-              Long.toString(nocReports.getAmountRunningReservationsFailed()), nocReports.getPeriodStart(),
-              Optional.<String> absent(), "Execution failed"));
-
-          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-              Long.toString(nocReports.getAmountRunningReservationsSucceeded()), nocReports.getPeriodStart(),
-              Optional.<String> absent(), "Execution succeeded"));
-
-          surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-              Long.toString(nocReports.getAmountRunningReservationsStillScheduled()), nocReports.getPeriodStart(),
-              Optional.<String> absent(), "Scheduled"));
-        }
-        break;
-
-      case "amountRequestsThroughGUI":
-        valuePos = nocReports.getAmountRequestsThroughNSI();
-        valueNeg = nocReports.getAmountRequestsThroughGUI();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        if (entry.getValue().get("FALSE") != null) {
-          text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valueNeg),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        break;
-
-      case "amountRunningReservationsNeverProvisioned":
-        valuePos = nocReports.getAmountRunningReservationsNeverProvisioned();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        break;
-
-      case "amountRequestsModifiedSucceeded":
-        valuePos = nocReports.getAmountRequestsModifiedSucceeded();
-        valueNeg = nocReports.getAmountRequestsModifiedFailed();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        if (entry.getValue().get("FALSE") != null) {
-          text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valueNeg),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        break;
-
-      case "amountRequestsCancelSucceeded":
-        valuePos = nocReports.getAmountRequestsCancelSucceeded();
-        valueNeg = nocReports.getAmountRequestsCancelFailed();
-        if (entry.getValue().get("TRUE") != null) {
-          text = entry.getValue().get("TRUE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valuePos),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        if (entry.getValue().get("FALSE") != null) {
-          text = entry.getValue().get("FALSE");
-          surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valueNeg),
-              nocReports.getPeriodStart(), Optional.<String> absent(), text));
-        }
-        break;
-
-      default:
-        surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(), "TBD", nocReports.getPeriodStart(),
-            Optional.<String> absent(), "TBD"));
-        break;
-
       }
     }
   }
 
+  private Map<Optional<String>, ReservationReportView> getAllReservationReportViews() {
+    final Map<Optional<String>, ReservationReportView> reportViews = new HashMap<>();
+    final VersReportPeriod versReportPeriod = new VersReportPeriod();
+
+    // using absent for noc report will hide report from non surfnet eyes
+    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(versReportPeriod.getInterval()));
+
+    final Collection<PhysicalResourceGroup> prgWithPorts = physicalResourceGroupService.findAllWithPorts();
+    for (PhysicalResourceGroup physicalResourceGroup : prgWithPorts) {
+      reportViews.put(
+          Optional.of(physicalResourceGroup.getInstitute().getShortName()),
+          reportingService.determineReportForAdmin(versReportPeriod.getInterval(),
+              BodRole.createManager(physicalResourceGroup)));
+    }
+//    System.out.println(reportViews);
+    return reportViews;
+  }
+
   private ErInsertReportDocument getVersRequest(final String type, final String value, DateTime start,
-      Optional<String> instituteShortName, String instance) {
+      final Optional<String> instituteShortName, final String instance) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
     insertReportInput.setType(type);
@@ -228,11 +251,13 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-    final String date = versFormatter.print(DateTime.now().minusMonths(1));
-//    final String date = versFormatter.print(DateTime.now().minusYears(2).minusMonths(1));
+    final String date = versFormatter.print(new DateTime().withYear(2001).withDayOfYear(1).plusMonths(10).withHourOfDay(0)
+        .withMinuteOfHour(0));
     insertReportInput.setPeriod(date);
 
     if (instituteShortName.isPresent()) {
+//      System.out.println("Using type: " + type + " Organisation: " + instituteShortName.get() + " value: " + value
+//          + " for instance: " + instance + " and hidden is false");
       insertReportInput.setOrganisation(instituteShortName.get());
       insertReportInput.setIsHidden(false);
     }
@@ -240,10 +265,6 @@ public class VersReportingService {
       insertReportInput.setIsHidden(true);
     }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
-
-    // System.out.println(ReflectionToStringBuilder.toString(insertReportInput,
-    // ToStringStyle.MULTI_LINE_STYLE));
-
     return versRequest;
   }
 
@@ -256,31 +277,15 @@ public class VersReportingService {
   }
 
   public class VersReportPeriod {
-    private final DateTime start = LocalDateTime.now().minusMonths(1).toDateTime();
-    private final DateTime end = LocalDateTime.now().toDateTime().plusDays(10);
+    private final DateTime start = LocalDateTime.now().minusMonths(1).withHourOfDay(0).withMinuteOfHour(0)
+        .withSecondOfMinute(0).withDayOfWeek(1).toDateTime();
+    private final DateTime end = LocalDateTime.now().toDateTime().minusDays(1);
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-      // System.out.println(interval.getStart() +" "+ interval.getEnd());
+      System.out.println(interval.getStart() + " " + interval.getEnd());
       return interval;
     }
-
-  }
-
-  public static void main(String args[]) throws Exception {
-    // final ReservationReportView reservationReportViewNoc = new
-    // ReservationReportView(DateTime.now(), DateTime.now()
-    // .plusHours(1));
-    for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(ReservationReportView.class)
-        .getPropertyDescriptors()) {
-      if (propertyDescriptor.getPropertyType() == java.lang.Class.class) {
-
-      }
-      else {
-        System.out.println(propertyDescriptor);
-      }
-    }
-    System.out.println();
 
   }
 
