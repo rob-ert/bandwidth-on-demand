@@ -41,12 +41,15 @@ import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
+import surfnet_er.ErInsertReportResponseDocument;
 import surfnet_er.InsertReportInput;
 
 import com.google.common.base.Optional;
@@ -78,6 +81,8 @@ public class VersReportingService {
 
   private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   @PostConstruct
   void init() throws IOException {
     surfNetErStub = new SURFnetErStub(serviceURL);
@@ -89,11 +94,9 @@ public class VersReportingService {
     final Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews();
 
     for (final Entry<Optional<String>, ReservationReportView> reservationReportViewEntry : reportViews.entrySet()) {
-
       for (final Entry<String, Map<String, String>> entry : reportToVersMap.entrySet()) {
         String text = entry.getKey();
         long valuePos, valueNeg;
-
         switch (entry.getKey()) {
 
         case "amountReservationsProtected":
@@ -101,18 +104,18 @@ public class VersReportingService {
           valueNeg = reservationReportViewEntry.getValue().getAmountReservationsUnprotected();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valuePos),
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", valuePos,
                 reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           if (entry.getValue().get("FALSE") != null) {
             text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", Long.toString(valueNeg),
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", valueNeg,
                 reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           text = "Redundant";
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types",
-              Long.toString(reservationReportViewEntry.getValue().getAmountReservationsRedundant()),
-              reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", reservationReportViewEntry
+              .getValue().getAmountReservationsRedundant(), reservationReportViewEntry.getValue().getPeriodStart(),
+              reservationReportViewEntry.getKey(), text));
           break;
 
         case "amountRunningReservationsSucceeded":
@@ -120,42 +123,38 @@ public class VersReportingService {
           valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCreatedFailed();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valuePos),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", valuePos, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           if (entry.getValue().get("FALSE") != null) {
             text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", Long.toString(valueNeg),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", valueNeg, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           break;
 
         case "amountRunningReservationsStillRunning":
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsStillRunning()),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
+                .getValue().getAmountRunningReservationsStillRunning(), reservationReportViewEntry.getValue()
+                .getPeriodStart(), reservationReportViewEntry.getKey(), text));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsSucceeded()),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
-                "Execution succeeded"));
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
+                .getValue().getAmountRunningReservationsSucceeded(), reservationReportViewEntry.getValue()
+                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution succeeded"));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsFailed()),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
-                "Execution failed"));
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
+                .getValue().getAmountRunningReservationsFailed(), reservationReportViewEntry.getValue()
+                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution failed"));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsSucceeded()),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
-                "Execution succeeded"));
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
+                .getValue().getAmountRunningReservationsSucceeded(), reservationReportViewEntry.getValue()
+                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution succeeded"));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running",
-                Long.toString(reservationReportViewEntry.getValue().getAmountRunningReservationsStillScheduled()),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(),
-                "Scheduled"));
+            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
+                .getValue().getAmountRunningReservationsStillScheduled(), reservationReportViewEntry.getValue()
+                .getPeriodStart(), reservationReportViewEntry.getKey(), "Scheduled"));
           }
           break;
 
@@ -164,13 +163,13 @@ public class VersReportingService {
           valueNeg = reservationReportViewEntry.getValue().getAmountRequestsThroughGUI();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valuePos),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", valuePos, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           if (entry.getValue().get("FALSE") != null) {
             text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", Long.toString(valueNeg),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", valueNeg, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           break;
 
@@ -178,8 +177,8 @@ public class VersReportingService {
           valuePos = reservationReportViewEntry.getValue().getAmountRunningReservationsNeverProvisioned();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", Long.toString(valuePos),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", valuePos, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           break;
 
@@ -188,13 +187,13 @@ public class VersReportingService {
           valueNeg = reservationReportViewEntry.getValue().getAmountRequestsModifiedFailed();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valuePos),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", valuePos, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           if (entry.getValue().get("FALSE") != null) {
             text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", Long.toString(valueNeg),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", valueNeg, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           break;
 
@@ -203,19 +202,23 @@ public class VersReportingService {
           valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCancelFailed();
           if (entry.getValue().get("TRUE") != null) {
             text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valuePos),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest(
+                "Reservation Cancelled", valuePos, reservationReportViewEntry.getValue().getPeriodStart(),
+                reservationReportViewEntry.getKey(), text));
+//            System.out.println("Return: " + er_InsertReport.getErInsertReportResponse().getReturnText());
           }
           if (entry.getValue().get("FALSE") != null) {
             text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", Long.toString(valueNeg),
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
+            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", valueNeg, reservationReportViewEntry
+                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
           }
           break;
 
         default:
-          surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(), "-TBD-", reservationReportViewEntry.getValue()
-              .getPeriodStart(), reservationReportViewEntry.getKey(), "-TBD-"));
+          log.debug("UNSUPPORTED VALUE: {} {}", entry.getKey(), entry.getValue());
+          // surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(),
+          // "-TBD-", reservationReportViewEntry.getValue()
+          // .getPeriodStart(), reservationReportViewEntry.getKey(), "-TBD-"));
           break;
         }
       }
@@ -226,9 +229,6 @@ public class VersReportingService {
     final Map<Optional<String>, ReservationReportView> reportViews = new HashMap<>();
     final VersReportPeriod versReportPeriod = new VersReportPeriod();
 
-    // using absent for noc report will hide report from non surfnet eyes
-    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(versReportPeriod.getInterval()));
-
     final Collection<PhysicalResourceGroup> prgWithPorts = physicalResourceGroupService.findAllWithPorts();
     for (PhysicalResourceGroup physicalResourceGroup : prgWithPorts) {
       reportViews.put(
@@ -236,32 +236,39 @@ public class VersReportingService {
           reportingService.determineReportForAdmin(versReportPeriod.getInterval(),
               BodRole.createManager(physicalResourceGroup)));
     }
-//    System.out.println(reportViews);
+    // using absent will also generate an institute free noc report
+    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(versReportPeriod.getInterval()));
     return reportViews;
   }
 
-  private ErInsertReportDocument getVersRequest(final String type, final String value, DateTime start,
+  private ErInsertReportDocument getVersRequest(final String type, final long value, DateTime start,
       final Optional<String> instituteShortName, final String instance) {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType(type);
-    insertReportInput.setInstance(instance);
     insertReportInput.setNormComp("=");
-    insertReportInput.setNormValue(value);
+    insertReportInput.setNormValue(Long.toString(value));
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
-    insertReportInput.setValue(value);
-    final String date = versFormatter.print(new DateTime().withYear(DateTime.now().getYear()).withDayOfYear(1).minusMonths(1).withHourOfDay(0)
-        .withMinuteOfHour(0).withSecondOfMinute(0));
+    insertReportInput.setValue(Long.toString(value));
+     final String date = versFormatter.print(new
+     DateTime().withYear(DateTime.now().getYear()).withDayOfYear(1).minusMonths(1).withHourOfDay(0)
+     .withMinuteOfHour(0).withSecondOfMinute(0));
+
+//    final String date = versFormatter.print(new DateTime().withYear(2006).withMonthOfYear(3).withDayOfMonth(1)
+//        .withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0));
     insertReportInput.setPeriod(date);
+    insertReportInput.setType(type);
+    insertReportInput.setInstance(instance);
 
     if (instituteShortName.isPresent()) {
-//      System.out.println("Using type: " + type + " Organisation: " + instituteShortName.get() + " value: " + value
-//          + " for instance: " + instance + " and hidden is false");
+//      System.out.println("(i) Using type: " + type + ", Organisation: " + instituteShortName.get() + ", value: "
+//          + value + ", instance: " + instance + ", hidden is false");
       insertReportInput.setOrganisation(instituteShortName.get());
       insertReportInput.setIsHidden(false);
     }
     else {
+//      System.out.println("(a) Using type: " + type + ", Organisation: " + "NOC" + ", value: " + value + ", instance: "
+//          + instance + ", hidden is true");
       insertReportInput.setIsHidden(true);
     }
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
@@ -277,13 +284,13 @@ public class VersReportingService {
   }
 
   public class VersReportPeriod {
-    private final DateTime start = LocalDateTime.now().minusMonths(1).withHourOfDay(0).withMinuteOfHour(0)
+    private final DateTime start = LocalDateTime.now().minusMonths(2).withHourOfDay(0).withMinuteOfHour(0)
         .withSecondOfMinute(0).withDayOfWeek(1).toDateTime();
     private final DateTime end = LocalDateTime.now().toDateTime().minusDays(1);
     private final Interval interval = new Interval(start, end);
 
     public final Interval getInterval() {
-      System.out.println(interval.getStart() + " " + interval.getEnd());
+//      System.out.println(interval.getStart() + " " + interval.getEnd());
       return interval;
     }
 
