@@ -251,8 +251,8 @@ public class VersReportingService {
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(value);
-    final String date = versFormatter.print(new DateTime().withYear(2001).withDayOfYear(1).plusMonths(10).withHourOfDay(0)
-        .withMinuteOfHour(0));
+    final String date = versFormatter.print(new DateTime().withYear(DateTime.now().getYear()).withDayOfYear(1).minusMonths(1).withHourOfDay(0)
+        .withMinuteOfHour(0).withSecondOfMinute(0));
     insertReportInput.setPeriod(date);
 
     if (instituteShortName.isPresent()) {
