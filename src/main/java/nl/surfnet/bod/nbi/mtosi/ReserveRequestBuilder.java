@@ -44,7 +44,7 @@ public class ReserveRequestBuilder {
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
-    ResourceFacingServiceType rfsCreateData = createRfsCreateData();
+    ResourceFacingServiceType rfsCreateData = createRfsCreateData(reservation);
 
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
 
@@ -101,11 +101,12 @@ public class ReserveRequestBuilder {
     return reserveRequest;
   }
 
-  private ResourceFacingServiceType createRfsCreateData() {
+  private ResourceFacingServiceType createRfsCreateData(Reservation reservation) {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createResourceFacingServiceType();
 
-    rfsData.setName(createNamingAttributeType("RFS", "mtosiRFSTestEVPL1"));
+    // TODO RFS should be unique...
+    rfsData.setName(createNamingAttributeType("RFS", reservation.getName()));
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
@@ -132,7 +133,6 @@ public class ReserveRequestBuilder {
   }
 
   private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port) {
-
     NamingAttributeType resourceRef = createNamingAttrib();
     List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 

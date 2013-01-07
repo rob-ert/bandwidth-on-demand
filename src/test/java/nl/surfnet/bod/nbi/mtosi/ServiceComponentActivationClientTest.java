@@ -29,6 +29,7 @@ import javax.xml.bind.Marshaller;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,15 +49,26 @@ public class ServiceComponentActivationClientTest {
 
   @Before
   public void setup() {
-    String endPoint = productionProperties().getProperty("bi.mtosi.service.reserve.endpoint");
+    String endPoint = productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
     subject = new ServiceComponentActivationClient(endPoint);
   }
 
   @Test
   @Ignore("Needs access to london server... is more like integration, but now only for testing..")
   public void reserve() {
-    Reservation reservation = new ReservationFactory().create();
-    subject.reserve(reservation, false);
 
+    Reservation reservation = new ReservationFactory()
+      .setStartDateTime(DateTime.now().plusYears(2))
+      .setEndDateTime(DateTime.now().plusYears(2).plusDays(3))
+      .setName("mtosiSurfTest1").create();
+
+    reservation.getSourcePort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:cf:b0-11");
+    reservation.getSourcePort().getPhysicalPort().setNmsNeId("00:03:18:58:cf:b0");
+
+    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:ce:20-12");
+    reservation.getDestinationPort().getPhysicalPort().setNmsNeId("00:03:18:58:ce:20");
+
+    subject.reserve(reservation, false);
   }
+
 }

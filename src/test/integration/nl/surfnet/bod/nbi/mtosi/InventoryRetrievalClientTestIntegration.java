@@ -22,36 +22,27 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
 public class InventoryRetrievalClientTestIntegration {
 
-  private final Properties properties = new Properties();
-
   private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
 
   @Before
   public void setup() {
-    try {
-      properties.load(new FileInputStream("src/main/resources/env-properties/bod-test.properties"));
-      mtosiInventoryRetrievalLiveClient = new InventoryRetrievalClient(
-          properties.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
-    } catch (IOException e) {
-      System.err.println("Ignoring test because 'env-properties/bod-test.properties' not found.");
-      Assume.assumeNoException(e);
-    }
+    PropertiesEnvironment testEnv = testProperties();
+    mtosiInventoryRetrievalLiveClient =
+      new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
   }
 
   @Test
