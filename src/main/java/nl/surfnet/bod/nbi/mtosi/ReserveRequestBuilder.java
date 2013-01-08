@@ -41,6 +41,8 @@ import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
 
 public class ReserveRequestBuilder {
 
+  private static final String MANAGING_DOMAIN = "CIENA/OneControl";
+
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
@@ -49,7 +51,6 @@ public class ReserveRequestBuilder {
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
 
     createSapAndAddToList(rfsCreateData.getSapList(), reservation.getSourcePort().getPhysicalPort());
-
     createSapAndAddToList(rfsCreateData.getSapList(), reservation.getDestinationPort().getPhysicalPort());
 
     createVendorExtensionsAndAdd(rfsCreateData, reservation.getStartDateTime());
@@ -136,10 +137,10 @@ public class ReserveRequestBuilder {
     NamingAttributeType resourceRef = createNamingAttrib();
     List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 
-    resourceRefList.add(createRdn("MD", "CIENA/OneControl"));
+    resourceRefList.add(createRdn("MD", MANAGING_DOMAIN));
     resourceRefList.add(createRdn("ME", port.getNmsNeId()));
-    resourceRefList.add(createRdn("PTP", "/rack=1/shelf=1/slot=1/port=4"));
-    resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
+    resourceRefList.add(createRdn("PTP", MtosiUtils.nmsPortIdToPhysicalTerminationPoint(port.getNmsPortId())));
+    //resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();

@@ -40,10 +40,9 @@ import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
-
-import com.google.common.annotations.VisibleForTesting;
 
 @Service
 public class InventoryRetrievalClient {
@@ -64,16 +63,17 @@ public class InventoryRetrievalClient {
         new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
   }
 
-  private ServiceInventoryDataType getInventory() {
+  private SapList getSapInventory() {
     try {
-      final GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
-      inventoryRequest.setFilter(getInventoryRequestSimpleFilter());
+      GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+      addSapFilter(inventoryRequest);
 
-      ServiceInventoryRetrievalRPC proxy = this.service.getServiceInventoryRetrievalSoapHttp();
-      ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+      ServiceInventoryRetrievalRPC proxy = getServiceProxy();
 
-      log.info("Retrieving inventory at: {} ", endPoint);
-      return proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest).getInventoryData();
+      GetServiceInventoryResponse serviceInventory =
+        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+
+      return serviceInventory.getInventoryData().getSapList();
     }
     catch (GetServiceInventoryException e) {
       log.error("Error: ", e);
@@ -81,11 +81,21 @@ public class InventoryRetrievalClient {
     }
   }
 
-  private SimpleServiceFilterType getInventoryRequestSimpleFilter() {
+  private ServiceInventoryRetrievalRPC getServiceProxy() {
+    ServiceInventoryRetrievalRPC proxy = service.getServiceInventoryRetrievalSoapHttp();
+    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    return proxy;
+  }
+
+  private void addSapFilter(GetServiceInventoryRequest request) {
+    request.setFilter(getInventoryRequestSimpleFilter("SAP"));
+  }
+
+  private SimpleServiceFilterType getInventoryRequestSimpleFilter(String filter) {
     final SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType();
     simpleFilter.getScopeAndSelection().add(GranularityType.FULL);
     final SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
-    scope.setServiceObjectType("SAP");
+    scope.setServiceObjectType(filter);
     simpleFilter.getScopeAndSelection().add(scope);
 
     return simpleFilter;
@@ -113,18 +123,18 @@ public class InventoryRetrievalClient {
 
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
-    for (final ServiceAccessPointType sap : getInventory().getSapList().getSap()) {
+    for (final ServiceAccessPointType sap : getSapInventory().getSap()) {
       final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
 
-      String nmsNeId = null, nmsPortId = null, nmsPortSpeed = null, supportedServiceType = null;
+      String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
       boolean isVlanRequired = false;
 
       for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
         if (relativeDistinguishNameType.getType().equals("ME")) {
-          nmsNeId = relativeDistinguishNameType.getValue();
+          managedElement = relativeDistinguishNameType.getValue();
         }
         else if (relativeDistinguishNameType.getType().equals("PTP")) {
-          nmsPortId = relativeDistinguishNameType.getValue();
+          ptp = relativeDistinguishNameType.getValue();
         }
       }
 
@@ -145,13 +155,13 @@ public class InventoryRetrievalClient {
       }
 
       final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
-      final String convertedPortName = convertPortName(nmsPortId);
-      physicalPort.setNmsPortId(convertedPortName);
-      physicalPort.setNmsNeId(nmsNeId);
+      final String nmsPortId = MtosiUtils.physicalTerminationPointToNmsPortId(ptp);
+      physicalPort.setNmsPortId(nmsPortId);
+      physicalPort.setNmsNeId(managedElement);
       physicalPort.setBodPortId(nmsSapName);
       physicalPort.setNmsPortSpeed(nmsPortSpeed);
       physicalPort.setNmsSapName(nmsSapName);
-      physicalPort.setNocLabel(nmsNeId + " " + convertedPortName);
+      physicalPort.setNocLabel(managedElement + " " + nmsPortId);
       physicalPort.setSupportedServiceType(supportedServiceType);
       physicalPort.setSignalingType("NA");
 
@@ -160,14 +170,8 @@ public class InventoryRetrievalClient {
     return mtosiPorts;
   }
 
-  @VisibleForTesting
-  public String convertPortName(final String mtosiPortName) {
-    return mtosiPortName.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
-        .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
-  }
-
   public int getUnallocatedMtosiPortCount() {
-    return getInventory().getSapList().getSap().size();
+    return getSapInventory().getSap().size();
   }
 
 }
