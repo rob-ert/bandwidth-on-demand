@@ -245,7 +245,7 @@ public class AppConfiguration implements SchedulingConfigurer {
       .put("amountReservationsRedundant",
           ImmutableMap.of("TRUE", "Succeeded", "FALSE", "Failed"))
       .put("amountRequestsThroughGUI",
-          ImmutableMap.of("TRUE", "GUI", "FALSE", "FALSE"))
+          ImmutableMap.of("TRUE", "GUI", "FALSE", "NSI"))
       .build();
   }
 
