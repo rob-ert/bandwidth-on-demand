@@ -60,7 +60,7 @@ public class DashboardPage extends AbstractListPage {
    * but add new test cases for the new menu
    */
   public void verifyNumberOfMenuItems() {
-    assertThat(getCountMenuItems(), is(6));
+    assertThat(getCountMenuItems(), is(7));
   }
 
   public void verifyMenuReservations() {
@@ -103,6 +103,12 @@ public class DashboardPage extends AbstractListPage {
     clickMenuLink("Overview");
     verifyIsCurrentPage();
     verifyHasNoTimeZone();
+  }
+
+  public void verifyMenuReport() {
+    clickMenuLink("Report");
+    ReportPage page = ReportPage.get(getDriver());
+    page.verifyIsCurrentPage();
   }
 
   private void clickMenuLink(String link) {

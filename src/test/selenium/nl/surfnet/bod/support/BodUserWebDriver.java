@@ -281,5 +281,6 @@ public class BodUserWebDriver {
     dashboardPage.verifyMenuVirtualPorts();
     dashboardPage.verifyMenuLogEvents();
     dashboardPage.verifyMenuAdvanced();
+    dashboardPage.verifyMenuReport();
   }
 }

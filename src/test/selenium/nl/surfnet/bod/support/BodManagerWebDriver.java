@@ -341,6 +341,7 @@ public class BodManagerWebDriver {
     dashboardPage.verifyMenuVirtualPorts();
     dashboardPage.verifyMenuPhysicalPorts();
     dashboardPage.verifyMenuLogEvents();
+    dashboardPage.verifyMenuReport();
   }
 
 }
