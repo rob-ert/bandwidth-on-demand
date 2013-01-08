@@ -126,8 +126,7 @@ public class AppConfiguration implements SchedulingConfigurer {
   @Bean
   public MessageSourceSupport messageSource() {
     ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-    messageSource.setBasename("WEB-INF/i18n/messages,WEB-INF/i18n/application");
-    messageSource.setFallbackToSystemLocale(false);
+    messageSource.setBasenames("WEB-INF/i18n/messages", "WEB-INF/i18n/application");
     messageSource.setUseCodeAsDefaultMessage(true);
     return messageSource;
   }
