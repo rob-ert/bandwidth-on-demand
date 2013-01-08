@@ -1,0 +1,1 @@
+ALTER TABLE connection ADD COLUMN protection_type varchar(50) not null default 'PROTECTED';

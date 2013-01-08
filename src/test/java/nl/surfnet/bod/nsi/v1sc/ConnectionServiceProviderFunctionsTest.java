@@ -31,10 +31,13 @@ import javax.xml.datatype.DatatypeFactory;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.support.ReserveRequestTypeFactory;
+import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.types.TechnologySpecificAttributesType;
 
 public class ConnectionServiceProviderFunctionsTest {
 
@@ -70,4 +73,32 @@ public class ConnectionServiceProviderFunctionsTest {
     assertThat(endTime.getMillis(), is(new DateTime(2012, 5, 20, 19, 10).getMillis()));
   }
 
+  @Test
+  public void reserveAnUnprotectedPath() throws DatatypeConfigurationException {
+    ReserveRequestType reserveRequest = new ReserveRequestTypeFactory().create();
+
+    AttributeType protectedAttr = new AttributeType();
+    protectedAttr.setName("sNCP");
+    protectedAttr.getAttributeValue().add("  UnProtected   ");
+    AttributeStatementType guranteed = new AttributeStatementType();
+    guranteed.getAttributeOrEncryptedAttribute().add(protectedAttr);
+    TechnologySpecificAttributesType serviceAttributes = new TechnologySpecificAttributesType();
+    serviceAttributes.setGuaranteed(guranteed);
+    reserveRequest.getReserve().getReservation().getServiceParameters().setServiceAttributes(serviceAttributes);
+
+    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+
+    assertThat(connection.getProtectionType(), is("UNPROTECTED"));
+  }
+
+  @Test
+  public void reserveAnPathDefaultIsProtected() throws DatatypeConfigurationException {
+    ReserveRequestType reserveRequest = new ReserveRequestTypeFactory().create();
+
+    reserveRequest.getReserve().getReservation().getServiceParameters().setServiceAttributes(null);
+
+    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+
+    assertThat(connection.getProtectionType(), is("PROTECTED"));
+  }
 }

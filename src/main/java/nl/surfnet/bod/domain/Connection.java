@@ -25,26 +25,12 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.*;
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -130,6 +116,10 @@ public class Connection implements Loggable, PersistableDomain {
   @OneToOne(cascade = CascadeType.ALL)
   @IndexedEmbedded
   private NsiRequestDetails provisionRequestDetails;
+
+  @Column(nullable = false)
+  @Field
+  private String protectionType;
 
   @Override
   public Long getId() {
@@ -399,6 +389,14 @@ public class Connection implements Loggable, PersistableDomain {
 
   public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
     this.provisionRequestDetails = provisionRequestDetails;
+  }
+
+  public String getProtectionType() {
+    return protectionType;
+  }
+
+  public void setProtectionType(String protectionType) {
+    this.protectionType = protectionType;
   }
 
 }

@@ -106,6 +106,7 @@ public class ConnectionService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(userDetails.getNameId());
+    reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
 
     reservation.setConnection(connection);
     connection.setReservation(reservation);

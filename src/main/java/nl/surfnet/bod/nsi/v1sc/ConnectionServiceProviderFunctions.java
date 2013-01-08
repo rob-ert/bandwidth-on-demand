@@ -26,8 +26,10 @@ import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,7 +40,9 @@ import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.util.XmlUtils;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
@@ -47,6 +51,7 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceReque
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
@@ -109,22 +114,26 @@ public final class ConnectionServiceProviderFunctions {
       @Override
       public Connection apply(final ReserveRequestType reserveRequestType) {
 
-        final ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
+        ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
 
-        final Connection connection = new Connection();
+        Connection connection = new Connection();
         connection.setCurrentState(INITIAL);
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
 
-        Optional<DateTime> startTime = XmlUtils.getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
+        ServiceParametersType serviceParameters = reservation.getServiceParameters();
+
+        Optional<DateTime> startTime = XmlUtils.getDateFrom(serviceParameters.getSchedule().getStartTime());
         connection.setStartTime(startTime.orNull());
 
-        Optional<DateTime> endTime = calculateEndTime(reservation.getServiceParameters().getSchedule().getEndTime(),
-            reservation.getServiceParameters().getSchedule().getDuration(), startTime);
+        Optional<DateTime> endTime = calculateEndTime(serviceParameters.getSchedule().getEndTime(),
+            serviceParameters.getSchedule().getDuration(), startTime);
         connection.setEndTime(endTime.orNull());
 
         // Ignoring the max. and min. bandwidth attributes...
-        connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
+        connection.setDesiredBandwidth(serviceParameters.getBandwidth().getDesired());
+        connection.setProtectionType(getProtectionType(serviceParameters));
+
         connection.setSourceStpId(reservation.getPath().getSourceSTP().getStpId());
         connection.setDestinationStpId(reservation.getPath().getDestSTP().getStpId());
         connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
@@ -139,9 +148,33 @@ public final class ConnectionServiceProviderFunctions {
         // store the path and service parameters, needed to send back the
         // response...
         connection.setPath(reservation.getPath());
-        connection.setServiceParameters(reservation.getServiceParameters());
+        connection.setServiceParameters(serviceParameters);
 
         return connection;
+      }
+
+      private String getProtectionType(ServiceParametersType serviceParameters) {
+        if (guaranteedAttributesAreSpecified(serviceParameters)) {
+
+          List<Serializable> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
+
+          // only supported 1 guaranteed attribute namely 'sNCP' with values of ProtectionType enum
+          if (guaranteeds.size() == 1 && guaranteeds.get(0) instanceof AttributeType) {
+            AttributeType protectedAttr = (AttributeType) guaranteeds.get(0);
+
+            if (protectedAttr.getName().equals("sNCP")
+              && protectedAttr.getAttributeValue().size() == 1
+              && protectedAttr.getAttributeValue().get(0) instanceof String) {
+                return ((String) protectedAttr.getAttributeValue().get(0)).trim().toUpperCase();
+            }
+          }
+        }
+
+        return ProtectionType.PROTECTED.name();
+      }
+
+      private boolean guaranteedAttributesAreSpecified(ServiceParametersType serviceParameters) {
+        return serviceParameters.getServiceAttributes() != null && serviceParameters.getServiceAttributes().getGuaranteed() != null;
       }
 
       private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
