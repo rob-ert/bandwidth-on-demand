@@ -6,6 +6,7 @@
             <item id="i_vp_list" url="/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
             <item id="i_le_list" url="/logevents" messageCode="menu_logevent_label" menu="logevent" />
             <item id="i_advanced_list" url="/advanced" messageCode="menu_advanced" menu="advanced" />
+            <item id="i_re_list" url="/report" messageCode="menu_report_label" menu="report" />
         </sec:authorize>
     </menu>
 </sec:authorize>

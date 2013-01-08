@@ -5,4 +5,5 @@
     <item id="i_vp_list" url="/manager/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
     <item id="i_pp_list" url="/manager/physicalports" messageCode="menu_physicalport_label" menu="physicalport" />
     <item id="i_le_list" url="/manager/logevents" messageCode="menu_logevent_label" menu="logevent" />
+    <item id="i_re_list" url="/manager/report" messageCode="menu_report_label" menu="report" />
 </menu>

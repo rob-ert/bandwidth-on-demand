@@ -45,7 +45,7 @@ import com.google.common.base.Optional;
 
 public abstract class AbstractReportController {
 
-  protected static final int AMOUNT_OF_REPORT_PERIODS = 8;
+  protected static final int AMOUNT_OF_REPORT_PERIODS = 13;
 
   @Resource
   private ReportingService reportingService;
