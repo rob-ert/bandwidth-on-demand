@@ -35,12 +35,12 @@
 
     <definition extends="default" name="report">
         <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
-        <!-- No menu item yet -->
+        <put-attribute name="active_menu" value="report" cascade="true" />
     </definition>
 
     <definition extends="default" name="report/graph">
         <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
-        <!-- No menu item yet -->
+        <put-attribute name="active_menu" value="report" cascade="true" />
     </definition>
 
 </tiles-definitions>

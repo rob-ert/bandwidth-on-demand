@@ -43,11 +43,11 @@
 
   <definition extends="manager" name="manager/report">
     <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
-    <!-- No menu item yet -->
+    <put-attribute name="active_menu" value="report" cascade="true" />
   </definition>
 
   <definition extends="manager" name="manager/report/graph">
     <put-attribute name="body" value="/WEB-INF/views/common/report/graph.jspx" />
-    <!-- No menu item yet -->
+    <put-attribute name="active_menu" value="report" cascade="true" />
   </definition>
 </tiles-definitions>
