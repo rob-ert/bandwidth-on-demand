@@ -65,9 +65,9 @@ public class ReportControllerTest {
 
     when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
 
-    mockMvc.perform(get("/noc/report/data.csv"))
+    mockMvc.perform(get("/noc/report/data/201301"))
       .andExpect(status().isOk())
-      .andExpect(content().contentType("text/csv"))
+      .andExpect(content().contentType("text/plain;charset=ISO-8859-1"))
       .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")))
       .andExpect(content().string(containsString(YearMonth.now().toString("MMM"))));
   }

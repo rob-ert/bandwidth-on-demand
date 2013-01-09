@@ -44,7 +44,8 @@ public class AbstractReportControllerTest {
 
   @Test
   public void shouldHaveIntervalsUtilNow() {
-    final List<ReportIntervalView> intervals = subject.determineReportIntervals();
+    final List<ReportIntervalView> intervals = subject
+        .determineReportIntervals(TestReportController.AMOUNT_OF_REPORT_PERIODS);
 
     assertThat(intervals, hasSize(TestReportController.AMOUNT_OF_REPORT_PERIODS));
 
@@ -55,8 +56,7 @@ public class AbstractReportControllerTest {
       assertThat("Month start: " + i, intervals.get(i).getInterval().getStart(), is(firstDay));
       assertThat("Month end: " + i, intervals.get(i).getInterval().getEnd(), is(firstDay.plusMonths(1)));
 
-      assertThat("Month id: " + i, String.valueOf(intervals.get(i).getId()), is(String
-          .valueOf(firstDay.getYear())
+      assertThat("Month id: " + i, String.valueOf(intervals.get(i).getId()), is(String.valueOf(firstDay.getYear())
           + (firstDay.getMonthOfYear() < 10 ? "0" : "") + String.valueOf(firstDay.getMonthOfYear())));
     }
   }
@@ -68,8 +68,10 @@ public class AbstractReportControllerTest {
 
     subject.index("201001", model);
 
-    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"), hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS + 1));
-    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(new YearMonth(2010, 1).toInterval())));
+    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"),
+        hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS + 1));
+    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(new YearMonth(
+        2010, 1).toInterval())));
   }
 
   @SuppressWarnings("unchecked")
@@ -79,8 +81,10 @@ public class AbstractReportControllerTest {
 
     subject.index(ReportIntervalView.ID_FORMATTER.print(YearMonth.now()), model);
 
-    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"), hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
-    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now().toInterval())));
+    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"),
+        hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
+    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now()
+        .toInterval())));
   }
 
   @SuppressWarnings("unchecked")
@@ -90,8 +94,10 @@ public class AbstractReportControllerTest {
 
     subject.index("23asdf324asdf", model);
 
-    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"), hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
-    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now().toInterval())));
+    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"),
+        hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
+    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now()
+        .toInterval())));
   }
 
   @SuppressWarnings("unchecked")
@@ -101,8 +107,38 @@ public class AbstractReportControllerTest {
 
     subject.index(model);
 
-    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"), hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
-    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now().toInterval())));
+    assertThat((Collection<ReportIntervalView>) model.asMap().get("intervalList"),
+        hasSize(AbstractReportController.AMOUNT_OF_REPORT_PERIODS));
+    assertThat((ReportIntervalView) model.asMap().get("selectedInterval"), is(new ReportIntervalView(YearMonth.now()
+        .toInterval())));
+  }
+
+  @Test
+  public void shouldParseYearMonthWhenNull() {
+    YearMonth yearMonth = subject.parseYearMonth(null);
+
+    assertThat(yearMonth, is(YearMonth.now()));
+  }
+
+  @Test
+  public void shouldParseYearMonthWhenEmpty() {
+    YearMonth yearMonth = subject.parseYearMonth("");
+
+    assertThat(yearMonth, is(YearMonth.now()));
+  }
+
+  @Test
+  public void shouldParseYearMonthWhenCorrectlyFormatted() {
+    YearMonth yearMonth = subject.parseYearMonth("201301");
+
+    assertThat(yearMonth, is(YearMonth.parse("2013-01")));
+  }
+
+  @Test
+  public void shouldParseYearMonthWhenWronglyFormatted() {
+    YearMonth yearMonth = subject.parseYearMonth("bla");
+
+    assertThat(yearMonth, is(YearMonth.now()));
   }
 
   private class TestReportController extends AbstractReportController {

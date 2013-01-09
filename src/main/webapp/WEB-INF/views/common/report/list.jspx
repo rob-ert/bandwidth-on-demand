@@ -14,8 +14,7 @@
   <h1>Usage Report <util:timeZone /></h1>
   <div class="content">
     <div class="actions">
-      <spring:url value="report/graph" var="graphsUrl" />
-      <a href="${graphsUrl}" class="btn btn-primary"><i class="icon-bar-chart"><!-- --></i><c:out value=" "/>Graphs</a>
+      <a href="${reportIntervalUrl}${graphUrlPart}" class="btn btn-primary"><i class="icon-bar-chart"><!-- --></i><c:out value=" "/>Graphs</a>
     </div>
     <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
       <label>Reporting period</label>

@@ -35,13 +35,13 @@ import nl.surfnet.bod.web.view.ReservationReportView;
 import org.joda.time.Interval;
 import org.joda.time.YearMonth;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 
 public abstract class AbstractReportController {
 
@@ -52,16 +52,16 @@ public abstract class AbstractReportController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-    return index(ReportIntervalView.ID_FORMATTER.print(YearMonth.now()), model);
+    return index(getDefaultInterval(), model);
   }
 
   @RequestMapping(value = "/{selectedYearMonth}", method = RequestMethod.GET)
   public String index(@PathVariable final String selectedYearMonth, Model model) {
 
-    Optional<YearMonth> yearMonth = parseYearMonth(selectedYearMonth);
-    ReportIntervalView selectedInterval = new ReportIntervalView(yearMonth.or(YearMonth.now()).toInterval());
+    YearMonth yearMonth = parseYearMonth(selectedYearMonth);
+    ReportIntervalView selectedInterval = new ReportIntervalView(yearMonth.toInterval());
 
-    List<ReportIntervalView> intervals = determineReportIntervals();
+    List<ReportIntervalView> intervals = determineReportIntervals(AMOUNT_OF_REPORT_PERIODS);
     if (!intervals.contains(selectedInterval)) {
       intervals.add(selectedInterval);
     }
@@ -70,25 +70,30 @@ public abstract class AbstractReportController {
     model.addAttribute("baseReportIntervalUrl", getPageUrl());
     model.addAttribute("selectedInterval", selectedInterval);
     model.addAttribute("report", determineReport(selectedInterval.getInterval()));
+    model.addAttribute("graphUrlPart",  "graph/"+selectedInterval.getId());
 
     return getPageUrl();
   }
 
-  private Optional<YearMonth> parseYearMonth(String yearMonth) {
-    try {
-      return Optional.of(YearMonth.parse(yearMonth, ReportIntervalView.ID_FORMATTER));
+  @VisibleForTesting
+  YearMonth parseYearMonth(String yearMonth) {
+    if (StringUtils.hasText(yearMonth)) {
+      try {
+        return YearMonth.parse(yearMonth, ReportIntervalView.ID_FORMATTER);
+      }
+      catch (IllegalArgumentException e) {
+        // Do nothing, just fall through
+      }
     }
-    catch (IllegalArgumentException e) {
-      return Optional.absent();
-    }
+    return YearMonth.now();
   }
 
   @VisibleForTesting
-  List<ReportIntervalView> determineReportIntervals() {
+  List<ReportIntervalView> determineReportIntervals(int amountOfIntervals) {
     final List<ReportIntervalView> reportIntervals = new ArrayList<>();
 
-    for (int i = 0; i < AMOUNT_OF_REPORT_PERIODS; i++) {
-      Interval interval  = YearMonth.now().minusMonths(i).toInterval();
+    for (int i = 0; i < amountOfIntervals; i++) {
+      Interval interval = YearMonth.now().minusMonths(i).toInterval();
       reportIntervals.add(new ReportIntervalView(interval));
     }
 
@@ -99,28 +104,38 @@ public abstract class AbstractReportController {
     return reportingService;
   }
 
-  @RequestMapping("/graph")
+  @RequestMapping(value = "/graph", method = RequestMethod.GET)
   public String graph(Model model) {
-    model.addAttribute("dataUrl", getPageUrl() + "/data.csv");
+    return graph(getDefaultInterval(), model);
+  }
+
+  @RequestMapping(value = "/graph/{selectedInterval}", method = RequestMethod.GET)
+  public String graph(@PathVariable final String selectedInterval, Model model) {
+    model.addAttribute("dataUrl", getPageUrl() + "/data/" + selectedInterval);
     return getPageUrl() + "/graph";
   }
 
-  @RequestMapping(value = "/data", method = RequestMethod.GET)
+  @RequestMapping(value = "/data/{selectedYearMonth}", method = RequestMethod.GET)
   @ResponseBody
-  public String graphData(HttpServletResponse response) {
+  public String graphData(HttpServletResponse response, @PathVariable String selectedYearMonth) {
     response.setContentType("text/plain");
 
     StringBuffer responseBuffer = new StringBuffer("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f").append("\n");
 
-    YearMonth currentMonth = YearMonth.now();
+    YearMonth yearMonth = parseYearMonth(selectedYearMonth);
+
     for (int i = 4; i >= 0; i--) {
-      final YearMonth month = currentMonth.minusMonths(i);
+      final YearMonth month = yearMonth.minusMonths(i);
       ReservationReportView report = determineReport(month.toInterval());
       addReport(responseBuffer, report, month.toString("MMM"));
     }
 
     return responseBuffer.toString();
   }
+
+  protected abstract String getPageUrl();
+
+  protected abstract ReservationReportView determineReport(Interval interval);
 
   private void addReport(StringBuffer buffer, ReservationReportView report, String month) {
     buffer.append(month).append(",");
@@ -132,8 +147,7 @@ public abstract class AbstractReportController {
     buffer.append(report.getAmountRequestsThroughGUI()).append("\n");
   }
 
-  protected abstract String getPageUrl();
-
-  protected abstract ReservationReportView determineReport(Interval interval);
-
+  private String getDefaultInterval() {
+    return ReportIntervalView.ID_FORMATTER.print(YearMonth.now());
+  }
 }
