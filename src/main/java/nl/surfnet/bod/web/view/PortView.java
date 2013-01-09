@@ -30,6 +30,7 @@ public class PortView {
   private final String physicalPortNocLabel;
   private final String physicalPortManagerLabel;
   private final String bodPortId;
+  private final String institute;
 
   public PortView(VirtualPort port) {
     this.userLabel = port.getUserLabel();
@@ -37,6 +38,7 @@ public class PortView {
     this.physicalPortManagerLabel = port.getPhysicalPort().getManagerLabel();
     this.physicalPortNocLabel = port.getPhysicalPort().getNocLabel();
     this.bodPortId = port.getPhysicalPort().getBodPortId();
+    this.institute = port.getPhysicalPort().getPhysicalResourceGroup().getInstitute().getName();
   }
 
   public String getUserLabel() {
@@ -59,11 +61,16 @@ public class PortView {
     return bodPortId;
   }
 
+  public String getInstitute() {
+    return institute;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((bodPortId == null) ? 0 : bodPortId.hashCode());
+    result = prime * result + ((institute == null) ? 0 : institute.hashCode());
     result = prime * result + ((managerLabel == null) ? 0 : managerLabel.hashCode());
     result = prime * result + ((physicalPortManagerLabel == null) ? 0 : physicalPortManagerLabel.hashCode());
     result = prime * result + ((physicalPortNocLabel == null) ? 0 : physicalPortNocLabel.hashCode());
@@ -85,6 +92,12 @@ public class PortView {
         return false;
     }
     else if (!bodPortId.equals(other.bodPortId))
+      return false;
+    if (institute == null) {
+      if (other.institute != null)
+        return false;
+    }
+    else if (!institute.equals(other.institute))
       return false;
     if (managerLabel == null) {
       if (other.managerLabel != null)
