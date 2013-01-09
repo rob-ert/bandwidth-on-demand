@@ -26,7 +26,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.AbstractListPage;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
@@ -110,10 +109,6 @@ public class DashboardPage extends AbstractListPage {
     clickMenuLink("Overview");
     verifyIsCurrentPage();
     verifyHasNoTimeZone();
-  }
-
-  private void clickMenuLink(String link) {
-    getMenuBar().findElement(By.xpath(String.format(".//a[contains(text(), '%s')]", link))).click();
   }
 
   public void verifyIsCurrentPage() {

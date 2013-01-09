@@ -33,7 +33,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import com.google.common.base.Function;
@@ -43,9 +42,6 @@ import com.google.common.collect.Lists;
 public class DashboardPage extends AbstractListPage {
 
   private static final String PAGE = "/user";
-
-  @FindBy(css = ".navbar")
-  private WebElement navBar;
 
   public DashboardPage(RemoteWebDriver driver) {
     super(driver);
@@ -124,10 +120,6 @@ public class DashboardPage extends AbstractListPage {
     clickMenuLink("Report");
     ReportPage page = ReportPage.get(getDriver());
     page.verifyIsCurrentPage();
-  }
-
-  private void clickMenuLink(String link) {
-    navBar.findElement(By.xpath(String.format(".//a[contains(text(), '%s')]", link))).click();
   }
 
   public void verifyIsCurrentPage() {

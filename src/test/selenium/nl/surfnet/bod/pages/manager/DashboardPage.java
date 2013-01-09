@@ -26,18 +26,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.AbstractListPage;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class DashboardPage extends AbstractListPage {
 
   private static final String PAGE = "/manager";
-
-  @FindBy(css = ".navbar")
-  private WebElement navBar;
 
   public DashboardPage(RemoteWebDriver driver) {
     super(driver);
@@ -93,7 +87,6 @@ public class DashboardPage extends AbstractListPage {
 
   public void verifyMenuLogEvents() {
     clickMenuLink("Log");
-    navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
     ListLogEventsPage page = ListLogEventsPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
@@ -109,10 +102,6 @@ public class DashboardPage extends AbstractListPage {
     clickMenuLink("Report");
     ReportPage page = ReportPage.get(getDriver());
     page.verifyIsCurrentPage();
-  }
-
-  private void clickMenuLink(String link) {
-    navBar.findElement(By.xpath(String.format(".//a[contains(text(), '%s')]", link))).click();
   }
 
   public void verifyIsCurrentPage() {

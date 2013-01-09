@@ -22,6 +22,9 @@
  */
 package nl.surfnet.bod.pages;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -42,12 +45,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 public class AbstractPage {
 
   private static final String CSS_SELECTOR_TIMEZONE = "header-right";
+
+  private static final String XPATH_MENU_ITEM = ".//a[contains(text(), '%s')]";
 
   private final RemoteWebDriver driver;
 
@@ -146,6 +148,10 @@ public class AbstractPage {
       }
     }
     assertThat(getDriver().getCurrentUrl(), containsString(pageUrlPart));
+  }
+
+  protected void clickMenuLink(String link) {
+    getMenuBar().findElement(By.xpath(String.format(XPATH_MENU_ITEM, link))).click();
   }
 
   public void verifyHasDefaultTimeZone() {
