@@ -591,10 +591,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   public static final class PhysicalPortFilter {
-    private static final PhysicalPortFilter ALLOCATED = new PhysicalPortFilter("Allocated", "/");
-    private static final PhysicalPortFilter UN_ALLOCATED = new PhysicalPortFilter("Unllocated", "/free");
-    private static final PhysicalPortFilter UN_ALIGNED = new PhysicalPortFilter("Unaligned", "/unaligned");
-    private static final PhysicalPortFilter MTOSI = new PhysicalPortFilter("OneControl (beta)", "/mtosi");
+    public static final PhysicalPortFilter ALLOCATED = new PhysicalPortFilter("Allocated", "/");
+    public static final PhysicalPortFilter UN_ALLOCATED = new PhysicalPortFilter("Unllocated", "/free");
+    public static final PhysicalPortFilter UN_ALIGNED = new PhysicalPortFilter("Unaligned", "/unaligned");
+    public static final PhysicalPortFilter MTOSI = new PhysicalPortFilter("OneControl (beta)", "/mtosi");
 
     private final String path;
     private final String name;
