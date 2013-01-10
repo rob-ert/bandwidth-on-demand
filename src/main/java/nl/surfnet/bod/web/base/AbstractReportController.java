@@ -70,7 +70,7 @@ public abstract class AbstractReportController {
     model.addAttribute("baseReportIntervalUrl", getPageUrl());
     model.addAttribute("selectedInterval", selectedInterval);
     model.addAttribute("report", determineReport(selectedInterval.getInterval()));
-    model.addAttribute("graphUrlPart",  "graph/"+selectedInterval.getId());
+    model.addAttribute("graphUrlPart",  "graph/" + selectedInterval.getId());
 
     return getPageUrl();
   }

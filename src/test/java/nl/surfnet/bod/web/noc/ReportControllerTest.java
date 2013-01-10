@@ -23,13 +23,20 @@
 package nl.surfnet.bod.web.noc;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
+import java.util.Collection;
+
 import nl.surfnet.bod.service.ReportingService;
+import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateTime;
@@ -70,5 +77,42 @@ public class ReportControllerTest {
       .andExpect(content().contentType("text/plain;charset=ISO-8859-1"))
       .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")))
       .andExpect(content().string(containsString(YearMonth.now().toString("MMM"))));
+  }
+
+  @Test
+  public void graphDataShouldReturnWhenWrongDateIsGiven() throws Exception {
+    ReservationReportView dummyReport = new ReservationReportView(DateTime.now().minusMonths(1), DateTime.now());
+
+    when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
+
+    mockMvc.perform(get("/noc/report/data/220a"))
+      .andExpect(status().isOk())
+      .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")));
+  }
+
+  @Test
+  public void shouldShowReportData() throws Exception {
+    ReservationReportView dummyReport = new ReservationReportView(DateTime.now().minusMonths(1), DateTime.now());
+
+    when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
+
+    mockMvc.perform(get("/noc/report"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>>attribute("intervalList", hasSize(13)))
+      .andExpect(model().attribute("selectedInterval", is(new ReportIntervalView(YearMonth.now().toInterval()))))
+      .andExpect(model().attribute("baseReportIntervalUrl", is("noc/report")))
+      .andExpect(model().attribute("graphUrlPart", is("graph/" + DateTime.now().toString("yyyyMM"))));
+  }
+
+  @Test
+  public void shouldShowReportDataForSpecificPeriod() throws Exception {
+    ReservationReportView dummyReport = new ReservationReportView(DateTime.now().minusMonths(1), DateTime.now());
+
+    when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
+
+    mockMvc.perform(get("/noc/report/201101"))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("selectedInterval", is(new ReportIntervalView(new YearMonth(2011, 1).toInterval()))))
+      .andExpect(model().attribute("graphUrlPart", is("graph/201101")));
   }
 }
