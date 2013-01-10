@@ -99,7 +99,7 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Basic
   private String supportedServiceType;
 
-  private PhysicalPort() {
+  public PhysicalPort() {
     this(false);
   }
 
