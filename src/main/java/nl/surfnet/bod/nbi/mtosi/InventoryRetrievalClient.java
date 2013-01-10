@@ -44,6 +44,8 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
+import com.google.common.annotations.VisibleForTesting;
+
 @Service
 public class InventoryRetrievalClient {
 
@@ -147,9 +149,7 @@ public class InventoryRetrievalClient {
           }
           else if ("SupportedServiceType".equals(rdnValue)) {
             supportedServiceType = value;
-            if ("EVPL".equals(value) || "EVPLAN".equals(value)) {
-              isVlanRequired = true;
-            }
+            isVlanRequired = determineVlanRequired(value);
           }
         }
       }
@@ -174,4 +174,8 @@ public class InventoryRetrievalClient {
     return getSapInventory().getSap().size();
   }
 
+  @VisibleForTesting
+  boolean determineVlanRequired(final String supportedServiceType) {
+    return "EVPL".equals(supportedServiceType) || "EVPLAN".equals(supportedServiceType);
+  }
 }

@@ -71,7 +71,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- *
+ * 
  */
 public class NbiOpenDracWsClient implements NbiClient {
 
@@ -470,6 +470,31 @@ public class NbiOpenDracWsClient implements NbiClient {
     return pathRequest;
   }
 
+  @VisibleForTesting
+  PhysicalPort getPhysicalPort(final EndpointT endpoint) {
+    final PhysicalPort port = new PhysicalPort(isVlanRequired(endpoint.getTna()));
+    if (endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()) {
+      port.setNocLabel(endpoint.getTna());
+    }
+    else {
+      port.setNocLabel(endpoint.getUserLabel());
+    }
+    port.setNmsPortId(endpoint.getId());
+    port.setBodPortId(endpoint.getTna());
+
+    return port;
+  }
+
+  /**
+   * @return true when a VlanId is required for this port. This is only the case
+   *         when the tna of the port contains NOT
+   *         {@link NbiClient#VLAN_REQUIRED_SELECTOR}
+   */
+  @VisibleForTesting
+  boolean isVlanRequired(String tna) {
+    return tna == null ? false : !tna.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
+  }
+
   private String translateVlanId(VirtualPort virtualPort) {
     return virtualPort.getVlanId() == null ? DEFAULT_VID : virtualPort.getVlanId().toString();
   }
@@ -522,29 +547,6 @@ public class NbiOpenDracWsClient implements NbiClient {
       log.warn("Can query openDrac for end point by tna", e);
       throw new RuntimeException(e);
     }
-  }
-
-  private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
-    final PhysicalPort port = new PhysicalPort(isVlanRequired(endpoint.getTna()));
-    if (endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()) {
-      port.setNocLabel(endpoint.getTna());
-    }
-    else {
-      port.setNocLabel(endpoint.getUserLabel());
-    }
-    port.setNmsPortId(endpoint.getId());
-    port.setBodPortId(endpoint.getTna());
-
-    return port;
-  }
-
-  /**
-   * @return true when a VlanId is required for this port. This is only the case
-   *         when the tna of the port contains NOT
-   *         {@link NbiClient#VLAN_REQUIRED_SELECTOR}
-   */
-  private boolean isVlanRequired(String tna) {
-    return tna == null ? false : !tna.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
   }
 
   private SecurityDocument getSecurityDocument() {

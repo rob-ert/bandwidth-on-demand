@@ -22,10 +22,37 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
+import org.junit.Test;
 
 public class InventoryRetrievalClientTest {
 
-  private InventoryRetrievalClient subject = new InventoryRetrievalClient("");
+  private final InventoryRetrievalClient subject = new InventoryRetrievalClient("");
 
+  @Test
+  public void shouldRequireVlanForEVPL() {
+    assertThat(subject.determineVlanRequired("EVPL"), is(true));
+  }
+
+  @Test
+  public void shouldRequireVlanForEVPLAN() {
+    assertThat(subject.determineVlanRequired("EVPLAN"), is(true));
+  }
+
+  @Test
+  public void shouldNotRequireVlan() {
+    assertThat(subject.determineVlanRequired("Bla"), is(false));
+  }
+
+  @Test
+  public void shouldNotRequireVlanWhenNull() {
+    assertThat(subject.determineVlanRequired(null), is(false));
+  }
+
+  @Test
+  public void shouldNotRequireVlanWhenEmpty() {
+    assertThat(subject.determineVlanRequired(""), is(false));
+  }
 }

@@ -170,4 +170,25 @@ public class NbiOpenDracWsClientTest {
 
     assertThat(path.getProtectionType(), is(ValidProtectionTypeT.UNPROTECTED));
   }
+
+  @Test
+  public void shouldNotRequireVlan() {
+    assertThat(subject.isVlanRequired("pre" + NbiClient.VLAN_REQUIRED_SELECTOR + "post"), is(false));
+  }
+
+  @Test
+  public void shouldRequireVlan() {
+    assertThat(subject.isVlanRequired("pre post"), is(true));
+  }
+
+  @Test
+  public void shouldNotRequireVlanWhenNull() {
+    assertThat(subject.isVlanRequired(null), is(false));
+  }
+
+  @Test
+  public void shouldRequireVlanWhenEmpty() {
+    assertThat(subject.isVlanRequired(""), is(true));
+  }
+
 }
