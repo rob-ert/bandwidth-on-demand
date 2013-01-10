@@ -166,6 +166,18 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
+  public void listMtosiPorts() throws Exception {
+    when(physicalPortServiceMock.findUnallocatedMTOSIEntries(0, MAX_ITEMS_PER_PAGE))
+      .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
+
+    mockMvc.perform(get("/noc/physicalports/mtosi"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>>attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.MTOSI))
+      .andExpect(view().name("physicalports/listunallocated"));
+  }
+
+  @Test
   public void updateForm() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().setNmsPortId("00:00/port2").create();
