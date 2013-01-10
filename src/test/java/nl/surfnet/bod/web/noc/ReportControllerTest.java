@@ -108,7 +108,7 @@ public class ReportControllerTest {
   }
 
   @Test
-  public void shouldShowReportData() throws Exception {
+  public void shouldShowReport() throws Exception {
     ReservationReportView dummyReport = new ReservationReportView(DateTime.now().minusMonths(1), DateTime.now());
 
     when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
