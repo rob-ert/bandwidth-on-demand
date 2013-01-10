@@ -38,9 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("admin")
 public class AdminController {
 
-  @PersistenceContext
-  private EntityManager entityManager;
-
   @Resource
   private ReloadableResourceBundleMessageSource messageSource;
 
