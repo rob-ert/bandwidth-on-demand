@@ -44,6 +44,7 @@ public class ConnectionFactory {
   private Reservation reservation = new ReservationFactory().create();
   private final String globalReservationId = UUID.randomUUID().toString();
   private final ServiceParametersType serviceParameters = new ServiceParametersType();
+  private String protectionType = "PROTECTED";
   private long id = 0L;
 
   public Connection create() {
@@ -60,6 +61,7 @@ public class ConnectionFactory {
     connection.setReservation(reservation);
     connection.setGlobalReservationId(globalReservationId);
     connection.setServiceParameters(serviceParameters);
+    connection.setProtectionType(protectionType);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);
@@ -86,6 +88,11 @@ public class ConnectionFactory {
 
   public ConnectionFactory setSourceStpId(String sourceStpId) {
     this.sourceStpId = sourceStpId;
+    return this;
+  }
+
+  public ConnectionFactory setProtectionType(String protectionType) {
+    this.protectionType = protectionType;
     return this;
   }
 
