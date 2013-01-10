@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.util.Collection;
@@ -88,6 +89,22 @@ public class ReportControllerTest {
     mockMvc.perform(get("/noc/report/data/220a"))
       .andExpect(status().isOk())
       .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")));
+  }
+
+  @Test
+  public void shouldShowGraph() throws Exception {
+    mockMvc.perform(get("/noc/report/graph"))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("dataUrl", is("noc/report/data/" + YearMonth.now().toString("yyyyMM"))))
+      .andExpect(view().name("noc/report/graph"));
+  }
+
+  @Test
+  public void shouldShowGraphWithGivenInterval() throws Exception {
+    mockMvc.perform(get("/noc/report/graph/201005"))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("dataUrl", is("noc/report/data/201005")))
+      .andExpect(view().name("noc/report/graph"));
   }
 
   @Test
