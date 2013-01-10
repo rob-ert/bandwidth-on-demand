@@ -24,6 +24,8 @@ package nl.surfnet.bod.util;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -34,20 +36,25 @@ import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.Version;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.util.ReflectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 /**
  * Class which holds state related to creating and executing a full text search
- *
+ * 
  */
 public class FullTextSearchContext<T> {
 
@@ -76,13 +83,15 @@ public class FullTextSearchContext<T> {
     }
 
     Query luceneQuery = parser.parse(keyword);
-    return getFullTextQuery(luceneQuery);
+    FullTextQuery fullTextQuery = getFullTextQuery(luceneQuery);
+
+    return fullTextQuery.setSort(convertToSort(springSort));
   }
 
   /**
    * Default implementation which returns all fields and related fields of the
    * given entity. Can be overridden to limit the fields to search for.
-   *
+   * 
    * @param entity
    *          Entity to inspect
    * @return String[] with (nested)fieldnames
@@ -96,7 +105,7 @@ public class FullTextSearchContext<T> {
   }
 
   /**
-   *
+   * 
    * @param entity
    *          entity to inspect
    * @param prefix
@@ -115,8 +124,8 @@ public class FullTextSearchContext<T> {
         fieldNames.add(prefix.isPresent() ? prefix.get() + "." + field.getName() : field.getName());
       }
       else if (field.getAnnotation(IndexedEmbedded.class) != null) {
-        fieldNames.addAll(getIndexedFields(field.getType(),
-            Optional.of((prefix.isPresent() ? prefix.get() + "." : "") + field.getName())));
+        fieldNames.addAll(getIndexedFields(field.getType(), Optional.of((prefix.isPresent() ? prefix.get() + "." : "")
+            + field.getName())));
       }
     }
 
@@ -134,6 +143,27 @@ public class FullTextSearchContext<T> {
   @VisibleForTesting
   Analyzer getAnalyzer(String name) {
     return fullTextEntityManager.getSearchFactory().getAnalyzer(name);
+  }
+
+  @VisibleForTesting
+  Sort convertToSort(org.springframework.data.domain.Sort springSort) {
+    List<SortField> sortFields = new ArrayList<>();
+
+    Iterator<Order> it = springSort.iterator();
+    while (it.hasNext()) {
+      Order sortItem = it.next();
+
+      String property = sortItem.getProperty();
+      java.lang.reflect.Field fieldType = ReflectionUtils.findField(entity, property);
+
+      if (fieldType != null) {
+        SortField sortField = new SortField(property, LuceneSortFieldType.getLuceneTypeFor(fieldType.getType()),
+            not(sortItem.isAscending()));
+
+        sortFields.add(sortField);
+      }
+    }
+    return new Sort(Iterables.toArray(sortFields, SortField.class));
   }
 
   private FullTextQuery getFullTextQuery(org.apache.lucene.search.Query luceneQuery) {

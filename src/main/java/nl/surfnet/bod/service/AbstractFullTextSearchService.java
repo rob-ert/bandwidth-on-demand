@@ -130,7 +130,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    * empty, no elements are found
    */
   @VisibleForTesting
-  List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults, final List<Long> filterResults) {
+  protected List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults, final List<Long> filterResults) {
     return FluentIterable.from(searchResults).filter(new Predicate<PersistableDomain>() {
       @Override
       public boolean apply(PersistableDomain domain) {

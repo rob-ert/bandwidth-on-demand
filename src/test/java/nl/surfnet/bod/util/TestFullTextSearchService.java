@@ -24,9 +24,10 @@ package nl.surfnet.bod.util;
 
 import javax.persistence.EntityManager;
 
+import nl.surfnet.bod.domain.PersistableDomain;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 
-public class TestFullTextSearchService extends AbstractFullTextSearchService<TestEntity> {
+public class TestFullTextSearchService<T extends PersistableDomain> extends AbstractFullTextSearchService<T> {
 
   private EntityManager entityManager;
 
