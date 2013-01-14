@@ -23,8 +23,6 @@
 package nl.surfnet.bod.web;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.service.TextSearchIndexer;
