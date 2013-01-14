@@ -40,6 +40,7 @@ import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
@@ -63,6 +64,24 @@ public class InventoryRetrievalClient {
     this.endPoint = endPoint;
     this.service = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION),
         new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
+  }
+
+  protected RfsList getRfsInventory() {
+    try {
+      GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+      addRfsFilter(inventoryRequest);
+
+      ServiceInventoryRetrievalRPC proxy = getServiceProxy();
+
+      GetServiceInventoryResponse serviceInventory =
+        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+
+      return serviceInventory.getInventoryData().getRfsList();
+    }
+    catch (GetServiceInventoryException e) {
+      log.error("Error: ", e);
+      return null;
+    }
   }
 
   private SapList getSapInventory() {
@@ -90,7 +109,15 @@ public class InventoryRetrievalClient {
   }
 
   private void addSapFilter(GetServiceInventoryRequest request) {
-    request.setFilter(getInventoryRequestSimpleFilter("SAP"));
+    addFilter(request, "SAP");
+  }
+
+  private void addRfsFilter(GetServiceInventoryRequest request) {
+    addFilter(request, "RFS");
+  }
+
+  private void addFilter(GetServiceInventoryRequest request, String filter) {
+    request.setFilter(getInventoryRequestSimpleFilter(filter));
   }
 
   private SimpleServiceFilterType getInventoryRequestSimpleFilter(String filter) {

@@ -28,11 +28,16 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
+import javax.xml.bind.Marshaller;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 public class InventoryRetrievalClientTestIntegration {
 
@@ -62,7 +67,17 @@ public class InventoryRetrievalClientTestIntegration {
 
   }
 
+//  @Test
+  public void test() {
+    RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getRfsInventory();
+
+    for(ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
+      System.err.println(rfs.getName());
+    }
+  }
+
   @Test
+  @Ignore
   public void getUnallocatedPortsCount() {
     assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
   }

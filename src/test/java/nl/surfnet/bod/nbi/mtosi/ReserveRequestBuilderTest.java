@@ -54,9 +54,12 @@ public class ReserveRequestBuilderTest {
   public void shouldProduceString() throws JAXBException {
     Reservation reservation = new ReservationFactory().create();
     reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
-    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("destinationNmsSapName");
     reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
+    reservation.getSourcePort().getPhysicalPort().setNmsPortId("1-1-1-1");
+
+    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("destinationNmsSapName");
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
+    reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false);
 
