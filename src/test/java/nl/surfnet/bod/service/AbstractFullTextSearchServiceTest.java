@@ -92,7 +92,7 @@ public class AbstractFullTextSearchServiceTest {
     Reservation reservation2 = new ReservationFactory().create();
     Reservation reservation3 = new ReservationFactory().create();
 
-    List<Reservation> searchResult = Lists.newArrayList(reservation1, reservation2, reservation3);
+    List<Reservation> searchResult = Lists.newArrayList(reservation3, reservation2, reservation1);
     List<Long> filterResult = Lists.newArrayList(reservation1.getId(), reservation2.getId());
 
     List<Reservation> intersectedResult = subject.intersectFullTextResultAndFilterResult(searchResult, filterResult);
@@ -107,7 +107,7 @@ public class AbstractFullTextSearchServiceTest {
     Reservation reservation2 = new ReservationFactory().create();
     Reservation reservation3 = new ReservationFactory().create();
 
-    List<Reservation> searchResult = Lists.newArrayList(reservation3, reservation2, reservation1);
+    List<Reservation> searchResult = Lists.newArrayList(reservation1, reservation2, reservation3);
     List<Long> filterResult = Lists.newArrayList(reservation3.getId(), reservation1.getId());
 
     List<Reservation> intersectedResult = subject.intersectFullTextResultAndFilterResult(searchResult, filterResult);
@@ -128,7 +128,7 @@ public class AbstractFullTextSearchServiceTest {
     List<Reservation> intersectedResult = subject.intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
     assertThat(intersectedResult, hasSize(2));
-    assertThat(intersectedResult, contains(reservation3, reservation1));
+    assertThat(intersectedResult, contains(reservation1, reservation3));
   }
 
 }

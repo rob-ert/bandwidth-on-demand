@@ -33,7 +33,10 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.Reservation_;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+
+import com.google.common.base.Optional;
 
 public class ReservationRepoImpl implements ReservationRepoCustom {
 
@@ -41,13 +44,15 @@ public class ReservationRepoImpl implements ReservationRepoCustom {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Specification<Reservation> whereClause) {
+  public List<Long> findIdsWithWhereClause(final Specification<Reservation> whereClause, Optional<Sort> sort) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<Reservation> root = criteriaQuery.from(Reservation.class);
 
     criteriaQuery.select(root.get(Reservation_.id))
         .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
+
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
@@ -57,7 +62,7 @@ public class ReservationRepoImpl implements ReservationRepoCustom {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<Reservation> root = criteriaQuery.from(Reservation.class);
-//TODO get count
+    // TODO get count
     criteriaQuery.distinct(true).select(root.get(Reservation_.id))
         .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
 

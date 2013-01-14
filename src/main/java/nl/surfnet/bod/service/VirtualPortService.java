@@ -196,8 +196,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public void save(final VirtualPort virtualPort) {
     virtualPortRepo.save(virtualPort);
 
-   // Log event after creation, so the ID is set by hibernate
-   logEventService.logCreateEvent(Security.getUserDetails(), virtualPort);
+    // Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), virtualPort);
   }
 
   public VirtualPort update(final VirtualPort virtualPort) {
@@ -230,7 +230,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     virtualPortRequestLinkRepo.save(link);
     emailSender.sendVirtualPortRequestMail(user, link);
 
-    //Log event after creation, so the ID is set by hibernate
+    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
 
@@ -294,16 +294,19 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return entityManager;
   }
 
-  public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter, Sort sort) {
     final BodRole selectedRole = userDetails.getSelectedRole();
     if (selectedRole.isManagerRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
+      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)), Optional
+          .<Sort> fromNullable(sort));
     }
     else if (selectedRole.isNocRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent());
+      return virtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent(), Optional
+          .<Sort> fromNullable(sort));
     }
     else if (selectedRole.isUserRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
+      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)), Optional
+          .<Sort> fromNullable(sort));
     }
     return new ArrayList<>();
   }

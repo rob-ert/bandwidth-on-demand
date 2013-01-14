@@ -184,8 +184,9 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
-  public List<Long> findAllIds() {
-    return physicalResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalResourceGroup>> absent());
+  public List<Long> findAllIds(Sort sort) {
+    return physicalResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalResourceGroup>> absent(),
+        Optional.<Sort> fromNullable(sort));
   }
 
   @Override

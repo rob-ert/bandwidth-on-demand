@@ -33,6 +33,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
@@ -43,7 +44,7 @@ public class PhysicalResourceGroupRepoImpl implements PhysicalResourceGroupRepoC
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalResourceGroup>> whereClause) {
+  public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalResourceGroup>> whereClause, Optional<Sort> sort) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<PhysicalResourceGroup> root = criteriaQuery.from(PhysicalResourceGroup.class);
@@ -55,6 +56,8 @@ public class PhysicalResourceGroupRepoImpl implements PhysicalResourceGroupRepoC
     else {
       criteriaQuery.select(root.get(PhysicalResourceGroup_.id));
     }
+
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }

@@ -22,14 +22,9 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 
 import java.util.List;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
@@ -37,6 +32,11 @@ import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller("managerReservationController")
 @RequestMapping(ReservationController.PAGE_URL)
@@ -68,9 +68,9 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter);
+    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter, sort);
   }
 
 }

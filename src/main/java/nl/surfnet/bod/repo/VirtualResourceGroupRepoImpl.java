@@ -33,6 +33,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup_;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
@@ -42,7 +43,9 @@ public class VirtualResourceGroupRepoImpl implements VirtualResourceGroupRepoCus
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualResourceGroup>> whereClause) {
+  @Override
+  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualResourceGroup>> whereClause,
+      Optional<Sort> sort) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<VirtualResourceGroup> root = criteriaQuery.from(VirtualResourceGroup.class);
@@ -54,6 +57,8 @@ public class VirtualResourceGroupRepoImpl implements VirtualResourceGroupRepoCus
     else {
       criteriaQuery.select(root.get(VirtualResourceGroup_.id));
     }
+
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
 }

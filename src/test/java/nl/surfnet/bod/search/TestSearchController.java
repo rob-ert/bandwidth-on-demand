@@ -82,7 +82,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     return Collections.emptyList();
   }
 

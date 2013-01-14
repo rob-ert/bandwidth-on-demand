@@ -26,19 +26,19 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.google.common.collect.Lists;
 
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
@@ -69,8 +69,8 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return virtualResourceGroupService.findAllTeamIds();
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return virtualResourceGroupService.findAllTeamIds(sort);
   }
 
   @Override

@@ -33,6 +33,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.google.common.base.Optional;
+
 @Controller("managerEventController")
 @RequestMapping(value = "/manager/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
@@ -48,8 +50,8 @@ public class LogEventController extends AbstractLogEventController {
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return getLogEventService().findIdsForManager(Security.getSelectedRole());
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return getLogEventService().findIdsForManager(Security.getSelectedRole(), Optional.<Sort> fromNullable(sort));
   }
 
   @Override

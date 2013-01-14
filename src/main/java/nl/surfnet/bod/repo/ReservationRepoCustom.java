@@ -26,10 +26,13 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+
+import com.google.common.base.Optional;
 
 public interface ReservationRepoCustom {
 
-  List<Long> findIdsWithWhereClause(final Specification<Reservation> whereClause);
+  List<Long> findIdsWithWhereClause(final Specification<Reservation> whereClause, Optional<Sort> sort);
 
 }

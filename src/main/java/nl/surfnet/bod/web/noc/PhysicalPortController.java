@@ -61,6 +61,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -178,19 +179,17 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.asMap().clear();
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated",
-        portToSave.getNocLabel(), portToSave.getPhysicalResourceGroup().getName());
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave
+        .getNocLabel(), portToSave.getPhysicalResourceGroup().getName());
 
     return "redirect:physicalports";
   }
 
   @RequestMapping(method = RequestMethod.GET)
   @Override
-  public String list(
-      @RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order,
-      Model model) {
+      @RequestParam(value = "order", required = false) String order, Model model) {
 
     model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.ALLOCATED);
     model.addAttribute(WebUtils.FILTER_LIST, getAvailableFilters());
@@ -208,14 +207,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return super.search(page, sort, order, search, model);
   }
 
-
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
 
-    List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions.transformUnallocatedPhysicalPorts(
-        physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
+        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedEntries(calculateFirstPage(page),
+            MAX_ITEMS_PER_PAGE));
 
     if (!StringUtils.hasText(sort)) {
       sort = "nocLabel";
@@ -252,9 +251,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
-    List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformAllocatedPhysicalPorts(
-        physicalPortService.findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions),
-        virtualPortService, reservationService);
+    List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformAllocatedPhysicalPorts(physicalPortService
+        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
+        reservationService);
 
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
     model.addAttribute(WebUtils.DATA_LIST, allocatedPhysicalPorts);
@@ -265,16 +264,15 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
-  public String searchUnaligned(
-      @RequestParam(value = PAGE_KEY, required = false) final Integer page,
-      @RequestParam final String search,
-      final Model model) {
+  public String searchUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
+      @RequestParam final String search, @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, Model model) {
 
-    List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model);
+    List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
 
     try {
       FullTextSearchResult<PhysicalPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
-          PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null, Security.getUserDetails(),
+          PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
           unalignedPorts);
 
       model.addAttribute(PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
@@ -421,7 +419,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -577,17 +575,13 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   private List<PhysicalPortFilter> getAvailableFilters() {
-    return Lists.newArrayList(
-        PhysicalPortFilter.ALLOCATED,
-        PhysicalPortFilter.UN_ALLOCATED,
-        PhysicalPortFilter.UN_ALIGNED,
-        PhysicalPortFilter.MTOSI
-    );
+    return Lists.newArrayList(PhysicalPortFilter.ALLOCATED, PhysicalPortFilter.UN_ALLOCATED,
+        PhysicalPortFilter.UN_ALIGNED, PhysicalPortFilter.MTOSI);
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return physicalPortService.findIds();
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   public static final class PhysicalPortFilter {

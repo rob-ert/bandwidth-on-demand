@@ -52,7 +52,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
@@ -97,7 +96,7 @@ public class AbstractSearchableSortableListControllerTest {
     FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
-        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),
+        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), 
             any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "test", model);
@@ -113,7 +112,7 @@ public class AbstractSearchableSortableListControllerTest {
     FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
-        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),
+        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), 
             any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "\"test\"", model);

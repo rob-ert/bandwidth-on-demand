@@ -33,6 +33,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEvent_;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
@@ -43,16 +44,16 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Specification<LogEvent> whereClause) {
-    return findIds(Optional.of(whereClause));
+  public List<Long> findIdsWithWhereClause(final Specification<LogEvent> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
   }
 
   @Override
-  public List<Long> findAllIds() {
-    return findIds(Optional.<Specification<LogEvent>>absent());
+  public List<Long> findAllIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<LogEvent>> absent(), sort);
   }
 
-  private List<Long> findIds(Optional<Specification<LogEvent>> whereClause) {
+  private List<Long> findIds(Optional<Specification<LogEvent>> whereClause, Optional<Sort> sort) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
@@ -64,6 +65,7 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
     else {
       criteriaQuery.select(root.get(LogEvent_.id));
     }
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }

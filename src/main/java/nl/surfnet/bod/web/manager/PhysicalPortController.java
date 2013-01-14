@@ -169,11 +169,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
     if (physicalResourceGroup.isPresent()) {
       return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(
-        Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()));
+        Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.<Sort>fromNullable(sort));
     }
     else {
       return new ArrayList<>();

@@ -104,8 +104,8 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return virtualResourceGroupService.findTeamIdsForRole(Security.getSelectedRole());
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return virtualResourceGroupService.findTeamIdsForRole(Security.getSelectedRole(), sort);
   }
 
   @Override

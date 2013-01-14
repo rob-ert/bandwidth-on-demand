@@ -199,18 +199,18 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }
 
-  public List<Long> findIdsForManager(BodRole managerRole) {
+  public List<Long> findIdsForManager(BodRole managerRole, Optional<Sort> sort) {
     return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup()
-        .get())));
+        .get())), sort);
   }
 
-  public List<Long> findIdsForUser(RichUserDetails user) {
+  public List<Long> findIdsForUser(RichUserDetails user, Optional<Sort> sort) {
     return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(virtualResourceGroupService
-        .determineAdminGroupsForUser(user)));
+        .determineAdminGroupsForUser(user)), sort);
   }
 
-  public List<Long> findAllIds() {
-    return logEventRepo.findAllIds();
+  public List<Long> findAllIds(Sort sort) {
+    return logEventRepo.findAllIds(Optional.<Sort> fromNullable(sort));
   }
 
   public LogEvent findLatestStateChangeForReservationIdBeforeInAdminGroups(Long id, DateTime before,

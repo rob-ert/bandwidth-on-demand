@@ -24,8 +24,6 @@ package nl.surfnet.bod.util;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -36,20 +34,15 @@ import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.Version;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.util.ReflectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 /**
@@ -68,8 +61,7 @@ public class FullTextSearchContext<T> {
     this.analyzer = getAnalyzer("customanalyzer");
   }
 
-  public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
-      org.springframework.data.domain.Sort springSort) throws ParseException {
+  public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword) throws ParseException {
 
     String[] indexedFields = findAllIndexedFields(entity);
 
@@ -84,8 +76,7 @@ public class FullTextSearchContext<T> {
 
     Query luceneQuery = parser.parse(keyword);
     FullTextQuery fullTextQuery = getFullTextQuery(luceneQuery);
-
-    return fullTextQuery.setSort(convertToSort(springSort));
+    return fullTextQuery;
   }
 
   /**
@@ -143,27 +134,6 @@ public class FullTextSearchContext<T> {
   @VisibleForTesting
   Analyzer getAnalyzer(String name) {
     return fullTextEntityManager.getSearchFactory().getAnalyzer(name);
-  }
-
-  @VisibleForTesting
-  Sort convertToSort(org.springframework.data.domain.Sort springSort) {
-    List<SortField> sortFields = new ArrayList<>();
-
-    Iterator<Order> it = springSort.iterator();
-    while (it.hasNext()) {
-      Order sortItem = it.next();
-
-      String property = sortItem.getProperty();
-      java.lang.reflect.Field fieldType = ReflectionUtils.findField(entity, property);
-
-      if (fieldType != null) {
-        SortField sortField = new SortField(property, LuceneSortFieldType.getLuceneTypeFor(fieldType.getType()),
-            not(sortItem.isAscending()));
-
-        sortFields.add(sortField);
-      }
-    }
-    return new Sort(Iterables.toArray(sortFields, SortField.class));
   }
 
   private FullTextQuery getFullTextQuery(org.apache.lucene.search.Query luceneQuery) {

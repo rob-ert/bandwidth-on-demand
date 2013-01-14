@@ -82,27 +82,24 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   }
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(
-      @RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order,
-      @RequestParam(value = "search") String search,
+      @RequestParam(value = "order", required = false) String order, @RequestParam(value = "search") String search,
       Model model) {
 
     if (!StringUtils.hasText(search)) {
       return list(page, sort, order, model);
     }
 
-    Sort sortOptions = prepareSortOptions(sort, order, model);
     Integer firstItem = calculateFirstPage(page);
-    List<Long> listFromController = getIdsOfAllAllowedEntries(model);
+    List<Long> listFromController = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
 
     String translatedSearchString = mapLabelToTechnicalName(search);
 
     try {
       FullTextSearchResult<ENTITY> searchResult = getFullTextSearchableService().searchForInFilteredList(
-          getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, sortOptions,
-          Security.getUserDetails(), listFromController);
+          getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
+          listFromController);
 
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
       model.addAttribute(WebUtils.DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
@@ -202,13 +199,13 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     return new Sort(direction, properties);
   }
 
-  protected abstract List<Long> getIdsOfAllAllowedEntries(Model model);
+  protected abstract List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort);
 
   /**
    * Maps a search string with a label from a column to a search with a field in
    * the domain model. Can be overridden for a specific implementation, this
    * default implementation maps to the most common used fields.
-   *
+   * 
    * @param search
    *          The string to search for, may contain lucene specific syntax e.g.
    *          'name:test'

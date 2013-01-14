@@ -440,9 +440,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter, sort);
   }
 
   @Override

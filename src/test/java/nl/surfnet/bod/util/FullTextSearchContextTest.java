@@ -24,12 +24,10 @@ package nl.surfnet.bod.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.is;
 
 import javax.persistence.EntityManager;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.SortField;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.junit.Before;
@@ -37,8 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FullTextSearchContextTest {
@@ -78,45 +74,6 @@ public class FullTextSearchContextTest {
 
     assertThat(indexedFields, arrayContainingInAnyOrder("bloodPressure", "nestedEmbeded.shoeSize",
         "nestedEmbeded.embed.firstName", "nestedEmbeded.embed.lastName", "nestedEmbeded.embed.scale"));
-  }
-
-  @Test
-  public void shouldConvertSingleSortWithExistingProperty() {
-    Sort springSort = new Sort(Direction.ASC, "firstName");
-    org.apache.lucene.search.Sort luceneSort = ftsContext.convertToSort(springSort);
-
-    assertThat(luceneSort.getSort().length, is(1));
-    SortField sortField = luceneSort.getSort()[0];
-    assertThat(sortField.getField(), is("firstName"));
-    assertThat(sortField.getType(), is(LuceneSortFieldType.STRING.getLuceneType()));
-  }
-
-  @Test
-  public void shouldConvertSingleSortWithNonExistingProperty() {
-    Sort springSort = new Sort(Direction.ASC, "nonExsistingProp");
-    org.apache.lucene.search.Sort luceneSort = ftsContext.convertToSort(springSort);
-
-    assertThat(luceneSort.getSort().length, is(0));
-  }
-
-  @Test
-  public void shouldConvertSortAscending() {
-    Sort springSort = new Sort(Direction.ASC, "firstName");
-    org.apache.lucene.search.Sort luceneSort = ftsContext.convertToSort(springSort);
-
-    assertThat(luceneSort.getSort().length, is(1));
-    SortField sortField = luceneSort.getSort()[0];
-    assertThat(sortField.getReverse(), is(false));
-  }
-
-  @Test
-  public void shouldConvertSortDescending() {
-    Sort springSort = new Sort(Direction.DESC, "firstName");
-    org.apache.lucene.search.Sort luceneSort = ftsContext.convertToSort(springSort);
-
-    assertThat(luceneSort.getSort().length, is(1));
-    SortField sortField = luceneSort.getSort()[0];
-    assertThat(sortField.getReverse(), is(true));
   }
 
   class TestEntityWithNestedEmbededEntity {

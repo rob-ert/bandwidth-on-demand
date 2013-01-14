@@ -295,7 +295,7 @@ public class PhysicalResourceGroupController extends
      * Copies fields this command object to the given domainOjbect. Only the
      * fields that can be changed in the UI will be copied. Determines if the
      * {@link #managerEmail} has changed.
-     *
+     * 
      * @param physicalResourceGroup
      *          The {@link PhysicalResourceGroup} the copy the field to.
      */
@@ -374,8 +374,8 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return physicalResourceGroupService.findAllIds();
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return physicalResourceGroupService.findAllIds(sort);
   }
 
   @Override
@@ -385,12 +385,13 @@ public class PhysicalResourceGroupController extends
       final PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
       final List<VirtualPort> virtualPorts = new ArrayList<>();
       final List<Long> reservations = new ArrayList<>();
-      final List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(
-          BodRole.createNocEngineer(), Optional.of(physicalResourceGroup));
+      final List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(BodRole
+          .createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
       for (final long id : physicalPortIds) {
         final PhysicalPort physicalPort = physicalPortService.find(id);
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
-        final long countActiveReservationsByVirtualPorts = reservationService.countActiveReservationsByVirtualPorts(virtualPorts);
+        final long countActiveReservationsByVirtualPorts = reservationService
+            .countActiveReservationsByVirtualPorts(virtualPorts);
         if (countActiveReservationsByVirtualPorts != 0L) {
           reservations.add(countActiveReservationsByVirtualPorts);
         }

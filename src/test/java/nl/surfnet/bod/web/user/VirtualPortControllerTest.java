@@ -154,17 +154,17 @@ public class VirtualPortControllerTest {
     when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class)))
         .thenReturn(result);
 
-    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class))).thenReturn(new ArrayList<Long>());
+    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class), any(Sort.class)))
+        .thenReturn(new ArrayList<Long>());
 
     when(
         virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),
-            eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class),
-            eq(user), anyList())).thenReturn(new FullTextSearchResult<>(1, result));
+            eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), eq(user), anyList()))
+        .thenReturn(new FullTextSearchResult<>(1, result));
 
     String page = subject.search(0, "userLabel", null, "team:\"some-team\"", model);
 
     assertThat(page, is("virtualports/list"));
     assertThat(model.asMap(), hasEntry("search", (Object) "team:\"some-team\""));
   }
-
 }

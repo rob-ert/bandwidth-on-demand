@@ -33,6 +33,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPort_;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
@@ -42,7 +43,8 @@ public class VirtualPortRepoImpl implements VirtualPortRepoCustom {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualPort>> whereClause) {
+  @Override
+  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualPort>> whereClause, Optional<Sort> sort) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<VirtualPort> root = criteriaQuery.from(VirtualPort.class);
@@ -55,6 +57,9 @@ public class VirtualPortRepoImpl implements VirtualPortRepoCustom {
       criteriaQuery.select(root.get(VirtualPort_.id));
     }
 
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
+
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
+
 }

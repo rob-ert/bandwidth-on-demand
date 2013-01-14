@@ -52,8 +52,8 @@ public class LogEventController extends AbstractLogEventController {
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return getLogEventService().findAllIds();
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return getLogEventService().findAllIds(sort);
   }
 
 }

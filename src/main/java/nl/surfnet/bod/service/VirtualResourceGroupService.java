@@ -64,28 +64,28 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
 
   public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
     new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
-      @Override
-      public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
-        final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
+    @Override
+    public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
+      final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
 
-        Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
-          @Override
-          public boolean apply(VirtualPort port) {
-            return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
-          }
-        }).size();
+      Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
+        @Override
+        public boolean apply(VirtualPort port) {
+          return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
+        }
+      }).size();
 
-        return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
-      }
-    };
+      return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
+    }
+  };
 
   public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
     new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-      @Override
-      public VirtualResourceGroupView apply(VirtualResourceGroup input) {
-        return new VirtualResourceGroupView(input, input.getVirtualPortCount());
-      }
-    };
+    @Override
+    public VirtualResourceGroupView apply(VirtualResourceGroup input) {
+      return new VirtualResourceGroupView(input, input.getVirtualPortCount());
+    }
+  };
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
@@ -214,13 +214,14 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return virtualResourceGroupRepo.findByAdminGroupIn(groupIds);
   }
 
-  public List<Long> findAllTeamIds() {
-    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<VirtualResourceGroup>> absent());
+  public List<Long> findAllTeamIds(Sort sort) {
+    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<VirtualResourceGroup>> absent(),
+        Optional.<Sort> fromNullable(sort));
   }
 
-  public List<Long> findTeamIdsForRole(final BodRole bodRole) {
-    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.of(specificationForManager(bodRole)));
-
+  public List<Long> findTeamIdsForRole(final BodRole bodRole, Sort sort) {
+    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.of(specificationForManager(bodRole)), Optional
+        .<Sort> fromNullable(sort));
   }
 
   @Override

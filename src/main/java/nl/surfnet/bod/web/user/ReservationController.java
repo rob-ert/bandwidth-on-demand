@@ -197,9 +197,9 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    return getReservationService().findIdsForUserUsingFilter(Security.getUserDetails(), filter, sort);
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {

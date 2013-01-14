@@ -77,22 +77,22 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private final Function<Reservation, ReservationArchive> toReservationArchive =
     new Function<Reservation, ReservationArchive>() {
-      @Override
-      public ReservationArchive apply(Reservation reservation) {
-        final ReservationArchive reservationArchive = new ReservationArchive();
-        reservationArchive.setReservationPrimaryKey(reservation.getId());
-        final StringWriter writer = new StringWriter();
-        try {
-          mapper.writeValue(writer, reservation);
-        }
-        catch (IOException e) {
-          // need to throw or we'll lose reservations
-          throw new RuntimeException(e);
-        }
-        reservationArchive.setReservationAsJson(writer.toString());
-        return reservationArchive;
+    @Override
+    public ReservationArchive apply(Reservation reservation) {
+      final ReservationArchive reservationArchive = new ReservationArchive();
+      reservationArchive.setReservationPrimaryKey(reservation.getId());
+      final StringWriter writer = new StringWriter();
+      try {
+        mapper.writeValue(writer, reservation);
       }
-    };
+      catch (IOException e) {
+        // need to throw or we'll lose reservations
+        throw new RuntimeException(e);
+      }
+      reservationArchive.setReservationAsJson(writer.toString());
+      return reservationArchive;
+    }
+  };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -136,7 +136,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -378,7 +378,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Count the reservation requests which lead to a successfully created
    * reservation.
-   *
+   * 
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -405,7 +405,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Count the reservation requests which did not result in a reservation
-   *
+   * 
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -426,7 +426,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Counts the amount of reservations in the between the given Start and end
    * that are SUCCEEDED or transferred from SCHEDULED -> CANCEL or transferred
    * from RUNNING ->CANCEL
-   *
+   * 
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -458,7 +458,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Counts the amount of reservations in the between the given Start and end
    * that transferred from RUNNING -> FAILED or transferred from SCHEDULED ->
    * FAILED.
-   *
+   * 
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -486,7 +486,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   *
+   * 
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -496,13 +496,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   *
+   * 
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -594,16 +594,18 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return content;
   }
 
-  public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
+  public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter, Sort sort) {
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager), Optional
+        .fromNullable(sort));
   }
 
-  public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
+  public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter, Sort sort) {
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter), Optional.fromNullable(sort));
   }
 
-  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter, Sort sort) {
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user), Optional
+        .fromNullable(sort));
   }
 
   public List<Long> findReservationIdsBeforeOrOnInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
@@ -619,13 +621,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specReservationStartBeforeAndEndInOrAfter(start, end);
 
-    return reservationRepo.findIdsWithWhereClause(whereClause);
+    return reservationRepo.findIdsWithWhereClause(whereClause, Optional.<Sort> absent());
   }
 
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -691,7 +693,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -739,7 +741,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Activates an existing reservation;
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise

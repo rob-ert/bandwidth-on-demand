@@ -71,7 +71,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     throw new UnsupportedOperationException("Search not implemented for connections");
   }
 

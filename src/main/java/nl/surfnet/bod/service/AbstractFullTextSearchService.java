@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -35,13 +36,14 @@ import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 
 /**
  * Service interface to abstract full text search functionality
- *
+ * 
  * @param <ENTITY>
  *          DomainObject
  */
@@ -49,7 +51,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
 
   /**
    * Performs a full text search on the given searchText.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -58,23 +60,23 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    *          int max amount of items
    * @param sort
    *          {@link Sort} sorting options
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
   @SuppressWarnings("unchecked")
-  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, Sort sort) throws ParseException {
+  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText) throws ParseException {
     FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
         entityClass);
 
-    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort).getResultList();
+    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText).getResultList();
   }
 
   /**
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -85,17 +87,16 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
   public FullTextSearchResult<ENTITY> searchForInFilteredList(Class<ENTITY> entityClass, String searchText,
-      int firstResult, int maxResults, Sort sort, RichUserDetails userDetails, List<Long> filterResult)
-      throws ParseException {
+      int firstResult, int maxResults, RichUserDetails userDetails, List<Long> filterResult) throws ParseException {
 
     Preconditions.checkArgument(firstResult >= 0);
 
-    List<ENTITY> searchResult = searchFor(entityClass, searchText, sort);
+    List<ENTITY> searchResult = searchFor(entityClass, searchText);
 
     List<ENTITY> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
@@ -103,7 +104,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
   }
 
   /**
-   *
+   * 
    * @param firstResult
    *          firstResult in page
    * @param maxResults
@@ -127,16 +128,35 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
 
   /**
    * FInds objects that both list have in common. When one or both lists are
-   * empty, no elements are found
+   * empty, no elements are found.
+   * 
+   * <Strong> The items will be sorted according to the sequence of the
+   * filterResults. </Strong>
+   * 
+   * @param searchResults
+   *          The unsorted search results
+   * @param filterResults
+   *          Id's of the items that are allowed to be shown, the found elements
+   *          remain sorted the same way these filterResults are.
    */
   @VisibleForTesting
-  protected List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults, final List<Long> filterResults) {
-    return FluentIterable.from(searchResults).filter(new Predicate<PersistableDomain>() {
-      @Override
-      public boolean apply(PersistableDomain domain) {
-        return filterResults.contains(domain.getId());
-      }
-    }).toList();
-  }
+  protected List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults,
+      final List<Long> filterResults) {
 
+    final List<ENTITY> sortedEntityList = new ArrayList<>();
+    for (final Long id : filterResults) {
+      Optional<ENTITY> foundEntity = Iterables.tryFind(searchResults, new Predicate<ENTITY>() {
+        @Override
+        public boolean apply(ENTITY entity) {
+          return id.equals(entity.getId());
+        }
+      });
+
+      if (foundEntity.isPresent()) {
+        sortedEntityList.add(foundEntity.get());
+      }
+
+    }
+    return sortedEntityList;
+  }
 }

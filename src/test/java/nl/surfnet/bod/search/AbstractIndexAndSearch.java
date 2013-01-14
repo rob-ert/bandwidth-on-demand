@@ -36,7 +36,6 @@ import org.apache.log4j.LogManager;
 import org.apache.lucene.queryParser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
 
 public class AbstractIndexAndSearch<T> {
 
@@ -78,8 +77,8 @@ public class AbstractIndexAndSearch<T> {
 
   @SuppressWarnings("unchecked")
   protected List<T> getSearchQuery(String query) throws ParseException {
-    return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query,
-        new Sort("id")).getResultList();
+    return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query)
+        .getResultList();
   }
 
   protected final void closeEntityManager() {
