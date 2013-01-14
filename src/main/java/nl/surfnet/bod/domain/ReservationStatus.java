@@ -72,9 +72,14 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   * 
+   *
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();
   }
+
+  public boolean isErrorState() {
+    return ERROR_STATES.contains(this);
+  }
+
 }

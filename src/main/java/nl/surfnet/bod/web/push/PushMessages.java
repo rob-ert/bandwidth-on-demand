@@ -25,7 +25,6 @@ package nl.surfnet.bod.web.push;
 import java.io.IOException;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -46,7 +45,7 @@ public final class PushMessages {
     String message = WebUtils.getMessageWithBoldArguments(messageSource, "info_reservation_statuschanged",
         reservation.getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
 
-    if (ReservationStatus.ERROR_STATES.contains(reservation.getStatus()) && reservation.getFailedReason() != null) {
+    if (reservation.getStatus().isErrorState() && reservation.getFailedReason() != null) {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
     }
 

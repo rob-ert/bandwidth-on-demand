@@ -118,7 +118,7 @@ public class NbiOpenDracWsClientTest {
   public void shouldCreateReservationWithGivenStartTime() throws Exception {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
 
-    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(reservation, true);
+    CreateReservationScheduleRequestDocument schedule = subject.createReservationScheduleRequest(reservation, true);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
         is(reservation.getStartDateTime().toDate()));
@@ -145,7 +145,7 @@ public class NbiOpenDracWsClientTest {
     Reservation foreverReservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setEndDateTime(null).create();
 
-    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(foreverReservation, true);
+    CreateReservationScheduleRequestDocument schedule = subject.createReservationScheduleRequest(foreverReservation, true);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule()
         .getReservationOccurrenceDuration(), is(Integer.MAX_VALUE));

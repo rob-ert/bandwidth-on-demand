@@ -28,8 +28,6 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
-import javax.xml.bind.Marshaller;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 

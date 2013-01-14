@@ -172,23 +172,22 @@ public class NbiOpenDracWsClient implements NbiClient {
   @Override
   public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
     try {
-      CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
-          createSchedule(reservation, autoProvision), getSecurityDocument());
+      CreateReservationScheduleRequestDocument requestDocument =
+        createReservationScheduleRequest(reservation, autoProvision);
+
+      CreateReservationScheduleResponseDocument responseDocument =
+        schedulingService.createReservationSchedule(requestDocument, getSecurityDocument());
 
       log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
-      ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
-          .getCreateReservationScheduleResponse().getResult(), autoProvision);
 
-      if (ReservationStatus.ERROR_STATES.contains(status)) {
-        List<String> reasons = Lists.newArrayList();
-        for (final ReservationOccurrenceInfoT occurenceInfo : responseDocument.getCreateReservationScheduleResponse()
-            .getOccurrenceInfoArray()) {
-          reasons.add(occurenceInfo.getReason());
-        }
+      ReservationStatus status = OpenDracStatusTranslator.translate(
+          responseDocument.getCreateReservationScheduleResponse().getResult(), autoProvision);
 
-        String failedReason = Joiner.on(", ").join(reasons);
+      if (status.isErrorState()) {
+        String failedReason = composeFailedReason(responseDocument);
+
         reservation.setFailedReason(failedReason);
 
         log.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
@@ -208,6 +207,16 @@ public class NbiOpenDracWsClient implements NbiClient {
     }
 
     return reservation;
+  }
+
+  private String composeFailedReason(CreateReservationScheduleResponseDocument responseDocument) {
+    List<String> reasons = Lists.newArrayList();
+    for (ReservationOccurrenceInfoT occurenceInfo : responseDocument.getCreateReservationScheduleResponse()
+        .getOccurrenceInfoArray()) {
+      reasons.add(occurenceInfo.getReason());
+    }
+
+    return Joiner.on(", ").join(reasons);
   }
 
   @Override
@@ -381,7 +390,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     }
   }
 
-  CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation, final boolean autoProvision)
+  CreateReservationScheduleRequestDocument createReservationScheduleRequest(final Reservation reservation, final boolean autoProvision)
       throws NetworkMonitoringServiceFault {
 
     CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
