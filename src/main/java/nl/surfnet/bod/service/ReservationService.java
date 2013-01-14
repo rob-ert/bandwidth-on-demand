@@ -673,7 +673,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
-    final Optional<ReservationStatus> optionalReservationStatus = nbiClient.getReservationStatus(reservation
+    Optional<ReservationStatus> optionalReservationStatus = nbiClient.getReservationStatus(reservation
         .getReservationId());
     if (optionalReservationStatus.isPresent()) {
       return optionalReservationStatus.get();

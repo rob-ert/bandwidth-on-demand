@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
+import static com.google.common.base.Optional.fromNullable;
 import static nl.surfnet.bod.web.WebUtils.not;
 
 import javax.annotation.PostConstruct;
@@ -121,8 +122,11 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:
-    case RESERVING:
       connectionServiceRequester.executionFailed(connection);
+      break;
+    case RESERVING:
+      connectionServiceRequester.reserveFailed(
+        connection, event.getNsiRequestDetails().get(), fromNullable(connection.getReservation().getFailedReason()));
       break;
     case TERMINATING:
       connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
@@ -133,6 +137,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       // the connection is was ready to get started but the step to running/provisioned failed
       // so send a provisionFailed
       connectionServiceRequester.provisionFailed(connection, event.getNsiRequestDetails().get());
+      break;
     case UNKNOWN:
     case TERMINATED:
     case RELEASING:

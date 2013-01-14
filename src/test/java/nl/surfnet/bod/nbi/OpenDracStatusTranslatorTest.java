@@ -22,15 +22,20 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.Locale;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiOpenDracWsClient.OpenDracStatusTranslator;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleCreationResultT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 
 public class OpenDracStatusTranslatorTest {
 
@@ -58,15 +63,56 @@ public class OpenDracStatusTranslatorTest {
 
   @Test
   public void executionTimedOutShouldTranslateToFailed() {
-    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT);
+    ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
+    reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT);
+
+    ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
 
     assertThat(status, is(ReservationStatus.TIMED_OUT));
   }
 
   @Test
   public void executionSucceededShouldTranslateToSucceeded() {
-    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED);
+    ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
+    reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED);
+
+    ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
 
     assertThat(status, is(ReservationStatus.SUCCEEDED));
+  }
+
+  @Test
+  public void executionPendingShouldTranslateToAutoStart() {
+    ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
+    reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_PENDING);
+    reservationSchedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
+
+    ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
+
+    assertThat(status, is(ReservationStatus.AUTO_START));
+  }
+
+  @Test
+  public void executionPendingShouldTranslateToReserved() {
+    ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
+    reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_PENDING);
+    reservationSchedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL);
+    reservationSchedule.setStartTime(DateTime.now().plusDays(1).toCalendar(Locale.getDefault()));
+
+    ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
+
+    assertThat(status, is(ReservationStatus.RESERVED));
+  }
+
+  @Test
+  public void executionPendingShouldTranslateToScheduled() {
+    ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
+    reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_PENDING);
+    reservationSchedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL);
+    reservationSchedule.setStartTime(DateTime.now().minusDays(1).toCalendar(Locale.getDefault()));
+
+    ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
+
+    assertThat(status, is(ReservationStatus.SCHEDULED));
   }
 }

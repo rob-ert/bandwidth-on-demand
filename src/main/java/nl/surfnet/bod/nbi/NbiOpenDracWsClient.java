@@ -42,6 +42,7 @@ import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
 import org.apache.axis2.AxisFault;
+import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
@@ -65,13 +66,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
-import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT.Enum;
+import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  */
 public class NbiOpenDracWsClient implements NbiClient {
 
@@ -138,8 +139,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       CompletionResponseDocument completionResponseDocument = schedulingService.activateReservationOccurrence(
           activateReservationOccurrenceRequestDocument, getSecurityDocument());
 
-      return completionResponseDocument.getCompletionResponse().getResult() == Enum.forInt(1);
-
+      return completionResponseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
@@ -203,6 +203,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     }
     catch (Exception e) {
       log.error("Unexpected Exception while request reservation to OpenDRAC", e);
+      reservation.setFailedReason(e.getMessage());
       reservation.setStatus(FAILED);
     }
 
@@ -279,32 +280,35 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(final String reservationId) {
-    final QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
-        .newInstance();
-    requestDocument.addNewQueryReservationScheduleRequest();
-    requestDocument.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
+    QueryReservationScheduleRequestDocument requestDocument = createQueryReservationScheduleRequest(reservationId);
 
-    QueryReservationScheduleResponseDocument responseDocument = null;
     try {
-      responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
+      QueryReservationScheduleResponseDocument responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
+
+      if (responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
+        ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse().getReservationSchedule();
+
+        return Optional.of(OpenDracStatusTranslator.translate(schedule));
+      }
+      else {
+        log.warn("No reservation found for reservationId: {}, returning FAILED", reservationId);
+        return Optional.of(FAILED);
+      }
+
     }
     catch (AxisFault e) {
       log.error("Error: ", e);
 
       final String errorMessageToLowerCase = e.getMessage().toLowerCase();
-      final String messagePrefix = " returning absent reservation state.";
 
       // no connection to nms
       if (errorMessageToLowerCase.contains(CONNECTION_REFUSED_LOWER_CASE_MESSAGE)) {
-        log.warn("Connection refused to {}, {}", schedulingServiceUrl, messagePrefix);
-        return Optional.absent();
+        log.warn("Connection refused to {}", schedulingServiceUrl);
       }
       else {
         // invalid credentials
         if (errorMessageToLowerCase.contains(AUTHENTICATION_FAILED_LOWER_CASE_MESSAGE)) {
-          log.warn("Authentication check failed for user {} and resource group {}, {}", new Object[] { username,
-              resourceGroupName, messagePrefix });
-          return Optional.absent();
+          log.warn("Authentication check failed for user {} and resource group {}", username, resourceGroupName);
         }
       }
 
@@ -313,50 +317,45 @@ public class NbiOpenDracWsClient implements NbiClient {
       log.error("Error: ", e);
     }
 
-    if (responseDocument != null && responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
-      final ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse()
-          .getReservationSchedule();
-      final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
+    return Optional.absent();
+  }
 
-      return Optional.of(OpenDracStatusTranslator.translate(status));
-    }
-    else {
-      log.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
-      return Optional.of(FAILED);
-    }
+  private QueryReservationScheduleRequestDocument createQueryReservationScheduleRequest(final String reservationId) {
+    QueryReservationScheduleRequestDocument requestDocument =
+      QueryReservationScheduleRequestDocument.Factory.newInstance();
+    requestDocument.addNewQueryReservationScheduleRequest();
+    requestDocument.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
 
+    return requestDocument;
   }
 
   protected static final class OpenDracStatusTranslator {
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations =
       new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED, AUTO_START).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, AUTO_START).put(
-            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, AUTO_START)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, AUTO_START)
+        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
       new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED).put(
-            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
     private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
       new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED).put(
-            ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED).put(
-            ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PENDING, AUTO_START).put(
-            ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING).put(
-            ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
-        // means that the start time has passed and the reservation did not get
-        // an activate while activation was manual
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT).put(
-            ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
-            ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED)
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
+        .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT)
+        .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
 
     private OpenDracStatusTranslator() {
     }
@@ -369,8 +368,16 @@ public class NbiOpenDracWsClient implements NbiClient {
       return creationResultTranslations.get(status);
     }
 
-    public static ReservationStatus translate(ValidReservationScheduleStatusT.Enum status) {
-      return scheduleStatusTranslations.get(status);
+    public static ReservationStatus translate(ReservationScheduleT reservationSchedule) {
+      ValidReservationScheduleStatusT.Enum status = reservationSchedule.getStatus();
+
+      if (status.equals(ValidReservationScheduleStatusT.EXECUTION_PENDING)) {
+        return reservationSchedule.getType().equals(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC) ? AUTO_START :
+          new DateTime(reservationSchedule.getStartTime()).isAfterNow() ? RESERVED : SCHEDULED;
+      }
+      else {
+        return scheduleStatusTranslations.get(status);
+      }
     }
   }
 
