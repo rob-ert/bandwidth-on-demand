@@ -45,7 +45,8 @@ import com.google.common.annotations.VisibleForTesting;
 
 public abstract class AbstractReportController {
 
-  protected static final int AMOUNT_OF_REPORT_PERIODS = 13;
+  public static final int AMOUNT_OF_REPORT_PERIODS = 13;
+  public static final int MONTHS_IN_GRAPH = 6;
 
   @Resource
   private ReportingService reportingService;
@@ -124,8 +125,8 @@ public abstract class AbstractReportController {
 
     YearMonth yearMonth = parseYearMonth(selectedYearMonth);
 
-    for (int i = 4; i >= 0; i--) {
-      final YearMonth month = yearMonth.minusMonths(i);
+    for (int i = MONTHS_IN_GRAPH; i > 0; i--) {
+      final YearMonth month = yearMonth.minusMonths(i - 1);
       ReservationReportView report = determineReport(month.toInterval());
       addReport(responseBuffer, report, month.toString("MMM"));
     }

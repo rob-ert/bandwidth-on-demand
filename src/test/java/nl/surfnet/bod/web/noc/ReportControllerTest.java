@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.Collection;
 
+import nl.surfnet.bod.matchers.NumberOfLinesMatchers;
 import nl.surfnet.bod.service.ReportingService;
 import nl.surfnet.bod.web.view.ReportIntervalView;
 import nl.surfnet.bod.web.view.ReservationReportView;
@@ -77,7 +78,8 @@ public class ReportControllerTest {
       .andExpect(status().isOk())
       .andExpect(content().contentType("text/plain;charset=ISO-8859-1"))
       .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")))
-      .andExpect(content().string(containsString(YearMonth.now().toString("MMM"))));
+      .andExpect(content().string(containsString(YearMonth.now().toString("MMM"))))
+      .andExpect(content().string(NumberOfLinesMatchers.hasLines(ReportController.MONTHS_IN_GRAPH + 1)));
   }
 
   @Test
@@ -115,7 +117,7 @@ public class ReportControllerTest {
 
     mockMvc.perform(get("/noc/report"))
       .andExpect(status().isOk())
-      .andExpect(model().<Collection<?>>attribute("intervalList", hasSize(13)))
+      .andExpect(model().<Collection<?>>attribute("intervalList", hasSize(ReportController.AMOUNT_OF_REPORT_PERIODS)))
       .andExpect(model().attribute("selectedInterval", is(new ReportIntervalView(YearMonth.now().toInterval()))))
       .andExpect(model().attribute("baseReportIntervalUrl", is("noc/report")))
       .andExpect(model().attribute("graphUrlPart", is("graph/" + DateTime.now().toString("yyyyMM"))));
