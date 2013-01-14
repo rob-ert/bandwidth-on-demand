@@ -38,7 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public class VirtualResourceGroupRepoImpl implements VirtualResourceGroupRepoCustom {
+public class VirtualResourceGroupRepoImpl implements CustomRepo<VirtualResourceGroup> {
 
   @PersistenceContext
   private EntityManager entityManager;

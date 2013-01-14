@@ -75,8 +75,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private final ObjectMapper mapper = new ObjectMapper();
 
-  private final Function<Reservation, ReservationArchive> toReservationArchive =
-    new Function<Reservation, ReservationArchive>() {
+  private final Function<Reservation, ReservationArchive> toReservationArchive = new Function<Reservation, ReservationArchive>() {
     @Override
     public ReservationArchive apply(Reservation reservation) {
       final ReservationArchive reservationArchive = new ReservationArchive();
@@ -595,17 +594,19 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager), Optional
+    return reservationRepo.findIdsWithWhereClause(Optional
+        .<Specification<Reservation>> of(specFilteredReservationsForManager(filter, manager)), Optional
         .fromNullable(sort));
   }
 
   public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(Optional
+        .<Specification<Reservation>> of(specFilteredReservations(filter)), Optional.fromNullable(sort));
   }
 
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user), Optional
-        .fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(Optional
+        .<Specification<Reservation>> of(specFilteredReservationsForUser(filter, user)), Optional.fromNullable(sort));
   }
 
   public List<Long> findReservationIdsBeforeOrOnInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
@@ -621,7 +622,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specReservationStartBeforeAndEndInOrAfter(start, end);
 
-    return reservationRepo.findIdsWithWhereClause(whereClause, Optional.<Sort> absent());
+    return reservationRepo.findIdsWithWhereClause(Optional.<Specification<Reservation>> of(whereClause), Optional
+        .<Sort> absent());
   }
 
   /**

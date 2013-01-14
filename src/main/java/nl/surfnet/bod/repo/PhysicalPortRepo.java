@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PhysicalPortRepo extends
-    JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long>, PhysicalPortRepoCustom {
+    JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long>, CustomRepo<PhysicalPort> {
 
   PhysicalPort findByNmsPortId(String nmsPortId);
 

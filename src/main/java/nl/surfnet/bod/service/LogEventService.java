@@ -200,13 +200,15 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findIdsForManager(BodRole managerRole, Optional<Sort> sort) {
-    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup()
-        .get())), sort);
+    return logEventRepo.findIdsWithWhereClause(Optional
+        .<Specification<LogEvent>> of(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup().get()))),
+        sort);
   }
 
   public List<Long> findIdsForUser(RichUserDetails user, Optional<Sort> sort) {
-    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(virtualResourceGroupService
-        .determineAdminGroupsForUser(user)), sort);
+    return logEventRepo.findIdsWithWhereClause(Optional
+        .<Specification<LogEvent>> of(specLogEventsByAdminGroups(virtualResourceGroupService
+            .determineAdminGroupsForUser(user))), sort);
   }
 
   public List<Long> findAllIds(Sort sort) {

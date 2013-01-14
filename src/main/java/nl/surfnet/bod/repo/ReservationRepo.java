@@ -35,7 +35,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, JpaRepository<Reservation, Long>,
-    ReservationRepoCustom {
+    CustomRepo<Reservation> {
 
   List<Reservation> findByStatusIn(Collection<ReservationStatus> reservationStates);
 

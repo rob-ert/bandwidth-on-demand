@@ -38,7 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public class PhysicalPortRepoImpl implements PhysicalPortRepoCustom {
+public class PhysicalPortRepoImpl implements CustomRepo<PhysicalPort> {
 
   @PersistenceContext
   private EntityManager entityManager;

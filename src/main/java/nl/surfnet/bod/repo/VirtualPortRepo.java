@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, JpaRepository<VirtualPort, Long>,
-    VirtualPortRepoCustom {
+    CustomRepo<VirtualPort> {
 
   /**
    * Finds a {@link VirtualPort} by its ict manager label.

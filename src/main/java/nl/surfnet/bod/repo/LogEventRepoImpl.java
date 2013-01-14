@@ -44,8 +44,8 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Specification<LogEvent> whereClause, Optional<Sort> sort) {
-    return findIds(Optional.of(whereClause), sort);
+  public List<Long> findIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause, Optional<Sort> sort) {
+    return findIds(whereClause, sort);
   }
 
   @Override
@@ -93,7 +93,7 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
 
-    // TODO Franky, should be on created field, but since id is numbered
+    // Should actually be on created field, but since id is numbered
     // incrementally, the result will be the same
     criteriaQuery.select(criteriaBuilder.greatest(root.get(LogEvent_.id))).where(
         whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));

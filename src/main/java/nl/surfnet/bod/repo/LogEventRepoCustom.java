@@ -31,9 +31,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public interface LogEventRepoCustom {
-
-  List<Long> findIdsWithWhereClause(Specification<LogEvent> whereClause, Optional<Sort> sort);
+public interface LogEventRepoCustom extends CustomRepo<LogEvent> {
 
   List<Long> findAllIds(Optional<Sort> sort);
 

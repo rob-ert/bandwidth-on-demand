@@ -38,7 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public class VirtualPortRepoImpl implements VirtualPortRepoCustom {
+public class VirtualPortRepoImpl implements CustomRepo<VirtualPort> {
 
   @PersistenceContext
   private EntityManager entityManager;

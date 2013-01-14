@@ -33,7 +33,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<PhysicalResourceGroup>,
-    JpaRepository<PhysicalResourceGroup, Long>, PhysicalResourceGroupRepoCustom {
+    JpaRepository<PhysicalResourceGroup, Long>, CustomRepo<PhysicalResourceGroup> {
 
   /**
    * Finds a {@link PhysicalResourceGroup} by a adminGroup

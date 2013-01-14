@@ -33,7 +33,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<VirtualResourceGroup>,
-    JpaRepository<VirtualResourceGroup, Long>, VirtualResourceGroupRepoCustom {
+    JpaRepository<VirtualResourceGroup, Long>, CustomRepo<VirtualResourceGroup> {
 
   /**
    * Finds a {@link VirtualResourceGroup} by its adminGroup.

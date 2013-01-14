@@ -38,7 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public class PhysicalResourceGroupRepoImpl implements PhysicalResourceGroupRepoCustom {
+public class PhysicalResourceGroupRepoImpl implements CustomRepo<PhysicalResourceGroup> {
 
   @PersistenceContext
   private EntityManager entityManager;
