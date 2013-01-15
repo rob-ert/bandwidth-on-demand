@@ -22,8 +22,10 @@
  */
 package nl.surfnet.bod.pages;
 
+import static nl.surfnet.bod.web.WebUtils.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -45,6 +47,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractListPage extends AbstractPage {
+
+  @FindBy(css = "table thead")
+  private WebElement tableHeader;
 
   @FindBy(css = "table.table tbody")
   private WebElement table;
@@ -171,7 +176,7 @@ public class AbstractListPage extends AbstractPage {
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
-   *
+   * 
    * @param table
    *          Table to set.
    */
@@ -193,10 +198,48 @@ public class AbstractListPage extends AbstractPage {
     }
   }
 
+  public void verifyRowSequence(String sortColumn, boolean reverse, String... labels) {
+    sortOn(sortColumn, reverse);
+    List<WebElement> rows = getRows();
+    assertTrue(labels.length <= rows.size());
+
+    for (int i = 0; i < labels.length; i++) {
+      assertTrue(containsAll(rows.get(i), labels[i]));
+    }
+  }
+
   public void search(String searchString) {
     if (StringUtils.hasText(searchString)) {
       searchInputField.sendKeys(searchString);
       searchButton.click();
+    }
+  }
+
+  private void sortOn(String columnName, boolean reverse) {
+    if (StringUtils.hasText(columnName)) {
+      WebElement sortButton = null;
+
+      String sortButtonSelector = "*[href^=\"" + "?sort=" + columnName;
+      sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector+"\"]"));
+      // Click to sort, effect depends on current sorting, we don't know so test
+      // it later on
+      sortButton.click();
+
+      try {
+        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=DESC\"]"));
+        // Sorting is ascending now, if we must sort descending click the button
+        if (reverse) {
+          sortButton.click();
+        }
+      }
+      catch (NoSuchElementException e) {
+        // No descending button found, it should be ascending then
+        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=ASC\"]"));
+        // Sort again to sort them ascending
+        if (not(reverse)) {
+          sortButton.click();
+        }
+      }
     }
   }
 
@@ -206,7 +249,7 @@ public class AbstractListPage extends AbstractPage {
     int expectedAmount = labels == null ? 0 : labels.length;
     assertThat(getNumberOfRows(), is(expectedAmount));
 
-    for(String label : labels) {
+    for (String label : labels) {
       verifyRowWithLabelExists(label);
     }
   }

@@ -292,6 +292,18 @@ public class BodNocWebDriver {
     }
   }
 
+  public void verifyAllocatedPortsBySort(String sortColumn, String... expectedSequenceLabels) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    verifyBySort(page, sortColumn, expectedSequenceLabels);
+  }
+
+  private void verifyBySort(AbstractListPage page, String sortColumn, String... expectedSequence) {
+    page.verifyRowSequence(sortColumn, false, expectedSequence);
+
+    ArrayUtils.reverse(expectedSequence);
+    page.verifyRowSequence(sortColumn, true, expectedSequence);
+  }
+
   public void verifyPhysicalResourceGroupToPhysicalPortsLink(String groupName) {
     ListPhysicalResourceGroupPage prgListPage = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
