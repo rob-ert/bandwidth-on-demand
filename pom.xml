@@ -645,8 +645,28 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <id>invoke build</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <executable>git</executable>
+                    <arguments>
+                        <argument>submodule</argument>
+                        <argument>update</argument>
+                        <argument>--init</argument>
+                        <argument>--recursive</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <plugin>
