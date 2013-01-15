@@ -75,8 +75,9 @@ class RequestAccessTokenSimulation extends Simulation {
         .multiValuedParam("GRANTED_SCOPES", List("release", "reserve"))
         .param("user_oauth_approval", "true")
         .param("AUTH_STATE", "${authState}")
-        .check(regex("""tokenId=(\d+)"""").find.saveAs("tokenId"))
-        .check(css("output#csrf-token").find.saveAs("csrf-token"))
+        .check(
+          regex("""tokenId=(\d+)"""").find.saveAs("tokenId"),
+          css("output#csrf-token").find.saveAs("csrf-token"))
     )
     .pause(0.5 seconds, 2 seconds)
     .exec(
