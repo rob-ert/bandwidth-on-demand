@@ -1,10 +1,11 @@
-<html xmlns:spring="http://www.springframework.org/tags"
+<jsp:root xmlns:spring="http://www.springframework.org/tags"
   xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
   xmlns:sec="http://www.springframework.org/security/tags"
   xmlns:jsp="http://java.sun.com/JSP/Page"
   xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
-  xmlns:sform="http://www.springframework.org/tags/form">
+  xmlns:sform="http://www.springframework.org/tags/form"
+  version="2.0">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
@@ -176,4 +177,4 @@
     </table>
   </div>
 </section>
-</html>
+</jsp:root>

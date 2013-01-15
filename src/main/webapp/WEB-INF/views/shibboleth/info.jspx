@@ -1,5 +1,6 @@
-<html xmlns:spring="http://www.springframework.org/tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<jsp:root xmlns:spring="http://www.springframework.org/tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    version="2.0">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -12,7 +13,7 @@
             </c:if>
         </c:forEach>
     </ul>
-    
+
     <h1>Other Request Attributes</h1>
     <ul>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
@@ -21,18 +22,18 @@
             </c:if>
         </c:forEach>
     </ul>
-    
+
     <h1>Session Attributes</h1>
     <ul>
         <c:forEach items="${sessionScope}" var="name">
             <li><b><c:out value="${name.key}" /></b>: <c:out value="${name.value}" /></li>
         </c:forEach>
     </ul>
-    
+
     <h1>Headers</h1>
     <ul>
         <c:forEach var="name" items="${pageContext.request.headerNames}">
             <li><b><c:out value="${name}" /></b>: <c:out value="${header[name]}" /></li>
         </c:forEach>
     </ul>
-</html>
+</jsp:root>
