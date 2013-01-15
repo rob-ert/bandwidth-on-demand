@@ -219,11 +219,16 @@ public class AbstractListPage extends AbstractPage {
     if (StringUtils.hasText(columnName)) {
       WebElement sortButton = null;
 
-      String sortButtonSelector = "*[href^=\"" + "?sort=" + columnName;
-      sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector+"\"]"));
-      // Click to sort, effect depends on current sorting, we don't know so test
-      // it later on
-      sortButton.click();
+      String sortButtonSelector = "*[href$=\"" + "sort=" + columnName;
+      try {
+        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "\"]"));
+        // Click to sort, effect depends on current sorting, we don't know so
+        // test it later on
+        sortButton.click();
+      }
+      catch (NoSuchElementException e) {
+        // Happens when list is already sorted
+      }
 
       try {
         sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=DESC\"]"));

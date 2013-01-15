@@ -281,6 +281,19 @@ public class BodNocWebDriver {
     verifyBySearch(page, searchString, portLabels);
   }
 
+  public void verifyAllocatedPortsBySort(String sortColumn, String... expectedSequenceLabels) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    verifyBySort(page, sortColumn, expectedSequenceLabels);
+  }
+
+  public void verifyAllocatedPortsBySearchAndSort(String searchString, String sortColumn,
+      String... expectedSequenceLabels) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.search(searchString);
+    verifyBySort(page, sortColumn, expectedSequenceLabels);
+  }
+
   private void verifyBySearch(AbstractListPage page, String searchString, String... labels) {
     page.search(searchString);
 
@@ -290,11 +303,6 @@ public class BodNocWebDriver {
     for (String label : labels) {
       page.verifyRowWithLabelExists(label);
     }
-  }
-
-  public void verifyAllocatedPortsBySort(String sortColumn, String... expectedSequenceLabels) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
-    verifyBySort(page, sortColumn, expectedSequenceLabels);
   }
 
   private void verifyBySort(AbstractListPage page, String sortColumn, String... expectedSequence) {
@@ -403,4 +411,5 @@ public class BodNocWebDriver {
     reportPage.verifyAmountOfCancelledReservations();
     reportPage.verifyAmountOfFailedReservations();
   }
+
 }

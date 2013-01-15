@@ -95,7 +95,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
-  public void searchPorts() {
+  public void verifySearch() {
     try {
       getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
       getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
@@ -116,6 +116,40 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
+  public void verifySort() {
+    try {
+      setupSortData();
+
+      getNocDriver()
+          .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
+      getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
+    }
+    finally {
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+    }
+  }
+
+  @Test
+  public void verifySearchAndSort() {
+    try {
+      setupSortData();
+
+      getNocDriver().verifyAllocatedPortsBySearchAndSort("abc", "bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3);
+
+      getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH10G", "nocLabel", "123NOC", "987NOC");
+    }
+    finally {
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+    }
+  }
+
+  @Test
   public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
     final String vpOne = "VirtualPort One";
     final String nocLabel = "My Selenium Port (Noc)";
@@ -125,23 +159,11 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getManagerDriver().verifyPhysicalPortToVirtualPortsLink(managerLabel1, vpOne);
   }
 
-  @Test
-  public void verifySorting() {
-    try {
-      getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_NAME);
-      getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABCPort", GROUP_NAME);
-      getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
-      getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
-
-      getNocDriver().verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
-      getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
-    }
-    finally {
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
-    }
+  private void setupSortData() {
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
   }
 
   private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
