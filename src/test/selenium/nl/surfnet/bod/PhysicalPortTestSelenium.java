@@ -47,7 +47,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
-  
   @Ignore
   @Test
   public void createRenameAndDeleteAPhysicalPort() {
@@ -128,6 +127,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
       getNocDriver()
           .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
+
       getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
     }
     finally {
@@ -135,6 +135,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     }
   }
 
+  @Ignore
   @Test
   public void verifySearchAndSort() {
     try {
