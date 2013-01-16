@@ -25,6 +25,7 @@ package nl.surfnet.bod;
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
@@ -36,6 +37,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
   }
 
+  @Ignore
   @Test
   public void allocatePhysicalPortFromInstitutePage() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
@@ -45,6 +47,8 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
+  
+  @Ignore
   @Test
   public void createRenameAndDeleteAPhysicalPort() {
     String nocLabel = "My Selenium Port (Noc)";
@@ -72,6 +76,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
+  @Ignore
   @Test
   public void checkUnallocateState() {
     final String vpOne = "VirtualPort One";
@@ -94,6 +99,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
+  @Ignore
   @Test
   public void verifySearch() {
     try {
@@ -143,6 +149,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     }
   }
 
+  @Ignore
   @Test
   public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
     final String vpOne = "VirtualPort One";

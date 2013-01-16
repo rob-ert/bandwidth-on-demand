@@ -225,7 +225,6 @@ public class AbstractListPage extends AbstractPage {
         sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "\"]"));
         // Click to sort, effect depends on current sorting, we don't know so
         // test it later on
-        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
         sortButton.click();
       }
       catch (NoSuchElementException e) {
@@ -236,7 +235,6 @@ public class AbstractListPage extends AbstractPage {
         sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=DESC\"]"));
         // Sorting is ascending now, if we must sort descending click the button
         if (reverse) {
-          Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
           sortButton.click();
         }
       }
@@ -245,7 +243,6 @@ public class AbstractListPage extends AbstractPage {
         sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=ASC\"]"));
         // Sort again to sort them ascending
         if (not(reverse)) {
-          Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
           sortButton.click();
         }
       }
