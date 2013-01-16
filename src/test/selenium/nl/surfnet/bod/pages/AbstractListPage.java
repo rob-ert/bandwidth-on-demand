@@ -199,9 +199,10 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void verifyRowSequence(String sortColumn, boolean reverse, String... labels) {
-    sortOn(sortColumn, reverse);
     List<WebElement> rows = getRows();
     assertTrue(labels.length <= rows.size());
+
+    sortOn(sortColumn, reverse);
 
     for (int i = 0; i < labels.length; i++) {
       assertTrue(containsAll(rows.get(i), labels[i]));
