@@ -20,14 +20,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.mtosi;
+package nl.surfnet.bod.nbi.mtosi;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebService;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

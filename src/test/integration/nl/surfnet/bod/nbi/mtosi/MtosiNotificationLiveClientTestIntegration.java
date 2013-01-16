@@ -20,9 +20,9 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.mtosi;
+package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.mtosi.MtosiNotificationCenterWs.DEFAULT_ADDRESS;
+import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationCenterWs.DEFAULT_ADDRESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
@@ -40,7 +40,9 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationCenterWs;
 import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient;
 
 import org.junit.Assume;
 import org.junit.Before;
