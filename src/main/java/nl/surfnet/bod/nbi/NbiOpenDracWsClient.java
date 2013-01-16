@@ -116,10 +116,10 @@ public class NbiOpenDracWsClient implements NbiClient {
     if (serviceId.isPresent()) {
       try {
         ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId.get());
-        CompletionResponseDocument completionResponseDocument = getResourceAllocationAndSchdulingService().activateReservationOccurrence(
+        CompletionResponseDocument responseDocument = getResourceAllocationAndSchdulingService().activateReservationOccurrence(
             requestDocument, getSecurityDocument());
 
-        return completionResponseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
+        return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
       }
       catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
         log.error("Error: ", e);
