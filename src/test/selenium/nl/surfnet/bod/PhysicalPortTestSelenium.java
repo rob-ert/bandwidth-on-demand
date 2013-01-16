@@ -125,10 +125,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
       getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
     }
     finally {
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+      tearDownSortData();
     }
   }
 
@@ -142,10 +139,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
       getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH10G", "nocLabel", "123NOC", "987NOC");
     }
     finally {
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
-      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+      tearDownSortData();
     }
   }
 
@@ -164,6 +158,13 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
+  }
+
+  private void tearDownSortData() {
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
   }
 
   private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
