@@ -22,13 +22,12 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import java.net.MalformedURLException;
+import static nl.surfnet.bod.nbi.mtosi.HeaderBuilder.buildNotificationHeader;
+
 import java.net.URL;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,94 +38,72 @@ import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducerHttp;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
-import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeRequest;
-import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeResponse;
-import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeRequest;
-import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.*;
 
 @Service("mtosiNotificationLiveClient")
 public class MtosiNotificationLiveClient {
 
+  private static final String WSDL_LOCATION =
+    "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private NotificationProducerHttp notificationProducerHttp;
+  private final NotificationProducerHttp client;
 
-  private final String notificationRetrievalUrl;
-
-  private boolean isInited = false;
-
-  private final String senderUri;
+  private final String endPoint;
 
   @Autowired
-  public MtosiNotificationLiveClient(@Value("${nbi.mtosi.notification.retrieval.endpoint}") String eventRetrievalUrl,
-      @Value("${nbi.mtosi.notification.sender.uri}") String senderUri) {
-    this.notificationRetrievalUrl = eventRetrievalUrl;
-    this.senderUri = senderUri;
+  public MtosiNotificationLiveClient(@Value("${nbi.mtosi.notification.retrieval.endpoint}") String endPoint) {
+    this.endPoint = endPoint;
+    URL wsdlUrl = this.getClass().getResource(WSDL_LOCATION);
+    this.client = new NotificationProducerHttp(wsdlUrl,
+        new QName("http://www.tmforum.org/mtop/fmw/wsdl/notp/v1-0", "NotificationProducerHttp"));
   }
 
-  // If we do this using a postconstruct then spring will try to initialise this
-  // bean (using it's annotation scan path thingie), fails and therefore the
-  // complete context will fail during (junit) testing when there is no
-  // connection with the mtosi server.
-  private void init() {
-    if (isInited) {
-      return;
-    }
-    else {
-      try {
-        notificationProducerHttp = new NotificationProducerHttp(new URL(notificationRetrievalUrl), new QName(
-            "http://www.tmforum.org/mtop/fmw/wsdl/notp/v1-0", "NotificationProducerHttp"));
+  public String subscribe(final NotificationTopic topic, final String consumerErp) throws SubscribeException {
+    SubscribeRequest subscribeRequest = createSubscribeRequest(topic, consumerErp);
 
-        final Map<String, Object> requestContext = ((BindingProvider) notificationProducerHttp
-            .getPort(NotificationProducer.class)).getRequestContext();
+    NotificationProducer proxy = createNotificationProducer();
 
-        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, notificationRetrievalUrl);
-        isInited = true;
-      }
-      catch (MalformedURLException e) {
-        log.error("Error: ", e);
-      }
-    }
+    SubscribeResponse response = proxy.subscribe(buildNotificationHeader(endPoint), subscribeRequest);
 
+    log.info("Subscription id {}", response.getSubscriptionID());
+
+    return response.getSubscriptionID();
   }
 
-  public String subscribe(final String topic, final String consumerErp) throws SubscribeException {
-    init();
-    final SubscribeRequest subscribeRequest = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory()
-        .createSubscribeRequest();
+  private SubscribeRequest createSubscribeRequest(final NotificationTopic topic, final String consumerErp) {
+    SubscribeRequest subscribeRequest = new ObjectFactory().createSubscribeRequest();
     subscribeRequest.setConsumerEpr(consumerErp);
-    subscribeRequest.setTopic(topic);
-    final SubscribeResponse subscribe = notificationProducerHttp.getNotificationProducerSoapHttp().subscribe(
-        getRequestHeaders(), subscribeRequest);
-    log.info("Subscription id {}", subscribe.getSubscriptionID());
-    return subscribe.getSubscriptionID();
+    subscribeRequest.setTopic(topic.name().toLowerCase());
+
+    return subscribeRequest;
   }
 
-  public UnsubscribeResponse unsubscribe(final String id, final String topic) throws UnsubscribeException {
-    init();
-    final UnsubscribeRequest unsubscribeRequest = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory()
-        .createUnsubscribeRequest();
+  private NotificationProducer createNotificationProducer() {
+    NotificationProducer proxy = client.getNotificationProducerSoapHttp();
+    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+    return proxy;
+  }
+
+  public UnsubscribeResponse unsubscribe(final NotificationTopic topic, final String id) throws UnsubscribeException {
+    UnsubscribeRequest unsubscribeRequest = createUnsubscribeRequest(topic, id);
+
+    NotificationProducer proxy = createNotificationProducer();
+
+    return proxy.unsubscribe(buildNotificationHeader(endPoint), unsubscribeRequest);
+  }
+
+  private UnsubscribeRequest createUnsubscribeRequest(final NotificationTopic topic, final String id) {
+    UnsubscribeRequest unsubscribeRequest = new ObjectFactory().createUnsubscribeRequest();
     unsubscribeRequest.setSubscriptionID(id);
-    unsubscribeRequest.setTopic(topic);
-    final UnsubscribeResponse unsubscribeResponse = notificationProducerHttp.getNotificationProducerSoapHttp()
-        .unsubscribe(getRequestHeaders(), unsubscribeRequest);
-    return unsubscribeResponse;
+    unsubscribeRequest.setTopic(topic.name().toLowerCase());
 
+    return unsubscribeRequest;
   }
 
-  private Holder<Header> getRequestHeaders() {
-    final Header header = new Header();
-    header.setDestinationURI(notificationRetrievalUrl);
-    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setActivityName("subscribe");
-    header.setMsgName("subscribeRequest");
-    header.setSenderURI(senderUri);
-    header.setMsgType(MessageTypeType.REQUEST);
-    return new Holder<Header>(header);
+  public enum NotificationTopic {
+    FAULT
   }
 }

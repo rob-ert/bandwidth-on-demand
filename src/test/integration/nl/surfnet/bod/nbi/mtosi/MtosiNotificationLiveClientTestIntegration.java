@@ -23,78 +23,78 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationCenterWs.DEFAULT_ADDRESS;
+import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
+import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationCenterWs;
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationHolder;
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumerHttp;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
-import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
 public class MtosiNotificationLiveClientTestIntegration {
 
-  private final Properties properties = new Properties();
+  static {
+    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+  }
 
   private MtosiNotificationLiveClient mtosiNotificationLiveClient;
 
   @Before
   public void setup() throws IOException {
-    try {
-    properties.load(new FileInputStream("src/main/resources/env-properties/bod-test.properties"));
-    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(
-        properties.getProperty("nbi.mtosi.notification.retrieval.endpoint"),
-        properties.getProperty("nbi.mtosi.notification.sender.uri"));
-    } catch (IOException e) {
-      System.err.println("Ignoring test because 'env-properties/bod-test.properties' not found.");
-      Assume.assumeNoException(e);
-    }
+    PropertiesEnvironment testEnv = testProperties();
+    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
   }
 
-  @Ignore
   @Test
   public void subscribeAndUnsubscribe() throws Exception {
-    final String topic = "fault";
-    final String subscriberId = mtosiNotificationLiveClient.subscribe(topic, DEFAULT_ADDRESS);
+    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT, DEFAULT_ADDRESS);
+
     assertThat(subscriberId, notNullValue());
-    final UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(subscriberId, topic);
+
+    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.FAULT, subscriberId);
+
     assertThat(unsubscribeResponse, notNullValue());
   }
 
   @Test
+  @Ignore("not ready yet because we don't receive any heartbeats")
+  public void retreiveNotificationsHeartbeat() throws SubscribeException, InterruptedException {
+    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "http://nsi-requester.herokuapp.com/reply");
+    System.err.println("Got a " + subscriberId);
+  }
+
+  @Test
+  @Ignore("handy to test the sending of notifications")
   public void sendNotification() throws Exception {
-
     // Our notification consumer
-    final MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
-
+//    MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
     // start it
-    Endpoint.publish(DEFAULT_ADDRESS, mtosiNotificationCenterWs);
+//    Endpoint.publish(DEFAULT_ADDRESS, mtosiNotificationCenterWs);
 
     // Create and configure notification client
     final URL url = new ClassPathResource(
@@ -103,7 +103,7 @@ public class MtosiNotificationLiveClientTestIntegration {
         "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0", "NotificationConsumerHttp"))
         .getNotificationConsumerSoapHttp();
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, DEFAULT_ADDRESS);
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://nsi-requester.herokuapp.com/reply");
 
 
     // Create notification header
@@ -116,29 +116,24 @@ public class MtosiNotificationLiveClientTestIntegration {
     body.setTopic("fault");
 
     // Create an alarm notification message which is part of the body
-    final AlarmType alarm = new org.tmforum.mtop.nra.xsd.alm.v1.ObjectFactory().createAlarmType();
-    alarm.setNotificationId(UUID.randomUUID().toString());
+    AlarmType alarm = new org.tmforum.mtop.nra.xsd.alm.v1.ObjectFactory().createAlarmType();
+    alarm.setAdditionalText("Hoi more text");
+    alarm.setRootCauseAlarmIndication(true);
+    alarm.setNotificationId("123-notify");
 
-    final ServiceObjectCreationType serviceObjectCreation = new org.tmforum.mtop.sb.xsd.soc.v1.ObjectFactory().createServiceObjectCreationType();
-    serviceObjectCreation.setNotificationId(UUID.randomUUID().toString());
+    Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
 
-    final Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
-
-    message.getCommonEventInformation().add(serviceObjectCreation);
-//    message.getCommonEventInformation().add(alarm);
+    message.getCommonEventInformation().add(alarm);
     body.setMessage(message);
-
-
-    // make sure that there are no old messages
-    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
 
     // send notification
     port.notify(header, body);
 
-    final MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
-    assertThat(notification, notNullValue());
-    assertThat(notification.getHeader().getActivityName(), containsString(activity));
+//    MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
+
+//    assertThat(notification, notNullValue());
+//    assertThat(notification.getHeader().getActivityName(), containsString(activity));
 //    final CommonEventInformationType commonEventInformationType = notification.getBody().getMessage().getCommonEventInformation().get(0);
-    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
+//    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
   }
 }

@@ -60,4 +60,8 @@ public final class HeaderBuilder {
     return buildHeader(endPoint, "getServiceInventory", "getServiceInventoryRequest");
   }
 
+  public static Holder<Header> buildNotificationHeader(String endPoint) {
+    return buildHeader(endPoint, "subscribe", "subscribeRequest");
+  }
+
 }

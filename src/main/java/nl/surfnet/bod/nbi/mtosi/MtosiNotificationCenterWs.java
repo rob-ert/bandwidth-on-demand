@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebService;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -89,16 +88,4 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
       return null;
     }
   }
-
-  static {
-//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-  }
-
-  public static void main(String[] args) {
-//    Endpoint.publish(DEFAULT_ADDRESS, new MtosiNotificationCenterWs());
-  }
-
 }
