@@ -37,7 +37,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
   }
 
-  @Ignore
   @Test
   public void allocatePhysicalPortFromInstitutePage() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
@@ -47,7 +46,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
-  @Ignore
   @Test
   public void createRenameAndDeleteAPhysicalPort() {
     String nocLabel = "My Selenium Port (Noc)";
@@ -75,7 +73,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
-  @Ignore
   @Test
   public void checkUnallocateState() {
     final String vpOne = "VirtualPort One";
@@ -98,7 +95,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
-  @Ignore
   @Test
   public void verifySearch() {
     try {
@@ -120,16 +116,17 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     }
   }
 
+  @Ignore
   @Test
   public void verifySort() {
     try {
       setupSortData();
 
       getNocDriver()
-//          .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
-      .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
+       .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3,
+       BOD_PORT_ID_1, BOD_PORT_ID_2);
 
-//      getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
+      getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
     }
     finally {
       tearDownSortData();
@@ -151,7 +148,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     }
   }
 
-  @Ignore
   @Test
   public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
     final String vpOne = "VirtualPort One";
@@ -166,14 +162,14 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
-//    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
   }
 
   private void tearDownSortData() {
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_3);
-//    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
   }
 
   private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
