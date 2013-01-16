@@ -35,6 +35,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.util.TestHelper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,11 +44,14 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-//FIXME [AvD] this runs against the offline NBI client
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class NbiClientTestIntegration {
+
+  static {
+    TestHelper.useTestEnv();
+  }
 
   @Resource
   private NbiClient nbiClient;
@@ -55,6 +59,7 @@ public class NbiClientTestIntegration {
   @Test
   public void testFindAllPhysicalPorts() throws Exception {
     List<PhysicalPort> allPorts = nbiClient.findAllPhysicalPorts();
+
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
 

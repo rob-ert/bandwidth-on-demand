@@ -100,4 +100,19 @@ public class TestHelper {
     }
   }
 
+  public static void useTestEnv() {
+    useEnv("test");
+  }
+
+  public static void useAccEnv() {
+    useEnv("acc");
+  }
+
+  public static void useProdEnv() {
+    useEnv("prod");
+  }
+
+  private static void useEnv(String env) {
+    System.setProperty("bod.env", env);
+  }
 }
