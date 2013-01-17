@@ -38,8 +38,11 @@ import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.util.TestHelper;
 
 import org.hibernate.internal.SessionImpl;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -62,6 +65,16 @@ public class InstituteIddServiceTestIntegration {
 
   @Resource
   private InstituteRepo instituteRepo;
+
+  @BeforeClass
+  public static void testEnvironment() {
+    TestHelper.useTestEnv();
+  }
+
+  @AfterClass
+  public static void clearEnvironment() {
+    TestHelper.clearEnv();
+  }
 
   @Test
   public void shouldInsertInstitutes() {
