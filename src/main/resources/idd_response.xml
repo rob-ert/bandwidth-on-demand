@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    The owner of the original code is SURFnet BV.
+
+    Portions created by the original owner are Copyright (C) 2011-2012 the
+    original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of the SURFnet7 Bandwidth on Demand software.
+
+    The SURFnet7 Bandwidth on Demand software is free software: you can
+    redistribute it and/or modify it under the terms of the BSD license
+    included with this distribution.
+
+    If the BSD license cannot be found with this distribution, it is available
+    at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
+
+-->
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:tns="urn:ksr">
+    <SOAP-ENV:Body>
+        <ns1:getKlantListResponse xmlns:ns1="urn:ksr">
+            <klantnamen xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Klanten[5]">
+                <item xsi:type="tns:Klanten">
+                        <klant_id xsi:type="xsd:int">1</klant_id>
+                        <klantnaam xsi:type="xsd:string">SURFnet bv</klantnaam>
+                        <klantafkorting xsi:type="xsd:string">SURFNET</klantafkorting>
+                        <naw_ref xsi:type="xsd:string">SURFNET</naw_ref>
+                        <klassenaam xsi:type="xsd:string">OVERIG</klassenaam>
+                        <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[1]">
+                            <item xsi:type="tns:Groeps">
+                                <voornaam xsi:type="xsd:string">Bandwidth</voornaam>
+                                <naam xsi:type="xsd:string">On Demand</naam>
+                                <initialen xsi:type="xsd:string">BoD</initialen>
+                                <tel xsi:type="xsd:string">030-123 45 67</tel>
+                                <mail xsi:type="xsd:string">bod-beheer@list.surfnet.nl</mail>
+                            </item>
+                        </instellingsbevoegden>
+                    </item>
+                    <item xsi:type="tns:Klanten">
+                        <klant_id xsi:type="xsd:int">2</klant_id>
+                        <klantnaam xsi:type="xsd:string">Rijke Universiteit Gaanderen</klantnaam>
+                        <klantafkorting xsi:type="xsd:string">RUG</klantafkorting>
+                        <naw_ref xsi:type="xsd:string">RUG</naw_ref>
+                        <klassenaam xsi:type="xsd:string">Universiteiten</klassenaam>
+                        <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
+                    </item>
+                     <item xsi:type="tns:Klanten">
+                        <klant_id xsi:type="xsd:int">3</klant_id>
+                        <klantnaam xsi:type="xsd:string">Stichting Algemeen Rekencentrum Achterveld</klantnaam>
+                        <klantafkorting xsi:type="xsd:string">SARA</klantafkorting>
+                        <naw_ref xsi:type="xsd:string">SARA</naw_ref>
+                        <klassenaam xsi:type="xsd:string">Researchinstellingen</klassenaam>
+                        <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
+                    </item>
+                     <item xsi:type="tns:Klanten">
+                        <klant_id xsi:type="xsd:int">4</klant_id>
+                        <klantnaam xsi:type="xsd:string">Technische Uni Dalmsholte</klantnaam>
+                        <klantafkorting xsi:type="xsd:string">TUD</klantafkorting>
+                        <naw_ref xsi:type="xsd:string">TUD</naw_ref>
+                        <klassenaam xsi:type="xsd:string">Universiteiten</klassenaam>
+                        <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
+                    </item>
+                    <item xsi:type="tns:Klanten">
+                        <klant_id xsi:type="xsd:int">5</klant_id>
+                        <klantnaam xsi:type="xsd:string">Uniek Medisch Centrum Uilesprong</klantnaam>
+                        <klantafkorting xsi:type="xsd:string">UMC</klantafkorting>
+                        <naw_ref xsi:type="xsd:string">UMC</naw_ref>
+                        <klassenaam xsi:type="xsd:string">Academische Ziekenhuizen</klassenaam>
+                        <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
+                    </item> </klantnamen>
+        </ns1:getKlantListResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
