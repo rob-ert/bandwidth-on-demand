@@ -50,6 +50,7 @@ import nl.surfnet.bod.web.view.ReservationReportView;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -65,6 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 @TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
+@Ignore("Must reuse physicalresource groups since there are to few institutes to link to")
 public class ReportReservationServiceDbTest {
   private final static long AMOUNT_OF_RESERVATIONS = 8;
 
