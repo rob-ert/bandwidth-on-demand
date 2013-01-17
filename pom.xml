@@ -24,8 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <scm>
-      <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand.git</developerConnection>
-      <tag>HEAD</tag>
+      <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</developerConnection>
     </scm>
     <dependencies>
         <dependency>
