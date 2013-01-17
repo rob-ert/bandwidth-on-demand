@@ -30,6 +30,8 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.Reservation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,8 @@ public class ServiceComponentActivationClient {
 
   private static final String WSDL_LOCATION =
     "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
+
+  private Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
   private final String endPoint;
   private final ServiceComponentActivationInterfaceHttp client;
@@ -68,12 +72,11 @@ public class ServiceComponentActivationClient {
       ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
       ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
 
-      ReserveResponse reserveResponse = proxy.reserve(header,
-          reserveRequest);
-      System.err.println("---->>");
-      System.err.println(reserveResponse);
-      System.err.println("<<----");
-      System.err.println(reserveResponse.getRfsNameOrRfsCreation());
+      ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
+      logger.info("---->>");
+      logger.info("{}", reserveResponse);
+      logger.info("<<----");
+
       // TODO do something with the reserveResponse..
     }
     catch (ReserveException e) {

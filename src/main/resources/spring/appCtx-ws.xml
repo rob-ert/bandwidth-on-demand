@@ -32,9 +32,9 @@
     </wss:binding>
 
     <!-- MTOSI WS -->
-    <wss:binding url="/mtosi/fmw/notificationconsumer">
+    <wss:binding url="/mtosi/fmw/NotificationConsumer">
         <wss:service>
-            <ws:service bean="#mtosiNotificationCenterWs" />
+            <ws:service bean="#NotificationConsumerHttp" />
         </wss:service>
     </wss:binding>
 

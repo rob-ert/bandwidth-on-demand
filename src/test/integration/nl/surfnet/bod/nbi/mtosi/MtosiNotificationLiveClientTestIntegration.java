@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationCenterWs.DEFAULT_ADDRESS;
 import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
 import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -71,8 +70,9 @@ public class MtosiNotificationLiveClientTestIntegration {
   }
 
   @Test
+  @Ignore("not ready yet..")
   public void subscribeAndUnsubscribe() throws Exception {
-    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT, DEFAULT_ADDRESS);
+    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT, "http://notarealendpoint.com");
 
     assertThat(subscriberId, notNullValue());
 
@@ -84,7 +84,8 @@ public class MtosiNotificationLiveClientTestIntegration {
   @Test
   @Ignore("not ready yet because we don't receive any heartbeats")
   public void retreiveNotificationsHeartbeat() throws SubscribeException, InterruptedException {
-    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "http://nsi-requester.herokuapp.com/reply");
+//    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
+    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "https://192.87.102.28/mtosi/fmw/NotificationConsumer");
     System.err.println("Got a " + subscriberId);
   }
 
@@ -103,7 +104,7 @@ public class MtosiNotificationLiveClientTestIntegration {
         "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0", "NotificationConsumerHttp"))
         .getNotificationConsumerSoapHttp();
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://nsi-requester.herokuapp.com/reply");
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
 
 
     // Create notification header
