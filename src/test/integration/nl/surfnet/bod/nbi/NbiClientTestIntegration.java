@@ -37,6 +37,8 @@ import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -49,7 +51,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class NbiClientTestIntegration {
 
-  static {
+  @AfterClass
+  public static void clearEnvironment() {
+    TestHelper.clearEnv();
+  }
+
+  @BeforeClass
+  public static void testEnvironment() {
     TestHelper.useTestEnv();
   }
 

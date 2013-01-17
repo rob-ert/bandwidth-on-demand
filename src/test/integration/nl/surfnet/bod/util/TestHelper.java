@@ -112,6 +112,9 @@ public class TestHelper {
     useEnv("prod");
   }
 
+  public static void clearEnv() {
+    System.clearProperty("bod.env");
+  }
   private static void useEnv(String env) {
     System.setProperty("bod.env", env);
   }
