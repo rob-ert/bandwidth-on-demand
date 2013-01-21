@@ -103,7 +103,7 @@ public class ReservationServiceDbTestHelper {
     Long reservationId = null;
 
     try {
-      reservationId = future.get(2L, TimeUnit.SECONDS);
+      reservationId = future.get(10L, TimeUnit.SECONDS);
     }
     catch (InterruptedException | ExecutionException | TimeoutException e) {
       e.printStackTrace();
