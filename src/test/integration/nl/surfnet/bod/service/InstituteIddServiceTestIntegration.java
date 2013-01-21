@@ -80,7 +80,7 @@ public class InstituteIddServiceTestIntegration {
   public void shouldInsertInstitutes() {
     instituteService.refreshInstitutes();
 
-    assertThat(instituteService.findAlignedWithIDD(), hasSize(greaterThan(200)));
+    assertThat(instituteService.findAlignedWithIDD(), hasSize(greaterThan(4)));
   }
 
   @Test
