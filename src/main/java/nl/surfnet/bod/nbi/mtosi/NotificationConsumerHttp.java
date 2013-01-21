@@ -35,7 +35,9 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
 @Service("NotificationConsumerHttp")
-@WebService(serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")
+@WebService(
+    serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",
+    targetNamespace = "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0")
 public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
