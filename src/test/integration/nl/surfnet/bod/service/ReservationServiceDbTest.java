@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -79,6 +80,9 @@ public class ReservationServiceDbTest {
   private Reservation anHourAgoReservation;
   private boolean needsInit = true;
 
+  private PhysicalResourceGroup prgSource;
+  private PhysicalResourceGroup prgDestination;
+
   @BeforeClass
   public static void init() {
     DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
@@ -87,6 +91,9 @@ public class ReservationServiceDbTest {
   @Before
   public void setUp() {
     if (needsInit) {
+      prgSource = reservationHelper.createAndPersistPhysicalResourceGroup(1L);
+      prgDestination = reservationHelper.createAndPersistPhysicalResourceGroup(2L);
+
       rightReservationOnStartTime = createAndSaveReservation(nowMidnight, nowMidnight.plusHours(1),
           ReservationStatus.AUTO_START);
       rightReservationOnEndTime = createAndSaveReservation(anHourAgo, nowMidnight, ReservationStatus.AUTO_START);
@@ -130,7 +137,7 @@ public class ReservationServiceDbTest {
   }
 
   private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {
-    Reservation reservation = reservationHelper.createReservation(start, end, status);
+    Reservation reservation = reservationHelper.createReservation(start, end, status, prgSource, prgDestination);
     return reservationRepo.save(reservation);
   }
 }

@@ -38,6 +38,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -50,7 +51,6 @@ import nl.surfnet.bod.web.view.ReservationReportView;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -66,7 +66,6 @@ import org.springframework.transaction.annotation.Transactional;
 @TransactionConfiguration(defaultRollback = true)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
-@Ignore("Must reuse physicalresource groups since there are to few institutes to link to")
 public class ReportReservationServiceDbTest {
   private final static long AMOUNT_OF_RESERVATIONS = 8;
 
@@ -95,8 +94,7 @@ public class ReportReservationServiceDbTest {
   private DateTime periodStart;
   private DateTime periodEnd;
 
-  private Reservation reservationOnStartPeriodNSI;
-  private Reservation reservationOnEndPeriod;
+  private Reservation reservationOnStartPeriodNSI;  
   private Reservation reservationBeforeStartAndAfterEndPeriodNSI;
   private Reservation reservationBeforeStartAndOnEndPeriodGUI;
   private Reservation reservationAfterStartAndOnEndPeriodGUI;
@@ -111,6 +109,11 @@ public class ReportReservationServiceDbTest {
 
   private Interval reportInterval;
 
+  private PhysicalResourceGroup prgSource;
+  private PhysicalResourceGroup prgDestination;
+
+  private boolean needsInit = true;
+
   @BeforeClass
   public static void init() {
     DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
@@ -118,6 +121,12 @@ public class ReportReservationServiceDbTest {
 
   @BeforeTransaction
   public void setUp() {
+    if (needsInit) {
+      prgSource = reservationHelper.createAndPersistPhysicalResourceGroup(1L);
+      prgDestination = reservationHelper.createAndPersistPhysicalResourceGroup(2L);
+      needsInit = false;
+    }
+
     periodStart = DateTime.now().plusDays(2).plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
     periodEnd = periodStart.plusDays(1);
     reportInterval = new Interval(periodStart, periodEnd);
@@ -128,37 +137,37 @@ public class ReportReservationServiceDbTest {
 
     // Five (4) reservations in reporting period, 2 GUI and 2 NSI
     reservationAfterStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
-        ReservationStatus.REQUESTED, true);
+        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationAfterStartAndOnEndPeriodGUI.getId());
 
     reservationInPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
-        ReservationStatus.REQUESTED, true);
+        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationInPeriodGUI.getId());
 
     reservationOnStartPeriodNSI = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
-        ReservationStatus.REQUESTED, false);
+        ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationOnStartPeriodNSI.getId());
 
     reservationAfterStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.plusHours(1), periodEnd
-        .plusDays(1), ReservationStatus.REQUESTED, false);
+        .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationAfterStartAndAfterEndPeriodNSI.getId());
 
     // Two (2) reservations related to reporting period, 1 GUI and 1 NSI
     reservationBeforeStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.minusHours(1), periodEnd,
-        ReservationStatus.REQUESTED, true);
+        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationBeforeStartAndOnEndPeriodGUI.getId());
 
     reservationBeforeStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.minusHours(1), periodEnd
-        .plusDays(1), ReservationStatus.REQUESTED, false);
+        .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationBeforeStartAndAfterEndPeriodNSI.getId());
 
     // Two (2) reservations not related to reporting period, 1 GUI and 1 NSI
     reservationAfterPeriodGUI = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
-        ReservationStatus.REQUESTED, true);
+        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationAfterPeriodGUI.getId());
 
     reservationBeforePeriodNSI = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1),
-        ReservationStatus.REQUESTED, false);
+        ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationBeforePeriodNSI.getId());
   }
 
@@ -588,12 +597,14 @@ public class ReportReservationServiceDbTest {
   }
 
   private Reservation createAndSaveReservation(final DateTime start, final DateTime end,
-      final ReservationStatus status, final boolean autoProvision) {
+      final ReservationStatus status, final boolean autoProvision, final PhysicalResourceGroup sourceGroup,
+      final PhysicalResourceGroup destinationGroup) {
 
     return TestHelper.<Reservation> runAtSpecificTime(start, new TimeTraveller<Reservation>() {
       @Override
       public Reservation apply() throws Exception {
-        Reservation reservation = reservationHelper.createReservation(start, end, status);
+        Reservation reservation = reservationHelper
+            .createReservation(start, end, status, sourceGroup, destinationGroup);
         reservation = reservationHelper.createThroughService(reservation, autoProvision);
 
         // No autoprovision indicates NSI reservation, so add connection to it

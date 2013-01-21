@@ -24,7 +24,6 @@ package nl.surfnet.bod.service;
 
 import static org.junit.Assert.fail;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +34,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
@@ -65,18 +65,13 @@ public class ReservationServiceDbTestHelper {
   @Resource
   private ConnectionRepo connectionRepo;
 
-  Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
+  Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status,
+      PhysicalResourceGroup sourceGroup, PhysicalResourceGroup destinationGroup) {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .setStatus(status).create();
 
-    // Determine institute to use
-    final Institute sourceInstitute = findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup();
-    reservation.getSourcePort().getPhysicalResourceGroup().setInstitute(sourceInstitute);
-    persistPhysicalResourceGroup(reservation.getSourcePort().getPhysicalResourceGroup());
-
-    final Institute destinationInstitute = findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup();
-    reservation.getDestinationPort().getPhysicalResourceGroup().setInstitute(destinationInstitute);
-    persistPhysicalResourceGroup(reservation.getDestinationPort().getPhysicalResourceGroup());
+    reservation.getSourcePort().getPhysicalPort().setPhysicalResourceGroup(sourceGroup);
+    reservation.getDestinationPort().getPhysicalPort().setPhysicalResourceGroup(destinationGroup);
 
     // Force save of vrg only once, since they all use the same reference
     reservation.getVirtualResourceGroup().setId(null);
@@ -125,20 +120,12 @@ public class ReservationServiceDbTestHelper {
     return reservationRepo.saveAndFlush(reservation);
   }
 
-  private Institute findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup(Long... instituteIdsInUse) {
-    Iterator<Institute> instituteIterator = instituteRepo.findAll().iterator();
+  public PhysicalResourceGroup createAndPersistPhysicalResourceGroup(Long prgId) {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setId(prgId).create();
+    final Institute destinationInstitute = instituteRepo.findOne(prgId);
+    prg.setInstitute(destinationInstitute);
 
-    Institute institute = null;
-    do {
-      institute = instituteIterator.next();
-    }
-    while (physicalResourceGroupRepo.findByInstituteId(institute.getId()) != null);
-    return institute;
-  }
-
-  private PhysicalResourceGroup persistPhysicalResourceGroup(PhysicalResourceGroup group) {
-    group.setId(null);
-    return physicalResourceGroupRepo.save(group);
+    return physicalResourceGroupRepo.save(prg);
   }
 
   /**
@@ -147,7 +134,7 @@ public class ReservationServiceDbTestHelper {
    * 
    * @param reservation
    * @param status
-   * @return 
+   * @return
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Reservation updateStatusAndCommit(Reservation reservation, ReservationStatus status) {
