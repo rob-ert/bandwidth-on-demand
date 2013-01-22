@@ -176,7 +176,7 @@ public class AbstractListPage extends AbstractPage {
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
-   * 
+   *
    * @param table
    *          Table to set.
    */
@@ -217,34 +217,32 @@ public class AbstractListPage extends AbstractPage {
   }
 
   private void sortOn(String columnName, boolean reverse) {
-    if (StringUtils.hasText(columnName)) {
-      WebElement sortButton = null;
+    WebElement sortButton = null;
 
-      String sortButtonSelector = "*[href$=\"" + "sort=" + columnName;
-      try {
-        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "\"]"));
-        // Click to sort, effect depends on current sorting, we don't know so
-        // test it later on
+    String sortButtonSelector = "*[href$=\"" + "sort=" + columnName;
+    try {
+      sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "\"]"));
+      // Click to sort, effect depends on current sorting, we don't know so
+      // test it later on
+      sortButton.click();
+    }
+    catch (NoSuchElementException e) {
+      // Happens when list is already sorted
+    }
+
+    try {
+      sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=DESC\"]"));
+      // Sorting is ascending now, if we must sort descending click the button
+      if (reverse) {
         sortButton.click();
       }
-      catch (NoSuchElementException e) {
-        // Happens when list is already sorted
-      }
-
-      try {
-        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=DESC\"]"));
-        // Sorting is ascending now, if we must sort descending click the button
-        if (reverse) {
-          sortButton.click();
-        }
-      }
-      catch (NoSuchElementException e) {
-        // No descending button found, it should be ascending then
-        sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=ASC\"]"));
-        // Sort again to sort them ascending
-        if (not(reverse)) {
-          sortButton.click();
-        }
+    }
+    catch (NoSuchElementException e) {
+      // No descending button found, it should be ascending then
+      sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=ASC\"]"));
+      // Sort again to sort them ascending
+      if (not(reverse)) {
+        sortButton.click();
       }
     }
   }
