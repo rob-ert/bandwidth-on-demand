@@ -32,14 +32,14 @@ public class SearchAndSortTestSelenium extends TestExternalSupport {
   public void verifySort() {
     setupSortData();
 
-    getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
+    getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "abcNOC", "bbcNOC");
   }
 
   @Test
   public void verifySearchAndSort() {
     setupSortData();
 
-    getNocDriver().verifyAllocatedPortsBySearchAndSort("abc", "bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3);
+    getNocDriver().verifyAllocatedPortsBySearchAndSort("bcNO", "bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3);
 
     getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH10G", "nocLabel", "123NOC", "987NOC");
   }
@@ -48,7 +48,7 @@ public class SearchAndSortTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_NAME);
   }
 
 }
