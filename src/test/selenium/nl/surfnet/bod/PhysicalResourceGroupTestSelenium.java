@@ -30,38 +30,36 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
   public void createActivateEditAndDeletePhysicalResourceGroup() throws Exception {
-    String institute = "SURFnet bv";
     String initialEmail = "truus@example.com";
     String finalEmail = "henk@example.com";
 
-    getNocDriver().createNewPhysicalResourceGroup(institute, ICT_MANAGERS_GROUP, initialEmail);
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, initialEmail);
 
-    getNocDriver().verifyGroupWasCreated(institute, initialEmail);
+    getNocDriver().verifyGroupWasCreated(GROUP_SURFNET, initialEmail);
 
     getWebDriver().verifyLastEmailRecipient(initialEmail);
 
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().verifyPhysicalResourceGroupIsActive(institute, initialEmail);
+    getNocDriver().verifyPhysicalResourceGroupIsActive(GROUP_SURFNET, initialEmail);
 
-    getNocDriver().editPhysicalResourceGroup(institute, finalEmail);
+    getNocDriver().editPhysicalResourceGroup(GROUP_SURFNET, finalEmail);
 
-    getNocDriver().verifyGroupExists(institute, finalEmail, false);
+    getNocDriver().verifyGroupExists(GROUP_SURFNET, finalEmail, false);
 
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
-    getNocDriver().deletePhysicalResourceGroup(institute);
+    getNocDriver().deletePhysicalResourceGroup(GROUP_SURFNET);
   }
 
   @Test
   public void verifyNocLinkFromInstituteToPhysicalPorts() {
-    final String instituteName = "SIDN";
-    getNocDriver().createNewPhysicalResourceGroup(instituteName, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().addPhysicalPortToInstitute(instituteName, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
-    getNocDriver().addPhysicalPortToInstitute(instituteName, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
 
-    getNocDriver().verifyPhysicalResourceGroupToPhysicalPortsLink(instituteName);
+    getNocDriver().verifyPhysicalResourceGroupToPhysicalPortsLink(GROUP_SARA);
   }
 
 }

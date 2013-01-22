@@ -32,23 +32,21 @@ import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
-  public static final String INSTITUTE_NAME = "SURFnet Netwerk";
-
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_NAME, ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", INSTITUTE_NAME);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", INSTITUTE_NAME);
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 1");
+    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 2");
+    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
   }
@@ -66,7 +64,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
-    getUserDriver().switchToManager(INSTITUTE_NAME);
+    getUserDriver().switchToManager(GROUP_SURFNET);
     getManagerDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
     getManagerDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getManagerDriver().verifyStatistics();
@@ -102,21 +100,12 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().createNewReservation(odd, date, date, startTime.plusHours(2), startTime.plusHours(2 + 1));
 
     // Filter on this year, and no search String. All should be found.
-    getUserDriver().verifyReservationByFilterAndSearch(
-        String.valueOf(date.getYear()),
-        "",
-        even, odd);
+    getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", even, odd);
 
     // Search on even
-    getUserDriver().verifyReservationByFilterAndSearch(
-        ReservationFilterViewFactory.COMING,
-        "even",
-        even);
+    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "even", even);
 
     // Search on odd
-    getUserDriver().verifyReservationByFilterAndSearch(
-        ReservationFilterViewFactory.COMING,
-        "odd",
-        odd);
+    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "odd", odd);
   }
 }

@@ -26,6 +26,10 @@ import org.junit.Before;
 import org.junit.Rule;
 
 public abstract class TestExternalSupport {
+  // Group names must match data in IddOfflineClient
+  protected static final String GROUP_SURFNET = "SURFnet bv";
+  protected static final String GROUP_SARA = "Stichting Algemeen Rekencentrum Achterveld";
+  protected static final String GROUP_RUG = "Rijke Universiteit Gaanderen";
 
   protected static final String ICT_MANAGERS_GROUP = //
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers";

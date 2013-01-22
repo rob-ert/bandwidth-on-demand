@@ -34,9 +34,6 @@ public class LogEventTestSelenium extends TestExternalSupport {
   protected static final String ICT_USER_GROUP_2 = //
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
 
-  private static final String GROUP_NAME_ONE = "SIDN";
-  private static final String GROUP_NAME_TWO = "SURFnet bv";
-  private static final String GROUP_NAME_THREE = "ROC Rijn Ijssel";
   private static final String PORT_LABEL_1 = "NOC Port 1";
   private static final String PORT_LABEL_2 = "NOC Port 2";
   private static final String PORT_LABEL_3 = "NOC Port 3";
@@ -45,18 +42,18 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Before
   public void prepareUser() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_ONE, ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_TWO, ICT_MANAGERS_GROUP_2, "test2@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test2@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_THREE, ICT_USER_GROUP_2, "test3@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_RUG, ICT_USER_GROUP_2, "test3@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_NAME_ONE);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_NAME_TWO);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_NAME_THREE);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_RUG);
   }
 
   @Test
@@ -65,17 +62,17 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().switchToManager(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().switchToManager(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().switchToManager(GROUP_RUG);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
@@ -94,17 +91,17 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
 
     // Manager 1 only sees his pp and vp
-    getManagerDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().switchToManager(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
 
     // Manager 2 only sees his pp and vp
-    getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().switchToManager(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
 
     // Manager 3 only sees his pp
-    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().switchToManager(GROUP_RUG);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
 
@@ -116,27 +113,27 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().createNewReservation("Testing log events");
     getUserDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getUserDriver().switchToManager(GROUP_NAME_ONE);
+    getUserDriver().switchToManager(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().switchToManager(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getManagerDriver().switchToManager(GROUP_NAME_THREE);
+    getManagerDriver().switchToManager(GROUP_RUG);
     getManagerDriver().verifyLogEventDoesNotExist("Testing log events");
   }
 
   private void createVPOneForGroupOne() {
     // Now create Virtual Ports, and thereby group PhysicalPorts in same group
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(GROUP_NAME_ONE, 1200, "port 1");
+    getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort(VP_LABEL_1);
   }
 
   private void createVPTwoForGroupTwo() {
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(GROUP_NAME_TWO, 1200, "port 2");
+    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort(VP_LABEL_2);
   }

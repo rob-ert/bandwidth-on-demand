@@ -28,17 +28,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
-
-  private static final String GROUP_NAME = "SIDN";
-
+  
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
   }
 
   @Test
   public void allocatePhysicalPortFromInstitutePage() {
-    getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC label", "Mock_Poort 1de verdieping toren1a");
 
     getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, "NOC label");
 
@@ -51,7 +49,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     String managerLabel1 = "My Selenium Port (Manager 1st)";
     String managerLabel2 = "My Selenium Port (Manager 2nd)";
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
 
     getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, nocLabel);
 
@@ -106,20 +104,20 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
 
     getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, nocLabel);
 
-    getNocDriver().switchToManager(GROUP_NAME);
+    getNocDriver().switchToManager(GROUP_SURFNET);
     getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, managerLabel1);
 
     // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
     // unallocated anymore
     getManagerDriver().switchToUser();
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(GROUP_NAME, 1000, "Doe mijn een nieuw poort...");
-    getUserDriver().switchToManager(GROUP_NAME);
+    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
+    getUserDriver().switchToManager(GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().acceptVirtualPort(vpOne);
   }

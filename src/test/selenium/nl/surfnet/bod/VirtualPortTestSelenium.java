@@ -33,18 +33,18 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("SIDN", ICT_MANAGERS_GROUP, "test@test.nl");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "SIDN");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
 
     getWebDriver().clickLinkInLastEmail();
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest("SIDN", 1000, "port 1");
+    getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest("SIDN", 1000, "port 2");
+    getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
   }
@@ -59,13 +59,13 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyMemberOf("selenium-users");
 
-    getUserDriver().switchToManager("SIDN");
+    getUserDriver().switchToManager(GROUP_SARA);
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
     getManagerDriver().switchToNoc();
     getNocDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
-    getUserDriver().switchToManager("SIDN");
+    getUserDriver().switchToManager(GROUP_SARA);
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();

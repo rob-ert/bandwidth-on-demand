@@ -31,7 +31,7 @@ public class MenuTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("SURFnet Netwerk", ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
   }
 
