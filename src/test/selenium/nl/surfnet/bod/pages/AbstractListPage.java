@@ -202,13 +202,11 @@ public class AbstractListPage extends AbstractPage {
   public void verifyRowSequence(String sortColumn, boolean reverse, String... labels) {
     sortOn(sortColumn, reverse);
 
-    System.err.println(getDriver().getCurrentUrl());
-
     List<WebElement> rows = getRows();
     assertTrue(labels.length <= rows.size());
 
     for (int i = 0; i < labels.length; i++) {
-      assertThat("for i: " + i, rows.get(i).getText(), containsString(labels[i]));
+      assertThat(rows.get(i).getText(), containsString(labels[i]));
     }
   }
 

@@ -32,9 +32,6 @@ public class SearchAndSortTestSelenium extends TestExternalSupport {
   public void verifySort() {
     setupSortData();
 
-    getNocDriver()
-      .verifyAllocatedPortsBySort("bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3, BOD_PORT_ID_1, BOD_PORT_ID_2);
-
     getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "AbcNOC", "abcNOC");
   }
 
@@ -48,8 +45,8 @@ public class SearchAndSortTestSelenium extends TestExternalSupport {
   }
 
   private void setupSortData() {
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "987NOC", "XYZPort", GROUP_NAME);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "123NOC", "ABDPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_NAME);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "AbcNOC", "xyzPort", GROUP_NAME);
   }
