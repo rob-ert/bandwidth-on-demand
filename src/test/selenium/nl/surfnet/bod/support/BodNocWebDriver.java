@@ -354,12 +354,6 @@ public class BodNocWebDriver {
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
-  /**
-   * Not possible to create active reservations without timing issues
-   */
-  public void verifyDashboardToActiveReservationsLink() {
-  }
-
   public void verifyDashboardToComingReservationsLink() {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
@@ -368,13 +362,6 @@ public class BodNocWebDriver {
     reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
-  }
-
-  /**
-   * Not possible to create unaligned port, depends on NMS
-   */
-  public void verifyDashboardToUnalignedPhysicalPortsLink() {
-
   }
 
   public void verifyMenu() {
@@ -388,28 +375,6 @@ public class BodNocWebDriver {
     dashboardPage.verifyMenuPhysicalPorts();
     dashboardPage.verifyMenuLogEvents();
     dashboardPage.verifyMenuReport();
-  }
-
-  public void verifyReport() {
-    ReportPage reportPage = ReportPage.get(driver, URL_UNDER_TEST);
-
-    // Reservation requests
-    reportPage.verifyAmountOfFailedReservationRequests();
-    reportPage.verifyAmountOfSucceededReservationRequests();
-
-    // Reservations by protectionType
-    reportPage.verifyAmountOfProtectedReservations();
-    reportPage.verifyAmountOfUnProtectedReservations();
-    reportPage.verifyAmountOfRedundantReservations();
-
-    // Reservations by channel
-    reportPage.verifyAmountOfNSIReservations();
-    reportPage.verifyAmountOfGUIReservations();
-
-    // Reservations by end state
-    reportPage.verifyAmountOfSucceedReservations();
-    reportPage.verifyAmountOfCancelledReservations();
-    reportPage.verifyAmountOfFailedReservations();
   }
 
 }

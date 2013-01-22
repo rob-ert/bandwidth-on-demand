@@ -50,7 +50,6 @@ public class DashboardTestSelenium extends TestExternalSupport {
   @Test
   public void verifyUserStatisticLinksFromDashboard() {
     getUserDriver().verifyDashboardToVirtualPortsLink("selenium-users");
-    getUserDriver().verifyDashboardToActiveReservationsLink("selenium-userst");
     getUserDriver().verifyDashboardToComingReservationsLink("selenium-users");
     getUserDriver().verifyDashboardToElapsedReservationsLink("selenium-users");
   }
@@ -61,9 +60,7 @@ public class DashboardTestSelenium extends TestExternalSupport {
 
     getNocDriver().verifyDashboardToAllocatedPhysicalPortsLink();
     getNocDriver().verifyDashboardToElapsedReservationsLink();
-    getNocDriver().verifyDashboardToActiveReservationsLink();
     getNocDriver().verifyDashboardToComingReservationsLink();
-    getNocDriver().verifyDashboardToUnalignedPhysicalPortsLink();
   }
 
   @Test
@@ -72,9 +69,7 @@ public class DashboardTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyDashboardToPhysicalPortsLink();
     getManagerDriver().verifyDashboardToElapsedReservationsLink();
-    getManagerDriver().verifyDashboardToActiveReservationsLink();
     getManagerDriver().verifyDashboardToComingReservationsLink();
-    getManagerDriver().verifyDashboardToUnalignedPhysicalPortsLink();
   }
 
 }

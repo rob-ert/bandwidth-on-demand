@@ -308,12 +308,6 @@ public class BodManagerWebDriver {
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
-  /**
-   * Not possible to create active reservations without timing issues
-   */
-  public void verifyDashboardToActiveReservationsLink() {
-  }
-
   public void verifyDashboardToComingReservationsLink() {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
@@ -323,13 +317,6 @@ public class BodManagerWebDriver {
     reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
-  }
-
-  /**
-   * Not possible to create unaligned port, depends on NMS
-   */
-  public void verifyDashboardToUnalignedPhysicalPortsLink() {
-
   }
 
   public void verifyMenu() {

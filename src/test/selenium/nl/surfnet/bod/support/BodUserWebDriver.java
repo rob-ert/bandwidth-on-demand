@@ -257,12 +257,6 @@ public class BodUserWebDriver {
 
   }
 
-  /**
-   * Not possible to setup active reservation without timing issues
-   */
-  public void verifyDashboardToActiveReservationsLink(String team) {
-  }
-
   public void verifyDashboardToVirtualPortsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 

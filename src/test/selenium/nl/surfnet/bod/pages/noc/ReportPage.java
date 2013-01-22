@@ -24,8 +24,6 @@ package nl.surfnet.bod.pages.noc;
 
 import nl.surfnet.bod.pages.AbstractListPage;
 
-import org.junit.Assert;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
@@ -53,48 +51,4 @@ public class ReportPage extends AbstractListPage {
     super.verifyIsCurrentPage(PAGE);
   }
 
-  public void verifyAmountOfFailedReservationRequests() {
-    WebElement row =  findRow("Failed");
-    String text = row.getText();
-
-    // TODO not implemented yet???
-
-    //*[@id="idReport"]/tbody/tr[1]/td[3]/table/tbody/tr[1]/td[2]
-  }
-
-  public void verifyAmountOfSucceededReservationRequests() {
-    Assert.fail("not implemented");
-  }
-
-  public void verifyAmountOfProtectedReservations() {
-
-  }
-
-  public void verifyAmountOfUnProtectedReservations() {
-
-  }
-
-  public void verifyAmountOfRedundantReservations() {
-
-  }
-
-  public void verifyAmountOfNSIReservations() {
-
-  }
-
-  public void verifyAmountOfGUIReservations() {
-
-  }
-
-  public void verifyAmountOfSucceedReservations() {
-
-  }
-
-  public void verifyAmountOfCancelledReservations() {
-
-  }
-
-  public void verifyAmountOfFailedReservations() {
-
-  }
 }
