@@ -24,6 +24,7 @@ package nl.surfnet.bod.pages;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -205,7 +206,7 @@ public class AbstractListPage extends AbstractPage {
     assertTrue(labels.length <= rows.size());
 
     for (int i = 0; i < labels.length; i++) {
-      assertTrue(containsAll(rows.get(i), labels[i]));
+      assertThat(rows.get(i).getText(), containsString(labels[i]));
     }
   }
 
