@@ -239,6 +239,10 @@ public class RichUserDetails implements UserDetails {
     switchToRole(userRole);
   }
 
+  public boolean isMemberOf(String groupId) {
+    return getUserGroupIds().contains(groupId);
+  }
+
   public boolean hasUserRole() {
     return findFirstBodRoleByRole(RoleEnum.USER) != null;
   }

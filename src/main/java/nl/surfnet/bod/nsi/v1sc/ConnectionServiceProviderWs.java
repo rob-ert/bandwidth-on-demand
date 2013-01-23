@@ -211,11 +211,12 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     validateOAuthScope(NsiScope.TERMINATE);
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
-    final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
+    Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+
     connectionService.asyncTerminate(connection.getId(), parameters.getTerminate().getRequesterNSA(),
-        requestDetails);
+        requestDetails, Security.getUserDetails());
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }

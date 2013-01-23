@@ -135,7 +135,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -147,7 +147,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
-      if (isDeleteAllowedForUserOnly(reservation, user.getSelectedRole()).isAllowed()
+      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed()
           && reservation.getStatus().isTransitionState()) {
         final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
         reservation.setStatus(reservationState);
@@ -173,7 +173,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user,
       Optional<NsiRequestDetails> requestDetails) {
 
-    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed() && reservation.getStatus().isTransitionState()) {
+    if (isDeleteAllowed(reservation, user).isAllowed()
+        && reservation.getStatus().isTransitionState()) {
+
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
     }
 
@@ -377,7 +379,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Count the reservation requests which lead to a successfully created
    * reservation.
-   * 
+   *
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -404,7 +406,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Count the reservation requests which did not result in a reservation
-   * 
+   *
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -425,7 +427,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Counts the amount of reservations in the between the given Start and end
    * that are SUCCEEDED or transferred from SCHEDULED -> CANCEL or transferred
    * from RUNNING ->CANCEL
-   * 
+   *
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -457,7 +459,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Counts the amount of reservations in the between the given Start and end
    * that transferred from RUNNING -> FAILED or transferred from SCHEDULED ->
    * FAILED.
-   * 
+   *
    * @param start
    *          {@link DateTime} start of period
    * @param end
@@ -485,7 +487,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   * 
+   *
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -495,13 +497,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   * 
+   *
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -629,7 +631,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -695,22 +697,23 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to check
    * @param role
    *          {@link BodRole} the selected user role
    * @return true if the reservation is allowed to be delete, false otherwise
    */
-  public ElementActionView isDeleteAllowed(Reservation reservation, BodRole role) {
+  public ElementActionView isDeleteAllowed(Reservation reservation, RichUserDetails user) {
     if (!reservation.getStatus().isDeleteAllowed()) {
       return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
-    return isDeleteAllowedForUserOnly(reservation, role);
+    return isDeleteAllowedForUserOnly(reservation, user);
   }
 
-  private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, BodRole role) {
+  private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, RichUserDetails user) {
+    BodRole role = user.getSelectedRole();
     if (role.isNocRole()) {
       return new ElementActionView(true, "label_cancel");
     }
@@ -720,7 +723,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             .getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
-    else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+    else if (role.isUserRole() && user.isMemberOf(reservation.getVirtualResourceGroup().getAdminGroup())) {
       return new ElementActionView(true, "label_cancel");
     }
 
@@ -743,7 +746,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Activates an existing reservation;
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise

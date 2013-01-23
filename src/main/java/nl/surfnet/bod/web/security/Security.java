@@ -111,7 +111,7 @@ public final class Security {
   }
 
   public static boolean isUserMemberOf(String groupId) {
-    return getUserDetails().getUserGroupIds().contains(groupId);
+    return getUserDetails().isMemberOf(groupId);
   }
 
   public static boolean isUserNotMemberOf(String groupId) {

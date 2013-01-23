@@ -176,7 +176,7 @@ public abstract class AbstractFilteredReservationController extends
       public ReservationView apply(Reservation reservation) {
         return new ReservationView(
           reservation,
-          reservationService.isDeleteAllowed(reservation, user.getSelectedRole()),
+          reservationService.isDeleteAllowed(reservation, user),
           reservationService.isEditAllowed(reservation, user.getSelectedRole()));
       }
     });

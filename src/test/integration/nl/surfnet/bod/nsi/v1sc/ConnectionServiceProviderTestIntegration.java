@@ -69,7 +69,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -146,7 +145,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     nsiRequester.stopServer();
-    Security.clearUserDetails();
   }
 
   @BeforeTransaction
@@ -191,7 +189,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private void setLoggedInUser(RichUserDetails userDetails) {
-    SecurityContextHolder.setStrategyName("MODE_GLOBAL");
     Security.setUserDetails(userDetails);
   }
 

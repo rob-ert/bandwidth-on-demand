@@ -35,7 +35,6 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
@@ -139,16 +138,17 @@ public class ConnectionService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
-  public void asyncTerminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
+  public void asyncTerminate(Long connectionId, String requesterNsa, NsiRequestDetails requestDetails, RichUserDetails user) {
     Connection connection = connectionRepo.findOne(connectionId);
+
     if (isTerminatePossible(connection)) {
       connection.setCurrentState(ConnectionStateType.TERMINATING);
       connectionRepo.saveAndFlush(connection);
 
       reservationService.cancelWithReason(
           connection.getReservation(),
-          "Terminate request by NSI",
-          Security.getUserDetails(),
+          "NSI terminate by " + user.getNameId(),
+          user,
           Optional.of(requestDetails));
     }
     else {
