@@ -62,7 +62,7 @@ public class AbstractSearchableSortableListControllerTest {
   private EntityManager entityManager;
 
   @Mock
-  private TestFullTextSearchService service;
+  private TestFullTextSearchService<TestEntity> service;
 
   @InjectMocks
   private TestSearchController subject;
@@ -96,7 +96,7 @@ public class AbstractSearchableSortableListControllerTest {
     FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
-        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), 
+        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(),
             any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "test", model);
@@ -112,7 +112,7 @@ public class AbstractSearchableSortableListControllerTest {
     FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
-        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), 
+        service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(),
             any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "\"test\"", model);
