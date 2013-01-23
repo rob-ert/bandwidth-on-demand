@@ -36,6 +36,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Test;
 
+import com.google.common.base.Optional;
+
 public class EmailsTest {
 
   @Test
@@ -70,7 +72,7 @@ public class EmailsTest {
     when(request.getQueryString()).thenReturn("");
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/wrong"));
 
-    String body = Emails.ErrorMail.body(user, throwable, request);
+    String body = Emails.ErrorMail.body(throwable, Optional.of(user), Optional.of(request));
 
     assertThat(body, containsString("User: Henk (henk@henk.nl)"));
   }
@@ -84,8 +86,17 @@ public class EmailsTest {
     when(request.getQueryString()).thenReturn("");
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/wrong"));
 
-    String body = Emails.ErrorMail.body(user, throwable, request);
+    String body = Emails.ErrorMail.body(throwable, Optional.of(user), Optional.of(request));
 
     assertThat(body, containsString("User: Henk (Email not known)"));
+  }
+
+  @Test
+  public void errorMailWithoutUserAndRequest() {
+    RuntimeException throwable = new RuntimeException();
+    String body = Emails.ErrorMail.body(throwable, Optional.<RichUserDetails>absent(), Optional.<HttpServletRequest>absent());
+
+    assertThat(body, containsString("User: Unknown (Unknown)"));
+    assertThat(body, containsString("Request: No request available (No request available)"));
   }
 }

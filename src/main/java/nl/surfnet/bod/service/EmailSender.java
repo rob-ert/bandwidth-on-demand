@@ -31,7 +31,9 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 
 public interface EmailSender {
 
-  void sendErrorMail(RichUserDetails user, Throwable exception, HttpServletRequest request);
+  void sendErrorMail(Throwable exception, RichUserDetails user, HttpServletRequest request);
+
+  void sendErrorMail(Throwable exception);
 
   void sendActivationMail(ActivationEmailLink activationEmailLink);
 

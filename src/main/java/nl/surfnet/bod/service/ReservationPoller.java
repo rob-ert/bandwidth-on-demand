@@ -57,6 +57,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 public class ReservationPoller {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
   private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Resource
@@ -64,6 +65,9 @@ public class ReservationPoller {
 
   @Resource
   private ReservationEventPublisher reservationEventPublisher;
+
+  @Resource
+  private EmailSender emailSender;
 
   @Value("${reservation.poll.max.tries}")
   private int maxPollingTries;
@@ -84,7 +88,7 @@ public class ReservationPoller {
     logger.debug("The reservations {}", reservations);
 
     for (Reservation reservation : reservations) {
-      executorService.submit(new ReservationStatusChecker(reservation, maxPollingTries));
+      executorService.execute(new ReservationStatusChecker(reservation, maxPollingTries));
     }
   }
 
@@ -117,8 +121,10 @@ public class ReservationPoller {
       try {
         ReservationStatus currentStatus = null;
 
+
         // No need to retrieve status when there is no reservationId
         while (numberOfTries < maxPollingTries && reservation.getReservationId() != null) {
+
           // Get the latest version of the reservation..
           Reservation reservationFresh = reservationService.find(reservation.getId());
 
@@ -153,6 +159,7 @@ public class ReservationPoller {
       }
       catch (Exception e) {
         logger.error("The poller failed for reservation " + reservation.getId() + "/" + reservation.getReservationId(), e);
+        emailSender.sendErrorMail(e);
       }
     }
   }

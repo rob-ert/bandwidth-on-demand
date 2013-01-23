@@ -118,53 +118,72 @@ public final class Emails {
   }
 
   public static class ErrorMail {
-    private static final String ERROR_MAIL_BODY = //
-    "Dear BoD Team,\n\n" //
-        + "An exception occured.\n\n" //
-        + "User: %s (%s)\n" //
-        + "Username: %s\n" //
-        + "Request: %s (%s)\n" //
-        + "Around: %s\n" //
-        + "Stacktrace:\n%s" + FOOTER;
+    private static final String ERROR_MAIL_BODY =
+      "Dear BoD Team,\n\n"
+      + "An exception occured.\n\n"
+      + "User: %s (%s)\n"
+      + "Username: %s\n"
+      + "Request: %s (%s)\n"
+      + "Around: %s\n"
+      + "Stacktrace:\n%s" + FOOTER;
 
     public static String subject(String envUrl, Throwable throwable) {
       return String.format("[Exception on %s] %s", envUrl, throwable.getMessage());
     }
 
-    public static String body(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
-      Optional<RichUserDetails> optUser = Optional.fromNullable(user);
-      return String.format(ERROR_MAIL_BODY,
+    public static String body(Throwable throwable, Optional<RichUserDetails> user, Optional<HttpServletRequest> request) {
+      String userDisplayName = getOrUserUnknown(new Function<RichUserDetails, String>() {
+        @Override
+        public String apply(RichUserDetails input) {
+          return input.getDisplayName();
+        }
+      }, user);
 
-          getOrUnknown(new Function<RichUserDetails, String>() {
-            @Override
-            public String apply(RichUserDetails input) {
-              return input.getDisplayName();
-            }
-          }, optUser),
+      String userEmail = getOrUserUnknown(new Function<RichUserDetails, String>() {
+        @Override
+        public String apply(RichUserDetails input) {
+          return input.getEmail().or("Email not known");
+        }
+      }, user);
 
-          getOrUnknown(new Function<RichUserDetails, String>() {
-            @Override
-            public String apply(RichUserDetails input) {
-              return input.getEmail().or("Email not known");
-            }
-          }, optUser),
+      String username = getOrUserUnknown(new Function<RichUserDetails, String>() {
+        @Override
+        public String apply(RichUserDetails input) {
+          return input.getUsername();
+        }
+      }, user);
 
-          getOrUnknown(new Function<RichUserDetails, String>() {
-            @Override
-            public String apply(RichUserDetails input) {
-              return input.getUsername();
-            }
-          }, optUser),
+      String requestUrl = getOrRequestUnknown(new Function<HttpServletRequest, String>() {
+        @Override
+        public String apply(HttpServletRequest request) {
+          return request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString();
+        }
+      }, request);
 
-          request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+      String requestMethod = getOrRequestUnknown(new Function<HttpServletRequest, String>() {
+        @Override
+        public String apply(HttpServletRequest request) {
+          return request.getMethod();
+        }
+      }, request);
 
-          request.getMethod(), DateTimeFormat.mediumDateTime().print(DateTime.now()),
-
-          Throwables.getStackTraceAsString(throwable));
+      return String.format(
+        ERROR_MAIL_BODY,
+        userDisplayName,
+        userEmail,
+        username,
+        requestUrl,
+        requestMethod,
+        DateTimeFormat.mediumDateTime().print(DateTime.now()),
+        Throwables.getStackTraceAsString(throwable));
     }
 
-    private static String getOrUnknown(Function<RichUserDetails, String> function, Optional<RichUserDetails> user) {
+    private static String getOrUserUnknown(Function<RichUserDetails, String> function, Optional<RichUserDetails> user) {
       return user.transform(function).or("Unknown");
+    }
+
+    private static String getOrRequestUnknown(Function<HttpServletRequest, String> function, Optional<HttpServletRequest> request) {
+      return request.transform(function).or("No request available");
     }
   }
 

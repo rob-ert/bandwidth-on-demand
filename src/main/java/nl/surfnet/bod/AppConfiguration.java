@@ -23,9 +23,13 @@
 package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
@@ -44,14 +48,17 @@ import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -72,7 +79,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
 @EnableScheduling
 @EnableAsync
-public class AppConfiguration implements SchedulingConfigurer {
+public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
   private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
@@ -86,6 +93,7 @@ public class AppConfiguration implements SchedulingConfigurer {
   @Value("${jdbc.acquireIncrement}") private int acquireIncrement;
   @Value("${jdbc.acquireRetryAttempts}") private int acquireRetryAttempts;
   @Value("${jdbc.idleConnectionTestPeriod}") private int idleConnectionTestPeriod;
+  @Value("${mail.sender.class}") private String emailSenderClass;
 
   @Bean
   public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -149,15 +157,13 @@ public class AppConfiguration implements SchedulingConfigurer {
   }
 
   @Bean
-  public EmailSender emailSender(@Value("${mail.sender.class}") String emailSenderClass)
-      throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    return (EmailSender) Class.forName(emailSenderClass).newInstance();
+  public EmailSender emailSender() {
+    return quietlyInitiateClass(emailSenderClass);
   }
 
   @Bean
-  public NbiClient nbiClient(@Value("${nbi.client.class}") String nbiClientClass)
-      throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    return (NbiClient) Class.forName(nbiClientClass).newInstance();
+  public NbiClient nbiClient(@Value("${nbi.client.class}") String nbiClientClass) {
+    return quietlyInitiateClass(nbiClientClass);
   }
 
   @Bean
@@ -248,8 +254,100 @@ public class AppConfiguration implements SchedulingConfigurer {
       .build();
   }
 
+  @SuppressWarnings("unchecked")
+  private <T> T quietlyInitiateClass(String clazz) {
+    try {
+      return (T) Class.forName(clazz).newInstance();
+    }
+    catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+  }
+
+  @Override
+  public Executor getAsyncExecutor() {
+    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        emailSender().sendErrorMail(e);
+      }
+    });
+
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(7);
+    executor.setMaxPoolSize(42);
+    executor.setQueueCapacity(11);
+    executor.setThreadNamePrefix("BoDExecutor-");
+    executor.initialize();
+    return new HandlingExecutor(executor);
+  }
+
+  public class HandlingExecutor implements AsyncTaskExecutor {
+
+    private final AsyncTaskExecutor executor;
+
+    public HandlingExecutor(AsyncTaskExecutor executor) {
+      this.executor = executor;
+    }
+
+    @Override
+    public void execute(Runnable task) {
+      executor.execute(createWrappedRunnable(task));
+    }
+
+    @Override
+    public void execute(Runnable task, long startTimeout) {
+      executor.execute(createWrappedRunnable(task), startTimeout);
+    }
+
+    @Override
+    public Future<?> submit(Runnable task) {
+      return executor.submit(createWrappedRunnable(task));
+    }
+
+    @Override
+    public <T> Future<T> submit(Callable<T> task) {
+      return executor.submit(createWrappedCallable(task));
+    }
+
+    private <T> Callable<T> createWrappedCallable(final Callable<T> task) {
+      return new Callable<T>() {
+        @Override
+        public T call() throws Exception {
+          try {
+            return task.call();
+          }
+          catch (Exception e) {
+            handle(e);
+            throw e;
+          }
+        }
+      };
+    }
+
+    private Runnable createWrappedRunnable(final Runnable task) {
+      return new Runnable() {
+        @Override
+        public void run() {
+          try {
+            task.run();
+          }
+          catch (Exception e) {
+            handle(e);
+            throw e;
+          }
+        }
+      };
+    }
+
+    private void handle(Exception exception) {
+      logger.error("Exception during async call", exception);
+      emailSender().sendErrorMail(exception);
+    }
   }
 
 }

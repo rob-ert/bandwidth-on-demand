@@ -148,10 +148,11 @@ public class EmailSenderOnlineTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
 
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://bod.dlp.surfnet.nl/error"));
+    when(request.getMethod()).thenReturn("get");
 
     subject.setBodTeamMailAddress("bodteam@surfnet.nl");
 
-    subject.sendErrorMail(user, throwable, request);
+    subject.sendErrorMail(throwable, user, request);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 

@@ -48,8 +48,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
 public class NbiOfflineClient implements NbiClient {
 
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
@@ -104,7 +102,6 @@ public class NbiOfflineClient implements NbiClient {
     ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
-  @SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @PostConstruct
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");

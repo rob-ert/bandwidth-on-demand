@@ -22,16 +22,20 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Test;
-
 import nl.surfnet.bod.service.Emails.ErrorMail;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.junit.Test;
+
+import com.google.common.base.Optional;
 
 public class ErrorMailTest {
 
@@ -40,9 +44,12 @@ public class ErrorMailTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
 
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080"));
+    when(request.getMethod()).thenReturn("get");
 
-    String bodyText = ErrorMail.body(new RichUserDetailsFactory().setDisplayname("Truus").setEmail("truus@henk.nl")
-        .create(), new RuntimeException("Something went wrong"), request);
+    String bodyText = ErrorMail.body(
+      new RuntimeException("Something went wrong"),
+      Optional.of(new RichUserDetailsFactory().setDisplayname("Truus").setEmail("truus@henk.nl").create()),
+      Optional.of(request));
 
     assertThat(bodyText, containsString("Something went wrong"));
     assertThat(bodyText, containsString("User: Truus (truus@henk.nl)"));
@@ -53,8 +60,12 @@ public class ErrorMailTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
 
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080"));
+    when(request.getMethod()).thenReturn("get");
 
-    String bodyText = ErrorMail.body(null, new RuntimeException("Something went wrong"), request);
+    String bodyText = ErrorMail.body(
+      new RuntimeException("Something went wrong"),
+      Optional.<RichUserDetails>absent(),
+      Optional.of(request));
 
     assertThat(bodyText, containsString("User: Unknown"));
     assertThat(bodyText, containsString("Username: Unknown"));

@@ -48,6 +48,7 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
@@ -110,10 +111,19 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendErrorMail(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
+  public void sendErrorMail(Throwable throwable, RichUserDetails user, HttpServletRequest request) {
+    sendErrorMail(throwable, Optional.fromNullable(user), Optional.fromNullable(request));
+  }
+
+  @Override
+  public void sendErrorMail(Throwable throwable) {
+    sendErrorMail(throwable, Optional.<RichUserDetails>absent(), Optional.<HttpServletRequest>absent());
+  }
+
+  private void sendErrorMail(Throwable throwable, Optional<RichUserDetails> user, Optional<HttpServletRequest> request) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(bodTeamMailAddress)
         .withSubject(ErrorMail.subject(externalBodUrl, throwable))
-        .withBodyText(ErrorMail.body(user, throwable, request)).create();
+        .withBodyText(ErrorMail.body(throwable, user, request)).create();
 
     send(mail);
   }
@@ -205,5 +215,4 @@ public class EmailSenderOnline implements EmailSender {
       return this;
     }
   }
-
 }

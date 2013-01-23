@@ -35,8 +35,6 @@ import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
 public class IddOfflineClient implements IddClient {
 
   private static final String STATIC_RESPONSE_FILE = "/idd_response.xml";
@@ -50,7 +48,6 @@ public class IddOfflineClient implements IddClient {
   public IddOfflineClient() {
   }
 
-  @SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @PostConstruct
   private void init() {
     logger.info("USING OFFLINE IDD CLIENT!");
