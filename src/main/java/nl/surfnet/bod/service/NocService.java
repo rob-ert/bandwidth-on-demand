@@ -98,6 +98,7 @@ public class NocService {
         newRes.setName(oldRes.getName());
         newRes.setBandwidth(oldRes.getBandwidth());
         newRes.setUserCreated(oldRes.getUserCreated());
+        newRes.setProtectionType(oldRes.getProtectionType());
 
         return newRes;
       }
