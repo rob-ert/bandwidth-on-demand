@@ -80,11 +80,15 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @Test
   public void createReservationWithNowAndForever() {
+    String reservationLabel = "Starts now and forever";
+
     getManagerDriver().switchToUser();
 
-    getUserDriver().createNewReservation("Starts now and forever");
+    getUserDriver().createNewReservation(reservationLabel);
 
-    getUserDriver().verifyReservationWasCreated("Starts now and forever");
+    getUserDriver().verifyReservationWasCreated(reservationLabel);
+
+    getUserDriver().verifyReservationIsAutoStart(reservationLabel);
   }
 
   @Test

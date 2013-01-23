@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MovePhysicalPortTestSelenium extends TestExternalSupport {
-  
+
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");

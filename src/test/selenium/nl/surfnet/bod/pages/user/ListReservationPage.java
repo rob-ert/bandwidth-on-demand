@@ -59,6 +59,12 @@ public class ListReservationPage extends AbstractReservationListPage {
     delete(start, end);
   }
 
+  public void reservationShouldBe(String label, ReservationStatus status) {
+    WebElement reservation = findRow(label);
+
+    getProbes().assertTextPresent(reservation, status.name());
+  }
+
   public void reservationShouldBe(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
       ReservationStatus status) {
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));

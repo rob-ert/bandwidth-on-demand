@@ -73,6 +73,12 @@ public class BodUserWebDriver {
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
+  public void verifyReservationIsAutoStart(String label) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    page.reservationShouldBe(label, ReservationStatus.AUTO_START);
+  }
+
   public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth,
       String message) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
