@@ -75,7 +75,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
-    getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationIsCanceled(startDate, endDate, startTime, endTime);
   }
 
   @Test

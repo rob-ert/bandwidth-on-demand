@@ -49,6 +49,7 @@ public class ListReservationPage extends AbstractReservationListPage {
 
   public static ListReservationPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
+
     return get(driver);
   }
 
@@ -62,7 +63,7 @@ public class ListReservationPage extends AbstractReservationListPage {
   public void reservationShouldBe(String label, ReservationStatus status) {
     WebElement reservation = findRow(label);
 
-    getProbes().assertTextPresent(reservation, status.name());
+    waitForStatus(reservation, status);
   }
 
   public void reservationShouldBe(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
@@ -72,7 +73,11 @@ public class ListReservationPage extends AbstractReservationListPage {
 
     WebElement reservation = findRow(start, end);
 
-    getProbes().assertTextPresent(reservation, status.name());
+    waitForStatus(reservation, status);
+  }
+
+  private void waitForStatus(WebElement row, ReservationStatus status) {
+    getProbes().assertTextPresent(row, status.name());
   }
 
   public void verifyIsCurrentPage() {

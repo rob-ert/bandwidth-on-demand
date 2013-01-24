@@ -66,7 +66,7 @@ public class BodUserWebDriver {
     page.deleteByDates(startDate, endDate, startTime, endTime);
   }
 
-  public void verifyReservationWasCanceled(LocalDate startDate, LocalDate endDate, LocalTime startTime,
+  public void verifyReservationIsCanceled(LocalDate startDate, LocalDate endDate, LocalTime startTime,
       LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
