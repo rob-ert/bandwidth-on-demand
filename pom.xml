@@ -1016,6 +1016,16 @@
 
     <repositories>
         <repository>
+            <id>surfnet-public-releases</id>
+            <name>surfnet-public-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases</url>
+        </repository>
+        <repository>
+            <id>surfnet-public-snapshots</id>
+            <name>surfnet-public-snapshots</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-snapshots</url>
+        </repository>
+        <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
