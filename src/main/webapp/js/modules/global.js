@@ -34,16 +34,12 @@ app.global = function() {
 
         form.on('click', 'li', function(event) {
 
-            var item = $(event.target).closest('li')[0], roleId = item
-                    .getAttribute('data-roleId');
+            var item = $(event.target).closest('li')[0],
+                roleId = item.getAttribute('data-roleId');
 
-            $('<input>').attr({
-                type : 'hidden',
-                name : 'roleId',
-                value : roleId
-            }).appendTo(form);
+            form.find("#roleId").val(roleId);
 
-            form[0].submit();
+            form.submit();
         });
     };
 
