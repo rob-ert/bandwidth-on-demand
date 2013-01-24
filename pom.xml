@@ -7,6 +7,12 @@
     <version>1.12.0-SNAPSHOT</version>
     <name>bod</name>
 
+    <parent>
+        <groupId>nl.surfnet.bod</groupId>
+        <artifactId>bod-parent-pom</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
     <properties>
         <spring.version>3.2.0.RELEASE</spring.version>
         <slf4j.version>1.7.2</slf4j.version>
@@ -291,7 +297,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0-rc1</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
@@ -335,32 +340,14 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>hamcrest-core</artifactId>
-                    <groupId>org.hamcrest</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
            <groupId>com.jayway.awaitility</groupId>
@@ -590,7 +577,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>add-test-source</id>
@@ -611,7 +597,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.10</version>
                 <configuration>
                     <excludes>
                         <exclude>**/*TestSelenium.java</exclude>
@@ -619,30 +604,6 @@
                         <exclude>**/*DbTest.java</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <!-- Disable annotation processors during normal compilation -->
-                    <compilerArgument>-proc:none</compilerArgument>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <encoding>${project.build.resourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.4</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -877,7 +838,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.10</version>
                         <configuration>
                            <skipTests>true</skipTests>
                            <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
@@ -886,7 +846,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.12</version>
                         <configuration>
                             <includes>
                                 <include>**/*TestSelenium.java</include>
@@ -1003,7 +962,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.12</version>
                         <configuration>
                             <includes>
                                 <include>**/*TestIntegration.java</include>
@@ -1023,7 +981,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.10</version>
                         <configuration>
                            <skipTests>true</skipTests>
                         </configuration>
@@ -1059,11 +1016,6 @@
 
     <repositories>
         <repository>
-            <id>spring-maven-release</id>
-            <name>Spring Maven Release Repository</name>
-            <url>http://maven.springframework.org/release</url>
-        </repository>
-        <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
@@ -1072,16 +1024,6 @@
             <id>JBoss Thirdparty Uploads</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
             <name>JBoss Thirdparty Uploads</name>
-        </repository>
-        <repository>
-            <id>surfnet-third-party</id>
-            <name>surfnet-third-party</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/thirdparty</url>
-        </repository>
-        <repository>
-            <id>surfnet-releases</id>
-            <name>surfnet-releases</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
         </repository>
         <repository>
             <id>oss.sonatype.org central-sync</id>
@@ -1101,11 +1043,6 @@
     </repositories>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>spring-maven-release</id>
-            <name>Spring Maven Release Repository</name>
-            <url>http://maven.springframework.org/release</url>
-        </pluginRepository>
         <pluginRepository>
             <id>spring-maven-milestone</id>
             <name>Spring Maven Milestone Repository</name>
