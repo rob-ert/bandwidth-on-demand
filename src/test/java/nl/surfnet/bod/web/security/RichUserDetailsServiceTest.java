@@ -60,6 +60,10 @@ import com.google.common.collect.Iterables;
 @RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {
 
+  private static final String URN_NOC_ENGINEER = "urn:noc-engineer";
+
+  private static final String URN_APP_MANAGER = "urn:app-manager";
+
   @InjectMocks
   private RichUserDetailsService subject;
   @Mock
@@ -73,7 +77,8 @@ public class RichUserDetailsServiceTest {
 
   @Before
   public void init() {
-    subject.setNocEngineerGroupId("urn:noc-engineer");
+    subject.setNocEngineerGroupId(URN_NOC_ENGINEER);
+    subject.setAppManagerGroupId(URN_APP_MANAGER);
   }
 
   @Test
@@ -107,7 +112,7 @@ public class RichUserDetailsServiceTest {
   @Test
   public void aNocEngineerShouldGetAuthoritiesNocAndUser() {
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(
-        listOf(new UserGroupFactory().setId("urn:noc-engineer").create()));
+        listOf(new UserGroupFactory().setId(URN_NOC_ENGINEER).create()));
 
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
@@ -117,11 +122,11 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getBodRoles(), hasSize(2));
     assertThat(userDetails.getAuthorities(), hasSize(2));
 
-    assertThat(userDetails.getAuthorities(),
-        Matchers.<GrantedAuthority> hasItem(hasProperty("authority", is(RoleEnum.NOC_ENGINEER.name()))));
+    assertThat(userDetails.getAuthorities(), Matchers.<GrantedAuthority> hasItem(hasProperty("authority",
+        is(RoleEnum.NOC_ENGINEER.name()))));
 
-    assertThat(userDetails.getAuthorities(),
-        Matchers.<GrantedAuthority> hasItem(hasProperty("authority", is(RoleEnum.USER.name()))));
+    assertThat(userDetails.getAuthorities(), Matchers.<GrantedAuthority> hasItem(hasProperty("authority",
+        is(RoleEnum.USER.name()))));
   }
 
   @Test
@@ -138,10 +143,10 @@ public class RichUserDetailsServiceTest {
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
     assertThat(userDetails.getAuthorities(), hasSize(2));
-    assertThat(userDetails.getAuthorities(),
-        Matchers.<GrantedAuthority>hasItem(hasProperty("authority", is(RoleEnum.ICT_MANAGER.name()))));
-    assertThat(userDetails.getAuthorities(),
-        Matchers.<GrantedAuthority>hasItem(hasProperty("authority", is(RoleEnum.USER.name()))));
+    assertThat(userDetails.getAuthorities(), Matchers.<GrantedAuthority> hasItem(hasProperty("authority",
+        is(RoleEnum.ICT_MANAGER.name()))));
+    assertThat(userDetails.getAuthorities(), Matchers.<GrantedAuthority> hasItem(hasProperty("authority",
+        is(RoleEnum.USER.name()))));
   }
 
   @Test
@@ -166,9 +171,7 @@ public class RichUserDetailsServiceTest {
 
   @Test
   public void shouldUpdateVirtualResourceGroupIfDescriptionWasNull() {
-    ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory()
-        .setId("urn:nameGroup")
-        .setName("name")
+    ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory().setId("urn:nameGroup").setName("name")
         .setDescription("updated desc").create());
 
     VirtualResourceGroup vrgNewName = new VirtualResourceGroupFactory().setName("name").setDescription(null).create();
@@ -225,6 +228,18 @@ public class RichUserDetailsServiceTest {
 
     assertThat(managerRole.getInstituteName().get(), is(institute.getName()));
     assertThat(managerRole.getPhysicalResourceGroupId().get(), is(prg.getId()));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void shouldBeAppManagerRole() {
+    UserGroup userGroup = new UserGroupFactory().setId(subject.getAppManagerGroupId()).setName("new name").create();
+
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup));
+
+    assertThat(roles, hasSize(2));
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.APP_MANAGER))));
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.NEW_USER))));
   }
 
   @SuppressWarnings("unchecked")

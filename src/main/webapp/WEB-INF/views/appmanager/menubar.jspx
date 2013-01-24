@@ -1,0 +1,3 @@
+<menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
+    <item id="i_res_list" url="/appadmin" messageCode="menu_overview_label" menu="overview" />
+</menu>

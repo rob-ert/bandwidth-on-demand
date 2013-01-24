@@ -82,6 +82,10 @@ public final class BodRole {
     return new BodRole(RoleEnum.ICT_MANAGER, prg);
   }
 
+  public static BodRole createAppManager() {
+    return new BodRole(RoleEnum.APP_MANAGER);
+  }
+
   public Long getId() {
     return id;
   }
@@ -118,10 +122,14 @@ public final class BodRole {
     return getRole() == RoleEnum.USER;
   }
 
+  public boolean isAppManagerRole() {
+    return getRole() == RoleEnum.APP_MANAGER;
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", id).add("role", role).add("instituteName", instituteName)
-        .add("physicalResourceGroupId", physicalResourceGroupId).toString();
+    return Objects.toStringHelper(this).add("id", id).add("role", role).add("instituteName", instituteName).add(
+        "physicalResourceGroupId", physicalResourceGroupId).toString();
   }
 
   @Override

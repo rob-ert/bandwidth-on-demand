@@ -22,12 +22,11 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
-
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 public class BodRoleTest {
 
@@ -36,7 +35,10 @@ public class BodRoleTest {
     BodRole nocEngineer = BodRole.createNocEngineer();
 
     assertThat(nocEngineer.isNocRole(), is(true));
+
+    assertThat(nocEngineer.isAppManagerRole(), is(false));
     assertThat(nocEngineer.isManagerRole(), is(false));
+    assertThat(nocEngineer.isUserRole(), is(false));
   }
 
   @Test
@@ -44,7 +46,10 @@ public class BodRoleTest {
     BodRole manager = BodRole.createManager(new PhysicalResourceGroupFactory().create());
 
     assertThat(manager.isManagerRole(), is(true));
+
     assertThat(manager.isNocRole(), is(false));
+    assertThat(manager.isAppManagerRole(), is(false));
+    assertThat(manager.isUserRole(), is(false));
   }
 
   @Test
@@ -52,13 +57,30 @@ public class BodRoleTest {
     BodRole user = BodRole.createUser();
 
     assertThat(user.isUserRole(), is(true));
+
+    assertThat(user.isAppManagerRole(), is(false));
+    assertThat(user.isNocRole(), is(false));
+    assertThat(user.isManagerRole(), is(false));
   }
 
   @Test
   public void newUserShouldNotBeUser() {
     BodRole newUser = BodRole.createNewUser();
 
+    assertThat(newUser.isAppManagerRole(), is(false));
+    assertThat(newUser.isNocRole(), is(false));
+    assertThat(newUser.isManagerRole(), is(false));
     assertThat(newUser.isUserRole(), is(false));
   }
 
+  @Test
+  public void appManagerShouldBeAppManager() {
+    BodRole appManager = BodRole.createAppManager();
+
+    assertThat(appManager.isAppManagerRole(), is(true));
+
+    assertThat(appManager.isNocRole(), is(false));
+    assertThat(appManager.isManagerRole(), is(false));
+    assertThat(appManager.isUserRole(), is(false));
+  }
 }

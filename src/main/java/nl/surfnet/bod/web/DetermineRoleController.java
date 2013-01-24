@@ -42,6 +42,10 @@ public class DetermineRoleController {
 
     preserveFlashMessages(model, redirectAttributes);
 
+    if (Security.isSelectedAppManagerRole()) {
+      return RoleEnum.APP_MANAGER.getViewName();
+    }
+
     if (Security.isSelectedNocRole()) {
       return RoleEnum.NOC_ENGINEER.getViewName();
     }
@@ -67,6 +71,5 @@ public class DetermineRoleController {
       redirectAttributes.addFlashAttribute(key, messages);
     }
   }
-
 
 }

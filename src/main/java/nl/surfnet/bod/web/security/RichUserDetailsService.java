@@ -43,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -55,6 +56,9 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
 
   @Value("${os.group.noc}")
   private String nocEngineerGroupId;
+
+  @Value("${os.group.appmanager}")
+  private String appManagerGroupId;
 
   @Resource
   private GroupService groupService;
@@ -99,7 +103,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   /**
    * Determines for which userGroups there is a {@link PhysicalResourceGroup}
    * related and creates a {@link BodRole} based on that information.
-   *
+   * 
    * @param Collection
    *          <UserGroup> groups to process
    * @return List<BodRole> List with roles sorted on the roleName
@@ -107,11 +111,17 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   Collection<BodRole> determineRoles(Collection<UserGroup> userGroups) {
     Collection<BodRole> roles = Lists.newArrayList();
 
+    roles.addAll(determineAppManagerRole(userGroups));
     roles.addAll(determineNocRole(userGroups));
     roles.addAll(determineUserRole(userGroups));
     roles.addAll(determineManagerRoles(userGroups));
 
     return roles;
+  }
+
+  private Collection<BodRole> determineAppManagerRole(Collection<UserGroup> userGroups) {
+    return isAppManagerGroup(userGroups) ? ImmutableList.of(BodRole.createAppManager()) : Collections
+        .<BodRole> emptyList();
   }
 
   private Collection<BodRole> determineNocRole(Collection<UserGroup> userGroups) {
@@ -174,20 +184,40 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
     return !virtualResourceGroupService.findByUserGroups(groups).isEmpty();
   }
 
-  private boolean isNocEngineerGroup(Collection<UserGroup> groups) {
+  private boolean isNocEngineerGroup(Collection<UserGroup> userGroups) {
+    return hasGroup(nocEngineerGroupId, userGroups);
+  }
+
+  private boolean isAppManagerGroup(Collection<UserGroup> userGroups) {
+    return hasGroup(appManagerGroupId, userGroups);
+  }
+
+  public boolean hasGroup(final String groupId, final Collection<UserGroup> groups) {
     return Iterables.any(groups, new Predicate<UserGroup>() {
       @Override
       public boolean apply(UserGroup group) {
-        return nocEngineerGroupId.equals(group.getId());
+        return groupId.equals(group.getId());
       }
     });
   }
 
+  @VisibleForTesting
   protected void setNocEngineerGroupId(String groupId) {
     this.nocEngineerGroupId = groupId;
   }
 
+  @VisibleForTesting
   String getNocEngineerGroupId() {
     return nocEngineerGroupId;
+  }
+
+  @VisibleForTesting
+  protected void setAppManagerGroupId(String groupId) {
+    this.appManagerGroupId = groupId;
+  }
+
+  @VisibleForTesting
+  String getAppManagerGroupId() {
+    return appManagerGroupId;
   }
 }

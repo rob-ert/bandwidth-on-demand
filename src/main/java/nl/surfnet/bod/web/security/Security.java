@@ -44,8 +44,8 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3), NEW_USER(
-        "redirect:user", 4);
+    APP_MANAGER("redirect:appmanager", 1), NOC_ENGINEER("redirect:noc", 2), ICT_MANAGER("redirect:manager", 3), USER(
+        "redirect:user", 4), NEW_USER("redirect:user", 5);
 
     private String viewName;
     private int sortOrder;
@@ -102,12 +102,17 @@ public final class Security {
   public static void switchToManager() {
     getUserDetails().trySwitchToManager();
   }
+
   public static void switchToManager(PhysicalResourceGroup prg) {
     getUserDetails().switchToManager(prg);
   }
 
   public static void switchToNocEngineer() {
     getUserDetails().trySwitchToNoc();
+  }
+
+  public static void switchToAppManager() {
+    getUserDetails().trySwitchToAppManager();
   }
 
   public static boolean isUserMemberOf(String groupId) {
@@ -132,6 +137,10 @@ public final class Security {
 
   public static boolean isSelectedNocRole() {
     return getUserDetails().isSelectedNocRole();
+  }
+
+  public static boolean isSelectedAppManagerRole() {
+    return getUserDetails().isSelectedAppManagerRole();
   }
 
   public static boolean hasUserRole() {
@@ -179,15 +188,15 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   *
+   * 
    * @param richUserDetails
    *          the user details
    */
   public static void setUserDetails(RichUserDetails richUserDetails) {
     checkNotNull(richUserDetails);
 
-    RunAsUserToken authentication = new RunAsUserToken("A Run As User", richUserDetails, "N/A",
-        Collections.<GrantedAuthority> emptyList(), PreAuthenticatedAuthenticationToken.class);
+    RunAsUserToken authentication = new RunAsUserToken("A Run As User", richUserDetails, "N/A", Collections
+        .<GrantedAuthority> emptyList(), PreAuthenticatedAuthenticationToken.class);
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }

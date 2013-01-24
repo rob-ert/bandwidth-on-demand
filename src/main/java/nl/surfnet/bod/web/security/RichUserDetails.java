@@ -136,14 +136,12 @@ public class RichUserDetails implements UserDetails {
   }
 
   public List<BodRole> getManagerRoles() {
-    return FluentIterable.from(getBodRoles())
-      .filter(new Predicate<BodRole>() {
-        @Override
-        public boolean apply(BodRole bodRole) {
-          return bodRole.getRole() == RoleEnum.ICT_MANAGER;
-        }
-      })
-      .toList();
+    return FluentIterable.from(getBodRoles()).filter(new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole bodRole) {
+        return bodRole.getRole() == RoleEnum.ICT_MANAGER;
+      }
+    }).toList();
   }
 
   public BodRole getSelectedRole() {
@@ -182,15 +180,19 @@ public class RichUserDetails implements UserDetails {
   }
 
   public boolean isSelectedUserRole() {
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.USER : false;
+    return isSelectedRole(selectedRole, RoleEnum.USER);
   }
 
   public boolean isSelectedManagerRole() {
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.ICT_MANAGER : false;
+    return isSelectedRole(selectedRole, RoleEnum.ICT_MANAGER);
   }
 
   public boolean isSelectedNocRole() {
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.NOC_ENGINEER : false;
+    return isSelectedRole(selectedRole, RoleEnum.NOC_ENGINEER);
+  }
+
+  public boolean isSelectedAppManagerRole() {
+    return isSelectedRole(selectedRole, RoleEnum.APP_MANAGER);
   }
 
   public void switchToManager(PhysicalResourceGroup physicalResourceGroup) {
@@ -229,6 +231,13 @@ public class RichUserDetails implements UserDetails {
     }
   }
 
+  public void trySwitchToAppManager() {
+    BodRole appManagerRole = findFirstBodRoleByRole(RoleEnum.APP_MANAGER);
+    if (appManagerRole != null) {
+      switchToRole(appManagerRole);
+    }
+  }
+
   public void switchToUser() {
     BodRole userRole = findFirstBodRoleByRole(RoleEnum.USER);
 
@@ -253,8 +262,12 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
-        .add("bodRoles", bodRoles).add("selectedRole", selectedRole).toString();
+    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName()).add("bodRoles",
+        bodRoles).add("selectedRole", selectedRole).toString();
+  }
+
+  private boolean isSelectedRole(BodRole currentRole, RoleEnum role) {
+    return currentRole != null ? currentRole.getRole() == role : false;
   }
 
 }

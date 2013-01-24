@@ -22,19 +22,19 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.util.List;
-
-import org.hamcrest.Matchers;
-import org.junit.Test;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
 
 public class RichUserDetailsTest {
 
@@ -101,23 +101,42 @@ public class RichUserDetailsTest {
 
   @Test
   public void shouldSortRolesTestOnSortOrder() {
-    BodRole role1 = BodRole.createNocEngineer();
-    BodRole role2 = BodRole.createManager(new PhysicalResourceGroupFactory().setInstitute(
-        new InstituteFactory().setName("A").create()).create());
+    BodRole role1 = BodRole.createAppManager();
+    BodRole role2 = BodRole.createNocEngineer();
     BodRole role3 = BodRole.createManager(new PhysicalResourceGroupFactory().setInstitute(
+        new InstituteFactory().setName("A").create()).create());
+    BodRole role4 = BodRole.createManager(new PhysicalResourceGroupFactory().setInstitute(
         new InstituteFactory().setName("B").create()).create());
-    BodRole role4 = BodRole.createUser();
+    BodRole role5 = BodRole.createUser();
 
-    RichUserDetails userDetails = new RichUserDetailsFactory().addBodRoles(role4, role3, role2, role1).create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().addBodRoles(role5, role4, role3, role2, role1).create();
 
     List<BodRole> sortedRoles = userDetails.getBodRoles();
-    assertThat(sortedRoles, hasSize(4));
+    assertThat(sortedRoles, hasSize(5));
 
     // Verify by sortOrder in enum
     assertThat(sortedRoles.get(0), is(role1));
     assertThat(sortedRoles.get(1), is(role2));
     assertThat(sortedRoles.get(2), is(role3));
     assertThat(sortedRoles.get(3), is(role4));
+    assertThat(sortedRoles.get(4), is(role5));
+  }
+
+  @Test
+  public void switchRoleToAppManager() {
+    BodRole appManagerRole = BodRole.createAppManager();
+
+    RichUserDetails userDetails = new RichUserDetailsFactory().addBodRoles(appManagerRole).create();
+
+    userDetails.switchToRoleById(appManagerRole.getId());
+
+    assertThat(userDetails.getSelectedRole(), is(appManagerRole));
+    assertThat(userDetails.getBodRoles(), hasSize(1));
+    assertThat(userDetails.getSelectableRoles(), hasSize(0));
+
+    userDetails.trySwitchToAppManager();
+
+    assertThat(userDetails.getSelectedRole(), is(appManagerRole));
   }
 
 }

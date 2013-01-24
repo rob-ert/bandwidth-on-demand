@@ -20,6 +20,11 @@
     <put-attribute name="active_menu" value="none" cascade="true" />
   </definition>
 
+  <definition name="appmanager" template="/WEB-INF/layouts/default.jspx">
+    <put-attribute name="menubar" value="/WEB-INF/views/appmanager/menubar.jspx" />
+    <put-attribute name="active_menu" value="none" cascade="true" />
+  </definition>
+
   <definition name="error" template="/WEB-INF/layouts/default.jspx">
     <put-attribute name="menubar" value="/WEB-INF/views/errorMenubar.jspx" />
     <put-attribute name="active_menu" value="error" cascade="true" />

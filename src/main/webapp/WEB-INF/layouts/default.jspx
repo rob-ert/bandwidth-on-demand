@@ -39,7 +39,7 @@
                 <h1>${app_name}</h1>
             </header>
 
-            <sec:authorize ifAnyGranted="USER, ICT_MANAGER, NOC_ENGINEER">
+            <sec:authorize ifAnyGranted="USER, ICT_MANAGER, NOC_ENGINEER, APP_MANAGER">
                 <section class="user-box content-dense">
                     <span class="user-name">
                         <sec:authentication property="principal.displayName" />
