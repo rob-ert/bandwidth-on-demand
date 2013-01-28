@@ -32,7 +32,9 @@
     </properties>
 
     <scm>
+      <connection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</connection>
       <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</developerConnection>
+      <url>https://github.com/BandwidthOnDemand/bandwidth-on-demand-os</url>
     </scm>
 
     <dependencies>
