@@ -49,7 +49,6 @@ public class DashboardController {
 
   private static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
   private static final String INSTITUTES_PART = REFRESH_PART + "institutes";
-  private static final String PORT_PART = REFRESH_PART + "ports";
   private static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethinfo";
 
   private static final String CHECK_PORTS = "/checkports";
@@ -75,7 +74,6 @@ public class DashboardController {
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
     model.addAttribute("refresh_searchindex_url", PAGE_URL + SEARCH_INDEX_PART);
-    model.addAttribute("refresh_ports_url", PAGE_URL + PORT_PART);
     model.addAttribute("refresh_institutes_url", PAGE_URL + INSTITUTES_PART);
     model.addAttribute("show_shibboleth_info_url", PAGE_URL + SHIBBOLETH_INFO_PART);
 
@@ -88,16 +86,6 @@ public class DashboardController {
 
     logger.info("Re indexing search database");
     WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Search database indexes");
-
-    return "redirect:/" + PAGE_URL;
-  }
-
-  @RequestMapping(value = PORT_PART)
-  public String forceCheckForPortInconsitencies(RedirectAttributes model) {
-    physicalPortService.forceCheckForPortInconsitencies();
-
-    logger.info("Forcing check for port inconsistencies");
-    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Port inconsistencies");
 
     return "redirect:/" + PAGE_URL;
   }
