@@ -37,15 +37,10 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.base.MessageView;
-import nl.surfnet.bod.web.security.Security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,14 +54,10 @@ import com.google.common.base.Predicate;
 @Controller
 public class InstituteController {
 
-  public static final String REFRESH = "/refresh";
   public static final String PAGE_URL = "/institutes";
-  public static final String REFRESH_URL = PAGE_URL + REFRESH;
 
   static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
-
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private InstituteService instituteService;
@@ -91,28 +82,6 @@ public class InstituteController {
         return !existingInstitutes.contains(instituteName) && !instituteName.isEmpty() && instituteName.contains(query);
       }
     });
-  }
-
-  @RequestMapping(value = REFRESH, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
-  public String refreshInstitutes(Model model) {
-
-    MessageView message;
-
-    if (Security.isSelectedNocRole()) {
-      logger.info("Manually refreshing institutes...");
-      instituteService.refreshInstitutes();
-
-      message = MessageView.createInfoMessage(messageSource,
-        "Refreshed institutes", "Refreshed institutes");
-    }
-    else {
-      message = MessageView.createErrorMessage(
-          messageSource, "Not a NOC engineer", "Insitutes are not refreshed, you should be a NOC engineer");
-    }
-
-    model.addAttribute(MessageView.MODEL_KEY, message);
-
-    return MessageView.PAGE_URL;
   }
 
   private Collection<String> getExistingInstituteNames() {

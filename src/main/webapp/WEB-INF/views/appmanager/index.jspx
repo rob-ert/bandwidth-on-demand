@@ -12,20 +12,30 @@
   <div class="row">
     <div class="span8">
       <section>
-        <h2>Application Manager</h2>
-        <div class="content">
-          <c:out value="Welcome Application Manager" />
-        </div>
+        <h2>Welcome Application Manager</h2>
+        <dl class="dl">
+          <dt>
+            <spring:url var="r_institutes_url" value="${refresh_institutes_url}" />
+            <a href="${r_institutes_url}"><spring:message code="label_refresh_institutes" /></a>
+          </dt>
+          <dd>Refreshes institutes from IDD</dd>
+          <dt>
+            <spring:url var="r_ports_url" value="${refresh_ports_url}" />
+            <a href="${r_ports_url}"><spring:message code="label_refresh_ports" /></a>
+          </dt>
+          <dd>Refreshes ports from the NMS</dd>
+          <dt>
+            <spring:url var="r_search_url" value="${refresh_searchindex_url}" />
+            <a href="${r_search_url}"><spring:message code="label_refresh_reindex_search" /></a>
+          </dt>
+          <dd>Re-indexes the search database</dd>
+          <dt>
+            <spring:url var="r_shibinfo_url" value="${show_shibboleth_info_url}" />
+            <a href="${r_shibinfo_url}"><spring:message code="label_show_shibboleth_info" /></a>
+          </dt>
+          <dd>Show Shibboleth request attributes</dd>
+        </dl>
       </section>
-      <section>
-        <h2>Link</h2>
-        <div class="content">
-          <sec:authentication property="principal.selectedRole"
-            var="selectedRole" />
-          <c:out value="${selectedRole.roleName}" />
-        </div>
-      </section>
-      <!--  Removed reporting -->
     </div>
     <div class="span4">
       <section>

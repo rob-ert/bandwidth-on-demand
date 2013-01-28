@@ -6,11 +6,6 @@
       <put-attribute name="active_menu" value="advanced" cascade="true" />
     </definition>
 
-    <definition extends="default" name="shibboleth/info">
-      <put-attribute name="body" value="/WEB-INF/views/shibboleth/info.jspx" />
-      <put-attribute name="active_menu" value="advanced" cascade="true" />
-    </definition>
-
     <definition extends="default" name="shibboleth/login">
       <put-attribute name="body" value="/WEB-INF/views/shibboleth/login.jspx" />
       <put-attribute name="active_menu" value="advanced" cascade="true" />

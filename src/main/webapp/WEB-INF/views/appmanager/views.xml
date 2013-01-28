@@ -7,4 +7,9 @@
     <put-attribute name="active_menu" value="overview" cascade="true" />
   </definition>
 
+  <definition extends="appmanager" name="shibbolethinfo">
+      <put-attribute name="body" value="/WEB-INF/views/appmanager/shibbolethInfo.jspx" />
+      <put-attribute name="active_menu" value="overview" cascade="true" />
+    </definition>
+
 </tiles-definitions>

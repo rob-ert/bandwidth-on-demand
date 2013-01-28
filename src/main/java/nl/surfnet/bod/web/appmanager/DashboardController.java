@@ -22,18 +22,13 @@
  */
 package nl.surfnet.bod.web.appmanager;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.view.NocStatisticsView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,86 +37,83 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.google.common.annotations.VisibleForTesting;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller("appManagerDashboardController")
-@RequestMapping(DashboardController.PAGE_URL)
+@RequestMapping("/" + DashboardController.PAGE_URL)
 public class DashboardController {
 
-  public static final String PAGE_URL = "/appmanager";
+  public static final String PAGE_URL = "appmanager";
+  private static final String REFRESH_PART = "/refresh/";
+  private static final String SHOW_PART = "/show/";
+
+  private static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
+  private static final String INSTITUTES_PART = REFRESH_PART + "institutes";
+  private static final String PORT_PART = REFRESH_PART + "ports";
+  private static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethinfo";
+
   private static final String CHECK_PORTS = "/checkports";
   private static final String CHECK_PORTS_URL = PAGE_URL + CHECK_PORTS;
 
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private PhysicalPortService physicalPortService;
 
   @Resource
-  private ReservationService reservationService;
+  private TextSearchIndexer textSearchIndexer;
+
+  @Resource
+  private InstituteService instituteService;
 
   @Resource
   private MessageSource messageSource;
 
-  @Resource(name = "bodEnvironment")
-  private Environment environment;
-
   @Resource
-  private LogEventService logEventService;
+  private Environment bodEnvironment;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-
-    model.addAttribute("stats", determineStatistics());
-    model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
-
-    generateErrorMessagesForUnalignedPorts(model, physicalPortService.findUnalignedPhysicalPorts());
+    model.addAttribute("refresh_searchindex_url", PAGE_URL + SEARCH_INDEX_PART);
+    model.addAttribute("refresh_ports_url", PAGE_URL + PORT_PART);
+    model.addAttribute("refresh_institutes_url", PAGE_URL + INSTITUTES_PART);
+    model.addAttribute("show_shibboleth_info_url", PAGE_URL + SHIBBOLETH_INFO_PART);
 
     return "appmanager/index";
   }
 
-  @RequestMapping(value = CHECK_PORTS, method = RequestMethod.GET)
-  public String forceCheckForPortInconsitencies(String callbackViewName) {
-    log.info("Manually forcing check for port inconsitencies");
+  @RequestMapping(value = SEARCH_INDEX_PART)
+  public String indexData(RedirectAttributes model) {
+    textSearchIndexer.indexDatabaseContent();
+
+    logger.info("Re indexing search database");
+    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Search database indexes");
+
+    return "redirect:/" + PAGE_URL;
+  }
+
+  @RequestMapping(value = PORT_PART)
+  public String forceCheckForPortInconsitencies(RedirectAttributes model) {
     physicalPortService.forceCheckForPortInconsitencies();
-    return "redirect:/noc";
+
+    logger.info("Forcing check for port inconsistencies");
+    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Port inconsistencies");
+
+    return "redirect:/" + PAGE_URL;
   }
 
-  @VisibleForTesting
-  NocStatisticsView determineStatistics() {
-    ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
+  @RequestMapping(value = INSTITUTES_PART)
+  public String refreshInstitutes(RedirectAttributes model) {
+    instituteService.refreshInstitutes();
 
-    long countPhysicalPorts = physicalPortService.countAllocated();
+    logger.info("Manually refreshing institutes");
+    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Institutes");
 
-    long countElapsedReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ELAPSED));
-
-    long countActiveReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ACTIVE));
-
-    long countComingReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.COMING));
-
-    long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
-
-    return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
-        countComingReservations, countMissingPhysicalPorts);
+    return "redirect:/" + PAGE_URL;
   }
 
-  private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unaliagnedPhysicalPorts) {
-
-    final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
-
-    for (PhysicalPort port : unaliagnedPhysicalPorts) {
-      WebUtils.addErrorMessage(forcePortCheckButton, model, messageSource, "info_physicalport_unaligned_with_nms", port
-          .getNmsPortId(), port.getNocLabel());
-    }
-  }
-
-  private String createForcePortCheckButton(String actionUrl) {
-    return String.format(
-        "<a href=\"%s\" rel=\"tooltip\" title=\"Force port check\"><i class=\"icon-refresh\"><!--  --></i></a>",
-        actionUrl);
+  @RequestMapping(value = SHIBBOLETH_INFO_PART)
+  public String showShibbolethInfo() {
+    return "shibbolethinfo";
   }
 }

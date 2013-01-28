@@ -41,10 +41,10 @@ import org.springframework.web.util.NestedServletException;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AdminControllerTest {
+public class DevelopmentControllerTest {
 
   @InjectMocks
-  private AdminController subject;
+  private DevelopmentController subject;
 
   @Mock
   private ReloadableResourceBundleMessageSource messageSourceMock;
