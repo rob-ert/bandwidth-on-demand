@@ -10,7 +10,7 @@
     <parent>
         <groupId>nl.surfnet.bod</groupId>
         <artifactId>bod-parent-pom</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.1</version>
     </parent>
 
     <properties>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>nl.surfnet.bod</groupId>
             <artifactId>bod-opendrac</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -1018,16 +1018,6 @@
 
     <repositories>
         <repository>
-            <id>surfnet-public-releases</id>
-            <name>surfnet-public-releases</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases</url>
-        </repository>
-        <repository>
-            <id>surfnet-public-snapshots</id>
-            <name>surfnet-public-snapshots</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-snapshots</url>
-        </repository>
-        <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
@@ -1068,6 +1058,7 @@
     </pluginRepositories>
 
     <distributionManagement>
+        <!-- not the public repos, because war will contain env properties -->
         <repository>
             <id>surfnet-releases</id>
             <name>surfnet-releases</name>
