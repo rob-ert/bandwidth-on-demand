@@ -313,7 +313,7 @@
         <dependency>
             <groupId>com.google.code</groupId>
             <artifactId>opensocial-java-client</artifactId>
-            <version>1.16.1-coin</version>
+            <version>1.16.2-bod</version>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
