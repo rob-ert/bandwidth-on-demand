@@ -22,17 +22,27 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
+import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType;
+import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import org.tmforum.mtop.fmw.xsd.oc.v1.ObjectCreationType;
+import org.tmforum.mtop.fmw.xsd.odel.v1.ObjectDeletionType;
+import org.tmforum.mtop.fmw.xsd.sc.v1.StateChangeType;
+import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
+
+import com.google.common.collect.ImmutableList;
 
 @Service("NotificationConsumerHttp")
 @WebService(
@@ -41,48 +51,75 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
-  private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
+
+  // FIXME [AvD] concurrency....
+  private final List<AlarmType> alarms = new ArrayList<>();
+  private final List<AttributeValueChangeType> attributeValueChangeEvents = new ArrayList<>();
+  private final List<ObjectCreationType> objectCreationEvents = new ArrayList<>();
+  private final List<ObjectDeletionType> objectDeletionEvents = new ArrayList<>();
+  private final List<StateChangeType> stateChangeEvents = new ArrayList<>();
 
   @Override
   public void notify(final Header header, final Notify body) {
-    log.info("Activity name: {}", header.getActivityName());
-    log.info("Topic: {}", body.getTopic());
-    queue.add(new MtosiNotificationHolder(header, body));
+    log.info("Notification topic: {}", body.getTopic());
+
+    List<CommonEventInformationType> eventInformations = body.getMessage().getCommonEventInformation();
+    log.info("Number of events: {}", eventInformations.size());
+
+    for (CommonEventInformationType eventInformation : eventInformations) {
+      log.info("Event clazz: {}", eventInformation.getClass());
+      if (eventInformation instanceof AlarmType) {
+        AlarmType alarm = (AlarmType) eventInformation;
+        printAlarm(alarm);
+        alarms.add(alarm);
+      }
+      else if (eventInformation instanceof AttributeValueChangeType) {
+        AttributeValueChangeType event = (AttributeValueChangeType) eventInformation;
+        attributeValueChangeEvents.add(event);
+      }
+      else if (eventInformation instanceof ObjectCreationType) {
+        ObjectCreationType event = (ObjectCreationType) eventInformation;
+        objectCreationEvents.add(event);
+      }
+      else if (eventInformation instanceof ObjectDeletionType) {
+        ObjectDeletionType event = (ObjectDeletionType) eventInformation;
+        objectDeletionEvents.add(event);
+      }
+      else if (eventInformation instanceof StateChangeType) {
+        StateChangeType event = (StateChangeType) eventInformation;
+        stateChangeEvents.add(event);
+      }
+    }
   }
 
-  public MtosiNotificationHolder getFirstMessage(long timeout, final TimeUnit timeUnit) {
+  private void printAlarm(AlarmType alarm) {
     try {
-      return queue.pollFirst(timeout, timeUnit);
-    }
-    catch (InterruptedException e) {
-      return null;
+      Marshaller marshaller = JAXBContext.newInstance(AlarmType.class).createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+      marshaller.marshal(alarm, System.out);
+    } catch (Exception e) {
+      log.error("Could not print alarm", e);
     }
   }
 
-  public MtosiNotificationHolder getLastMessage(long timeout, final TimeUnit timeUnit) {
-    try {
-      return queue.pollLast(timeout, timeUnit);
-    }
-    catch (InterruptedException e) {
-      return null;
-    }
+  public List<AlarmType> getAlarms() {
+    return ImmutableList.copyOf(alarms);
   }
 
-  public MtosiNotificationHolder getFirstMessage() {
-    try {
-      return queue.pollFirst(0, TimeUnit.SECONDS);
-    }
-    catch (InterruptedException e) {
-      return null;
-    }
+  public List<AttributeValueChangeType> getAttributeValueChangeEvents() {
+    return ImmutableList.copyOf(attributeValueChangeEvents);
   }
 
-  public MtosiNotificationHolder getLastMessage() {
-    try {
-      return queue.pollLast(0, TimeUnit.SECONDS);
-    }
-    catch (InterruptedException e) {
-      return null;
-    }
+  public List<ObjectCreationType> getObjectCreationEvents() {
+    return ImmutableList.copyOf(objectCreationEvents);
   }
+
+  public List<ObjectDeletionType> getObjectDeletionEvents() {
+    return ImmutableList.copyOf(objectDeletionEvents);
+  }
+
+  public List<StateChangeType> getStateChangeEvents() {
+    return ImmutableList.copyOf(stateChangeEvents);
+  }
+
 }
