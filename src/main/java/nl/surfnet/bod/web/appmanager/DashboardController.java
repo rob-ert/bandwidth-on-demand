@@ -25,9 +25,7 @@ package nl.surfnet.bod.web.appmanager;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.TextSearchIndexer;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.slf4j.Logger;
@@ -47,17 +45,11 @@ public class DashboardController {
   private static final String REFRESH_PART = "/refresh/";
   private static final String SHOW_PART = "/show/";
 
-  private static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
-  private static final String INSTITUTES_PART = REFRESH_PART + "institutes";
-  private static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethinfo";
-
-  private static final String CHECK_PORTS = "/checkports";
-  private static final String CHECK_PORTS_URL = PAGE_URL + CHECK_PORTS;
+  static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
+  static final String INSTITUTES_PART = REFRESH_PART + "institutes";
+  static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethattribs";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-  @Resource
-  private PhysicalPortService physicalPortService;
 
   @Resource
   private TextSearchIndexer textSearchIndexer;
@@ -67,9 +59,6 @@ public class DashboardController {
 
   @Resource
   private MessageSource messageSource;
-
-  @Resource
-  private Environment bodEnvironment;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -81,7 +70,7 @@ public class DashboardController {
   }
 
   @RequestMapping(value = SEARCH_INDEX_PART)
-  public String indexData(RedirectAttributes model) {
+  public String indexSearchDatabase(RedirectAttributes model) {
     textSearchIndexer.indexDatabaseContent();
 
     logger.info("Re indexing search database");
