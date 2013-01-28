@@ -25,28 +25,31 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.web.security.Security;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("dev")
+@RequestMapping("/" + DevelopmentController.PAGE_URL)
 public class DevelopmentController {
+  final static String PAGE_URL = "dev";
+
+  static final String REFRESH_PART = "/refresh/";
+
+  static final String ERROR_PART = "/error";
+  static final String MESSAGES_PART = REFRESH_PART + "messages";
+  static final String ROLES_PART = REFRESH_PART + "roles";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private ReloadableResourceBundleMessageSource messageSource;
 
-  @RequestMapping(value = "refresh/messages", method = RequestMethod.GET)
+  @RequestMapping(value = MESSAGES_PART)
   public String refreshMessageSource(HttpServletRequest request, RedirectAttributes model) {
     messageSource.clearCache();
     logger.info("Refresing messages");
@@ -55,28 +58,17 @@ public class DevelopmentController {
     return "redirect:" + request.getHeader("Referer");
   }
 
-  @RequestMapping("refresh/roles")
-  public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {
+  @RequestMapping(value = ROLES_PART)
+  public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {   
     SecurityContextHolder.clearContext();
+
     logger.info("Refreshing roles");
     WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Roles");
 
     return "redirect:" + request.getHeader("Referer");
   }
 
-  @RequestMapping("/show/teams")
-  public String list(final Model uiModel) {
-    uiModel.addAttribute("teams", Security.getUserDetails().getUserGroups());
-
-    return "shibboleth/teams";
-  }
-
-  @RequestMapping("/show/shibinfo")
-  public String info() {
-    return "shibboleth/info";
-  }
-
-  @RequestMapping(value = "error", method = RequestMethod.GET)
+  @RequestMapping(value = ERROR_PART)
   public String error() {
     throw new RuntimeException("Something went wrong on purpose");
   }

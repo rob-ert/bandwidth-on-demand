@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.AbstractListPage;
 import nl.surfnet.bod.pages.noc.*;
-import nl.surfnet.bod.web.InstituteController;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.DateTime;
@@ -262,9 +261,6 @@ public class BodNocWebDriver {
     page.verifyRowWithLabelDoesNotExist(fields);
   }
 
-  public void refreshInstitutes() {
-    driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
-  }
 
   public void verifyVirtualResourceGroupExists(String... fields) {
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
