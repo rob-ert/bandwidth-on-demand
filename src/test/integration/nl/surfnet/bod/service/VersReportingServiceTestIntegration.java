@@ -22,26 +22,21 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.fail;
-
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 public class VersReportingServiceTestIntegration {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource
   private VersReportingService versReportingService;
@@ -52,15 +47,9 @@ public class VersReportingServiceTestIntegration {
   }
 
   @Test
-  public void smoketest() {
-
-    try {
-      versReportingService.sendInternalReport();
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      fail();
-    }
+  @Ignore
+  public void smoketest() throws Exception {
+    versReportingService.sendInternalReport();
   }
 
 }
