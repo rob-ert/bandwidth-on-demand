@@ -34,7 +34,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class BodNocWebDriver {
+public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
   private final RemoteWebDriver driver;
 
@@ -119,23 +119,6 @@ public class BodNocWebDriver {
     EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
 
     assertThat(editPage.getManagerLabel(), is(managerLabel));
-  }
-
-  public void switchToManager(final String name) {
-    switchTo("BoD Administrator", name);
-  }
-
-  public void switchToManager() {
-    switchTo("BoD Administrator");
-  }
-
-  public void switchToUser() {
-    switchTo("User");
-  }
-
-  private void switchTo(String... role) {
-    nl.surfnet.bod.pages.noc.DashboardPage page = nl.surfnet.bod.pages.noc.DashboardPage.get(driver, URL_UNDER_TEST);
-    page.clickSwitchRole(role);
   }
 
   public void addPhysicalPortToInstitute(String groupName, String nocLabel, final String portLabel) {
@@ -261,7 +244,6 @@ public class BodNocWebDriver {
     page.verifyRowWithLabelDoesNotExist(fields);
   }
 
-
   public void verifyVirtualResourceGroupExists(String... fields) {
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.findRow(fields);
@@ -371,6 +353,11 @@ public class BodNocWebDriver {
     dashboardPage.verifyMenuPhysicalPorts();
     dashboardPage.verifyMenuLogEvents();
     dashboardPage.verifyMenuReport();
+  }
+
+  @Override
+  protected DashboardPage getDashboardPage() {
+    return DashboardPage.get(driver, URL_UNDER_TEST);
   }
 
 }

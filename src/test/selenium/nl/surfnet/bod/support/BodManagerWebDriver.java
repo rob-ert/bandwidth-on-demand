@@ -37,7 +37,7 @@ import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class BodManagerWebDriver {
+public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
   private final RemoteWebDriver driver;
 
@@ -220,24 +220,6 @@ public class BodManagerWebDriver {
     page.save();
   }
 
-  public void switchToNoc() {
-    switchTo("NOC Engineer");
-  }
-
-  public void switchToUser() {
-    switchTo("User");
-  }
-
-  public void switchToManager(String manager) {
-    switchTo("BoD Administrator", manager);
-  }
-
-  private void switchTo(String... role) {
-    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
-
-    page.clickSwitchRole(role);
-  }
-
   public void verifyReservationWasCreated(String reservationLabel, LocalDate startDate, LocalDate endDate,
       LocalTime startTime, LocalTime endTime) {
 
@@ -329,6 +311,11 @@ public class BodManagerWebDriver {
     dashboardPage.verifyMenuPhysicalPorts();
     dashboardPage.verifyMenuLogEvents();
     dashboardPage.verifyMenuReport();
+  }
+
+  @Override
+  protected DashboardPage getDashboardPage() {
+    return DashboardPage.get(driver, URL_UNDER_TEST);
   }
 
 }

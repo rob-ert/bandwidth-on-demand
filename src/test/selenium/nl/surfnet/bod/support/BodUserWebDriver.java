@@ -39,7 +39,7 @@ import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class BodUserWebDriver {
+public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
   private final RemoteWebDriver driver;
 
@@ -66,8 +66,7 @@ public class BodUserWebDriver {
     page.deleteByDates(startDate, endDate, startTime, endTime);
   }
 
-  public void verifyReservationIsCanceled(LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
+  public void verifyReservationIsCanceled(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
@@ -175,20 +174,6 @@ public class BodUserWebDriver {
     page.verifyRowWithLabelDoesNotExist(fields);
   }
 
-  public void switchToNoc() {
-    switchTo("NOC Engineer");
-  }
-
-  public void switchToManager(String manager) {
-    switchTo("BoD Administrator", manager);
-  }
-
-  private void switchTo(String... role) {
-    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
-
-    page.clickSwitchRole(role);
-  }
-
   public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
       LocalTime startTime, LocalTime endTime) {
 
@@ -282,5 +267,10 @@ public class BodUserWebDriver {
     dashboardPage.verifyMenuLogEvents();
     dashboardPage.verifyMenuAdvanced();
     dashboardPage.verifyMenuReport();
+  }
+
+  @Override
+  protected DashboardPage getDashboardPage() {
+    return DashboardPage.get(driver, URL_UNDER_TEST);
   }
 }
