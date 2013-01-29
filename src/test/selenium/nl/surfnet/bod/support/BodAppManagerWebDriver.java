@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import nl.surfnet.bod.pages.appmanager.DashboardPage;
+import nl.surfnet.bod.pages.appmanager.ErrorPage;
 import nl.surfnet.bod.pages.appmanager.ShibbolethAttributesPage;
 
 import org.openqa.selenium.WebElement;
@@ -73,6 +74,31 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
   @Override
   protected DashboardPage getDashboardPage() {
     return DashboardPage.get(driver, URL_UNDER_TEST);
+  }
+
+  public void verifyDevelopmentLinkAmount(int amount) {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyDevelopmentLinkAmount(amount);
+    dashboardPage.verifyIsCurrentPage();
+  }
+
+  public void verifyDevelopmentLinkRefreshMessage() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyDevelopmentLinkRefreshMessage();
+    dashboardPage.verifyIsCurrentPage();
+  }
+
+  public void verifyDevelopmentLinkRefreshRoles() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyDevelopmentLinkRefreshRoles();
+    dashboardPage.verifyIsCurrentPage();
+  }
+
+  public void verifyDevelopmentLinkGenerateError() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyDevelopmentLinkGenerateError();
+
+    ErrorPage.get(driver, URL_UNDER_TEST).verifyIsCurrentPage();
   }
 
 }
