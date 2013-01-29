@@ -43,6 +43,7 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
     refreshInstitutesLink.click();
 
     dashboardPage.verifyIsCurrentPage();
+    dashboardPage.verifyOneInfoMessage("Institutes");
   }
 
   public void verifyReIndexSearchDatabaseLink() {
@@ -51,6 +52,7 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
     reindexDatabaseLink.click();
 
     dashboardPage.verifyIsCurrentPage();
+    dashboardPage.verifyOneInfoMessage("database");
   }
 
   public void verifyShibbolethAttributesLink() {

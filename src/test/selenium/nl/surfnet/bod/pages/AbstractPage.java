@@ -24,6 +24,7 @@ package nl.surfnet.bod.pages;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -183,5 +184,11 @@ public class AbstractPage {
     WebElement definitionList = getDriver().findElementByCssSelector(".dl");
 
     return definitionList.findElement(By.partialLinkText(label));
+  }
+
+  public void verifyOneInfoMessage(String text) {
+    List<String> infoMessages = getInfoMessages();
+    assertThat(infoMessages, hasSize(1));
+    assertThat(infoMessages.get(0), containsString(text));
   }
 }
