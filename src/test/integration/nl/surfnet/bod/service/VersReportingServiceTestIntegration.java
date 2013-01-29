@@ -22,34 +22,70 @@
  */
 package nl.surfnet.bod.service;
 
-import javax.annotation.Resource;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.util.TestHelper;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
+import nl.surfnet.bod.web.view.ReservationReportView;
 
-import nl.surfnet.bod.AppConfiguration;
-import nl.surfnet.bod.config.IntegrationDbConfiguration;
-
+import org.joda.time.YearMonth;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+import com.google.common.collect.Lists;
+
+@RunWith(MockitoJUnitRunner.class)
 public class VersReportingServiceTestIntegration {
 
-  @Resource
-  private VersReportingService versReportingService;
+  @InjectMocks
+  private VersReportingService subject;
+
+  @Mock
+  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+
+  @Mock
+  private ReportingService reportingServiceMock;
 
   @Before
   public void setUp() throws Exception {
-    versReportingService.init();
+    PropertiesEnvironment testProperties = TestHelper.testProperties();
+    subject.setVersUserName(testProperties.getProperty("vers.user"));
+    subject.setVersUserPassword(testProperties.getDecryptedProperty("vers.password"));
+    subject.setServiceURL(testProperties.getProperty("vers.url"));
   }
 
   @Test
   @Ignore
-  public void smoketest() throws Exception {
-    versReportingService.sendInternalReport();
+  public void insertReporting() throws Exception {
+    YearMonth period = new YearMonth(2006, 3);
+    Institute institute = new InstituteFactory().setShortName("RUG").setName("Rijks Universiteit Groningen").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(institute).create();
+    ReservationReportView adminReport = new ReservationReportView(period.toInterval().getStart(), period.toInterval().getEnd());
+    adminReport.setAmountRunningReservationsFailed(1);
+    adminReport.setAmountRequestsCreatedSucceeded(5);
+    adminReport.setAmountRunningReservationsStillRunning(4);
+
+    ReservationReportView nocReport = new ReservationReportView(period.toInterval().getStart(), period.toInterval().getEnd());
+    nocReport.setAmountRunningReservationsFailed(2);
+    nocReport.setAmountRequestsCreatedSucceeded(10);
+    nocReport.setAmountRunningReservationsStillRunning(8);
+
+    when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group));
+    when(reportingServiceMock.determineReportForAdmin(eq(period.toInterval()), any(BodRole.class))).thenReturn(adminReport);
+    when(reportingServiceMock.determineReportForNoc(period.toInterval())).thenReturn(nocReport);
+
+    subject.sendReports(period);
   }
 
 }

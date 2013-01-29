@@ -22,13 +22,10 @@
  */
 package nl.surfnet.bod.service;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.rmi.RemoteException;
+import java.util.*;
 import java.util.Map.Entry;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -36,11 +33,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.YearMonth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +42,7 @@ import org.springframework.stereotype.Service;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
-import surfnet_er.ErInsertReportResponseDocument;
+import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
 import surfnet_er.InsertReportInput;
 
 import com.google.common.base.Optional;
@@ -57,8 +50,12 @@ import com.google.common.base.Optional;
 @Service
 public class VersReportingService {
 
+  private static final String DEPARTMENT_NETWERK_DIENSTEN = "NWD";
+  // Every 1st of the month at 1:00am
+  private static final String FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION = "0 0 1 1 1/1 ?";
+
   @Value("${vers.url}")
-  private String serviceURL;// = "http://localhost:1234";
+  private String serviceURL;
 
   @Value("${vers.user}")
   private String versUserName;
@@ -72,228 +69,234 @@ public class VersReportingService {
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Resource
-  private Map<String, Map<String, String>> reportToVersMap;
-
-  private SURFnetErStub surfNetErStub;
-
-  private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
-
-  private final DateTimeFormatter versFormatter = DateTimeFormat.forPattern("yyyy-MM");
-
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  @PostConstruct
-  void init() throws IOException {
-    surfNetErStub = new SURFnetErStub(serviceURL);
+  @Scheduled(cron = FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION)
+  public void sendInternalReport() throws Exception {
+    YearMonth previousMonth = YearMonth.now().minusMonths(1);
+
+    sendReports(previousMonth);
   }
 
-  @Scheduled(cron = firstDayOfTheMonthCronExpression)
-  public void sendInternalReport() throws Exception {
+  public void sendReports(YearMonth period) {
+    log.info(String.format("Sending reports to VERS for '%s'", period.toString("yyyy-MM")));
 
-    final Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews();
+    Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews(period);
 
-    for (final Entry<Optional<String>, ReservationReportView> reservationReportViewEntry : reportViews.entrySet()) {
-      for (final Entry<String, Map<String, String>> entry : reportToVersMap.entrySet()) {
-        String text = entry.getKey();
-        long valuePos, valueNeg;
-        switch (entry.getKey()) {
+    for (Entry<Optional<String>, ReservationReportView> reservationReportViewEntry : reportViews.entrySet()) {
 
-        case "amountReservationsProtected":
-          valuePos = reservationReportViewEntry.getValue().getAmountReservationsProtected();
-          valueNeg = reservationReportViewEntry.getValue().getAmountReservationsUnprotected();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", valuePos,
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          if (entry.getValue().get("FALSE") != null) {
-            text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", valueNeg,
-                reservationReportViewEntry.getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          text = "Redundant";
-          surfNetErStub.er_InsertReport(getVersRequest("Reservations: Protection Types", reservationReportViewEntry
-              .getValue().getAmountReservationsRedundant(), reservationReportViewEntry.getValue().getPeriodStart(),
-              reservationReportViewEntry.getKey(), text));
-          break;
+      Optional<String> institute = reservationReportViewEntry.getKey();
+      ReservationReportView reportView = reservationReportViewEntry.getValue();
 
-        case "amountRunningReservationsSucceeded":
-          valuePos = reservationReportViewEntry.getValue().getAmountRequestsCreatedSucceeded();
-          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCreatedFailed();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", valuePos, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          if (entry.getValue().get("FALSE") != null) {
-            text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations created", valueNeg, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          break;
+      Collection<ErInsertReportDocument> reports = createAllReports(period, institute, reportView);
 
-        case "amountRunningReservationsStillRunning":
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
-                .getValue().getAmountRunningReservationsStillRunning(), reservationReportViewEntry.getValue()
-                .getPeriodStart(), reservationReportViewEntry.getKey(), text));
+      log.info(String.format("Sending %d reports for institute '%s'", reports.size(), institute.or("Null/Not set")));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
-                .getValue().getAmountRunningReservationsSucceeded(), reservationReportViewEntry.getValue()
-                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution succeeded"));
+      submitReports(reports);
+    }
+  }
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
-                .getValue().getAmountRunningReservationsFailed(), reservationReportViewEntry.getValue()
-                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution failed"));
+  Collection<ErInsertReportDocument> createAllReports(YearMonth period, Optional<String> institute, ReservationReportView reportView) {
+    List<ErInsertReportDocument> reports = new ArrayList<>();
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
-                .getValue().getAmountRunningReservationsSucceeded(), reservationReportViewEntry.getValue()
-                .getPeriodStart(), reservationReportViewEntry.getKey(), "Execution succeeded"));
+    reports.addAll(createAmountReservationsProtectedPki(period, institute, reportView));
+    reports.addAll(createRunningReservationsSucceededPki(period, institute, reportView));
+    reports.addAll(createAmountRunningReservationsStillRunningPki(period, institute, reportView));
+    reports.addAll(createAmountRequestsThroughGUIPki(period, institute, reportView));
+    reports.addAll(createAmountRunningReservationsNeverProvisionedPki(period, institute, reportView));
+    reports.addAll(createAmountRequestsModifiedSucceededPki(period, institute, reportView));
+    reports.addAll(createAmountRequestsCancelSucceededPki(period, institute, reportView));
 
-            surfNetErStub.er_InsertReport(getVersRequest("Active Reservations: Running", reservationReportViewEntry
-                .getValue().getAmountRunningReservationsStillScheduled(), reservationReportViewEntry.getValue()
-                .getPeriodStart(), reservationReportViewEntry.getKey(), "Scheduled"));
-          }
-          break;
+    return reports;
+  }
 
-        case "amountRequestsThroughGUI":
-          valuePos = reservationReportViewEntry.getValue().getAmountRequestsThroughNSI();
-          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsThroughGUI();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", valuePos, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          if (entry.getValue().get("FALSE") != null) {
-            text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservations through", valueNeg, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          break;
+  Collection<ErInsertReportDocument> createAmountRequestsCancelSucceededPki(YearMonth previousMonth,
+      Optional<String> institute, ReservationReportView reportView) {
 
-        case "amountRunningReservationsNeverProvisioned":
-          valuePos = reservationReportViewEntry.getValue().getAmountRunningReservationsNeverProvisioned();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Never provisioned", valuePos, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          break;
+    List<ErInsertReportDocument> reports = new ArrayList<>();
 
-        case "amountRequestsModifiedSucceeded":
-          valuePos = reservationReportViewEntry.getValue().getAmountRequestsModifiedSucceeded();
-          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsModifiedFailed();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", valuePos, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          if (entry.getValue().get("FALSE") != null) {
-            text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation modified", valueNeg, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          break;
+    long valuePos = reportView.getAmountRequestsCancelSucceeded();
+    reports.add(getVersRequest("Reservation Cancelled", valuePos, previousMonth, institute, "Succeeded"));
 
-        case "amountRequestsCancelSucceeded":
-          valuePos = reservationReportViewEntry.getValue().getAmountRequestsCancelSucceeded();
-          valueNeg = reservationReportViewEntry.getValue().getAmountRequestsCancelFailed();
-          if (entry.getValue().get("TRUE") != null) {
-            text = entry.getValue().get("TRUE");
-            final ErInsertReportResponseDocument er_InsertReport = surfNetErStub.er_InsertReport(getVersRequest(
-                "Reservation Cancelled", valuePos, reservationReportViewEntry.getValue().getPeriodStart(),
-                reservationReportViewEntry.getKey(), text));
-//            System.out.println("Return: " + er_InsertReport.getErInsertReportResponse().getReturnText());
-          }
-          if (entry.getValue().get("FALSE") != null) {
-            text = entry.getValue().get("FALSE");
-            surfNetErStub.er_InsertReport(getVersRequest("Reservation Cancelled", valueNeg, reservationReportViewEntry
-                .getValue().getPeriodStart(), reservationReportViewEntry.getKey(), text));
-          }
-          break;
+    long valueNeg = reportView.getAmountRequestsCancelFailed();
+    reports.add(getVersRequest("Reservation Cancelled", valueNeg, previousMonth, institute, "Failed"));
 
-        default:
-          log.debug("UNSUPPORTED VALUE: {} {}", entry.getKey(), entry.getValue());
-          // surfNetErStub.er_InsertReport(getVersRequest(entry.getKey(),
-          // "-TBD-", reservationReportViewEntry.getValue()
-          // .getPeriodStart(), reservationReportViewEntry.getKey(), "-TBD-"));
-          break;
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument> createAmountRequestsModifiedSucceededPki(YearMonth previousMonth,
+      Optional<String> institute, ReservationReportView reportView) {
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    long valuePos = reportView.getAmountRequestsModifiedSucceeded();
+    reports.add(getVersRequest("Reservation modified", valuePos, previousMonth, institute, "Succeeded"));
+
+    long valueNeg = reportView.getAmountRequestsModifiedFailed();
+    reports.add(getVersRequest("Reservation modified", valueNeg, previousMonth, institute, "Failed"));
+
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument>  createAmountRunningReservationsNeverProvisionedPki(YearMonth previousMonth,
+      Optional<String> institute, ReservationReportView reportView) {
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    long valuePos = reportView.getAmountRunningReservationsNeverProvisioned();
+    reports.add(getVersRequest("Never provisioned", valuePos, previousMonth, institute, "Timed out"));
+
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument> createAmountRequestsThroughGUIPki(YearMonth previousMonth,
+    Optional<String> institute, ReservationReportView reportView) {
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    long valuePos = reportView.getAmountRequestsThroughNSI();
+    reports.add(getVersRequest("Reservations through", valuePos, previousMonth, institute, "NSI"));
+
+    long valueNeg = reportView.getAmountRequestsThroughGUI();
+    reports.add(getVersRequest("Reservations through", valueNeg, previousMonth, institute, "GUI"));
+
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument> createAmountRunningReservationsStillRunningPki(
+    YearMonth previousMonth, Optional<String> institute, ReservationReportView reportView) {
+
+    final String pkiName = "Active Reservations: Running";
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    reports.add(
+      getVersRequest(pkiName, reportView.getAmountRunningReservationsStillRunning(), previousMonth, institute, "Running"));
+
+    reports.add(
+      getVersRequest(pkiName, reportView.getAmountRunningReservationsSucceeded(), previousMonth, institute, "Execution succeeded"));
+
+    reports.add(
+      getVersRequest(pkiName, reportView.getAmountRunningReservationsFailed(), previousMonth, institute, "Execution failed"));
+
+    reports.add(
+      getVersRequest(pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
+
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument> createRunningReservationsSucceededPki(YearMonth previousMonth,
+      Optional<String> institute, ReservationReportView reportView) {
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    long valuePos = reportView.getAmountRequestsCreatedSucceeded();
+    reports.add(getVersRequest("Reservations created", valuePos, previousMonth, institute, "Succeeded"));
+
+    long valueNeg = reportView.getAmountRequestsCreatedFailed();
+    reports.add(getVersRequest("Reservations created", valueNeg, previousMonth, institute, "Failed"));
+
+    return reports;
+  }
+
+  Collection<ErInsertReportDocument> createAmountReservationsProtectedPki(YearMonth period,
+      Optional<String> institute, ReservationReportView reservationReportView) {
+
+    final String pkiName = "Reservations: Protection Types";
+
+    List<ErInsertReportDocument> reports = new ArrayList<>();
+
+    long valuePos = reservationReportView.getAmountReservationsProtected();
+    reports.add(getVersRequest(pkiName, valuePos, period, institute, "Protected Scheduled"));
+
+    long valueNeg = reservationReportView.getAmountReservationsUnprotected();
+    reports.add(getVersRequest(pkiName, valueNeg, period, institute, "Unprotected"));
+
+    reports.add(
+      getVersRequest(pkiName, reservationReportView.getAmountReservationsRedundant(), period, institute, "Redundant"));
+
+    return reports;
+  }
+
+  private void submitReports(Collection<ErInsertReportDocument> reports) {
+    try {
+      SURFnetErStub stub = new SURFnetErStub(this.serviceURL);
+
+      for (ErInsertReportDocument report : reports) {
+        ErInsertReportResponse response = stub.er_InsertReport(report).getErInsertReportResponse();
+        if (response.getReturnCode() < 0) {
+          log.warn("Sending report failed with {}, '{}'", response.getReturnCode(), response.getReturnText());
         }
       }
+    } catch (RemoteException e) {
+      log.error("Could not send reports", e);
     }
   }
 
-  private Map<Optional<String>, ReservationReportView> getAllReservationReportViews() {
-    final Map<Optional<String>, ReservationReportView> reportViews = new HashMap<>();
-    final VersReportPeriod versReportPeriod = new VersReportPeriod();
+  protected Map<Optional<String>, ReservationReportView> getAllReservationReportViews(YearMonth period) {
+    Map<Optional<String>, ReservationReportView> reportViews = new HashMap<>();
 
-    final Collection<PhysicalResourceGroup> prgWithPorts = physicalResourceGroupService.findAllWithPorts();
+    Collection<PhysicalResourceGroup> prgWithPorts = physicalResourceGroupService.findAllWithPorts();
+
     for (PhysicalResourceGroup physicalResourceGroup : prgWithPorts) {
-      reportViews.put(
-          Optional.of(physicalResourceGroup.getInstitute().getShortName()),
-          reportingService.determineReportForAdmin(versReportPeriod.getInterval(),
-              BodRole.createManager(physicalResourceGroup)));
+      Optional<String> orgName = Optional.of(physicalResourceGroup.getInstitute().getShortName());
+      ReservationReportView report = reportingService.determineReportForAdmin(period.toInterval(), BodRole.createManager(physicalResourceGroup));
+
+      reportViews.put(orgName, report);
     }
-    // using absent will also generate an institute free noc report
-    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(versReportPeriod.getInterval()));
+
+    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(period.toInterval()));
+
     return reportViews;
   }
 
-  private ErInsertReportDocument getVersRequest(final String type, final long value, DateTime start,
-      final Optional<String> instituteShortName, final String instance) {
-    final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
+  protected ErInsertReportDocument getVersRequest(
+      String type, long value, YearMonth period,
+      Optional<String> instituteShortName, String instance) {
+
+    InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
     insertReportInput.setNormComp("=");
     insertReportInput.setNormValue(Long.toString(value));
-    insertReportInput.setDepartmentList("NWD");
+    insertReportInput.setDepartmentList(DEPARTMENT_NETWERK_DIENSTEN);
     insertReportInput.setIsKPI(true);
     insertReportInput.setValue(Long.toString(value));
-     final String date = versFormatter.print(new
-     DateTime().withYear(DateTime.now().getYear()).withDayOfYear(1).minusMonths(1).withHourOfDay(0)
-     .withMinuteOfHour(0).withSecondOfMinute(0));
-
-//    final String date = versFormatter.print(new DateTime().withYear(2006).withMonthOfYear(3).withDayOfMonth(1)
-//        .withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0));
-    insertReportInput.setPeriod(date);
+    insertReportInput.setPeriod(period.toString("yyyy-MM"));
     insertReportInput.setType(type);
     insertReportInput.setInstance(instance);
 
     if (instituteShortName.isPresent()) {
-//      System.out.println("(i) Using type: " + type + ", Organisation: " + instituteShortName.get() + ", value: "
-//          + value + ", instance: " + instance + ", hidden is false");
       insertReportInput.setOrganisation(instituteShortName.get());
       insertReportInput.setIsHidden(false);
     }
     else {
-//      System.out.println("(a) Using type: " + type + ", Organisation: " + "NOC" + ", value: " + value + ", instance: "
-//          + instance + ", hidden is true");
       insertReportInput.setIsHidden(true);
     }
+
+    ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
+
     return versRequest;
   }
 
   private ErInsertReport getErInsertReport(final InsertReportInput reportData) {
-    final ErInsertReport messageBody = ErInsertReport.Factory.newInstance();
+    ErInsertReport messageBody = ErInsertReport.Factory.newInstance();
     messageBody.setUsername(versUserName);
     messageBody.setPassword(versUserPassword);
     messageBody.setParameters(reportData);
+
     return messageBody;
   }
 
-  public class VersReportPeriod {
-    private final DateTime start = LocalDateTime.now().minusMonths(2).withHourOfDay(0).withMinuteOfHour(0)
-        .withSecondOfMinute(0).withDayOfWeek(1).toDateTime();
-    private final DateTime end = LocalDateTime.now().toDateTime().minusDays(1);
-    private final Interval interval = new Interval(start, end);
+  protected void setVersUserName(String versUserName) {
+    this.versUserName = versUserName;
+  }
 
-    public final Interval getInterval() {
-//      System.out.println(interval.getStart() + " " + interval.getEnd());
-      return interval;
-    }
+  protected void setVersUserPassword(String versUserPassword) {
+    this.versUserPassword = versUserPassword;
+  }
 
+  protected void setServiceURL(String serviceURL) {
+    this.serviceURL = serviceURL;
   }
 
 }
