@@ -178,4 +178,10 @@ public class AbstractPage {
     }
     return true;
   }
+
+  public WebElement findDataItem(String label) {
+    WebElement definitionList = getDriver().findElementByCssSelector(".dl");
+
+    return definitionList.findElement(By.partialLinkText(label));
+  }
 }

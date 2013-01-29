@@ -74,6 +74,7 @@ public class BodWebDriver {
   private BodUserWebDriver userDriver;
   private BodManagerWebDriver managerDriver;
   private BodNocWebDriver nocDriver;
+  private BodAppManagerWebDriver appManagerDriver;
 
   private static String withoutEndingSlash(String path) {
     return path.endsWith("/") ? StringUtils.chop(path) : path;
@@ -121,12 +122,20 @@ public class BodWebDriver {
       userDriver = new BodUserWebDriver(driver);
     }
 
+    if (appManagerDriver == null) {
+      appManagerDriver = new BodAppManagerWebDriver(driver);
+    }
+
     // Every test a clean database
     DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
   }
 
   public BodManagerWebDriver getManagerDriver() {
     return managerDriver;
+  }
+
+  public BodAppManagerWebDriver getAppManagerDriver() {
+    return appManagerDriver;
   }
 
   public BodNocWebDriver getNocDriver() {

@@ -72,4 +72,9 @@ public abstract class TestExternalSupport {
   protected BodNocWebDriver getNocDriver() {
     return webDriver.getNocDriver();
   }
+
+  protected BodAppManagerWebDriver getAppManagerDriver() {
+    return webDriver.getAppManagerDriver();
+  }
+
 }
