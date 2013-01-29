@@ -25,7 +25,7 @@
         <hibernate.version>4.1.9.Final</hibernate.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
-        <sos.version>0.1.4</sos.version>
+        <sos.version>0.1.6</sos.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
