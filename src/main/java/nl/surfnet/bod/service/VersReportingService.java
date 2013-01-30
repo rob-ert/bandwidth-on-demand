@@ -96,7 +96,9 @@ public class VersReportingService {
     }
   }
 
-  Collection<ErInsertReportDocument> createAllReports(YearMonth period, Optional<String> institute, ReservationReportView reportView) {
+  Collection<ErInsertReportDocument> createAllReports(
+      YearMonth period, Optional<String> institute, ReservationReportView reportView) {
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.addAll(createAmountReservationsProtectedPki(period, institute, reportView));
@@ -113,13 +115,17 @@ public class VersReportingService {
   Collection<ErInsertReportDocument> createAmountRequestsCancelSucceededPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
+    final String pkiName = "Reservation Cancelled";
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reportView.getAmountRequestsCancelSucceeded();
-    reports.add(getVersRequest("Reservation Cancelled", valuePos, previousMonth, institute, "Succeeded"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsCancelSucceeded(), previousMonth, institute, "Succeeded"));
 
-    long valueNeg = reportView.getAmountRequestsCancelFailed();
-    reports.add(getVersRequest("Reservation Cancelled", valueNeg, previousMonth, institute, "Failed"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsCancelFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
@@ -127,13 +133,17 @@ public class VersReportingService {
   Collection<ErInsertReportDocument> createAmountRequestsModifiedSucceededPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
+    final String pkiName = "Reservation modified";
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reportView.getAmountRequestsModifiedSucceeded();
-    reports.add(getVersRequest("Reservation modified", valuePos, previousMonth, institute, "Succeeded"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsModifiedSucceeded(), previousMonth, institute, "Succeeded"));
 
-    long valueNeg = reportView.getAmountRequestsModifiedFailed();
-    reports.add(getVersRequest("Reservation modified", valueNeg, previousMonth, institute, "Failed"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsModifiedFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
@@ -141,10 +151,13 @@ public class VersReportingService {
   Collection<ErInsertReportDocument>  createAmountRunningReservationsNeverProvisionedPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
+    final String pkiName = "Never provisioned";
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reportView.getAmountRunningReservationsNeverProvisioned();
-    reports.add(getVersRequest("Never provisioned", valuePos, previousMonth, institute, "Timed out"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsNeverProvisioned(), previousMonth, institute, "Timed out"));
 
     return reports;
   }
@@ -152,13 +165,13 @@ public class VersReportingService {
   Collection<ErInsertReportDocument> createAmountRequestsThroughGUIPki(YearMonth previousMonth,
     Optional<String> institute, ReservationReportView reportView) {
 
+    final String pkiName = "Reservations through";
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reportView.getAmountRequestsThroughNSI();
-    reports.add(getVersRequest("Reservations through", valuePos, previousMonth, institute, "NSI"));
+    reports.add(getVersRequest(pkiName, reportView.getAmountRequestsThroughNSI(), previousMonth, institute, "NSI"));
 
-    long valueNeg = reportView.getAmountRequestsThroughGUI();
-    reports.add(getVersRequest("Reservations through", valueNeg, previousMonth, institute, "GUI"));
+    reports.add(getVersRequest(pkiName, reportView.getAmountRequestsThroughGUI(), previousMonth, institute, "GUI"));
 
     return reports;
   }
@@ -171,16 +184,20 @@ public class VersReportingService {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(pkiName, reportView.getAmountRunningReservationsStillRunning(), previousMonth, institute, "Running"));
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsStillRunning(), previousMonth, institute, "Running"));
 
     reports.add(
-      getVersRequest(pkiName, reportView.getAmountRunningReservationsSucceeded(), previousMonth, institute, "Execution succeeded"));
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsSucceeded(), previousMonth, institute, "Execution succeeded"));
 
     reports.add(
-      getVersRequest(pkiName, reportView.getAmountRunningReservationsFailed(), previousMonth, institute, "Execution failed"));
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsFailed(), previousMonth, institute, "Execution failed"));
 
     reports.add(
-      getVersRequest(pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
 
     return reports;
   }
@@ -188,13 +205,17 @@ public class VersReportingService {
   Collection<ErInsertReportDocument> createRunningReservationsSucceededPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
+    final String pkiName = "Reservations created";
+
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reportView.getAmountRequestsCreatedSucceeded();
-    reports.add(getVersRequest("Reservations created", valuePos, previousMonth, institute, "Succeeded"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsCreatedSucceeded(), previousMonth, institute, "Succeeded"));
 
-    long valueNeg = reportView.getAmountRequestsCreatedFailed();
-    reports.add(getVersRequest("Reservations created", valueNeg, previousMonth, institute, "Failed"));
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRequestsCreatedFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
@@ -206,14 +227,17 @@ public class VersReportingService {
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    long valuePos = reservationReportView.getAmountReservationsProtected();
-    reports.add(getVersRequest(pkiName, valuePos, period, institute, "Protected Scheduled"));
-
-    long valueNeg = reservationReportView.getAmountReservationsUnprotected();
-    reports.add(getVersRequest(pkiName, valueNeg, period, institute, "Unprotected"));
+    reports.add(
+      getVersRequest(
+        pkiName, reservationReportView.getAmountReservationsProtected(), period, institute, "Protected Scheduled"));
 
     reports.add(
-      getVersRequest(pkiName, reservationReportView.getAmountReservationsRedundant(), period, institute, "Redundant"));
+      getVersRequest(
+        pkiName, reservationReportView.getAmountReservationsUnprotected(), period, institute, "Unprotected"));
+
+    reports.add(
+      getVersRequest(
+        pkiName, reservationReportView.getAmountReservationsRedundant(), period, institute, "Redundant"));
 
     return reports;
   }
@@ -228,7 +252,8 @@ public class VersReportingService {
           log.warn("Sending report failed with {}, '{}'", response.getReturnCode(), response.getReturnText());
         }
       }
-    } catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       log.error("Could not send reports", e);
     }
   }
