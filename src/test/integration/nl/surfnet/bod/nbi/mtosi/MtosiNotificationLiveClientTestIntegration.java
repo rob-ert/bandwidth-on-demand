@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
-import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -34,16 +33,15 @@ import java.util.Map;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 
 import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
-import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumerHttp;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
@@ -53,30 +51,25 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
 public class MtosiNotificationLiveClientTestIntegration {
 
-  static {
-    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-  }
-
   private MtosiNotificationLiveClient mtosiNotificationLiveClient;
 
   @Before
   public void setup() throws IOException {
-    PropertiesEnvironment testEnv = testProperties();
-    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
+
+    Endpoint.publish("http://localhost:9999/ws/hello", new NotificationConsumerHttp());
+
   }
 
   @Test
   @Ignore("not ready yet..")
   public void subscribeAndUnsubscribe() throws Exception {
-    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT, "http://notarealendpoint.com");
+    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT,
+        "http://localhost:9999/ws/hello");
 
     assertThat(subscriberId, notNullValue());
 
-    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.FAULT, subscriberId);
+    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.FAULT,
+        subscriberId);
 
     assertThat(unsubscribeResponse, notNullValue());
   }
@@ -84,28 +77,25 @@ public class MtosiNotificationLiveClientTestIntegration {
   @Test
   @Ignore("not ready yet because we don't receive any heartbeats")
   public void retreiveNotificationsHeartbeat() throws SubscribeException, InterruptedException {
-//    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
-    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "https://192.87.102.28/mtosi/fmw/NotificationConsumer");
+    // String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT,
+    // "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
+    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "http://localhost:9999/ws/hello");
     System.err.println("Got a " + subscriberId);
   }
 
   @Test
-  @Ignore("handy to test the sending of notifications")
+  @Ignore("Made it locally runnable again")
   public void sendNotification() throws Exception {
-    // Our notification consumer
-//    MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
-    // start it
-//    Endpoint.publish(DEFAULT_ADDRESS, mtosiNotificationCenterWs);
 
     // Create and configure notification client
     final URL url = new ClassPathResource(
         "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationConsumer/NotificationConsumerHttp.wsdl").getURL();
-    final NotificationConsumer port = new NotificationConsumerHttp(url, new QName(
+    final NotificationConsumer port = new org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumerHttp(url, new QName(
         "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0", "NotificationConsumerHttp"))
         .getNotificationConsumerSoapHttp();
-    final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
 
+    final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://localhost:9999/ws/hello");
 
     // Create notification header
     final Header header = new Header();
@@ -118,9 +108,9 @@ public class MtosiNotificationLiveClientTestIntegration {
 
     // Create an alarm notification message which is part of the body
     AlarmType alarm = new org.tmforum.mtop.nra.xsd.alm.v1.ObjectFactory().createAlarmType();
-    alarm.setAdditionalText("Hoi more text");
+    alarm.setAdditionalText("Some extra info");
     alarm.setRootCauseAlarmIndication(true);
-    alarm.setNotificationId("123-notify");
+    alarm.setNotificationId("0123456789");
 
     Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
 
@@ -130,11 +120,13 @@ public class MtosiNotificationLiveClientTestIntegration {
     // send notification
     port.notify(header, body);
 
-//    MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
+  }
 
-//    assertThat(notification, notNullValue());
-//    assertThat(notification.getHeader().getActivityName(), containsString(activity));
-//    final CommonEventInformationType commonEventInformationType = notification.getBody().getMessage().getCommonEventInformation().get(0);
-//    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
+  static {
+    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
 }
