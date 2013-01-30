@@ -38,7 +38,8 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -47,7 +48,6 @@ import nl.surfnet.bod.web.view.UserGroupView;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -74,11 +74,13 @@ public class VirtualPortRequestController {
   @Resource
   private VirtualPortService virtualPortService;
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
+  @Resource
+  private MessageRetriever messageRetriever;
 
   /**
    * In case no team is selected yet, present the team selection.
-   *
+   * 
    * @param model
    * @return SelectTeam view
    */
@@ -105,8 +107,8 @@ public class VirtualPortRequestController {
         Functions.FROM_VRG_TO_USER_GROUP_VIEW));
 
     // Filter new teams
-    ImmutableList<UserGroupView> newTeams = FluentIterable.from(user.getUserGroups())
-        .filter(new Predicate<UserGroup>() {
+    ImmutableList<UserGroupView> newTeams = FluentIterable.from(user.getUserGroups()).filter(
+        new Predicate<UserGroup>() {
           @Override
           public boolean apply(UserGroup group) {
             return !existingIds.contains(group.getId());
@@ -120,14 +122,12 @@ public class VirtualPortRequestController {
   }
 
   private String missingEmailAddress(Model model) {
-      MessageView message = MessageView.createErrorMessage(
-          messageSource,
-          "error_label_no_email",
-          "error_content_no_email");
+    MessageView message = MessageView.createErrorMessage(messageRetriever, "error_label_no_email",
+        "error_content_no_email");
 
-      model.addAttribute(MessageView.MODEL_KEY, message);
+    model.addAttribute(MessageView.MODEL_KEY, message);
 
-      return MessageView.PAGE_URL;
+    return MessageView.PAGE_URL;
   }
 
   @RequestMapping(method = RequestMethod.GET, params = { "teamLabel", "teamUrn" })
@@ -153,7 +153,7 @@ public class VirtualPortRequestController {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
     if (group == null || !group.isActive()) {
-      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_request_invalid_group");
+      messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_request_invalid_group");
 
       return "redirect:/virtualports/request";
     }
@@ -223,7 +223,7 @@ public class VirtualPortRequestController {
     virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
         requestCommand.getBandwidth(), requestCommand.getMessage());
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
     // in case a new vrg was created and the user has no user role, clear the

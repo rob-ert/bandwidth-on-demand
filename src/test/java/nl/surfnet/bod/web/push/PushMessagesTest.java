@@ -22,45 +22,42 @@
  */
 package nl.surfnet.bod.web.push;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Locale;
-
+import static org.mockito.Mockito.verify;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.util.MessageRetriever;
 
 import org.junit.Test;
-import org.springframework.context.MessageSource;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.base.Optional;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PushMessagesTest {
 
-  private final MessageSource messageSourceMock = mock(MessageSource.class);
+  @Mock
+  private MessageRetriever messageRetriever;
 
   @Test
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.AUTO_START).create();
 
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
-        ReservationStatus.RUNNING, reservation, Optional.<NsiRequestDetails>absent());
+        ReservationStatus.RUNNING, reservation, Optional.<NsiRequestDetails> absent());
 
-    when(messageSourceMock.getMessage(eq("info_reservation_statuschanged"), any(Object[].class), any(Locale.class)))
-        .thenReturn("Yes");
+    PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
 
-    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent, messageSourceMock);
-
-    assertThat(event.getMessage(), containsString("\"id\":54"));
-    assertThat(event.getMessage(), containsString("Yes"));
     assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getAdminGroup()));
+
+    verify(messageRetriever).getMessageWithBoldArguments(eq("info_reservation_statuschanged"), (String[]) anyVararg());
   }
 }

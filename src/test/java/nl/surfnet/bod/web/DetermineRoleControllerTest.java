@@ -22,24 +22,25 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
+
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-
 public class DetermineRoleControllerTest {
 
-  private DetermineRoleController subject = new DetermineRoleController();
+  private final DetermineRoleController subject = new DetermineRoleController();
 
   @Test
   public void aNocEngineerShouldBeRedirectToNocPage() {
@@ -81,11 +82,11 @@ public class DetermineRoleControllerTest {
 
     ModelStub model = new ModelStub();
     List<String> messages = Lists.newArrayList("First Message", "Second Messages");
-    model.addAttribute(WebUtils.INFO_MESSAGES_KEY, messages);
+    model.addAttribute(MessageManager.INFO_MESSAGES_KEY, messages);
 
     subject.index(model, model);
 
-    assertThat(model.getFlashAttributes(), Matchers.<String, Object>hasEntry(WebUtils.INFO_MESSAGES_KEY, messages));
+    assertThat(model.getFlashAttributes(), Matchers.<String, Object>hasEntry(MessageManager.INFO_MESSAGES_KEY, messages));
   }
 
 }

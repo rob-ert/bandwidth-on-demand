@@ -28,10 +28,10 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+import nl.surfnet.bod.util.MessageRetriever;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -46,7 +46,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
   private EndPoints connections;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageRetriever messageRetriever;
 
   @PostConstruct
   public void registerListener() {
@@ -55,7 +55,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
-    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent, messageSource);
+    PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
     logger.debug("Broadcasting event: {}", event);
     connections.broadcast(event);
   }

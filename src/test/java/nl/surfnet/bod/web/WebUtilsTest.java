@@ -22,28 +22,16 @@
  */
 package nl.surfnet.bod.web;
 
-import java.util.List;
-
-import nl.surfnet.bod.support.ModelStub;
-
-import org.junit.Test;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.collect.Iterables;
-
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
 public class WebUtilsTest {
-
-  private final MessageSource messageSourceMock = mock(MessageSource.class);
 
   @Test
   public void testSecondPage() {
@@ -61,40 +49,6 @@ public class WebUtilsTest {
   public void shouldContainTwoPages() {
     assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE + 1), is(2));
     assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE + WebUtils.MAX_ITEMS_PER_PAGE), is(2));
-  }
-
-  @Test
-  public void shouldAddFlashMessage() {
-    RedirectAttributes redirectModel = new ModelStub();
-
-    when(
-        messageSourceMock.getMessage("info_message", new String[] { "<b>een</b>", "<b>twee</b>" },
-            LocaleContextHolder.getLocale())).thenReturn("YES");
-
-    WebUtils.addInfoFlashMessage(redirectModel, messageSourceMock, "info_message", "een", "twee");
-
-    @SuppressWarnings("unchecked")
-    List<String> infoMessages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
-
-    assertThat(infoMessages, hasSize(1));
-    assertThat(Iterables.getOnlyElement(infoMessages), is("YES"));
-  }
-
-  @Test
-  public void shouldAddMessage() {
-    Model model = new ModelStub();
-
-    when(
-        messageSourceMock.getMessage("info_message", new String[] { "<b>een</b>", "<b>twee</b>" },
-            LocaleContextHolder.getLocale())).thenReturn("YES");
-
-    WebUtils.addInfoMessage(model, messageSourceMock, "info_message", "een", "twee");
-
-    @SuppressWarnings("unchecked")
-    List<String> infoMessages = (List<String>) model.asMap().get(WebUtils.INFO_MESSAGES_KEY);
-
-    assertThat(infoMessages, hasSize(1));
-    assertThat(Iterables.getOnlyElement(infoMessages), is("YES"));
   }
 
   @Test

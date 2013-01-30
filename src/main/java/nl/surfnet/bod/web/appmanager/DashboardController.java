@@ -26,11 +26,10 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.TextSearchIndexer;
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,7 +57,7 @@ public class DashboardController {
   private InstituteService instituteService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -74,7 +73,7 @@ public class DashboardController {
     textSearchIndexer.indexDatabaseContent();
 
     logger.info("Re indexing search database");
-    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Search database indexes");
+    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Search database indexes");
 
     return "redirect:/" + PAGE_URL;
   }
@@ -84,7 +83,7 @@ public class DashboardController {
     instituteService.refreshInstitutes();
 
     logger.info("Manually refreshing institutes");
-    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Institutes");
+    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Institutes");
 
     return "redirect:/" + PAGE_URL;
   }
@@ -92,5 +91,9 @@ public class DashboardController {
   @RequestMapping(value = SHIBBOLETH_INFO_PART)
   public String showShibbolethInfo() {
     return "shibbolethinfo";
+  }
+
+  void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
   }
 }

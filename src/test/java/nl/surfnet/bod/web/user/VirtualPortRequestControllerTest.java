@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Locale;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -43,6 +42,8 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -54,7 +55,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
 
@@ -74,7 +74,10 @@ public class VirtualPortRequestControllerTest {
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   @Mock
-  private MessageSource messageSourceMock;
+  private MessageManager messageManager;
+
+  @Mock
+  private MessageRetriever messageRetriever;
 
   private RichUserDetails user;
 
@@ -87,12 +90,6 @@ public class VirtualPortRequestControllerTest {
     user = new RichUserDetailsFactory().addUserRole().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2)
         .create();
     Security.setUserDetails(user);
-
-    when(
-        messageSourceMock.getMessage(eq("info_virtualport_request_invalid_group"), any(Object[].class),
-            any(Locale.class))).thenReturn("Invalid");
-    when(messageSourceMock.getMessage(eq("info_virtualport_request_send"), any(Object[].class), any(Locale.class)))
-        .thenReturn("Send");
   }
 
   @SuppressWarnings("unchecked")
@@ -112,8 +109,8 @@ public class VirtualPortRequestControllerTest {
     subject.selectInstitute("label", "urn", model);
 
     assertThat(model.asMap(), hasKey("physicalResourceGroups"));
-    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")),
-        contains(group1, group2, group3));
+    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")), contains(group1,
+        group2, group3));
   }
 
   @Test
@@ -282,8 +279,8 @@ public class VirtualPortRequestControllerTest {
 
   @Test
   public void doSwitchRoleWhenUserHasNoSelectedRole() {
-    user = new RichUserDetailsFactory().addBodRoles(BodRole.createNewUser())
-        .addUserGroup(new UserGroupFactory().setId("urn:user-group").create()).create();
+    user = new RichUserDetailsFactory().addBodRoles(BodRole.createNewUser()).addUserGroup(
+        new UserGroupFactory().setId("urn:user-group").create()).create();
     Security.setUserDetails(user);
 
     ModelStub model = new ModelStub();
@@ -314,6 +311,7 @@ public class VirtualPortRequestControllerTest {
     Security.setUserDetails(user);
 
     ModelStub model = new ModelStub();
+    when(messageRetriever.getMessage(anyString(), anyString())).thenReturn("test message");
 
     String resultPage = subject.selectTeam(model);
 

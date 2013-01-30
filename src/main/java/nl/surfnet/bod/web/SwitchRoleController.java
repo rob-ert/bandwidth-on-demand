@@ -29,13 +29,14 @@ import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -57,7 +58,10 @@ public class SwitchRoleController {
   private Environment environment;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
+  
+  @Resource
+  private MessageRetriever messageRetriever;
 
   @RequestMapping(method = RequestMethod.POST)
   public String switchRole(final String roleId, final Model model, final RedirectAttributes redirectAttribs) {
@@ -74,7 +78,7 @@ public class SwitchRoleController {
   public String wrongSwitchRoleRequest(HttpServletRequest request, RedirectAttributes redirectAttributes) {
     logger.error("Could not process get request for switch role: {}", request);
 
-    WebUtils.addErrorFlashMessage(redirectAttributes, messageSource, "error_post_when_shibboleth_timeout");
+    messageManager.addErrorFlashMessage(redirectAttributes, "error_post_when_shibboleth_timeout");
 
     return "redirect:/";
   }
@@ -94,13 +98,12 @@ public class SwitchRoleController {
       PhysicalResourceGroup group = physicalResourceGroupService.find(groupId.get());
 
       if (!group.isActive()) {
-        String successMessage = WebUtils.getMessageWithBoldArguments(messageSource, "info_activation_request_send",
-            group.getName(), group.getManagerEmail());
+        String successMessage = messageRetriever.getMessageWithBoldArguments("info_activation_request_send", group
+            .getName(), group.getManagerEmail());
         String newLinkButton = createNewActivationLinkForm(environment.getExternalBodUrl()
             + ActivationEmailController.ACTIVATION_MANAGER_PATH, group.getId().toString(), successMessage);
 
-        WebUtils.addInfoFlashMessage(newLinkButton, redirectAttribs, messageSource,
-            "info_physicalresourcegroup_not_activated");
+        messageManager.addInfoFlashMessage(newLinkButton, redirectAttribs, "info_physicalresourcegroup_not_activated");
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }

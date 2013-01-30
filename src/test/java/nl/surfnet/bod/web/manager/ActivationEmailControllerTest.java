@@ -27,14 +27,12 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Locale;
-
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -44,6 +42,8 @@ import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActivationEmailControllerTest {
@@ -68,7 +68,10 @@ public class ActivationEmailControllerTest {
   @Mock
   private InstituteService instituteServiceMock;
   @Mock
-  private MessageSource messageSourceMock;
+  private MessageManager messageManager;
+
+  @Mock
+  private MessageRetriever messageRetriever;
 
   private ActivationEmailLink link;
   private PhysicalResourceGroup physicalResourceGroup;
@@ -76,8 +79,7 @@ public class ActivationEmailControllerTest {
   @Before
   public void setUp() {
     physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    link = new ActivationEmailLinkFactory().setPhysicalResourceGroup(physicalResourceGroup)
-        .create();
+    link = new ActivationEmailLinkFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
     BodRole managerRole = BodRole.createManager(link.getSourceObject());
 
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(physicalResourceGroup.getAdminGroup())
@@ -204,16 +206,15 @@ public class ActivationEmailControllerTest {
     when(physicalResourceGroupMock.getName()).thenReturn("prgOne");
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroupMock);
 
-    when(messageSourceMock.getMessage(eq("info_activation_request_notallowed"), any(Object[].class), any(Locale.class)))
-        .thenReturn("not allowed");
-
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
 
     ModelStub model = new ModelStub();
     String page = subject.activateEmail("1234567890", model, model);
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
+
+    verify(messageManager).addInfoFlashMessage(any(RedirectAttributes.class), eq("info_activation_request_notallowed"),
+        (String[]) anyVararg());
     assertThat(page, is("redirect:/"));
   }
-
 }

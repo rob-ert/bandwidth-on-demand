@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 
 import java.util.Map;
 
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
@@ -58,9 +59,9 @@ public class DetermineRoleController {
   }
 
   private void preserveFlashMessages(Model model, RedirectAttributes redirectAttributes) {
-    preserveFlashAttributes(model, redirectAttributes, WebUtils.INFO_MESSAGES_KEY);
-    preserveFlashAttributes(model, redirectAttributes, WebUtils.WARN_MESSAGES_KEY);
-    preserveFlashAttributes(model, redirectAttributes, WebUtils.ERROR_MESSAGES_KEY);
+    preserveFlashAttributes(model, redirectAttributes, MessageManager.INFO_MESSAGES_KEY);
+    preserveFlashAttributes(model, redirectAttributes,MessageManager.WARN_MESSAGES_KEY);
+    preserveFlashAttributes(model, redirectAttributes, MessageManager.ERROR_MESSAGES_KEY);
   }
 
   private void preserveFlashAttributes(Model model, RedirectAttributes redirectAttributes, String key) {

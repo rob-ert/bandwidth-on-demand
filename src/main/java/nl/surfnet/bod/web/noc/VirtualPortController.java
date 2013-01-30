@@ -35,13 +35,13 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -68,7 +69,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   private ReservationService reservationService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @Override
   protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
@@ -128,20 +129,23 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     virtualPortService.delete(virtualPort, Security.getUserDetails());
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
-        virtualPort.getManagerLabel());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted", virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }
 
-  public final Function<VirtualPort, VirtualPortView> fromNocVirtualportToVirtualportView =
-    new Function<VirtualPort, VirtualPortView>() {
-      @Override
-      public VirtualPortView apply(VirtualPort port) {
-        final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-        final VirtualPortView virtualPortView = new VirtualPortView(port, Optional.of(counter));
-        return virtualPortView;
-      }
-    };
+  public final Function<VirtualPort, VirtualPortView> fromNocVirtualportToVirtualportView = new Function<VirtualPort, VirtualPortView>() {
+    @Override
+    public VirtualPortView apply(VirtualPort port) {
+      final long counter = reservationService.findAllActiveByVirtualPort(port).size();
+      final VirtualPortView virtualPortView = new VirtualPortView(port, Optional.of(counter));
+      return virtualPortView;
+    }
+  };
+
+  @VisibleForTesting
+  void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
+  }
 
 }

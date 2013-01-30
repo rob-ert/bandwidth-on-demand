@@ -22,9 +22,7 @@
  */
 package nl.surfnet.bod.web.base;
 
-import org.springframework.context.MessageSource;
-
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageRetriever;
 
 public class MessageView {
   public static final String PAGE_URL = "message";
@@ -43,18 +41,20 @@ public class MessageView {
     this.message = message;
   }
 
-  public static MessageView createErrorMessage(MessageSource messageSource, String titleKey, String messageKey, String... args) {
-    return create(MessageType.ERROR, messageSource, titleKey, messageKey, args);
+  public static MessageView createErrorMessage(MessageRetriever messageRetriever, String titleKey, String messageKey,
+      String... args) {
+    return create(messageRetriever, MessageType.ERROR, titleKey, messageKey, args);
   }
 
-  public static MessageView createInfoMessage(MessageSource messageSource, String titleKey, String messageKey, String... args) {
-    return create(MessageType.INFO, messageSource, titleKey, messageKey, args);
+  public static MessageView createInfoMessage(MessageRetriever messageRetriever, String titleKey, String messageKey,
+      String... args) {
+    return create(messageRetriever, MessageType.INFO, titleKey, messageKey, args);
   }
 
-  private static MessageView create(
-      MessageType type, MessageSource messageSource, String titleKey, String messageKey, String... args) {
-    String title = WebUtils.getMessage(messageSource, titleKey, args);
-    String message = WebUtils.getMessage(messageSource, messageKey, args);
+  private static MessageView create(MessageRetriever messageRetriever, MessageType type, String titleKey,
+      String messageKey, String... args) {
+    String title = messageRetriever.getMessage(titleKey, args);
+    String message = messageRetriever.getMessage(messageKey, args);
 
     MessageView messageView = new MessageView(type, title, message);
 

@@ -37,6 +37,8 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.base.MessageView;
@@ -46,7 +48,6 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,7 +72,10 @@ public class ReservationController extends AbstractFilteredReservationController
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
+
+  @Resource
+  private MessageRetriever messageRetriever;
 
   private final ReservationValidator reservationValidator = new ReservationValidator();
 
@@ -94,7 +98,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     getReservationService().create(reservation);
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_reservation_created", reservation.getName(),
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_reservation_created", reservation.getName(),
         reservation.getVirtualResourceGroup().getName());
 
     return "redirect:" + PAGE_URL;
@@ -106,9 +110,9 @@ public class ReservationController extends AbstractFilteredReservationController
     Collection<VirtualResourceGroup> vrgs = findVirtualResourceGroups();
 
     if (vrgs.isEmpty()) {
-      MessageView message = MessageView.createInfoMessage(messageSource,
+      MessageView message = MessageView.createInfoMessage(messageRetriever,
           "info_reservation_need_two_virtual_ports_title", "info_reservation_need_two_virtual_ports_message");
-      message.addButton(WebUtils.getMessage(messageSource, "menu_overview_label"), "/user");
+      message.addButton(messageRetriever.getMessage("menu_overview_label"), "/user");
 
       model.addAttribute(MessageView.MODEL_KEY, message);
 
@@ -152,7 +156,6 @@ public class ReservationController extends AbstractFilteredReservationController
     return "index";
   }
 
-
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String copyReservation(@RequestParam(ID_KEY) Long id, Model model) {
 
@@ -185,9 +188,8 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    return transformToView(
-        getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
-            sort), Security.getUserDetails());
+    return transformToView(getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter,
+        firstPage, maxItems, sort), Security.getUserDetails());
   }
 
   @Override

@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -41,6 +40,7 @@ import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
@@ -54,10 +54,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -75,7 +75,7 @@ public class VirtualPortControllerTest {
   private VirtualPortValidator virtualPortValidatorMock;
 
   @Mock
-  private MessageSource messageSourceMock;
+  private MessageManager messageManager;
 
   private RichUserDetails user;
   private PhysicalPort physicalPort;
@@ -85,14 +85,6 @@ public class VirtualPortControllerTest {
   public void login() {
     physicalPort = new PhysicalPortFactory().create();
     prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(physicalPort).create();
-
-    when(messageSourceMock.getMessage(eq("info_virtualport_updated"), any(Object[].class), any(Locale.class)))
-        .thenReturn("Updated");
-    when(
-        messageSourceMock.getMessage(eq("info_virtualportrequestlink_notmanager"), any(Object[].class),
-            any(Locale.class))).thenReturn("Not Manager");
-    when(messageSourceMock.getMessage(eq("info_virtualport_created"), any(Object[].class), any(Locale.class)))
-        .thenReturn("Created");
 
     user = new RichUserDetailsFactory().addManagerRole(prg).addUserRole().addUserGroup("urn:manager-group").create();
     Security.setUserDetails(user);
@@ -104,11 +96,9 @@ public class VirtualPortControllerTest {
     ModelStub model = new ModelStub();
 
     when(
-        virtualPortServiceMock.findEntriesForManager(
-            eq(Iterables.getOnlyElement(user.getManagerRoles())),
-            eq(0),
-            eq(WebUtils.MAX_ITEMS_PER_PAGE),
-            any(Sort.class))).thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
+        virtualPortServiceMock.findEntriesForManager(eq(Iterables.getOnlyElement(user.getManagerRoles())), eq(0),
+            eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+        Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, null, null, model);
 
@@ -129,8 +119,9 @@ public class VirtualPortControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(port, "port"), model, model);
 
     assertThat(page, is("redirect:/manager/virtualports"));
-    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
 
+    verify(messageManager).addInfoFlashMessage(any(RedirectAttributes.class), eq("info_virtualport_updated"),
+        eq(port.getManagerLabel()));
     verify(virtualPortServiceMock).update(port);
   }
 

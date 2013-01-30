@@ -26,6 +26,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +36,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.manager.PhysicalResourceGroupController.UpdateEmailCommand;
 import nl.surfnet.bod.web.security.Security;
 
@@ -43,7 +46,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -58,7 +60,7 @@ public class PhysicalResourceGroupControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   @Mock
-  private MessageSource messageSourceMock;
+  private MessageManager messageManager;
 
   @Before
   public void loginUser() {
@@ -81,7 +83,9 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
         requestAttributes);
 
-    assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
+    verify(messageManager).addInfoFlashMessage(any(RedirectAttributes.class), eq("info_activation_request_resend"),
+        (String[]) anyVararg());
+    assertThat((PhysicalResourceGroup) requestAttributes.getFlashAttributes().get("prg"), is(group));
     assertThat(page, is("redirect:/manager"));
     assertThat(group.getManagerEmail(), is(command.getManagerEmail()));
     verify(physicalResourceGroupServiceMock).sendActivationRequest(group);
@@ -153,7 +157,8 @@ public class PhysicalResourceGroupControllerTest {
 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand();
     command.setId(1L);
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup("urn:ict-manager").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup("urn:ict-manager")
+        .create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
@@ -164,8 +169,7 @@ public class PhysicalResourceGroupControllerTest {
       }
     };
 
-    String page = subject.update(command, result, model,
-        redirectAttributes);
+    String page = subject.update(command, result, model, redirectAttributes);
 
     assertThat(page, is("manager/physicalresourcegroups/update"));
 

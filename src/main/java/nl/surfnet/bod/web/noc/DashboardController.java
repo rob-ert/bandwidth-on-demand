@@ -32,12 +32,11 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.view.NocStatisticsView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,7 +61,7 @@ public class DashboardController {
   private ReservationService reservationService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
@@ -114,7 +113,7 @@ public class DashboardController {
     final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
     for (PhysicalPort port : unaliagnedPhysicalPorts) {
-      WebUtils.addErrorMessage(forcePortCheckButton, model, messageSource, "info_physicalport_unaligned_with_nms", port
+      messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms", port
           .getNmsPortId(), port.getNocLabel());
     }
   }

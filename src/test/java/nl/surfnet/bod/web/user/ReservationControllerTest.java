@@ -29,11 +29,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -41,6 +41,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -56,7 +57,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
@@ -65,8 +65,6 @@ import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
-
-  private static final String INFO_AT_LEAST_TWO_PORTS = "at least two ports";
 
   @InjectMocks
   private ReservationController subject;
@@ -78,18 +76,18 @@ public class ReservationControllerTest {
   private ReservationService reservationServiceMock;
 
   @Mock
-  private MessageSource messageSource;
+  private MessageRetriever messageRetriever;
 
   @Mock
-  private final ReservationFilterViewFactory reservationFilterViewFactoryMock =
-    when(mock(ReservationFilterViewFactory.class).create(anyString())).thenCallRealMethod().getMock();
+  private final ReservationFilterViewFactory reservationFilterViewFactoryMock = when(
+      mock(ReservationFilterViewFactory.class).create(anyString())).thenCallRealMethod().getMock();
 
   private final RichUserDetails user = new RichUserDetailsFactory().create();
   private final Model model = new ModelStub();
 
   @Before
   public void onSetup() {
-    Security.setUserDetails(user);
+        Security.setUserDetails(user);
   }
 
   @Test
@@ -145,8 +143,8 @@ public class ReservationControllerTest {
     Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().toDate()
         .getTime());
 
-    assertThat(period.get(DurationFieldType.minutes()),
-        is(WebUtils.DEFAULT_RESERVATON_DURATION.get(DurationFieldType.minutes())));
+    assertThat(period.get(DurationFieldType.minutes()), is(WebUtils.DEFAULT_RESERVATON_DURATION.get(DurationFieldType
+        .minutes())));
   }
 
   @Test
@@ -172,8 +170,7 @@ public class ReservationControllerTest {
 
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
-            any(ReservationFilterView.class), anyInt(), anyInt(), any(Sort.class))).thenReturn(
-        reservations);
+            any(ReservationFilterView.class), anyInt(), anyInt(), any(Sort.class))).thenReturn(reservations);
 
     when(reservationServiceMock.pageList(anyInt(), anyInt(), eq(reservations))).thenCallRealMethod();
 
@@ -203,16 +200,10 @@ public class ReservationControllerTest {
         .create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
-    when(
-        messageSource.getMessage(eq("info_reservation_need_two_virtual_ports_message"), any(Object[].class),
-            any(Locale.class))).thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
     String view = subject.createForm(null, model);
 
-    assertThat(model.asMap().containsKey(MessageView.MODEL_KEY), is(true));
-    assertThat(((MessageView) model.asMap().get(MessageView.MODEL_KEY)).getMessage(),
-        containsString(INFO_AT_LEAST_TWO_PORTS));
     assertThat(view, is(MessageView.PAGE_URL));
+    verify(messageRetriever).getMessage(eq("info_reservation_need_two_virtual_ports_title"));
   }
-
 }

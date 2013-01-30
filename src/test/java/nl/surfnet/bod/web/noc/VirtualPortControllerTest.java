@@ -45,6 +45,8 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -54,12 +56,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.google.common.collect.ImmutableList;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortControllerTest {
@@ -71,12 +71,17 @@ public class VirtualPortControllerTest {
   private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  private MessageSource messageSource;
+  private MessageRetriever messageRetriever;
+
+  private MessageManager messageManager;
 
   private MockMvc mockMvc;
 
   @Before
   public void setup() {
+    messageManager = new MessageManager(messageRetriever);
+    subject.setMessageManager(messageManager);
+
     mockMvc = standaloneSetup(subject).build();
   }
 
@@ -89,10 +94,9 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(virtualPort);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().<Collection<?>>attribute("infoMessages", hasSize(1)))
-      .andExpect(view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
+        .andExpect(flash().<Collection<?>> attribute("infoMessages", hasSize(1))).andExpect(
+            view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock).delete(virtualPort, nocUser);
   }
@@ -104,10 +108,8 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(null);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().attribute("infoMessages", nullValue()))
-      .andExpect(view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
+        .andExpect(flash().attribute("infoMessages", nullValue())).andExpect(view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock, never()).delete(any(VirtualPort.class), eq(nocUser));
   }
@@ -122,23 +124,19 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(virtualPort);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().attribute("infoMessages", nullValue()))
-      .andExpect(view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
+        .andExpect(flash().attribute("infoMessages", nullValue())).andExpect(view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock, never()).delete(any(VirtualPort.class), any(RichUserDetails.class));
   }
 
   @Test
   public void listVirtualPorts() throws Exception {
-    when(virtualPortServiceMock.findEntries(eq(0), anyInt(), any(Sort.class)))
-      .thenReturn(ImmutableList.of(new VirtualPortFactory().create(), new VirtualPortFactory().create()));
+    when(virtualPortServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(
+        ImmutableList.of(new VirtualPortFactory().create(), new VirtualPortFactory().create()));
 
-    mockMvc.perform(get("/noc/virtualports"))
-      .andExpect(status().isOk())
-      .andExpect(model().<Collection<?>>attribute("list", hasSize(2)))
-      .andExpect(model().attribute("maxPages", is(1)))
-      .andExpect(view().name("/noc/virtualports/list"));
+    mockMvc.perform(get("/noc/virtualports")).andExpect(status().isOk()).andExpect(
+        model().<Collection<?>> attribute("list", hasSize(2))).andExpect(model().attribute("maxPages", is(1)))
+        .andExpect(view().name("/noc/virtualports/list"));
   }
 }

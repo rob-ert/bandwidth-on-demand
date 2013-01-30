@@ -25,43 +25,47 @@ package nl.surfnet.bod.web.base;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+import nl.surfnet.bod.util.MessageRetriever;
 
-import java.util.Locale;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageViewTest {
-  private static final String INFO_VALUE = "info";
+  private static final String TITLE_KEY = "info_key";
+  private static final String MESSAGE_KEY = "message_key";
 
-  private static final String MESSAGE_KEY = "key";
-
-  private static final String MESSAGE_VALUE = "some message";
-
-  private MessageView message;
+  private static final String TITLE_VALUE = "some title";
+  private static final String MESSAGE_VALUE = "some subject";
 
   @Mock
-  private MessageSource messageSource;
+  private MessageRetriever messageRetriever;
 
-  @Before
-  public void setUp() {
-    when(messageSource.getMessage(eq("message_info"), any(Object[].class), any(Locale.class))).thenReturn(INFO_VALUE);
-    when(messageSource.getMessage(eq(MESSAGE_KEY), any(Object[].class), any(Locale.class))).thenReturn(MESSAGE_VALUE);
+  @Test
+  public void shouldSetInfoMessageWithArguments() {
+    when(messageRetriever.getMessage(eq(TITLE_KEY), any(String[].class))).thenReturn(TITLE_VALUE);
+    when(messageRetriever.getMessage(eq(MESSAGE_KEY), any(String[].class))).thenReturn(MESSAGE_VALUE);
+
+    MessageView messageView = MessageView.createInfoMessage(messageRetriever, TITLE_KEY, MESSAGE_KEY, "argument");
+
+    assertThat(messageView.getHeader(), is(TITLE_VALUE));
+    assertThat(messageView.getMessage(), is(MESSAGE_VALUE));
   }
 
   @Test
-  public void shouldSetInfoMessage() {
-    message = MessageView.createInfoMessage(messageSource, "message_info", MESSAGE_KEY);
+  public void shouldSetInfoMessageWithoutArguments() {
+    when(messageRetriever.getMessage(eq(TITLE_KEY), (String[]) anyVararg())).thenReturn(TITLE_VALUE);
+    when(messageRetriever.getMessage(eq(MESSAGE_KEY), (String[]) anyVararg())).thenReturn(MESSAGE_VALUE);
 
-    assertThat(message.getHeader(), is(INFO_VALUE));
-    assertThat(message.getMessage(), is(MESSAGE_VALUE));
+    MessageView messageView = MessageView.createInfoMessage(messageRetriever, TITLE_KEY, MESSAGE_KEY);
+
+    assertThat(messageView.getHeader(), is(TITLE_VALUE));
+    assertThat(messageView.getMessage(), is(MESSAGE_VALUE));
   }
 
 }

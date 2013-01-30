@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.util.MessageManager.WARN_MESSAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
@@ -108,7 +109,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     }
     catch (ParseException e) {
       // Do not search, but show default list
-      model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+      model.addAttribute(WARN_MESSAGES_KEY,
           Lists.newArrayList("Sorry, we could not process your search query."));
     }
 

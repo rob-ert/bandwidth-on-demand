@@ -39,6 +39,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.util.ReflectiveFieldComparator;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
@@ -49,7 +50,6 @@ import nl.surfnet.bod.web.view.PhysicalPortView;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,6 +61,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -91,7 +92,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   private NocService nocService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @Resource
   private ConnectionService connectionService;
@@ -107,7 +108,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
 
     if (unallocatedPorts.isEmpty()) {
-      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated");
       return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 
@@ -152,7 +153,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     physicalPortService.save(port);
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_added", port.getNocLabel(), port
         .getPhysicalResourceGroup().getName());
 
     return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
@@ -179,8 +180,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.asMap().clear();
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave
-        .getNocLabel(), portToSave.getPhysicalResourceGroup().getName());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_updated", portToSave.getNocLabel(),
+        portToSave.getPhysicalResourceGroup().getName());
 
     return "redirect:physicalports";
   }
@@ -228,6 +229,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     model.addAttribute(FILTER_LIST, getAvailableFilters());
 
     return PAGE_URL + "/listunallocated";
+  }
+  
+  @VisibleForTesting
+  void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
   }
 
   private void sortExternalResources(String sort, String order, Model model,
@@ -282,8 +288,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       model.addAttribute(FILTER_LIST, getAvailableFilters());
     }
     catch (ParseException e) {
-      model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
-          Lists.newArrayList("Sorry, we could not process your search query."));
+      model.addAttribute(MessageManager.WARN_MESSAGES_KEY, Lists
+          .newArrayList("Sorry, we could not process your search query."));
 
     }
 
@@ -296,8 +302,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       @RequestParam(value = "order", required = false) String order, final Model model) {
 
     final List<PhysicalPortView> transformUnallocatedPhysicalPorts = Functions
-        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedMTOSIEntries(
-            calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page),
+            MAX_ITEMS_PER_PAGE));
 
     if (!StringUtils.hasText(sort)) {
       sort = "nocLabel";
@@ -347,13 +353,13 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     PhysicalPort port = physicalPortService.find(id);
 
     if (port == null) {
-      redirectAttrs.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
+      redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
       return "redirect:/noc/physicalports";
     }
 
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
     if (unallocatedPorts.isEmpty()) {
-      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated");
       return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 
@@ -435,8 +441,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
 
-    return Functions.transformAllocatedPhysicalPorts(
-        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
+    return Functions.transformAllocatedPhysicalPorts(physicalPortService
+        .findAllocatedEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
   }
 
   @Override
@@ -612,5 +618,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
+
+  
 
 }

@@ -22,22 +22,15 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -46,9 +39,20 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SwitchRoleControllerTest {
@@ -63,13 +67,16 @@ public class SwitchRoleControllerTest {
   private HttpSession mockSession;
 
   @Mock
-  private MessageSource messageSourceMock;
+  private MessageRetriever messageRetriever;
+
+  @Mock
+  private MessageManager messageManager;
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @InjectMocks
-  private SwitchRoleController subject = new SwitchRoleController();
+  private final SwitchRoleController subject = new SwitchRoleController();
 
   private RichUserDetails user;
 
@@ -105,6 +112,8 @@ public class SwitchRoleControllerTest {
     Security.setUserDetails(user);
 
     when(physicalResourceGroupService.find(group.getId())).thenReturn(group);
+    when(messageRetriever.getMessageWithBoldArguments(eq("info_activation_request_send"), (String[]) anyVararg()))
+        .thenReturn("test message");
 
     Model uiModel = new ModelStub();
     Model redirectAttribs = new ModelStub();

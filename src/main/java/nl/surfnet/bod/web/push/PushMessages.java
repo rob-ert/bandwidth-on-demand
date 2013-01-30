@@ -26,24 +26,22 @@ import java.io.IOException;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageRetriever;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 
 public final class PushMessages {
 
   private PushMessages() {
   }
 
-  public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent,
-      MessageSource messageSource) {
+  public static PushMessage createMessage(MessageRetriever messageRetriever,
+      ReservationStatusChangeEvent reservationStatusChangeEvent) {
 
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
-    String message = WebUtils.getMessageWithBoldArguments(messageSource, "info_reservation_statuschanged",
-        reservation.getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
+    String message = messageRetriever.getMessageWithBoldArguments("info_reservation_statuschanged", reservation
+        .getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
 
     if (reservation.getStatus().isErrorState() && reservation.getFailedReason() != null) {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
@@ -52,8 +50,7 @@ public final class PushMessages {
     final boolean deleteAllowed = reservation.getStatus().isDeleteAllowed();
     String deleteTooltip = null;
     if (!deleteAllowed) {
-      deleteTooltip = messageSource.getMessage(
-        "reservation_state_transition_not_allowed", new Object[] {}, LocaleContextHolder.getLocale());
+      deleteTooltip = messageRetriever.getMessage("reservation_state_transition_not_allowed", new String[] {});
     }
 
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getAdminGroup(), new JsonEvent(message,

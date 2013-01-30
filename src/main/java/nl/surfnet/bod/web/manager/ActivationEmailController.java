@@ -27,12 +27,11 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,22 +53,23 @@ public class ActivationEmailController {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
   public String activateEmail(@PathVariable String uuid, Model model, RedirectAttributes redirectAttrs) {
     ActivationEmailLink link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null || link.getSourceObject() == null) {
-      redirectAttrs.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, ImmutableList.of("Activation link is not valid"));
+      redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList
+          .of("Activation link is not valid"));
       return "redirect:/";
     }
 
     PhysicalResourceGroup physicalResourceGroup = link.getSourceObject();
 
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
-      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_activation_request_notallowed", Security
-          .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_activation_request_notallowed", Security.getUserDetails()
+          .getDisplayName(), physicalResourceGroup.getName());
 
       log.debug("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
           .getUsername(), physicalResourceGroup.getName());

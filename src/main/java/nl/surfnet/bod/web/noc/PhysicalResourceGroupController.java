@@ -36,6 +36,7 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -44,7 +45,6 @@ import nl.surfnet.bod.web.view.PhysicalResourceGroupView;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -75,7 +75,7 @@ public class PhysicalResourceGroupController extends
   private InstituteService instituteService;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
 
   @Resource
   private PhysicalPortService physicalPortService;
@@ -109,8 +109,8 @@ public class PhysicalResourceGroupController extends
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_activation_request_send",
-        physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_activation_request_send", physicalResourceGroup
+        .getName(), physicalResourceGroup.getManagerEmail());
 
     // Force refresh of roles
     SecurityContextHolder.clearContext();
@@ -165,8 +165,8 @@ public class PhysicalResourceGroupController extends
 
     if (command.isManagerEmailChanged()) {
       physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
-      addInfoFlashMessage(redirectAttributes, messageSource, "info_activation_request_send",
-          physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
+      messageManager.addInfoFlashMessage(redirectAttributes, "info_activation_request_send", physicalResourceGroup
+          .getName(), physicalResourceGroup.getManagerEmail());
     }
 
     // Force refresh of roles
@@ -403,4 +403,5 @@ public class PhysicalResourceGroupController extends
     }
     return physicalResourceGroupViews;
   }
+
 }

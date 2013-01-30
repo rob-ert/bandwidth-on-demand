@@ -37,6 +37,8 @@ import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.util.MessageRetriever;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.base.MessageView;
@@ -46,7 +48,6 @@ import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -77,7 +78,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   private VirtualPortValidator virtualPortValidator;
 
   @Resource
-  private MessageSource messageSource;
+  private MessageManager messageManager;
+  
+  @Resource MessageRetriever messageRetriever;
 
   @Resource
   private ReservationService reservationService;
@@ -91,8 +94,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
         return addCreateFormToModel(createCommand, model);
       }
 
-      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(),
-          createCommand.getDeclineMessage());
+      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(), createCommand
+          .getDeclineMessage());
 
       return "redirect:" + PAGE_URL;
     }
@@ -108,7 +111,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     virtualPortService.save(port);
     virtualPortService.requestLinkApproved(createCommand.getVirtualPortRequestLink(), port);
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_created", port.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }
@@ -132,21 +135,20 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
 
     if (requestLink == null) {
-      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notvalid");
+      messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualportrequestlink_notvalid");
       return "redirect:/";
     }
 
     if (!Security.isManagerMemberOf(requestLink.getPhysicalResourceGroup())) {
-      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notmanager");
+      messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualportrequestlink_notmanager");
       return "redirect:/";
     }
 
     Security.switchToManager(requestLink.getPhysicalResourceGroup());
 
     if (!requestLink.isPending()) {
-      MessageView message = MessageView.createInfoMessage(messageSource,
-          "info_virtualportrequest_already_processed_title", "info_virtualportrequest_already_processed_message",
-          requestLink.getVirtualResourceGroup().getName());
+      MessageView message = MessageView.createInfoMessage(messageRetriever, "info_virtualportrequest_already_processed_title",
+          "info_virtualportrequest_already_processed_message", requestLink.getVirtualResourceGroup().getName());
 
       model.addAttribute(MessageView.MODEL_KEY, message);
 
@@ -186,7 +188,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     }
 
     model.asMap().clear();
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_updated", port.getManagerLabel());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_updated", port.getManagerLabel());
 
     virtualPortService.update(port);
 
@@ -221,8 +223,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     virtualPortService.delete(virtualPort, Security.getUserDetails());
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
-        virtualPort.getManagerLabel());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted", virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }

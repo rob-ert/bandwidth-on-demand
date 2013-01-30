@@ -25,6 +25,8 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.util.MessageManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -49,21 +51,24 @@ public class DevelopmentController {
   @Resource
   private ReloadableResourceBundleMessageSource messageSource;
 
+  @Resource
+  private MessageManager messageManager;
+
   @RequestMapping(value = MESSAGES_PART)
   public String refreshMessageSource(HttpServletRequest request, RedirectAttributes model) {
     messageSource.clearCache();
     logger.info("Refresing messages");
-    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Messages");
+    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Messages");
 
     return "redirect:" + request.getHeader("Referer");
   }
 
   @RequestMapping(value = ROLES_PART)
-  public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {   
+  public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {
     SecurityContextHolder.clearContext();
 
     logger.info("Refreshing roles");
-    WebUtils.addInfoFlashMessage(model, messageSource, "info_dev_refresh", "Roles");
+    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles");
 
     return "redirect:" + request.getHeader("Referer");
   }

@@ -25,14 +25,14 @@ package nl.surfnet.bod.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nl.surfnet.bod.util.MessageManager;
+
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.web.WebUtils;
 
 public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
 
@@ -63,7 +63,7 @@ public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
 
   private void addInfoMessage(HttpServletRequest request, HttpServletResponse response) {
     FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
-    flashMap.put(WebUtils.INFO_MESSAGES_KEY, "Your POST request has been ignored because your session timed out.");
+    flashMap.put(MessageManager.INFO_MESSAGES_KEY, "Your POST request has been ignored because your session timed out.");
     FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
     flashMapManager.saveOutputFlashMap(flashMap, request, response);
   }
