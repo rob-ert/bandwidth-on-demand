@@ -95,6 +95,9 @@ public class Environment {
   @Value("${oauth.resource.secret}")
   private String resourceSecret;
 
+  @Value("${entitlement.bod.admin}")
+  private String bodEntitlement;
+
   public Environment() {
   }
 
@@ -238,5 +241,9 @@ public class Environment {
 
   public String getEnvironment() {
     return environment;
+  }
+
+  public String getBodAdminEntitlement() {
+    return bodEntitlement;
   }
 }

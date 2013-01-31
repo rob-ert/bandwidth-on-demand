@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
-import java.util.List;
 
+import javax.annotation.Resource;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -16,16 +16,27 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import nl.surfnet.bod.util.Environment;
+
 import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
 
+@Component
 public class SabNgEntitlementsHandler {
 
+  private static final String STATUS_SUCCESS = "Success";
+
   private static final String REQUEST_TEMPLATE_LOCATION = "/xmlsabng/request-entitlement-template.xml";
+  private static final String XPATH_STATUS_CODE = "//samlp:StatusCode";
+  private static final String XPATH_ENTITLEMENTS = "//saml:Attribute[@Name='urn:oid:1.3.6.1.4.1.5923.1.1.1.7']";
+
+  @Resource
+  private Environment bodEnvironment;
 
   public String createRequest(String issuer, String nameId) {
     String template;
@@ -39,11 +50,33 @@ public class SabNgEntitlementsHandler {
     return MessageFormat.format(template, issuer, nameId);
   }
 
-  public List<String> retrieveEntitlements(InputStream responseStream) {
-    List<String> entitlements = Lists.newArrayList();
+  public boolean retrieveEntitlements(InputStream responseStream) {
+    boolean result = false;
 
+    Document document = createDocument(responseStream);
+
+    try {
+      checkStatusCodeOrFail(document, getStatusToMatch());
+      result = checkEntitlements(document, getRoleToMatch());
+    }
+    catch (XPathExpressionException e) {
+      throw new RuntimeException(e);
+    }
+
+    return result;
+  }
+
+  private String getRoleToMatch() {
+    return bodEnvironment.getBodAdminEntitlement();
+  }
+
+  private String getStatusToMatch() {
+    return STATUS_SUCCESS;
+  }
+
+  private Document createDocument(InputStream responseStream) {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    // TODO CHECK factory.setNamespaceAware(true);
+    factory.setNamespaceAware(true);
 
     Document document;
     try {
@@ -53,28 +86,34 @@ public class SabNgEntitlementsHandler {
     catch (ParserConfigurationException | SAXException | IOException e) {
       throw new RuntimeException(e);
     }
+    return document;
+  }
 
-    javax.xml.xpath.XPathFactory xPathFactory = javax.xml.xpath.XPathFactory.newInstance();
-    XPath xPath = xPathFactory.newXPath();
+  private void checkStatusCodeOrFail(Document document, String statusToMatch) throws XPathExpressionException {
+    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
 
     xPath.setNamespaceContext(new SabNgNamespaceResolver());
+    XPathExpression expression = xPath.compile(XPATH_STATUS_CODE);
 
-    XPathExpression expression;
-    Object result;
-    try {
-      expression = xPath.compile("//SOAP-ENV:Envelope/SOAP-ENV:Body");
-      result = expression.evaluate(document, XPathConstants.NODESET);
-    }
-    catch (XPathExpressionException e) {
-      throw new RuntimeException(e);
-    }
+    String statusCode = ((NodeList) expression.evaluate(document, XPathConstants.NODESET)).item(0).getAttributes()
+        .getNamedItem("Value").getNodeValue();
 
-    NodeList nodes = (NodeList) result;
-    for (int i = 0; i < nodes.getLength(); i++) {
-      System.err.println(nodes.item(i));
-    }
+    Preconditions.checkState(statusCode.contains(statusToMatch), "Could not retrieve roles, statusCode:", statusCode);
+  }
 
-    return entitlements;
+  private boolean checkEntitlements(Document document, String roleToMatch) throws XPathExpressionException {
+    boolean result = false;
+
+    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+    xPath.setNamespaceContext(new SabNgNamespaceResolver());
+    XPathExpression expression = xPath.compile(XPATH_ENTITLEMENTS);
+    NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
+
+    if ((nodeList != null) && (nodeList.getLength() > 0)) {
+      String entitlements = nodeList.item(0).getTextContent();
+      result = entitlements.contains(roleToMatch);
+    }
+    return result;
   }
 
   private class SabNgNamespaceResolver implements NamespaceContext {
