@@ -66,7 +66,7 @@ public class VersReportingServiceTestIntegration {
   }
 
   @Test
-  @Ignore
+  @Ignore("Only for testing uploading a real raport, don't do it every run")
   public void insertReporting() throws Exception {
     YearMonth period = new YearMonth(2006, 3);
     Institute institute = new InstituteFactory().setShortName("RUG").setName("Rijks Universiteit Groningen").create();
