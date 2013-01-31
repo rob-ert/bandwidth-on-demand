@@ -110,7 +110,7 @@ public class DashboardControllerTest {
         .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL))//
         .andExpect(model().size(0))//
         .andExpect(flash().attributeCount(1))//
-        .andExpect(flash().attribute(MessageRetriever.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
+        .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
 
     verify(textSearchIndexer).indexDatabaseContent();
   }
@@ -127,7 +127,7 @@ public class DashboardControllerTest {
         .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL)) //
         .andExpect(model().size(0))//
         .andExpect(flash().attributeCount(1)) //
-        .andExpect(flash().attribute(MessageRetriever.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
+        .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
 
     verify(instituteService).refreshInstitutes();
   }

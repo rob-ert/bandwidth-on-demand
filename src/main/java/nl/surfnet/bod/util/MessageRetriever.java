@@ -15,10 +15,6 @@ import com.google.common.collect.FluentIterable;
 @Component
 public class MessageRetriever {
 
-  public static final String INFO_MESSAGES_KEY = "infoMessages";
-  public static final String ERROR_MESSAGES_KEY = "errorMessages";
-  public static final String WARN_MESSAGES_KEY = "warnMessages";
-
   @Resource
   private MessageSource messageSource;
 
