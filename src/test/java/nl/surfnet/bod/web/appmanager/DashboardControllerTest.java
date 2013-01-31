@@ -39,8 +39,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.MessageManager;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 
 import org.junit.Before;
 import org.junit.Test;

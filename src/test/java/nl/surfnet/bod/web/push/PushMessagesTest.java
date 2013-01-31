@@ -32,7 +32,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageRetriever;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

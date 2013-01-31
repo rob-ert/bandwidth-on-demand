@@ -25,7 +25,7 @@ package nl.surfnet.bod.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;

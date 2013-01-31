@@ -1,8 +1,9 @@
-package nl.surfnet.bod.util;
+package nl.surfnet.bod.web.base;
 
 import java.util.List;
 
 import javax.annotation.Resource;
+
 
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;

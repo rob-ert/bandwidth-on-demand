@@ -1,4 +1,4 @@
-package nl.surfnet.bod.util;
+package nl.surfnet.bod.web.base;
 
 import java.util.Arrays;
 import java.util.Locale;

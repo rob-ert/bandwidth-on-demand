@@ -27,7 +27,7 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.validator.constraints.Email;

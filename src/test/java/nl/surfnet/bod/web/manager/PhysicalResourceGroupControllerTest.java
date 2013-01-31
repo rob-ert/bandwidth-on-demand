@@ -36,7 +36,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.manager.PhysicalResourceGroupController.UpdateEmailCommand;
 import nl.surfnet.bod.web.security.Security;
 

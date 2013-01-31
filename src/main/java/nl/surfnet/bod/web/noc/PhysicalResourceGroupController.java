@@ -36,9 +36,9 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.*;
-import nl.surfnet.bod.util.MessageManager;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalResourceGroupView;

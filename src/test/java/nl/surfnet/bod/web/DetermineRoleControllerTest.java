@@ -29,7 +29,7 @@ import java.util.List;
 
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 

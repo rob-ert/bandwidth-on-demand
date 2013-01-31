@@ -42,7 +42,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
 import nl.surfnet.bod.web.view.PhysicalResourceGroupView;
 

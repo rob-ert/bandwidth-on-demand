@@ -28,7 +28,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-import nl.surfnet.bod.util.MessageRetriever;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

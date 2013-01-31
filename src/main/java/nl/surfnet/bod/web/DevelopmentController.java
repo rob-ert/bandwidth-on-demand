@@ -25,7 +25,8 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.util.MessageManager;
+
+import nl.surfnet.bod.web.base.MessageManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

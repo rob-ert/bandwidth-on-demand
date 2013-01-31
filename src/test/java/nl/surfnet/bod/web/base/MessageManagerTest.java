@@ -1,4 +1,4 @@
-package nl.surfnet.bod.util;
+package nl.surfnet.bod.web.base;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;

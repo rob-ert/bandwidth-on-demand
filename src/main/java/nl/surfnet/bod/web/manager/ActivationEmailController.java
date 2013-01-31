@@ -27,7 +27,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;

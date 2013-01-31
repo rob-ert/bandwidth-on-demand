@@ -22,11 +22,11 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.util.MessageManager.WARN_MESSAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
 import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.base.MessageManager.WARN_MESSAGES_KEY;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

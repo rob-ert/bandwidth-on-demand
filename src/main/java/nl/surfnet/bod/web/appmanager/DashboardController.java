@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.TextSearchIndexer;
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

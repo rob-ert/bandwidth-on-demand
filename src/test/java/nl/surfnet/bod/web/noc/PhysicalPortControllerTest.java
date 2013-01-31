@@ -54,8 +54,8 @@ import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.util.MessageManager;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
 import nl.surfnet.bod.web.noc.PhysicalPortController.PhysicalPortFilter;
 

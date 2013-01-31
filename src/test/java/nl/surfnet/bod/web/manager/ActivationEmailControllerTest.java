@@ -42,8 +42,8 @@ import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.util.MessageManager;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 

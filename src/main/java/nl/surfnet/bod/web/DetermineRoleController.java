@@ -24,7 +24,7 @@ package nl.surfnet.bod.web;
 
 import java.util.Map;
 
-import nl.surfnet.bod.util.MessageManager;
+import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 

@@ -28,7 +28,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageRetriever;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

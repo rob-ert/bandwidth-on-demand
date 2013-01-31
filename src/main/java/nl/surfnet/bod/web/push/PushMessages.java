@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageRetriever;
 
 import org.codehaus.jackson.map.ObjectMapper;
 

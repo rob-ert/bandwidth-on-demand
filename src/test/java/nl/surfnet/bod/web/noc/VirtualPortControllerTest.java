@@ -45,8 +45,8 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.util.MessageManager;
-import nl.surfnet.bod.util.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 

@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import nl.surfnet.bod.util.MessageRetriever;
 
 public class MessageView {
   public static final String PAGE_URL = "message";
