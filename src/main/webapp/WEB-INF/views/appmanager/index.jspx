@@ -43,11 +43,12 @@
       <section>
         <h2>Welcome to ${app_name}</h2>
         <div class="content-dense">
-          <h3>Administrative tasks</h3>
-          <p>
-            At this moment you are logged into this application as a <strong><spring:message
-                code="role_${selectedRole.roleName}" /></strong>
-          </p>
+          <h3><spring:message code="label_refresh_institutes"/></h3>
+          <p>This link forces a refresh of all the institutes registered in Bandwidth On Demand against the IDD system.</p>
+          <h3><spring:message code="label_refresh_reindex_search"/></h3>
+          <p>By clicking this link, the indexes of the database used for search operations are refreshed.</p>
+          <h3><spring:message code="label_show_shibboleth_info"/></h3>
+          <p>This link will show a page showing all the request and session attributes, aswell as the headers.</p>
         </div>
       </section>
     </div>
