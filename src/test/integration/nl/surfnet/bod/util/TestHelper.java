@@ -58,6 +58,10 @@ public class TestHelper {
     }
   }
 
+  public static PropertiesEnvironment devProperties() {
+    return loadProperties("dev");
+  }
+
   public static PropertiesEnvironment testProperties() {
     return loadProperties("test");
   }
@@ -74,7 +78,8 @@ public class TestHelper {
     PropertiesEnvironment environment = new PropertiesEnvironment();
     try {
       environment.load(new FileInputStream(String.format("src/main/resources/env-properties/bod-%s.properties", env)));
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       System.err.println("Could not load the environment properties file for " + env);
       // Ignoring/skipping test
       assumeNoException(e);
@@ -85,7 +90,7 @@ public class TestHelper {
   @SuppressWarnings("serial")
   public static class PropertiesEnvironment extends Properties {
 
-    private StrongTextEncryptor encryptor = new StrongTextEncryptor();
+    private final StrongTextEncryptor encryptor = new StrongTextEncryptor();
 
     public PropertiesEnvironment() {
       encryptor.setPassword(System.getenv("BOD_ENCRYPTION_PASSWORD"));
@@ -115,6 +120,7 @@ public class TestHelper {
   public static void clearEnv() {
     System.clearProperty("bod.env");
   }
+
   private static void useEnv(String env) {
     System.setProperty("bod.env", env);
   }
