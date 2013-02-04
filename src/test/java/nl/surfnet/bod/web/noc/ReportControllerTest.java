@@ -74,11 +74,13 @@ public class ReportControllerTest {
 
     when(reportServiceMock.determineReportForNoc(any(Interval.class))).thenReturn(dummyReport);
 
-    mockMvc.perform(get("/noc/report/data/201301"))
+    YearMonth month = new YearMonth(2011, 10);
+    mockMvc.perform(get("/noc/report/data/" + month.toString("yyyyMM")))
       .andExpect(status().isOk())
       .andExpect(content().contentType("text/plain;charset=ISO-8859-1"))
       .andExpect(content().string(containsString("Month,Create,Create_f,Cancel,Cancel_f,NSI,NSI_f")))
-      .andExpect(content().string(containsString(YearMonth.now().toString("MMM"))))
+      .andExpect(content().string(containsString(month.toString("MMM"))))
+      .andExpect(content().string(containsString(month.minusMonths(ReportController.MONTHS_IN_GRAPH - 1).toString("MMM"))))
       .andExpect(content().string(NumberOfLinesMatchers.hasLines(ReportController.MONTHS_IN_GRAPH + 1)));
   }
 
