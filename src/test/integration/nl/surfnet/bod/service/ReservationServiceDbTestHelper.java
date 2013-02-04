@@ -103,7 +103,7 @@ public class ReservationServiceDbTestHelper {
     Long reservationId = null;
 
     try {
-      reservationId = future.get(10L, TimeUnit.SECONDS);
+      reservationId = future.get(2L, TimeUnit.SECONDS);
     }
     catch (InterruptedException | ExecutionException | TimeoutException e) {
       e.printStackTrace();
@@ -131,7 +131,7 @@ public class ReservationServiceDbTestHelper {
   /**
    * Force a new transactions so at the end of this method the update status is
    * committed to the database.
-   * 
+   *
    * @param reservation
    * @param status
    * @return

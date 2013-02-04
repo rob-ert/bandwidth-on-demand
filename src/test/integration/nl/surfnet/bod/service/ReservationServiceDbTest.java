@@ -57,11 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReservationServiceDbTest {
 
-  // override bod.properties to run test and bod server at the same time
-  static {
-    System.setProperty("snmp.host", "localhost/1622");
-  }
-
   @Resource
   private ReservationService reservationService;
 

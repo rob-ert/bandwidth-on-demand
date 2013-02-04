@@ -94,7 +94,7 @@ public class ReportReservationServiceDbTest {
   private DateTime periodStart;
   private DateTime periodEnd;
 
-  private Reservation reservationOnStartPeriodNSI;  
+  private Reservation reservationOnStartPeriodNSI;
   private Reservation reservationBeforeStartAndAfterEndPeriodNSI;
   private Reservation reservationBeforeStartAndOnEndPeriodGUI;
   private Reservation reservationAfterStartAndOnEndPeriodGUI;
