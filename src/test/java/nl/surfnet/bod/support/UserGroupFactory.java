@@ -29,23 +29,23 @@ public class UserGroupFactory {
   private String id = "urn:emtpy";
   private String name = "";
   private String description = "";
-  
+
   public UserGroup create() {
     UserGroup group = new UserGroup(id, name, description);
-    
+
     return group;
   }
-  
+
   public UserGroupFactory setId(String id) {
     this.id = id;
     return this;
   }
-  
+
   public UserGroupFactory setDescription(String description) {
     this.description = description;
     return this;
   }
-  
+
   public UserGroupFactory setName(String name) {
     this.name = name;
     return this;

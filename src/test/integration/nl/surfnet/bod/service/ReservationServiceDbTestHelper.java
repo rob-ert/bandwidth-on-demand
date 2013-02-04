@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.fail;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -67,8 +65,12 @@ public class ReservationServiceDbTestHelper {
 
   Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status,
       PhysicalResourceGroup sourceGroup, PhysicalResourceGroup destinationGroup) {
-    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
-        .setStatus(status).create();
+
+    Reservation reservation = new ReservationFactory()
+      .withNodId()
+      .setStartDateTime(startDateTime)
+      .setEndDateTime(endDateTime)
+      .setStatus(status).create();
 
     reservation.getSourcePort().getPhysicalPort().setPhysicalResourceGroup(sourceGroup);
     reservation.getDestinationPort().getPhysicalPort().setPhysicalResourceGroup(destinationGroup);
@@ -94,22 +96,19 @@ public class ReservationServiceDbTestHelper {
     reservation.getDestinationPort().setId(null);
     virtualPortRepo.save(reservation.getDestinationPort());
 
-    reservation.setId(null);
     return reservation;
   }
 
   Reservation createThroughService(Reservation reservation, boolean autoProvision) {
     Future<Long> future = reservationService.create(reservation, autoProvision, Optional.<NsiRequestDetails> absent());
-    Long reservationId = null;
 
     try {
-      reservationId = future.get(2L, TimeUnit.SECONDS);
+      Long reservationId = future.get(2L, TimeUnit.SECONDS);
+      return reservationService.find(reservationId);
     }
     catch (InterruptedException | ExecutionException | TimeoutException e) {
-      e.printStackTrace();
-      fail(e.getMessage());
+      throw new AssertionError(e);
     }
-    return reservationService.find(reservationId);
   }
 
   Reservation addConnectionToReservation(Reservation reservation) {
@@ -121,9 +120,8 @@ public class ReservationServiceDbTestHelper {
   }
 
   public PhysicalResourceGroup createAndPersistPhysicalResourceGroup(Long prgId) {
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setId(prgId).create();
-    final Institute destinationInstitute = instituteRepo.findOne(prgId);
-    prg.setInstitute(destinationInstitute);
+    Institute institute = instituteRepo.findOne(prgId);
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setId(prgId).setInstitute(institute).create();
 
     return physicalResourceGroupRepo.save(prg);
   }
@@ -131,10 +129,6 @@ public class ReservationServiceDbTestHelper {
   /**
    * Force a new transactions so at the end of this method the update status is
    * committed to the database.
-   *
-   * @param reservation
-   * @param status
-   * @return
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Reservation updateStatusAndCommit(Reservation reservation, ReservationStatus status) {

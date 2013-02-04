@@ -30,10 +30,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.util.StringUtils;
 
-/**
- * Factory for creation of {@link VirtualPort}
- *
- */
 public class VirtualPortFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
