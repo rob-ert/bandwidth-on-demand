@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -31,6 +32,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
+import nl.surfnet.bod.repo.ReservationRepo;
 
 import com.google.common.base.Optional;
 
@@ -41,6 +43,9 @@ public class NbiMtosiClient implements NbiClient {
 
   @Resource
   private ServiceComponentActivationClient serviceComponentActivationClient;
+
+  @Resource
+  private ReservationRepo reservationRepo;
 
   @Override
   public boolean activateReservation(String reservationId) {
@@ -58,10 +63,14 @@ public class NbiMtosiClient implements NbiClient {
   }
 
   @Override
-  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
-    serviceComponentActivationClient.reserve(reservation, autoProvision);
+  public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
+    // Generate id
+    reservation.setReservationId(UUID.randomUUID().toString());
+    Reservation reservationWithUUID = reservationRepo.saveAndFlush(reservation);
 
-    return reservation;
+    serviceComponentActivationClient.reserve(reservationWithUUID, autoProvision);
+
+    return reservationWithUUID;
   }
 
   @Override

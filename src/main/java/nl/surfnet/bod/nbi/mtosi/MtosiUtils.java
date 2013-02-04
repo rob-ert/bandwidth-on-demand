@@ -22,6 +22,13 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.util.StringUtils;
+import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 public final class MtosiUtils {
 
@@ -47,6 +54,26 @@ public final class MtosiUtils {
     else {
       throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
     }
+  }
+
+  public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
+
+    Iterator<ServiceCharacteristicValueType> iterator = describedByList.iterator();
+    while (iterator.hasNext()) {
+      ServiceCharacteristicValueType type = iterator.next();
+      System.err
+          .println(String.format("Type: %s, SscRef %s", getRdnString(type.getSscRef().getRdn()), type.getValue()));
+    }
+  }
+
+  public static String getRdnString(List<RelativeDistinguishNameType> rdn) {
+    List<String> contents = new ArrayList<>();
+    Iterator<RelativeDistinguishNameType> iterator = rdn.iterator();
+    while (iterator.hasNext()) {
+      RelativeDistinguishNameType item = iterator.next();
+      contents.add(item.getType() + " " + item.getValue());
+    }
+    return StringUtils.collectionToCommaDelimitedString(contents);
   }
 
 }

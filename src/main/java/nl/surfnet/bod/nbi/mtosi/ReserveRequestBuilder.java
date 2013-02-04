@@ -27,6 +27,7 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -38,10 +39,15 @@ import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.*;
 
 import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
+import com.google.common.base.Optional;
 
 public class ReserveRequestBuilder {
 
+  private static final String SSC = "SSC";
   private static final String MANAGING_DOMAIN = "CIENA/OneControl";
+  private static final String TRAFFIC_MAPPING_TABLECOUNT = "1";
+  private static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
+  private static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
@@ -50,11 +56,20 @@ public class ReserveRequestBuilder {
 
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
 
-    createSapAndAddToList(rfsCreateData.getSapList(), reservation.getSourcePort().getPhysicalPort());
-    createSapAndAddToList(rfsCreateData.getSapList(), reservation.getDestinationPort().getPhysicalPort());
+    // Source port
+    ServiceAccessPointType sourceSAP = addStaticCharacteristicsTo(rfsCreateData.getSapList(), reservation
+        .getSourcePort().getPhysicalPort());
+    addDynamicCharacteristicsTo(Optional.<Integer> fromNullable(reservation.getSourcePort().getVlanId()), reservation
+        .getProtectionType(), reservation.getBandwidth(), sourceSAP.getDescribedByList());
 
+    // Destination port
+    ServiceAccessPointType destinationSAP = addStaticCharacteristicsTo(rfsCreateData.getSapList(), reservation
+        .getDestinationPort().getPhysicalPort());
+    addDynamicCharacteristicsTo(Optional.<Integer> fromNullable(reservation.getDestinationPort().getVlanId()),
+        reservation.getProtectionType(), reservation.getBandwidth(), destinationSAP.getDescribedByList());
+
+    // Vendor extensions
     createVendorExtensionsAndAdd(rfsCreateData, reservation.getStartDateTime());
-
     reserveRequest.setRfsCreateData(rfsCreateData);
 
     return reserveRequest;
@@ -75,23 +90,45 @@ public class ReserveRequestBuilder {
     rfsCreateData.setVendorExtensions(vendorExtensions);
   }
 
-  private void createSapAndAddToList(List<ServiceAccessPointType> sapList, PhysicalPort physicalPort) {
+  private ServiceAccessPointType addStaticCharacteristicsTo(List<ServiceAccessPointType> sapList,
+      PhysicalPort physicalPort) {
     ServiceAccessPointType serviceAccessPoint = createServiceAccessPoint(physicalPort);
     sapList.add(serviceAccessPoint);
 
-    createServiceCharacsteristicsAndAddToList("UNI-N", createNamingAttrib("SSC", "InterfaceType"), serviceAccessPoint
-        .getDescribedByList());
-    createServiceCharacsteristicsAndAddToList("1", createNamingAttrib("SSC", "TrafficMappingTableCount"),
-        serviceAccessPoint.getDescribedByList());
-    createServiceCharacsteristicsAndAddToList("5", createNamingAttrib("SSC", "TrafficMappingFrom_Table_VID"),
-        serviceAccessPoint.getDescribedByList());
-    createServiceCharacsteristicsAndAddToList("all", createNamingAttrib("SSC", "TrafficMappingFrom_Table_Priority"),
-        serviceAccessPoint.getDescribedByList());
-    createServiceCharacsteristicsAndAddToList("4", createNamingAttrib("SSC", "TrafficMappingTo_Table_TrafficClass"),
-        serviceAccessPoint.getDescribedByList());
-    createServiceCharacsteristicsAndAddToList("250", createNamingAttrib("SSC", "TrafficMappingTo_Table_IngressCIR"),
-        serviceAccessPoint.getDescribedByList());
+    createServiceCharacteristicsAndAddToList(TRAFFIC_MAPPING_TABLECOUNT, createNamingAttrib(SSC,
+        "TrafficMappingTableCount"), serviceAccessPoint.getDescribedByList());
 
+    createServiceCharacteristicsAndAddToList(TRAFFIC_MAPPING_FROM_TABLE_PRIORITY, createNamingAttrib(SSC,
+        "TrafficMappingFrom_Table_Priority"), serviceAccessPoint.getDescribedByList());
+
+    createServiceCharacteristicsAndAddToList(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS, createNamingAttrib(SSC,
+        "TrafficMappingTo_Table_TrafficClass"), serviceAccessPoint.getDescribedByList());
+
+    return serviceAccessPoint;
+  }
+
+  private void addDynamicCharacteristicsTo(Optional<Integer> vlandId, ProtectionType protectionType, Integer bandwidth,
+      List<ServiceCharacteristicValueType> describedByList) {
+
+    if (vlandId.isPresent()) {
+      createServiceCharacteristicsAndAddToList(String.valueOf(vlandId.get()), createNamingAttrib(SSC,
+          "TrafficMappingFrom_Table_VID"), describedByList);
+      createServiceCharacteristicsAndAddToList("EVPL", createNamingAttrib(SSC, "ServiceType"), describedByList);
+    }
+    else {
+      createServiceCharacteristicsAndAddToList("all", createNamingAttrib(SSC, "TrafficMappingFrom_Table_VID"),
+          describedByList);
+      createServiceCharacteristicsAndAddToList("EPL", createNamingAttrib(SSC, "ServiceType"), describedByList);
+    }
+
+    //TODO check mapping
+    createServiceCharacteristicsAndAddToList("UNI-N", createNamingAttrib(SSC, "InterfaceType"), describedByList);
+
+    createServiceCharacteristicsAndAddToList(bandwidth.toString(), createNamingAttrib(SSC,
+        "TrafficMappingTo_Table_IngressCIR"), describedByList);
+
+    createServiceCharacteristicsAndAddToList(protectionType.getMtosiName(), createNamingAttrib(SSC, "ProtectionLevel"),
+        describedByList);
   }
 
   private org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest createReserveRequest(DateTime endDateTime) {
@@ -106,8 +143,7 @@ public class ReserveRequestBuilder {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createResourceFacingServiceType();
 
-    // TODO RFS should be unique...
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getName()));
+    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
@@ -117,16 +153,10 @@ public class ReserveRequestBuilder {
   }
 
   private void createDescribedByList(List<ServiceCharacteristicValueType> describedByList, DateTime timeStamp) {
-    createServiceCharacsteristicsAndAddToList("EVPL", createNamingAttrib("SSC", "ServiceType"), describedByList);
-
-    createServiceCharacsteristicsAndAddToList(
-        convertToXml(timeStamp),
-        createNamingAttrib("SSC", "startTime"), describedByList);
-
-    createServiceCharacsteristicsAndAddToList("Strict", createNamingAttrib("SSC", "AdmissionControl"), describedByList);
-
-    createServiceCharacsteristicsAndAddToList("Fully Protected", createNamingAttrib("SSC", "ProtectionLevel"),
+    createServiceCharacteristicsAndAddToList(convertToXml(timeStamp), createNamingAttrib(SSC, "startTime"),
         describedByList);
+
+    createServiceCharacteristicsAndAddToList("Strict", createNamingAttrib(SSC, "AdmissionControl"), describedByList);
   }
 
   public static String convertToXml(DateTime timeStamp) {
@@ -140,7 +170,7 @@ public class ReserveRequestBuilder {
     resourceRefList.add(createRdn("MD", MANAGING_DOMAIN));
     resourceRefList.add(createRdn("ME", port.getNmsNeId()));
     resourceRefList.add(createRdn("PTP", MtosiUtils.nmsPortIdToPhysicalTerminationPoint(port.getNmsPortId())));
-    //resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
+    // resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
@@ -155,7 +185,7 @@ public class ReserveRequestBuilder {
         value));
   }
 
-  private void createServiceCharacsteristicsAndAddToList(String value, NamingAttributeType namingAttributeType,
+  private void createServiceCharacteristicsAndAddToList(String value, NamingAttributeType namingAttributeType,
       List<ServiceCharacteristicValueType> list) {
     ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceCharacteristicValueType();

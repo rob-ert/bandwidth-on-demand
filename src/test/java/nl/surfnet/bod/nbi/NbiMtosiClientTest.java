@@ -22,7 +22,51 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.support.ReservationFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
 public class NbiMtosiClientTest {
 
-}
+  @InjectMocks
+  private NbiMtosiClient subject;
 
+  @Mock
+  private ReservationRepo reservationRepo;
+
+  @Mock
+  private ServiceComponentActivationClient serviceComponentActivationClient;
+
+  private Reservation reservation;
+
+  @Before
+  public void setUp() {
+    reservation = new ReservationFactory().setReservationId(null).create();
+  }
+
+  @Test
+  public void shouldGenerateUUID() {
+    when(reservationRepo.saveAndFlush(reservation)).thenReturn(reservation);
+
+    assertThat(reservation.getReservationId(), nullValue());
+    Reservation createdReservation = subject.createReservation(reservation, true);
+    assertThat(createdReservation.getReservationId(), notNullValue());
+
+    verify(serviceComponentActivationClient).reserve(createdReservation, true);
+  }
+
+}
