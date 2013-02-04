@@ -76,4 +76,19 @@ public class VerifySelectedRoleFilterTest {
     assertThat(Security.isSelectedUserRole(), is(true));
     assertThat(Security.getSelectedRole(), is(userRole));
   }
+
+  @Test
+  public void gotToAppManagerUri() {
+    BodRole appManagerRole = BodRole.createAppManager();
+    BodRole userRole = BodRole.createUser();
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(userRole, appManagerRole).create();
+
+    Security.setUserDetails(user);
+    Security.switchToUser();
+
+    subject.verifySelectedRole("/appmanager");
+
+    assertThat(Security.isSelectedAppManagerRole(), is(true));
+    assertThat(Security.getSelectedRole(), is(appManagerRole));
+  }
 }

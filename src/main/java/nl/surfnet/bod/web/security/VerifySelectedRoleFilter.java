@@ -58,8 +58,7 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
       throws ServletException, IOException {
 
     if (request.getMethod() == HttpMethod.GET.name()) {
-      String path = request.getServletPath();
-      verifySelectedRole(path);
+      verifySelectedRole(request.getServletPath());
     }
 
     filterChain.doFilter(request, response);
@@ -75,6 +74,13 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
     else if (isManagerPath(path) && !Security.isSelectedManagerRole()) {
       Security.switchToManager();
     }
+    else if (isAppManagerPath(path) && !Security.isSelectedAppManagerRole()) {
+      Security.switchToAppManager();
+    }
+  }
+
+  private boolean isAppManagerPath(String path) {
+    return path.startsWith("/appmanager");
   }
 
   private boolean isManagerPath(String path) {
