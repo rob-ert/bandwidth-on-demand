@@ -63,22 +63,20 @@
     height: 3.273em; /* 36/11px ~ 3.273em */
 }
 
-.user-box .user-role-default > .user {
-    background-position: 3px -105px;
-}
-
 .user-box .user-role-manager > .user {
     background-position: 3px 6px;
-}
-
-.user-box .user-role-user > .user {
-    background-position: 3px -68px;
 }
 .user-box .user-role-noc > .user {
     background-position: 3px -31px;
 }
+.user-box .user-role-user > .user {
+    background-position: 3px -68px;
+}
+.user-box .user-role-default > .user {
+    background-position: 3px -105px;
+}
 .user-box .user-role-appmanager > .user {
-    background-position: 3px -142px;
+    background-position: 3px -139px;
 }
 
 /* dev menu (only visible if dev is enabled) */
