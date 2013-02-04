@@ -69,6 +69,8 @@ public class SabNgEntitlementsHandler {
       throw new RuntimeException(e);
     }
 
+    // TODO should ID="aaf23196-1773-2113-474a-fe114412ab72" also be
+    // parameterized?
     return MessageFormat.format(template, issuer, nameId);
   }
 
