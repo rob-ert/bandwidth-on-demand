@@ -43,6 +43,8 @@ import com.google.common.collect.ImmutableList;
 @Entity
 public class PhysicalPort implements Loggable, PersistableDomain {
 
+  // The only supported porttype at this moment
+  private static final String PORT_TYPE_UNI = "UNI-N";
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @DocumentId
@@ -223,6 +225,10 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   public final void setSupportedServiceType(String supportedServiceType) {
     this.supportedServiceType = supportedServiceType;
+  }
+
+  public final String getPortType() {
+    return PORT_TYPE_UNI;
   }
 
   @Override

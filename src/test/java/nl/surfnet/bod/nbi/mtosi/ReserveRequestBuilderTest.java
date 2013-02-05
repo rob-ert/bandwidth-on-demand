@@ -22,11 +22,17 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -35,23 +41,30 @@ import javax.xml.bind.Marshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.xml.sax.SAXException;
 
 import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
+import com.google.common.base.Optional;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class ReserveRequestBuilderTest {
-
+  @InjectMocks
   private final ReserveRequestBuilder subject = new ReserveRequestBuilder();
+
   private boolean schemaValidation;
 
   @Test
-  public void shouldProduceString() throws JAXBException {
+  public void shouldMarshall() throws JAXBException {
     Reservation reservation = new ReservationFactory().create();
     reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
     reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
@@ -76,6 +89,40 @@ public class ReserveRequestBuilderTest {
     // Create a stringWriter to hold the XML
     final StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
+  }
+
+  @Test
+  public void shouldAddDynamicCharacteristicsWithVlanPresent() {
+    List<ServiceCharacteristicValueType> describedByList = new ArrayList<>();
+
+    subject.addDynamicCharacteristicsTo(Optional.<Integer> of(3), ProtectionType.PROTECTED, 1024, "UNI-N",
+        describedByList);
+
+    assertThat(describedByList, hasSize(5));
+
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "3")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED
+        .getMtosiName())));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EVPL")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
+  }
+
+  @Test
+  public void shouldAddDynamicCharacteristicsWithVlanAbsent() {
+    List<ServiceCharacteristicValueType> describedByList = new ArrayList<>();
+
+    subject.addDynamicCharacteristicsTo(Optional.<Integer> absent(), ProtectionType.REDUNDANT, 1024, "UNI-N",
+        describedByList);
+
+    assertThat(describedByList, hasSize(5));
+
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED
+        .getMtosiName())));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EPL")));
+    assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {

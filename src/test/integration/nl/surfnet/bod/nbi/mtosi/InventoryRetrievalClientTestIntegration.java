@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.util.TestHelper.testProperties;
+import static nl.surfnet.bod.util.TestHelper.devProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -43,9 +43,9 @@ public class InventoryRetrievalClientTestIntegration {
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = testProperties();
-    mtosiInventoryRetrievalLiveClient =
-      new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
+    PropertiesEnvironment testEnv = devProperties();
+    mtosiInventoryRetrievalLiveClient = new InventoryRetrievalClient(testEnv
+        .getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
   }
 
   @Test
@@ -58,19 +58,19 @@ public class InventoryRetrievalClientTestIntegration {
     assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
     // fails for now ??
-//    assertThat(firstPhysicalPort.getNmsPortSpeed(), notNullValue());
+    // assertThat(firstPhysicalPort.getNmsPortSpeed(), notNullValue());
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
 
   }
 
-//  @Test
+  @Test
   public void test() {
     RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getRfsInventory();
 
-    for(ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
-      System.err.println(rfs.getName());
+    for (ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
+      MtosiUtils.printDescribedByList(rfs.getDescribedByList());
     }
   }
 
