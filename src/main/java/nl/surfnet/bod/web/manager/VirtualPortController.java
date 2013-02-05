@@ -79,8 +79,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Resource
   private MessageManager messageManager;
-  
-  @Resource MessageRetriever messageRetriever;
+
+  @Resource
+  private MessageRetriever messageRetriever;
 
   @Resource
   private ReservationService reservationService;
@@ -455,5 +456,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
         return new VirtualPortView(port, Optional.<Long> of(counter));
       }
     });
+  }
+
+  protected void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
   }
 }

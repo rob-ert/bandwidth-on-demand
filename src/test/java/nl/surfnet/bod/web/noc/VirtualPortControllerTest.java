@@ -94,9 +94,10 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(virtualPort);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
-        .andExpect(flash().<Collection<?>> attribute("infoMessages", hasSize(1))).andExpect(
-            view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().<Collection<?>> attribute("infoMessages", hasSize(1)))
+      .andExpect(view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock).delete(virtualPort, nocUser);
   }
@@ -108,8 +109,11 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(null);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
-        .andExpect(flash().attribute("infoMessages", nullValue())).andExpect(view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete")
+      .param("id", "2"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock, never()).delete(any(VirtualPort.class), eq(nocUser));
   }
@@ -124,8 +128,10 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.find(2L)).thenReturn(virtualPort);
 
-    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2")).andExpect(status().isMovedTemporarily())
-        .andExpect(flash().attribute("infoMessages", nullValue())).andExpect(view().name("redirect:/noc/virtualports"));
+    mockMvc.perform(delete("/noc/virtualports/delete").param("id", "2"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/noc/virtualports"));
 
     verify(virtualPortServiceMock, never()).delete(any(VirtualPort.class), any(RichUserDetails.class));
   }
@@ -135,8 +141,10 @@ public class VirtualPortControllerTest {
     when(virtualPortServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(
         ImmutableList.of(new VirtualPortFactory().create(), new VirtualPortFactory().create()));
 
-    mockMvc.perform(get("/noc/virtualports")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute("list", hasSize(2))).andExpect(model().attribute("maxPages", is(1)))
-        .andExpect(view().name("/noc/virtualports/list"));
+    mockMvc.perform(get("/noc/virtualports"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute("list", hasSize(2)))
+      .andExpect(model().attribute("maxPages", is(1)))
+      .andExpect(view().name("/noc/virtualports/list"));
   }
 }

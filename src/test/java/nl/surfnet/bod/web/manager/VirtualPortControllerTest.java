@@ -30,20 +30,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Collection;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand;
-import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
@@ -54,10 +59,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.support.FormattingConversionService;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -70,73 +77,161 @@ public class VirtualPortControllerTest {
 
   @Mock
   private VirtualPortService virtualPortServiceMock;
-
   @Mock
   private VirtualPortValidator virtualPortValidatorMock;
-
   @Mock
-  private MessageManager messageManager;
+  private PhysicalPortService physicalPortServiceMock;
+  @Mock
+  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+  @Mock
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
+  @Mock
+  private MessageRetriever messageRetrieverMock;
 
   private RichUserDetails user;
   private PhysicalPort physicalPort;
   private PhysicalResourceGroup prg;
 
+  private MockMvc mockMvc;
+
   @Before
-  public void login() {
+  public void setup() {
+    FormattingConversionService conversionService = new FormattingConversionService();
+    conversionService.addConverter(new Converter<String, PhysicalPort>() {
+      @Override
+      public PhysicalPort convert(String id) {
+        return physicalPortServiceMock.find(Long.valueOf(id));
+      }
+    });
+    conversionService.addConverter(new Converter<String, PhysicalResourceGroup>() {
+      @Override
+      public PhysicalResourceGroup convert(String id) {
+        return physicalResourceGroupServiceMock.find(Long.valueOf(id));
+      }
+    });
+    conversionService.addConverter(new Converter<String, VirtualResourceGroup>() {
+      @Override
+      public VirtualResourceGroup convert(String id) {
+        return virtualResourceGroupServiceMock.find(Long.valueOf(id));
+      }
+    });
+
+    mockMvc = standaloneSetup(subject).setConversionService(conversionService).build();
+    subject.setMessageManager(new MessageManager(messageRetrieverMock));
+
     physicalPort = new PhysicalPortFactory().create();
     prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(physicalPort).create();
-
     user = new RichUserDetailsFactory().addManagerRole(prg).addUserRole().addUserGroup("urn:manager-group").create();
     Security.setUserDetails(user);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void listShouldFindEntries() {
-    ModelStub model = new ModelStub();
+  public void listShouldFindEntries() throws Exception {
+    VirtualPort vp = new VirtualPortFactory().create();
+    BodRole managerRole = Iterables.getOnlyElement(user.getManagerRoles());
 
-    when(
-        virtualPortServiceMock.findEntriesForManager(eq(Iterables.getOnlyElement(user.getManagerRoles())), eq(0),
-            eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
-        Lists.newArrayList(new VirtualPortFactory().create()));
+    when(virtualPortServiceMock
+      .findEntriesForManager(eq(managerRole), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class)))
+      .thenReturn(Lists.newArrayList(vp));
 
-    subject.list(1, null, null, model);
-
-    assertThat(model.asMap(), hasKey("list"));
-    assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
-
-    assertThat((Collection<VirtualPort>) model.asMap().get("list"), hasSize(1));
+    mockMvc.perform(get("/manager/virtualports"))
+      .andExpect(status().is(200))
+      .andExpect(model().attribute("list", hasSize(1)))
+      .andExpect(model().attribute(WebUtils.MAX_PAGES_KEY, 1));
   }
 
   @Test
-  public void shouldUpdatePort() {
-    ModelStub model = new ModelStub();
+  public void shouldUpdatePort() throws Exception {
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
-    VirtualPortUpdateCommand command = new VirtualPortUpdateCommand(port);
 
-    when(virtualPortServiceMock.find(port.getId())).thenReturn(port);
+    when(virtualPortServiceMock.find(3L)).thenReturn(port);
+    when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(new PhysicalResourceGroupFactory().create());
+    when(virtualResourceGroupServiceMock.find(2L)).thenReturn(new VirtualResourceGroupFactory().create());
+    when(messageRetrieverMock.getMessageWithBoldArguments("info_virtualport_updated", "newLabel")).thenReturn("correctMessage");
 
-    String page = subject.update(command, new BeanPropertyBindingResult(port, "port"), model, model);
+    mockMvc.perform(put("/manager/virtualports/")
+        .param("id", "3")
+        .param("version", "0")
+        .param("managerLabel", "newLabel")
+        .param("maxBandwidth", "1000")
+        .param("vlanId", "22")
+        .param("physicalPort", "2")
+        .param("virtualResourceGroup", "2")
+        .param("physicalResourceGroup", "2"))
+      .andExpect(status().is(302))
+      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
+      .andExpect(view().name("redirect:/manager/virtualports"));
 
-    assertThat(page, is("redirect:/manager/virtualports"));
-
-    verify(messageManager).addInfoFlashMessage(any(RedirectAttributes.class), eq("info_virtualport_updated"),
-        eq(port.getManagerLabel()));
     verify(virtualPortServiceMock).update(port);
   }
 
   @Test
-  public void shouldNotUpdatePortBecauseNotAllowed() {
-    ModelStub model = new ModelStub();
+  public void shouldNotUpdateNonExistingPort() throws Exception {
+    when(virtualPortServiceMock.find(3L)).thenReturn(null);
+
+    mockMvc.perform(put("/manager/virtualports/")
+        .param("id", "3")
+        .param("version", "0")
+        .param("managerLabel", "newLabel")
+        .param("maxBandwidth", "1000")
+        .param("vlanId", "22")
+        .param("physicalPort", "2")
+        .param("virtualResourceGroup", "2")
+        .param("physicalResourceGroup", "2"))
+      .andExpect(status().is(302))
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/manager/virtualports"));
+
+    verify(virtualPortServiceMock, never()).update(any(VirtualPort.class));
+  }
+
+  @Test
+  public void shouldNotUpdatePortBecauseNotAllowed() throws Exception {
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:wrong-group").create();
-    VirtualPortUpdateCommand command = new VirtualPortUpdateCommand(port);
 
-    when(virtualPortServiceMock.find(port.getId())).thenReturn(port);
+    when(virtualPortServiceMock.find(3L)).thenReturn(port);
+    when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(new PhysicalResourceGroupFactory().create());
+    when(virtualResourceGroupServiceMock.find(2L)).thenReturn(new VirtualResourceGroupFactory().create());
 
-    String page = subject.update(command, new BeanPropertyBindingResult(port, "port"), model, model);
+    mockMvc.perform(put("/manager/virtualports/")
+        .param("id", "3")
+        .param("version", "0")
+        .param("managerLabel", "newLabel")
+        .param("maxBandwidth", "1000")
+        .param("vlanId", "22")
+        .param("physicalPort", "2")
+        .param("virtualResourceGroup", "2")
+        .param("physicalResourceGroup", "2"))
+      .andExpect(status().is(302))
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/manager/virtualports"));
 
-    assertThat(page, is("redirect:/manager/virtualports"));
-    assertThat(model.getFlashAttributes(), not(hasKey("infoMessages")));
+    verify(virtualPortServiceMock, never()).update(port);
+  }
+
+  @Test
+  public void shouldNotUpdateWhenCommandHasErrors() throws Exception {
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+
+    when(virtualPortServiceMock.find(3L)).thenReturn(port);
+    when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(new PhysicalResourceGroupFactory().create());
+    when(virtualResourceGroupServiceMock.find(2L)).thenReturn(new VirtualResourceGroupFactory().create());
+
+    mockMvc.perform(put("/manager/virtualports/")
+        .param("id", "3")
+        .param("version", "0")
+        .param("managerLabel", "newLabel")
+        .param("maxBandwidth", "-1")
+        .param("vlanId", "22")
+        .param("physicalPort", "2")
+        .param("virtualResourceGroup", "2")
+        .param("physicalResourceGroup", "2"))
+      .andExpect(status().is(200))
+      .andExpect(model().attributeExists("virtualPortUpdateCommand", "physicalPorts", "physicalResourceGroups", "virtualResourceGroups"))
+      .andExpect(view().name("/manager/virtualports/update"));
 
     verify(virtualPortServiceMock, never()).update(port);
   }
@@ -231,6 +326,29 @@ public class VirtualPortControllerTest {
     assertThat(page, is("redirect:/manager/virtualports"));
 
     verify(virtualPortServiceMock).requestLinkDeclined(link, "Declined!");
+  }
+
+  @Test
+  public void deleteNonExistingVirtualPort() throws Exception {
+    mockMvc.perform(delete("/manager/virtualports/delete").param("id", "3"))
+      .andExpect(status().is(302))
+      .andExpect(flash().attribute("infoMessages", nullValue()));
+
+    verify(virtualPortServiceMock, never()).delete(any(VirtualPort.class), any(RichUserDetails.class));
+  }
+
+  @Test
+  public void deleteVirtualPort() throws Exception {
+    VirtualPort vp = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+
+    when(virtualPortServiceMock.find(3L)).thenReturn(vp);
+    when(messageRetrieverMock.getMessageWithBoldArguments("info_virtualport_deleted", vp.getManagerLabel())).thenReturn("correctMessage");
+
+    mockMvc.perform(delete("/manager/virtualports/delete").param("id", "3"))
+      .andExpect(status().is(302))
+      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")));
+
+    verify(virtualPortServiceMock).delete(vp, user);
   }
 
 }
