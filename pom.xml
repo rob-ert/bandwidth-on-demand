@@ -996,21 +996,17 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <includes>
+                                <include>**/*Test.java</include>
                                 <include>**/*TestIntegration.java</include>
                                 <include>**/*DbTest.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/*TestSelenium.java</exclude>
+                            </excludes>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
