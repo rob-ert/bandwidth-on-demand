@@ -25,7 +25,9 @@ app.global = function() {
         var token = $("#csrf-token").text();
 
         $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-            options.data = options.data + "&csrf-token=" + token;
+            if (options.type !== "GET") {
+               options.data = options.data + "&csrf-token=" + token;
+            }
         });
     };
 
