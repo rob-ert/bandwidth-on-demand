@@ -48,13 +48,7 @@ public class ReservationEventPublisher {
     synchronized (listeners) {
       for (ReservationListener listener : listeners) {
         logger.trace("Listener {}", listener.getClass());
-        try {
-          listener.onStatusChange(changeEvent);
-        }
-        catch (Throwable e) {
-          logger.error("Failed to notify a listener " + listener, e);
-          throw e;
-        }
+        listener.onStatusChange(changeEvent);
       }
     }
   }
