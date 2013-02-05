@@ -25,7 +25,6 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-
 import nl.surfnet.bod.web.base.MessageManager;
 
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/" + DevelopmentController.PAGE_URL)
 public class DevelopmentController {
-  final static String PAGE_URL = "dev";
+  static final String PAGE_URL = "dev";
 
   static final String REFRESH_PART = "/refresh/";
 

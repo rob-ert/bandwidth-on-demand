@@ -51,7 +51,6 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -633,7 +632,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * status which can still change its status.
    *
    * @param dateTime
-   *          {@link LocalDateTime} to search for
+   *          {@link org.joda.time.LocalDateTime} to search for
    * @return list of found Reservations
    */
   public Collection<Reservation> findReservationsToPoll(DateTime dateTime) {

@@ -125,10 +125,8 @@ public class PhysicalResourceGroupController extends
       result.rejectValue("adminGroup", "validation.not.unique");
     }
 
-    if (command.getId() != null) {
-      if (groups.size() > 1 || groups.size() == 1 && !Iterables.getOnlyElement(groups).getId().equals(command.getId())) {
-        result.rejectValue("adminGroup", "validation.not.unique");
-      }
+    if (command.getId() != null && (groups.size() > 1 || groups.size() == 1 && !Iterables.getOnlyElement(groups).getId().equals(command.getId()))) {
+      result.rejectValue("adminGroup", "validation.not.unique");
     }
   }
 
@@ -295,7 +293,7 @@ public class PhysicalResourceGroupController extends
      * Copies fields this command object to the given domainOjbect. Only the
      * fields that can be changed in the UI will be copied. Determines if the
      * {@link #managerEmail} has changed.
-     * 
+     *
      * @param physicalResourceGroup
      *          The {@link PhysicalResourceGroup} the copy the field to.
      */

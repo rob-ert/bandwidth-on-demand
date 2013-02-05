@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -61,9 +60,6 @@ public class GroupOpenSocialService implements GroupService {
 
   @Resource(name = "bodEnvironment")
   private Environment env;
-
-  @Resource
-  private LogEventService logEventService;
 
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
@@ -111,8 +107,4 @@ public class GroupOpenSocialService implements GroupService {
     this.env = environment;
   }
 
-  @VisibleForTesting
-  void setLogEventService(LogEventService logEventService) {
-    this.logEventService = logEventService;
-  }
 }

@@ -205,6 +205,7 @@ public class V1_9_0_3__LogEventAdminGroupMigration implements SpringJdbcMigratio
           }
         }
       );
+
     private final LoadingCache<Long, String> virtualResourceGroupAdminGroup = CacheBuilder.newBuilder()
       .build(
         new CacheLoader<Long, String>() {

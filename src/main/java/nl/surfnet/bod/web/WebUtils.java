@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web;
 
+import static org.springframework.util.StringUtils.hasText;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.Hours;
@@ -31,7 +32,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 
 import com.google.common.base.Optional;
 
@@ -87,10 +87,6 @@ public final class WebUtils {
     return (T) (model.asMap().get(attributeName) == null ? defaultValue : model.asMap().get(attributeName));
   }
 
-  /**
-   * 
-   * @return The user selected PhysicalResourceGroupId
-   */
   public static Optional<Long> getSelectedPhysicalResourceGroupId() {
     return Security.getUserDetails().getSelectedRole() == null ? Optional.<Long> absent() : Security.getUserDetails()
         .getSelectedRole().getPhysicalResourceGroupId();
@@ -102,11 +98,11 @@ public final class WebUtils {
 
   public static String shortenAdminGroup(String adminGroup) {
     int index = -1;
-    if (StringUtils.hasText(adminGroup)) {
+    if (hasText(adminGroup)) {
       index = adminGroup.lastIndexOf(':');
     }
 
-    if ((index >= 0)) {
+    if (index >= 0) {
       return adminGroup.substring(index + 1);
     }
     return adminGroup;
@@ -115,7 +111,7 @@ public final class WebUtils {
   /**
    * Replaces the logicalName with the given technialName in the searchString
    * E.g. 'name:test' might be mapped to 'virtualResourceGroup.name:test'
-   * 
+   *
    * @param searchString
    *          String to replace
    * @param logicalName
@@ -126,10 +122,8 @@ public final class WebUtils {
    *         replaced version, otherwise the unchanged searchString
    */
   public static String replaceSearchWith(String searchString, String logicalName, String technicalName) {
-    if (StringUtils.hasText(logicalName) && (StringUtils.hasText(technicalName) && (StringUtils.hasText(searchString)))) {
-      if (searchString.contains(logicalName)) {
-        return searchString.replace(logicalName, technicalName);
-      }
+    if (hasText(logicalName) && hasText(technicalName) && hasText(searchString) && searchString.contains(logicalName)) {
+      return searchString.replace(logicalName, technicalName);
     }
     return searchString;
   }
@@ -138,5 +132,4 @@ public final class WebUtils {
     return new PageRequest(firstResult / maxResults, maxResults, sort);
   }
 
-  
 }

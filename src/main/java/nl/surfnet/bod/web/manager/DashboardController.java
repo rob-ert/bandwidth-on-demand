@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
@@ -62,9 +61,6 @@ public class DashboardController {
 
   @Resource
   private ReservationService reservationService;
-
-  @Resource
-  private LogEventService logEventService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -107,4 +103,5 @@ public class DashboardController {
     return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
         countActiveReservations, countComingReservations);
   }
+
 }

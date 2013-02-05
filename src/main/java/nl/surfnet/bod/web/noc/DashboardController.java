@@ -27,7 +27,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -65,9 +64,6 @@ public class DashboardController {
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
-
-  @Resource
-  private LogEventService logEventService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {

@@ -230,7 +230,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     return PAGE_URL + "/listunallocated";
   }
-  
+
   @VisibleForTesting
   void setMessageManager(MessageManager messageManager) {
     this.messageManager = messageManager;
@@ -242,10 +242,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     prepareSortOptions(sort, order, model);
     Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
 
-    if (StringUtils.hasText(order)) {
-      if ("DESC".equals(order)) {
-        Collections.reverse(transformedUnallocatedPhysicalPorts);
-      }
+    if (StringUtils.hasText(order) && "DESC".equals(order)) {
+      Collections.reverse(transformedUnallocatedPhysicalPorts);
     }
   }
 
@@ -425,7 +423,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -611,14 +609,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public String getName() {
       return name;
     }
-
   }
 
   @Override
   protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
-
-  
 
 }

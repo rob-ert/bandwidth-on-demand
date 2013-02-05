@@ -33,7 +33,6 @@ import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.springframework.data.domain.Sort;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -43,7 +42,7 @@ import com.google.common.collect.Iterables;
 
 /**
  * Service interface to abstract full text search functionality
- * 
+ *
  * @param <ENTITY>
  *          DomainObject
  */
@@ -51,7 +50,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
 
   /**
    * Performs a full text search on the given searchText.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -59,8 +58,8 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    * @param maxResults
    *          int max amount of items
    * @param sort
-   *          {@link Sort} sorting options
-   * 
+   *          {@link org.springframework.data.domain.Sort} sorting options
+   *
    * @return List<ENTITY> result list
    * @throws ParseException
    */
@@ -76,7 +75,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -87,7 +86,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   * 
+   *
    * @return List<ENTITY> result list
    * @throws ParseException
    */
@@ -104,7 +103,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
   }
 
   /**
-   * 
+   *
    * @param firstResult
    *          firstResult in page
    * @param maxResults
@@ -129,10 +128,10 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found.
-   * 
+   *
    * <Strong> The items will be sorted according to the sequence of the
    * filterResults. </Strong>
-   * 
+   *
    * @param searchResults
    *          The unsorted search results
    * @param filterResults

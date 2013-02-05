@@ -32,7 +32,7 @@ import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 public class V1_8_0_5__FixingWrongNsiStates implements SpringJdbcMigration {
 
   @Override
-  public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+  public void migrate(JdbcTemplate jdbcTemplate) {
     jdbcTemplate.update(queryChangeState(ConnectionStateType.CLEANING, ConnectionStateType.TERMINATED));
     jdbcTemplate.update(queryChangeState(ConnectionStateType.TERMINATING, ConnectionStateType.TERMINATED));
 

@@ -231,61 +231,80 @@ public class VirtualPort implements Loggable, PersistableDomain {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     VirtualPort other = (VirtualPort) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (managerLabel == null) {
-      if (other.managerLabel != null)
+      if (other.managerLabel != null) {
         return false;
+      }
     }
-    else if (!managerLabel.equals(other.managerLabel))
+    else if (!managerLabel.equals(other.managerLabel)) {
       return false;
+    }
     if (maxBandwidth == null) {
-      if (other.maxBandwidth != null)
+      if (other.maxBandwidth != null) {
         return false;
+      }
     }
-    else if (!maxBandwidth.equals(other.maxBandwidth))
+    else if (!maxBandwidth.equals(other.maxBandwidth)) {
       return false;
+    }
     if (physicalPort == null) {
-      if (other.physicalPort != null)
+      if (other.physicalPort != null) {
         return false;
+      }
     }
-    else if (!physicalPort.equals(other.physicalPort))
+    else if (!physicalPort.equals(other.physicalPort)) {
       return false;
+    }
     if (userLabel == null) {
-      if (other.userLabel != null)
+      if (other.userLabel != null) {
         return false;
+      }
     }
-    else if (!userLabel.equals(other.userLabel))
+    else if (!userLabel.equals(other.userLabel)) {
       return false;
+    }
     if (version == null) {
-      if (other.version != null)
+      if (other.version != null) {
         return false;
+      }
     }
-    else if (!version.equals(other.version))
+    else if (!version.equals(other.version)) {
       return false;
+    }
     if (virtualResourceGroup == null) {
-      if (other.virtualResourceGroup != null)
+      if (other.virtualResourceGroup != null) {
         return false;
+      }
     }
-    else if (!virtualResourceGroup.getLabel().equals(other.virtualResourceGroup.getLabel()))
+    else if (!virtualResourceGroup.getLabel().equals(other.virtualResourceGroup.getLabel())) {
       return false;
+    }
     if (vlanId == null) {
-      if (other.vlanId != null)
+      if (other.vlanId != null) {
         return false;
+      }
     }
-    else if (!vlanId.equals(other.vlanId))
+    else if (!vlanId.equals(other.vlanId)) {
       return false;
+    }
     return true;
   }
 }

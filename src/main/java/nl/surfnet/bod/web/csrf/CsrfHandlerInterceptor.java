@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.web.csrf;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
 
     if (requestCanChangeData(request)) {
 

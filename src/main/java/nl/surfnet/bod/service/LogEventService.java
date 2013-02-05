@@ -39,7 +39,6 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -68,9 +67,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   @Resource
   private LogEventRepo logEventRepo;
-
-  @Resource(name = "bodEnvironment")
-  private Environment environment;
 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -148,7 +144,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       LogEvent logEvent = createLogEvent(user, logEventType, domainObjects[i], details);
 
       if (size > 1) {
-        logEvent.setCorrelationId(String.valueOf(i + 1) + "/" + String.valueOf(size));
+        logEvent.setCorrelationId((i + 1) + "/" + size);
       }
 
       logEvents.add(logEvent);
@@ -236,10 +232,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */

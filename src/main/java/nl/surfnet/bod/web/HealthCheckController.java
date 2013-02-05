@@ -108,11 +108,11 @@ public class HealthCheckController {
     };
 
     final ServiceCheck apiServiceCheck = new ServiceCheck() {
-      private final String personUri = "urn:collab:person:surfnet.nl:hanst";
+      private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
       @Override
       public boolean healty() throws IOException {
-        Collection<UserGroup> groups = groupService.getGroups(personUri);
+        Collection<UserGroup> groups = groupService.getGroups(PERSON_URI);
         return groups.size() > 0;
       }
 
@@ -162,7 +162,7 @@ public class HealthCheckController {
   private Callable<Boolean> callable(final ServiceCheck serviceCheck) {
     return new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return isServiceHealthy(serviceCheck);
       }
     };

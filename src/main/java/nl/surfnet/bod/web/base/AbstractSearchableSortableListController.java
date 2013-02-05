@@ -36,11 +36,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import nl.surfnet.bod.domain.PersistableDomain;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -64,9 +61,6 @@ import com.google.common.collect.Lists;
  * {@link AbstractSortableListController}
  */
 public abstract class AbstractSearchableSortableListController<VIEW, ENTITY extends PersistableDomain> {
-
-  @Resource
-  private ReservationFilterViewFactory reservationFilterViewFactory;
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -206,7 +200,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
    * Maps a search string with a label from a column to a search with a field in
    * the domain model. Can be overridden for a specific implementation, this
    * default implementation maps to the most common used fields.
-   * 
+   *
    * @param search
    *          The string to search for, may contain lucene specific syntax e.g.
    *          'name:test'

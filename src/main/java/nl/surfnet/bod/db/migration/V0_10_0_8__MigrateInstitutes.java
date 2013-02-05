@@ -34,7 +34,7 @@ import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
 
   @Override
-  public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+  public void migrate(JdbcTemplate jdbcTemplate) {
     Collection<Institute> institutes = new IddOfflineClient().getInstitutes();
 
     for (Institute institute : institutes) {

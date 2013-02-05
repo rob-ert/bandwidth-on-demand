@@ -25,6 +25,7 @@ package nl.surfnet.bod.db.migration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,17 +44,17 @@ import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
  * Migrates {@link LogEvent} by subtracting the state changes from the
  * {@link LogEvent#getDetails()} and insert them into the oldState and newState
  * columns.
- * 
+ *
  * Any SCHEDULED state will be translated to
  * {@link ReservationStatus#AUTO_START}, even in the details text.
- * 
+ *
  */
 public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigration {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Override
-  public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+  public void migrate(JdbcTemplate jdbcTemplate) throws SQLException {
 
     final Connection connection = jdbcTemplate.getDataSource().getConnection();
 
