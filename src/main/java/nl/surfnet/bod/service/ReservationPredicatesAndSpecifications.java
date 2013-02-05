@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.springframework.data.jpa.domain.Specifications.where;
+
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -157,15 +159,13 @@ public final class ReservationPredicatesAndSpecifications {
 
     // Filter on states in filter
     Specification<Reservation> specficiation = forStatus(filter.getStates());
-    if (filter.isFilterOnStatusOnly()) {
-      // Do nothing, specification is already set with states from filter
+    if (filter.isFilterOnReservationEndOnly()) {
+      specficiation = where(specficiation).and(filterSpecOnEnd);
     }
-    else if (filter.isFilterOnReservationEndOnly()) {
-      specficiation = Specifications.where(specficiation).and(filterSpecOnEnd);
-    }
-    else {
-      specficiation = Specifications.where(specficiation).and(
-          Specifications.where(filterSpecOnStart).or(filterSpecOnEnd));
+    else if (!filter.isFilterOnStatusOnly()) {
+      specficiation =
+        where(specficiation)
+        .and(where(filterSpecOnStart).or(filterSpecOnEnd));
     }
 
     return specficiation;
