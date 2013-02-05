@@ -26,11 +26,10 @@ import static nl.surfnet.bod.web.DevelopmentController.ERROR_PART;
 import static nl.surfnet.bod.web.DevelopmentController.MESSAGES_PART;
 import static nl.surfnet.bod.web.DevelopmentController.PAGE_URL;
 import static nl.surfnet.bod.web.DevelopmentController.ROLES_PART;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,8 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-
-import java.util.Locale;
+import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.web.base.MessageRetriever;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -53,7 +52,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.NestedServletException;
 
-@Ignore ("Should refactor message handling first")
 @RunWith(MockitoJUnitRunner.class)
 public class DevelopmentControllerTest {
 
@@ -61,7 +59,13 @@ public class DevelopmentControllerTest {
   private DevelopmentController subject;
 
   @Mock
-  private ReloadableResourceBundleMessageSource messageSourceMock;
+  private MessageManager messageManager;
+
+  @Mock
+  private MessageRetriever messageRetriever;
+
+  @Mock
+  private ReloadableResourceBundleMessageSource messageSource;
 
   private MockMvc mockMvc;
 
@@ -74,30 +78,29 @@ public class DevelopmentControllerTest {
   public void refreshMessagesShouldClearMessageSourceCache() throws Exception {
     String url = "/" + PAGE_URL + MESSAGES_PART;
 
-    when(
-        messageSourceMock.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Messages</b>" }),
-            any(Locale.class))).thenReturn("refresh messages test");
+    when(messageRetriever.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Messages</b>" }))).thenReturn(
+        "refresh messages test");
 
-    mockMvc.perform(get(url).header("Referer", "/test"))//
+    mockMvc.perform(get(url).header("Referer", "/referer_test"))//
         .andExpect(status().isMovedTemporarily())//
-        .andExpect(view().name("redirect:/test"));
+        .andExpect(view().name("redirect:/referer_test"));
 
-    verify(messageSourceMock).clearCache();
+    verify(messageSource).clearCache();
   }
 
   @Test
+  @Ignore("How to check if the SecurityContext was reset?")
   public void refreshRolesShouldRefresh() throws Exception {
     String url = "/" + PAGE_URL + ROLES_PART;
 
-    when(
-        messageSourceMock.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Roles</b>" }), any(Locale.class)))
-        .thenReturn("roles test");
+    when(messageRetriever.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Roles</b>" }))).thenReturn(
+        "roles test");
 
     assertThat(SecurityContextHolder.getContext(), notNullValue());
 
     mockMvc.perform(get(url).header("Referer", "/test"))//
         .andExpect(status().isMovedTemporarily())//
-        .andExpect(view().name("redirect:/t"));
+        .andExpect(view().name("redirect:/test"));
 
     assertThat(SecurityContextHolder.getContext(), nullValue());
   }
