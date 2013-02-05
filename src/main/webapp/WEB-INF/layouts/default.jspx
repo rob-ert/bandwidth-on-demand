@@ -46,11 +46,9 @@
                         <c:if test="${dev}">
                             <spring:url value="/dev/refresh/messages" var="refresh_messages_url" />
                             <spring:url value="/dev/refresh/roles" var="refresh_roles_url" />
-                            <spring:url value="/dev/error" var="error_url" />
                             <ul class="dev-nav">
                                 <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
                                 <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh Roles">RR</a></li>
-                                <li><a href="${error_url}" rel="tooltip" data-type="info" title="Generate Error">ER</a></li>
                             </ul>
                         </c:if>
                     </span>

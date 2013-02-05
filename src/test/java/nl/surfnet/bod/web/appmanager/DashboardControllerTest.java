@@ -88,14 +88,14 @@ public class DashboardControllerTest {
   public void testIndex() throws Exception {
     String url = "/" + PAGE_URL;
 
-    mockMvc.perform(get(url)) //
-        .andExpect(status().isOk()) //
-        .andExpect(view().name("appmanager/index")) //
-        .andExpect(flash().attributeCount(0))//
-        .andExpect(model().size(3))//
-        .andExpect(model().attribute("refresh_searchindex_url", DashboardController.PAGE_URL + SEARCH_INDEX_PART)) //
-        .andExpect(model().attribute("refresh_institutes_url", DashboardController.PAGE_URL + INSTITUTES_PART)) //
-        .andExpect(model().attribute("show_shibboleth_info_url", DashboardController.PAGE_URL + SHIBBOLETH_INFO_PART));
+    mockMvc.perform(get(url))
+      .andExpect(status().isOk())
+      .andExpect(view().name("appmanager/index"))
+      .andExpect(flash().attributeCount(0))
+      .andExpect(model().size(3))
+      .andExpect(model().attribute("refresh_searchindex_url", DashboardController.PAGE_URL + SEARCH_INDEX_PART))
+      .andExpect(model().attribute("refresh_institutes_url", DashboardController.PAGE_URL + INSTITUTES_PART))
+      .andExpect(model().attribute("show_shibboleth_info_url", DashboardController.PAGE_URL + SHIBBOLETH_INFO_PART));
   }
 
   @Test
@@ -105,12 +105,12 @@ public class DashboardControllerTest {
         .thenReturn(TEST_MESSAGE);
 
     String url = "/" + PAGE_URL + SEARCH_INDEX_PART;
-    mockMvc.perform(get(url)) //
-        .andExpect(status().isMovedTemporarily()) //
-        .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL))//
-        .andExpect(model().size(0))//
-        .andExpect(flash().attributeCount(1))//
-        .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
+    mockMvc.perform(get(url))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL))
+      .andExpect(model().size(0))
+      .andExpect(flash().attributeCount(1))
+      .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
 
     verify(textSearchIndexer).indexDatabaseContent();
   }
@@ -122,12 +122,12 @@ public class DashboardControllerTest {
     when(messageRetriever.getMessageWithBoldArguments(eq("info_dev_refresh"), contains("Institutes"))).thenReturn(
         TEST_MESSAGE);
 
-    mockMvc.perform(get(url)) //
-        .andExpect(status().isMovedTemporarily()) //
-        .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL)) //
-        .andExpect(model().size(0))//
-        .andExpect(flash().attributeCount(1)) //
-        .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
+    mockMvc.perform(get(url))
+      .andExpect(status().isMovedTemporarily()) //
+      .andExpect(view().name("redirect:/" + DashboardController.PAGE_URL)) //
+      .andExpect(model().size(0))//
+      .andExpect(flash().attributeCount(1)) //
+      .andExpect(flash().attribute(MessageManager.INFO_MESSAGES_KEY, Lists.newArrayList(TEST_MESSAGE)));
 
     verify(instituteService).refreshInstitutes();
   }
@@ -136,10 +136,10 @@ public class DashboardControllerTest {
   public void testShowShibbolethInfo() throws Exception {
     String url = "/" + PAGE_URL + SHIBBOLETH_INFO_PART;
 
-    mockMvc.perform(get(url))//
-        .andExpect(status().isOk()) //
-        .andExpect(model().size(0))//
-        .andExpect(flash().attributeCount(0))//
+    mockMvc.perform(get(url))
+        .andExpect(status().isOk())
+        .andExpect(model().size(0))
+        .andExpect(flash().attributeCount(0))
         .andExpect(view().name("shibbolethinfo"));
   }
 }

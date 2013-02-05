@@ -22,35 +22,36 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.DevelopmentController.ERROR_PART;
 import static nl.surfnet.bod.web.DevelopmentController.MESSAGES_PART;
 import static nl.surfnet.bod.web.DevelopmentController.PAGE_URL;
 import static nl.surfnet.bod.web.DevelopmentController.ROLES_PART;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.NestedServletException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DevelopmentControllerTest {
@@ -59,55 +60,72 @@ public class DevelopmentControllerTest {
   private DevelopmentController subject;
 
   @Mock
-  private MessageManager messageManager;
-
+  private MessageRetriever messageRetrieverMock;
   @Mock
-  private MessageRetriever messageRetriever;
-
+  private ReloadableResourceBundleMessageSource messageSourceMock;
   @Mock
-  private ReloadableResourceBundleMessageSource messageSource;
+  private Environment environmentMock;
 
   private MockMvc mockMvc;
 
   @Before
   public void setup() {
     mockMvc = standaloneSetup(subject).build();
+    subject.setMessageManager(new MessageManager(messageRetrieverMock));
   }
 
   @Test
   public void refreshMessagesShouldClearMessageSourceCache() throws Exception {
-    String url = "/" + PAGE_URL + MESSAGES_PART;
+    when(environmentMock.isDevelopment()).thenReturn(true);
+    when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Messages")).thenReturn("correctMessage");
 
-    when(messageRetriever.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Messages</b>" }))).thenReturn(
-        "refresh messages test");
+    mockMvc.perform(get("/" + PAGE_URL + MESSAGES_PART).header("Referer", "/referer_test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
+      .andExpect(view().name("redirect:/referer_test"));
 
-    mockMvc.perform(get(url).header("Referer", "/referer_test"))//
-        .andExpect(status().isMovedTemporarily())//
-        .andExpect(view().name("redirect:/referer_test"));
-
-    verify(messageSource).clearCache();
+    verify(messageSourceMock).clearCache();
   }
 
   @Test
-  @Ignore("How to check if the SecurityContext was reset?")
-  public void refreshRolesShouldRefresh() throws Exception {
-    String url = "/" + PAGE_URL + ROLES_PART;
+  public void refreshMessagesShouldNotRefreshWhenNotInDevMode() throws Exception {
+    when(environmentMock.isDevelopment()).thenReturn(false);
 
-    when(messageRetriever.getMessage(eq("info_dev_refresh"), aryEq(new String[] { "<b>Roles</b>" }))).thenReturn(
-        "roles test");
+    mockMvc.perform(get("/" + PAGE_URL + MESSAGES_PART).header("Referer", "/referer_test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/referer_test"));
 
-    assertThat(SecurityContextHolder.getContext(), notNullValue());
-
-    mockMvc.perform(get(url).header("Referer", "/test"))//
-        .andExpect(status().isMovedTemporarily())//
-        .andExpect(view().name("redirect:/test"));
-
-    assertThat(SecurityContextHolder.getContext(), nullValue());
+    verify(messageSourceMock, never()).clearCache();
   }
 
-  @Test(expected = NestedServletException.class)
-  public void error() throws Exception {
-    String url = "/" + PAGE_URL + ERROR_PART;
-    mockMvc.perform(get(url));
+  @Test
+  public void refreshRolesShouldRefresh() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().create());
+
+    when(environmentMock.isDevelopment()).thenReturn(true);
+    when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Roles")).thenReturn("correctMessage");
+
+    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
+      .andExpect(view().name("redirect:/test"));
+
+    assertThat(Security.getUserDetails(), nullValue());
+  }
+
+  @Test
+  public void refreshRolesShouldNotRefreshWhenNotInDevMode() throws Exception {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(user);
+
+    when(environmentMock.isDevelopment()).thenReturn(false);
+
+    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", nullValue()))
+      .andExpect(view().name("redirect:/test"));
+
+    assertThat(Security.getUserDetails(), is(user));
   }
 }

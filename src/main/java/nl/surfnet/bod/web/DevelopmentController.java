@@ -25,6 +25,7 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.base.MessageManager;
 
 import org.slf4j.Logger;
@@ -38,15 +39,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/" + DevelopmentController.PAGE_URL)
 public class DevelopmentController {
+
   static final String PAGE_URL = "dev";
 
   static final String REFRESH_PART = "/refresh/";
 
-  static final String ERROR_PART = "/error";
   static final String MESSAGES_PART = REFRESH_PART + "messages";
   static final String ROLES_PART = REFRESH_PART + "roles";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @Resource(name = "bodEnvironment")
+  private Environment environment;
 
   @Resource
   private ReloadableResourceBundleMessageSource messageSource;
@@ -56,25 +60,40 @@ public class DevelopmentController {
 
   @RequestMapping(value = MESSAGES_PART)
   public String refreshMessageSource(HttpServletRequest request, RedirectAttributes model) {
+    if (environment.isDevelopment()) {
+      refreshMessageSource();
+      messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Messages");
+    }
+
+    return getRedirect(request);
+  }
+
+  private void refreshMessageSource() {
     messageSource.clearCache();
     logger.info("Refresing messages");
-    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Messages");
-
-    return "redirect:" + request.getHeader("Referer");
   }
 
   @RequestMapping(value = ROLES_PART)
   public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {
+    if (environment.isDevelopment()) {
+      refreshGroups();
+      messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles");
+    }
+
+    return getRedirect(request);
+  }
+
+  private void refreshGroups() {
     SecurityContextHolder.clearContext();
-
     logger.info("Refreshing roles");
-    messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles");
+  }
 
+  private String getRedirect(HttpServletRequest request) {
     return "redirect:" + request.getHeader("Referer");
   }
 
-  @RequestMapping(value = ERROR_PART)
-  public String error() {
-    throw new RuntimeException("Something went wrong on purpose");
+  protected void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
   }
+
 }
