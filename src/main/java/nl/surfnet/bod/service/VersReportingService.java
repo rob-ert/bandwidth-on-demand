@@ -101,21 +101,20 @@ public class VersReportingService {
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
-    reports.addAll(createAmountReservationsProtectedPki(period, institute, reportView));
     reports.addAll(createRunningReservationsSucceededPki(period, institute, reportView));
-    reports.addAll(createAmountRunningReservationsStillRunningPki(period, institute, reportView));
-    reports.addAll(createAmountRequestsThroughGUIPki(period, institute, reportView));
-    reports.addAll(createAmountRunningReservationsNeverProvisionedPki(period, institute, reportView));
-    reports.addAll(createAmountRequestsModifiedSucceededPki(period, institute, reportView));
-    reports.addAll(createAmountRequestsCancelSucceededPki(period, institute, reportView));
+    reports.addAll(createRequestsModifiedSucceededPki(period, institute, reportView));
+    reports.addAll(createRequestsCancelSucceededPki(period, institute, reportView));
+    reports.addAll(createRequestsThroughPki(period, institute, reportView));
+    reports.addAll(createReservationsProtectionTypePki(period, institute, reportView));
+    reports.addAll(createServicesPki(period, institute, reportView));
 
     return reports;
   }
 
-  Collection<ErInsertReportDocument> createAmountRequestsCancelSucceededPki(YearMonth previousMonth,
+  Collection<ErInsertReportDocument> createRequestsCancelSucceededPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
-    final String pkiName = "Reservation Cancelled";
+    final String pkiName = "Reservations cancelled";
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
@@ -130,10 +129,10 @@ public class VersReportingService {
     return reports;
   }
 
-  Collection<ErInsertReportDocument> createAmountRequestsModifiedSucceededPki(YearMonth previousMonth,
+  Collection<ErInsertReportDocument> createRequestsModifiedSucceededPki(YearMonth previousMonth,
       Optional<String> institute, ReservationReportView reportView) {
 
-    final String pkiName = "Reservation modified";
+    final String pkiName = "Reservations modified";
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
@@ -148,21 +147,7 @@ public class VersReportingService {
     return reports;
   }
 
-  Collection<ErInsertReportDocument>  createAmountRunningReservationsNeverProvisionedPki(YearMonth previousMonth,
-      Optional<String> institute, ReservationReportView reportView) {
-
-    final String pkiName = "Never provisioned";
-
-    List<ErInsertReportDocument> reports = new ArrayList<>();
-
-    reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRunningReservationsNeverProvisioned(), previousMonth, institute, "Timed out"));
-
-    return reports;
-  }
-
-  Collection<ErInsertReportDocument> createAmountRequestsThroughGUIPki(YearMonth previousMonth,
+  Collection<ErInsertReportDocument> createRequestsThroughPki(YearMonth previousMonth,
     Optional<String> institute, ReservationReportView reportView) {
 
     final String pkiName = "Reservations through";
@@ -176,10 +161,10 @@ public class VersReportingService {
     return reports;
   }
 
-  Collection<ErInsertReportDocument> createAmountRunningReservationsStillRunningPki(
+  Collection<ErInsertReportDocument> createServicesPki(
     YearMonth previousMonth, Optional<String> institute, ReservationReportView reportView) {
 
-    final String pkiName = "Active Reservations: Running";
+    final String pkiName = "Services";
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
@@ -198,6 +183,10 @@ public class VersReportingService {
     reports.add(
       getVersRequest(
         pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
+
+    reports.add(
+      getVersRequest(
+        pkiName, reportView.getAmountRunningReservationsNeverProvisioned(), previousMonth, institute, "Never provisioned"));
 
     return reports;
   }
@@ -220,16 +209,16 @@ public class VersReportingService {
     return reports;
   }
 
-  Collection<ErInsertReportDocument> createAmountReservationsProtectedPki(YearMonth period,
+  Collection<ErInsertReportDocument> createReservationsProtectionTypePki(YearMonth period,
       Optional<String> institute, ReservationReportView reservationReportView) {
 
-    final String pkiName = "Reservations: Protection Types";
+    final String pkiName = "Reservation protection type";
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
       getVersRequest(
-        pkiName, reservationReportView.getAmountReservationsProtected(), period, institute, "Protected Scheduled"));
+        pkiName, reservationReportView.getAmountReservationsProtected(), period, institute, "Protected"));
 
     reports.add(
       getVersRequest(

@@ -128,22 +128,22 @@ public class VersReportingServiceTest {
   }
 
   @Test
-  public void amountRunningReservationsStillRunningShouldHaveFiveReports() {
+  public void servicesPkiShouldHaveFiveReports() {
     YearMonth period = YearMonth.now();
     ReservationReportView reportView = new ReservationReportView(period.toInterval().getStart(), period.toInterval().getEnd());
 
-    Collection<ErInsertReportDocument> reports = subject.createAmountRunningReservationsStillRunningPki(
+    Collection<ErInsertReportDocument> reports = subject.createServicesPki(
         period, Optional.of("UU"), reportView);
 
-    assertThat(reports, hasSize(4));
+    assertThat(reports, hasSize(5));
   }
 
   @Test
-  public void amountRequestsCancelSucceededPkiShouldHaveTwoReports() {
+  public void requestsCancelSucceededPkiShouldHaveTwoReports() {
     YearMonth period = YearMonth.now();
     ReservationReportView reportView = new ReservationReportView(period.toInterval().getStart(), period.toInterval().getEnd());
 
-    Collection<ErInsertReportDocument> reports = subject.createAmountRequestsCancelSucceededPki(
+    Collection<ErInsertReportDocument> reports = subject.createRequestsCancelSucceededPki(
         period, Optional.of("UU"), reportView);
 
     assertThat(reports, hasSize(2));
