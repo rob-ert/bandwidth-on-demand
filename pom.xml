@@ -1040,6 +1040,11 @@
             <name>Excilys Repository</name>
             <url>http://repository.excilys.com/content/groups/public</url>
         </repository>
+        <repository>
+            <id>surfnet-snapshots</id>
+            <name>surfnet-snapshots</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
