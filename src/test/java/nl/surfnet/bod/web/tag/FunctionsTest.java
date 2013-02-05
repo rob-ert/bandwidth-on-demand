@@ -22,10 +22,12 @@
  */
 package nl.surfnet.bod.web.tag;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+
+import com.google.common.base.Optional;
 
 public class FunctionsTest {
 
@@ -34,6 +36,32 @@ public class FunctionsTest {
     String output = Functions.translateNewLineBr("\n hallo\n\n");
 
     assertThat(output, is("<br/> hallo<br/><br/>"));
+  }
+
+  @Test
+  public void getOrWithAPresentOptional() {
+    String result = Functions.getOr(Optional.of("present"), "error");
+
+    assertThat(result, is("present"));
+  }
+
+  @Test
+  public void getOrWithAAbsentOptional() {
+    String result = Functions.getOr(Optional.absent(), "success");
+
+    assertThat(result, is("success"));
+  }
+
+  @Test
+  public void getFromAnOptional() {
+    String value = Functions.get(Optional.of("present"));
+
+    assertThat(value, is("present"));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getFromAnAbsentOptionalShouldGiveAnException() {
+    Functions.get(Optional.absent());
   }
 
 }
