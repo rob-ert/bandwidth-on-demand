@@ -26,20 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.WebService;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import javax.xml.bind.JAXBElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
-import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType;
 import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
+import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
-import org.tmforum.mtop.fmw.xsd.oc.v1.ObjectCreationType;
-import org.tmforum.mtop.fmw.xsd.odel.v1.ObjectDeletionType;
-import org.tmforum.mtop.fmw.xsd.sc.v1.StateChangeType;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
 import com.google.common.collect.ImmutableList;
@@ -54,51 +50,28 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   // FIXME [AvD] concurrency....
   private final List<AlarmType> alarms = new ArrayList<>();
-  private final List<AttributeValueChangeType> attributeValueChangeEvents = new ArrayList<>();
-  private final List<ObjectCreationType> objectCreationEvents = new ArrayList<>();
-  private final List<ObjectDeletionType> objectDeletionEvents = new ArrayList<>();
-  private final List<StateChangeType> stateChangeEvents = new ArrayList<>();
+  private final List<HeartbeatType> heartbeats = new ArrayList<>();
+//  private final List<AttributeValueChangeType> attributeValueChangeEvents = new ArrayList<>();
+//  private final List<ObjectCreationType> objectCreationEvents = new ArrayList<>();
+//  private final List<ObjectDeletionType> objectDeletionEvents = new ArrayList<>();
+//  private final List<StateChangeType> stateChangeEvents = new ArrayList<>();
 
   @Override
   public void notify(final Header header, final Notify body) {
     log.info("Notification topic: {}", body.getTopic());
 
-    List<CommonEventInformationType> eventInformations = body.getMessage().getCommonEventInformation();
-    log.info("Number of events: {}", eventInformations.size());
+    List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 
-    for (CommonEventInformationType eventInformation : eventInformations) {
-      log.info("Event clazz: {}", eventInformation.getClass());
-      if (eventInformation instanceof AlarmType) {
-        AlarmType alarm = (AlarmType) eventInformation;
-        printAlarm(alarm);
-        alarms.add(alarm);
+    for (JAXBElement<? extends CommonEventInformationType> jaxbElement : eventInformations) {
+      if (jaxbElement.getDeclaredType().equals(HeartbeatType.class)) {
+        heartbeats.add((HeartbeatType) jaxbElement.getValue());
       }
-      else if (eventInformation instanceof AttributeValueChangeType) {
-        AttributeValueChangeType event = (AttributeValueChangeType) eventInformation;
-        attributeValueChangeEvents.add(event);
+      else if (jaxbElement.getDeclaredType().equals(AlarmType.class)) {
+        alarms.add((AlarmType) jaxbElement.getValue());
       }
-      else if (eventInformation instanceof ObjectCreationType) {
-        ObjectCreationType event = (ObjectCreationType) eventInformation;
-        objectCreationEvents.add(event);
+      else {
+        log.warn("Got an unspurred event " + jaxbElement.getDeclaredType());
       }
-      else if (eventInformation instanceof ObjectDeletionType) {
-        ObjectDeletionType event = (ObjectDeletionType) eventInformation;
-        objectDeletionEvents.add(event);
-      }
-      else if (eventInformation instanceof StateChangeType) {
-        StateChangeType event = (StateChangeType) eventInformation;
-        stateChangeEvents.add(event);
-      }
-    }
-  }
-
-  private void printAlarm(AlarmType alarm) {
-    try {
-      Marshaller marshaller = JAXBContext.newInstance(AlarmType.class).createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-      marshaller.marshal(alarm, System.out);
-    } catch (Exception e) {
-      log.error("Could not print alarm", e);
     }
   }
 
@@ -106,20 +79,24 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     return ImmutableList.copyOf(alarms);
   }
 
-  public List<AttributeValueChangeType> getAttributeValueChangeEvents() {
-    return ImmutableList.copyOf(attributeValueChangeEvents);
+  public List<HeartbeatType> getHeartbeats() {
+    return ImmutableList.copyOf(heartbeats);
   }
 
-  public List<ObjectCreationType> getObjectCreationEvents() {
-    return ImmutableList.copyOf(objectCreationEvents);
-  }
-
-  public List<ObjectDeletionType> getObjectDeletionEvents() {
-    return ImmutableList.copyOf(objectDeletionEvents);
-  }
-
-  public List<StateChangeType> getStateChangeEvents() {
-    return ImmutableList.copyOf(stateChangeEvents);
-  }
+//  public List<AttributeValueChangeType> getAttributeValueChangeEvents() {
+//    return ImmutableList.copyOf(attributeValueChangeEvents);
+//  }
+//
+//  public List<ObjectCreationType> getObjectCreationEvents() {
+//    return ImmutableList.copyOf(objectCreationEvents);
+//  }
+//
+//  public List<ObjectDeletionType> getObjectDeletionEvents() {
+//    return ImmutableList.copyOf(objectDeletionEvents);
+//  }
+//
+//  public List<StateChangeType> getStateChangeEvents() {
+//    return ImmutableList.copyOf(stateChangeEvents);
+//  }
 
 }

@@ -114,7 +114,7 @@ public class MtosiNotificationLiveClientTestIntegration {
 
     Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
 
-    message.getCommonEventInformation().add(alarm);
+//    message.getCommonEventInformation().add(alarm);
     body.setMessage(message);
 
     // send notification

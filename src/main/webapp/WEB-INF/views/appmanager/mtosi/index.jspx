@@ -1,0 +1,26 @@
+<jsp:root xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
+    xmlns:c="http://java.sun.com/jsp/jstl/core" version="2.0">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <section>
+        <h2>MTOSI</h2>
+        <div class="content">
+            <div class="form">
+                <div class="message">
+                    <h3>MTOSI Pages</h3>
+                </div>
+                <dl class="dl">
+                    <dt>
+                        <spring:url var="oauth_url" value="/appmanager/mtosi/notifications" />
+                        <a href="${oauth_url}">Notifications</a>
+                    </dt>
+                    <dd>Displays the MTOSI notifications</dd>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+</jsp:root>

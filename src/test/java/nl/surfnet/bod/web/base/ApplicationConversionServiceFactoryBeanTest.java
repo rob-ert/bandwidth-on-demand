@@ -22,15 +22,15 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -39,6 +39,12 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationConversionServiceFactoryBeanTest {
@@ -78,5 +84,16 @@ public class ApplicationConversionServiceFactoryBeanTest {
 
     assertThat(output, nullValue());
   }
+
+  @Test
+  public void XmlGregorianCalendarToString() throws DatatypeConfigurationException {
+    XMLGregorianCalendar input = DatatypeFactory.newInstance()
+      .newXMLGregorianCalendar(2011, 2, 4, 12, 0, 10, 10, DatatypeConstants.FIELD_UNDEFINED);
+
+    String output = subject.getXmlGregorianCalendarToStringConverter().convert(input);
+
+    assertThat(output, is("2011-02-04 12:00"));
+  }
+
 
 }

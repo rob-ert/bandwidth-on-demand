@@ -23,22 +23,19 @@
 package nl.surfnet.bod.web.base;
 
 import javax.annotation.Resource;
+import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.format.FormatterRegistry;
-import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
-import org.springframework.format.support.FormattingConversionServiceFactoryBean;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+
+import org.joda.time.DateTime;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
+import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 
 /**
  * A central place to register application converters and formatters.
@@ -62,7 +59,19 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
     new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
         .setDatePattern("yyyy-MM-dd").registerFormatters(registry);
+
+    registry.addConverter(getXmlGregorianCalendarToStringConverter());
   }
+
+  public Converter<XMLGregorianCalendar, String> getXmlGregorianCalendarToStringConverter() {
+    return new Converter<XMLGregorianCalendar, String>() {
+      @Override
+      public String convert(XMLGregorianCalendar calendar) {
+        return new DateTime(calendar.toGregorianCalendar()).toString("yyy-MM-dd H:mm");
+      }
+    };
+  }
+
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
     return new Converter<PhysicalPort, String>() {

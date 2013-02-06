@@ -1,3 +1,4 @@
 <menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <item id="i_res_list" url="/appmanager" messageCode="menu_overview_label" menu="overview" />
+    <item id="i_overview" url="/appmanager" messageCode="menu_overview_label" menu="overview" />
+    <item id="i_mtosi_list" url="/appmanager/mtosi" messageCode="menu_mtosi_label" menu="mtosi" />
 </menu>
