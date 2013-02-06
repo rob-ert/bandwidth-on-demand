@@ -101,25 +101,29 @@ public class RichUserDetailsTest {
 
   @Test
   public void shouldSortRolesTestOnSortOrder() {
-    BodRole role1 = BodRole.createAppManager();
-    BodRole role2 = BodRole.createNocEngineer();
-    BodRole role3 = BodRole.createManager(new PhysicalResourceGroupFactory().setInstitute(
-        new InstituteFactory().setName("A").create()).create());
-    BodRole role4 = BodRole.createManager(new PhysicalResourceGroupFactory().setInstitute(
-        new InstituteFactory().setName("B").create()).create());
-    BodRole role5 = BodRole.createUser();
+    BodRole appManager = BodRole.createAppManager();
+    BodRole nocEngineer = BodRole.createNocEngineer();
+    BodRole manager1 = BodRole.createManager(
+      new PhysicalResourceGroupFactory()
+        .setInstitute(new InstituteFactory().setName("A").create())
+        .create());
+    BodRole manager2 = BodRole.createManager(
+      new PhysicalResourceGroupFactory()
+        .setInstitute(new InstituteFactory().setName("B").create())
+        .create());
+    BodRole manager3 = BodRole.createUser();
 
-    RichUserDetails userDetails = new RichUserDetailsFactory().addBodRoles(role5, role4, role3, role2, role1).create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().addBodRoles(manager3, manager2, appManager, nocEngineer, manager1).create();
 
     List<BodRole> sortedRoles = userDetails.getBodRoles();
+
     assertThat(sortedRoles, hasSize(5));
 
-    // Verify by sortOrder in enum
-    assertThat(sortedRoles.get(0), is(role1));
-    assertThat(sortedRoles.get(1), is(role2));
-    assertThat(sortedRoles.get(2), is(role3));
-    assertThat(sortedRoles.get(3), is(role4));
-    assertThat(sortedRoles.get(4), is(role5));
+    assertThat(sortedRoles.get(0), is(nocEngineer));
+    assertThat(sortedRoles.get(1), is(appManager));
+    assertThat(sortedRoles.get(2), is(manager1));
+    assertThat(sortedRoles.get(3), is(manager2));
+    assertThat(sortedRoles.get(4), is(manager3));
   }
 
   @Test
