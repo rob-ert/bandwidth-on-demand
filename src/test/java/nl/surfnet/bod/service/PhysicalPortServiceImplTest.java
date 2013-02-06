@@ -22,14 +22,23 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.*;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -49,18 +58,6 @@ import org.springframework.data.domain.Sort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalPortServiceImplTest {
@@ -83,7 +80,7 @@ public class PhysicalPortServiceImplTest {
   @Mock
   private SnmpAgentService snmpAgentService;
 
-  private Map<String, PhysicalPort> physicalPortMap = Maps.newHashMap();
+  private final Map<String, PhysicalPort> physicalPortMap = Maps.newHashMap();
 
   @Before
   public void setUp() {
@@ -154,7 +151,7 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void findByNmsPortIdShouldGiveNullIfNotFound() {
+  public void findByNmsPortIdShouldGiveNullIfNotFound() throws PortNotAvailableException {
     when(nbiClientMock.findPhysicalPortByNmsPortId("first")).thenReturn(null);
     when(physicalPortRepoMock.findByNmsPortId("first")).thenReturn(null);
 
@@ -164,7 +161,7 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void findByNmsPortIdhouldGiveAMergedPortIfFound() {
+  public void findByNmsPortIdhouldGiveAMergedPortIfFound() throws PortNotAvailableException {
     PhysicalPort nbiPort = new PhysicalPortFactory().setNmsPortId("first").create();
     PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setNmsPortId("first").create();
 

@@ -39,6 +39,7 @@ import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
@@ -61,14 +62,14 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
+ * 
  */
 @Service
 public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
@@ -159,21 +160,27 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public PhysicalPort findByNmsPortId(final String nmsPortId) {
-    PhysicalPort nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
+    PhysicalPort nbiPort = null;
+    try {
+      nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
+    }
+    catch (PortNotAvailableException e) {
+      // No action
+    }
     PhysicalPort repoPort = physicalPortRepo.findByNmsPortId(nmsPortId);
 
-    if (repoPort != null) {
+    if (nbiPort != null && repoPort != null) {
       enrichPortWithPort(nbiPort, repoPort);
+      return nbiPort;
     }
-
-    return nbiPort;
+    else {
+      return repoPort;
+    }
   }
 
   public void delete(final PhysicalPort physicalPort) {
-    logEventService.logDeleteEvent(
-        Security.getUserDetails(),
-        "Unallocated port " + getLogLabel(Security.getSelectedRole(), physicalPort),
-        physicalPort);
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Unallocated port "
+        + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
     physicalPortRepo.delete(physicalPort);
   }
 
@@ -193,17 +200,15 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public PhysicalPort update(final PhysicalPort physicalPort) {
-    logEventService.logUpdateEvent(
-        Security.getUserDetails(),
-        "Allocated port " + getLogLabel(Security.getSelectedRole(), physicalPort),
-        physicalPort);
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Allocated port "
+        + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
 
     return physicalPortRepo.save(physicalPort);
   }
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -298,7 +303,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   *
+   * 
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -309,8 +314,8 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   List<PhysicalPort> markUnalignedWithNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values())
-        .filter(Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
+    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(
+        Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
     logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());
@@ -328,10 +333,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -356,7 +361,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Determines the label to log for the given Role
-   *
+   * 
    * @param bodRole
    *          Role
    * @param physicalPort
@@ -373,7 +378,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public List<Long> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
       final Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
-      
+
       return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
           .byPhysicalResourceGroupSpec(physicalResourceGroup.get())), sort);
     }

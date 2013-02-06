@@ -22,18 +22,21 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import nl.surfnet.bod.domain.PhysicalPort;
+
+import org.junit.Test;
 
 public class NbiOfflineClientTest {
 
-  private NbiOfflineClient subject = new NbiOfflineClient();
+  private final NbiOfflineClient subject = new NbiOfflineClient();
 
   @Test
   public void offlineClientShouldGivePorts() {
@@ -51,7 +54,7 @@ public class NbiOfflineClientTest {
   }
 
   @Test
-  public void findByNmsPortId() {
+  public void findByNmsPortId() throws PortNotAvailableException {
     PhysicalPort port = subject.findAllPhysicalPorts().get(0);
 
     PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());

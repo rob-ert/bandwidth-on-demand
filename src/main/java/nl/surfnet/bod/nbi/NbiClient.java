@@ -24,11 +24,11 @@ package nl.surfnet.bod.nbi;
 
 import java.util.List;
 
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+
+import com.google.common.base.Optional;
 
 public interface NbiClient {
 
@@ -73,6 +73,6 @@ public interface NbiClient {
    * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's
    *         case the network elements pk
    */
-  PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId);
+  PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException;
 
 }

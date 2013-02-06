@@ -24,10 +24,7 @@ package nl.surfnet.bod.nbi;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -177,8 +174,8 @@ public class NbiOfflineClient implements NbiClient {
       else if (status == REQUESTED) {
         status = AUTO_START; // could be NOT_ACCEPTED as well..
       }
-      else if (status == RUNNING
-          && reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
+      else if (status == RUNNING && reservation.getEndDateTime().isPresent()
+          && reservation.getEndDateTime().get().isBeforeNow()) {
         status = SUCCEEDED;
       }
       else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
@@ -221,15 +218,20 @@ public class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) {
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     Preconditions.checkNotNull(Strings.emptyToNull(nmsPortId));
 
-    return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<NbiPort>() {
-      @Override
-      public boolean apply(NbiPort nbiPort) {
-        return nbiPort.getId().equals(nmsPortId);
-      }
-    }), TRANSFORM_FUNCTION));
+    try {
+      return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<NbiPort>() {
+        @Override
+        public boolean apply(NbiPort nbiPort) {
+          return nbiPort.getId().equals(nmsPortId);
+        }
+      }), TRANSFORM_FUNCTION));
+    }
+    catch (NoSuchElementException e) {
+      throw new PortNotAvailableException(nmsPortId);
+    }
   }
 
   public void setShouldSleep(boolean sleep) {
@@ -282,9 +284,11 @@ public class NbiOfflineClient implements NbiClient {
     public ReservationStatus getStatus() {
       return status;
     }
+
     public DateTime getStartDateTime() {
       return startDateTime;
     }
+
     public Optional<DateTime> getEndDateTime() {
       return endDateTime;
     }
