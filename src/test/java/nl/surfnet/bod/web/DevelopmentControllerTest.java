@@ -28,6 +28,7 @@ import static nl.surfnet.bod.web.DevelopmentController.ROLES_PART;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -106,10 +107,11 @@ public class DevelopmentControllerTest {
     when(environmentMock.isDevelopment()).thenReturn(true);
     when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Roles")).thenReturn("correctMessage");
 
-    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
-      .andExpect(view().name("redirect:/test"));
+    assertThat(Security.getUserDetails(), notNullValue());
+
+    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test")).andExpect(
+        status().isMovedTemporarily()).andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
+        .andExpect(view().name("redirect:/test"));
 
     assertThat(Security.getUserDetails(), nullValue());
   }
