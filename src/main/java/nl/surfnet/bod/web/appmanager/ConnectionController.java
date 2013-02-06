@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web.noc;
+package nl.surfnet.bod.web.appmanager;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/noc/connections")
+@RequestMapping("/appmanager/connections")
 public class ConnectionController extends AbstractSearchableSortableListController<Connection, Connection> {
 
   @Resource
@@ -57,7 +57,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
   @Override
   protected String listUrl() {
-    return "noc/connections/list";
+    return "appmanager/connections/list";
   }
 
   @Override
@@ -82,6 +82,6 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
   @Override
   protected String getDefaultSortProperty() {
-    return "reservation.startDateTime";
+    return "startTime";
   }
 }

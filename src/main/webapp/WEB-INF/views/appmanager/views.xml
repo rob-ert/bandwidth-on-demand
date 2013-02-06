@@ -12,6 +12,11 @@
     <put-attribute name="active_menu" value="overview" cascade="true" />
   </definition>
 
+  <definition extends="appmanager" name="appmanager/connections/list">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/connections/list.jspx" />
+    <put-attribute name="active_menu" value="overview" cascade="true" />
+  </definition>
+
   <definition extends="appmanager" name="appmanager/mtosi/index">
     <put-attribute name="body" value="/WEB-INF/views/appmanager/mtosi/index.jspx" />
     <put-attribute name="active_menu" value="mtosi" cascade="true" />
