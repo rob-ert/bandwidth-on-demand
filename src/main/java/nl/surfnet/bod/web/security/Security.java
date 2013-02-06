@@ -44,8 +44,11 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    APP_MANAGER("redirect:appmanager", 1), NOC_ENGINEER("redirect:noc", 2), ICT_MANAGER("redirect:manager", 3), USER(
-        "redirect:user", 4), NEW_USER("redirect:user", 5);
+    NOC_ENGINEER("redirect:noc", 1),
+    APP_MANAGER("redirect:appmanager", 2),
+    ICT_MANAGER("redirect:manager", 3),
+    USER("redirect:user", 4),
+    NEW_USER("redirect:user", 5);
 
     private String viewName;
     private int sortOrder;
