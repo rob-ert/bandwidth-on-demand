@@ -188,7 +188,7 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   * 
+   *
    * @param richUserDetails
    *          the user details
    */

@@ -22,15 +22,25 @@
  */
 package nl.surfnet.bod.web.user;
 
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/advanced")
+@RequestMapping
 public class AdvancedController {
 
-  @RequestMapping
+  @RequestMapping("/advanced")
   public String index() {
     return "advanced";
+  }
+
+  @RequestMapping("/teams")
+  public String listTeams(Model model) {
+    model.addAttribute("teams", Security.getUserDetails().getUserGroups());
+
+    return "teams";
   }
 }

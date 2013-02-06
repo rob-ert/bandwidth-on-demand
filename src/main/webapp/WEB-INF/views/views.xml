@@ -9,6 +9,10 @@
     <definition extends="default" name="message">
         <put-attribute name="body" value="/WEB-INF/views/message.jspx" />
     </definition>
+    <definition extends="default" name="teams">
+      <put-attribute name="body" value="/WEB-INF/views/teams.jspx" />
+      <put-attribute name="active_menu" value="advanced" cascade="true" />
+    </definition>
 
     <definition extends="error" name="dataAccessFailure">
         <put-attribute name="body" value="/WEB-INF/views/dataAccessFailure.jspx" />
