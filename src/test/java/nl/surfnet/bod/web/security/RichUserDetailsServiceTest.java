@@ -61,7 +61,6 @@ import com.google.common.collect.Iterables;
 public class RichUserDetailsServiceTest {
 
   private static final String URN_NOC_ENGINEER = "urn:noc-engineer";
-
   private static final String URN_APP_MANAGER = "urn:app-manager";
 
   @InjectMocks
