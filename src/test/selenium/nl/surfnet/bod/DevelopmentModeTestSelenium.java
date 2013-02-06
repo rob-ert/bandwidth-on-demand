@@ -36,11 +36,10 @@ public class DevelopmentModeTestSelenium extends TestExternalSupport {
 
   @Test
   public void verifyDevelopmentLinks() {
-    getAppManagerDriver().verifyDevelopmentLinkAmount(3);
+    getAppManagerDriver().verifyDevelopmentLinkAmount(2);
 
     getAppManagerDriver().verifyDevelopmentLinkRefreshMessage();
     getAppManagerDriver().verifyDevelopmentLinkRefreshRoles();
-    getAppManagerDriver().verifyDevelopmentLinkGenerateError();
   }
 
 }
