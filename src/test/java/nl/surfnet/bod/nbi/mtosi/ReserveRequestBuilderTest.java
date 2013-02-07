@@ -23,6 +23,8 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNotNull;
@@ -112,7 +114,7 @@ public class ReserveRequestBuilderTest {
   public void shouldAddDynamicCharacteristicsWithVlanAbsent() {
     List<ServiceCharacteristicValueType> describedByList = new ArrayList<>();
 
-    subject.addDynamicCharacteristicsTo(Optional.<Integer> absent(), ProtectionType.REDUNDANT, 1024, "UNI-N",
+    subject.addDynamicCharacteristicsTo(Optional.<Integer> absent(), ProtectionType.UNPROTECTED, 1024, "UNI-N",
         describedByList);
 
     assertThat(describedByList, hasSize(5));
@@ -123,6 +125,21 @@ public class ReserveRequestBuilderTest {
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EPL")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
+  }
+
+  @Test
+  public void shouldMapProtectionTypeProtected() {
+    assertThat(ProtectionType.PROTECTED.getMtosiName(), is("Partially Protected"));
+  }
+
+  @Test
+  public void shouldMapProtectionTypeUnprotected() {
+    assertThat(ProtectionType.UNPROTECTED.getMtosiName(), is("Unprotected"));
+  }
+
+  @Test
+  public void shouldNotMapProtectionTypRedundant() {
+    assertThat(ProtectionType.REDUNDANT.getMtosiName(), nullValue());
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {

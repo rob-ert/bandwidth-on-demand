@@ -23,8 +23,7 @@
 package nl.surfnet.bod.domain;
 
 public enum ProtectionType {
-  // TODO Check this mapping
-  PROTECTED("Fully Protected"), UNPROTECTED("Unprotected"), REDUNDANT("Unprotected");
+  PROTECTED("Partially Protected"), UNPROTECTED("Unprotected"), REDUNDANT(null);
 
   private String mtosiName;
 
