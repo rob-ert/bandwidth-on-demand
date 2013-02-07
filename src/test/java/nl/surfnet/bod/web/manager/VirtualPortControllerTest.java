@@ -39,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -48,6 +49,7 @@ import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
+import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -71,6 +73,8 @@ import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortControllerTest {
+
+  private static final String ALLOWED_ADMIN_GROUP = "urn:manager-group";
 
   @InjectMocks
   private VirtualPortController subject;
@@ -120,8 +124,8 @@ public class VirtualPortControllerTest {
     subject.setMessageManager(new MessageManager(messageRetrieverMock));
 
     physicalPort = new PhysicalPortFactory().create();
-    prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(physicalPort).create();
-    user = new RichUserDetailsFactory().addManagerRole(prg).addUserRole().addUserGroup("urn:manager-group").create();
+    prg = new PhysicalResourceGroupFactory().setAdminGroup(ALLOWED_ADMIN_GROUP).addPhysicalPort(physicalPort).create();
+    user = new RichUserDetailsFactory().addManagerRole(prg).addUserRole().addUserGroup(ALLOWED_ADMIN_GROUP).create();
     Security.setUserDetails(user);
   }
 
@@ -142,7 +146,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void shouldUpdatePort() throws Exception {
-    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
     when(virtualPortServiceMock.find(3L)).thenReturn(port);
     when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
@@ -213,7 +217,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void shouldNotUpdateWhenCommandHasErrors() throws Exception {
-    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
     when(virtualPortServiceMock.find(3L)).thenReturn(port);
     when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
@@ -237,35 +241,94 @@ public class VirtualPortControllerTest {
   }
 
   @Test
-  public void createWithIllegalPhysicalResourceGroupShouldRedirect() {
-    ModelStub model = new ModelStub();
-    PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong")
-        .create();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
+  public void updateFormShouldShowVirtualPort() throws Exception {
+    VirtualPort virtualPort = new VirtualPortFactory()
+      .setId(15L)
+      .setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
-    when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
+    when(virtualPortServiceMock.find(15L)).thenReturn(virtualPort);
 
-    String page = subject.createForm("1234567890", model, model);
-
-    assertThat(page, is("redirect:/"));
+    mockMvc.perform(get("/manager/virtualports/edit").param("id", "15"))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("virtualPortUpdateCommand", hasProperty("id", is(15L))))
+      .andExpect(model().attributeExists("physicalPorts", "virtualResourceGroups", "virtualResourceGroups", "physicalResourceGroups"));
   }
 
   @Test
-  public void createShouldAddCreateCommandToModel() {
-    ModelStub model = new ModelStub();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+  public void updateFormShouldRedirectWhenNonExistingVirtualPort() throws Exception {
+    when(virtualPortServiceMock.find(15L)).thenReturn(null);
 
-    when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
+    mockMvc.perform(get("/manager/virtualports/edit").param("id", "15"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/manager/virtualports"));
+  }
 
-    subject.createForm("1234567890", model, model);
+  @Test
+  public void updateFormShouldRedirectWhenUserHasNoPermission() throws Exception {
+    VirtualPort virtualPort = new VirtualPortFactory()
+      .setPhysicalPortAdminGroup("urn:wrong-group").create();
 
-    VirtualPortCreateCommand command = (VirtualPortCreateCommand) model.asMap().get("virtualPortCreateCommand");
-    assertThat(command.getVirtualResourceGroup(), is(link.getVirtualResourceGroup()));
-    assertThat(command.getPhysicalPort(), is(physicalPort));
-    assertThat(command.getPhysicalResourceGroup(), is(prg));
-    assertThat(command.getMaxBandwidth(), is(link.getMinBandwidth()));
-    assertThat(command.getVirtualPortRequestLink(), is(link));
-    assertThat(command.getPhysicalResourceGroup().getInstitute(), notNullValue());
+    when(virtualPortServiceMock.find(15L)).thenReturn(virtualPort);
+
+    mockMvc.perform(get("/manager/virtualports/edit").param("id", "15"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/manager/virtualports"));
+  }
+
+  @Test
+  public void createWithIllegalPhysicalResourceGroupShouldRedirect() throws Exception {
+    PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory()
+      .setAdminGroup("urn:manager-group-wrong")
+      .create();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
+
+    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+
+    mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/"));
+  }
+
+  @Test
+  public void createWithNonExistinLinkShouldRedirect() throws Exception {
+    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(null);
+
+    mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/"));
+  }
+
+  @Test
+  public void createShouldAddCreateCommandToModel() throws Exception {
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory()
+      .setPhysicalResourceGroup(prg)
+      .setMinBandwidth(1024).create();
+
+    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+
+    mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
+      .andExpect(status().isOk())
+      .andExpect(view().name("/manager/virtualports/create"))
+      .andExpect(model().attribute("virtualPortCreateCommand", allOf(
+          hasProperty("physicalPort", is(physicalPort)),
+          hasProperty("physicalResourceGroup", is(prg)),
+          hasProperty("virtualResourceGroup", is(link.getVirtualResourceGroup())),
+          hasProperty("maxBandwidth", is(link.getMinBandwidth())),
+          hasProperty("virtualPortRequestLink", is(link)))));
+  }
+
+  @Test
+  public void createShouldNotBeAllowdIfLinkIsAlreadyUsed() throws Exception {
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory()
+      .setStatus(RequestStatus.APPROVED)
+      .setPhysicalResourceGroup(prg).create();
+
+    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+
+    mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
+      .andExpect(status().isOk())
+      .andExpect(view().name("message"))
+      .andExpect(model().attributeExists(MessageView.MODEL_KEY));
   }
 
   @Test
@@ -339,7 +402,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void deleteVirtualPort() throws Exception {
-    VirtualPort vp = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+    VirtualPort vp = new VirtualPortFactory().setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
     when(virtualPortServiceMock.find(3L)).thenReturn(vp);
     when(messageRetrieverMock.getMessageWithBoldArguments("info_virtualport_deleted", vp.getManagerLabel())).thenReturn("correctMessage");
