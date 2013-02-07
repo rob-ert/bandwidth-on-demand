@@ -39,6 +39,7 @@ import javax.persistence.PersistenceContext;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -97,6 +98,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   @Resource
   private ReservationRepo reservationRepo;
+
+  @Resource
+  private ConnectionRepo connectionRepo;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;

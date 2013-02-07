@@ -29,6 +29,7 @@ import javax.persistence.*;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.*;
 import org.joda.time.DateTime;
@@ -111,6 +112,7 @@ public class Connection implements Loggable, PersistableDomain {
   private ServiceParametersType serviceParameters;
 
   @OneToOne
+  @JsonIgnore //prevent loop back to reservation
   private Reservation reservation;
 
   @OneToOne(cascade = CascadeType.ALL)

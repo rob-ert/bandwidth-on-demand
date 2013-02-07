@@ -22,16 +22,13 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import java.util.Collection;
+import java.util.Collections;
 
+import javax.persistence.*;
 
 @Entity
-public class ReservationArchive {
+public class ReservationArchive implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -46,6 +43,7 @@ public class ReservationArchive {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String reservationAsJson;
 
+  @Override
   public final Long getId() {
     return id;
   }
@@ -91,5 +89,15 @@ public class ReservationArchive {
     builder.append(getReservationAsJson());
     builder.append("]");
     return builder.toString();
+  }
+
+  @Override
+  public Collection<String> getAdminGroups() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public String getLabel() {
+    return String.valueOf(reservationPrimaryKey);
   }
 }
