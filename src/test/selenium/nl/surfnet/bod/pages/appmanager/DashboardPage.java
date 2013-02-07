@@ -54,7 +54,7 @@ public class DashboardPage extends AbstractListPage {
    * but add new test cases for the new menu
    */
   public void verifyNumberOfMenuItems() {
-    assertThat(getCountMenuItems(), is(1));
+    assertThat(getCountMenuItems(), is(2));
   }
 
   public void verifyMenuOverview() {
