@@ -66,4 +66,13 @@ public class DashboardPage extends AbstractListPage {
   public void verifyIsCurrentPage() {
     super.verifyIsCurrentPage(PAGE);
   }
+
+  public void verifyIsMtosiPage() {
+    super.verifyIsCurrentPage(PAGE + "/mtosi");
+  }
+
+  public void verifyMenuMtosi() {
+    clickMenuLink("MTOSI");
+    verifyIsMtosiPage();
+  }
 }

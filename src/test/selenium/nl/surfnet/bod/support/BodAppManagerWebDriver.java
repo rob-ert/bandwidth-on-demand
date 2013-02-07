@@ -68,6 +68,7 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
     dashboardPage.verifyNumberOfMenuItems();
     dashboardPage.verifyMenuOverview();
+    dashboardPage.verifyMenuMtosi();
   }
 
   @Override
