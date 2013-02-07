@@ -85,7 +85,7 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
-    throw new UnsupportedOperationException("Not implemented yet..");
+    throw new PortNotAvailableException(nmsPortId);
   }
 
 }

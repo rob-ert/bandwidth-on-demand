@@ -80,6 +80,11 @@ public class NbiClientTestIntegration {
     assertThat(foundPort.getNmsPortId(), is(firstPort.getNmsPortId()));
   }
 
+  @Test(expected = PortNotAvailableException.class)
+  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
+    nbiClient.findPhysicalPortByNmsPortId("nonExisting");
+  }
+
   @Test
   public void portCountShouldMatchSizeOfAllPorts() {
     long count = nbiClient.getPhysicalPortsCount();

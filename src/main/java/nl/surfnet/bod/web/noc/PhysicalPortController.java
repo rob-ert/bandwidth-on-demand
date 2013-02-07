@@ -35,7 +35,6 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.util.Functions;
@@ -335,12 +334,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public String delete(@RequestParam(ID_KEY) final String nmsPortId,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    PhysicalPort physicalPort = null;
-    physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
-
-    final RichUserDetails userDetails = Security.getUserDetails();
-    final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
-    virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
     physicalPortService.deleteByNmsPortId(nmsPortId);
 
     uiModel.asMap().clear();

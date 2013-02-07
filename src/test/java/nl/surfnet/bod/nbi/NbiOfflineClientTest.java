@@ -70,4 +70,9 @@ public class NbiOfflineClientTest {
     }
   }
 
+  @Test(expected = PortNotAvailableException.class)
+  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
+    subject.findPhysicalPortByNmsPortId("nonExisting");
+  }
+
 }

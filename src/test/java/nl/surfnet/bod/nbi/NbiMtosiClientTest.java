@@ -69,4 +69,9 @@ public class NbiMtosiClientTest {
     verify(serviceComponentActivationClient).reserve(createdReservation, true);
   }
 
+  @Test(expected = PortNotAvailableException.class)
+  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
+    subject.findPhysicalPortByNmsPortId("nonExisting");
+  }
+
 }

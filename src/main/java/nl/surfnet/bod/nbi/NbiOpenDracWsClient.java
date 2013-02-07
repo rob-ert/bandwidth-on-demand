@@ -72,7 +72,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- *
+ * 
  */
 public class NbiOpenDracWsClient implements NbiClient {
 
@@ -115,9 +115,10 @@ public class NbiOpenDracWsClient implements NbiClient {
 
     if (serviceId.isPresent()) {
       try {
-        ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId.get());
-        CompletionResponseDocument responseDocument = getResourceAllocationAndSchdulingService().activateReservationOccurrence(
-            requestDocument, getSecurityDocument());
+        ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId
+            .get());
+        CompletionResponseDocument responseDocument = getResourceAllocationAndSchdulingService()
+            .activateReservationOccurrence(requestDocument, getSecurityDocument());
 
         return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
       }
@@ -130,8 +131,8 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private ActivateReservationOccurrenceRequestDocument createActivateReservationOccurrenceRequest(String serviceId) {
-    ActivateReservationOccurrenceRequestDocument activateReservationOccurrenceRequestDocument =
-      ActivateReservationOccurrenceRequestDocument.Factory.newInstance();
+    ActivateReservationOccurrenceRequestDocument activateReservationOccurrenceRequestDocument = ActivateReservationOccurrenceRequestDocument.Factory
+        .newInstance();
 
     ActivateReservationOccurrenceRequest activateReservationOccurrenceRequest = activateReservationOccurrenceRequestDocument
         .addNewActivateReservationOccurrenceRequest();
@@ -144,12 +145,12 @@ public class NbiOpenDracWsClient implements NbiClient {
     try {
       CancelReservationScheduleRequestDocument requestDocument = createCancelReservationScheduleRequest(reservationId);
       CompletionResponseDocument response = getResourceAllocationAndSchdulingService().cancelReservationSchedule(
-          requestDocument,
-          getSecurityDocument());
+          requestDocument, getSecurityDocument());
 
       log.info("Status: {}", response.getCompletionResponse().getResult());
 
-      // CompletionResponseDocument always signals that the operation executed successfully.
+      // CompletionResponseDocument always signals that the operation executed
+      // successfully.
       return CANCELLED;
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
@@ -160,8 +161,8 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private CancelReservationScheduleRequestDocument createCancelReservationScheduleRequest(final String reservationId) {
-    CancelReservationScheduleRequestDocument requestDocument =
-      CancelReservationScheduleRequestDocument.Factory.newInstance();
+    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
+        .newInstance();
     CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
     request.setReservationScheduleId(reservationId);
 
@@ -171,18 +172,18 @@ public class NbiOpenDracWsClient implements NbiClient {
   @Override
   public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
     try {
-      CreateReservationScheduleRequestDocument requestDocument =
-        createReservationScheduleRequest(reservation, autoProvision);
+      CreateReservationScheduleRequestDocument requestDocument = createReservationScheduleRequest(reservation,
+          autoProvision);
 
-      CreateReservationScheduleResponseDocument responseDocument =
-        getResourceAllocationAndSchdulingService().createReservationSchedule(requestDocument, getSecurityDocument());
+      CreateReservationScheduleResponseDocument responseDocument = getResourceAllocationAndSchdulingService()
+          .createReservationSchedule(requestDocument, getSecurityDocument());
 
       log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
 
-      ReservationStatus status = OpenDracStatusTranslator.translate(
-          responseDocument.getCreateReservationScheduleResponse().getResult(), autoProvision);
+      ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
+          .getCreateReservationScheduleResponse().getResult(), autoProvision);
 
       if (status.isErrorState()) {
         String failedReason = composeFailedReason(responseDocument);
@@ -237,7 +238,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) {
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     try {
       EndpointT endpoint = findEndPointById(nmsPortId);
       return getPhysicalPort(endpoint);
@@ -248,14 +249,14 @@ public class NbiOpenDracWsClient implements NbiClient {
     }
   }
 
-  /*
+  /**
    * Find by id is a little more complex, because the webservice only supports a
    * lookup by tna and not by id. In BoD the tna is locally stored as the
    * nocLabel field. This field can be edited. The tna can also be edited in
    * OpenDRAC. So the only save thing todo is use the id. The service keeps a
    * chache of id to tna.
    */
-  private EndpointT findEndPointById(String id) throws NetworkMonitoringServiceFault {
+  private EndpointT findEndPointById(String id) throws NetworkMonitoringServiceFault, PortNotAvailableException {
     String tna = idToTnaCache.get(id);
 
     if (tna == null) {
@@ -265,8 +266,7 @@ public class NbiOpenDracWsClient implements NbiClient {
           return endPoint;
         }
       }
-
-      throw new IllegalStateException("Could not find endPoint for id " + id);
+      throw new PortNotAvailableException(id);
     }
     else {
       EndpointT endPoint;
@@ -290,7 +290,8 @@ public class NbiOpenDracWsClient implements NbiClient {
   private Optional<QueryReservationScheduleResponseDocument> queryReservation(String reservationId) {
     try {
       QueryReservationScheduleRequestDocument requestDocument = createQueryReservationScheduleRequest(reservationId);
-      return Optional.of(getResourceAllocationAndSchdulingService().queryReservationSchedule(requestDocument, getSecurityDocument()));
+      return Optional.of(getResourceAllocationAndSchdulingService().queryReservationSchedule(requestDocument,
+          getSecurityDocument()));
     }
     catch (AxisFault e) {
       log.error("Error: ", e);
@@ -326,7 +327,8 @@ public class NbiOpenDracWsClient implements NbiClient {
         if (response.getQueryReservationScheduleResponse().getIsFound()) {
           ReservationScheduleT schedule = response.getQueryReservationScheduleResponse().getReservationSchedule();
           return OpenDracStatusTranslator.translate(schedule);
-        } else {
+        }
+        else {
           log.warn("No reservation found for reservationId: {}, returning FAILED", reservationId);
           return FAILED;
         }
@@ -335,8 +337,8 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private QueryReservationScheduleRequestDocument createQueryReservationScheduleRequest(String reservationId) {
-    QueryReservationScheduleRequestDocument requestDocument =
-      QueryReservationScheduleRequestDocument.Factory.newInstance();
+    QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
+        .newInstance();
     requestDocument.addNewQueryReservationScheduleRequest();
     requestDocument.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
 
@@ -344,32 +346,29 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   protected static final class OpenDracStatusTranslator {
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, AUTO_START)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, AUTO_START)
-        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED, AUTO_START).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, AUTO_START).put(
+            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED)
-        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED).put(
+            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
-        .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT)
-        .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
+    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations = new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED).put(
+            ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED).put(
+            ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED).put(
+            ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING).put(
+            ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
+            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED).put(
+            ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT).put(
+            ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
+            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
+            ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
 
     private OpenDracStatusTranslator() {
     }
@@ -386,8 +385,8 @@ public class NbiOpenDracWsClient implements NbiClient {
       ValidReservationScheduleStatusT.Enum status = reservationSchedule.getStatus();
 
       if (status.equals(ValidReservationScheduleStatusT.EXECUTION_PENDING)) {
-        return reservationSchedule.getType().equals(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC) ? AUTO_START :
-          new DateTime(reservationSchedule.getStartTime()).isAfterNow() ? RESERVED : SCHEDULED;
+        return reservationSchedule.getType().equals(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC) ? AUTO_START
+            : new DateTime(reservationSchedule.getStartTime()).isAfterNow() ? RESERVED : SCHEDULED;
       }
       else {
         return scheduleStatusTranslations.get(status);
@@ -396,8 +395,8 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @VisibleForTesting
-  CreateReservationScheduleRequestDocument createReservationScheduleRequest(final Reservation reservation, final boolean autoProvision)
-      throws NetworkMonitoringServiceFault {
+  CreateReservationScheduleRequestDocument createReservationScheduleRequest(final Reservation reservation,
+      final boolean autoProvision) throws NetworkMonitoringServiceFault {
 
     CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
@@ -418,9 +417,8 @@ public class NbiOpenDracWsClient implements NbiClient {
     Calendar startTime = reservation.getStartDateTime().toCalendar(Locale.getDefault());
     schedule.setStartTime(startTime);
 
-    Minutes duration = reservation.getEndDateTime() == null ?
-        MAX_DURATION :
-        minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime());
+    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION : minutesBetween(reservation
+        .getStartDateTime(), reservation.getEndDateTime());
 
     schedule.setReservationOccurrenceDuration(duration.getMinutes());
     schedule.setIsRecurring(false);
@@ -433,21 +431,23 @@ public class NbiOpenDracWsClient implements NbiClient {
   private Optional<String> findServiceId(String reservationId) {
     Optional<QueryReservationScheduleResponseDocument> responseDocument = queryReservation(reservationId);
 
-    Optional<Optional<String>> serviceId = responseDocument.transform(new Function<QueryReservationScheduleResponseDocument, Optional<String>>() {
-      @Override
-      public Optional<String> apply(QueryReservationScheduleResponseDocument response) {
-        if (response.getQueryReservationScheduleResponse().getIsFound()) {
-          return Optional.of(response.getQueryReservationScheduleResponse().getReservationSchedule().getOccurrenceIdArray(0));
-        }
-        return Optional.absent();
-      }
-    });
+    Optional<Optional<String>> serviceId = responseDocument
+        .transform(new Function<QueryReservationScheduleResponseDocument, Optional<String>>() {
+          @Override
+          public Optional<String> apply(QueryReservationScheduleResponseDocument response) {
+            if (response.getQueryReservationScheduleResponse().getIsFound()) {
+              return Optional.of(response.getQueryReservationScheduleResponse().getReservationSchedule()
+                  .getOccurrenceIdArray(0));
+            }
+            return Optional.absent();
+          }
+        });
 
     return flatten(serviceId);
   }
 
   private static <T> Optional<T> flatten(Optional<Optional<T>> optional) {
-    return optional.isPresent() ? optional.get() : Optional.<T>absent();
+    return optional.isPresent() ? optional.get() : Optional.<T> absent();
   }
 
   private UserInfoT createUser() {
@@ -466,9 +466,15 @@ public class NbiOpenDracWsClient implements NbiClient {
 
     VirtualPort virtualSourcePort = reservation.getSourcePort();
     VirtualPort virtualDestinationPort = reservation.getDestinationPort();
-
-    EndpointT sourceEndPoint = findEndPointById(virtualSourcePort.getPhysicalPort().getNmsPortId());
-    EndpointT destinationEndPoint = findEndPointById(virtualDestinationPort.getPhysicalPort().getNmsPortId());
+    EndpointT sourceEndPoint = null;
+    EndpointT destinationEndPoint = null;
+    try {
+      sourceEndPoint = findEndPointById(virtualSourcePort.getPhysicalPort().getNmsPortId());
+      destinationEndPoint = findEndPointById(virtualDestinationPort.getPhysicalPort().getNmsPortId());
+    }
+    catch (PortNotAvailableException e) {
+      throw new IllegalStateException(e);
+    }
 
     pathRequest.setSourceTna(sourceEndPoint.getTna());
     pathRequest.setTargetTna(destinationEndPoint.getTna());
@@ -535,7 +541,7 @@ public class NbiOpenDracWsClient implements NbiClient {
         try {
           endPoints.add(findEndpointByTna(tna));
         }
-        catch (NetworkMonitoringServiceFault e) {
+        catch (NetworkMonitoringServiceFault | PortNotAvailableException e) {
           log.error("Unable to find endpoint for TNA {}", tna);
         }
       }
@@ -558,12 +564,17 @@ public class NbiOpenDracWsClient implements NbiClient {
     return requestDocument;
   }
 
-  private EndpointT findEndpointByTna(final String tna) throws NetworkMonitoringServiceFault {
+  private EndpointT findEndpointByTna(final String tna) throws NetworkMonitoringServiceFault, PortNotAvailableException {
     try {
       QueryEndpointRequestDocument requestDocument = createQueryEndpointRequest(tna);
-      QueryEndpointResponseDocument response = getNetworkMonitoringService().queryEndpoint(requestDocument, getSecurityDocument());
+      QueryEndpointResponseDocument response = getNetworkMonitoringService().queryEndpoint(requestDocument,
+          getSecurityDocument());
 
       EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
+
+      if (endpointFound == null) {
+        throw new PortNotAvailableException(tna);
+      }
 
       idToTnaCache.put(endpointFound.getId(), endpointFound.getTna());
 
@@ -599,8 +610,10 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   protected ResourceAllocationAndSchedulingService_v30Stub getResourceAllocationAndSchdulingService() throws AxisFault {
-    ResourceAllocationAndSchedulingService_v30Stub schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(schedulingServiceUrl);
-    schedulingService._getServiceClient().getOptions().setTimeOutInMilliSeconds(RAASS_TIMEOUT.toStandardDuration().getMillis());
+    ResourceAllocationAndSchedulingService_v30Stub schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(
+        schedulingServiceUrl);
+    schedulingService._getServiceClient().getOptions().setTimeOutInMilliSeconds(
+        RAASS_TIMEOUT.toStandardDuration().getMillis());
 
     return schedulingService;
   }

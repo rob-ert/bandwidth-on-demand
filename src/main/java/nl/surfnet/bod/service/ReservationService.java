@@ -152,9 +152,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
+
         if (StringUtils.hasText(reservation.getReservationId())) {
           final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
           reservation.setStatus(reservationState);
+
           if (reservationState == ReservationStatus.CANCEL_FAILED) {
             throw new RuntimeException("NMS Error during cancel of reservation: " + reservation.getReservationId());
           }
@@ -163,12 +165,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
-
     reservationArchiveRepo.save(reservationArchives);
-    logEventService.logCreateEvent(Security.getUserDetails(), reservations);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives);
 
     reservationRepo.delete(reservations);
-    logEventService.logDeleteEvent(Security.getUserDetails(), "Canceled and archived", reservations);
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Canceled, archived and deleted", reservations);
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
@@ -178,8 +179,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user,
       Optional<NsiRequestDetails> requestDetails) {
 
-    if (isDeleteAllowed(reservation, user).isAllowed()
-        && reservation.getStatus().isTransitionState()) {
+    if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
 
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
     }

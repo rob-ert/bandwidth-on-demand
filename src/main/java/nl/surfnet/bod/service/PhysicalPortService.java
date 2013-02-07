@@ -35,14 +35,13 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
@@ -77,6 +76,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";
 
   private final Logger logger = LoggerFactory.getLogger(PhysicalPortService.class);
+
+  @Resource
+  private VirtualPortService virtualPortService;
 
   @Resource
   private PhysicalPortRepo physicalPortRepo;
@@ -178,14 +180,21 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     }
   }
 
-  public void delete(final PhysicalPort physicalPort) {
-    logEventService.logDeleteEvent(Security.getUserDetails(), "Unallocated port "
-        + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
-    physicalPortRepo.delete(physicalPort);
-  }
-
+  /**
+   * Deletes the specified port and all its related objects like the mapped
+   * {@link VirtualPort}s, and {@link Reservation}s
+   * 
+   * @param nmsPortId
+   *          NmsPort of the port
+   */
   public void deleteByNmsPortId(final String nmsPortId) {
-    this.delete(physicalPortRepo.findByNmsPortId(nmsPortId));
+    PhysicalPort physicalPort = findByNmsPortId(nmsPortId);
+
+    final RichUserDetails userDetails = Security.getUserDetails();
+    final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
+    virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
+
+    delete(physicalPortRepo.findByNmsPortId(nmsPortId));
   }
 
   public PhysicalPort find(final Long id) {
@@ -204,6 +213,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
         + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
 
     return physicalPortRepo.save(physicalPort);
+  }
+
+  @VisibleForTesting
+  void delete(final PhysicalPort physicalPort) {
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Port "
+        + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
+    physicalPortRepo.delete(physicalPort);
   }
 
   /**
