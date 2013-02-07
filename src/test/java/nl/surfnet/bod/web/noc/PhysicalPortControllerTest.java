@@ -26,19 +26,20 @@ import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.base.MessageManager.INFO_MESSAGES_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,11 +71,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.ui.Model;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalPortControllerTest {
@@ -122,43 +121,48 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() throws Exception {
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(
-        ImmutableList.of(new PhysicalPortFactory().create()));
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class)))
+      .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute(DATA_LIST, hasSize(1))).andExpect(model().attribute(MAX_PAGES_KEY, 1))
-        .andExpect(model().attribute("filterSelect", PhysicalPortFilter.ALLOCATED)).andExpect(
-            view().name("physicalports/list"));
+    mockMvc.perform(get("/noc/physicalports"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute(MAX_PAGES_KEY, 1))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.ALLOCATED))
+      .andExpect(view().name("physicalports/list"));
   }
 
   @Test
   public void listAllPortsWithAPageParam() throws Exception {
-
     when(physicalPortServiceMock.findAllocatedEntries(eq(2 * MAX_ITEMS_PER_PAGE), anyInt(), any(Sort.class)))
         .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports").param(PAGE_KEY, "3")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute(DATA_LIST, hasSize(1))).andExpect(model().attribute(MAX_PAGES_KEY, 1));
+    mockMvc.perform(get("/noc/physicalports").param(PAGE_KEY, "3"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute(MAX_PAGES_KEY, 1));
   }
 
   @Test
   public void listAllUnallocatedPortsShouldSetPorts() throws Exception {
-    when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(
-        ImmutableList.of(new PhysicalPortFactory().create()));
+    when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt()))
+      .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports/free")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute(DATA_LIST, hasSize(1))).andExpect(
-        model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED));
+    mockMvc.perform(get("/noc/physicalports/free"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED));
   }
 
   @Test
   public void listUnalignedPorts() throws Exception {
-    when(physicalPortServiceMock.findUnalignedPhysicalPorts(eq(0), anyInt(), any(Sort.class))).thenReturn(
-        ImmutableList.of(new PhysicalPortFactory().create()));
+    when(physicalPortServiceMock.findUnalignedPhysicalPorts(eq(0), anyInt(), any(Sort.class)))
+      .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports/unaligned")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute(DATA_LIST, hasSize(1))).andExpect(
-        model().attribute("filterSelect", PhysicalPortFilter.UN_ALIGNED));
+    mockMvc.perform(get("/noc/physicalports/unaligned"))
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALIGNED));
   }
 
   @Test
@@ -166,10 +170,10 @@ public class PhysicalPortControllerTest {
     when(physicalPortServiceMock.findUnallocatedMTOSIEntries(0, MAX_ITEMS_PER_PAGE)).thenReturn(
         ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports/mtosi")).andExpect(status().isOk()).andExpect(
-        model().<Collection<?>> attribute(DATA_LIST, hasSize(1))).andExpect(
-        model().attribute("filterSelect", PhysicalPortFilter.MTOSI)).andExpect(
-        view().name("physicalports/listunallocated"));
+    mockMvc.perform(get("/noc/physicalports/mtosi"))
+      .andExpect(status().isOk()).andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.MTOSI))
+      .andExpect(view().name("physicalports/listunallocated"));
   }
 
   @Test
@@ -182,25 +186,76 @@ public class PhysicalPortControllerTest {
     subject.updateForm("00:00/port2", model);
 
     assertThat(model.asMap(), hasKey("createPhysicalPortCommand"));
-    assertThat(((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNmsPortId(),
-        is("00:00/port2"));
+    assertThat(
+      ((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNmsPortId(),
+      is("00:00/port2"));
   }
 
   @Test
-  public void updateShouldGoToFreePortsAndShowMessage() {
-    RedirectAttributes model = new ModelStub();
-    PhysicalPort port = new PhysicalPortFactory().create();
-    BindingResult result = new BeanPropertyBindingResult(port, "physicalPort");
+  public void updateShouldGoToFreePortsAndShowMessage() throws Exception {
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
 
-    when(physicalPortServiceMock.findByNmsPortId(port.getNmsPortId())).thenReturn(port);
-    when(messageRetriever.getMessageWithBoldArguments(eq("info_physicalport_updated"), (String[]) anyVararg()))
-        .thenReturn("test message");
+    when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(port.getPhysicalResourceGroup());
+    when(messageRetriever.getMessageWithBoldArguments(
+        "info_physicalport_updated", "NOC port", port.getPhysicalResourceGroup().getName()))
+      .thenReturn("expectedMessage");
 
-    String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);
+    mockMvc.perform(put("/noc/physicalports")
+        .param("version", "0")
+        .param("nmsPortId", "12")
+        .param("nocLabel", "NOC port")
+        .param("bodPortId", "2-2")
+        .param("managerLabel", "Manager port")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:physicalports"))
+      .andExpect(flash().attribute("infoMessages", hasItem("expectedMessage")));
 
-    assertThat(page, is("redirect:physicalports"));
+    assertThat(port.getNocLabel(), is("NOC port"));
+    assertThat(port.getManagerLabel(), is("Manager port"));
 
     verify(physicalPortServiceMock).save(port);
+  }
+
+  @Test
+  public void updateWithoutManagerLabelShouldClearManagerLabel() throws Exception {
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
+
+    when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(port.getPhysicalResourceGroup());
+
+    mockMvc.perform(put("/noc/physicalports")
+        .param("version", "0")
+        .param("nmsPortId", "12")
+        .param("nocLabel", "NOC port")
+        .param("bodPortId", "2-2")
+        .param("managerLabel", "")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isMovedTemporarily());
+
+    assertThat(port.getManagerLabel(), is("NOC port"));
+
+    verify(physicalPortServiceMock).save(port);
+  }
+
+  @Test
+  public void updateWithErrorsShouldGoBackToForm() throws Exception {
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
+
+    mockMvc.perform(put("/noc/physicalports")
+        .param("version", "0")
+        .param("nmsPortId", "12")
+        .param("nocLabel", "")
+        .param("managerLabel", "")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isOk())
+      .andExpect(model().attributeExists("createPhysicalPortCommand"))
+      .andExpect(view().name("physicalports/update"));
+
+    verify(physicalPortServiceMock, never()).save(port);
   }
 
   @Test
@@ -210,9 +265,10 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
 
-    mockMvc.perform(delete("/noc/physicalports/delete").param("id", nmsPortId).param("page", "3")).andExpect(
-        status().isMovedTemporarily()).andExpect(model().attribute(PAGE_KEY, is("3"))).andExpect(
-        view().name("redirect:"));
+    mockMvc.perform(delete("/noc/physicalports/delete").param("id", nmsPortId).param("page", "3"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(model().attribute(PAGE_KEY, is("3")))
+      .andExpect(view().name("redirect:"));
 
     verify(physicalPortServiceMock).deleteByNmsPortId(nmsPortId);
   }
@@ -221,8 +277,9 @@ public class PhysicalPortControllerTest {
   public void addPhysicalPortFormWithoutExistingPhysicalResourceGroup() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1")).andExpect(status().isMovedTemporarily())
-        .andExpect(view().name("redirect:/"));
+    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/"));
   }
 
   @Test
@@ -231,12 +288,12 @@ public class PhysicalPortControllerTest {
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     when(messageRetriever.getMessageWithBoldArguments(eq("info_physicalport_updated"), (String[]) anyVararg()))
-        .thenReturn("test message");
+      .thenReturn("test message");
 
-    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1")) //
-        .andExpect(status().isMovedTemporarily()) //
-        .andExpect(view().name("redirect:/noc/institutes"))//
-        .andExpect(flash().<Collection<?>> attribute(MessageManager.INFO_MESSAGES_KEY, hasSize(1)));
+    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/noc/institutes"))
+      .andExpect(flash().<Collection<?>> attribute(MessageManager.INFO_MESSAGES_KEY, hasSize(1)));
   }
 
   @Test
@@ -244,14 +301,17 @@ public class PhysicalPortControllerTest {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findUnallocated()).thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
 
-    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1")).andExpect(status().isOk()).andExpect(
-        model().attributeExists("addPhysicalPortCommand", "unallocatedPhysicalPorts"));
+    mockMvc.perform(get("/noc/physicalports/add").param("prg", "1"))
+      .andExpect(status().isOk())
+      .andExpect(model().attributeExists("addPhysicalPortCommand", "unallocatedPhysicalPorts"));
   }
 
   @Test
   public void addPhysicalPortWithoutPostData() throws Exception {
-    mockMvc.perform(post("/noc/physicalports/add")).andExpect(status().isOk()).andExpect(model().hasErrors())
-        .andExpect(view().name("physicalports/addPhysicalPort"));
+    mockMvc.perform(post("/noc/physicalports/add"))
+      .andExpect(status().isOk())
+      .andExpect(model().hasErrors())
+      .andExpect(view().name("physicalports/addPhysicalPort"));
   }
 
   @Test
@@ -262,16 +322,82 @@ public class PhysicalPortControllerTest {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
 
-    mockMvc.perform(
-        post("/noc/physicalports/add").param("nmsPortId", nmsPortId).param("nocLabel", "NOC port").param("bodPortId",
-            "2-2").param("managerLabel", "Manager port").param("physicalResourceGroup", "1")).andExpect(
-        status().isMovedTemporarily()).andExpect(model().hasNoErrors()).andExpect(
-        view().name("redirect:/noc/institutes"));
+    mockMvc.perform(post("/noc/physicalports/add")
+        .param("nmsPortId", nmsPortId)
+        .param("nocLabel", "NOC port")
+        .param("bodPortId", "2-2")
+        .param("managerLabel", "Manager port")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(model().hasNoErrors())
+      .andExpect(view().name("redirect:/noc/institutes"));
 
     assertThat(port.getManagerLabel(), is("Manager port"));
     assertThat(port.getNocLabel(), is("NOC port"));
 
     verify(physicalPortServiceMock).save(port);
+  }
+
+  @Test
+  public void addPhysicalPortWithoutManagerLabel() throws Exception {
+    String nmsPortId = "00-BB_ETH0";
+    PhysicalPort port = new PhysicalPortFactory().withNoId().setNocLabel("").setManagerLabel("Manager label").create();
+
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
+    when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
+
+    mockMvc.perform(post("/noc/physicalports/add")
+        .param("nmsPortId", nmsPortId)
+        .param("nocLabel", "NOC port")
+        .param("bodPortId", "2-2")
+        .param("managerLabel", "")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(model().hasNoErrors())
+      .andExpect(view().name("redirect:/noc/institutes"));
+
+    assertThat(port.getManagerLabel(), is("NOC port"));
+    assertThat(port.getNocLabel(), is("NOC port"));
+
+    verify(physicalPortServiceMock).save(port);
+  }
+
+  @Test
+  public void moveWithNonExistingPhysicalPortId() throws Exception {
+    when(physicalPortServiceMock.find(8L)).thenReturn(null);
+
+    mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem(containsString("Could not find"))))
+      .andExpect(view().name("redirect:/noc/physicalports"));
+  }
+
+  @Test
+  public void movePhysicalPortWithNoAvailableUnallocatedPorts() throws Exception {
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    when(physicalPortServiceMock.find(8L)).thenReturn(port);
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<PhysicalPort>emptyList());
+    when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated")).thenReturn("expectedMessage");
+
+    mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem("expectedMessage")))
+      .andExpect(view().name("redirect:/noc/physicalports"));
+  }
+
+  @Test
+  public void movePhysicalPort() throws Exception {
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    when(physicalPortServiceMock.find(8L)).thenReturn(port);
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(Lists.newArrayList(new PhysicalPortFactory().create()));
+
+    mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
+      .andExpect(status().isOk())
+      .andExpect(model().attributeExists("relatedObjects", "movePhysicalPortCommand"))
+      .andExpect(model().attribute("physicalPort", port))
+      .andExpect(view().name("physicalports/move"));
   }
 
 }

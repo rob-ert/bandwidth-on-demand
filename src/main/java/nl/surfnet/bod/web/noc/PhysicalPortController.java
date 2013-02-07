@@ -137,17 +137,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     }
 
     PhysicalPort port = physicalPortService.findByNmsPortId(addCommand.getNmsPortId());
-    if (!Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
+
+    if (Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
+      port.setManagerLabel(null);
+    } else {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
     port.setNocLabel(addCommand.getNocLabel());
     port.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
-    if (addCommand.getManagerLabel() == null || addCommand.getManagerLabel().isEmpty()) {
-      port.setManagerLabel(null);
-    }
-    else {
-      port.setManagerLabel(addCommand.getManagerLabel());
-    }
     port.setBodPortId(addCommand.getBodPortId());
 
     physicalPortService.save(port);
@@ -171,8 +168,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     portToSave.setNocLabel(command.getNocLabel());
     portToSave.setBodPortId(command.getBodPortId());
-    if (Strings.emptyToNull(command.getManagerLabel()) != null) {
+
+    if (!Strings.isNullOrEmpty(command.getManagerLabel())) {
       portToSave.setManagerLabel(command.getManagerLabel());
+    } else {
+      portToSave.setManagerLabel(null);
     }
 
     physicalPortService.save(portToSave);
@@ -354,7 +354,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
     if (unallocatedPorts.isEmpty()) {
       messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated");
-      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
+      return "redirect:/noc/physicalports";
     }
 
     long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);
