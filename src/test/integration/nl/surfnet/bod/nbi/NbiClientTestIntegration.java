@@ -65,14 +65,14 @@ public class NbiClientTestIntegration {
   private NbiClient nbiClient;
 
   @Test
-  public void testFindAllPhysicalPorts() throws Exception {
+  public void testFindAllPhysicalPorts() throws PortNotAvailableException {
     List<PhysicalPort> allPorts = nbiClient.findAllPhysicalPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
 
   @Test
-  public void testFindPhysicalPortByNmsPortId() throws Exception {
+  public void testFindPhysicalPortByNmsPortId() throws PortNotAvailableException {
     PhysicalPort firstPort = nbiClient.findAllPhysicalPorts().get(0);
 
     PhysicalPort foundPort = nbiClient.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
