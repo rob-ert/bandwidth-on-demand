@@ -157,7 +157,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid CreatePhysicalPortCommand command, BindingResult result, Model model,
-      final RedirectAttributes redirectAttributes) {
+      RedirectAttributes redirectAttributes) {
 
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
@@ -165,6 +165,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     }
 
     PhysicalPort portToSave = physicalPortService.findByNmsPortId(command.getNmsPortId());
+
+    if (portToSave == null) {
+      return "redirect:";
+    }
+
     portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     portToSave.setNocLabel(command.getNocLabel());
     portToSave.setBodPortId(command.getBodPortId());
@@ -317,11 +322,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final String nmsPortId, final Model model) {
-    PhysicalPort port;
-    try {
-      port = physicalPortService.findByNmsPortId(nmsPortId);
-    }
-    catch (IllegalStateException e) {
+
+    PhysicalPort port = physicalPortService.findByNmsPortId(nmsPortId);
+
+    if (port == null) {
       return "redirect:";
     }
 
@@ -419,7 +423,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)

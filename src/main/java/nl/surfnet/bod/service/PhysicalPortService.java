@@ -61,14 +61,14 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
+ *
  */
 @Service
 public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
@@ -161,29 +161,27 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPortRepo.count(UNALIGNED_PORT_SPEC);
   }
 
+  /**
+   * @return could return null if port does not exist in db nor in NBI
+   */
   public PhysicalPort findByNmsPortId(final String nmsPortId) {
-    PhysicalPort nbiPort = null;
-    try {
-      nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
-    }
-    catch (PortNotAvailableException e) {
-      // No action
-    }
     PhysicalPort repoPort = physicalPortRepo.findByNmsPortId(nmsPortId);
 
-    if (nbiPort != null && repoPort != null) {
-      enrichPortWithPort(nbiPort, repoPort);
-      return nbiPort;
+    try {
+      PhysicalPort nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
+      return repoPort == null ? nbiPort : enrichPortWithPort(nbiPort, repoPort);
     }
-    else {
+    catch (PortNotAvailableException e) {
+      logger.warn("Could not find port in NBI with NMS Port ID {}", nmsPortId);
       return repoPort;
     }
+
   }
 
   /**
    * Deletes the specified port and all its related objects like the mapped
    * {@link VirtualPort}s, and {@link Reservation}s
-   * 
+   *
    * @param nmsPortId
    *          NmsPort of the port
    */
@@ -224,7 +222,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -319,7 +317,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   * 
+   *
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -349,16 +347,16 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
    *          The data to enrich with.
    */
-  private void enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
+  private PhysicalPort enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
     Preconditions.checkNotNull(portToEnrich);
     Preconditions.checkNotNull(dataPort);
 
@@ -368,6 +366,8 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     portToEnrich.setNocLabel(dataPort.getNocLabel());
     portToEnrich.setManagerLabel(dataPort.getManagerLabel());
     portToEnrich.setBodPortId(dataPort.getBodPortId());
+
+    return portToEnrich;
   }
 
   @Override
@@ -377,7 +377,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Determines the label to log for the given Role
-   * 
+   *
    * @param bodRole
    *          Role
    * @param physicalPort

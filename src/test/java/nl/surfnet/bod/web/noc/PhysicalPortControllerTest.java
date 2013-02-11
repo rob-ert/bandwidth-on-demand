@@ -28,7 +28,10 @@ import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.base.MessageManager.INFO_MESSAGES_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyVararg;
@@ -52,12 +55,10 @@ import java.util.Collections;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.*;
-import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
-import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
 import nl.surfnet.bod.web.noc.PhysicalPortController.PhysicalPortFilter;
 
 import org.junit.Before;
@@ -70,7 +71,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.ui.Model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -177,18 +177,23 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void updateForm() {
-    Model model = new ModelStub();
+  public void updateForm() throws Exception {
     PhysicalPort port = new PhysicalPortFactory().setNmsPortId("00:00/port2").create();
 
     when(physicalPortServiceMock.findByNmsPortId("00:00/port2")).thenReturn(port);
 
-    subject.updateForm("00:00/port2", model);
+    mockMvc.perform(get("/noc/physicalports/edit").param("id", "00:00/port2"))
+      .andExpect(status().isOk())
+      .andExpect(model().attributeExists("createPhysicalPortCommand"));
+  }
 
-    assertThat(model.asMap(), hasKey("createPhysicalPortCommand"));
-    assertThat(
-      ((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNmsPortId(),
-      is("00:00/port2"));
+  @Test
+  public void updateFormWithNonExistingPortId() throws Exception {
+    when(physicalPortServiceMock.findByNmsPortId("00:00/port2")).thenReturn(null);
+
+    mockMvc.perform(get("/noc/physicalports/edit").param("id", "00:00/port2"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:"));
   }
 
   @Test
@@ -256,6 +261,22 @@ public class PhysicalPortControllerTest {
       .andExpect(view().name("physicalports/update"));
 
     verify(physicalPortServiceMock, never()).save(port);
+  }
+
+  @Test
+  public void updateWithNonExistingPort() throws Exception {
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
+    when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(null);
+
+    mockMvc.perform(put("/noc/physicalports")
+        .param("version", "0")
+        .param("nmsPortId", "12")
+        .param("bodPortId", "2-2")
+        .param("nocLabel", "NOC label")
+        .param("managerLabel", "")
+        .param("physicalResourceGroup", "1"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:"));
   }
 
   @Test
