@@ -66,7 +66,8 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  public void test() {
+  @Ignore("For troubleshooting")
+  public void justPrintTheInventory() {
     RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getRfsInventory();
 
     for (ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
