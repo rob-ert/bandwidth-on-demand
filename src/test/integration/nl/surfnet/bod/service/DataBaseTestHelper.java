@@ -23,143 +23,130 @@
 package nl.surfnet.bod.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+
 public final class DataBaseTestHelper {
 
-  public static final String DB_DRIVER_CLASS = "jdbc.driverClass";
-  public static final String DB_PASS = "jdbc.password";
-  public static final String DB_URL = "jdbc.jdbcUrl";
-  public static final String DB_USER = "jdbc.user";
+  private static final String DB_DRIVER_CLASS_KEY = "jdbc.driverClass";
+  private static final String DB_PASS_KEY = "jdbc.password";
+  private static final String DB_URL_KEY = "jdbc.jdbcUrl";
+  private static final String DB_USER_KEY = "jdbc.user";
 
-  public static final InputStream PROP_DEFAULT = DataBaseTestHelper.class
-      .getResourceAsStream("/bod-default.properties");
-  public static final InputStream PROP_BOD = DataBaseTestHelper.class.getResourceAsStream("/bod.properties");
-  public static final InputStream PROP_SELENIUM = DataBaseTestHelper.class
-      .getResourceAsStream("/bod-selenium.properties");
-
-  private static Properties props;
+  private static final List<String> TABLES_THAT_SHOULD_NOT_BE_TRUNCATED = ImmutableList.of("schema_version", "institute");
 
   private static final Logger logger = LoggerFactory.getLogger(DataBaseTestHelper.class);
 
   private DataBaseTestHelper() {
-  };
+  }
 
   public static void clearSeleniumDatabaseSkipBaseData() {
-    String dbUrl = getProperty(DB_URL, PROP_DEFAULT, PROP_SELENIUM);
-    String dbUser = getProperty(DB_USER, PROP_DEFAULT, PROP_SELENIUM);
-    String dbPassword = getProperty(DB_PASS, PROP_DEFAULT, PROP_SELENIUM);
-    String dbDriverClass = getProperty(DB_DRIVER_CLASS, PROP_DEFAULT, PROP_SELENIUM);
+    Properties props = getSeleniumProperties();
 
-    clearDatabaseSkipBaseData(dbUrl, dbUser, dbPassword, dbDriverClass);
+    clearDatabaseAndSkipBaseData(
+      props.getProperty(DB_URL_KEY),
+      props.getProperty(DB_USER_KEY),
+      props.getProperty(DB_PASS_KEY),
+      props.getProperty(DB_DRIVER_CLASS_KEY));
+  }
+
+  private static Properties getSeleniumProperties() {
+    Properties props = new Properties();
+    try {
+      props.load(DataBaseTestHelper.class.getResourceAsStream("/bod-selenium.properties"));
+      return props;
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static void clearIntegrationDatabaseSkipBaseData() {
-    clearDatabaseSkipBaseData(
+    clearDatabaseAndSkipBaseData(
       IntegrationDbConfiguration.DB_URL,
       IntegrationDbConfiguration.DB_USER,
       IntegrationDbConfiguration.DB_PASSWORD,
       IntegrationDbConfiguration.DB_DRIVER_CLASS);
   }
 
-  private static void clearDatabaseSkipBaseData(String dbUrl, String dbUser, String dbPassword, String dbDriverClass) {
-    Connection connection = createDbConnection(dbUrl, dbUser, dbPassword, dbDriverClass);
+  private static void clearDatabaseAndSkipBaseData(String dbUrl, String dbUser, String dbPassword, String dbDriverClass) {
 
-    String truncateQuery;
-    Statement statement = null;
-    try {
-      truncateQuery = createDeleteQueriesWithoutBaseData(connection);
-      statement = connection.createStatement();
-      statement.executeUpdate(truncateQuery);
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-    finally {
-      try {
-        if (statement != null) {
-          statement.close();
-        }
+    try (Connection connection = createDbConnection(dbUrl, dbUser, dbPassword, dbDriverClass)) {
 
-        if (connection != null) {
-          connection.close();
-        }
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    logger.warn("Cleared database [{}], deleted tables: {}", dbUrl, truncateQuery);
-  }
-
-  private static Connection createDbConnection(String dbUrl, String dbUser, String dbPass, String dbDriverClass) {
-
-    Connection dbConnection = null;
-
-    try {
-      Class.forName(dbDriverClass).newInstance();
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    try {
-      dbConnection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-
-    return dbConnection;
-  }
-
-  private static String createDeleteQueriesWithoutBaseData(Connection connection) throws SQLException {
-    StringBuilder truncateQuery = new StringBuilder("TRUNCATE ");
-
-    ResultSet tables = connection.getMetaData().getTables(null, null, "%", new String[] { "TABLE" });
-    String tableName = null;
-    while (tables.next()) {
-      tableName = tables.getString(3);
-      if ("schema_version".equals(tableName) || "institute".equals(tableName)) {
-        logger.debug("Skipping truncate of table to preserve data: {}", tableName);
+      List<String> tablesToTruncate = getTablesToTruncate(connection);
+      if (tablesToTruncate.isEmpty()) {
+        logger.warn("Database [{}] has no tables, nothing to truncate", dbUrl);
       }
       else {
-        truncateQuery.append(tableName).append(", ");
+        truncateTables(tablesToTruncate, connection);
+        logger.warn("Cleared database [{}], truncated tables: {}", dbUrl, tablesToTruncate);
       }
     }
-    return StringUtils.removeEnd(truncateQuery.toString(), ", ").concat(" CASCADE");
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  private static String getProperty(String key, InputStream... propertyFiles) {
+  private static void truncateTables(Collection<String> tables, Connection connection) {
+    try (Statement statement = connection.createStatement()) {
+      statement.executeUpdate(createTruncateQuery(tables));
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-    if (props == null) {
-      props = new Properties();
+  private static Connection createDbConnection(String dbUrl, String dbUser, String dbPass, String dbDriverClass) throws SQLException {
       try {
-        for (final InputStream is : propertyFiles) {
-          props.load(is);
-        }
+        Class.forName(dbDriverClass).newInstance();
       }
-      catch (IOException e) {
+      catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
+
+      return DriverManager.getConnection(dbUrl, dbUser, dbPass);
+  }
+
+  private static List<String> getTablesToTruncate(Connection connection) {
+    List<String> result = new ArrayList<>();
+
+    try (ResultSet tables = getTables(connection)) {
+      while (tables.next()) {
+        String tableName = tables.getString(3);
+        if (!TABLES_THAT_SHOULD_NOT_BE_TRUNCATED.contains(tableName)) {
+          result.add(tableName);
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
-    // Try to get key from environement, is not present use from properties
-    return (System.getProperty(key, props.getProperty(key)));
+    return result;
   }
+
+  private static String createTruncateQuery(Collection<String> tables) {
+    StringBuilder truncateQuery = new StringBuilder("TRUNCATE ");
+
+    truncateQuery.append(Joiner.on(", ").join(tables));
+
+    truncateQuery.append(" CASCADE");
+
+    return truncateQuery.toString();
+  }
+
+  private static ResultSet getTables(Connection connection) throws SQLException {
+    return connection.getMetaData().getTables(null, null, "%", new String[] { "TABLE" });
+  }
+
 }

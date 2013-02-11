@@ -56,13 +56,8 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 public class BodWebDriver {
 
-  public static final String URL_UNDER_TEST = withoutEndingSlash(System.getProperty("selenium.test.url",
-      "http://localhost:8083/bod"));
-
-  public static final String DB_URL = "jdbc.jdbcUrl";
-  public static final String DB_USER = "jdbc.user";
-  public static final String DB_PASS = "jdbc.password";
-  public static final String DB_DRIVER_CLASS = "jdbc.driverClass";
+  public static final String URL_UNDER_TEST = withoutEndingSlash(
+    System.getProperty("selenium.test.url", "http://localhost:8083/bod"));
 
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
