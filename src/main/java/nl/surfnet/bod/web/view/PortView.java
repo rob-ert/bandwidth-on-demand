@@ -80,49 +80,64 @@ public class PortView {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     PortView other = (PortView) obj;
     if (bodPortId == null) {
-      if (other.bodPortId != null)
+      if (other.bodPortId != null) {
         return false;
+      }
     }
-    else if (!bodPortId.equals(other.bodPortId))
+    else if (!bodPortId.equals(other.bodPortId)) {
       return false;
+    }
     if (institute == null) {
-      if (other.institute != null)
+      if (other.institute != null) {
         return false;
+      }
     }
-    else if (!institute.equals(other.institute))
+    else if (!institute.equals(other.institute)) {
       return false;
+    }
     if (managerLabel == null) {
-      if (other.managerLabel != null)
+      if (other.managerLabel != null) {
         return false;
+      }
     }
-    else if (!managerLabel.equals(other.managerLabel))
+    else if (!managerLabel.equals(other.managerLabel)) {
       return false;
+    }
     if (physicalPortManagerLabel == null) {
-      if (other.physicalPortManagerLabel != null)
+      if (other.physicalPortManagerLabel != null) {
         return false;
+      }
     }
-    else if (!physicalPortManagerLabel.equals(other.physicalPortManagerLabel))
+    else if (!physicalPortManagerLabel.equals(other.physicalPortManagerLabel)) {
       return false;
+    }
     if (physicalPortNocLabel == null) {
-      if (other.physicalPortNocLabel != null)
+      if (other.physicalPortNocLabel != null) {
         return false;
+      }
     }
-    else if (!physicalPortNocLabel.equals(other.physicalPortNocLabel))
+    else if (!physicalPortNocLabel.equals(other.physicalPortNocLabel)) {
       return false;
+    }
     if (userLabel == null) {
-      if (other.userLabel != null)
+      if (other.userLabel != null) {
         return false;
+      }
     }
-    else if (!userLabel.equals(other.userLabel))
+    else if (!userLabel.equals(other.userLabel)) {
       return false;
+    }
     return true;
   }
 

@@ -41,9 +41,8 @@ public class PhysicalPortView {
   private final String nmsNeId;
   private final String nmsPortSpeed;
   private final String nmsSapName;
-  
-  private int reservationsAmount;
 
+  private int reservationsAmount;
 
   public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
     this.id = physicalPort.getId();
@@ -125,6 +124,30 @@ public class PhysicalPortView {
     return alignedWithNMS;
   }
 
+  public final String getNmsNeId() {
+    return nmsNeId;
+  }
+
+  public final String getNmsPortSpeed() {
+    return nmsPortSpeed;
+  }
+
+  public final String getNmsSapName() {
+    return nmsSapName;
+  }
+
+  public final int getReservationsAmount() {
+    return reservationsAmount;
+  }
+
+  public final void setReservationsAmount(int reservationsAmount) {
+    this.reservationsAmount = reservationsAmount;
+  }
+
+  public final void setDeleteRender(boolean deleteRender) {
+    this.deleteRender = deleteRender;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -154,92 +177,90 @@ public class PhysicalPortView {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     PhysicalPortView other = (PhysicalPortView) obj;
-    if (alignedWithNMS != other.alignedWithNMS)
+    if (alignedWithNMS != other.alignedWithNMS) {
       return false;
+    }
     if (deleteActionView == null) {
-      if (other.deleteActionView != null)
+      if (other.deleteActionView != null) {
         return false;
+      }
     }
-    else if (!deleteActionView.equals(other.deleteActionView))
+    else if (!deleteActionView.equals(other.deleteActionView)) {
       return false;
-    if (deleteRender != other.deleteRender)
+    }
+    if (deleteRender != other.deleteRender) {
       return false;
+    }
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (managerLabel == null) {
-      if (other.managerLabel != null)
+      if (other.managerLabel != null) {
         return false;
+      }
     }
-    else if (!managerLabel.equals(other.managerLabel))
+    else if (!managerLabel.equals(other.managerLabel)) {
       return false;
+    }
     if (nmsPortId == null) {
-      if (other.nmsPortId != null)
+      if (other.nmsPortId != null) {
         return false;
+      }
     }
-    else if (!nmsPortId.equals(other.nmsPortId))
+    else if (!nmsPortId.equals(other.nmsPortId)) {
       return false;
+    }
     if (nocLabel == null) {
-      if (other.nocLabel != null)
+      if (other.nocLabel != null) {
         return false;
+      }
     }
-    else if (!nocLabel.equals(other.nocLabel))
+    else if (!nocLabel.equals(other.nocLabel)) {
       return false;
+    }
     if (numberOfVirtualPorts == null) {
-      if (other.numberOfVirtualPorts != null)
+      if (other.numberOfVirtualPorts != null) {
         return false;
+      }
     }
-    else if (!numberOfVirtualPorts.equals(other.numberOfVirtualPorts))
+    else if (!numberOfVirtualPorts.equals(other.numberOfVirtualPorts)) {
       return false;
+    }
     if (instituteName == null) {
-      if (other.instituteName != null)
+      if (other.instituteName != null) {
         return false;
+      }
     }
-    else if (!instituteName.equals(other.instituteName))
+    else if (!instituteName.equals(other.instituteName)) {
       return false;
+    }
     if (bodPortId == null) {
-      if (other.bodPortId != null)
+      if (other.bodPortId != null) {
         return false;
+      }
     }
-    else if (!bodPortId.equals(other.bodPortId))
+    else if (!bodPortId.equals(other.bodPortId)) {
       return false;
-    if (vlanRequired != other.vlanRequired)
+    }
+    if (vlanRequired != other.vlanRequired) {
       return false;
+    }
     return true;
-  }
-
-  public final String getNmsNeId() {
-    return nmsNeId;
-  }
-
-  public final String getNmsPortSpeed() {
-    return nmsPortSpeed;
-  }
-
-  public final String getNmsSapName() {
-    return nmsSapName;
-  }
-  
-  public final int getReservationsAmount() {
-    return reservationsAmount;
-  }
-
-  public final void setReservationsAmount(int reservationsAmount) {
-    this.reservationsAmount = reservationsAmount;
-  }
-
-  public final void setDeleteRender(boolean deleteRender) {
-    this.deleteRender = deleteRender;
   }
 
 }

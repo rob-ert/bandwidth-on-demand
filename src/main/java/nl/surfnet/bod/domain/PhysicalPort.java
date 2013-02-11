@@ -311,6 +311,7 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     builder.append(", alignedWithNMS=");
     builder.append(alignedWithNMS);
     builder.append("]");
+
     return builder.toString();
   }
 
@@ -325,25 +326,32 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     PhysicalPort other = (PhysicalPort) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (version == null) {
-      if (other.version != null)
+      if (other.version != null) {
         return false;
+      }
     }
-    else if (!version.equals(other.version))
+    else if (!version.equals(other.version)) {
       return false;
+    }
     return true;
   }
 

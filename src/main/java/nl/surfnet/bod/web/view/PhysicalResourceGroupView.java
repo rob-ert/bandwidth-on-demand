@@ -44,7 +44,7 @@ public class PhysicalResourceGroupView {
     this.active = physicalResourceGroup.isActive();
     this.managerEmail = physicalResourceGroup.getManagerEmail();
   }
-  
+
   public String getName() {
     return institute != null ? institute.getName() : null;
   }
@@ -133,49 +133,64 @@ public class PhysicalResourceGroupView {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     PhysicalResourceGroupView other = (PhysicalResourceGroupView) obj;
     if (active == null) {
-      if (other.active != null)
+      if (other.active != null) {
         return false;
+      }
     }
-    else if (!active.equals(other.active))
+    else if (!active.equals(other.active)) {
       return false;
+    }
     if (adminGroup == null) {
-      if (other.adminGroup != null)
+      if (other.adminGroup != null) {
         return false;
+      }
     }
     else if (!adminGroup.equals(other.adminGroup))
       return false;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (institute == null) {
-      if (other.institute != null)
+      if (other.institute != null) {
         return false;
+      }
     }
-    else if (!institute.equals(other.institute))
+    else if (!institute.equals(other.institute)) {
       return false;
+    }
     if (managerEmail == null) {
-      if (other.managerEmail != null)
+      if (other.managerEmail != null) {
         return false;
+      }
     }
-    else if (!managerEmail.equals(other.managerEmail))
+    else if (!managerEmail.equals(other.managerEmail)) {
       return false;
-    if (physicalPortsAmount != other.physicalPortsAmount)
+    }
+    if (physicalPortsAmount != other.physicalPortsAmount) {
       return false;
-    if (reservationsAmount != other.reservationsAmount)
+    }
+    if (reservationsAmount != other.reservationsAmount) {
       return false;
-    if (virtualPortsAmount != other.virtualPortsAmount)
+    }
+    if (virtualPortsAmount != other.virtualPortsAmount) {
       return false;
+    }
     return true;
   }
 
