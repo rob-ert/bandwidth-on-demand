@@ -39,8 +39,9 @@
                             </dt>
                             <dd>Show Shibboleth request attributes</dd>
                             <dt>
-                                <spring:url var="connections_url" value="appmanager/connections" />
-                                <spring:url var="illegal_connections_url" value="appmanager/connections/illegal" />
+                                <spring:url var="connections_url" value="/appmanager/connections" />
+                                <spring:url var="illegal_connections_url" value="/appmanager/connections/illegal" />
+
                                 <a href="${connections_url}">
                                     All Connections
                                 </a>
