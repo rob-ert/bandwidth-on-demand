@@ -92,7 +92,8 @@ public class DashboardControllerTest {
       .andExpect(status().isOk())
       .andExpect(view().name("appmanager/index"))
       .andExpect(flash().attributeCount(0))
-      .andExpect(model().size(3))
+      .andExpect(model().size(4))
+      .andExpect(model().attribute("healthcheck_url", DashboardController.HEALTH_CHECK_URL))
       .andExpect(model().attribute("refresh_searchindex_url", DashboardController.PAGE_URL + SEARCH_INDEX_PART))
       .andExpect(model().attribute("refresh_institutes_url", DashboardController.PAGE_URL + INSTITUTES_PART))
       .andExpect(model().attribute("show_shibboleth_info_url", DashboardController.PAGE_URL + SHIBBOLETH_INFO_PART));

@@ -44,6 +44,7 @@ public class DashboardController {
   private static final String REFRESH_PART = "/refresh/";
   private static final String SHOW_PART = "/show/";
 
+  static final String HEALTH_CHECK_URL = "/healthcheck";
   static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
   static final String INSTITUTES_PART = REFRESH_PART + "institutes";
   static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethattribs";
@@ -61,6 +62,7 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
+    model.addAttribute("healthcheck_url", HEALTH_CHECK_URL);
     model.addAttribute("refresh_searchindex_url", PAGE_URL + SEARCH_INDEX_PART);
     model.addAttribute("refresh_institutes_url", PAGE_URL + INSTITUTES_PART);
     model.addAttribute("show_shibboleth_info_url", PAGE_URL + SHIBBOLETH_INFO_PART);

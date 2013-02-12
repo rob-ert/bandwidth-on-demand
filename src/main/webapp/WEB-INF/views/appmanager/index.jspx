@@ -18,6 +18,15 @@
                         </div>
                         <dl class="dl">
                             <dt>
+                              <spring:url var="r_healthcheck_url" value="${healthcheck_url}" />
+                              <a href="${r_healthcheck_url}">
+                                  <spring:message code="label_healthcheck" />
+                              </a>
+                            </dt>
+                            <dd>
+                                Shows the healthstatus of external BoD systems
+                            </dd>
+                            <dt>
                                 <spring:url var="r_institutes_url" value="${refresh_institutes_url}" />
                                 <a href="${r_institutes_url}">
                                     <spring:message code="label_refresh_institutes" />
@@ -60,6 +69,11 @@
             <section>
                 <h2>Welcome to ${app_name}</h2>
                 <div class="content-dense">
+                    <h3>
+                        <spring:message code="label_healthcheck" />
+                    </h3>
+                    <p>This link performs a healthcheck on the external systems where BoD depends on and shows the result.
+                    This page is also checked by an external pary at a regular interval to ensure BoD is running smoothly and generate alarms if is does not.</p>
                     <h3>
                         <spring:message code="label_refresh_institutes" />
                     </h3>

@@ -36,6 +36,7 @@ public class AppManagerDashboardTestSelenium extends TestExternalSupport {
 
   @Test
   public void verifyLinks() {
+    getAppManagerDriver().verifyHealthCheckLink();
     getAppManagerDriver().verifyRefreshInstitutesLink();
     getAppManagerDriver().verifyReIndexSearchDatabaseLink();
     getAppManagerDriver().verifyShibbolethAttributesLink();

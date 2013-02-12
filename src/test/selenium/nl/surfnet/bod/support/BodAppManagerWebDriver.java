@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import nl.surfnet.bod.pages.appmanager.DashboardPage;
+import nl.surfnet.bod.pages.appmanager.HealthCheckPage;
 import nl.surfnet.bod.pages.appmanager.ShibbolethAttributesPage;
 
 import org.openqa.selenium.WebElement;
@@ -35,6 +36,15 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
 
   public BodAppManagerWebDriver(RemoteWebDriver driver) {
     this.driver = driver;
+  }
+
+  public void verifyHealthCheckLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    WebElement healthCheckLink = dashboardPage.findDataItem("health");
+    healthCheckLink.click();
+
+    HealthCheckPage healthCheckPage = HealthCheckPage.get(driver, URL_UNDER_TEST);
+    healthCheckPage.verifyIsCurrentPage();
   }
 
   public void verifyRefreshInstitutesLink() {
