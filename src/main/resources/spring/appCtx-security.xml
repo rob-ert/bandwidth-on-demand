@@ -31,7 +31,8 @@
     <http security="none" pattern="/healthcheck" />
     <http security="none" pattern="/mtosi/**" />
 
-    <http auto-config="true" use-expressions="true" entry-point-ref="preAuthEntryPoint">
+    <http use-expressions="true" entry-point-ref="forbiddenEntryPoint">
+        <anonymous enabled="false" />
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
         <intercept-url pattern="/appmanager/**" access="hasRole('APP_MANAGER')"/>
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
@@ -39,7 +40,7 @@
         <intercept-url pattern="/**" access="isAuthenticated()" />
     </http>
 
-    <beans:bean id="preAuthEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+    <beans:bean id="forbiddenEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
     <beans:bean id="preAuthenticatedProcessingFilter" class="nl.surfnet.bod.web.security.RequestHeaderAuthenticationFilter">
         <beans:property name="authenticationManager" ref="authenticationManager" />
