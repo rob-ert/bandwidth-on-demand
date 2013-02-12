@@ -76,7 +76,7 @@ public class PhysicalPortServiceImplTest {
 
   @Mock
   private LogEventService logEventService;
-  
+
   @Mock
   private SnmpAgentService snmpAgentService;
 
@@ -84,10 +84,10 @@ public class PhysicalPortServiceImplTest {
 
   @Before
   public void setUp() {
-    
+
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
         .create());
-    
+
     ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1").create(),
         new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory().setNmsPortId("3").create());
 
@@ -198,6 +198,18 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void deleteShouldCallDeleteOnRepo() {
     PhysicalPort port = new PhysicalPortFactory().create();
+
+    subject.delete(port);
+
+    verify(physicalPortRepoMock, only()).delete(port);
+  }
+
+  @Test
+  public void deleteOfUnalignedPortShouldOnlyDeleteOnRepo() throws PortNotAvailableException {
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    when(nbiClientMock.findPhysicalPortByNmsPortId(port.getNmsPortId())).thenThrow(
+        new PortNotAvailableException(port.getNmsPortId()));
 
     subject.delete(port);
 
