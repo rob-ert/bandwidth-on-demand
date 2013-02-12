@@ -49,6 +49,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
+  @Ignore("No ports left after filtering on adminState and operationalState")
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
@@ -76,7 +77,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  @Ignore
+  @Ignore("No ports left after filtering on adminState and operationalState")
   public void getUnallocatedPortsCount() {
     assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
   }

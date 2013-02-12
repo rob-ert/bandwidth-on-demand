@@ -42,6 +42,8 @@ import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
+import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
+import org.tmforum.mtop.sb.xsd.svc.v1.OperationalStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
@@ -131,28 +133,15 @@ public class InventoryRetrievalClient {
   }
 
   public List<PhysicalPort> getUnallocatedPorts() {
-    // [x] nmsPortId = sapList.sap.resourceRef.rdn.value where
-    // sapList.sap.resourceRef.rdn.type == PTP
-
-    // [x] nmsNEId = sapList.sap.resourceRef.rdn.value where
-    // sapList.sap.resourceRef.rdn.type == ME
-
-    // [x] nsmPortSpeed = sapList.sap.describedByList.value where
-    // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
-
-    // [x] bodPortId = spaList.sap.name
-
-    // [x] vlanRequired = true if sapList.sap.describedByList.value in (EVPL,
-    // EVPLAN) where sapList.sap.describedByList.sscRef.rdn.value ==
-    // SupportedServiceType
-
-    // [] nocLabel = nmsNeId + nmsPortId
-
-    // [] nmsNeId = will be human friendly name for NE + snmp ifalias
-
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
     for (final ServiceAccessPointType sap : getSapInventory().getSap()) {
+
+      // Only unlocked and enabled ports are ready to use
+      if ((AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
+        continue;
+      }
+
       final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
 
       String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
@@ -193,6 +182,7 @@ public class InventoryRetrievalClient {
       physicalPort.setSignalingType("NA");
 
       mtosiPorts.add(physicalPort);
+
     }
     return mtosiPorts;
   }
