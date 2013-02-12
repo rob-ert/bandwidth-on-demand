@@ -139,7 +139,7 @@ public class HealthCheckController {
       model.addAttribute("openConextApi", toBooleanValue(futures.get(3)));
     }
     catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error("Error during calling healthchecks", e);
     }
 
     return "healthcheck";
@@ -154,7 +154,7 @@ public class HealthCheckController {
       return healthFuture.isDone() && healthFuture.get();
     }
     catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
+      logger.error("Error during healthcheck", e);
       return false;
     }
   }
@@ -172,6 +172,7 @@ public class HealthCheckController {
     boolean result;
     try {
       result = check.healty();
+      logger.debug("Performed healthcheck for {}", check.getName());
     }
     catch (Exception e) {
       logger.error("Healthcheck failed: ", e);
