@@ -55,13 +55,12 @@ public class V1_6_0_2__MigrateLogEvents implements SpringJdbcMigration {
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
 
-    final Connection connection = jdbcTemplate.getDataSource().getConnection();
-
     try (
+      Connection connection = jdbcTemplate.getDataSource().getConnection();
       PreparedStatement queryLogEvent = connection
-          .prepareStatement("select * from log_event where domain_object_class is null OR domain_object_class = ''");
+        .prepareStatement("select * from log_event where domain_object_class is null OR domain_object_class = ''");
       PreparedStatement updateLogEvent = connection
-            .prepareStatement("update log_event set description = ?, domain_object_class = ? where id = ?");
+        .prepareStatement("update log_event set description = ?, domain_object_class = ? where id = ?");
       ResultSet resultSet = queryLogEvent.executeQuery();
     ) {
       while (resultSet.next()) {
