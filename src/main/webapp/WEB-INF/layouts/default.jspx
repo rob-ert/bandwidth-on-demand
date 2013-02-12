@@ -11,6 +11,7 @@
 
     <spring:message code="application_name" var="app_name" />
     <spring:url var="banner" value="/resources/images/surfnet_logo.gif" />
+    <spring:url var="favicon" value="/resources/images/favicon.ico" />
     <spring:url var="home" value="/" />
 
     <spring:message code="button_home" var="home_label" />
@@ -20,6 +21,8 @@
 
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="shortcut icon" href="${favicon}" />
 
         <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
 
