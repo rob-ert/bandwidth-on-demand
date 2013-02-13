@@ -41,7 +41,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  */
 @Entity
 @Indexed
@@ -159,7 +159,7 @@ public class Reservation implements Loggable, PersistableDomain {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   * 
+   *
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -185,7 +185,7 @@ public class Reservation implements Loggable, PersistableDomain {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   * 
+   *
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -205,7 +205,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   * 
+   *
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -214,7 +214,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   * 
+   *
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -242,7 +242,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   * 
+   *
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -251,7 +251,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -271,7 +271,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   * 
+   *
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -280,7 +280,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -298,7 +298,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   * 
+   *
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -307,7 +307,7 @@ public class Reservation implements Loggable, PersistableDomain {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   * 
+   *
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {

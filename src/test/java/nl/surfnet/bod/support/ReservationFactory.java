@@ -169,6 +169,7 @@ public class ReservationFactory {
   public ReservationFactory withNodId() {
     this.id = null;
     this.version = null;
+
     return this;
   }
 

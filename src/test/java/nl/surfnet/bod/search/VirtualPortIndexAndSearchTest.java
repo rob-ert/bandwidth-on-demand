@@ -31,7 +31,6 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.support.*;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,9 +41,7 @@ public class VirtualPortIndexAndSearchTest extends AbstractIndexAndSearch<Virtua
   }
 
   @Before
-  public void setUp() {
-    initEntityManager();
-
+  public void insertTestData() {
     Institute institute = new InstituteFactory().create();
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).withNoId().create();
     PhysicalPort pp = new PhysicalPortFactory().setPhysicalResourceGroup(prg).withNoId().create();
@@ -54,21 +51,16 @@ public class VirtualPortIndexAndSearchTest extends AbstractIndexAndSearch<Virtua
     persist(institute, prg, pp, vrg, virtualPort);
   }
 
-  @After
-  public void tearDown() {
-    closeEntityManager();
-  }
-
   @Test
   public void searchVirtualPortByName() throws ParseException {
-    List<VirtualPort> result = getSearchQuery("userLabel:\"unit-test-label\"");
+    List<VirtualPort> result = searchFor("userLabel:\"unit-test-label\"");
 
     assertThat(result, hasSize(1));
   }
 
   @Test
   public void searchVirtualPortByNameOfVirtualResourceGroup() throws ParseException {
-    List<VirtualPort> result = getSearchQuery("virtualResourceGroup.name:\"unit-test-vrg\"");
+    List<VirtualPort> result = searchFor("virtualResourceGroup.name:\"unit-test-vrg\"");
 
     assertThat(result, hasSize(1));
   }

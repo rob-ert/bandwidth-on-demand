@@ -32,8 +32,6 @@ import java.util.List;
 import nl.surfnet.bod.event.LogEvent;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
@@ -44,42 +42,33 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
     super(LogEvent.class);
   }
 
-  @Before
-  public void setUp() {
-    initEntityManager();
-    index();
-  }
-
-  @After
-  public void tearDown() {
-    closeEntityManager();
-  }
-
   @Test
   public void findByNonExistingStringShouldGiveNoLogEvents() throws ParseException {
-    List<LogEvent> logEvents = getSearchQuery("gamma");
+    List<LogEvent> logEvents = searchFor("gamma");
+
     assertThat(logEvents, hasSize(0));
   }
 
   @Test
   public void findLogEventsWithSpace() throws ParseException {
-    List<LogEvent> logEvents = getSearchQuery("NOC engineers");
+    List<LogEvent> logEvents = searchFor("NOC engineers");
+
     assertThat(logEvents, hasSize(2));
   }
 
   @Test
   public void findLogEventsByPartialString() throws Exception {
-    List<LogEvent> logEvents = getSearchQuery("klimaat1");
+    List<LogEvent> logEvents = searchFor("klimaat1");
     assertThat(logEvents, hasSize(1));
 
-    logEvents = getSearchQuery("klimaat");
+    logEvents = searchFor("klimaat");
     assertThat(logEvents, hasSize(2));
   }
 
   @Test
   public void findLogEventByAdminGroup() throws ParseException {
     final String adminGroup = "urn:surfguest:ict-managers";
-    List<LogEvent> logEvents = getSearchQuery("\"".concat(adminGroup).concat("\""));
+    List<LogEvent> logEvents = searchFor("\"".concat(adminGroup).concat("\""));
 
     assertThat(logEvents, hasSize(1));
     assertThat(Iterables.getOnlyElement(logEvents).getAdminGroups(), hasItem(adminGroup));
@@ -87,8 +76,8 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
 
   @Test
   public void findLogEventsByMultipleAdminGroups() throws ParseException {
-    List<LogEvent> firstLogEvents = getSearchQuery("\"urn:surfguest:oneusers\"");
-    List<LogEvent> secondLogEvents = getSearchQuery("\"urn:surfguest:twousers\"");
+    List<LogEvent> firstLogEvents = searchFor("\"urn:surfguest:oneusers\"");
+    List<LogEvent> secondLogEvents = searchFor("\"urn:surfguest:twousers\"");
 
     assertThat(Iterables.getOnlyElement(firstLogEvents), is(Iterables.getOnlyElement(secondLogEvents)));
   }

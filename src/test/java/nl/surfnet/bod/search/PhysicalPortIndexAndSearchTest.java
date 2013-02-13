@@ -31,8 +31,6 @@ import java.util.List;
 import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<PhysicalPort> {
@@ -41,51 +39,37 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     super(PhysicalPort.class);
   }
 
-  @Before
-  public void setUp() {
-    initEntityManager();
-  }
-
-  @After
-  public void tearDown() {
-    closeEntityManager();
-  }
-
   @Test
   public void testIndexAndSearch() throws Exception {
-    List<PhysicalPort> physicalPorts = getSearchQuery("ut");
-    assertThat("nothing indexed so nothing should be found", physicalPorts, hasSize(0));
 
-    index();
-
-    physicalPorts = getSearchQuery("gamma");
+    List<PhysicalPort> physicalPorts = searchFor("gamma");
     // (N.A.)
     assertThat(physicalPorts, hasSize(0));
 
-    physicalPorts = getSearchQuery("ut");
+    physicalPorts = searchFor("ut");
     // (UT One, UT Two)
     assertThat(physicalPorts, hasSize(2));
 
-    physicalPorts = getSearchQuery("Ut");
+    physicalPorts = searchFor("Ut");
     // (UT One, UT Two)
     assertThat(physicalPorts, hasSize(2));
 
-    physicalPorts = getSearchQuery("Mock");
+    physicalPorts = searchFor("Mock");
     // (All available (4) PP's)
     assertThat(physicalPorts, hasSize(4));
 
-    physicalPorts = getSearchQuery("ETH-1-13-4");
+    physicalPorts = searchFor("ETH-1-13-4");
     // (Noc label 4)
     assertThat(physicalPorts, hasSize(1));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 4 label"));
 
-    physicalPorts = getSearchQuery("OME");
+    physicalPorts = searchFor("OME");
     // (Mock_Ut002A_OME01_ETH-1-2-4, Mock_Ut001A_OME01_ETH-1-2-1)
     assertThat(physicalPorts, hasSize(2));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-1"));
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-2"));
 
-    physicalPorts = getSearchQuery("ETH-1-");
+    physicalPorts = searchFor("ETH-1-");
     // (All available (4) PP's)
     assertThat(physicalPorts, hasSize(4));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-1"));
@@ -93,7 +77,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.get(2).getNocLabel(), equalTo("Noc 3 label"));
     assertThat(physicalPorts.get(3).getNocLabel(), equalTo("Noc 4 label"));
 
-    physicalPorts = getSearchQuery("1");
+    physicalPorts = searchFor("1");
     // (All available (4) PP's)
     assertThat(physicalPorts, hasSize(4));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-1"));
@@ -101,12 +85,12 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.get(2).getNocLabel(), equalTo("Noc 3 label"));
     assertThat(physicalPorts.get(3).getNocLabel(), equalTo("Noc 4 label"));
 
-    physicalPorts = getSearchQuery("1de");
+    physicalPorts = searchFor("1de");
     // Mock_port 1de verdieping toren1a
     assertThat(physicalPorts, hasSize(1));
     assertThat(physicalPorts.get(0).getBodPortId(), equalTo("Mock_port 1de verdieping toren1a"));
 
-    physicalPorts = getSearchQuery("2de");
+    physicalPorts = searchFor("2de");
     // Mock_port 2de verdieping toren1b
     assertThat(physicalPorts, hasSize(1));
     assertThat(physicalPorts.get(0).getBodPortId(), equalTo("Mock_port 2de verdieping toren1b"));
@@ -114,8 +98,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
 
   @Test
   public void shouldNotCrashOnColon() throws ParseException {
-    index();
-    List<PhysicalPort> physicalPorts = getSearchQuery("nocLabel:\"Noc 3 label\"");
+    List<PhysicalPort> physicalPorts = searchFor("nocLabel:\"Noc 3 label\"");
 
     assertThat(physicalPorts, hasSize(1));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 3 label"));

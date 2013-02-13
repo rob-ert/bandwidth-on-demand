@@ -34,10 +34,12 @@ import nl.surfnet.bod.util.FullTextSearchContext;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.lucene.queryParser.ParseException;
+import org.junit.After;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractIndexAndSearch<T> {
+public abstract class AbstractIndexAndSearch<T> {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
 
@@ -49,16 +51,26 @@ public class AbstractIndexAndSearch<T> {
 
   private final TextSearchIndexer textSearchIndexer = new TextSearchIndexer();
 
+  @Before
+  public void setUp() {
+    initEntityManager();
+    index();
+  }
+
+  @After
+  public void tearDown() {
+    closeEntityManager();
+  }
+
   public AbstractIndexAndSearch(final Class<T> clazz) {
     this.clazz = clazz;
   }
 
-  protected void initEntityManager() {
+  private void initEntityManager() {
 
     try {
       // Suppressing the error messages during (test) creation of foreign keys.
-      final Level originalLevel = LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport"))
-          .getLevel();
+      Level originalLevel = LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).getLevel();
       LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.FATAL);
       entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
       entityManager = entityManagerFactory.createEntityManager();
@@ -76,12 +88,12 @@ public class AbstractIndexAndSearch<T> {
   }
 
   @SuppressWarnings("unchecked")
-  protected List<T> getSearchQuery(String query) throws ParseException {
+  protected List<T> searchFor(String query) throws ParseException {
     return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query)
         .getResultList();
   }
 
-  protected final void closeEntityManager() {
+  private final void closeEntityManager() {
     entityManagerFactory.close();
   }
 

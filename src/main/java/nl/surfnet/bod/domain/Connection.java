@@ -113,6 +113,7 @@ public class Connection implements Loggable, PersistableDomain {
 
   @OneToOne
   @JsonIgnore //prevent loop back to reservation
+  @ContainedIn
   private Reservation reservation;
 
   @OneToOne(cascade = CascadeType.ALL)
