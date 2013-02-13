@@ -22,12 +22,16 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -51,6 +55,9 @@ public class NbiMtosiClientTest {
   @Mock
   private ServiceComponentActivationClient serviceComponentActivationClient;
 
+  @Mock
+  private InventoryRetrievalClient inventoryRetrievalClient;
+
   private Reservation reservation;
 
   @Before
@@ -69,9 +76,16 @@ public class NbiMtosiClientTest {
     verify(serviceComponentActivationClient).reserve(createdReservation, true);
   }
 
-  @Test(expected = PortNotAvailableException.class)
-  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
-    subject.findPhysicalPortByNmsPortId("nonExisting");
-  }
+  @Test
+  public void findNonExistingPortByNmsIdShouldThrowUp() {
 
+    String nmsPortId = "9-9-9-9-9";
+    try {
+      subject.findPhysicalPortByNmsPortId(nmsPortId);
+      fail("Exception expected");
+    }
+    catch (PortNotAvailableException e) {
+      assertThat(e.getMessage(), containsString(MtosiUtils.nmsPortIdToPhysicalTerminationPoint(nmsPortId)));
+    }
+  }
 }

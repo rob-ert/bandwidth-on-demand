@@ -13,4 +13,9 @@ public class PortNotAvailableException extends Exception {
     return nmsPortId;
   }
 
+  @Override
+  public String getMessage() {
+    return "Could not find port with id: [".concat(nmsPortId).concat("]");
+  }
+
 }

@@ -31,10 +31,13 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
 
@@ -85,7 +88,24 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
-    throw new PortNotAvailableException(nmsPortId);
-  }
+    final String idToSearch = MtosiUtils.nmsPortIdToPhysicalTerminationPoint(nmsPortId);
 
+    Optional<PhysicalPort> port = Optional.absent();
+    List<PhysicalPort> portList = inventoryRetrievalClient.getUnallocatedPorts();
+    if (portList != null) {
+      port = Iterables.tryFind(portList,
+          new Predicate<PhysicalPort>() {
+            @Override
+            public boolean apply(PhysicalPort physicalPort) {
+              return idToSearch.equals(physicalPort.getNmsPortId());
+            }
+          });
+    }
+    if (port.isPresent()) {
+      return port.get();
+    }
+    else {
+      throw new PortNotAvailableException(idToSearch);
+    }
+  }
 }

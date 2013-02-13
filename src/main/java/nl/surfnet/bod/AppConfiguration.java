@@ -34,6 +34,7 @@ import javax.sql.DataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
@@ -42,6 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -70,8 +75,8 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod")
 @ImportResource({
-  "classpath:spring/appCtx-security.xml",
-  "classpath:spring/appCtx-ws.xml" })
+    "classpath:spring/appCtx-security.xml",
+    "classpath:spring/appCtx-ws.xml" })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
@@ -102,7 +107,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
     Resource[] resources = addEnvPropertyResource(new Resource[] {
-      new ClassPathResource("bod-default.properties")
+        new ClassPathResource("bod-default.properties")
     });
 
     logger.info("Using property files: {}", Joiner.on(",").join(resources));
@@ -166,10 +171,10 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
   @Bean
   public IddClient iddclient(
-    @Value("${idd.client.class}") String iddClientClass,
-    @Value("${idd.user}") String username,
-    @Value("${idd.password}") String password,
-    @Value("${idd.url}") String endPoint) {
+      @Value("${idd.client.class}") String iddClientClass,
+      @Value("${idd.user}") String username,
+      @Value("${idd.password}") String password,
+      @Value("${idd.url}") String endPoint) {
 
     try {
       return (IddClient) Class.forName(iddClientClass)
@@ -224,6 +229,17 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public List<String> nsaProviderUrns() {
     return Lists.newArrayList("urn:ogf:network:nsa:surfnet.nl");
+  }
+
+  @Bean
+  public CacheManager cacheManager() {
+    // configure and return an implementation of Spring's CacheManager SPI
+    SimpleCacheManager cacheManager = new SimpleCacheManager();
+    cacheManager.setCaches(Lists.newArrayList(new ConcurrentMapCache(InventoryRetrievalClient.CACHE_PORTS),
+        new ConcurrentMapCache(
+            InventoryRetrievalClient.CACHE_PORTS_COUNT)));
+
+    return cacheManager;
   }
 
   @SuppressWarnings("unchecked")

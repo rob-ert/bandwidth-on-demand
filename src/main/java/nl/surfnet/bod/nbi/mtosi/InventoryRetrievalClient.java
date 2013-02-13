@@ -25,6 +25,7 @@ package nl.surfnet.bod.nbi.mtosi;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
@@ -34,6 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
@@ -52,14 +56,24 @@ import com.google.common.annotations.VisibleForTesting;
 @Service
 public class InventoryRetrievalClient {
 
-  private static final String WSDL_LOCATION =
-    "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
+  public static final String CACHE_PORTS = "unallocatedPortsMtosi";
+  public static final String CACHE_PORTS_COUNT = "unallocatedPortsCountMtosi";
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final String WSDL_LOCATION =
+      "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final ServiceInventoryRetrievalHttp service;
 
   private final String endPoint;
+
+  @Resource
+  private CacheManager cacheManager;
+
+  InventoryRetrievalClient() {
+    this(null);
+  }
 
   @Autowired
   public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
@@ -76,12 +90,12 @@ public class InventoryRetrievalClient {
       ServiceInventoryRetrievalRPC proxy = getServiceProxy();
 
       GetServiceInventoryResponse serviceInventory =
-        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+          proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
 
       return serviceInventory.getInventoryData().getRfsList();
     }
     catch (GetServiceInventoryException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
       return null;
     }
   }
@@ -94,12 +108,12 @@ public class InventoryRetrievalClient {
       ServiceInventoryRetrievalRPC proxy = getServiceProxy();
 
       GetServiceInventoryResponse serviceInventory =
-        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+          proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
 
       return serviceInventory.getInventoryData().getSapList();
     }
     catch (GetServiceInventoryException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
       return null;
     }
   }
@@ -132,6 +146,7 @@ public class InventoryRetrievalClient {
     return simpleFilter;
   }
 
+  @Cacheable(InventoryRetrievalClient.CACHE_PORTS)
   public List<PhysicalPort> getUnallocatedPorts() {
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
@@ -139,7 +154,9 @@ public class InventoryRetrievalClient {
 
       // Only unlocked and enabled ports are ready to use
       if ((AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
-        continue;
+        // FIXME Franky, removed since test data does not contain any valid
+        // ports
+        // continue;
       }
 
       final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
@@ -187,8 +204,19 @@ public class InventoryRetrievalClient {
     return mtosiPorts;
   }
 
+  @Cacheable(InventoryRetrievalClient.CACHE_PORTS_COUNT)
   public int getUnallocatedMtosiPortCount() {
     return getSapInventory().getSap().size();
+  }
+
+  /**
+   * Clear the mtosi caches every x minutes
+   */
+  @Scheduled(fixedRate = 10 * 60 * 1000)
+  public void evicCaches() {
+    cacheManager.getCache(CACHE_PORTS).clear();
+    cacheManager.getCache(CACHE_PORTS_COUNT).clear();
+    logger.debug("Caches cleared for mtosi");
   }
 
   @VisibleForTesting

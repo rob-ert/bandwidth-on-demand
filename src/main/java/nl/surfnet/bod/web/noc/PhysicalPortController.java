@@ -140,7 +140,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     if (Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
       port.setManagerLabel(null);
-    } else {
+    }
+    else {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
     port.setNocLabel(addCommand.getNocLabel());
@@ -176,7 +177,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     if (!Strings.isNullOrEmpty(command.getManagerLabel())) {
       portToSave.setManagerLabel(command.getManagerLabel());
-    } else {
+    }
+    else {
       portToSave.setManagerLabel(null);
     }
 
@@ -301,28 +303,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return listUrl();
   }
 
-  @RequestMapping(value = "/mtosi", method = RequestMethod.GET)
-  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, final Model model) {
-
-    final List<PhysicalPortView> transformUnallocatedPhysicalPorts = Functions
-        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page),
-            MAX_ITEMS_PER_PAGE));
-
-    if (!StringUtils.hasText(sort)) {
-      sort = "nocLabel";
-    }
-    sortExternalResources(sort, order, model, transformUnallocatedPhysicalPorts);
-
-    model.addAttribute(DATA_LIST, transformUnallocatedPhysicalPorts);
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.MTOSI);
-    model.addAttribute(FILTER_LIST, getAvailableFilters());
-
-    return PAGE_URL + "/listunallocated";
-  }
-
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final String nmsPortId, final Model model) {
 
@@ -426,7 +406,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -583,7 +563,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   private List<PhysicalPortFilter> getAvailableFilters() {
     return Lists.newArrayList(PhysicalPortFilter.ALLOCATED, PhysicalPortFilter.UN_ALLOCATED,
-        PhysicalPortFilter.UN_ALIGNED, PhysicalPortFilter.MTOSI);
+        PhysicalPortFilter.UN_ALIGNED);
   }
 
   @Override
@@ -595,7 +575,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public static final PhysicalPortFilter ALLOCATED = new PhysicalPortFilter("Allocated", "/");
     public static final PhysicalPortFilter UN_ALLOCATED = new PhysicalPortFilter("Unllocated", "/free");
     public static final PhysicalPortFilter UN_ALIGNED = new PhysicalPortFilter("Unaligned", "/unaligned");
-    public static final PhysicalPortFilter MTOSI = new PhysicalPortFilter("OneControl (beta)", "/mtosi");
 
     private final String path;
     private final String name;
