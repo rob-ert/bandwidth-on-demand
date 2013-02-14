@@ -1,0 +1,1 @@
+ALTER TABLE physical_resource_group ALTER COLUMN manager_email SET NOT NULL;

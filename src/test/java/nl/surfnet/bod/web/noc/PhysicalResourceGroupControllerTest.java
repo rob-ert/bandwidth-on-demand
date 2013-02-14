@@ -32,6 +32,12 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,12 +52,14 @@ import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
 import nl.surfnet.bod.web.view.PhysicalResourceGroupView;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -82,21 +90,70 @@ public class PhysicalResourceGroupControllerTest {
   @Mock
   private ReservationService reservationServiceMock;
 
+  private MockMvc mockMvc;
+
+  @Before
+  public void setup() {
+    mockMvc = standaloneSetup(subject).build();
+  }
+
+  @Test
+  public void createPhysicalResrouceGroup() throws Exception {
+    mockMvc.perform(post("/noc/institutes")
+        .param("adminGroup", "urn:surfnet:diensten:uu-managers")
+        .param("instituteId", "2")
+        .param("managerEmail", "john@example.com")
+      )
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(model().hasNoErrors())
+      .andExpect(view().name("redirect:institutes"));
+
+    verify(physicalResourceGroupServiceMock).save(any(PhysicalResourceGroup.class));
+    verify(physicalResourceGroupServiceMock).sendActivationRequest(any(PhysicalResourceGroup.class));
+  }
+
+  @Test
+  public void createPhysicalResrouceGroupWithoutEmailShouldGiveError() throws Exception {
+    mockMvc.perform(post("/noc/institutes")
+        .param("adminGroup", "urn:surfnet:diensten:uu-managers")
+        .param("instituteId", "2")
+        .param("managerEmail", "")
+      )
+      .andExpect(status().isOk())
+      .andExpect(model().hasErrors())
+      .andExpect(view().name("noc/institutes/create"));
+
+    verify(physicalResourceGroupServiceMock, never()).save(any(PhysicalResourceGroup.class));
+  }
+
+  @Test
+  public void deleteWithValidIdShouldDelete() throws Exception {
+    when(physicalResourceGroupServiceMock.find(22L))
+      .thenReturn(new PhysicalResourceGroupFactory().setId(22L).create());
+
+    mockMvc.perform(delete("/noc/institutes/delete").param("id", "22"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:"));
+
+    verify(physicalResourceGroupServiceMock).delete(22L);
+  }
+
   @Test
   public void listShouldSetGroupsAndMaxPages() {
     Model model = new ModelStub();
-    final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    List<PhysicalResourceGroup> groups = Lists.newArrayList(physicalResourceGroup, new PhysicalResourceGroupFactory()
-        .create());
-    List<PhysicalResourceGroupView> groupViews = Lists
-        .newArrayList(new PhysicalResourceGroupView(physicalResourceGroup));
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+    List<PhysicalResourceGroup> groups = Lists.newArrayList(
+      physicalResourceGroup,
+      new PhysicalResourceGroupFactory().create());
+    List<PhysicalResourceGroupView> groupViews = Lists.newArrayList(
+      new PhysicalResourceGroupView(physicalResourceGroup));
     List<PhysicalPort> physicalPorts = Lists.newArrayList(physicalResourceGroup.getPhysicalPorts());
     List<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
     List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create());
 
-    when(
-        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(any(PhysicalResourceGroup.class),
-            anyInt(), anyInt(), any(Sort.class))).thenReturn(physicalPorts);
+    when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(
+        any(PhysicalResourceGroup.class), anyInt(), anyInt(), any(Sort.class))
+      ).thenReturn(physicalPorts);
     when(virtualPortServiceMock.findAllForPhysicalPort(any(PhysicalPort.class))).thenReturn(virtualPorts);
     when(reservationServiceMock.findActiveByPhysicalPort(any(PhysicalPort.class))).thenReturn(reservations);
     when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(groups);
@@ -104,8 +161,7 @@ public class PhysicalResourceGroupControllerTest {
     subject.list(1, null, null, model);
 
     @SuppressWarnings("unchecked")
-    final List<PhysicalResourceGroupView> physicalResourceGroupViews = (List<PhysicalResourceGroupView>) model.asMap()
-        .get("list");
+    List<PhysicalResourceGroupView> physicalResourceGroupViews = (List<PhysicalResourceGroupView>) model.asMap().get("list");
     assertThat(groupViews.get(0), is(physicalResourceGroupViews.get(0)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
@@ -114,8 +170,10 @@ public class PhysicalResourceGroupControllerTest {
   public void updateEmailOfPhysicalResourceGroupShouldSentActivationEmail() {
     RedirectAttributes redirectAttribs = new ModelStub();
     Model model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@example.com")
-        .setAdminGroup("urn:ict-manager").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory()
+      .setId(1L)
+      .setManagerEmail("old@example.com")
+      .setAdminGroup("urn:ict-manager").create();
 
     PhysicalResourceGroup changedGroup = new PhysicalResourceGroupFactory().setId(1L)
         .setManagerEmail("new@example.com").setAdminGroup("urn:ict-manager").create();

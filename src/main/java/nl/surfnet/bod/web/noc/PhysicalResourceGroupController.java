@@ -29,8 +29,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -86,12 +84,12 @@ public class PhysicalResourceGroupController extends
   @Resource
   private ReservationService reservationService;
 
-  @PersistenceContext
-  private EntityManager entityManager;
-
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult result,
-      final RedirectAttributes redirectAttributes, final Model model) {
+  public String create(
+    @Valid PhysicalResourceGroupCommand command,
+    BindingResult result,
+    RedirectAttributes redirectAttributes,
+    Model model) {
 
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
     command.copyFieldsTo(physicalResourceGroup);
@@ -182,22 +180,25 @@ public class PhysicalResourceGroupController extends
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) final Long id,
-      @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String delete(
+    @RequestParam(ID_KEY) Long id,
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    Model model) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
+
     for (PhysicalPort physicalPort : physicalResourceGroup.getPhysicalPorts()) {
-      final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
-      final RichUserDetails userDetails = Security.getUserDetails();
-      virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
+      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
+
+      virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
       physicalPortService.deleteByNmsPortId(physicalPort.getNmsPortId());
     }
-    entityManager.refresh(physicalResourceGroup);
+
     physicalResourceGroupService.delete(physicalResourceGroup.getId());
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
 
-    uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
+    model.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     // Force refresh of roles
     SecurityContextHolder.clearContext();

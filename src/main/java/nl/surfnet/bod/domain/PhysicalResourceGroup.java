@@ -61,6 +61,7 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
   @Field
   @NotEmpty
   @Email(message = "Not a valid email address")
+  @Column(nullable = false)
   private String managerEmail;
 
   @NotNull

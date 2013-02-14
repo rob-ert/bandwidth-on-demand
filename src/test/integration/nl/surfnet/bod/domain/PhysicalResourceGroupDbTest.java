@@ -34,7 +34,7 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.AppConfiguration;
-import nl.surfnet.bod.config.InMemoryDbConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -50,7 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, InMemoryDbConfiguration.class } )
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class PhysicalResourceGroupDbTest {
@@ -64,23 +64,18 @@ public class PhysicalResourceGroupDbTest {
   @Resource
   private InstituteRepo instituteRepo;
 
-  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().withNoIds().create();
-
   @Test
   public void countAllPhysicalResourceGroups() {
     long count = physicalResourceGroupService.count();
 
-    instituteRepo.save(physicalResourceGroup.getInstitute());
-    physicalResourceGroupService.save(physicalResourceGroup);
-    physicalResourceGroupRepo.flush();
+    persistNewPhysicalResourceGroup();
 
     assertThat(count + 1, is(physicalResourceGroupService.count()));
   }
 
   @Test
   public void findPhysicalResourceGroup() {
-    instituteRepo.save(physicalResourceGroup.getInstitute());
-    physicalResourceGroupService.save(physicalResourceGroup);
+    PhysicalResourceGroup physicalResourceGroup = persistNewPhysicalResourceGroup();
 
     PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
 
@@ -89,8 +84,8 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findPhysicalResourceGroupEntries() {
-    instituteRepo.save(physicalResourceGroup.getInstitute());
-    physicalResourceGroupService.save(physicalResourceGroup);
+    persistNewPhysicalResourceGroup();
+
     long count = physicalResourceGroupService.count();
 
     int maxResults = count > 20 ? 20 : (int) count;
@@ -102,8 +97,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void testUpdatePhysicalResourceGroupUpdate() {
-    instituteRepo.save(physicalResourceGroup.getInstitute());
-    physicalResourceGroupService.save(physicalResourceGroup);
+    PhysicalResourceGroup physicalResourceGroup = persistNewPhysicalResourceGroup();
 
     Integer initialVersion = physicalResourceGroup.getVersion();
 
@@ -119,12 +113,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void savePhysicalResourceGroup() {
-
-    assertThat(physicalResourceGroup.getId(), nullValue());
-    instituteRepo.save(physicalResourceGroup.getInstitute());
-    physicalResourceGroupService.save(physicalResourceGroup);
-
-    physicalResourceGroupRepo.flush();
+    PhysicalResourceGroup physicalResourceGroup = persistNewPhysicalResourceGroup();
 
     assertThat(physicalResourceGroup.getId(), greaterThan(0L));
   }
@@ -145,11 +134,21 @@ public class PhysicalResourceGroupDbTest {
 
   @Test(expected = ConstraintViolationException.class)
   public void physicalResourceGroupWithoutAEmailNotSave() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
-    instituteRepo.save(group.getInstitute());
-    group.setManagerEmail(null);
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setManagerEmail("").create();
 
+    instituteRepo.save(group.getInstitute());
     physicalResourceGroupService.save(group);
+
+    physicalResourceGroupRepo.flush();
+  }
+
+  private PhysicalResourceGroup persistNewPhysicalResourceGroup() {
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().withNoIds().create();
+    physicalResourceGroup.setInstitute(instituteRepo.save(physicalResourceGroup.getInstitute()));
+    physicalResourceGroupService.save(physicalResourceGroup);
+    physicalResourceGroupRepo.flush();
+
+    return physicalResourceGroup;
   }
 
 }
