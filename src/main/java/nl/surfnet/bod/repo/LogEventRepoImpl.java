@@ -54,17 +54,16 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   }
 
   private List<Long> findIds(Optional<Specification<LogEvent>> whereClause, Optional<Sort> sort) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+
+    criteriaQuery.select(root.get(LogEvent_.id));
 
     if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(LogEvent_.id)).where(
-          whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
     }
-    else {
-      criteriaQuery.select(root.get(LogEvent_.id));
-    }
+
     CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
@@ -72,9 +71,9 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
 
   @Override
   public List<Long> findDistinctDomainObjectIdsWithWhereClause(final Specification<LogEvent> whereClause) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
 
     criteriaQuery.distinct(true).select(root.get(LogEvent_.domainObjectId)).where(
         whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
@@ -89,9 +88,9 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
 
   @Override
   public Long findMaxIdWithWhereClause(final Specification<LogEvent> whereClause) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
 
     // Should actually be on created field, but since id is numbered
     // incrementally, the result will be the same

@@ -15,6 +15,13 @@
   <definition extends="appmanager" name="appmanager/connections/list">
     <put-attribute name="body" value="/WEB-INF/views/appmanager/connections/list.jspx" />
     <put-attribute name="active_menu" value="overview" cascade="true" />
+    <put-attribute name="search_enabled" value="true" cascade="true" />
+  </definition>
+
+  <definition extends="appmanager" name="appmanager/connections/list/illegal">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/connections/list.jspx" />
+    <put-attribute name="active_menu" value="overview" cascade="true" />
+    <put-attribute name="search_enabled" value="false" cascade="true" />
   </definition>
 
   <definition extends="appmanager" name="appmanager/mtosi/index">

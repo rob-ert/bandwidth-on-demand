@@ -45,16 +45,14 @@ public class VirtualPortRepoImpl implements CustomRepo<VirtualPort> {
 
   @Override
   public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualPort>> whereClause, Optional<Sort> sort) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<VirtualPort> root = criteriaQuery.from(VirtualPort.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<VirtualPort> root = criteriaQuery.from(VirtualPort.class);
+
+    criteriaQuery.select(root.get(VirtualPort_.id));
 
     if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(VirtualPort_.id)).where(
-          whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
-    }
-    else {
-      criteriaQuery.select(root.get(VirtualPort_.id));
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
     }
 
     CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);

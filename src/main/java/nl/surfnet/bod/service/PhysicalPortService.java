@@ -391,8 +391,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPort.getNocLabel();
   }
 
-  public List<Long> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
-      final Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
+  public List<Long> findIdsByRoleAndPhysicalResourceGroup(BodRole bodRole,
+      Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
+
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
 
       return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
@@ -407,11 +408,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
         return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent(), sort);
       }
     }
+
     return new ArrayList<>();
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(),
-        Optional.<PhysicalResourceGroup> absent(), sort);
+    return findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent(), sort);
   }
 }

@@ -45,16 +45,14 @@ public class PhysicalResourceGroupRepoImpl implements CustomRepo<PhysicalResourc
 
   @Override
   public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalResourceGroup>> whereClause, Optional<Sort> sort) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<PhysicalResourceGroup> root = criteriaQuery.from(PhysicalResourceGroup.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<PhysicalResourceGroup> root = criteriaQuery.from(PhysicalResourceGroup.class);
+
+    criteriaQuery.select(root.get(PhysicalResourceGroup_.id));
 
     if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(PhysicalResourceGroup_.id)).where(
-          whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
-    }
-    else {
-      criteriaQuery.select(root.get(PhysicalResourceGroup_.id));
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
     }
 
     CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);

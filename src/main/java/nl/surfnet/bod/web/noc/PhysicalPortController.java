@@ -213,9 +213,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
-  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, Model model) {
+  public String listUnallocated(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    Model model) {
 
     List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
         .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedEntries(calculateFirstPage(page),
@@ -252,10 +254,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
-  public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, //
-      Model model) {
+  public String listUnaligned(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    Model model) {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 

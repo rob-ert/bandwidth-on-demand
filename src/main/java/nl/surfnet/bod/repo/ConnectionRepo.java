@@ -31,7 +31,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConnectionRepo extends JpaSpecificationExecutor<Connection>, JpaRepository<Connection, Long> {
+public interface ConnectionRepo extends JpaSpecificationExecutor<Connection>, JpaRepository<Connection, Long>, CustomRepo<Connection> {
 
   Connection findByConnectionId(final String connectionId);
 

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -55,7 +58,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Service
-public class ConnectionService {
+public class ConnectionService extends AbstractFullTextSearchService<Connection> {
 
   protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
     new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
@@ -85,6 +88,9 @@ public class ConnectionService {
 
   @Resource
   private ConnectionServiceRequesterCallback connectionServiceRequester;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision,
@@ -277,6 +283,10 @@ public class ConnectionService {
     return connectionRepo.findAll();
   }
 
+  public List<Long> findIds(Optional<Sort> sort) {
+    return connectionRepo.findIdsWithWhereClause(Optional.<Specification<Connection>>absent(), sort);
+  }
+
   public List<Connection> findEntries(int firstResult, int maxResults, Sort sort) {
     return connectionRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
@@ -294,8 +304,8 @@ public class ConnectionService {
     }
   }
 
-  public Collection<Connection> findWithIllegalState() {
-    List<Connection> connections = connectionRepo.findAll();
+  public List<Connection> findWithIllegalState(int firstResult, int maxResults, Sort sort) {
+    List<Connection> connections = connectionRepo.findAll(sort);
 
     return FluentIterable.from(connections).filter(new Predicate<Connection>() {
       @Override
@@ -303,5 +313,10 @@ public class ConnectionService {
         return !hasValidState(connection);
       }
     }).toList();
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
   }
 }

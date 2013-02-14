@@ -63,10 +63,11 @@ import com.google.common.collect.Lists;
 public abstract class AbstractSearchableSortableListController<VIEW, ENTITY extends PersistableDomain> {
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order,
-      Model model) {
+  public String list(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    Model model) {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
@@ -77,10 +78,12 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   }
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @RequestParam(value = "search") String search,
-      Model model) {
+  public String search(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    @RequestParam(value = "search") String search,
+    Model model) {
 
     if (!StringUtils.hasText(search)) {
       return list(page, sort, order, model);

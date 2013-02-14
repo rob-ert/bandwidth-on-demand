@@ -45,23 +45,26 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
 
   @Override
   public List<Long> findIdsWithWhereClause(Optional<Specification<Reservation>> whereClause, Optional<Sort> sort) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<Reservation> root = criteriaQuery.from(Reservation.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<Reservation> root = criteriaQuery.from(Reservation.class);
 
-    criteriaQuery.select(root.get(Reservation_.id)).where(
-        whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    criteriaQuery.select(root.get(Reservation_.id));
+
+    if (whereClause.isPresent()) {
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    }
 
     CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
 
-  public long countDistinctIdsWithWhereClause(final Specification<Reservation> whereClause) {
+  public long countDistinctIdsWithWhereClause(Specification<Reservation> whereClause) {
 
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<Reservation> root = criteriaQuery.from(Reservation.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<Reservation> root = criteriaQuery.from(Reservation.class);
     // TODO get count
     criteriaQuery.distinct(true).select(root.get(Reservation_.id)).where(
         whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));

@@ -22,37 +22,68 @@
  */
 package nl.surfnet.bod.web.appmanager;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ConnectionService;
+import nl.surfnet.bod.web.appmanager.ConnectionController.ConnectionView;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateTime;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/appmanager/connections")
-public class ConnectionController extends AbstractSearchableSortableListController<Connection, Connection> {
+public class ConnectionController extends AbstractSearchableSortableListController<ConnectionView, Connection> {
 
   @Resource
   private ConnectionService connectionService;
 
   @RequestMapping("/illegal")
-  public String listIllegal(Model model) {
-    model.addAttribute("list", connectionService.findWithIllegalState());
-    return listUrl();
+  public String listIllegal(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    Model model) {
+
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+
+    model.addAttribute("list", transformToView(
+      connectionService.findWithIllegalState(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions),
+      Security.getUserDetails())
+    );
+
+    return listUrl() + "/illegal";
   }
 
   @Override
-  protected List<Connection> transformToView(List<Connection> entities, RichUserDetails user) {
-    return entities;
+  protected List<ConnectionView> transformToView(List<Connection> entities, RichUserDetails user) {
+    return Lists.transform(entities, new Function<Connection, ConnectionView>() {
+      @Override
+      public ConnectionView apply(Connection connection) {
+        return new ConnectionView(connection);
+      }
+    });
   }
 
   @Override
@@ -61,8 +92,8 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<Connection> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return connectionService.findEntries(firstPage, maxItems, sort);
+  protected List<ConnectionView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return transformToView(connectionService.findEntries(firstPage, maxItems, sort), Security.getUserDetails());
   }
 
   @Override
@@ -72,16 +103,71 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    throw new UnsupportedOperationException("Search not implemented for connections");
+    return connectionService.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override
   protected AbstractFullTextSearchService<Connection> getFullTextSearchableService() {
-    throw new UnsupportedOperationException("Search not implemented for connections");
+    return connectionService;
   }
 
   @Override
   protected String getDefaultSortProperty() {
     return "startTime";
   }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if ("nsiStatus".equals(sortProperty)) {
+      return ImmutableList.of("currentState");
+    }
+    if ("reservationStatus".equals(sortProperty)) {
+      return ImmutableList.of("reservation.status");
+    }
+
+    return super.translateSortProperty(sortProperty);
+  }
+
+  public static class ConnectionView {
+    private final String description;
+    private final String label;
+    private final ConnectionStateType nsiStatus;
+    private final ReservationStatus reservationStatus;
+    private final Optional<DateTime> startTime;
+    private final Optional<DateTime> endTime;
+
+    public ConnectionView(Connection connection) {
+      this.description = connection.getDescription();
+      this.label = connection.getLabel();
+      this.nsiStatus = connection.getCurrentState();
+      this.reservationStatus = connection.getReservation() == null ? null : connection.getReservation().getStatus();
+      this.startTime = connection.getStartTime();
+      this.endTime = connection.getEndTime();
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public ConnectionStateType getNsiStatus() {
+      return nsiStatus;
+    }
+
+    public ReservationStatus getReservationStatus() {
+      return reservationStatus;
+    }
+
+    public Optional<DateTime> getStartTime() {
+      return startTime;
+    }
+
+    public Optional<DateTime> getEndTime() {
+      return endTime;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+  }
+
 }

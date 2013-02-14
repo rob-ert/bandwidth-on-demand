@@ -36,7 +36,6 @@ import com.google.common.base.Optional;
 public class CustomRepoHelper {
 
   private CustomRepoHelper() {
-
   }
 
   public static <T, K> void addSortClause(Optional<Sort> sort, final CriteriaBuilder criteriaBuilder,

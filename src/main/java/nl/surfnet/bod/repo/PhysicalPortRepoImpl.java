@@ -45,9 +45,9 @@ public class PhysicalPortRepoImpl implements CustomRepo<PhysicalPort> {
 
   @Override
   public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalPort>> whereClause, Optional<Sort> sort) {
-    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<PhysicalPort> root = criteriaQuery.from(PhysicalPort.class);
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<PhysicalPort> root = criteriaQuery.from(PhysicalPort.class);
 
     if (whereClause.isPresent()) {
       criteriaQuery.select(root.get(PhysicalPort_.id)).where(
@@ -56,6 +56,7 @@ public class PhysicalPortRepoImpl implements CustomRepo<PhysicalPort> {
     else {
       criteriaQuery.select(root.get(PhysicalPort_.id));
     }
+
     CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();

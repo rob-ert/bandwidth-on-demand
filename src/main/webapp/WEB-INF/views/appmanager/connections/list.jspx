@@ -1,44 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:spring="http://www.springframework.org/tags"
-    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:bodfn="BodTags"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
     version="2.0">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
+    <tiles:useAttribute id="search_enabled" name="search_enabled" classname="java.lang.Boolean" />
+
     <page:list id="pl_connection" renderActions="false">
+
+        <util:search render="${search_enabled}" />
+
         <table:table items="${list}" labelPluralCode="label_connection_plural">
             <thead>
                 <tr>
                     <table:sortableHeader labelCode="label_reservation_name" property="description"  />
-                    <table:sortableHeader labelCode="NSI Status" property="currentState"  />
-                    <table:sortableHeader labelCode="Res. Status" property="reservation.status"  />
-                    <table:sortableHeader labelCode="label_reservation_start" property="reservation.startDateTime"  />
-                    <table:sortableHeader labelCode="label_reservation_end" property="reservation.endDateTime"  />
-                    <table:sortableHeader labelCode="label_virtualresourcegroup" property="reservation.virtualResourceGroup"  />
+                    <table:sortableHeader labelCode="NSI Status" property="nsiStatus"  />
+                    <table:sortableHeader labelCode="Res. Status" property="reservationStatus"  />
+                    <table:sortableHeader labelCode="label_reservation_start" property="startTime"  />
+                    <table:sortableHeader labelCode="label_reservation_end" property="endTime"  />
                 </tr>
             </thead>
             <tbody>
                 <c:forEach items="${list}" var="item">
                     <tr class="rowdetails">
                         <table:column item="${item}" property="description" />
-                        <table:column item="${item}" property="currentState" />
-                        <c:choose>
-                            <c:when test="${empty item.reservation}">
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </c:when>
-                            <c:otherwise>
-                                <td><spring:eval expression="item.reservation.status" htmlEscape="true" /></td>
-                                <td><spring:eval expression="item.reservation.startDateTime" htmlEscape="true" /></td>
-                                <td><spring:eval expression="item.reservation.endDateTime" htmlEscape="true" /></td>
-                                <td><spring:eval expression="item.reservation.virtualResourceGroup" htmlEscape="true" /></td>
-                            </c:otherwise>
-                        </c:choose>
+                        <table:column item="${item}" property="nsiStatus" />
+                        <table:column item="${item}" property="reservationStatus" />
+                        <td><c:out value="${bodfn:getOr(item.startTime, '-')}" /></td>
+                        <td><c:out value="${bodfn:getOr(item.endTime, '-')}" /></td>
                     </tr>
                 </c:forEach>
             </tbody>
