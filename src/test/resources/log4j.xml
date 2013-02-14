@@ -10,11 +10,33 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
+  <!-- ============================== -->
+  <!-- Append messages to the console -->
+  <!-- ============================== -->
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %p [%30.30C{2}:%-3L] [%-20.20t] - %m%n" />
     </layout>
   </appender>
+  
+  <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
+	<param name="SMTPHost" value="localhost" />
+	<param name="SMTPPort" value="25" />
+	<param name="SMTPDebug" value="false" />
+	<param name="From" value="info@surfnet.nl" />
+	<param name="To" value="bod-dev@list.surfnet.nl" />
+	<param name="Subject" value="BoD Warnings and Errors" />
+	<param name="BufferSize" value="512" />
+	<param name="SendOnClose" value="true" />
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %p [%30.30C{2}:%-3L] [%-20.20t] - %m%n" />
+	</layout>
+	<filter class="org.apache.log4j.varia.LevelRangeFilter">
+		<param name="LevelMin" value="warn" />
+		<param name="LevelMax" value="error" />
+	</filter>
+</appender>
+  
 
   <logger name="org.springframework">
     <level value="WARN" />
@@ -59,5 +81,6 @@
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
+    <appender-ref ref="MAIL" />
   </root>
 </log4j:configuration>

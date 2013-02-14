@@ -18,6 +18,25 @@
       <param name="ConversionPattern" value="%d %-5p [%t] (%c) - %m%n" />
     </layout>
   </appender>
+  
+  
+  <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
+	<param name="SMTPHost" value="localhost" />
+	<param name="SMTPPort" value="25" />
+	<param name="SMTPDebug" value="false" />
+	<param name="From" value="info@surfnet.nl" />
+	<param name="To" value="bod-dev@list.surfnet.nl" />
+	<param name="Subject" value="BoD Warnings and Errors" />
+	<param name="BufferSize" value="512" />
+	<param name="SendOnClose" value="true" />
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] (%c) - %m%n" />
+	</layout>
+	<filter class="org.apache.log4j.varia.LevelRangeFilter">
+		<param name="LevelMin" value="warn" />
+		<param name="LevelMax" value="error" />
+	</filter>
+  </appender>
 
   <logger name="org.springframework">
     <level value="WARN" />
@@ -58,5 +77,6 @@
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
+    <appender-ref ref="MAIL" />
   </root>
 </log4j:configuration>
