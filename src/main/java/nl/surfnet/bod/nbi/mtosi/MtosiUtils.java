@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +31,9 @@ import java.util.List;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 public final class MtosiUtils {
 
@@ -38,22 +43,19 @@ public final class MtosiUtils {
   private MtosiUtils() {
   }
 
-  public static String physicalTerminationPointToNmsPortId(String ptp) {
-    return ptp.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
-        .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
+  public static String composeNmsPortId(String managedElement, String ptp) {
+    Preconditions.checkArgument(not(managedElement.contains("@")));
+    Preconditions.checkArgument(not(ptp.contains("@")));
+
+    return managedElement + "@" + convertToLongPtP(ptp);
   }
 
-  public static String nmsPortIdToPhysicalTerminationPoint(String nmsPortId) {
-    Object[] parts = nmsPortId.split("-");
-    if (parts.length == 4) {
-      return String.format(PTP_FORMAT, parts);
-    }
-    else if (parts.length == 5) {
-      return String.format(PTP_WITH_SUB_SLOT_FORMAT, parts);
-    }
-    else {
-      throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
-    }
+  public static String[] decomposeNmsPortId(String nmsPortId) {
+    String[] ids = nmsPortId.split("@");
+
+    ids[1] = convertToShortPtP(ids[1]);
+
+    return ids;
   }
 
   public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
@@ -74,6 +76,26 @@ public final class MtosiUtils {
       contents.add(item.getType() + " " + item.getValue());
     }
     return StringUtils.collectionToCommaDelimitedString(contents);
+  }
+
+  @VisibleForTesting
+  static String convertToLongPtP(String ptp) {
+    return ptp.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
+        .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
+  }
+
+  @VisibleForTesting
+  static String convertToShortPtP(String shortPtP) {
+    Object[] parts = shortPtP.split("-");
+    if (parts.length == 4) {
+      return String.format(PTP_FORMAT, parts);
+    }
+    else if (parts.length == 5) {
+      return String.format(PTP_WITH_SUB_SLOT_FORMAT, parts);
+    }
+    else {
+      throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
+    }
   }
 
 }

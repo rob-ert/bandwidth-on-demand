@@ -31,15 +31,18 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
+
+import org.slf4j.Logger;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
+
+  private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private InventoryRetrievalClient inventoryRetrievalClient;
@@ -83,12 +86,12 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
-    throw new UnsupportedOperationException("Not implemented yet..");
+    logger.warn("Reservation status {} Should be received using events sent from 1C", scheduleId);
+    return Optional.<ReservationStatus> absent();
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
-    final String idToSearch = MtosiUtils.nmsPortIdToPhysicalTerminationPoint(nmsPortId);
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
 
     Optional<PhysicalPort> port = Optional.absent();
     List<PhysicalPort> portList = inventoryRetrievalClient.getUnallocatedPorts();
@@ -97,7 +100,7 @@ public class NbiMtosiClient implements NbiClient {
           new Predicate<PhysicalPort>() {
             @Override
             public boolean apply(PhysicalPort physicalPort) {
-              return idToSearch.equals(physicalPort.getNmsPortId());
+              return nmsPortId.equals(physicalPort.getNmsPortId());
             }
           });
     }
@@ -105,7 +108,7 @@ public class NbiMtosiClient implements NbiClient {
       return port.get();
     }
     else {
-      throw new PortNotAvailableException(idToSearch);
+      throw new PortNotAvailableException(nmsPortId);
     }
   }
 }

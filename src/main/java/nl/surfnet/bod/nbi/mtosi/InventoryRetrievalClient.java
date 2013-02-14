@@ -24,8 +24,9 @@ package nl.surfnet.bod.nbi.mtosi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
@@ -35,8 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
@@ -56,8 +55,7 @@ import com.google.common.annotations.VisibleForTesting;
 @Service
 public class InventoryRetrievalClient {
 
-  public static final String CACHE_PORTS = "unallocatedPortsMtosi";
-  public static final String CACHE_PORTS_COUNT = "unallocatedPortsCountMtosi";
+  private static final String SAP_CACHE = "sapCache";
 
   private static final String WSDL_LOCATION =
       "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
@@ -68,12 +66,7 @@ public class InventoryRetrievalClient {
 
   private final String endPoint;
 
-  @Resource
-  private CacheManager cacheManager;
-
-  InventoryRetrievalClient() {
-    this(null);
-  }
+  private final ConcurrentMap<String, SapList> sapCache = new ConcurrentHashMap<String, ServiceInventoryDataType.SapList>();
 
   @Autowired
   public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
@@ -102,15 +95,20 @@ public class InventoryRetrievalClient {
 
   private SapList getSapInventory() {
     try {
-      GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
-      addSapFilter(inventoryRequest);
+      if (sapCache.get(SAP_CACHE) == null) {
 
-      ServiceInventoryRetrievalRPC proxy = getServiceProxy();
+        GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+        addSapFilter(inventoryRequest);
 
-      GetServiceInventoryResponse serviceInventory =
-          proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+        ServiceInventoryRetrievalRPC proxy = getServiceProxy();
 
-      return serviceInventory.getInventoryData().getSapList();
+        GetServiceInventoryResponse serviceInventory =
+            proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+
+        sapCache.put(SAP_CACHE, serviceInventory.getInventoryData().getSapList());
+      }
+
+      return sapCache.get(SAP_CACHE);
     }
     catch (GetServiceInventoryException e) {
       logger.error("Error: ", e);
@@ -146,7 +144,6 @@ public class InventoryRetrievalClient {
     return simpleFilter;
   }
 
-  @Cacheable(InventoryRetrievalClient.CACHE_PORTS)
   public List<PhysicalPort> getUnallocatedPorts() {
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
@@ -188,15 +185,15 @@ public class InventoryRetrievalClient {
       }
 
       final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
-      final String nmsPortId = MtosiUtils.physicalTerminationPointToNmsPortId(ptp);
-      physicalPort.setNmsPortId(nmsPortId);
+      physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToLongPtP(ptp)));
       physicalPort.setNmsNeId(managedElement);
       physicalPort.setBodPortId(nmsSapName);
       physicalPort.setNmsPortSpeed(nmsPortSpeed);
       physicalPort.setNmsSapName(nmsSapName);
-      physicalPort.setNocLabel(managedElement + " " + nmsPortId);
+      physicalPort.setNocLabel(managedElement + "@" + ptp);
       physicalPort.setSupportedServiceType(supportedServiceType);
       physicalPort.setSignalingType("NA");
+      logger.debug("Retrieve physicalport: {}", physicalPort);
 
       mtosiPorts.add(physicalPort);
 
@@ -204,19 +201,18 @@ public class InventoryRetrievalClient {
     return mtosiPorts;
   }
 
-  @Cacheable(InventoryRetrievalClient.CACHE_PORTS_COUNT)
   public int getUnallocatedMtosiPortCount() {
     return getSapInventory().getSap().size();
   }
 
   /**
-   * Clear the mtosi caches every x minutes
+   * Refresh cache on startup and every x minutes
    */
-  @Scheduled(fixedRate = 10 * 60 * 1000)
-  public void evicCaches() {
-    cacheManager.getCache(CACHE_PORTS).clear();
-    cacheManager.getCache(CACHE_PORTS_COUNT).clear();
-    logger.debug("Caches cleared for mtosi");
+  @Scheduled(initialDelay = 0, cron = "0 */15 * * * *")
+  public void refreshSapCache() {
+    sapCache.remove(SAP_CACHE);
+    getSapInventory();
+    logger.debug("Sap cache refreshed");
   }
 
   @VisibleForTesting

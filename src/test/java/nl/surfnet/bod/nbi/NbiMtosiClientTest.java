@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -79,13 +78,13 @@ public class NbiMtosiClientTest {
   @Test
   public void findNonExistingPortByNmsIdShouldThrowUp() {
 
-    String nmsPortId = "9-9-9-9-9";
+    String nmsPortId = "me@/rack=9/shelf=9/slot=9/sub_slot=9/port=9";
     try {
       subject.findPhysicalPortByNmsPortId(nmsPortId);
       fail("Exception expected");
     }
     catch (PortNotAvailableException e) {
-      assertThat(e.getMessage(), containsString(MtosiUtils.nmsPortIdToPhysicalTerminationPoint(nmsPortId)));
+      assertThat(e.getMessage(), containsString(nmsPortId));
     }
   }
 }

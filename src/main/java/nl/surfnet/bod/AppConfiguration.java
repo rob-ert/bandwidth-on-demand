@@ -34,7 +34,6 @@ import javax.sql.DataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
@@ -43,10 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -86,17 +81,28 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
   private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
-  @Value("${jdbc.jdbcUrl}") private String jdbcUrl;
-  @Value("${jdbc.driverClass}") private String driverClass;
-  @Value("${jdbc.user}") private String jdbcUser;
-  @Value("${jdbc.password}") private String jdbcPassword;
-  @Value("${jdbc.initialPoolSize}") private int initialPoolSize;
-  @Value("${jdbc.maxPoolSize}") private int maxPoolSize;
-  @Value("${jdbc.minPoolSize}") private int minPoolSize;
-  @Value("${jdbc.acquireIncrement}") private int acquireIncrement;
-  @Value("${jdbc.acquireRetryAttempts}") private int acquireRetryAttempts;
-  @Value("${jdbc.idleConnectionTestPeriod}") private int idleConnectionTestPeriod;
-  @Value("${mail.sender.class}") private String emailSenderClass;
+  @Value("${jdbc.jdbcUrl}")
+  private String jdbcUrl;
+  @Value("${jdbc.driverClass}")
+  private String driverClass;
+  @Value("${jdbc.user}")
+  private String jdbcUser;
+  @Value("${jdbc.password}")
+  private String jdbcPassword;
+  @Value("${jdbc.initialPoolSize}")
+  private int initialPoolSize;
+  @Value("${jdbc.maxPoolSize}")
+  private int maxPoolSize;
+  @Value("${jdbc.minPoolSize}")
+  private int minPoolSize;
+  @Value("${jdbc.acquireIncrement}")
+  private int acquireIncrement;
+  @Value("${jdbc.acquireRetryAttempts}")
+  private int acquireRetryAttempts;
+  @Value("${jdbc.idleConnectionTestPeriod}")
+  private int idleConnectionTestPeriod;
+  @Value("${mail.sender.class}")
+  private String emailSenderClass;
 
   @Bean
   public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -229,17 +235,6 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public List<String> nsaProviderUrns() {
     return Lists.newArrayList("urn:ogf:network:nsa:surfnet.nl");
-  }
-
-  @Bean
-  public CacheManager cacheManager() {
-    // configure and return an implementation of Spring's CacheManager SPI
-    SimpleCacheManager cacheManager = new SimpleCacheManager();
-    cacheManager.setCaches(Lists.newArrayList(new ConcurrentMapCache(InventoryRetrievalClient.CACHE_PORTS),
-        new ConcurrentMapCache(
-            InventoryRetrievalClient.CACHE_PORTS_COUNT)));
-
-    return cacheManager;
   }
 
   @SuppressWarnings("unchecked")
