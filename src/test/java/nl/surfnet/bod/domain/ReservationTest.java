@@ -22,21 +22,15 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 public class ReservationTest {
 
@@ -51,7 +45,7 @@ public class ReservationTest {
 
   @Test
   public void toStringShouldIndicateWhenPrimaryKeyIsNotSet() {
-    Reservation reservation = new ReservationFactory().setId(null).create();
+    Reservation reservation = new ReservationFactory().withNoIds().create();
 
     String toString = reservation.toString();
 

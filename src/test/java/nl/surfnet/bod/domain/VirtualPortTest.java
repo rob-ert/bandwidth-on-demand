@@ -23,7 +23,10 @@
 package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -42,15 +45,6 @@ public class VirtualPortTest {
     PhysicalResourceGroup group = port.getPhysicalResourceGroup();
 
     assertThat(group, is(physicalGroup));
-  }
-
-  @Test
-  public void getPhysicalResourceGroup2() {
-    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup(null).setPhysicalPort(null).create();
-
-    PhysicalResourceGroup group = port.getPhysicalResourceGroup();
-
-    assertThat(group, nullValue());
   }
 
   @Test

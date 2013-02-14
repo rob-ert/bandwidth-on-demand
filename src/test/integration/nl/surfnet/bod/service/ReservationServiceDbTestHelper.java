@@ -67,7 +67,7 @@ public class ReservationServiceDbTestHelper {
       PhysicalResourceGroup sourceGroup, PhysicalResourceGroup destinationGroup) {
 
     Reservation reservation = new ReservationFactory()
-      .withNodId()
+      .withNoIds()
       .setStartDateTime(startDateTime)
       .setEndDateTime(endDateTime)
       .setStatus(status).create();
@@ -75,25 +75,12 @@ public class ReservationServiceDbTestHelper {
     reservation.getSourcePort().getPhysicalPort().setPhysicalResourceGroup(sourceGroup);
     reservation.getDestinationPort().getPhysicalPort().setPhysicalResourceGroup(destinationGroup);
 
-    // Force save of vrg only once, since they all use the same reference
-    reservation.getVirtualResourceGroup().setId(null);
-
-    // Source port stuff
-    reservation.getSourcePort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
-
     virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
-
-    reservation.getSourcePort().setId(null);
     virtualPortRepo.save(reservation.getSourcePort());
 
-    // Destination port stuff
-    reservation.getDestinationPort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
-
     virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
-
-    reservation.getDestinationPort().setId(null);
     virtualPortRepo.save(reservation.getDestinationPort());
 
     return reservation;

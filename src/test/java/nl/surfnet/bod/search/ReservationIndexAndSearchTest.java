@@ -21,8 +21,8 @@ public class ReservationIndexAndSearchTest extends AbstractIndexAndSearch<Reserv
 
   @Test
   public void searchAndFindReservationOnNsiConnectionId() throws ParseException {
-    Connection connection = new ConnectionFactory().setConnectionId("123-abc-456-def").create();
-    Reservation reservation = new ReservationFactory().setConnection(connection).create();
+    Connection connection = new ConnectionFactory().setConnectionId("123-abc-456-def").withNoIds().create();
+    Reservation reservation = new ReservationFactory().setConnection(connection).withNoIds().create();
 
     persist(reservation);
 
@@ -33,11 +33,16 @@ public class ReservationIndexAndSearchTest extends AbstractIndexAndSearch<Reserv
 
   private void persist(Reservation reservation) {
     persist(
+      reservation.getSourcePort().getPhysicalResourceGroup().getInstitute(),
+      reservation.getSourcePort().getPhysicalResourceGroup(),
+      reservation.getSourcePort().getPhysicalPort(),
       reservation.getSourcePort().getVirtualResourceGroup(),
       reservation.getSourcePort(),
+      reservation.getDestinationPort().getPhysicalResourceGroup().getInstitute(),
+      reservation.getDestinationPort().getPhysicalResourceGroup(),
+      reservation.getDestinationPort().getPhysicalPort(),
       reservation.getDestinationPort(),
-      reservation
-    );
+      reservation);
   }
 
 }

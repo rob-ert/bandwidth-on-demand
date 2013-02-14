@@ -38,13 +38,24 @@ public class VirtualPortFactory {
   private Integer version;
   private String managerLabel = "A virtual port " + id;
   private String userLabel = "A user virtual port " + id;;
-  private PhysicalPort physicalPort = new PhysicalPortFactory().create();
-  private String physicalPortAdminGroup = null;
+  private PhysicalPort physicalPort;
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
-  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
+  private VirtualResourceGroup virtualResourceGroup;
+
+  private String physicalPortAdminGroup = null;
+  private boolean noIds = false;
 
   public VirtualPort create() {
+
+    if (physicalPort == null) {
+      physicalPort = createPhysicalPort();
+    }
+
+    if (virtualResourceGroup == null) {
+      virtualResourceGroup = createVirtualResourceGroup();
+    }
+
     VirtualPort virtualPort = new VirtualPort();
 
     virtualPort.setId(id);
@@ -54,7 +65,6 @@ public class VirtualPortFactory {
     virtualPort.setMaxBandwidth(maxBandwidth);
     virtualPort.setVlanId(vlanId);
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
-
     virtualPort.setPhysicalPort(physicalPort);
 
     if (physicalPort != null && StringUtils.hasText(physicalPortAdminGroup)) {
@@ -62,6 +72,24 @@ public class VirtualPortFactory {
     }
 
     return virtualPort;
+  }
+
+  private VirtualResourceGroup createVirtualResourceGroup() {
+    VirtualResourceGroupFactory factory = new VirtualResourceGroupFactory();
+    if (noIds) {
+      factory.withNoIds();
+    }
+    return factory.create();
+  }
+
+  private PhysicalPort createPhysicalPort() {
+    PhysicalPortFactory factory = new PhysicalPortFactory();
+
+    if (noIds) {
+      factory.withNoIds();
+    }
+
+    return factory.create();
   }
 
   public VirtualPortFactory setManagerLabel(String label) {
@@ -104,9 +132,11 @@ public class VirtualPortFactory {
     return this;
   }
 
-  public VirtualPortFactory withNodId() {
+  public VirtualPortFactory withNodIds() {
     this.id = null;
     this.version = null;
+    this.noIds = true;
+
     return this;
   }
 

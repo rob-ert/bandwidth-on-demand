@@ -338,7 +338,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void addPhysicalPort() throws Exception {
     String nmsPortId = "00-BB_ETH0";
-    PhysicalPort port = new PhysicalPortFactory().withNoId().setNocLabel("").setManagerLabel("").create();
+    PhysicalPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("").create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
@@ -362,7 +362,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void addPhysicalPortWithoutManagerLabel() throws Exception {
     String nmsPortId = "00-BB_ETH0";
-    PhysicalPort port = new PhysicalPortFactory().withNoId().setNocLabel("").setManagerLabel("Manager label").create();
+    PhysicalPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("Manager label").create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);

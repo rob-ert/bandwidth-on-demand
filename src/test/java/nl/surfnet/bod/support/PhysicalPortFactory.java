@@ -35,11 +35,12 @@ public class PhysicalPortFactory {
   private Long id = COUNTER.incrementAndGet();
   private String nocLabel = "nameDefault " + id;
   private String managerLabel = "managedLabel " + id;
-  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+  private PhysicalResourceGroup physicalResourceGroup;
   private Integer version = 0;
   private String nmsPortId = UUID.randomUUID().toString();
   private String bodPortId = "Asd001A_OME3T_ETH-1-1-4";
   private boolean vlanRequired = false;
+  private boolean noIds;
 
   public PhysicalPort create() {
     PhysicalPort port = new PhysicalPort(vlanRequired);
@@ -50,9 +51,21 @@ public class PhysicalPortFactory {
     port.setNocLabel(nocLabel);
     port.setManagerLabel(managerLabel);
     port.setNmsPortId(nmsPortId);
+
+    if (physicalResourceGroup == null) {
+      physicalResourceGroup = createPhysicalResourceGroup();
+    }
     port.setPhysicalResourceGroup(physicalResourceGroup);
 
     return port;
+  }
+
+  private PhysicalResourceGroup createPhysicalResourceGroup() {
+    PhysicalResourceGroupFactory factory = new PhysicalResourceGroupFactory();
+    if (noIds) {
+      factory.withNoIds();
+    }
+    return factory.create();
   }
 
   public PhysicalPortFactory setId(Long id) {
@@ -94,9 +107,11 @@ public class PhysicalPortFactory {
     this.bodPortId = portId;
   }
 
-  public PhysicalPortFactory withNoId() {
+  public PhysicalPortFactory withNoIds() {
     this.id = null;
     this.version = null;
+    this.noIds = true;
+
     return this;
   }
 }

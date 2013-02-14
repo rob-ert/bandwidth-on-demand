@@ -111,7 +111,7 @@ public class Reservation implements Loggable, PersistableDomain {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   private final DateTime creationDateTime;
 
-  @OneToOne(mappedBy = "reservation", cascade = CascadeType.REMOVE)
+  @OneToOne(mappedBy = "reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
   @IndexedEmbedded
   private Connection connection;
 

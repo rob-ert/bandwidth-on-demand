@@ -90,7 +90,7 @@ public class PhysicalResourceGroupFactory {
     return this;
   }
 
-  public PhysicalResourceGroupFactory withNoId() {
+  public PhysicalResourceGroupFactory withNoIds() {
     this.id = null;
     this.version = null;
     return this;

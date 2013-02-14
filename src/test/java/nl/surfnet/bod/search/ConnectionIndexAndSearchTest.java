@@ -26,11 +26,11 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
 
   @Before
   public void setupSearchData() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).withNodId().create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).withNoIds().create();
     Connection connection = new ConnectionFactory()
       .setReservation(reservation)
       .setCurrentState(ConnectionStateType.TERMINATED)
-      .withNoId().create();
+      .withNoIds().create();
 
     persist(connection);
   }
@@ -54,8 +54,14 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
 
   private void persist(Connection connection) {
     persist(
+      connection.getReservation().getSourcePort().getPhysicalResourceGroup().getInstitute(),
+      connection.getReservation().getSourcePort().getPhysicalResourceGroup(),
+      connection.getReservation().getSourcePort().getPhysicalPort(),
       connection.getReservation().getSourcePort().getVirtualResourceGroup(),
       connection.getReservation().getSourcePort(),
+      connection.getReservation().getDestinationPort().getPhysicalResourceGroup().getInstitute(),
+      connection.getReservation().getDestinationPort().getPhysicalResourceGroup(),
+      connection.getReservation().getDestinationPort().getPhysicalPort(),
       connection.getReservation().getDestinationPort(),
       connection.getReservation(),
       connection);

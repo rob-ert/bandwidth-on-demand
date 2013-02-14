@@ -34,7 +34,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -85,10 +88,10 @@ public class PhysicalPortServiceImplTest {
   @Before
   public void setUp() {
 
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
-        .create());
+    Security.setUserDetails(
+      new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group").create());
 
-    ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1").create(),
+    List<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1").create(),
         new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory().setNmsPortId("3").create());
 
     physicalPortMap.put(physicalPorts.get(0).getNmsPortId(), physicalPorts.get(0));
@@ -99,11 +102,11 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void findAllShouldMergePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("first").setId(null).create(),
-        new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("second").setId(null).create());
+      new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("first").withNoIds().create(),
+      new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("second").withNoIds().create());
 
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("overwrite")
-        .setNmsPortId("first").setId(1L).setVersion(2).create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+      new PhysicalPortFactory().setNocLabel("overwrite").setNmsPortId("first").setId(1L).setVersion(2).create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -123,11 +126,12 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void allUnallocatedPortsShouldNotContainOnesWithId() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").setId(null)
-        .create(), new PhysicalPortFactory().setNmsPortId("second").setId(null).create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+      new PhysicalPortFactory().setNmsPortId("first").withNoIds().create(),
+      new PhysicalPortFactory().setNmsPortId("second").withNoIds().create());
 
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").setId(1L)
-        .create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+      new PhysicalPortFactory().setNmsPortId("first").setId(1L).create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -141,8 +145,9 @@ public class PhysicalPortServiceImplTest {
   @Test(expected = IllegalArgumentException.class)
   public void findAllPortsWithSameNameShouldGiveAnException() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").create());
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").create(),
-        new PhysicalPortFactory().setNmsPortId("first").create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+      new PhysicalPortFactory().setNmsPortId("first").create(),
+      new PhysicalPortFactory().setNmsPortId("first").create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -176,8 +181,9 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findAllocatedEntriesShouldReturnMaxAvailablePorts() {
-    List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("first").create(),
-        new PhysicalPortFactory().setNocLabel("second").create());
+    List<PhysicalPort> ports = Lists.newArrayList(
+      new PhysicalPortFactory().setNocLabel("first").create(),
+      new PhysicalPortFactory().setNocLabel("second").create());
 
     when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl<PhysicalPort>(ports));
 
@@ -208,8 +214,8 @@ public class PhysicalPortServiceImplTest {
   public void deleteOfUnalignedPortShouldOnlyDeleteOnRepo() throws PortNotAvailableException {
     PhysicalPort port = new PhysicalPortFactory().create();
 
-    when(nbiClientMock.findPhysicalPortByNmsPortId(port.getNmsPortId())).thenThrow(
-        new PortNotAvailableException(port.getNmsPortId()));
+    when(nbiClientMock.findPhysicalPortByNmsPortId(port.getNmsPortId()))
+      .thenThrow(new PortNotAvailableException(port.getNmsPortId()));
 
     subject.delete(port);
 
@@ -370,8 +376,8 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void shouldFindOneDisappearingPort() {
 
-    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(
-        Lists.newArrayList(physicalPortMap.get("1"), physicalPortMap.get("2")));
+    when(nbiClientMock.findAllPhysicalPorts())
+      .thenReturn(Lists.newArrayList(physicalPortMap.get("1"), physicalPortMap.get("2")));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
 
     subject.detectAndPersistPortInconsistencies();

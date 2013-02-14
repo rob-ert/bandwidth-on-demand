@@ -64,7 +64,7 @@ public class PhysicalResourceGroupDbTest {
   @Resource
   private InstituteRepo instituteRepo;
 
-  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(null).create();
+  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().withNoIds().create();
 
   @Test
   public void countAllPhysicalResourceGroups() {
@@ -131,7 +131,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void deletePhysicalResourceGroup() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().withNoIds().create();
 
     instituteRepo.save(group.getInstitute());
     physicalResourceGroupService.save(group);

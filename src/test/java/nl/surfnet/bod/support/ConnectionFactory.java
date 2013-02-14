@@ -125,7 +125,7 @@ public class ConnectionFactory {
     return this;
   }
 
-  public ConnectionFactory withNoId() {
+  public ConnectionFactory withNoIds() {
     this.id = null;
     this.version = null;
 

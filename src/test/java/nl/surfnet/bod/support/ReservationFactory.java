@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.support;
 
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.*;
@@ -37,7 +39,7 @@ public class ReservationFactory {
   private Long id = COUNTER.incrementAndGet();
   private Integer version;
   private String name = "Default name";
-  private ReservationStatus status = ReservationStatus.AUTO_START;
+  private ReservationStatus status = AUTO_START;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
@@ -47,16 +49,15 @@ public class ReservationFactory {
   private String reservationId = "9" + String.valueOf(id);
   private String failedReason;
   private String cancelReason;
-  private final VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
+  private VirtualResourceGroup virtualResourceGroup;
   private Connection connection;
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
-  public Reservation create() {
-    sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
-        : sourcePort;
+  private boolean noIds = false;
 
-    destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup)
-        .create() : destinationPort;
+  public Reservation create() {
+    sourcePort = sourcePort == null ? createVirtualPort() : sourcePort;
+    destinationPort = destinationPort == null ? createVirtualPort() : destinationPort;
 
     Reservation reservation = new Reservation();
     reservation.setId(id);
@@ -75,7 +76,37 @@ public class ReservationFactory {
     reservation.setConnection(connection);
     reservation.setProtectionType(protectionType);
 
+    if (connection != null) {
+      connection.setReservation(reservation);
+    }
+
     return reservation;
+  }
+
+  private VirtualResourceGroup createVirtualResourceGroup() {
+    if (virtualResourceGroup != null) {
+      return virtualResourceGroup;
+    }
+
+    VirtualResourceGroupFactory factory = new VirtualResourceGroupFactory();
+
+    if (noIds) {
+      factory.withNoIds();
+    }
+
+    this.virtualResourceGroup = factory.create();
+
+    return virtualResourceGroup;
+  }
+
+  private VirtualPort createVirtualPort() {
+    VirtualPortFactory factory = new VirtualPortFactory().setVirtualResourceGroup(createVirtualResourceGroup());
+
+    if (noIds) {
+      factory.withNodIds();
+    }
+
+    return factory.create();
   }
 
   public ReservationFactory withProtection() {
@@ -166,9 +197,10 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory withNodId() {
+  public ReservationFactory withNoIds() {
     this.id = null;
     this.version = null;
+    this.noIds = true;
 
     return this;
   }

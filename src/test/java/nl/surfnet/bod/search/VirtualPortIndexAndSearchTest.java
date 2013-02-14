@@ -43,10 +43,10 @@ public class VirtualPortIndexAndSearchTest extends AbstractIndexAndSearch<Virtua
   @Before
   public void insertTestData() {
     Institute institute = new InstituteFactory().create();
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).withNoId().create();
-    PhysicalPort pp = new PhysicalPortFactory().setPhysicalResourceGroup(prg).withNoId().create();
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setName("unit-test-vrg").withNoId().create();
-    VirtualPort virtualPort = new VirtualPortFactory().setUserLabel("unit-test-label").setVirtualResourceGroup(vrg).setPhysicalPort(pp).withNodId().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).withNoIds().create();
+    PhysicalPort pp = new PhysicalPortFactory().setPhysicalResourceGroup(prg).withNoIds().create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setName("unit-test-vrg").withNoIds().create();
+    VirtualPort virtualPort = new VirtualPortFactory().setUserLabel("unit-test-label").setVirtualResourceGroup(vrg).setPhysicalPort(pp).withNodIds().create();
 
     persist(institute, prg, pp, vrg, virtualPort);
   }
