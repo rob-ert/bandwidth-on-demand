@@ -15,7 +15,7 @@ public class Log4JMail {
 
   public static String MAIL_LOGER_NAME = "MAIL";
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment bodEnvironment;
 
   @PostConstruct
