@@ -122,7 +122,7 @@ public class PhysicalResourceGroupDbTest {
   public void deletePhysicalResourceGroup() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().withNoIds().create();
 
-    instituteRepo.save(group.getInstitute());
+    group.setInstitute(instituteRepo.save(group.getInstitute()));
     physicalResourceGroupService.save(group);
     physicalResourceGroupRepo.flush();
 
@@ -136,7 +136,7 @@ public class PhysicalResourceGroupDbTest {
   public void physicalResourceGroupWithoutAEmailNotSave() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setManagerEmail("").create();
 
-    instituteRepo.save(group.getInstitute());
+    group.setInstitute(instituteRepo.save(group.getInstitute()));
     physicalResourceGroupService.save(group);
 
     physicalResourceGroupRepo.flush();
