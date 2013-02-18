@@ -22,16 +22,14 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.util.TestHelper.productionProperties;
-
 import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.util.TestHelper;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -49,12 +47,13 @@ public class ServiceComponentActivationClientTestIntegration {
 
   @Before
   public void setup() {
-    String endPoint = productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
+    //String endPoint = productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
+    String endPoint = TestHelper.devProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
     subject = new ServiceComponentActivationClient(endPoint);
   }
 
   @Test
-  @Ignore("Needs access to london server... is more like integration, but now only for testing..")
+//  @Ignore("Needs access to london server... is more like integration, but now only for testing..")
   public void reserve() {
 
     Reservation reservation = new ReservationFactory()

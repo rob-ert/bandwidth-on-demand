@@ -45,10 +45,8 @@ import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
-import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
-import org.tmforum.mtop.sb.xsd.svc.v1.OperationalStateType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
+import org.tmforum.mtop.sb.xsd.svc.v1.*;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -66,6 +64,8 @@ public class InventoryRetrievalClient {
 
   private final String endPoint;
 
+  // Quick cache solution to prevent roundtrip off two minutes, could cause
+  // memory problems in future
   private final ConcurrentMap<String, SapList> sapCache = new ConcurrentHashMap<String, ServiceInventoryDataType.SapList>();
 
   @Autowired
@@ -77,13 +77,7 @@ public class InventoryRetrievalClient {
 
   protected RfsList getRfsInventory() {
     try {
-      GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
-      addRfsFilter(inventoryRequest);
-
-      ServiceInventoryRetrievalRPC proxy = getServiceProxy();
-
-      GetServiceInventoryResponse serviceInventory =
-          proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+      GetServiceInventoryResponse serviceInventory = getServiceInventoryWithRfsFilter();
 
       return serviceInventory.getInventoryData().getRfsList();
     }
@@ -93,19 +87,29 @@ public class InventoryRetrievalClient {
     }
   }
 
-  private SapList getSapInventory() {
+  @VisibleForTesting
+  GetServiceInventoryResponse getServiceInventoryWithRfsFilter() throws GetServiceInventoryException {
+    GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+    addRfsFilter(inventoryRequest);
+
+    return retrieveServiceInventory(inventoryRequest);
+  }
+
+  @VisibleForTesting
+  GetServiceInventoryResponse getServiceInventoryWithSapFilter() throws GetServiceInventoryException {
+
+    GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+    addSapFilter(inventoryRequest);
+
+    return retrieveServiceInventory(inventoryRequest);
+  }
+
+  @VisibleForTesting
+  SapList getSapInventory() {
     try {
       if (sapCache.get(SAP_CACHE) == null) {
 
-        GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
-        addSapFilter(inventoryRequest);
-
-        ServiceInventoryRetrievalRPC proxy = getServiceProxy();
-
-        GetServiceInventoryResponse serviceInventory =
-            proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
-
-        sapCache.put(SAP_CACHE, serviceInventory.getInventoryData().getSapList());
+        sapCache.put(SAP_CACHE, getServiceInventoryWithSapFilter().getInventoryData().getSapList());
       }
 
       return sapCache.get(SAP_CACHE);
@@ -147,58 +151,94 @@ public class InventoryRetrievalClient {
   public List<PhysicalPort> getUnallocatedPorts() {
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
-    for (final ServiceAccessPointType sap : getSapInventory().getSap()) {
-
+    for (final ServiceAccessPointType sap : getSapList()) {
       // Only unlocked and enabled ports are ready to use
       if ((AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
-        // FIXME Franky, removed since test data does not contain any valid
-        // ports
+        // TODO not implemented by Cienna 1C, yet. Just log for now
         // continue;
+        logger.debug("Sap has incorrect adminstate and/or operationalState: {}", sap);
       }
 
-      final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
-
-      String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
-      boolean isVlanRequired = false;
-
-      for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
-        if (relativeDistinguishNameType.getType().equals("ME")) {
-          managedElement = relativeDistinguishNameType.getValue();
-        }
-        else if (relativeDistinguishNameType.getType().equals("PTP")) {
-          ptp = relativeDistinguishNameType.getValue();
-        }
-      }
-
-      for (final ServiceCharacteristicValueType serviceCharacteristicValueType : sap.getDescribedByList()) {
-        final String value = serviceCharacteristicValueType.getValue();
-        for (final RelativeDistinguishNameType rdn : serviceCharacteristicValueType.getSscRef().getRdn()) {
-          final String rdnValue = rdn.getValue();
-          if ("AdministrativeSpeedRate".equals(rdnValue)) {
-            nmsPortSpeed = value;
-          }
-          else if ("SupportedServiceType".equals(rdnValue)) {
-            supportedServiceType = value;
-            isVlanRequired = determineVlanRequired(value);
-          }
-        }
-      }
-
-      final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
-      physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToLongPtP(ptp)));
-      physicalPort.setNmsNeId(managedElement);
-      physicalPort.setBodPortId(nmsSapName);
-      physicalPort.setNmsPortSpeed(nmsPortSpeed);
-      physicalPort.setNmsSapName(nmsSapName);
-      physicalPort.setNocLabel(managedElement + "@" + ptp);
-      physicalPort.setSupportedServiceType(supportedServiceType);
-      physicalPort.setSignalingType("NA");
-      logger.debug("Retrieve physicalport: {}", physicalPort);
-
-      mtosiPorts.add(physicalPort);
-
+      mtosiPorts.add(createPhysicalPort(sap));
     }
     return mtosiPorts;
+  }
+
+  private List<ServiceAccessPointType> getRfsPorts() {
+    List<ServiceAccessPointType> saps = new ArrayList<>();
+
+    for (ResourceFacingServiceType rfs : getRfsInventory().getRfs()) {
+      // Only unlocked and enabled ports are ready to use
+      if ((AdminStateType.UNLOCKED != rfs.getAdminState() && (OperationalStateType.ENABLED != rfs.getOperationalState()))) {
+        // TODO not implemented by Cienna 1C, yet. Just log for now
+        // continue;
+        logger.debug("Rfs has incorrect adminstate and/or operationalState: {}", rfs);
+      }
+      saps.addAll(rfs.getSapList());
+    }
+
+    return saps;
+  }
+
+  /**
+   * Enables switching between the source retrieving the SAPs to be mapped.
+   * 
+   * @return List<ServiceAccessPointType>
+   */
+  private List<ServiceAccessPointType> getSapList() {
+     return getSapInventory().getSap();
+//    return getRfsPorts();
+  }
+
+  private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest)
+      throws GetServiceInventoryException {
+    ServiceInventoryRetrievalRPC proxy = getServiceProxy();
+
+    GetServiceInventoryResponse serviceInventory =
+        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+    return serviceInventory;
+  }
+
+  private PhysicalPort createPhysicalPort(final ServiceAccessPointType sap) {
+    final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
+
+    String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
+    boolean isVlanRequired = false;
+
+    for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
+      if (relativeDistinguishNameType.getType().equals("ME")) {
+        managedElement = relativeDistinguishNameType.getValue();
+      }
+      else if (relativeDistinguishNameType.getType().equals("PTP")) {
+        ptp = relativeDistinguishNameType.getValue();
+      }
+    }
+
+    for (final ServiceCharacteristicValueType serviceCharacteristicValueType : sap.getDescribedByList()) {
+      final String value = serviceCharacteristicValueType.getValue();
+      for (final RelativeDistinguishNameType rdn : serviceCharacteristicValueType.getSscRef().getRdn()) {
+        final String rdnValue = rdn.getValue();
+        if ("AdministrativeSpeedRate".equals(rdnValue)) {
+          nmsPortSpeed = value;
+        }
+        else if ("SupportedServiceType".equals(rdnValue)) {
+          supportedServiceType = value;
+          isVlanRequired = determineVlanRequired(value);
+        }
+      }
+    }
+
+    final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
+    physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToLongPtP(ptp)));
+    physicalPort.setNmsNeId(managedElement);
+    physicalPort.setBodPortId(nmsSapName);
+    physicalPort.setNmsPortSpeed(nmsPortSpeed);
+    physicalPort.setNmsSapName(nmsSapName);
+    physicalPort.setNocLabel(managedElement + "@" + ptp);
+    physicalPort.setSupportedServiceType(supportedServiceType);
+    physicalPort.setSignalingType("NA");
+    logger.debug("Retrieve physicalport: {}", physicalPort);
+    return physicalPort;
   }
 
   public int getUnallocatedMtosiPortCount() {

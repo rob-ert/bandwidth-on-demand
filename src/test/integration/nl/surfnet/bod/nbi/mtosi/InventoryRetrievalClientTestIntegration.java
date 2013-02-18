@@ -26,7 +26,12 @@ import static nl.surfnet.bod.util.TestHelper.devProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.io.StringWriter;
 import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
@@ -34,11 +39,15 @@ import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 public class InventoryRetrievalClientTestIntegration {
 
+  private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
   private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
 
   @Before
@@ -49,7 +58,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  @Ignore("No ports left after filtering on adminState and operationalState")
+  // @Ignore("No ports left after filtering on adminState and operationalState")
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
@@ -63,7 +72,6 @@ public class InventoryRetrievalClientTestIntegration {
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
-
   }
 
   @Test
@@ -82,4 +90,30 @@ public class InventoryRetrievalClientTestIntegration {
     assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
   }
 
+  @Test
+  public void prettyPrintServiceInventoryXml() throws JAXBException, GetServiceInventoryException {
+    GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithRfsFilter();
+
+    logger.debug("ServiceInventoryWithRfsFilter: \n" + getPrettyPrintXml(inventory));
+  }
+
+  @Test
+  public void prettyPrintSapList() throws JAXBException, GetServiceInventoryException {
+    GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithSapFilter();
+
+    logger.debug("ServiceInventoryWithSapFilter: \n  " + getPrettyPrintXml(inventory));
+  }
+
+  private <T> String getPrettyPrintXml(T xmlObject) throws JAXBException {
+    final JAXBContext context = JAXBContext.newInstance(xmlObject.getClass());
+    final Marshaller marshaller = context.createMarshaller();
+
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+    // Create a stringWriter to hold the XML
+    final StringWriter stringWriter = new StringWriter();
+    marshaller.marshal(xmlObject, stringWriter);
+
+    return stringWriter.toString();
+  }
 }
