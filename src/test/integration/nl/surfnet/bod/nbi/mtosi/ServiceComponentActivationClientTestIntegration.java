@@ -30,6 +30,7 @@ import nl.surfnet.bod.util.TestHelper;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -53,7 +54,7 @@ public class ServiceComponentActivationClientTestIntegration {
   }
 
   @Test
-//  @Ignore("Needs access to london server... is more like integration, but now only for testing..")
+  @Ignore("Needs access to london server... is more like integration, but now only for testing..")
   public void reserve() {
 
     Reservation reservation = new ReservationFactory()
