@@ -128,7 +128,57 @@ public class SabNgEntitlementsHandler {
 
   }
 
-  public String createRequest(String messageId, String issuer, String nameId) {
+  @VisibleForTesting
+  String getRoleToMatch() {
+    return bodEnvironment.getSabRole();
+  }
+
+  private String getStatusToMatch() {
+    return STATUS_SUCCESS;
+  }
+
+  @VisibleForTesting
+  void checkConditions(Document document) throws XPathExpressionException {
+    XPath xPath = getXPath();
+
+    XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
+    Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
+    NamedNodeMap attributes = conditions.getAttributes();
+
+    DateTime notBeforeOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotBefore").getTextContent());
+    DateTime notOnOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotOnOrAfter").getTextContent());
+
+    XPathExpression issueInstantExpression = xPath.compile(XPATH_ISSUE_INSTANT);
+    String issueInstantString = (String) issueInstantExpression.evaluate(document, XPathConstants.STRING);
+    DateTime issueInstant = XmlUtils.getDateTimeFromXml(issueInstantString);
+
+    validateIssueInstant(issueInstant, notBeforeOrAfter, notOnOrAfter);
+  }
+
+  @VisibleForTesting
+  void validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
+    Preconditions.checkState(issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter),
+        "IssueInstant [%s] is not between [%s] and [%s]", issueInstant, notBeforeOrAfter, notOnOrAfter);
+  }
+
+  /**
+   * Since SAB will not be available in all environments at time of our release,
+   * we need to be able to turn it off.
+   * 
+   * @return true when sab should be used, false otherwise
+   */
+  @VisibleForTesting
+  boolean isSabEnabled() {
+    return sabEnabled == null || Boolean.parseBoolean(sabEnabled);
+  }
+
+  @VisibleForTesting
+  void setSabEnabled(String booleanString) {
+    this.sabEnabled = booleanString;
+  }
+
+  @VisibleForTesting
+  String createRequest(String messageId, String issuer, String nameId) {
     String template;
     try {
       template = IOUtils.toString(this.getClass().getResourceAsStream(REQUEST_TEMPLATE_LOCATION), "UTF-8");
@@ -140,7 +190,8 @@ public class SabNgEntitlementsHandler {
     return MessageFormat.format(template, messageId, issuer, nameId);
   }
 
-  public List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
+  @VisibleForTesting
+  List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
       throws XPathExpressionException {
 
     Document document = createDocument(responseStream);
@@ -158,13 +209,32 @@ public class SabNgEntitlementsHandler {
     return xPath;
   }
 
-  @VisibleForTesting
-  String getRoleToMatch() {
-    return bodEnvironment.getSabRole();
+  private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
+    return StringUtils.hasText(entitlements) && entitlements.contains(roleToMatch);
   }
 
-  private String getStatusToMatch() {
-    return STATUS_SUCCESS;
+  private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
+      throws XPathExpressionException {
+    XPath xPath = getXPath();
+    List<String> institutes = new ArrayList<>();
+
+    XPathExpression expression = xPath.compile(XPATH_INSTITUTE);
+    NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
+
+    for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
+      Node node = nodeList.item(i);
+      if (node != null) {
+        String entitlements = node.getParentNode().getTextContent();
+        if (checkEntitlements(entitlements, roleToMatch)) {
+          institutes.add(StringUtils.trimWhitespace(node.getTextContent()));
+        }
+      }
+    }
+
+    logger.debug("Found institutes [{}] with entitlement: {}", roleToMatch,
+        StringUtils.collectionToCommaDelimitedString(institutes));
+
+    return institutes;
   }
 
   private Document createDocument(InputStream responseStream) {
@@ -224,74 +294,6 @@ public class SabNgEntitlementsHandler {
     return (String) statusExpression.evaluate(document, XPathConstants.STRING);
   }
 
-  @VisibleForTesting
-  void checkConditions(Document document) throws XPathExpressionException {
-    XPath xPath = getXPath();
-
-    XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
-    Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
-    NamedNodeMap attributes = conditions.getAttributes();
-
-    DateTime notBeforeOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotBefore").getTextContent());
-    DateTime notOnOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotOnOrAfter").getTextContent());
-
-    XPathExpression issueInstantExpression = xPath.compile(XPATH_ISSUE_INSTANT);
-    String issueInstantString = (String) issueInstantExpression.evaluate(document, XPathConstants.STRING);
-    DateTime issueInstant = XmlUtils.getDateTimeFromXml(issueInstantString);
-
-    validateIssueInstant(issueInstant, notBeforeOrAfter, notOnOrAfter);
-  }
-
-  @VisibleForTesting
-  void validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
-    Preconditions.checkState(issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter),
-        "IssueInstant [%s] is not between [%s] and [%s]", issueInstant, notBeforeOrAfter, notOnOrAfter);
-  }
-
-  private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
-    return StringUtils.hasText(entitlements) && entitlements.contains(roleToMatch);
-  }
-
-  private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
-      throws XPathExpressionException {
-    XPath xPath = getXPath();
-    List<String> institutes = new ArrayList<>();
-
-    XPathExpression expression = xPath.compile(XPATH_INSTITUTE);
-    NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
-
-    for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
-      Node node = nodeList.item(i);
-      if (node != null) {
-        String entitlements = node.getParentNode().getTextContent();
-        if (checkEntitlements(entitlements, roleToMatch)) {
-          institutes.add(StringUtils.trimWhitespace(node.getTextContent()));
-        }
-      }
-    }
-
-    logger.debug("Found institutes [{}] with entitlement: {}", roleToMatch,
-        StringUtils.collectionToCommaDelimitedString(institutes));
-
-    return institutes;
-  }
-
-  /**
-   * Since SAB will not be available in all environments at time of our release,
-   * we need to be able to turn it off.
-   * 
-   * @return true when sab should be used, false otherwise
-   */
-  @VisibleForTesting
-  boolean isSabEnabled() {
-    return sabEnabled == null || Boolean.parseBoolean(sabEnabled);
-  }
-
-  @VisibleForTesting
-  void setSabEnabled(String booleanString) {
-    this.sabEnabled = booleanString;
-  }
-
   private class SabNgNamespaceResolver implements NamespaceContext {
 
     @Override
@@ -311,7 +313,6 @@ public class SabNgEntitlementsHandler {
       default:
         return XMLConstants.NULL_NS_URI;
       }
-
     }
 
     @Override
