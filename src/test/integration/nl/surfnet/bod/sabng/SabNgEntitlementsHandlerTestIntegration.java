@@ -25,6 +25,7 @@ package nl.surfnet.bod.sabng;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.util.TestHelper;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -49,7 +50,10 @@ import org.springframework.transaction.annotation.Transactional;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class SabNgEntitlementsHandlerTestIntegration {
 
-  private static final PropertiesEnvironment testProps = TestHelper.testProperties();
+  @BeforeClass
+  public static void testEnvironment() {
+    TestHelper.testProperties();
+  }
 
   @Resource
   private SabNgEntitlementsHandler subject;
@@ -73,4 +77,13 @@ public class SabNgEntitlementsHandlerTestIntegration {
       assertThat(e.getMessage(), containsString(nameId));
     }
   }
+
+  @Test
+  public void shouldNotPerformCallWhenDisabled() {
+    subject.setSabEnabled("false");
+    List<String> institutes = subject.checkInstitutes("urn:collab:person:test.surfguest.nl:prolokees");
+
+    assertThat(institutes, hasSize(0));
+  }
+
 }

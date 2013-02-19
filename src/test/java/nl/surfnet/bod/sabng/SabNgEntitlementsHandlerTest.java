@@ -26,6 +26,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -37,6 +39,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -109,4 +112,47 @@ public class SabNgEntitlementsHandlerTest {
     subject.getInstitutesWhichHaveBoDAdminEntitlement("no-match", responseStream);
   }
 
+  @Test
+  public void shouldHaveValidIssueInstant() {
+    DateTime now = DateTime.now();
+    subject.validateIssueInstant(now, now.minusHours(1), now.plusHours(1));
+  }
+
+  public void shouldHaveEqualIssueInstant() {
+    DateTime now = DateTime.now();
+
+    subject.validateIssueInstant(now, now, now);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldThrowSinceIssueInstantIsToEarly() {
+    DateTime now = DateTime.now();
+
+    subject.validateIssueInstant(now, now.plusHours(1), now);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldThrowSinceIssueInstantIsToLate() {
+    DateTime now = DateTime.now();
+
+    subject.validateIssueInstant(now, now, now.minusHours(1));
+  }
+
+  @Test
+  public void shouldEnableSabAtDefault() {
+    subject.setSabEnabled(null);
+    assertTrue(subject.isSabEnabled());
+  }
+
+  @Test
+  public void shouldDisableSabWhenConfigured() {
+    subject.setSabEnabled("false");
+    assertFalse(subject.isSabEnabled());
+  }
+
+  @Test
+  public void shouldEnableSabWhenConfigured() {
+    subject.setSabEnabled("true");
+    assertTrue(subject.isSabEnabled());
+  }
 }

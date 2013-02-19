@@ -33,7 +33,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
-
 public class XmlUtilsTest {
 
   @Test
@@ -122,6 +121,35 @@ public class XmlUtilsTest {
     assertThat(xmlDateTime.getTimezone(), is(0));
     assertThat(xmlDateTime.toGregorianCalendar().getTimeInMillis(), is(xmlDateTime.toGregorianCalendar()
         .getTimeInMillis()));
+  }
+
+  @Test
+  public void shouldConverStringToDateTimeUTCPlusOneHour() {
+    DateTime dateTime = XmlUtils.getDateTimeFromXml("2013-02-19T15:02:01+01:00");
+
+    assertThat(dateTime.getYear(), is(2013));
+    assertThat(dateTime.getMonthOfYear(), is(2));
+    assertThat(dateTime.getDayOfMonth(), is(19));
+    assertThat(dateTime.getHourOfDay(), is(15));
+    assertThat(dateTime.getMinuteOfHour(), is(02));
+    assertThat(dateTime.getSecondOfMinute(), is(01));
+  }
+
+  @Test
+  public void shouldConverStringToDateTimeUTC() {
+    DateTime dateTime = XmlUtils.getDateTimeFromXml("2013-02-19T15:02:01Z");
+
+    assertThat(dateTime.getYear(), is(2013));
+    assertThat(dateTime.getMonthOfYear(), is(2));
+    assertThat(dateTime.getDayOfMonth(), is(19));
+    assertThat("Should add one hour, due to timezone", dateTime.getHourOfDay(), is(16));
+    assertThat(dateTime.getMinuteOfHour(), is(02));
+    assertThat(dateTime.getSecondOfMinute(), is(01));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowOnGarbage() {
+    XmlUtils.getDateTimeFromXml("wrong-format");
   }
 
 }

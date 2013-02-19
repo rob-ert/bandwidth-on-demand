@@ -31,11 +31,15 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 
 public final class XmlUtils {
+
+  private static DateTimeFormatterFactory dateTimeFormatterFactory = new DateTimeFormatterFactory(
+      "yyyy-MM-dd'T'HH:mm:ssZ");
 
   private XmlUtils() {
   }
@@ -69,5 +73,8 @@ public final class XmlUtils {
     return Optional.of(calendar);
   }
 
+  public static DateTime getDateTimeFromXml(String xmlTimeStamp) {
+    return DateTime.parse(xmlTimeStamp, dateTimeFormatterFactory.createDateTimeFormatter());
+  }
 
 }

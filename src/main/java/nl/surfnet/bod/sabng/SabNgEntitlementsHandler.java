@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.sabng;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +46,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.HttpUtils;
+import nl.surfnet.bod.util.XmlUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -51,18 +54,21 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 @Component
 public class SabNgEntitlementsHandler {
@@ -70,10 +76,12 @@ public class SabNgEntitlementsHandler {
   private static final String STATUS_SUCCESS = "Success";
 
   private static final String REQUEST_TEMPLATE_LOCATION = "/xmlsabng/request-entitlement-template.xml";
-  private static final String XPATH_STATUS_CODE = "//samlp:StatusCode";
-  private static final String XPATH_IN_RESPONSE_TO = "//samlp:Response";
-  private static final String XPATH_STATUS_MESSAGE = "//samlp:StatusMessage";
+  private static final String XPATH_STATUS_CODE = "//samlp:Status/samlp:StatusCode/@Value";
+  private static final String XPATH_IN_RESPONSE_TO = "//samlp:Response/@InResponseTo";
+  private static final String XPATH_STATUS_MESSAGE = "//samlp:Status/samlp:StatusMessage";
   private static final String XPATH_INSTITUTE = "//saml:Attribute[@Name='urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1']";
+  private static final String XPATH_SAML_CONDITIONS = "//saml:Conditions";
+  private static final String XPATH_ISSUE_INSTANT = "//saml:Assertion/@IssueInstant";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -88,10 +96,19 @@ public class SabNgEntitlementsHandler {
   @Value("${sab.issuer}")
   private String sabIssuer;
 
+  @Value("${sab.enabled}")
+  private String sabEnabled;
+
   @Resource
   private Environment bodEnvironment;
 
   public List<String> checkInstitutes(String nameId) {
+
+    if (not(isSabEnabled())) {
+      logger.warn("Consulting SaB Entitlements is disabled");
+      return Lists.newArrayList();
+    }
+
     String messageId = UUID.randomUUID().toString();
     String requestBody = createRequest(messageId, sabIssuer, nameId);
 
@@ -127,9 +144,18 @@ public class SabNgEntitlementsHandler {
       throws XPathExpressionException {
 
     Document document = createDocument(responseStream);
+
     checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
+    checkConditions(document);
 
     return getInstitutesWithRoleToMatch(document, getRoleToMatch());
+  }
+
+  private XPath getXPath() {
+    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+    xPath.setNamespaceContext(new SabNgNamespaceResolver());
+
+    return xPath;
   }
 
   @VisibleForTesting
@@ -169,8 +195,7 @@ public class SabNgEntitlementsHandler {
 
   private void checkStatusCodeAndMessageIdOrFail(Document document, String statusToMatch, String inResponseToIdToMatch)
       throws XPathExpressionException {
-    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
-    xPath.setNamespaceContext(new SabNgNamespaceResolver());
+    XPath xPath = getXPath();
 
     String statusCode = getStatusCode(document, xPath);
     Preconditions
@@ -186,26 +211,41 @@ public class SabNgEntitlementsHandler {
 
   private String getResponseId(Document document, XPath xPath) throws XPathExpressionException {
     XPathExpression responseIdExpression = xPath.compile(XPATH_IN_RESPONSE_TO);
-    String inResponseToId = ((NodeList) responseIdExpression.evaluate(document, XPathConstants.NODESET)).item(0)
-        .getAttributes().getNamedItem("InResponseTo").getNodeValue();
-    return inResponseToId;
+    return ((String) responseIdExpression.evaluate(document, XPathConstants.STRING));
   }
 
   private String getStatusMessage(Document document, XPath xPath) throws XPathExpressionException {
     XPathExpression statusMessageExpression = xPath.compile(XPATH_STATUS_MESSAGE);
-    NodeList statusMessageNodeList = ((NodeList) statusMessageExpression.evaluate(document, XPathConstants.NODESET));
-    String statusMessage = null;
-    if (statusMessageNodeList != null && statusMessageNodeList.getLength() > 0) {
-      statusMessage = statusMessageNodeList.item(0).getTextContent();
-    }
-    return statusMessage;
+    return (String) statusMessageExpression.evaluate(document, XPathConstants.STRING);
   }
 
   private String getStatusCode(Document document, XPath xPath) throws XPathExpressionException {
     XPathExpression statusExpression = xPath.compile(XPATH_STATUS_CODE);
-    String statusCode = ((NodeList) statusExpression.evaluate(document, XPathConstants.NODESET)).item(0)
-        .getAttributes().getNamedItem("Value").getNodeValue();
-    return statusCode;
+    return (String) statusExpression.evaluate(document, XPathConstants.STRING);
+  }
+
+  @VisibleForTesting
+  void checkConditions(Document document) throws XPathExpressionException {
+    XPath xPath = getXPath();
+
+    XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
+    Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
+    NamedNodeMap attributes = conditions.getAttributes();
+
+    DateTime notBeforeOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotBefore").getTextContent());
+    DateTime notOnOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotOnOrAfter").getTextContent());
+
+    XPathExpression issueInstantExpression = xPath.compile(XPATH_ISSUE_INSTANT);
+    String issueInstantString = (String) issueInstantExpression.evaluate(document, XPathConstants.STRING);
+    DateTime issueInstant = XmlUtils.getDateTimeFromXml(issueInstantString);
+
+    validateIssueInstant(issueInstant, notBeforeOrAfter, notOnOrAfter);
+  }
+
+  @VisibleForTesting
+  void validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
+    Preconditions.checkState(issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter),
+        "IssueInstant [%s] is not between [%s] and [%s]", issueInstant, notBeforeOrAfter, notOnOrAfter);
   }
 
   private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
@@ -214,11 +254,9 @@ public class SabNgEntitlementsHandler {
 
   private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
       throws XPathExpressionException {
-
+    XPath xPath = getXPath();
     List<String> institutes = new ArrayList<>();
 
-    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
-    xPath.setNamespaceContext(new SabNgNamespaceResolver());
     XPathExpression expression = xPath.compile(XPATH_INSTITUTE);
     NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
 
@@ -236,6 +274,22 @@ public class SabNgEntitlementsHandler {
         StringUtils.collectionToCommaDelimitedString(institutes));
 
     return institutes;
+  }
+
+  /**
+   * Since SAB will not be available in all environments at time of our release,
+   * we need to be able to turn it off.
+   * 
+   * @return true when sab should be used, false otherwise
+   */
+  @VisibleForTesting
+  boolean isSabEnabled() {
+    return sabEnabled == null || Boolean.parseBoolean(sabEnabled);
+  }
+
+  @VisibleForTesting
+  void setSabEnabled(String booleanString) {
+    this.sabEnabled = booleanString;
   }
 
   private class SabNgNamespaceResolver implements NamespaceContext {
@@ -270,4 +324,5 @@ public class SabNgEntitlementsHandler {
       return null;
     }
   }
+
 }
