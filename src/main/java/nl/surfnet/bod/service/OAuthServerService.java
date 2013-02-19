@@ -37,8 +37,8 @@ import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.domain.oauth.*;
 import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.HttpUtils;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -74,7 +74,7 @@ public class OAuthServerService {
   @Resource
   private BodAccountRepo bodAccountRepo;
 
-  private DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
 
   public Optional<VerifiedToken> getVerifiedToken(String accessToken) {
     if (Strings.isNullOrEmpty(accessToken)) {
@@ -82,7 +82,7 @@ public class OAuthServerService {
     }
 
     HttpGet httpGet = new HttpGet(getVerifyTokenUri(accessToken));
-    httpGet.addHeader(getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
+    httpGet.addHeader(HttpUtils.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
 
     try {
       HttpResponse response = httpClient.execute(httpGet);
@@ -127,7 +127,7 @@ public class OAuthServerService {
   private String getVerifyTokenUri(String accessToken) {
     try {
       return new URIBuilder(env.getOauthServerUrl().concat("/v1/tokeninfo"))
-        .addParameter("access_token", accessToken).build().toASCIIString();
+          .addParameter("access_token", accessToken).build().toASCIIString();
     }
     catch (URISyntaxException e) {
       throw new RuntimeException(e);
@@ -160,7 +160,8 @@ public class OAuthServerService {
 
       List<AccessToken> tokens = new ObjectMapper().readValue(
           EntityUtils.toString(tokensResponse.getEntity()),
-          new TypeReference<List<AccessToken>>() { });
+          new TypeReference<List<AccessToken>>() {
+          });
 
       return Collections2.filter(tokens, new Predicate<AccessToken>() {
         @Override
@@ -217,13 +218,13 @@ public class OAuthServerService {
     logger.info("requesting access token to " + post.getURI());
 
     try {
-      List<NameValuePair> formparams = Lists.<NameValuePair>newArrayList(
-        new BasicNameValuePair("grant_type", "authorization_code"),
-        new BasicNameValuePair("code", code),
-        new BasicNameValuePair("redirect_uri", redirectUri));
+      List<NameValuePair> formparams = Lists.<NameValuePair> newArrayList(
+          new BasicNameValuePair("grant_type", "authorization_code"),
+          new BasicNameValuePair("code", code),
+          new BasicNameValuePair("redirect_uri", redirectUri));
 
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
-      post.addHeader(getBasicAuthorizationHeader(clientId, secret));
+      post.addHeader(HttpUtils.getBasicAuthorizationHeader(clientId, secret));
       post.setEntity(entity);
 
       HttpResponse response = httpClient.execute(post);
@@ -240,14 +241,6 @@ public class OAuthServerService {
 
   protected void setEnvironment(Environment environment) {
     this.env = environment;
-  }
-
-  private Header getBasicAuthorizationHeader(String user, String password) {
-    return new BasicHeader("Authorization", "Basic ".concat(base64Encoded(user.concat(":").concat(password))));
-  }
-
-  private String base64Encoded(String input) {
-    return new String(Base64.encodeBase64(input.getBytes()));
   }
 
   private Header getOauthAuthorizationHeader(String accessToken) {

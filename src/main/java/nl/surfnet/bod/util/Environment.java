@@ -95,8 +95,11 @@ public class Environment {
   @Value("${oauth.resource.secret}")
   private String resourceSecret;
 
-  @Value("${entitlement.bod.admin}")
-  private String bodEntitlement;
+  @Value("${sab.role}")
+  private String sabRole;
+
+  @Value("${sab.password}")
+  private String sabPassword;
 
   public Environment() {
   }
@@ -207,6 +210,14 @@ public class Environment {
     return resourceSecret;
   }
 
+  public String getSabRole() {
+    return sabRole;
+  }
+
+  public String getSabPassword() {
+    return sabPassword;
+  }
+
   public String getOauthServerUrl() {
     return oauthServerUrl;
   }
@@ -241,9 +252,5 @@ public class Environment {
 
   public String getEnvironment() {
     return environment;
-  }
-
-  public String getBodAdminEntitlement() {
-    return bodEntitlement;
   }
 }

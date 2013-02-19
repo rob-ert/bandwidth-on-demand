@@ -103,6 +103,10 @@ public class TestHelper {
     private String decryptProperty(String name, Properties properties) {
       return PropertyValueEncryptionUtils.decrypt(properties.getProperty(name), encryptor);
     }
+
+    String encryptProperty(String value) {
+      return encryptor.encrypt(value);
+    }
   }
 
   public static void useTestEnv() {

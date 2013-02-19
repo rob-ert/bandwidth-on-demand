@@ -22,10 +22,14 @@
  */
 package nl.surfnet.bod.sabng;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.xml.XMLConstants;
@@ -39,13 +43,25 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.HttpUtils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 @Component
@@ -55,12 +71,47 @@ public class SabNgEntitlementsHandler {
 
   private static final String REQUEST_TEMPLATE_LOCATION = "/xmlsabng/request-entitlement-template.xml";
   private static final String XPATH_STATUS_CODE = "//samlp:StatusCode";
-  private static final String XPATH_ENTITLEMENTS = "//saml:Attribute[@Name='urn:oid:1.3.6.1.4.1.5923.1.1.1.7']";
+  private static final String XPATH_IN_RESPONSE_TO = "//samlp:Response";
+  private static final String XPATH_STATUS_MESSAGE = "//samlp:StatusMessage";
+  private static final String XPATH_INSTITUTE = "//saml:Attribute[@Name='urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1']";
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+
+  @Value("${sab.endpoint}")
+  private String sabEndPoint;
+
+  @Value("${sab.user}")
+  private String sabUser;
+
+  @Value("${sab.issuer}")
+  private String sabIssuer;
 
   @Resource
   private Environment bodEnvironment;
 
-  public String createRequest(String issuer, String nameId) {
+  public List<String> checkInstitutes(String nameId) {
+    String messageId = UUID.randomUUID().toString();
+    String requestBody = createRequest(messageId, sabIssuer, nameId);
+
+    HttpPost httpPost = new HttpPost(sabEndPoint);
+    httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, bodEnvironment.getSabPassword()));
+
+    try {
+      StringEntity stringEntity = new StringEntity(requestBody);
+      httpPost.setEntity(stringEntity);
+      HttpResponse response = httpClient.execute(httpPost);
+
+      return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
+    }
+    catch (XPathExpressionException | IllegalStateException | IOException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public String createRequest(String messageId, String issuer, String nameId) {
     String template;
     try {
       template = IOUtils.toString(this.getClass().getResourceAsStream(REQUEST_TEMPLATE_LOCATION), "UTF-8");
@@ -69,29 +120,21 @@ public class SabNgEntitlementsHandler {
       throw new RuntimeException(e);
     }
 
-    // TODO should ID="aaf23196-1773-2113-474a-fe114412ab72" also be
-    // parameterized?
-    return MessageFormat.format(template, issuer, nameId);
+    return MessageFormat.format(template, messageId, issuer, nameId);
   }
 
-  public boolean retrieveEntitlements(InputStream responseStream) {
-    boolean result = false;
+  public List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
+      throws XPathExpressionException {
 
     Document document = createDocument(responseStream);
+    checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
 
-    try {
-      checkStatusCodeOrFail(document, getStatusToMatch());
-      result = checkEntitlements(document, getRoleToMatch());
-    }
-    catch (XPathExpressionException e) {
-      throw new RuntimeException(e);
-    }
-
-    return result;
+    return getInstitutesWithRoleToMatch(document, getRoleToMatch());
   }
 
-  private String getRoleToMatch() {
-    return bodEnvironment.getBodAdminEntitlement();
+  @VisibleForTesting
+  String getRoleToMatch() {
+    return bodEnvironment.getSabRole();
   }
 
   private String getStatusToMatch() {
@@ -101,43 +144,98 @@ public class SabNgEntitlementsHandler {
   private Document createDocument(InputStream responseStream) {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);
+    factory.setIgnoringElementContentWhitespace(true);
+    factory.setValidating(false);
+
+    String responseString;
+    try {
+      responseString = IOUtils.toString(responseStream);
+    }
+    catch (IOException ioExc) {
+      throw new RuntimeException(ioExc);
+    }
 
     Document document;
     try {
       DocumentBuilder builder = factory.newDocumentBuilder();
-      document = builder.parse(responseStream);
+      InputStream response = new ByteArrayInputStream(responseString.getBytes("UTF-8"));
+      document = builder.parse(response);
     }
     catch (ParserConfigurationException | SAXException | IOException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Response was: [" + responseString + "]", e);
     }
     return document;
   }
 
-  private void checkStatusCodeOrFail(Document document, String statusToMatch) throws XPathExpressionException {
+  private void checkStatusCodeAndMessageIdOrFail(Document document, String statusToMatch, String inResponseToIdToMatch)
+      throws XPathExpressionException {
     XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
-
     xPath.setNamespaceContext(new SabNgNamespaceResolver());
-    XPathExpression expression = xPath.compile(XPATH_STATUS_CODE);
 
-    String statusCode = ((NodeList) expression.evaluate(document, XPathConstants.NODESET)).item(0).getAttributes()
-        .getNamedItem("Value").getNodeValue();
+    String statusCode = getStatusCode(document, xPath);
+    Preconditions
+        .checkState(statusCode.contains(statusToMatch),
+            "Could not retrieve roles, statusCode: [%s], statusMessage: %s", statusCode, getStatusMessage(document,
+                xPath));
 
-    Preconditions.checkState(statusCode.contains(statusToMatch), "Could not retrieve roles, statusCode:", statusCode);
+    String inResponseToId = getResponseId(document, xPath);
+    Preconditions.checkState(inResponseToId.equals(inResponseToIdToMatch),
+        "InResponseTo does not match. Expected [%s], but was: [%s]",
+        inResponseToIdToMatch, inResponseToId);
   }
 
-  private boolean checkEntitlements(Document document, String roleToMatch) throws XPathExpressionException {
-    boolean result = false;
+  private String getResponseId(Document document, XPath xPath) throws XPathExpressionException {
+    XPathExpression responseIdExpression = xPath.compile(XPATH_IN_RESPONSE_TO);
+    String inResponseToId = ((NodeList) responseIdExpression.evaluate(document, XPathConstants.NODESET)).item(0)
+        .getAttributes().getNamedItem("InResponseTo").getNodeValue();
+    return inResponseToId;
+  }
+
+  private String getStatusMessage(Document document, XPath xPath) throws XPathExpressionException {
+    XPathExpression statusMessageExpression = xPath.compile(XPATH_STATUS_MESSAGE);
+    NodeList statusMessageNodeList = ((NodeList) statusMessageExpression.evaluate(document, XPathConstants.NODESET));
+    String statusMessage = null;
+    if (statusMessageNodeList != null && statusMessageNodeList.getLength() > 0) {
+      statusMessage = statusMessageNodeList.item(0).getTextContent();
+    }
+    return statusMessage;
+  }
+
+  private String getStatusCode(Document document, XPath xPath) throws XPathExpressionException {
+    XPathExpression statusExpression = xPath.compile(XPATH_STATUS_CODE);
+    String statusCode = ((NodeList) statusExpression.evaluate(document, XPathConstants.NODESET)).item(0)
+        .getAttributes().getNamedItem("Value").getNodeValue();
+    return statusCode;
+  }
+
+  private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
+    return StringUtils.hasText(entitlements) && entitlements.contains(roleToMatch);
+  }
+
+  private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
+      throws XPathExpressionException {
+
+    List<String> institutes = new ArrayList<>();
 
     XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
     xPath.setNamespaceContext(new SabNgNamespaceResolver());
-    XPathExpression expression = xPath.compile(XPATH_ENTITLEMENTS);
+    XPathExpression expression = xPath.compile(XPATH_INSTITUTE);
     NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
 
-    if ((nodeList != null) && (nodeList.getLength() > 0)) {
-      String entitlements = nodeList.item(0).getTextContent();
-      result = entitlements.contains(roleToMatch);
+    for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
+      Node node = nodeList.item(i);
+      if (node != null) {
+        String entitlements = node.getParentNode().getTextContent();
+        if (checkEntitlements(entitlements, roleToMatch)) {
+          institutes.add(StringUtils.trimWhitespace(node.getTextContent()));
+        }
+      }
     }
-    return result;
+
+    logger.debug("Found institutes [{}] with entitlement: {}", roleToMatch,
+        StringUtils.collectionToCommaDelimitedString(institutes));
+
+    return institutes;
   }
 
   private class SabNgNamespaceResolver implements NamespaceContext {
@@ -168,9 +266,8 @@ public class SabNgEntitlementsHandler {
     }
 
     @Override
-    public Iterator getPrefixes(String namespaceURI) {
+    public Iterator<?> getPrefixes(String namespaceURI) {
       return null;
     }
-
   }
 }

@@ -23,15 +23,21 @@
 package nl.surfnet.bod.sabng;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.InputStream;
+
+import javax.xml.xpath.XPathExpressionException;
 
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.TestHelper;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -41,9 +47,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SabNgEntitlementsHandlerTest {
 
+  PropertiesEnvironment testProps = TestHelper.testProperties();
+
+  private static final String REQ_ID = "d6873bc2-809d-482c-a24c-ccc51d829cf8";
   private static final String NAME_ID = "urn:test:user";
   private static final String ISSUER = "dev";
   private static final String RESPONSE_LOCATION = "/xmlsabng/response-entitlement.xml";
+
+  private InputStream responseStream;
 
   @InjectMocks
   private SabNgEntitlementsHandler subject;
@@ -51,23 +62,51 @@ public class SabNgEntitlementsHandlerTest {
   @Mock
   private Environment bodEnvironment;
 
+  @Before
+  public void setUp() {
+    responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream(RESPONSE_LOCATION);
+  }
+
   @Test
   public void shouldCreateRequestWithParameters() {
-    String request = subject.createRequest(ISSUER, NAME_ID);
+    String request = subject.createRequest(REQ_ID, ISSUER, NAME_ID);
 
+    assertThat(request, containsString("ID=\"" + REQ_ID));
     assertThat(request, containsString(NAME_ID + "</saml:NameID>"));
     assertThat(request, containsString(ISSUER + "</saml:Issuer>"));
   }
 
   @Test
-  public void shouldMatchEntitlement() throws IOException {
-    when(bodEnvironment.getBodAdminEntitlement()).thenReturn("Instellingsbevoegde");
-    assertTrue(subject.retrieveEntitlements(this.getClass().getResourceAsStream(RESPONSE_LOCATION)));
+  public void shouldMatchEntitlement() throws IOException, XPathExpressionException {
+    when(bodEnvironment.getSabRole()).thenReturn("Instellingsbevoegde");
+
+    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET",
+        "WESAIDSO"));
   }
 
   @Test
-  public void shouldNotMatchEntitlement() throws IOException {
-    when(bodEnvironment.getBodAdminEntitlement()).thenReturn("no-match");
-    assertFalse(subject.retrieveEntitlements(this.getClass().getResourceAsStream(RESPONSE_LOCATION)));
+  public void shouldMatchOnInfra() throws XPathExpressionException {
+    when(bodEnvironment.getSabRole()).thenReturn("Infraverantwoordelijke");
+
+    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET"));
   }
+
+  @Test
+  public void shouldMatchOnBeveiliging() throws XPathExpressionException {
+    when(bodEnvironment.getSabRole()).thenReturn("Beveiligingsverantwoordelijke");
+
+    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("WESAIDSO"));
+  }
+
+  @Test
+  public void shouldNotMatchEntitlement() throws IOException, XPathExpressionException {
+    when(bodEnvironment.getSabRole()).thenReturn("no-match");
+    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), hasSize(0));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldNotMatchInResponseToId() throws XPathExpressionException {
+    subject.getInstitutesWhichHaveBoDAdminEntitlement("no-match", responseStream);
+  }
+
 }
