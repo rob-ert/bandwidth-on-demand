@@ -49,6 +49,10 @@ public class Log4JMail {
 
   @PostConstruct
   public void init() throws UnknownHostException {
+
+    if (Boolean.getBoolean("mailLogOff")) {
+      return;
+    }
     if (bodEnvironment.isDevelopment()) {
       log.info("MAIL LOGGER DISABLED!");
     }
