@@ -47,10 +47,10 @@ public class Log4JMail {
   @PostConstruct
   public void init() throws UnknownHostException {
     if (bodEnvironment.isDevelopment()) {
-      log.warn("MAIL LOGGER DISABLED!");
+      log.info("MAIL LOGGER DISABLED!");
     }
     else {
-      log.warn("MAIL LOGGER ENABLED!");
+      log.info("MAIL LOGGER ENABLED!");
 
       final SMTPAppender smtpAppender = new SMTPAppender();
       smtpAppender.setName(MAIL_LOGER_NAME);
