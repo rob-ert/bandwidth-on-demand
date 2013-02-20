@@ -102,7 +102,7 @@ public class SnmpOfflineManager implements CommandResponder {
 
   private boolean isEnabled() {
     if (!isEnabled) {
-      log.warn("All SNMP activities are disabled. Set snmp.enabled = true to re-enable it.");
+      log.info("All SNMP activities are disabled. Set snmp.enabled = true to re-enable it.");
     }
     return isEnabled;
   }
