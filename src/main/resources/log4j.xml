@@ -20,7 +20,7 @@
   </appender>
   
   
-  <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
+  <!-- <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
 	<param name="SMTPHost" value="localhost" />
 	<param name="SMTPPort" value="25" />
 	<param name="SMTPDebug" value="false" />
@@ -36,7 +36,7 @@
 		<param name="LevelMin" value="warn" />
 		<param name="LevelMax" value="error" />
 	</filter>
-  </appender>
+  </appender> -->
 
   <logger name="org.springframework">
     <level value="WARN" />
@@ -77,6 +77,6 @@
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
-    <appender-ref ref="MAIL" />
+    <!-- <appender-ref ref="MAIL" /> -->
   </root>
 </log4j:configuration>
