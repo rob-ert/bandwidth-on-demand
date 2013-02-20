@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SMTPAppender;
@@ -62,6 +63,7 @@ public class Log4JMail {
       smtpAppender.setSubject(subject + " at host: " + InetAddress.getLocalHost().getHostName());
       smtpAppender.setBufferSize(1);
       smtpAppender.setLayout(new PatternLayout(patternLayout));
+      smtpAppender.setThreshold(Level.WARN);
       smtpAppender.activateOptions();
       Logger.getRootLogger().addAppender(smtpAppender);
 
