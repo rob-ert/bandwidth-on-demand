@@ -22,18 +22,20 @@
  */
 package nl.surfnet.bod.domain;
 
-import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 public class UserGroup {
 
   private final String id;
   private final String name;
   private final String description;
+  private transient Optional<String> instituteShortName;
 
   public UserGroup(String id, String name, String description) {
     this.id = id;
     this.name = name;
     this.description = description;
+    this.instituteShortName = Optional.<String> absent();
   }
 
   public String getId() {
@@ -48,9 +50,39 @@ public class UserGroup {
     return description;
   }
 
+  public Optional<String> getInstituteShortName() {
+    return instituteShortName;
+  }
+
+  public void setInstituteShortName(Optional<String> instituteShortName) {
+    this.instituteShortName = instituteShortName;
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", id).add("name", name).add("description", description).toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append("UserGroup [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (name != null) {
+      builder.append("name=");
+      builder.append(name);
+      builder.append(", ");
+    }
+    if (description != null) {
+      builder.append("description=");
+      builder.append(description);
+      builder.append(", ");
+    }
+    if (instituteShortName.isPresent()) {
+      builder.append("instituteShortName=");
+      builder.append(instituteShortName.get());
+    }
+    builder.append("]");
+    return builder.toString();
   }
 
   @Override

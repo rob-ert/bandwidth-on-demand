@@ -24,11 +24,12 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,7 +57,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalResourceGroupServiceTest {
@@ -76,15 +79,17 @@ public class PhysicalResourceGroupServiceTest {
   @Mock
   private EmailSender emailSender;
 
-  private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
-  private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
-  private PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory()
-      .setInstitute(instituteOne).create();
-  private PhysicalResourceGroup physicalResourceGroupTwo = new PhysicalResourceGroupFactory()
-      .setInstitute(instituteTwo).create();
-  private List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroupOne,
-      physicalResourceGroupTwo);
+  @Mock
+  private LogEventService logEventService;
 
+  private final Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
+  private final Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
+  private final PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory()
+      .setInstitute(instituteOne).create();
+  private final PhysicalResourceGroup physicalResourceGroupTwo = new PhysicalResourceGroupFactory()
+      .setInstitute(instituteTwo).create();
+  private final List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroupOne,
+      physicalResourceGroupTwo);
 
   @Test
   public void shoudFillInstitutesFindAll() {
@@ -150,6 +155,57 @@ public class PhysicalResourceGroupServiceTest {
 
     verify(emailSender).sendActivationMail(link);
     verify(activationEmailLinkRepoMock, atLeastOnce()).save(link);
+  }
+
+  @Test
+  public void shouldCreatePhysicalResourceGroup() {
+    when(instituteServiceMock.findByShortName("One")).thenReturn(instituteOne);
+
+    UserGroup userGroup = new UserGroup("id", "name", "description");
+    userGroup.setInstituteShortName(Optional.<String> of("One"));
+
+    PhysicalResourceGroup prg = subject.createPhysicalResourceGroupIfNotExist(userGroup, "i@me.com");
+
+    assertNotNull(prg);
+    assertThat(prg.getAdminGroup(), is("id"));
+    assertThat(prg.getInstitute().getShortName(), is("One"));
+    assertThat(prg.getManagerEmail(), is("i@me.com"));
+  }
+
+  @Test
+  public void shouldCreatePhysicalResourceGroups() {
+    UserGroup userGroupOne = new UserGroup("id", "name", "description");
+    userGroupOne.setInstituteShortName(Optional.<String> of("One"));
+
+    UserGroup userGroupTwo = new UserGroup("id2", "name2", "description2");
+    userGroupTwo.setInstituteShortName(Optional.<String> of("Two"));
+
+    Collection<UserGroup> sabGroups = Lists.newArrayList(userGroupOne, userGroupTwo);
+
+    subject.createForGroupsIfNotExist(sabGroups, "i@me.com");
+
+    verify(groupRepoMock, times(2)).save(any(PhysicalResourceGroup.class));
+  }
+
+  @Test
+  public void shouldNotCreatePhysicalResourceGroupBecauseExists() {
+    when(groupRepoMock.findByAdminGroup("id")).thenReturn(Lists.newArrayList(physicalResourceGroupOne));
+
+    UserGroup userGroup = new UserGroup("id", "name", "description");
+    userGroup.setInstituteShortName(Optional.<String> of("One"));
+
+    PhysicalResourceGroup prg = subject.createPhysicalResourceGroupIfNotExist(userGroup, "i@me.com");
+
+    assertNull(prg);
+    verify(groupRepoMock, times(1)).findByAdminGroup(eq("id"));
+    verifyNoMoreInteractions(groupRepoMock);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotCreatePhysicalResourceGroupSinceInstituteShortNameIsAbsent() {
+    UserGroup userGroup = new UserGroup("id", "name", "description");
+
+    subject.createPhysicalResourceGroupIfNotExist(userGroup, "i@me.com");
   }
 
 }

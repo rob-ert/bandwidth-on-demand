@@ -12,12 +12,13 @@ import nl.surfnet.bod.sabng.SabNgEntitlementsHandler;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 @Service("sabGroupService")
 public class SabGroupService implements GroupService {
   @VisibleForTesting
-  static final String GROUP_PREFIX = "urn:collab:person:admin:bod.surfnet.nl:";
+  static final String GROUP_PREFIX = "urn:collab:person:sab:admin:bod.surfnet.nl:";
   static final String NAME_PREFIX = "BoD Administrator ";
   static final String DESCRIPTION_PREFIX = NAME_PREFIX + " of ";
 
@@ -31,6 +32,7 @@ public class SabGroupService implements GroupService {
     for (String institute : sabNgEntitlementsHandler.checkInstitutes(nameId)) {
       UserGroup userGroup = new UserGroup(composeGroupName(institute), composeName(institute),
           composeDescription(institute));
+      userGroup.setInstituteShortName(Optional.<String>of(institute));
 
       groups.add(userGroup);
     }

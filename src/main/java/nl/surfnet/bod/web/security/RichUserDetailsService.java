@@ -79,7 +79,11 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
 
     Set<UserGroup> combinedGroups = Sets.newHashSet(openSocialGroupService.getGroups(principal.getNameId()));
-    combinedGroups.addAll(sabGroupService.getGroups(principal.getNameId()));
+    Collection<UserGroup> sabGroups = sabGroupService.getGroups(principal.getNameId());
+    physicalResourceGroupService.createForGroupsIfNotExist(sabGroups, principal.getEmail());
+
+    combinedGroups.addAll(sabGroups);
+
     logger.debug("Found groups: '{}' for name-id: '{}'", combinedGroups, principal.getNameId());
 
     updateVirtualResourceGroups(combinedGroups);

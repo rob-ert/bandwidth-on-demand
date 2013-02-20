@@ -37,10 +37,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -52,9 +49,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 @Service
 @Transactional
@@ -73,6 +73,9 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
   @Resource
   private LogEventService logEventService;
+
+  @Resource
+  private InstituteService instituteService;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -97,11 +100,37 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public void save(final PhysicalResourceGroup physicalResourceGroup) {
+  public void createForGroupsIfNotExist(Collection<UserGroup> sabGroups, String managerEmail) {
+    for (UserGroup userGroup : sabGroups) {
+      createPhysicalResourceGroupIfNotExist(userGroup, managerEmail);
+    }
+  }
+
+  @VisibleForTesting
+  PhysicalResourceGroup createPhysicalResourceGroupIfNotExist(final UserGroup userGroup, final String managerEmail) {
+    Preconditions.checkArgument(userGroup.getInstituteShortName().isPresent(),
+        "The shortName of the institute should be present for userGroup: {}", userGroup);
+
+    if (CollectionUtils.isEmpty(findByAdminGroup(userGroup.getId()))) {
+      PhysicalResourceGroup prg = new PhysicalResourceGroup();
+      prg.setAdminGroup(userGroup.getId());
+
+      Institute institute = instituteService.findByShortName(userGroup.getInstituteShortName().get());
+      prg.setInstitute(institute);
+      prg.setManagerEmail(managerEmail);
+
+      return save(prg);
+    }
+    return null;
+  }
+
+  public PhysicalResourceGroup save(final PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroupRepo.save(physicalResourceGroup);
 
     // log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), physicalResourceGroup);
+
+    return physicalResourceGroup;
   }
 
   public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
