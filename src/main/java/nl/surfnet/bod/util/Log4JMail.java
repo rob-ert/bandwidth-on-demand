@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.google.common.annotations.VisibleForTesting;
+
 @Component
 public class Log4JMail {
 
@@ -70,7 +72,8 @@ public class Log4JMail {
     }
   }
 
-  public void setEnvironment(Environment environment) {
+  @VisibleForTesting
+  void setEnvironment(Environment environment) {
     this.bodEnvironment = environment;
   }
 
