@@ -3,12 +3,9 @@ package nl.surfnet.bod.util;
 import static nl.surfnet.bod.util.Log4JMail.MAIL_LOGER_NAME;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
 
 import java.net.UnknownHostException;
-
-import javax.annotation.Resource;
-
-import nl.surfnet.bod.AppConfiguration;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -16,18 +13,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class })
-public class Log4JMailTestIntegration {
+@RunWith(MockitoJUnitRunner.class)
+public class Log4JMailTest {
 
-  @Resource
+  @Mock
   private Environment bodEnvironment;
 
-  @Resource
+  @InjectMocks
   private Log4JMail subject;
 
   @BeforeClass
@@ -45,11 +41,9 @@ public class Log4JMailTestIntegration {
   }
 
   @Test
-  public void shouldUseMailAppenderInEveryOtherMode() throws UnknownHostException {
+  public void shouldUseMailAppenderInEveryOtherEnvironment() throws UnknownHostException {
     prepareSubject(false);
     assertNotNull(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME));
-    org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-    log.error("Boem", new Exception());
   }
 
   @Test
@@ -59,8 +53,7 @@ public class Log4JMailTestIntegration {
   }
 
   private void prepareSubject(boolean isDevelopment) throws UnknownHostException {
-    bodEnvironment.setDevelopment(isDevelopment);
-    subject.setEnvironment(bodEnvironment);
+    when(bodEnvironment.isDevelopment()).thenReturn(isDevelopment);
     subject.init();
   }
 
