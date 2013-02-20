@@ -1,8 +1,9 @@
 package nl.surfnet.bod.util;
 
 import static nl.surfnet.bod.util.Log4JMail.MAIL_LOGER_NAME;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 
 import java.net.UnknownHostException;
@@ -43,13 +44,13 @@ public class Log4JMailTest {
   @Test
   public void shouldUseMailAppenderInEveryOtherEnvironment() throws UnknownHostException {
     prepareSubject(false);
-    assertNotNull(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME));
+    assertThat(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME), notNullValue());
   }
 
   @Test
   public void shouldNotUseMailAppenderInDevelopmentMode() throws UnknownHostException {
     prepareSubject(true);
-    assertNull(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME));
+    assertThat(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME), nullValue());
   }
 
   private void prepareSubject(boolean isDevelopment) throws UnknownHostException {
