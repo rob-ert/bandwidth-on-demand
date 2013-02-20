@@ -41,6 +41,9 @@ public class Log4JMail {
   @Value("${log4jmail.from}")
   private String from;
 
+  @Value("${log4jmail.pattern.layout}")
+  private String patternLayout;
+
   @PostConstruct
   public void init() throws UnknownHostException {
     if (bodEnvironment.isDevelopment()) {
@@ -56,9 +59,9 @@ public class Log4JMail {
       smtpAppender.setSMTPDebug(isDebug);
       smtpAppender.setFrom(from);
       smtpAppender.setTo(to);
-      smtpAppender.setSubject(subject +" at host: "+ InetAddress.getLocalHost().getHostName());
+      smtpAppender.setSubject(subject + " at host: " + InetAddress.getLocalHost().getHostName());
       smtpAppender.setBufferSize(1);
-      smtpAppender.setLayout(new PatternLayout("%d{HH:mm:ss,SSS} %p [%30.30C{2}:%-3L] [%-20.20t] - %m%n"));
+      smtpAppender.setLayout(new PatternLayout(patternLayout));
       smtpAppender.activateOptions();
       Logger.getRootLogger().addAppender(smtpAppender);
 
