@@ -49,6 +49,13 @@
                     <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
                 </c:choose>
             </dd>
+            <dt>SAB Server</dt>
+            <dd>
+                <c:choose>
+                    <c:when test="${sabHealth}"><i class="icon-ok-sign"><!--  --></i></c:when>
+                    <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
+                </c:choose>
+            </dd>
         </dl>
     </div>
     <div class="actions"><!--  --></div>

@@ -59,7 +59,10 @@ public class HealthCheckController {
   private NbiClient nbiClient;
 
   @Resource
-  private GroupService groupService;
+  private GroupService openSocialGroupService;
+
+  @Resource
+  private GroupService sabGroupService;
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
@@ -112,7 +115,7 @@ public class HealthCheckController {
 
       @Override
       public boolean healty() throws IOException {
-        Collection<UserGroup> groups = groupService.getGroups(PERSON_URI);
+        Collection<UserGroup> groups = openSocialGroupService.getGroups(PERSON_URI);
         return groups.size() > 0;
       }
 
@@ -122,13 +125,29 @@ public class HealthCheckController {
       }
     };
 
+    final ServiceCheck sabServiceCheck = new ServiceCheck() {
+      private static final String PERSON_URI = "urn:collab:person:test.surfguest.nl:prolokees";
+
+      @Override
+      public boolean healty() throws IOException {
+        Collection<UserGroup> groups = sabGroupService.getGroups(PERSON_URI);
+        return groups.size() > 0;
+      }
+
+      @Override
+      public String getName() {
+        return "SAB (groupService)";
+      }
+    };
+
     @SuppressWarnings("unchecked")
     List<Callable<Boolean>> tasks = Lists.newArrayList(
         callable(iddServiceCheck),
         callable(nbiServiceCheck),
         callable(oAuthServerServiceCheck),
-        callable(apiServiceCheck)
-    );
+        callable(apiServiceCheck),
+        callable(sabServiceCheck)
+        );
 
     try {
       List<Future<Boolean>> futures = Executors.newFixedThreadPool(4).invokeAll(tasks, 15, TimeUnit.SECONDS);
@@ -137,6 +156,7 @@ public class HealthCheckController {
       model.addAttribute("nbiHealth", toBooleanValue(futures.get(1)));
       model.addAttribute("oAuthServer", toBooleanValue(futures.get(2)));
       model.addAttribute("openConextApi", toBooleanValue(futures.get(3)));
+      model.addAttribute("sabHealth", toBooleanValue(futures.get(4)));
     }
     catch (InterruptedException e) {
       logger.error("Error during calling healthchecks", e);
@@ -188,6 +208,7 @@ public class HealthCheckController {
 
   interface ServiceCheck {
     boolean healty() throws Exception;
+
     String getName();
   }
 

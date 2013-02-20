@@ -79,8 +79,9 @@ public class HealthCheckControllerTest {
 
     subject.index(model);
 
-    assertThat(logger.getErrorMessages(), hasSize(4));
-    assertThat(logger.getErrorMessages(), hasItems(containsString("IDD"), containsString("NBI"), containsString("OAuth"), containsString("API")));
+    assertThat(logger.getErrorMessages(), hasSize(5));
+    assertThat(logger.getErrorMessages(), hasItems(containsString("IDD"), containsString("NBI"),
+        containsString("OAuth"), containsString("API"), containsString("SAB")));
   }
 
   private void supressErrorOutput() {
@@ -90,7 +91,7 @@ public class HealthCheckControllerTest {
   @SuppressWarnings("serial")
   private class ErrorLogger extends MarkerIgnoringBase {
 
-    private List<String> errorMessages = new ArrayList<>();
+    private final List<String> errorMessages = new ArrayList<>();
 
     public Collection<String> getErrorMessages() {
       return errorMessages;
