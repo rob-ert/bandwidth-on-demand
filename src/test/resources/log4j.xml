@@ -19,9 +19,9 @@
     </layout>
   </appender>
   
-  <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
+  <!-- <appender name="MAIL" class="org.apache.log4j.net.SMTPAppender">
 	<param name="SMTPHost" value="localhost" />
-	<param name="SMTPPort" value="25" />
+	<param name="SMTPPort" value="2525" />
 	<param name="SMTPDebug" value="false" />
 	<param name="From" value="info@surfnet.nl" />
 	<param name="To" value="bod-dev@list.surfnet.nl" />
@@ -35,7 +35,7 @@
 		<param name="LevelMin" value="warn" />
 		<param name="LevelMax" value="error" />
 	</filter>
-</appender>
+</appender> -->
   
 
   <logger name="org.springframework">
@@ -81,6 +81,6 @@
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
-    <appender-ref ref="MAIL" />
+    <!-- <appender-ref ref="MAIL" /> -->
   </root>
 </log4j:configuration>
