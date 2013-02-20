@@ -27,6 +27,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -45,10 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService<Authentication> {
 
@@ -61,7 +59,10 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   private String appManagerGroupId;
 
   @Resource
-  private GroupService groupService;
+  private GroupService openSocialGroupService;
+
+  @Resource
+  private GroupService sabGroupService;
 
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -76,17 +77,18 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   @Transactional
   public RichUserDetails loadUserDetails(Authentication token) {
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
-    Collection<UserGroup> groups = groupService.getGroups(principal.getNameId());
 
-    logger.debug("Found groups: '{}' for name-id: '{}'", groups, principal.getNameId());
+    Set<UserGroup> combinedGroups = Sets.newHashSet(openSocialGroupService.getGroups(principal.getNameId()));
+    combinedGroups.addAll(sabGroupService.getGroups(principal.getNameId()));
+    logger.debug("Found groups: '{}' for name-id: '{}'", combinedGroups, principal.getNameId());
 
-    updateVirtualResourceGroups(groups);
+    updateVirtualResourceGroups(combinedGroups);
     createAccountIfNotExists(principal.getNameId());
 
-    Collection<BodRole> roles = determineRoles(groups);
+    Collection<BodRole> roles = determineRoles(combinedGroups);
 
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
-        principal.getEmail(), groups, roles, principal.getNsiScopes());
+        principal.getEmail(), combinedGroups, roles, principal.getNsiScopes());
 
     return userDetails;
   }
@@ -167,7 +169,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
           || !nullToEmpty(vrg.getDescription()).equals(nullToEmpty(userGroup.getDescription()))) {
         logger.info(
             "Updating virtualResourceGroup ({} -> {}) ({} -> {})",
-            new Object[] {vrg.getName(), userGroup.getName(), vrg.getDescription(), userGroup.getDescription()});
+            new Object[] { vrg.getName(), userGroup.getName(), vrg.getDescription(), userGroup.getDescription() });
         vrg.setDescription(userGroup.getDescription());
         vrg.setName(userGroup.getName());
 

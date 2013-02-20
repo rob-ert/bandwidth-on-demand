@@ -73,6 +73,7 @@ import com.google.common.collect.Lists;
 @Component
 public class SabNgEntitlementsHandler {
 
+  private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
   private static final String STATUS_SUCCESS = "Success";
 
   private static final String REQUEST_TEMPLATE_LOCATION = "/xmlsabng/request-entitlement-template.xml";
@@ -143,6 +144,10 @@ public class SabNgEntitlementsHandler {
 
     XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
     Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
+    if (conditions == null) {
+      //Nothing to check, might be in case of error message
+      return;
+    }
     NamedNodeMap attributes = conditions.getAttributes();
 
     DateTime notBeforeOrAfter = XmlUtils.getDateTimeFromXml(attributes.getNamedItem("NotBefore").getTextContent());
@@ -202,17 +207,6 @@ public class SabNgEntitlementsHandler {
     return getInstitutesWithRoleToMatch(document, getRoleToMatch());
   }
 
-  private XPath getXPath() {
-    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
-    xPath.setNamespaceContext(new SabNgNamespaceResolver());
-
-    return xPath;
-  }
-
-  private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
-    return StringUtils.hasText(entitlements) && entitlements.contains(roleToMatch);
-  }
-
   private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
       throws XPathExpressionException {
     XPath xPath = getXPath();
@@ -268,15 +262,29 @@ public class SabNgEntitlementsHandler {
     XPath xPath = getXPath();
 
     String statusCode = getStatusCode(document, xPath);
-    Preconditions
-        .checkState(statusCode.contains(statusToMatch),
-            "Could not retrieve roles, statusCode: [%s], statusMessage: %s", statusCode, getStatusMessage(document,
-                xPath));
+    String statusMessage = getStatusMessage(document, xPath);
+
+    if (not(statusCode.contains(statusToMatch))) {
+      Preconditions.checkState(StringUtils.hasText(statusMessage) && statusMessage.contains(STATUS_MESSAGE_NO_ROLES),
+          "Could not retrieve roles, statusCode: [%s], statusMessage: %s", statusCode,
+          statusMessage);
+    }
 
     String inResponseToId = getResponseId(document, xPath);
     Preconditions.checkState(inResponseToId.equals(inResponseToIdToMatch),
         "InResponseTo does not match. Expected [%s], but was: [%s]",
         inResponseToIdToMatch, inResponseToId);
+  }
+
+  private XPath getXPath() {
+    XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+    xPath.setNamespaceContext(new SabNgNamespaceResolver());
+
+    return xPath;
+  }
+
+  private boolean checkEntitlements(String entitlements, String roleToMatch) throws XPathExpressionException {
+    return StringUtils.hasText(entitlements) && entitlements.contains(roleToMatch);
   }
 
   private String getResponseId(Document document, XPath xPath) throws XPathExpressionException {

@@ -24,7 +24,6 @@ package nl.surfnet.bod.sabng;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
@@ -60,7 +59,6 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @Test
   public void shouldRetrieveRoles() {
-
     String nameId = "urn:collab:person:test.surfguest.nl:prolokees";
     List<String> institutes = subject.checkInstitutes(nameId);
 
@@ -68,20 +66,17 @@ public class SabNgEntitlementsHandlerTestIntegration {
   }
 
   @Test
-  public void shouldThrowWithDecentErrorMessageForNoneExistingNameId() {
-    String nameId = "urn:collab:person:test.surfguest.nl:unknown";
-    try {
-      subject.checkInstitutes(nameId);
-    }
-    catch (RuntimeException e) {
-      assertThat(e.getMessage(), containsString(nameId));
-    }
-  }
-
-  @Test
   public void shouldNotPerformCallWhenDisabled() {
     subject.setSabEnabled("false");
     List<String> institutes = subject.checkInstitutes("urn:collab:person:test.surfguest.nl:prolokees");
+
+    assertThat(institutes, hasSize(0));
+  }
+
+  @Test
+  public void shouldReturnEmptyListForNoneExistingNameIdInsteadOfThrowingUp() {
+    String nameId = "urn:collab:person:test.surfguest.nl:unknown";
+    List<String> institutes = subject.checkInstitutes(nameId);
 
     assertThat(institutes, hasSize(0));
   }

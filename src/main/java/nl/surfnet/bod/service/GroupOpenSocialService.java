@@ -53,10 +53,10 @@ import com.google.common.collect.Lists;
 /**
  * More information about the OpenConext-api {@linkplain https://wiki.surfnetlabs.nl/display/conextdocumentation/REST+interface}
  */
-@Service
+@Service("openSocialGroupService")
 public class GroupOpenSocialService implements GroupService {
 
-  private Logger logger = LoggerFactory.getLogger(GroupOpenSocialService.class);
+  private final Logger logger = LoggerFactory.getLogger(GroupOpenSocialService.class);
 
   @Resource(name = "bodEnvironment")
   private Environment env;

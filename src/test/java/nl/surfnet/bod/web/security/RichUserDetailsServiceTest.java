@@ -70,6 +70,8 @@ public class RichUserDetailsServiceTest {
   @Mock
   private GroupService groupServiceMock;
   @Mock
+  private GroupService sabGroupService;
+  @Mock
   private PhysicalResourceGroupService prgServiceMock;
   @Mock
   private VirtualResourceGroupService vrgServiceMock;
