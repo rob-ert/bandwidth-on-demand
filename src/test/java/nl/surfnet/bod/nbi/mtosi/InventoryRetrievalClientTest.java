@@ -25,7 +25,10 @@ package nl.surfnet.bod.nbi.mtosi;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import javax.xml.bind.JAXBElement;
+
 import org.junit.Test;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTest {
 
@@ -54,5 +57,10 @@ public class InventoryRetrievalClientTest {
   @Test
   public void shouldNotRequireVlanWhenEmpty() {
     assertThat(subject.determineVlanRequired(""), is(false));
+  }
+  
+  @Test
+  public void shouldCreatePhysicalPortWithVLAN(){
+    
   }
 }

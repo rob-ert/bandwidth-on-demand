@@ -47,16 +47,13 @@ public class Log4JMail {
   @Value("${log4jmail.pattern.layout}")
   private String patternLayout;
 
+  @Value("${log4jmail.enabled}")
+  private String enabled;
+
   @PostConstruct
   public void init() throws UnknownHostException {
 
-    if (Boolean.getBoolean("mailLogOff")) {
-      return;
-    }
-    if (bodEnvironment.isDevelopment()) {
-      log.info("MAIL LOGGER DISABLED!");
-    }
-    else {
+    if (Boolean.parseBoolean(enabled)) {
       log.info("MAIL LOGGER ENABLED!");
 
       final SMTPAppender smtpAppender = new SMTPAppender();
@@ -72,7 +69,6 @@ public class Log4JMail {
       smtpAppender.setThreshold(Level.WARN);
       smtpAppender.activateOptions();
       Logger.getRootLogger().addAppender(smtpAppender);
-
     }
   }
 

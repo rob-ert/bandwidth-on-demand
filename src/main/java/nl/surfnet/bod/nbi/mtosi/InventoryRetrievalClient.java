@@ -199,7 +199,8 @@ public class InventoryRetrievalClient {
     return serviceInventory;
   }
 
-  private PhysicalPort createPhysicalPort(final ServiceAccessPointType sap) {
+  @VisibleForTesting
+  PhysicalPort createPhysicalPort(final ServiceAccessPointType sap) {
     final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
 
     String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
