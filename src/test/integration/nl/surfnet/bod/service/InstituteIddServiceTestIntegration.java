@@ -112,4 +112,28 @@ public class InstituteIddServiceTestIntegration {
 
     assertThat(institute.isAlignedWithIDD(), is(false));
   }
+
+  @Test
+  public void shouldFindByShortName() {
+    Institute instituteOne = new InstituteFactory().setName("Wesaidso Software Engineering")
+        .setShortName("WSE").setAlignedWithIDD(true).create();
+
+    instituteOne = instituteRepo.save(instituteOne);
+
+    Institute institute = instituteRepo.findByShortName("WSE");
+    assertThat(institute, is(instituteOne));
+  }
+
+  @Test
+  public void shouldThrowSInceShortNameMustBeUnique() {
+    Institute instituteOne = new InstituteFactory().setName("Wesaidso Software Engineering")
+        .setShortName("WSE").setAlignedWithIDD(true).create();
+
+    Institute instituteTwo = new InstituteFactory().setName("Wesaidso Software Engineering 2")
+        .setShortName("WSE").setAlignedWithIDD(true).create();
+
+    instituteRepo.save(instituteOne);
+
+    instituteRepo.save(instituteTwo);
+  }
 }

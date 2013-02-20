@@ -38,6 +38,15 @@ public interface InstituteService {
   Institute find(Long id);
 
   /**
+   * Finds the {@link Institute} related to the given shortName
+   * 
+   * @param shortName
+   *          ShortName to search for
+   * @return {@link Institute} related to the shortName ofr null when not found
+   */
+  Institute findByShortName(String shortName);
+
+  /**
    * Finds all {@link Institute}s which are aligned with IDD.
    * 
    * @return
@@ -52,4 +61,5 @@ public interface InstituteService {
    * alignedWithIDD.
    */
   void refreshInstitutes();
+
 }

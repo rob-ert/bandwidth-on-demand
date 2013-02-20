@@ -1,0 +1,1 @@
+ALTER TABLE institute ADD CONSTRAINT unique_short_name UNIQUE (short_name);

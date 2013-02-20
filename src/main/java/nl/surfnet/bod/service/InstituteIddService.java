@@ -66,6 +66,11 @@ public class InstituteIddService implements InstituteService {
   }
 
   @Override
+  public Institute findByShortName(String shortName) {
+    return instituteRepo.findByShortName(shortName);
+  }
+
+  @Override
   public Collection<Institute> findAlignedWithIDD() {
     return instituteRepo.findByAlignedWithIDD(true);
   }
