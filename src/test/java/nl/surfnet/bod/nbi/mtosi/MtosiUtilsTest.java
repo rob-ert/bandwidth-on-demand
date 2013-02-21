@@ -23,9 +23,12 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.Test;
+import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
+import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 
 public class MtosiUtilsTest {
 
@@ -77,6 +80,31 @@ public class MtosiUtilsTest {
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotComposeNmsPortIdWhenAtSignIsPresentInMe() {
     MtosiUtils.composeNmsPortId("ptp", "m@e");
+  }
+
+  @Test
+  public void shouldCreateNamingAttrib() {
+    NamingAttributeType attrib = MtosiUtils.createNamingAttrib();
+
+    assertThat(attrib.getRdn(), hasSize(0));
+  }
+
+  @Test
+  public void shouldCreateNamingAttribWithArgs() {
+    NamingAttributeType attrib = MtosiUtils.createNamingAttrib("type", "value");
+
+    assertThat(attrib.getRdn(), hasSize(1));
+    assertThat(attrib.getRdn().get(0).getType(), is("type"));
+    assertThat(attrib.getRdn().get(0).getValue(), is("value"));
+  }
+
+  @Test
+  public void shouldCreateRdn() {
+    RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "value");
+
+    assertThat(rdn.getType(), is("type"));
+    assertThat(rdn.getValue(), is("value"));
+
   }
 
 }
