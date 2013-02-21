@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.Test;
@@ -66,8 +65,8 @@ public class MtosiUtilsTest {
 
   @Test
   public void shouldDecomposeNmsPortId() {
-    assertThat(MtosiUtils.decomposeNmsPortId("me@1-1-1-1"), arrayContaining("me", MtosiUtils
-        .convertToShortPtP("1-1-1-1")));
+    assertThat(MtosiUtils.extractPTPFromNmsPortId("me@1-1-1-1"),
+        is(MtosiUtils.convertToLongPtP("1-1-1-1")));
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -51,12 +51,15 @@ public final class MtosiUtils {
     return managedElement + "@" + convertToLongPtP(ptp);
   }
 
-  public static String[] decomposeNmsPortId(String nmsPortId) {
+  public static String extractPTPFromNmsPortId(String nmsPortId) {
+    String ptp = null;
     String[] ids = nmsPortId.split("@");
 
-    ids[1] = convertToShortPtP(ids[1]);
+    if (ids.length > 1) {
+      ptp = convertToLongPtP(ids[1]);
+    }
 
-    return ids;
+    return ptp;
   }
 
   public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
