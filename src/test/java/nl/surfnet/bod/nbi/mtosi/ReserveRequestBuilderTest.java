@@ -27,8 +27,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringWriter;
@@ -46,12 +48,16 @@ import javax.xml.validation.SchemaFactory;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.util.XmlUtils;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.xml.sax.SAXException;
 
@@ -67,7 +73,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void shouldMarshall() throws JAXBException {
-    Reservation reservation = new ReservationFactory().create();
+    Reservation reservation = new ReservationFactory().setReservationId("123").create();
     reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
     reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
     reservation.getSourcePort().getPhysicalPort().setNmsPortId("1-1-1-1");
@@ -77,6 +83,15 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false);
+    assertThat(reserveRequest.getExpiringTime(), Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(reservation.getEndDateTime()).get()));
+    
+    ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
+     
+    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
+    assertTrue(rfs.isIsMandatory());
+    assertTrue(rfs.isIsStateful());
+    
+    
 
     final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 
