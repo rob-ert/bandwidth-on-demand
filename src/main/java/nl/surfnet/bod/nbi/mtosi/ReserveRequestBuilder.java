@@ -22,6 +22,9 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttrib;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRdn;
+
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -194,25 +197,6 @@ public class ReserveRequestBuilder {
       List<ServiceCharacteristicValueType> list) {
     ServiceCharacteristicValueType serviceCharacteristicValueType = createSscRef(value, namingAttributeType);
     list.add(serviceCharacteristicValueType);
-  }
-
-  private RelativeDistinguishNameType createRdn(String type, String value) {
-    RelativeDistinguishNameType rel = new RelativeDistinguishNameType();
-    rel.setType(type);
-    rel.setValue(value);
-    return rel;
-  }
-
-  private NamingAttributeType createNamingAttrib() {
-    return new NamingAttributeType();
-  }
-
-  private NamingAttributeType createNamingAttrib(String type, String value) {
-    NamingAttributeType namingAttributeType = new NamingAttributeType();
-
-    namingAttributeType.getRdn().add(createRdn(type, value));
-
-    return namingAttributeType;
   }
 
   private ServiceCharacteristicValueType createSscRef(String value, NamingAttributeType namingAttributeType) {

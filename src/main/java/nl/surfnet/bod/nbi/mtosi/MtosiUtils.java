@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.util.StringUtils;
+import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
@@ -96,6 +97,25 @@ public final class MtosiUtils {
     else {
       throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
     }
+  }
+
+  public static RelativeDistinguishNameType createRdn(String type, String value) {
+    RelativeDistinguishNameType rel = new RelativeDistinguishNameType();
+    rel.setType(type);
+    rel.setValue(value);
+    return rel;
+  }
+
+  public static NamingAttributeType createNamingAttrib() {
+    return new NamingAttributeType();
+  }
+
+  public static NamingAttributeType createNamingAttrib(String type, String value) {
+    NamingAttributeType namingAttributeType = new NamingAttributeType();
+
+    namingAttributeType.getRdn().add(createRdn(type, value));
+
+    return namingAttributeType;
   }
 
 }
