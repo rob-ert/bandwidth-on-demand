@@ -39,6 +39,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
+import org.apache.http.entity.StringEntity;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,6 +106,16 @@ public class SabNgEntitlementsHandlerTest {
   public void shouldNotMatchEntitlement() throws IOException, XPathExpressionException {
     when(bodEnvironment.getSabRole()).thenReturn("no-match");
     assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), hasSize(0));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void shouldThrowParseException() throws XPathExpressionException, IOException {
+    StringEntity stringEntity = new StringEntity(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \\" +
+        "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"> \\" +
+        "<SOAP-ENV:Body>Garbage</SOAP-ENV:Body></SOAP-ENV:Envelope>");
+
+    subject.getInstitutesWhichHaveBoDAdminEntitlement("id", stringEntity.getContent());
   }
 
   @Test(expected = IllegalStateException.class)

@@ -29,7 +29,7 @@ public class UserGroup {
   private final String id;
   private final String name;
   private final String description;
-  private transient Optional<String> instituteShortName;
+  private Optional<String> instituteShortName;
 
   public UserGroup(String id, String name, String description) {
     this.id = id;

@@ -25,6 +25,7 @@ package nl.surfnet.bod.sabng;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.List;
 
@@ -34,9 +35,11 @@ import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.util.TestHelper;
 
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class SabNgEntitlementsHandlerTestIntegration {
 
   @BeforeClass
@@ -67,10 +70,15 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @Test
   public void shouldNotPerformCallWhenDisabled() {
+
+    DefaultHttpClient httpClient = Mockito.mock(DefaultHttpClient.class);
+    subject.setHttpClient(httpClient);
+
     subject.setSabEnabled("false");
     List<String> institutes = subject.checkInstitutes("urn:collab:person:test.surfguest.nl:prolokees");
 
     assertThat(institutes, hasSize(0));
+    verifyZeroInteractions(httpClient);
   }
 
   @Test

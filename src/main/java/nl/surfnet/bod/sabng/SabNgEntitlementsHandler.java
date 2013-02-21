@@ -86,7 +86,7 @@ public class SabNgEntitlementsHandler {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+  private DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
 
   @Value("${sab.endpoint}")
   private String sabEndPoint;
@@ -145,7 +145,7 @@ public class SabNgEntitlementsHandler {
     XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
     Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
     if (conditions == null) {
-      //Nothing to check, might be in case of error message
+      // Nothing to check, might be in case of error message
       return;
     }
     NamedNodeMap attributes = conditions.getAttributes();
@@ -205,6 +205,11 @@ public class SabNgEntitlementsHandler {
     checkConditions(document);
 
     return getInstitutesWithRoleToMatch(document, getRoleToMatch());
+  }
+
+  @VisibleForTesting
+  void setHttpClient(DefaultHttpClient httpClient) {
+    this.httpClient = httpClient;
   }
 
   private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
@@ -308,16 +313,10 @@ public class SabNgEntitlementsHandler {
     public String getNamespaceURI(String prefix) {
 
       switch (prefix) {
-      case "SOAP-ENV":
-        return "http://schemas.xmlsoap.org/soap/envelope/";
       case "samlp":
         return "urn:oasis:names:tc:SAML:2.0:protocol";
       case "saml":
         return "urn:oasis:names:tc:SAML:2.0:assertion";
-      case "xsi":
-        return "http://www.w3.org/2001/XMLSchema-instance";
-      case "xs":
-        return "http://www.w3.org/2001/XMLSchema";
       default:
         return XMLConstants.NULL_NS_URI;
       }
