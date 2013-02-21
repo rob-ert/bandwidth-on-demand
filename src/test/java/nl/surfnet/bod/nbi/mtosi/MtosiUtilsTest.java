@@ -35,35 +35,35 @@ public class MtosiUtilsTest {
   @Test
   public void convertPtp() {
     assertThat(
-        MtosiUtils.convertToLongPtP("/rack=1/shelf=1/slot=1/port=48"),
+        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=1/port=48"),
         is("1-1-1-48"));
   }
 
   @Test
   public void convertPtpWithSubSlot() {
     assertThat(
-        MtosiUtils.convertToLongPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"),
+        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"),
         is("1-1-3-1-5"));
   }
 
   @Test
   public void convertNmsPortId() {
     assertThat(
-        MtosiUtils.convertToShortPtP("1-2-3-4"),
+        MtosiUtils.convertToLongPtP("1-2-3-4"),
         is("/rack=1/shelf=2/slot=3/port=4"));
   }
 
   @Test
   public void convertNmsPortIdWithSubSlot() {
     assertThat(
-        MtosiUtils.convertToShortPtP("2-3-4-5-10"),
+        MtosiUtils.convertToLongPtP("2-3-4-5-10"),
         is("/rack=2/shelf=3/slot=4/sub_slot=5/port=10"));
   }
 
   @Test
   public void shouldComposeNmsPortId() {
     assertThat(MtosiUtils.composeNmsPortId("me", "1-1-1-1"), is("me@"
-        + MtosiUtils.convertToLongPtP("1-1-1-1")));
+        + "1-1-1-1"));
   }
 
   @Test

@@ -48,7 +48,7 @@ public final class MtosiUtils {
     Preconditions.checkArgument(not(managedElement.contains("@")));
     Preconditions.checkArgument(not(ptp.contains("@")));
 
-    return managedElement + "@" + convertToLongPtP(ptp);
+    return managedElement + "@" + convertToShortPtP(ptp);
   }
 
   public static String extractPTPFromNmsPortId(String nmsPortId) {
@@ -83,13 +83,13 @@ public final class MtosiUtils {
   }
 
   @VisibleForTesting
-  static String convertToLongPtP(String ptp) {
+  static String convertToShortPtP(String ptp) {
     return ptp.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
         .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
   }
 
   @VisibleForTesting
-  static String convertToShortPtP(String shortPtP) {
+  static String convertToLongPtP(String shortPtP) {
     Object[] parts = shortPtP.split("-");
     if (parts.length == 4) {
       return String.format(PTP_FORMAT, parts);

@@ -230,7 +230,7 @@ public class InventoryRetrievalClient {
     }
 
     final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
-    physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToLongPtP(ptp)));
+    physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToShortPtP(ptp)));
     physicalPort.setNmsNeId(managedElement);
     physicalPort.setBodPortId(nmsSapName);
     physicalPort.setNmsPortSpeed(nmsPortSpeed);
