@@ -50,7 +50,7 @@ public class ServiceComponentActivationClient {
   private static final String WSDL_LOCATION =
     "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
 
-  private Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
+  private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
   private final String endPoint;
   private final ServiceComponentActivationInterfaceHttp client;
@@ -64,9 +64,11 @@ public class ServiceComponentActivationClient {
       new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0", "ServiceComponentActivationInterfaceHttp"));
   }
 
-  public void reserve(Reservation reservation, boolean autoProvision) {
+  public void reserve(final Reservation reservation, boolean autoProvision) {
     Holder<Header> header = HeaderBuilder.buildReserveHeader(endPoint);
     ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision);
+
+    
 
     try {
       ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
