@@ -23,7 +23,9 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttrib;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRdn;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createServiceCharacteristicsAndAddToList;
 
 import java.util.List;
 
@@ -49,10 +51,10 @@ public class ReserveRequestBuilder {
 
   @VisibleForTesting
   static final String SSC = "SSC";
-  private static final String MANAGING_DOMAIN = "CIENA/OneControl";
-  private static final String TRAFFIC_MAPPING_TABLECOUNT = "1";
-  private static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
-  private static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
+  static final String MANAGING_DOMAIN = "CIENA/OneControl";
+  static final String TRAFFIC_MAPPING_TABLECOUNT = "1";
+  static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
+  static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
@@ -120,9 +122,9 @@ public class ReserveRequestBuilder {
       String portType, List<ServiceCharacteristicValueType> describedByList) {
 
     if (vlandId.isPresent()) {
+      createServiceCharacteristicsAndAddToList("EVPL", createNamingAttrib(SSC, "ServiceType"), describedByList);
       createServiceCharacteristicsAndAddToList(String.valueOf(vlandId.get()), createNamingAttrib(SSC,
           "TrafficMappingFrom_Table_VID"), describedByList);
-      createServiceCharacteristicsAndAddToList("EVPL", createNamingAttrib(SSC, "ServiceType"), describedByList);
     }
     else {
       createServiceCharacteristicsAndAddToList("EPL", createNamingAttrib(SSC, "ServiceType"), describedByList);
@@ -188,24 +190,5 @@ public class ReserveRequestBuilder {
     return serviceAccessPoint;
   }
 
-  private JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
-        value));
-  }
-
-  private void createServiceCharacteristicsAndAddToList(String value, NamingAttributeType namingAttributeType,
-      List<ServiceCharacteristicValueType> list) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = createSscRef(value, namingAttributeType);
-    list.add(serviceCharacteristicValueType);
-  }
-
-  private ServiceCharacteristicValueType createSscRef(String value, NamingAttributeType namingAttributeType) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceCharacteristicValueType();
-    serviceCharacteristicValueType.setValue(value);
-
-    serviceCharacteristicValueType.setSscRef(namingAttributeType);
-    return serviceCharacteristicValueType;
-  }
-
+  
 }

@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.bind.JAXBElement;
+
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
@@ -119,6 +121,36 @@ public final class MtosiUtils {
     namingAttributeType.getRdn().add(createRdn(type, value));
 
     return namingAttributeType;
+  }
+
+  public static String getValueFrom(ServiceCharacteristicValueType ssc, String key) {
+    String value = ssc.getValue();
+
+    List<RelativeDistinguishNameType> rdns = ssc.getSscRef().getRdn();
+    Preconditions.checkState(rdns.size() == 1);
+    Preconditions.checkState(key.equals(rdns.get(0).getValue()), "Key does not match, was %s", rdns.get(0).getValue());
+
+    return value;
+  }
+
+  public static JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
+    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
+        value));
+  }
+
+  public static void createServiceCharacteristicsAndAddToList(String value, NamingAttributeType namingAttributeType,
+      List<ServiceCharacteristicValueType> list) {
+    ServiceCharacteristicValueType serviceCharacteristicValueType = createSscRef(value, namingAttributeType);
+    list.add(serviceCharacteristicValueType);
+  }
+
+  public static ServiceCharacteristicValueType createSscRef(String value, NamingAttributeType namingAttributeType) {
+    ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
+        .createServiceCharacteristicValueType();
+    serviceCharacteristicValueType.setValue(value);
+
+    serviceCharacteristicValueType.setSscRef(namingAttributeType);
+    return serviceCharacteristicValueType;
   }
 
 }

@@ -23,11 +23,13 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic;
+import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY;
+import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT;
+import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -55,10 +57,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.*;
 import org.xml.sax.SAXException;
 
 import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
@@ -83,15 +83,27 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false);
-    assertThat(reserveRequest.getExpiringTime(), Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(reservation.getEndDateTime()).get()));
-    
+    assertThat(reserveRequest.getExpiringTime(), Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(
+        reservation.getEndDateTime()).get()));
+
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
-     
-    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
-    assertTrue(rfs.isIsMandatory());
-    assertTrue(rfs.isIsStateful());
-    
-    
+    assertRfs(rfs);
+
+    assertThat(rfs.getDescribedByList(), hasSize(2));
+    String startDateTime = MtosiUtils.getValueFrom(rfs.getDescribedByList().get(0), "startTime");
+    assertThat(XmlUtils.getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
+
+    assertThat(rfs.getDescribedByList().get(1), hasServiceCharacteristic("AdmissionControl", "Strict"));
+
+    assertThat(rfs.getSapList(), hasSize(2));
+    ServiceAccessPointType sourceSapList = rfs.getSapList().get(0);
+    assertSourceSapList(sourceSapList);
+
+    List<ServiceCharacteristicValueType> sourceSSCList = sourceSapList.getDescribedByList();
+    assertThat(sourceSSCList, hasSize(8));
+    // TODO
+    // assertThat(sourceSSCList.get(0).getSscRef().getRdn().get(0),
+    // hasRdn("ServiceType", "all"));
 
     final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 
@@ -106,6 +118,26 @@ public class ReserveRequestBuilderTest {
     // Create a stringWriter to hold the XML
     final StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
+  }
+
+  private void assertSourceSapList(ServiceAccessPointType sourceSapList) {
+    assertThat(sourceSapList.getDescribedByList().get(0), hasServiceCharacteristic("TrafficMappingTableCount",
+        TRAFFIC_MAPPING_TABLECOUNT));
+
+    assertThat(sourceSapList.getDescribedByList().get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
+        TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+
+    String tmttt = MtosiUtils.getValueFrom(sourceSapList.getDescribedByList().get(2),
+        "TrafficMappingTo_Table_TrafficClass");
+    assertThat(tmttt, is(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
+  }
+
+  private void assertRfs(ResourceFacingServiceType rfs) {
+    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
+    assertTrue(rfs.isIsMandatory());
+    assertTrue(rfs.isIsStateful());
+    assertThat(rfs.getAdminState(), is(AdminStateType.UNLOCKED));
+    assertThat(rfs.getServiceState(), is(ServiceStateType.RESERVED));
   }
 
   @Test

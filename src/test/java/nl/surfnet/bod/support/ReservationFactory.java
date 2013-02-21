@@ -42,7 +42,7 @@ public class ReservationFactory {
   private ReservationStatus status = AUTO_START;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
-  private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+  private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
   private DateTime endDateTime = startDateTime.plusDays(1).plus(WebUtils.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
