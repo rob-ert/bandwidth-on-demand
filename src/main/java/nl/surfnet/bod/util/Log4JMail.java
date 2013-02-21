@@ -70,11 +70,13 @@ public class Log4JMail {
       smtpAppender.activateOptions();
       Logger.getRootLogger().addAppender(smtpAppender);
     }
+    else {
+      log.info("MAIL LOGGER DISABLED!");
+    }
   }
 
   @VisibleForTesting
-  void setEnvironment(Environment environment) {
-    this.bodEnvironment = environment;
+  void setEnabled(String enabled) {
+    this.enabled = enabled;
   }
-
 }
