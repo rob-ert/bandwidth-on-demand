@@ -101,9 +101,11 @@ public class ReserveRequestBuilderTest {
 
     List<ServiceCharacteristicValueType> sourceSSCList = sourceSapList.getDescribedByList();
     assertThat(sourceSSCList, hasSize(8));
-    // TODO
-    // assertThat(sourceSSCList.get(0).getSscRef().getRdn().get(0),
-    // hasRdn("ServiceType", "all"));
+
+    assertThat(sourceSSCList.get(0),
+        hasServiceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT));
+    assertThat(sourceSSCList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
+        ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
 
     final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 

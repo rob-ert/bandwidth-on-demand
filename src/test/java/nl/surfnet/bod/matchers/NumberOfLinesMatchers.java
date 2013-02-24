@@ -31,7 +31,7 @@ public class NumberOfLinesMatchers {
     return new TypeSafeMatcher<String>() {
       @Override
       public void describeTo(Description description) {
-        description.appendText("should countain " + lines);
+        description.appendText("should contain " + lines);
       }
 
       @Override
