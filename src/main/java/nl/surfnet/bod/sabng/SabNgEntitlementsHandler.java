@@ -58,7 +58,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -70,8 +69,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-@Component
-public class SabNgEntitlementsHandler {
+public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
   private static final String STATUS_SUCCESS = "Success";
@@ -103,6 +101,13 @@ public class SabNgEntitlementsHandler {
   @Resource
   private Environment bodEnvironment;
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * nl.surfnet.bod.sabng.EntitlementsHandler#checkInstitutes(java.lang.String)
+   */
+  @Override
   public List<String> checkInstitutes(String nameId) {
 
     if (not(isSabEnabled())) {

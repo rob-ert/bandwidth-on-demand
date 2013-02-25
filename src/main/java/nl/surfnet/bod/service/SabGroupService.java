@@ -7,7 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.sabng.SabNgEntitlementsHandler;
+import nl.surfnet.bod.sabng.EntitlementsHandler;
 
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class SabGroupService implements GroupService {
   static final String DESCRIPTION_PREFIX = NAME_PREFIX + " of ";
 
   @Resource
-  private SabNgEntitlementsHandler sabNgEntitlementsHandler;
+  private EntitlementsHandler sabNgEntitlementsHandler;
 
   @Override
   public Collection<UserGroup> getGroups(String nameId) {

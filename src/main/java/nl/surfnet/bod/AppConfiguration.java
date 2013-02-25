@@ -34,6 +34,7 @@ import javax.sql.DataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.sabng.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
@@ -173,6 +174,11 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public NbiClient nbiClient(@Value("${nbi.client.class}") String nbiClientClass) {
     return quietlyInitiateClass(nbiClientClass);
+  }
+
+  @Bean
+  public EntitlementsHandler entitlementsHandler(@Value("${sab.handler.class}") String sabHandlerClass) {
+    return quietlyInitiateClass(sabHandlerClass);
   }
 
   @Bean

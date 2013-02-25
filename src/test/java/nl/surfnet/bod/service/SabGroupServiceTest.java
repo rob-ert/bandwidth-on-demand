@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.sabng.SabNgEntitlementsHandler;
+import nl.surfnet.bod.sabng.EntitlementsHandler;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ public class SabGroupServiceTest {
   private SabGroupService subject;
 
   @Mock
-  private SabNgEntitlementsHandler sabNgEntitlementsHandlerMock;
+  private EntitlementsHandler sabNgEntitlementsHandlerMock;
 
   @Test
   public void shouldAddSabGroups() {
