@@ -51,7 +51,7 @@ public class InventoryRetrievalClientTestIntegration {
   private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
   private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
 
-  @BeforeClass
+  //@BeforeClass
   public static void printXml() {
     // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
