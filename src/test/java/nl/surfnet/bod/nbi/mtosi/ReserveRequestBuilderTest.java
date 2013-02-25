@@ -137,7 +137,7 @@ public class ReserveRequestBuilderTest {
   }
 
   private void assertRfs(ResourceFacingServiceType rfs) {
-    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
+    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123:"+Long.MIN_VALUE));
     assertTrue(rfs.isIsMandatory());
     assertTrue(rfs.isIsStateful());
     assertThat(rfs.getAdminState(), is(AdminStateType.UNLOCKED));

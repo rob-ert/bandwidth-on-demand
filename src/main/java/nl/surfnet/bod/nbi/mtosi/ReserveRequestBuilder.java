@@ -59,7 +59,7 @@ public class ReserveRequestBuilder {
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
-    ResourceFacingServiceType rfsCreateData = createRfsCreateData(reservation);
+    ResourceFacingServiceType rfsCreateData = createRfsCreateData(reservation, sequence);
 
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
 
@@ -151,14 +151,12 @@ public class ReserveRequestBuilder {
     return reserveRequest;
   }
 
-  private ResourceFacingServiceType createRfsCreateData(Reservation reservation) {
+  @VisibleForTesting
+   ResourceFacingServiceType createRfsCreateData(Reservation reservation, long sequence) {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createResourceFacingServiceType();
 
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
-    
-    System.out.println("RFS: "+reservation.getReservationId());
-    
+    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()+":"+sequence));
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
