@@ -23,16 +23,16 @@ public class SabGroupService implements GroupService {
   static final String DESCRIPTION_PREFIX = NAME_PREFIX + " of ";
 
   @Resource
-  private EntitlementsHandler sabNgEntitlementsHandler;
+  private EntitlementsHandler entitlementsHandler;
 
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
     List<UserGroup> groups = new ArrayList<>();
 
-    for (String institute : sabNgEntitlementsHandler.checkInstitutes(nameId)) {
+    for (String institute : entitlementsHandler.checkInstitutes(nameId)) {
       UserGroup userGroup = new UserGroup(composeGroupName(institute), composeName(institute),
           composeDescription(institute));
-      userGroup.setInstituteShortName(Optional.<String>of(institute));
+      userGroup.setInstituteShortName(Optional.<String> of(institute));
 
       groups.add(userGroup);
     }
