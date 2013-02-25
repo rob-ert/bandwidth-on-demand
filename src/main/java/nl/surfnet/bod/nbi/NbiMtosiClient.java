@@ -52,6 +52,8 @@ public class NbiMtosiClient implements NbiClient {
 
   @Resource
   private ReservationRepo reservationRepo;
+  
+
 
   @Override
   public boolean activateReservation(String reservationId) {
