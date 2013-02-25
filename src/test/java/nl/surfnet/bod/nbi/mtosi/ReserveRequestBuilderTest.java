@@ -49,6 +49,7 @@ import javax.xml.validation.SchemaFactory;
 
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -82,7 +83,8 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
-    ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false);
+    ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false, Long.MIN_VALUE);
+    
     assertThat(reserveRequest.getExpiringTime(), Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(
         reservation.getEndDateTime()).get()));
 
@@ -174,6 +176,15 @@ public class ReserveRequestBuilderTest {
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EPL")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
+  }
+  
+  
+  @Test
+  public void shouldAddStaticCharacteristics() {
+    List<ServiceAccessPointType> sapList = new ArrayList<>();
+    subject.addStaticCharacteristicsTo(sapList, new PhysicalPortFactory().setNmsSapName("SAP-TEST").create(), 10L);
+    ServiceAccessPointType serviceAccessPointType = sapList.get(0);
+    assertThat(serviceAccessPointType.getName().getValue().getRdn().get(0).getValue(), is("SAP-TEST-10"));
   }
 
   @Test

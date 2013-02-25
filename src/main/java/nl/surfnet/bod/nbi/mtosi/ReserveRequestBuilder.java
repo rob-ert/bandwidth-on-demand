@@ -56,7 +56,7 @@ public class ReserveRequestBuilder {
   static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
   static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
-  public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
+  public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
     ResourceFacingServiceType rfsCreateData = createRfsCreateData(reservation);
@@ -65,7 +65,7 @@ public class ReserveRequestBuilder {
 
     // Source port
     PhysicalPort sourcePhysicalPort = reservation.getSourcePort().getPhysicalPort();
-    ServiceAccessPointType sourceSAP = addStaticCharacteristicsTo(rfsCreateData.getSapList(), sourcePhysicalPort);
+    ServiceAccessPointType sourceSAP = addStaticCharacteristicsTo(rfsCreateData.getSapList(), sourcePhysicalPort, sequence);
     addDynamicCharacteristicsTo(Optional.<Integer> fromNullable(reservation.getSourcePort().getVlanId()), reservation
         .getProtectionType(), reservation.getBandwidth(), sourcePhysicalPort.getPortType(), sourceSAP
         .getDescribedByList());
@@ -73,7 +73,7 @@ public class ReserveRequestBuilder {
     // Destination port
     PhysicalPort destinationPhysicalPort = reservation.getDestinationPort().getPhysicalPort();
     ServiceAccessPointType destinationSAP = addStaticCharacteristicsTo(rfsCreateData.getSapList(),
-        destinationPhysicalPort);
+        destinationPhysicalPort, sequence);
     addDynamicCharacteristicsTo(Optional.<Integer> fromNullable(reservation.getDestinationPort().getVlanId()),
         reservation.getProtectionType(), reservation.getBandwidth(), destinationPhysicalPort.getPortType(),
         destinationSAP.getDescribedByList());
@@ -100,9 +100,11 @@ public class ReserveRequestBuilder {
     rfsCreateData.setVendorExtensions(vendorExtensions);
   }
 
-  private ServiceAccessPointType addStaticCharacteristicsTo(List<ServiceAccessPointType> sapList,
-      PhysicalPort physicalPort) {
-    ServiceAccessPointType serviceAccessPoint = createServiceAccessPoint(physicalPort);
+  @VisibleForTesting
+  ServiceAccessPointType addStaticCharacteristicsTo(List<ServiceAccessPointType> sapList,
+      PhysicalPort physicalPort, long sequence) {
+    
+    ServiceAccessPointType serviceAccessPoint = createServiceAccessPoint(physicalPort, sequence);
     sapList.add(serviceAccessPoint);
 
     createServiceCharacteristicsAndAddToList(TRAFFIC_MAPPING_TABLECOUNT, createNamingAttrib(SSC,
@@ -154,6 +156,9 @@ public class ReserveRequestBuilder {
         .createResourceFacingServiceType();
 
     rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
+    
+    System.out.println("RFS: "+reservation.getReservationId());
+    
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
@@ -173,18 +178,20 @@ public class ReserveRequestBuilder {
     return XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
   }
 
-  private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port) {
+  private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, final long sequence) {
     NamingAttributeType resourceRef = createNamingAttrib();
     List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 
     resourceRefList.add(createRdn("MD", MANAGING_DOMAIN));
     resourceRefList.add(createRdn("ME", port.getNmsNeId()));
     resourceRefList.add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
-    // resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1"));
+    
+    
+//    resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1-"+sequence));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
-    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
+    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()+"-"+sequence));
     serviceAccessPoint.setResourceRef(resourceRef);
 
     return serviceAccessPoint;

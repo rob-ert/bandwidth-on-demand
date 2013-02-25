@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi.mtosi;
 
 import java.net.URL;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.support.incrementer.AbstractSequenceMaxValueIncrementer;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
@@ -54,6 +56,9 @@ public class ServiceComponentActivationClient {
 
   private final String endPoint;
   private final ServiceComponentActivationInterfaceHttp client;
+  
+  @Resource
+  private AbstractSequenceMaxValueIncrementer sqlLSequenceMaxValueIncrementer;
 
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
@@ -66,9 +71,8 @@ public class ServiceComponentActivationClient {
 
   public void reserve(final Reservation reservation, boolean autoProvision) {
     Holder<Header> header = HeaderBuilder.buildReserveHeader(endPoint);
-    ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision);
-
-    
+    ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision,
+        sqlLSequenceMaxValueIncrementer.nextLongValue());
 
     try {
       ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
@@ -86,5 +90,14 @@ public class ServiceComponentActivationClient {
       Throwables.propagate(e);
     }
   }
+  
+  static {
+    // Don't show full stack trace in soap result if an exception occurs
+    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+  }
+  
 
 }
