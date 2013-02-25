@@ -41,8 +41,10 @@ public class PhysicalPortFactory {
   private String bodPortId = "Asd001A_OME3T_ETH-1-1-4";
   private boolean vlanRequired = false;
   private boolean noIds;
-  
+
   private String nmsSapName;
+
+  private String nmsNeId;
 
   public PhysicalPort create() {
     PhysicalPort port = new PhysicalPort(vlanRequired);
@@ -54,6 +56,7 @@ public class PhysicalPortFactory {
     port.setManagerLabel(managerLabel);
     port.setNmsPortId(nmsPortId);
     port.setNmsSapName(nmsSapName);
+    port.setNmsNeId(nmsNeId);
 
     if (physicalResourceGroup == null) {
       physicalResourceGroup = createPhysicalResourceGroup();
@@ -109,7 +112,6 @@ public class PhysicalPortFactory {
   public void setBodPortId(String portId) {
     this.bodPortId = portId;
   }
-  
 
   public PhysicalPortFactory setNmsSapName(String nmsSapName) {
     this.nmsSapName = nmsSapName;
@@ -121,6 +123,11 @@ public class PhysicalPortFactory {
     this.version = null;
     this.noIds = true;
 
+    return this;
+  }
+
+  public PhysicalPortFactory setNmsNeId(String nsmNeId) {
+    this.nmsNeId = nsmNeId;
     return this;
   }
 }
