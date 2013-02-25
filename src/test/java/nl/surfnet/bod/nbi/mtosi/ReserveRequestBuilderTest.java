@@ -22,13 +22,13 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.hasTypeValuePair;
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -50,6 +50,7 @@ import javax.xml.validation.SchemaFactory;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.matchers.RdnValueTypeMatcher;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.util.XmlUtils;
@@ -59,9 +60,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sb.xsd.svc.v1.*;
+import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 import org.xml.sax.SAXException;
 
 import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
@@ -157,12 +161,13 @@ public class ReserveRequestBuilderTest {
 
     assertThat(describedByList, hasSize(5));
 
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "3")));
-    assertThat(describedByList,
-        hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED.getMtosiName())));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EVPL")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
+    assertThat(describedByList.get(0), hasServiceCharacteristic("ServiceType", "EVPL"));
+    assertThat(describedByList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "3"));
+    assertThat(describedByList.get(2), hasServiceCharacteristic("InterfaceType", "UNI-N"));
+    assertThat(describedByList.get(3), hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024"));
+    assertThat(describedByList.get(4),
+        hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED.getMtosiName()));
+
   }
 
   @Test
@@ -174,20 +179,27 @@ public class ReserveRequestBuilderTest {
 
     assertThat(describedByList, hasSize(5));
 
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
-    assertThat(describedByList,
-        hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED.getMtosiName())));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EPL")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
+    assertThat(describedByList.get(0), hasServiceCharacteristic("ServiceType", "EPL"));
+    assertThat(describedByList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "all"));
+    assertThat(describedByList.get(2), hasServiceCharacteristic("InterfaceType", "UNI-N"));
+    assertThat(describedByList.get(3), hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024"));
+    assertThat(describedByList.get(4),
+        hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED.getMtosiName()));
   }
 
   @Test
   public void shouldAddStaticCharacteristics() {
     List<ServiceAccessPointType> sapList = new ArrayList<>();
-    subject.addStaticCharacteristicsTo(sapList, new PhysicalPortFactory().setNmsSapName("SAP-TEST").create(), 10L);
-    ServiceAccessPointType serviceAccessPointType = sapList.get(0);
-    assertThat(serviceAccessPointType.getName().getValue().getRdn().get(0).getValue(), is("SAP-TEST-10"));
+    PhysicalPort port = new PhysicalPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
+        .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
+    subject.addStaticCharacteristicsTo(sapList, port, 10L);
+
+    assertThat(sapList.get(0).getResourceRef().getRdn().get(0),
+        RdnValueTypeMatcher.hasTypeValuePair("MD", ReserveRequestBuilder.MANAGING_DOMAIN));
+    assertThat(sapList.get(0).getResourceRef().getRdn().get(1), hasTypeValuePair("ME", "NeId"));
+    assertThat(sapList.get(0).getResourceRef().getRdn().get(2),
+        hasTypeValuePair("PTP", MtosiUtils.convertToLongPtP("1-1-1-1")));
+    assertThat(sapList.get(0).getResourceRef().getRdn().get(3), hasTypeValuePair("CTP", "/dummy-10"));
   }
 
   @Test
@@ -207,11 +219,15 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void shoudCreateServiceAccessPoint() {
-    PhysicalPort port = new PhysicalPortFactory().create();
+
+    PhysicalPort port = new PhysicalPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
+        .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
+
     ServiceAccessPointType serviceAccessPoint = subject.createServiceAccessPoint(port, 123);
-    List<RelativeDistinguishNameType> rdns = serviceAccessPoint.getResourceRef().getRdn();
-    assertThat(rdns.get(3).getType(), is("CTP"));
-    assertThat(rdns.get(3).getValue(), is("/dummy-123"));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(0), hasTypeValuePair("MD", "CIENA/OneControl"));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(1), hasTypeValuePair("ME", "NeId"));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(2), hasTypeValuePair("PTP", "/rack=1/shelf=1/slot=1/port=1"));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(3), hasTypeValuePair("CTP", "/dummy-123"));
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {
