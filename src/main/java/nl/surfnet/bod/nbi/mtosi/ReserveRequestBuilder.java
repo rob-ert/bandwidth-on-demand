@@ -187,7 +187,7 @@ public class ReserveRequestBuilder {
     resourceRefList.add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
     
     
-//    resourceRefList.add(createRdn("CTP", "/eth=mtosiRFSTestEVPL1-"+sequence));
+    resourceRefList.add(createRdn("CTP", "/eth=mtosiRFS-"+sequence));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
