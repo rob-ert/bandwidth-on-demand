@@ -176,7 +176,9 @@ public class ReserveRequestBuilder {
     return XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
   }
 
-  private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, final long sequence) {
+  
+  @VisibleForTesting
+  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, final long sequence) {
     NamingAttributeType resourceRef = createNamingAttrib();
     List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 
@@ -185,7 +187,8 @@ public class ReserveRequestBuilder {
     resourceRefList.add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
     
     
-    resourceRefList.add(createRdn("CTP", "/eth=mtosiRFS-"+sequence));
+    // TODO: Where to get the CTP value?
+    resourceRefList.add(createRdn("CTP", "/dummy-"+sequence));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();

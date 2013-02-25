@@ -47,6 +47,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -58,6 +59,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.*;
 import org.xml.sax.SAXException;
@@ -84,9 +86,9 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false, Long.MIN_VALUE);
-    
-    assertThat(reserveRequest.getExpiringTime(), Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(
-        reservation.getEndDateTime()).get()));
+
+    assertThat(reserveRequest.getExpiringTime(),
+        Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(reservation.getEndDateTime()).get()));
 
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
     assertRfs(rfs);
@@ -106,8 +108,10 @@ public class ReserveRequestBuilderTest {
 
     assertThat(sourceSSCList.get(0),
         hasServiceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT));
-    assertThat(sourceSSCList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
-        ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+    assertThat(
+        sourceSSCList.get(1),
+        hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
+            ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
 
     final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 
@@ -125,11 +129,11 @@ public class ReserveRequestBuilderTest {
   }
 
   private void assertSourceSapList(ServiceAccessPointType sourceSapList) {
-    assertThat(sourceSapList.getDescribedByList().get(0), hasServiceCharacteristic("TrafficMappingTableCount",
-        TRAFFIC_MAPPING_TABLECOUNT));
+    assertThat(sourceSapList.getDescribedByList().get(0),
+        hasServiceCharacteristic("TrafficMappingTableCount", TRAFFIC_MAPPING_TABLECOUNT));
 
-    assertThat(sourceSapList.getDescribedByList().get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
-        TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+    assertThat(sourceSapList.getDescribedByList().get(1),
+        hasServiceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
 
     String tmttt = MtosiUtils.getValueFrom(sourceSapList.getDescribedByList().get(2),
         "TrafficMappingTo_Table_TrafficClass");
@@ -137,7 +141,7 @@ public class ReserveRequestBuilderTest {
   }
 
   private void assertRfs(ResourceFacingServiceType rfs) {
-    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123:"+Long.MIN_VALUE));
+    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123:" + Long.MIN_VALUE));
     assertTrue(rfs.isIsMandatory());
     assertTrue(rfs.isIsStateful());
     assertThat(rfs.getAdminState(), is(AdminStateType.UNLOCKED));
@@ -154,8 +158,8 @@ public class ReserveRequestBuilderTest {
     assertThat(describedByList, hasSize(5));
 
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "3")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED
-        .getMtosiName())));
+    assertThat(describedByList,
+        hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED.getMtosiName())));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EVPL")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
@@ -171,14 +175,13 @@ public class ReserveRequestBuilderTest {
     assertThat(describedByList, hasSize(5));
 
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
-    assertThat(describedByList, hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED
-        .getMtosiName())));
+    assertThat(describedByList,
+        hasItem(hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED.getMtosiName())));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("ServiceType", "EPL")));
     assertThat(describedByList, hasItem(hasServiceCharacteristic("InterfaceType", "UNI-N")));
   }
-  
-  
+
   @Test
   public void shouldAddStaticCharacteristics() {
     List<ServiceAccessPointType> sapList = new ArrayList<>();
@@ -200,6 +203,15 @@ public class ReserveRequestBuilderTest {
   @Test
   public void shouldNotMapProtectionTypRedundant() {
     assertThat(ProtectionType.REDUNDANT.getMtosiName(), nullValue());
+  }
+
+  @Test
+  public void shoudCreateServiceAccessPoint() {
+    PhysicalPort port = new PhysicalPortFactory().create();
+    ServiceAccessPointType serviceAccessPoint = subject.createServiceAccessPoint(port, 123);
+    List<RelativeDistinguishNameType> rdns = serviceAccessPoint.getResourceRef().getRdn();
+    assertThat(rdns.get(3).getType(), is("CTP"));
+    assertThat(rdns.get(3).getValue(), is("/dummy-123"));
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {
