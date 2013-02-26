@@ -14,7 +14,7 @@ public class OfflineEntitlementsHandlerTest {
   @Test
   public void shouldReturnOnlySURFnet() {
     List<String> instituteNames = offlineEntitlementsHandler.checkInstitutes(null);
-    assertThat(instituteNames, contains("SURFNET"));
+    assertThat(instituteNames, contains("UMC"));
 
   }
 

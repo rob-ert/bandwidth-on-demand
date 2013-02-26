@@ -42,7 +42,7 @@ public class OfflineEntitlementsHandler implements EntitlementsHandler {
 
   @Override
   public List<String> checkInstitutes(String nameId) {
-    ArrayList<String> instituteNames = Lists.newArrayList("SURFNET");
+    ArrayList<String> instituteNames = Lists.newArrayList("UMC");
 
     logger.warn("Using MOCK {}!, which will make all users a BoD Administrator of institutes: {}",
         getClass().getName(),
