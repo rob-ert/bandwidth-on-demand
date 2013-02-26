@@ -57,7 +57,11 @@ public class SabNgEntitlementsHandlerTestIntegration {
     TestHelper.testProperties();
   }
 
-  @Resource
+  /**
+   * Always test this implementation, regardless of the property
+   * ${sab.handler.class}
+   */
+  @Resource(name = "sabNgEntitlementsHandler")
   private SabNgEntitlementsHandler subject;
 
   @Test
