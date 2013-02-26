@@ -151,15 +151,14 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     return STATUS_SUCCESS;
   }
 
-  @VisibleForTesting
-  void checkConditions(Document document) throws XPathExpressionException {
+  private boolean hasValidConditions(Document document) throws XPathExpressionException {
     XPath xPath = getXPath();
 
     XPathExpression conditionsExpression = xPath.compile(XPATH_SAML_CONDITIONS);
     Node conditions = ((Node) conditionsExpression.evaluate(document, XPathConstants.NODE));
     if (conditions == null) {
       // Nothing to check, might be in case of error message
-      return;
+      return false;
     }
     NamedNodeMap attributes = conditions.getAttributes();
 
@@ -170,13 +169,19 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     String issueInstantString = (String) issueInstantExpression.evaluate(document, XPathConstants.STRING);
     DateTime issueInstant = XmlUtils.getDateTimeFromXml(issueInstantString);
 
-    validateIssueInstant(issueInstant, notBeforeOrAfter, notOnOrAfter);
+    return validateIssueInstant(issueInstant, notBeforeOrAfter, notOnOrAfter);
   }
 
   @VisibleForTesting
-  void validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
-    Preconditions.checkState(issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter),
-        "IssueInstant [%s] is not between [%s] and [%s]", issueInstant, notBeforeOrAfter, notOnOrAfter);
+  boolean validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
+    boolean result = issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter);
+
+    if (not(result)) {
+      logger.warn("IssueInstant [{}] not in expected timeframe [{}] and [{}]", issueInstant, notBeforeOrAfter,
+          notOnOrAfter);
+    }
+
+    return result;
   }
 
   /**
@@ -211,13 +216,17 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   @VisibleForTesting
   List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
       throws XPathExpressionException {
+    List<String> entitledInstitutes = new ArrayList<>();
 
     Document document = createDocument(responseStream);
 
     checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
-    checkConditions(document);
 
-    return getInstitutesWithRoleToMatch(document, getRoleToMatch());
+    if (hasValidConditions(document)) {
+      entitledInstitutes = getInstitutesWithRoleToMatch(document, getRoleToMatch());
+    }
+
+    return entitledInstitutes;
   }
 
   @VisibleForTesting

@@ -112,8 +112,8 @@ public class SabNgEntitlementsHandlerTest {
   public void shouldThrowParseException() throws XPathExpressionException, IOException {
     StringEntity stringEntity = new StringEntity(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \\" +
-        "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"> \\" +
-        "<SOAP-ENV:Body>Garbage</SOAP-ENV:Body></SOAP-ENV:Envelope>");
+            "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"> \\" +
+            "<SOAP-ENV:Body>Garbage</SOAP-ENV:Body></SOAP-ENV:Envelope>");
 
     subject.getInstitutesWhichHaveBoDAdminEntitlement("id", stringEntity.getContent());
   }
@@ -126,44 +126,48 @@ public class SabNgEntitlementsHandlerTest {
   @Test
   public void shouldHaveValidIssueInstant() {
     DateTime now = DateTime.now();
-    subject.validateIssueInstant(now, now.minusHours(1), now.plusHours(1));
+
+    assertTrue(subject.validateIssueInstant(now, now.minusHours(1), now.plusHours(1)));
   }
 
   public void shouldHaveEqualIssueInstant() {
     DateTime now = DateTime.now();
 
-    subject.validateIssueInstant(now, now, now);
+    assertTrue(subject.validateIssueInstant(now, now, now));
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldThrowSinceIssueInstantIsToEarly() {
+  @Test
+  public void shouldFailSinceIssueInstantIsToEarly() {
     DateTime now = DateTime.now();
 
-    subject.validateIssueInstant(now, now.plusHours(1), now);
+    assertFalse(subject.validateIssueInstant(now, now.plusHours(1), now));
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldThrowSinceIssueInstantIsToLate() {
+  @Test
+  public void shouldFailsSinceIssueInstantIsToLate() {
     DateTime now = DateTime.now();
 
-    subject.validateIssueInstant(now, now, now.minusHours(1));
+    assertFalse(subject.validateIssueInstant(now, now, now.minusHours(1)));
   }
 
   @Test
   public void shouldEnableSabAtDefault() {
     subject.setSabEnabled(null);
+
     assertTrue(subject.isSabEnabled());
   }
 
   @Test
   public void shouldDisableSabWhenConfigured() {
     subject.setSabEnabled("false");
+
     assertFalse(subject.isSabEnabled());
   }
 
   @Test
   public void shouldEnableSabWhenConfigured() {
     subject.setSabEnabled("true");
+
     assertTrue(subject.isSabEnabled());
   }
 }
