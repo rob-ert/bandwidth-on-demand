@@ -24,11 +24,11 @@ package nl.surfnet.bod.nbi.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
-import javax.xml.bind.JAXBElement;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import nl.surfnet.bod.nbi.NbiMtosiClient;
 
 import org.junit.Test;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTest {
 
@@ -58,9 +58,19 @@ public class InventoryRetrievalClientTest {
   public void shouldNotRequireVlanWhenEmpty() {
     assertThat(subject.determineVlanRequired(""), is(false));
   }
-  
+
   @Test
-  public void shouldCreatePhysicalPortWithVLAN(){
-    
+  public void shouldDisableRefreshOfCache() {
+    InventoryRetrievalClient subject = new InventoryRetrievalClient("");
+    subject.setNbiClientClass("someClass");
+    assertFalse(subject.isMtosiEnabled());
   }
+
+  @Test
+  public void shouldEnableRefreshOfCache() {
+    InventoryRetrievalClient subject = new InventoryRetrievalClient("");
+    subject.setNbiClientClass(NbiMtosiClient.class.getName());
+    assertTrue(subject.isMtosiEnabled());
+  }
+
 }

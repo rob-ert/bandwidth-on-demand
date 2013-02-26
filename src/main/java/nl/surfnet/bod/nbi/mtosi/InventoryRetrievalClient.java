@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiMtosiClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +66,9 @@ public class InventoryRetrievalClient {
   private final ServiceInventoryRetrievalHttp service;
 
   private final String endPoint;
+
+  @Value("${nbi.client.class}")
+  private String nbiClientClass;
 
   // Quick cache solution to prevent roundtrip off two minutes, could cause
   // memory problems in future
@@ -108,7 +114,6 @@ public class InventoryRetrievalClient {
   SapList getSapInventory() {
     try {
       if (sapCache.get(SAP_CACHE) == null) {
-
         sapCache.put(SAP_CACHE, getServiceInventoryWithSapFilter().getInventoryData().getSapList());
       }
 
@@ -118,6 +123,16 @@ public class InventoryRetrievalClient {
       logger.error("Error: ", e);
       return null;
     }
+  }
+
+  @VisibleForTesting
+  boolean isMtosiEnabled() {
+    return NbiMtosiClient.class.getName().equals(nbiClientClass);
+  }
+
+  @VisibleForTesting
+  void setNbiClientClass(String nbiClientClass) {
+    this.nbiClientClass = nbiClientClass;
   }
 
   private ServiceInventoryRetrievalRPC getServiceProxy() {
@@ -186,8 +201,8 @@ public class InventoryRetrievalClient {
    * @return List<ServiceAccessPointType>
    */
   private List<ServiceAccessPointType> getSapList() {
-     return getSapInventory().getSap();
-//    return getRfsPorts();
+    return getSapInventory().getSap();
+    // return getRfsPorts();
   }
 
   private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest)
@@ -251,6 +266,12 @@ public class InventoryRetrievalClient {
    */
   @Scheduled(initialDelay = 0, cron = "0 */15 * * * *")
   public void refreshSapCache() {
+    // Only when using the mtosi client, retrieve inventory otherwise skip
+    if (not(isMtosiEnabled())) {
+      logger.info("MTOSI is NOT enabled, skip refreshing of inventory cache");
+      return;
+    }
+
     sapCache.remove(SAP_CACHE);
     getSapInventory();
     logger.debug("Sap cache refreshed");
