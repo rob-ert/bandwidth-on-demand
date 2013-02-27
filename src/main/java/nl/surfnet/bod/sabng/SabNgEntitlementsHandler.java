@@ -111,6 +111,8 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     String messageId = UUID.randomUUID().toString();
     String requestBody = createRequest(messageId, sabIssuer, nameId);
 
+    logger.warn("Using endpoint: {}", sabEndPoint);
+
     HttpPost httpPost = new HttpPost(sabEndPoint);
     httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
 
@@ -118,6 +120,8 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
       StringEntity stringEntity = new StringEntity(requestBody);
       httpPost.setEntity(stringEntity);
       HttpResponse response = httpClient.execute(httpPost);
+
+      logger.warn("Status code: {}", response.getStatusLine().getStatusCode());
 
       return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
     }
@@ -183,6 +187,8 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     List<String> entitledInstitutes = new ArrayList<>();
 
     Document document = createDocument(responseStream);
+
+    logger.warn("Response document: {}", document);
 
     checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
 
@@ -251,8 +257,10 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     String statusMessage = getStatusMessage(document, xPath);
 
     if (not(statusCode.contains(statusToMatch))) {
-      Preconditions.checkState(StringUtils.hasText(statusMessage) && statusMessage.contains(STATUS_MESSAGE_NO_ROLES),
-          "Could not retrieve roles, statusCode: [%s], statusMessage: %s", statusCode,
+      Preconditions.checkState(
+          StringUtils.hasText(statusMessage) && statusMessage.contains(STATUS_MESSAGE_NO_ROLES),
+          "Could not retrieve roles, statusCode: [%s], statusMessage: %s",
+          statusCode,
           statusMessage);
     }
 
