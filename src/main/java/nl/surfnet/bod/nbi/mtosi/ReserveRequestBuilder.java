@@ -156,7 +156,7 @@ public class ReserveRequestBuilder {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createResourceFacingServiceType();
 
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId() + "-" + sequence));
+    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId() + ":" + sequence));
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
