@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.web.WebUtils.not;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +50,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -111,11 +111,12 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     Preconditions.checkArgument(userGroup.getInstituteShortName().isPresent(),
         "The shortName of the institute should be present for userGroup: {}", userGroup);
 
-    if (CollectionUtils.isEmpty(findByAdminGroup(userGroup.getId()))) {
+    Institute institute = instituteService.findByShortName(userGroup.getInstituteShortName().get());
+
+    if (not(hasInstituteRelatedPhysicalResourceGroup(institute.getId()))) {
       PhysicalResourceGroup prg = new PhysicalResourceGroup();
       prg.setAdminGroup(userGroup.getId());
 
-      Institute institute = instituteService.findByShortName(userGroup.getInstituteShortName().get());
       prg.setInstitute(institute);
       prg.setManagerEmail(managerEmail);
 
@@ -221,6 +222,10 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
+  }
+
+  private boolean hasInstituteRelatedPhysicalResourceGroup(long instituteId) {
+    return physicalResourceGroupRepo.findByInstituteId(instituteId) != null;
   }
 
 }

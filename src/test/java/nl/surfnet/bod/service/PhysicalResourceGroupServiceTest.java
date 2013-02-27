@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.Collection;
@@ -173,7 +172,10 @@ public class PhysicalResourceGroupServiceTest {
   }
 
   @Test
-  public void shouldCreatePhysicalResourceGroups() {
+  public void shouldCreatePhysicalResourceGroups() {    
+    when(instituteServiceMock.findByShortName("One")).thenReturn(instituteOne);
+    when(instituteServiceMock.findByShortName("Two")).thenReturn(instituteTwo);
+    
     UserGroup userGroupOne = new UserGroup("id", "name", "description");
     userGroupOne.setInstituteShortName(Optional.<String> of("One"));
 
@@ -189,7 +191,8 @@ public class PhysicalResourceGroupServiceTest {
 
   @Test
   public void shouldNotCreatePhysicalResourceGroupBecauseExists() {
-    when(groupRepoMock.findByAdminGroup("id")).thenReturn(Lists.newArrayList(physicalResourceGroupOne));
+    when(groupRepoMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupOne);
+    when(instituteServiceMock.findByShortName("One")).thenReturn(instituteOne);
 
     UserGroup userGroup = new UserGroup("id", "name", "description");
     userGroup.setInstituteShortName(Optional.<String> of("One"));
@@ -197,7 +200,7 @@ public class PhysicalResourceGroupServiceTest {
     PhysicalResourceGroup prg = subject.createPhysicalResourceGroupIfNotExist(userGroup, "i@me.com");
 
     assertNull(prg);
-    verify(groupRepoMock, times(1)).findByAdminGroup(eq("id"));
+    verify(groupRepoMock, times(1)).findByInstituteId(1L);
     verifyNoMoreInteractions(groupRepoMock);
   }
 
