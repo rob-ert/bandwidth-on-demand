@@ -40,8 +40,7 @@
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="bodPortId" />
                         <table:searchColumn value="${item.numberOfVirtualPorts}" searchField="physicalPort" searchValue="${item.nmsPortId}" viewName="/manager/virtualports" tooltipTitleCode="label_virtualport_link"/>
-                        <table:actionsColumn item="${item}"  delete="${item.deleteRender}" deleteEnabled="${item.deleteAllowed}" deleteLabelCode="${item.deleteReasonKey}"
-                            deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" update="${item.alignedWithNMS}">
+                        <table:actionsColumn item="${item}" path="/manager/physicalports" labelCode="label_physicalport" delete="false" update="${item.alignedWithNMS}">
                           <c:if test="${not item.alignedWithNMS}">
                             <spring:message code="label_physicalport_not_aligned" var="alarm_title"/>
                             <span class="status-icon" rel="tooltip" data-type="info" title="${alarm_title}"><i class="icon-exclamation-sign"><!--  --></i></span>
