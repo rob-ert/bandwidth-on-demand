@@ -37,28 +37,26 @@ import nl.surfnet.bod.util.TestHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
-@Transactional
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class SabNgEntitlementsHandlerTestIntegration {
-
-  @BeforeClass
-  public static void testEnvironment() {
-    TestHelper.useTestEnv();
-  }
 
   @Resource
   private EntitlementsHandler subject;
 
+  @BeforeClass
+  public static void testEnvironment() {
+    System.err.println(System.getProperty("bod.env"));
+    TestHelper.useTestEnv();
+    System.err.println(System.getProperty("bod.env"));
+  }
+
   @Test
   public void shouldRetrieveRoles() {
+    System.err.println("In test: " + System.getProperty("bod.env"));
     String nameId = "urn:collab:person:test.surfguest.nl:prolokees";
     List<String> institutes = subject.checkInstitutes(nameId);
 
