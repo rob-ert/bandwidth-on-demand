@@ -24,7 +24,7 @@
   </logger>
 
   <logger name="nl.surfnet.bod">
-    <level value="INFO" />
+    <level value="WARN" />
   </logger>
 
   <logger name="nl.surfnet.bod.nsi.ws.v1sc">
@@ -36,11 +36,11 @@
   </logger>
 
   <logger name="nl.surfnet.bod.service">
-    <level value="INFO" />
+    <level value="WARN" />
   </logger>
 
   <logger name="nl.surfnet.bod.sabng">
-    <level value="INFO" />
+    <level value="WARN" />
   </logger>
 
   <logger name="com.googlecode.ehcache" additivity="false">

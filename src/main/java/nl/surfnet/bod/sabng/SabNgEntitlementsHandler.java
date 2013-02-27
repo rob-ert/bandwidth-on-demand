@@ -111,8 +111,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     String messageId = UUID.randomUUID().toString();
     String requestBody = createRequest(messageId, sabIssuer, nameId);
 
-    logger.warn("Using endpoint: {}", sabEndPoint);
-
     HttpPost httpPost = new HttpPost(sabEndPoint);
     httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
 
@@ -120,8 +118,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
       StringEntity stringEntity = new StringEntity(requestBody);
       httpPost.setEntity(stringEntity);
       HttpResponse response = httpClient.execute(httpPost);
-
-      logger.warn("Status code: {}", response.getStatusLine().getStatusCode());
 
       return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
     }

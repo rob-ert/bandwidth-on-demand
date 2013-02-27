@@ -52,14 +52,11 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @BeforeClass
   public static void testEnvironment() {
-    System.err.println(System.getProperty("bod.env"));
     TestHelper.useTestEnv();
-    System.err.println(System.getProperty("bod.env"));
   }
 
   @Test
   public void shouldRetrieveRoles() {
-    System.err.println("In test: " + System.getProperty("bod.env"));
     String nameId = "urn:collab:person:test.surfguest.nl:prolokees";
     List<String> institutes = subject.checkInstitutes(nameId);
 
