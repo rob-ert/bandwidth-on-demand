@@ -46,6 +46,8 @@ import nl.surfnet.bod.support.ReservationFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
@@ -58,6 +60,7 @@ import com.google.common.collect.Lists;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class LogEventTestIntegration {
 
   private final static Long ONE = 1L;
