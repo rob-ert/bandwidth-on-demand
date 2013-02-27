@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -36,9 +37,8 @@ import java.io.InputStream;
 import javax.xml.xpath.XPathExpressionException;
 
 import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.TestHelper;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -50,8 +50,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SabNgEntitlementsHandlerTest {
-
-  PropertiesEnvironment testProps = TestHelper.testProperties();
 
   private static final String REQ_ID = "d6873bc2-809d-482c-a24c-ccc51d829cf8";
   private static final String NAME_ID = "urn:test:user";
@@ -66,9 +64,24 @@ public class SabNgEntitlementsHandlerTest {
   @Mock
   private Environment bodEnvironment;
 
+  @Mock
+  private HttpClient httpClient;
+
   @Before
   public void setUp() {
     responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream(RESPONSE_LOCATION);
+    subject.setSabEndPoint("http://localhost:7000/sap");
+    subject.setSabPassword("secret");
+    subject.setSabUser("user");
+  }
+
+  @Test
+  public void whenSabDisabledShouldNotCallService() {
+    when(bodEnvironment.isSabEnabled()).thenReturn(false);
+
+    subject.checkInstitutes("urn:henk");
+
+    verifyZeroInteractions(httpClient);
   }
 
   @Test
@@ -82,7 +95,7 @@ public class SabNgEntitlementsHandlerTest {
 
   @Test
   public void shouldMatchEntitlement() throws IOException, XPathExpressionException {
-    when(bodEnvironment.getSabRole()).thenReturn("Instellingsbevoegde");
+    subject.setSabRole("Instellingsbevoegde");
 
     assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET",
         "WESAIDSO"));
@@ -90,21 +103,22 @@ public class SabNgEntitlementsHandlerTest {
 
   @Test
   public void shouldMatchOnInfra() throws XPathExpressionException {
-    when(bodEnvironment.getSabRole()).thenReturn("Infraverantwoordelijke");
+    subject.setSabRole("Infraverantwoordelijke");
 
     assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET"));
   }
 
   @Test
   public void shouldMatchOnBeveiliging() throws XPathExpressionException {
-    when(bodEnvironment.getSabRole()).thenReturn("Beveiligingsverantwoordelijke");
+    subject.setSabRole("Beveiligingsverantwoordelijke");
 
     assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("WESAIDSO"));
   }
 
   @Test
   public void shouldNotMatchEntitlement() throws IOException, XPathExpressionException {
-    when(bodEnvironment.getSabRole()).thenReturn("no-match");
+    subject.setSabRole("no-match");
+
     assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), hasSize(0));
   }
 
@@ -150,24 +164,4 @@ public class SabNgEntitlementsHandlerTest {
     assertFalse(subject.validateIssueInstant(now, now, now.minusHours(1)));
   }
 
-  @Test
-  public void shouldEnableSabAtDefault() {
-    subject.setSabEnabled(null);
-
-    assertTrue(subject.isSabEnabled());
-  }
-
-  @Test
-  public void shouldDisableSabWhenConfigured() {
-    subject.setSabEnabled("false");
-
-    assertFalse(subject.isSabEnabled());
-  }
-
-  @Test
-  public void shouldEnableSabWhenConfigured() {
-    subject.setSabEnabled("true");
-
-    assertTrue(subject.isSabEnabled());
-  }
 }

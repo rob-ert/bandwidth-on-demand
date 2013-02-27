@@ -25,7 +25,6 @@ package nl.surfnet.bod.sabng;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.List;
 
@@ -35,11 +34,9 @@ import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.util.TestHelper;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -54,15 +51,11 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @BeforeClass
   public static void testEnvironment() {
-    TestHelper.testProperties();
+    TestHelper.useTestEnv();
   }
 
-  /**
-   * Always test this implementation, regardless of the property
-   * ${sab.handler.class}
-   */
-  @Resource(name = "sabNgEntitlementsHandler")
-  private SabNgEntitlementsHandler subject;
+  @Resource
+  private EntitlementsHandler subject;
 
   @Test
   public void shouldRetrieveRoles() {
@@ -70,19 +63,6 @@ public class SabNgEntitlementsHandlerTestIntegration {
     List<String> institutes = subject.checkInstitutes(nameId);
 
     assertThat(institutes, contains("SURFNET"));
-  }
-
-  @Test
-  public void shouldNotPerformCallWhenDisabled() {
-
-    DefaultHttpClient httpClient = Mockito.mock(DefaultHttpClient.class);
-    subject.setHttpClient(httpClient);
-
-    subject.setSabEnabled("false");
-    List<String> institutes = subject.checkInstitutes("urn:collab:person:test.surfguest.nl:prolokees");
-
-    assertThat(institutes, hasSize(0));
-    verifyZeroInteractions(httpClient);
   }
 
   @Test

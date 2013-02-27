@@ -77,10 +77,6 @@ public class TestHelper {
   private static PropertiesEnvironment loadProperties(String env) {
     PropertiesEnvironment environment = new PropertiesEnvironment();
     try {
-      // Always load default properties...
-      environment.load(new FileInputStream(String.format("src/main/resources/bod-default.properties")));
-
-      // ...and override with environment specific
       environment.load(new FileInputStream(String.format("src/main/resources/env-properties/bod-%s.properties", env)));
     }
     catch (IOException e) {

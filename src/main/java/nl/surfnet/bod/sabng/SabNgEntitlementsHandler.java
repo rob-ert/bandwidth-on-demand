@@ -28,10 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.xml.XMLConstants;
@@ -67,14 +64,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
-/**
- * This component is named, only to enable injection of this specific component
- * in an integration test. At 'normal' runtime a component is injected using the
- * property {$sab.handler.class}
- *
- */
 public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
@@ -98,34 +88,31 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   @Value("${sab.user}")
   private String sabUser;
 
+  @Value("${sab.password}")
+  private String sabPassword;
+
   @Value("${sab.issuer}")
   private String sabIssuer;
 
-  @Value("${sab.enabled}")
-  private String sabEnabled;
+  @Value("${sab.role}")
+  private String sabRole;
 
   @Resource
   private Environment bodEnvironment;
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * nl.surfnet.bod.sabng.EntitlementsHandler#checkInstitutes(java.lang.String)
-   */
   @Override
   public List<String> checkInstitutes(String nameId) {
 
-    if (not(isSabEnabled())) {
+    if (not(bodEnvironment.isSabEnabled())) {
       logger.warn("Consulting SaB Entitlements is disabled");
-      return Lists.newArrayList();
+      return Collections.emptyList();
     }
 
     String messageId = UUID.randomUUID().toString();
     String requestBody = createRequest(messageId, sabIssuer, nameId);
 
     HttpPost httpPost = new HttpPost(sabEndPoint);
-    httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, bodEnvironment.getSabPassword()));
+    httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
 
     try {
       StringEntity stringEntity = new StringEntity(requestBody);
@@ -138,11 +125,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
       throw new RuntimeException(e);
     }
 
-  }
-
-  @VisibleForTesting
-  String getRoleToMatch() {
-    return bodEnvironment.getSabRole();
   }
 
   private String getStatusToMatch() {
@@ -182,22 +164,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     return result;
   }
 
-  /**
-   * Since SAB will not be available in all environments at time of our release,
-   * we need to be able to turn it off.
-   *
-   * @return true when sab should be used, false otherwise
-   */
-  @VisibleForTesting
-  boolean isSabEnabled() {
-    return sabEnabled == null || Boolean.parseBoolean(sabEnabled);
-  }
-
-  @VisibleForTesting
-  void setSabEnabled(String booleanString) {
-    this.sabEnabled = booleanString;
-  }
-
   @VisibleForTesting
   String createRequest(String messageId, String issuer, String nameId) {
     String template;
@@ -221,15 +187,10 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
 
     if (hasValidConditions(document)) {
-      entitledInstitutes = getInstitutesWithRoleToMatch(document, getRoleToMatch());
+      entitledInstitutes = getInstitutesWithRoleToMatch(document, sabRole);
     }
 
     return entitledInstitutes;
-  }
-
-  @VisibleForTesting
-  void setHttpClient(DefaultHttpClient httpClient) {
-    this.httpClient = httpClient;
   }
 
   private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
@@ -325,6 +286,26 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   private String getStatusCode(Document document, XPath xPath) throws XPathExpressionException {
     XPathExpression statusExpression = xPath.compile(XPATH_STATUS_CODE);
     return (String) statusExpression.evaluate(document, XPathConstants.STRING);
+  }
+
+  protected void setSabEndPoint(String sabEndPoint) {
+    this.sabEndPoint = sabEndPoint;
+  }
+
+  protected void setSabUser(String sabUser) {
+    this.sabUser = sabUser;
+  }
+
+  protected void setSabIssuer(String sabIssuer) {
+    this.sabIssuer = sabIssuer;
+  }
+
+  protected void setSabRole(String sabRole) {
+    this.sabRole = sabRole;
+  }
+
+  protected void setSabPassword(String sabPassword) {
+    this.sabPassword = sabPassword;
   }
 
   private class SabNgNamespaceResolver implements NamespaceContext {

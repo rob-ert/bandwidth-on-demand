@@ -95,12 +95,6 @@ public class Environment {
   @Value("${oauth.resource.secret}")
   private String resourceSecret;
 
-  @Value("${sab.role}")
-  private String sabRole;
-
-  @Value("${sab.password}")
-  private String sabPassword;
-
   @Value("${sab.enabled}")
   private boolean sabEnabled;
 
@@ -213,16 +207,8 @@ public class Environment {
     return resourceSecret;
   }
 
-  public String getSabRole() {
-    return sabRole;
-  }
-
   public boolean isSabEnabled() {
     return sabEnabled;
-  }
-
-  public String getSabPassword() {
-    return sabPassword;
   }
 
   public String getOauthServerUrl() {
