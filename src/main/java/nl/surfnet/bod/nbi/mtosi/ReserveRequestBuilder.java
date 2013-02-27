@@ -103,7 +103,7 @@ public class ReserveRequestBuilder {
   @VisibleForTesting
   ServiceAccessPointType addStaticCharacteristicsTo(List<ServiceAccessPointType> sapList,
       PhysicalPort physicalPort, long sequence) {
-    
+
     ServiceAccessPointType serviceAccessPoint = createServiceAccessPoint(physicalPort, sequence);
     sapList.add(serviceAccessPoint);
 
@@ -152,11 +152,11 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-   ResourceFacingServiceType createRfsCreateData(Reservation reservation, long sequence) {
+  ResourceFacingServiceType createRfsCreateData(Reservation reservation, long sequence) {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createResourceFacingServiceType();
 
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()+":"+sequence));
+    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId() + "-" + sequence));
     rfsData.setIsMandatory(true);
     rfsData.setIsStateful(true);
     rfsData.setAdminState(AdminStateType.UNLOCKED);
@@ -185,14 +185,14 @@ public class ReserveRequestBuilder {
     resourceRefList.add(createRdn("MD", MANAGING_DOMAIN));
     resourceRefList.add(createRdn("ME", port.getNmsNeId()));
     resourceRefList.add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
-    
-    
+
     // TODO: Where to get the CTP value?
-    resourceRefList.add(createRdn("CTP", "/dummy-"+sequence));
+    // FIXME: Adding the CTP results in a "Sap is not valid" error message from 1C 
+   //  resourceRefList.add(createRdn("CTP", "/dummy-"+sequence));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
-    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()+"-"+sequence));
+    serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName() + "-" + sequence));
     serviceAccessPoint.setResourceRef(resourceRef);
 
     return serviceAccessPoint;
