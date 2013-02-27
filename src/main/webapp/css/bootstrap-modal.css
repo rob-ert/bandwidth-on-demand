@@ -39,3 +39,15 @@
     top: auto;
     margin: 80px auto;
 }
+
+.modal-body #healthcheck > dd > [class*="icon-"]:before {
+  font-size: 20px;
+}
+
+.modal-body #healthcheck dd {
+  line-height: 25px;
+}
+
+.modal-body #healthcheck dt {
+  line-height: 20px;
+}

@@ -101,6 +101,9 @@ public class Environment {
   @Value("${sab.password}")
   private String sabPassword;
 
+  @Value("${sab.enabled}")
+  private boolean sabEnabled;
+
   public Environment() {
   }
 
@@ -212,6 +215,10 @@ public class Environment {
 
   public String getSabRole() {
     return sabRole;
+  }
+
+  public boolean isSabEnabled() {
+    return sabEnabled;
   }
 
   public String getSabPassword() {

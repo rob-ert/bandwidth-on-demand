@@ -25,7 +25,6 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +35,8 @@ import java.util.List;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.HealthCheckController.ServiceState;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,17 +58,22 @@ public class HealthCheckControllerTest {
   @Mock
   private IddClient iddClientMock;
 
+  @Mock
+  private Environment bodEnvironment;
+
   @Test
   public void iddShouldPassTheHealthCheck() {
     supressErrorOutput();
     ModelStub model = new ModelStub();
 
     when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(new InstituteFactory().create()));
+    when(bodEnvironment.isSabEnabled()).thenReturn(false);
 
     subject.index(model);
 
-    assertThat((Boolean) model.asMap().get("iddHealth"), is(true));
-    assertThat((Boolean) model.asMap().get("nbiHealth"), is(false));
+    assertThat((ServiceState) model.asMap().get("iddHealth"), is(ServiceState.SUCCEEDED));
+    assertThat((ServiceState) model.asMap().get("nbiHealth"), is(ServiceState.FAILED));
+    assertThat((ServiceState) model.asMap().get("sabHealth"), is(ServiceState.DISABLED));
   }
 
   @SuppressWarnings("unchecked")
@@ -77,11 +83,16 @@ public class HealthCheckControllerTest {
     ErrorLogger logger = new ErrorLogger();
     subject.setLogger(logger);
 
+    when(bodEnvironment.isSabEnabled()).thenReturn(true);
+
     subject.index(model);
 
-    assertThat(logger.getErrorMessages(), hasSize(5));
-    assertThat(logger.getErrorMessages(), hasItems(containsString("IDD"), containsString("NBI"),
-        containsString("OAuth"), containsString("API"), containsString("SAB")));
+    assertThat(logger.getErrorMessages(), hasItems(
+      containsString("IDD"),
+      containsString("NBI"),
+      containsString("OAuth"),
+      containsString("API"),
+      containsString("SAB")));
   }
 
   private void supressErrorOutput() {

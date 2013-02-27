@@ -22,6 +22,10 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.HealthCheckController.ServiceState.DISABLED;
+import static nl.surfnet.bod.web.HealthCheckController.ServiceState.FAILED;
+import static nl.surfnet.bod.web.HealthCheckController.ServiceState.SUCCEEDED;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
@@ -70,8 +74,8 @@ public class HealthCheckController {
 
     final ServiceCheck iddServiceCheck = new ServiceCheck() {
       @Override
-      public boolean healty() {
-        return iddClient.getInstitutes().size() > 0;
+      public ServiceState healty() {
+        return iddClient.getInstitutes().size() > 0 ? SUCCEEDED : FAILED;
       }
 
       @Override
@@ -82,8 +86,8 @@ public class HealthCheckController {
 
     final ServiceCheck nbiServiceCheck = new ServiceCheck() {
       @Override
-      public boolean healty() {
-        return nbiClient.getPhysicalPortsCount() > 0;
+      public ServiceState healty() {
+        return nbiClient.getPhysicalPortsCount() > 0 ? SUCCEEDED : FAILED;
       }
 
       @Override
@@ -94,12 +98,12 @@ public class HealthCheckController {
 
     final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
       @Override
-      public boolean healty() throws IOException {
+      public ServiceState healty() throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
         HttpResponse response = client.execute(httpGet);
         httpGet.releaseConnection();
-        return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN;
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN ? SUCCEEDED : FAILED;
       }
 
       @Override
@@ -112,8 +116,8 @@ public class HealthCheckController {
       private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
       @Override
-      public boolean healty() throws IOException {
-        return openSocialGroupService.getGroups(PERSON_URI).size() > 0;
+      public ServiceState healty() throws IOException {
+        return openSocialGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
       }
 
       @Override
@@ -126,8 +130,12 @@ public class HealthCheckController {
       private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
       @Override
-      public boolean healty() throws IOException {
-        return sabGroupService.getGroups(PERSON_URI).size() > 0;
+      public ServiceState healty() throws IOException {
+        if (environment.isSabEnabled()) {
+          return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
+        } else {
+          return DISABLED;
+        }
       }
 
       @Override
@@ -137,7 +145,7 @@ public class HealthCheckController {
     };
 
     @SuppressWarnings("unchecked")
-    List<Callable<Boolean>> tasks = Lists.newArrayList(
+    List<Callable<ServiceState>> tasks = Lists.newArrayList(
         callable(iddServiceCheck),
         callable(nbiServiceCheck),
         callable(oAuthServerServiceCheck),
@@ -146,13 +154,13 @@ public class HealthCheckController {
         );
 
     try {
-      List<Future<Boolean>> futures = Executors.newFixedThreadPool(4).invokeAll(tasks, 15, TimeUnit.SECONDS);
+      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(4).invokeAll(tasks, 15, TimeUnit.SECONDS);
 
-      model.addAttribute("iddHealth", toBooleanValue(futures.get(0)));
-      model.addAttribute("nbiHealth", toBooleanValue(futures.get(1)));
-      model.addAttribute("oAuthServer", toBooleanValue(futures.get(2)));
-      model.addAttribute("openConextApi", toBooleanValue(futures.get(3)));
-      model.addAttribute("sabHealth", toBooleanValue(futures.get(4)));
+      model.addAttribute("iddHealth", toState(futures.get(0)));
+      model.addAttribute("nbiHealth", toState(futures.get(1)));
+      model.addAttribute("oAuthServer", toState(futures.get(2)));
+      model.addAttribute("openConextApi", toState(futures.get(3)));
+      model.addAttribute("sabHealth", toState(futures.get(4)));
     }
     catch (InterruptedException e) {
       logger.error("Error during calling healthchecks", e);
@@ -161,41 +169,38 @@ public class HealthCheckController {
     return "healthcheck";
   }
 
-  private boolean toBooleanValue(Future<Boolean> healthFuture) {
-    if (healthFuture.isCancelled()) {
-      return false;
-    }
-
+  private ServiceState toState(Future<ServiceState> healthFuture) {
     try {
-      return healthFuture.isDone() && healthFuture.get();
+      return healthFuture.get();
     }
     catch (InterruptedException | ExecutionException e) {
       logger.error("Error during healthcheck", e);
-      return false;
+      return ServiceState.FAILED;
     }
+
   }
 
-  private Callable<Boolean> callable(final ServiceCheck serviceCheck) {
-    return new Callable<Boolean>() {
+  private Callable<ServiceState> callable(final ServiceCheck serviceCheck) {
+    return new Callable<ServiceState>() {
       @Override
-      public Boolean call() {
+      public ServiceState call() {
         return isServiceHealthy(serviceCheck);
       }
     };
   }
 
-  public boolean isServiceHealthy(ServiceCheck check) {
-    boolean result;
+  public ServiceState isServiceHealthy(ServiceCheck check) {
+    ServiceState result;
     try {
       result = check.healty();
       logger.debug("Performed healthcheck for {}", check.getName());
     }
     catch (Exception e) {
       logger.error("Healthcheck failed: ", e);
-      result = false;
+      result = ServiceState.FAILED;
     }
 
-    if (!result) {
+    if (result.failed()) {
       logger.error("HealthCheck for '{}' failed", check.getName());
     }
 
@@ -203,12 +208,20 @@ public class HealthCheckController {
   }
 
   interface ServiceCheck {
-    boolean healty() throws Exception;
+    ServiceState healty() throws Exception;
 
     String getName();
   }
 
   protected void setLogger(Logger logger) {
     this.logger = logger;
+  }
+
+  public enum ServiceState {
+    FAILED, DISABLED, SUCCEEDED;
+
+    public boolean failed() {
+      return this == FAILED;
+    }
   }
 }
