@@ -43,7 +43,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
   public void requestAVirtualPortAndDecline() {
     getManagerDriver().switchToUser();
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
 
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
 
@@ -62,7 +62,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
   public void requestVirtualPortAndCheckRequestCanOnlyBeUsedOnce() {
     getManagerDriver().switchToUser();
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
 
     getUserDriver().verifyRequestVirtualPortInstituteInactive(GROUP_SARA);
 
@@ -77,9 +77,9 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().createVirtualPort("Your vport");
 
-    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200");
+    getManagerDriver().verifyVirtualPortExists("Your vport", "Selenium users", "1200");
 
-    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+    getManagerDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
     getManagerDriver().switchToManager(GROUP_SARA);
 
@@ -102,24 +102,24 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getNocDriver().switchToManager("SURFnet");
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
-    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
+    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
     getManagerDriver().switchToUser();
-    getUserDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
+    getUserDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
     getUserDriver().editVirtualPort("Edited vport", "User label");
 
-    getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
+    getUserDriver().verifyVirtualPortExists("User label", "1000", "Selenium users");
 
     getUserDriver().switchToManager("SURFnet");
-    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
+    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
   }
 
   @Test
   public void requestAVirtualPortUsingButtonOnListPage() {
     getManagerDriver().switchToUser();
 
-    getUserDriver().selectTeamInstituteAndRequest("selenium-users", GROUP_SURFNET, "myVP", 1000,
+    getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "myVP", 1000,
         "Doe mijn een nieuw poort...");
 
     getUserDriver().switchToManager("SURFnet");
@@ -130,8 +130,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().verifyVirtualPortExists("myVP", "1000", "selenium-users", GROUP_SURFNET);
-
+    getUserDriver().verifyVirtualPortExists("myVP", "1000", "Selenium users", GROUP_SURFNET);
   }
 
 }

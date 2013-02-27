@@ -38,12 +38,12 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().clickLinkInLastEmail();
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
@@ -51,19 +51,19 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
   @Test
   public void lastPortDeletedShouldDeleteVirtualResourceGroup() {
-    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "2");
+    getManagerDriver().verifyVirtualResourceGroupExists("Selenium users", "2");
 
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("First port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().verifyMemberOf("selenium-users");
+    getUserDriver().verifyMemberOf("Selenium users");
 
     getUserDriver().switchToManager(GROUP_SARA);
-    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+    getManagerDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
     getManagerDriver().switchToNoc();
-    getNocDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+    getNocDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
     getUserDriver().switchToManager(GROUP_SARA);
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
@@ -72,17 +72,17 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().verifyNotMemberOf("selenium-users");
+    getUserDriver().verifyNotMemberOf("Selenium users");
   }
 
   @Test
   public void verifyNocLinkFromTeamToVirtualPorts() {
-    getNocDriver().verifyTeamToVirtualPortsLink("selenium-users");
+    getNocDriver().verifyTeamToVirtualPortsLink("Selenium users");
   }
 
   @Test
   public void verifyManagerLinkFromTeamToVirtualPorts() {
-    getManagerDriver().verifyTeamToVirtualPortsLink("selenium-users");
+    getManagerDriver().verifyTeamToVirtualPortsLink("Selenium users");
   }
 
 }
