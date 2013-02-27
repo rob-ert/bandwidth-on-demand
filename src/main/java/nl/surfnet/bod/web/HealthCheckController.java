@@ -23,13 +23,11 @@
 package nl.surfnet.bod.web;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.GroupService;
@@ -115,8 +113,7 @@ public class HealthCheckController {
 
       @Override
       public boolean healty() throws IOException {
-        Collection<UserGroup> groups = openSocialGroupService.getGroups(PERSON_URI);
-        return groups.size() > 0;
+        return openSocialGroupService.getGroups(PERSON_URI).size() > 0;
       }
 
       @Override
@@ -126,12 +123,11 @@ public class HealthCheckController {
     };
 
     final ServiceCheck sabServiceCheck = new ServiceCheck() {
-      private static final String PERSON_URI = "urn:collab:person:test.surfguest.nl:prolokees";
+      private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
       @Override
       public boolean healty() throws IOException {
-        Collection<UserGroup> groups = sabGroupService.getGroups(PERSON_URI);
-        return groups.size() > 0;
+        return sabGroupService.getGroups(PERSON_URI).size() > 0;
       }
 
       @Override

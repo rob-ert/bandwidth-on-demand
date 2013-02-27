@@ -58,7 +58,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -74,9 +73,8 @@ import com.google.common.collect.Lists;
  * This component is named, only to enable injection of this specific component
  * in an integration test. At 'normal' runtime a component is injected using the
  * property {$sab.handler.class}
- * 
+ *
  */
-@Component("sabNgEntitlementsHandler")
 public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
@@ -111,7 +109,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * nl.surfnet.bod.sabng.EntitlementsHandler#checkInstitutes(java.lang.String)
    */
@@ -187,7 +185,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   /**
    * Since SAB will not be available in all environments at time of our release,
    * we need to be able to turn it off.
-   * 
+   *
    * @return true when sab should be used, false otherwise
    */
   @VisibleForTesting
