@@ -816,6 +816,10 @@
                                     <value>http://localhost:8081/os</value>
                                 </systemProperty>
                                 <systemProperty>
+                                    <name>sab.endpoint</name>
+                                    <value>http://localhost:8081/sabng/server</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <name>bod.development</name>
                                     <value>true</value>
                                 </systemProperty>

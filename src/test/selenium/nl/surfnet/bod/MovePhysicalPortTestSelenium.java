@@ -45,13 +45,13 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SARA);
 
     getNocDriver().switchToUser();
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
     getManagerDriver().switchToUser();
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");

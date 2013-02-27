@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
-  
+
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
@@ -115,7 +115,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
     // unallocated anymore
     getManagerDriver().switchToUser();
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
     getUserDriver().switchToManager(GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();

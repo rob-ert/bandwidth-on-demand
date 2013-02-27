@@ -41,6 +41,7 @@ public class DashboardTestSelenium extends TestExternalSupport {
     new ReservationTestSelenium().setup();
 
     getManagerDriver().switchToUser();
+
     getUserDriver().createNewReservation("Res Coming", startDate.plusDays(1), endDate.plusDays(1),
         startTime.plusHours(1), endTime.plusHours(1));
 
@@ -49,9 +50,9 @@ public class DashboardTestSelenium extends TestExternalSupport {
 
   @Test
   public void verifyUserStatisticLinksFromDashboard() {
-    getUserDriver().verifyDashboardToVirtualPortsLink("selenium-users");
-    getUserDriver().verifyDashboardToComingReservationsLink("selenium-users");
-    getUserDriver().verifyDashboardToElapsedReservationsLink("selenium-users");
+    getUserDriver().verifyDashboardToVirtualPortsLink("Selenium users");
+    getUserDriver().verifyDashboardToComingReservationsLink("Selenium users");
+    getUserDriver().verifyDashboardToElapsedReservationsLink("Selenium users");
   }
 
   @Test

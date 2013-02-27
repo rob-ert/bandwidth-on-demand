@@ -40,12 +40,12 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
     getWebDriver().clickLinkInLastEmail();
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");

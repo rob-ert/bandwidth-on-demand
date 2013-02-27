@@ -226,8 +226,10 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyDashboardToComingReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
-        "reservations/filter/coming/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(
+        team,
+        formatLink("reservations/filter/coming/search?search=team:%s", team),
+        "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.COMING);
@@ -238,8 +240,10 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyDashboardToElapsedReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
-        "reservations/filter/elapsed/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(
+        team,
+        formatLink("reservations/filter/elapsed/search?search=team:%s", team),
+        "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
@@ -251,11 +255,18 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyDashboardToVirtualPortsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
-        "virtualports/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(
+        team,
+        formatLink("virtualports/search?search=team:%s", team),
+        "Show");
+
     ListVirtualPortPage vpPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
     vpPage.verifyIsCurrentPage();
     assertThat(numberOfItems, is(vpPage.getNumberOfRows()));
+  }
+
+  private String formatLink(String link, String team) {
+    return String.format(link, "%22"+team.replace(" ", "%20")+"%22");
   }
 
   public void verifyMenu() {

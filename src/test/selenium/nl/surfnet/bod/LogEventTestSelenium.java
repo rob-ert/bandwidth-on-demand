@@ -31,8 +31,8 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   private static final String CREATE_ACTION = "Create";
 
-  protected static final String ICT_USER_GROUP_2 = //
-  "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
+  protected static final String ICT_USER_GROUP_2 =
+    "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
 
   private static final String PORT_LABEL_1 = "NOC Port 1";
   private static final String PORT_LABEL_2 = "NOC Port 2";
@@ -125,14 +125,14 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   private void createVPOneForGroupOne() {
     // Now create Virtual Ports, and thereby group PhysicalPorts in same group
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort(VP_LABEL_1);
   }
 
   private void createVPTwoForGroupTwo() {
-    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort(VP_LABEL_2);

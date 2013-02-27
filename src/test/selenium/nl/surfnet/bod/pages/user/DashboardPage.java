@@ -70,7 +70,7 @@ public class DashboardPage extends AbstractListPage {
 
   public void selectInstitute(String team) {
     try {
-      getDriver().findElementByPartialLinkText(team).click();
+      getDriver().findElementByLinkText(team).click();
     }
     catch (NoSuchElementException e) {
       clickRowIcon("icon-envelope", team);
