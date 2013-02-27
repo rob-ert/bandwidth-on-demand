@@ -25,11 +25,14 @@ package nl.surfnet.bod.nbi.mtosi;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 public class MtosiUtilsTest {
 
@@ -117,6 +120,17 @@ public class MtosiUtilsTest {
   public void shouldThrowWhenKeyNotPresent() {
     ServiceCharacteristicValueType ssc = MtosiUtils.createSscRef("value", MtosiUtils.createNamingAttrib("SSC", "key"));
     assertThat(MtosiUtils.getValueFrom(ssc, "non-existing-key"), is("value"));
+  }
+
+  @Test
+  public void shouldMapServiceStatesToReservationStates() {
+    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PLANNING_DESIGNED));
+    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PLANNING_FEASIBILITY_CHECK));
+    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_INACTIVE));
+    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.TERMINATED));
+
+    assertThat(ReservationStatus.AUTO_START, is(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_ACTIVE)));
+    assertThat(ReservationStatus.RESERVED, is(MtosiUtils.mapToReservationState(ServiceStateType.RESERVED)));
   }
 
 }

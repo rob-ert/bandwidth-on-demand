@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -31,10 +33,14 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.slf4j.Logger;
+import org.springframework.util.CollectionUtils;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -52,8 +58,6 @@ public class NbiMtosiClient implements NbiClient {
 
   @Resource
   private ReservationRepo reservationRepo;
-  
-
 
   @Override
   public boolean activateReservation(String reservationId) {
@@ -89,8 +93,20 @@ public class NbiMtosiClient implements NbiClient {
   }
 
   @Override
-  public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
-    logger.warn("Reservation status {} Should be received using events sent from 1C", scheduleId);
+  public Optional<ReservationStatus> getReservationStatus(String reservationId) {
+    // The status should ideally be determined by receiving events from 1C
+
+    RfsList rfsInventory = inventoryRetrievalClient.getRfsInventory();
+    for (ResourceFacingServiceType rfsType : rfsInventory.getRfs()) {
+      if (rfsType != null && //
+          not(CollectionUtils.isEmpty(rfsType.getName().getValue().getRdn())) && //
+          rfsType.getName().getValue().getRdn().get(0).getValue().equals(reservationId)) {
+        return Optional.<ReservationStatus> fromNullable(MtosiUtils.mapToReservationState(rfsType
+            .getServiceState()));
+      }
+      continue;
+    }
+
     return Optional.<ReservationStatus> absent();
   }
 

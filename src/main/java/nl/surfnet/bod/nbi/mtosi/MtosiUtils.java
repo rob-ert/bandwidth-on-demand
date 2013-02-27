@@ -30,10 +30,13 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -153,4 +156,35 @@ public final class MtosiUtils {
     return serviceCharacteristicValueType;
   }
 
+  public static ReservationStatus mapToReservationState(ServiceStateType serviceState) {
+    ReservationStatus reservationState = null;
+
+    switch (serviceState) {
+    case PLANNING_FEASIBILITY_CHECK:
+      // Not used
+      break;
+
+    case PLANNING_DESIGNED:
+      // Not used
+      break;
+
+    case PROVISIONED_ACTIVE:
+      reservationState = ReservationStatus.AUTO_START;
+      break;
+
+    case PROVISIONED_INACTIVE:
+      // Not used
+      break;
+
+    case RESERVED:
+      reservationState = ReservationStatus.RESERVED;
+      break;
+
+    case TERMINATED:
+      // Not used
+      break;
+    }
+
+    return reservationState;
+  }
 }

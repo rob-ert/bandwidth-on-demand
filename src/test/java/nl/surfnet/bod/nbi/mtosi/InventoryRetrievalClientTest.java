@@ -60,14 +60,14 @@ public class InventoryRetrievalClientTest {
   }
 
   @Test
-  public void shouldDisableRefreshOfCache() {
+  public void shouldDisableMtosiAccess() {
     InventoryRetrievalClient subject = new InventoryRetrievalClient("");
     subject.setNbiClientClass("someClass");
     assertFalse(subject.isMtosiEnabled());
   }
 
   @Test
-  public void shouldEnableRefreshOfCache() {
+  public void shouldEnableMtosiAccess() {
     InventoryRetrievalClient subject = new InventoryRetrievalClient("");
     subject.setNbiClientClass(NbiMtosiClient.class.getName());
     assertTrue(subject.isMtosiEnabled());
