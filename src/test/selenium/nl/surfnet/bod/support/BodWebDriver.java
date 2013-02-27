@@ -36,8 +36,6 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import nl.surfnet.bod.service.DataBaseTestHelper;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -120,9 +118,6 @@ public class BodWebDriver {
     if (appManagerDriver == null) {
       appManagerDriver = new BodAppManagerWebDriver(driver);
     }
-
-    // Every test a clean database
-    DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
   }
 
   public BodManagerWebDriver getManagerDriver() {

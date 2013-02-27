@@ -22,11 +22,13 @@
  */
 package nl.surfnet.bod.support;
 
+import nl.surfnet.bod.service.DataBaseTestHelper;
+
 import org.junit.Before;
 import org.junit.Rule;
 
 public abstract class TestExternalSupport {
-  // Group names must match data in IddOfflineClient
+
   protected static final String GROUP_SURFNET = "SURFnet bv";
   protected static final String GROUP_SARA = "Stichting Algemeen Rekencentrum Achterveld";
   protected static final String GROUP_RUG = "Rijke Universiteit Gaanderen";
@@ -55,6 +57,11 @@ public abstract class TestExternalSupport {
   @Before
   public final void initialize() {
     webDriver.initializeOnce();
+  }
+
+  @Before
+  public void clearDatabase() {
+    DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
   }
 
   protected BodWebDriver getWebDriver() {
