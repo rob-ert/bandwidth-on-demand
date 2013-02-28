@@ -236,18 +236,6 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "state cannot");
   }
 
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String nocLabel) {
-    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
-
-    page.verifyPhysicalPortHasEnabledUnallocateIcon(nmsPortId, nocLabel);
-  }
-
-  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String nmsPortId, String nocLabel, String toolTipText) {
-    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
-
-    page.verifyPhysicalPortHasDisabledUnallocateIcon(nmsPortId, nocLabel, toolTipText);
-  }
-
   public void verifyTeamToVirtualPortsLink(String teamName) {
     ListVirtualResourceGroupPage vrgListPage = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
 

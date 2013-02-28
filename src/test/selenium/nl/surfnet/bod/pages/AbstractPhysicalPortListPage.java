@@ -22,13 +22,11 @@
  */
 package nl.surfnet.bod.pages;
 
-import org.openqa.selenium.By;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 public class AbstractPhysicalPortListPage extends AbstractListPage {
 
@@ -39,28 +37,6 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
   public WebElement verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
 
     return findRow(nmsPortId, label);
-  }
-
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
-    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
-
-    try {
-      row.findElement(By.cssSelector("span.disabled-icon"));
-      assertThat("PhysicalPort should not contain disabled unallocate Icon", false);
-    }
-    catch (NoSuchElementException e) {
-      // Expected
-    }
-  }
-
-  public void verifyPhysicalPortHasDisabledUnallocateIcon(String nmsPortId, String label, String toolTipText) {
-
-    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
-
-    WebElement unAllocateElement = row.findElement(By.cssSelector("span.disabled-icon"));
-    String deleteTooltip = unAllocateElement.getAttribute("data-original-title");
-
-    assertThat(deleteTooltip, containsString(toolTipText));
   }
 
   public void verifyPhysicalPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
