@@ -83,7 +83,7 @@ public class ReservationServiceDbTest {
 
   @BeforeClass
   public static void init() {
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+    DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Before
@@ -108,7 +108,7 @@ public class ReservationServiceDbTest {
 
   @AfterClass
   public static void teardown() {
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+    DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Test

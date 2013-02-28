@@ -24,10 +24,7 @@ package nl.surfnet.bod.service;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 
-public final class DataBaseTestHelper {
+public final class DatabaseTestHelper {
 
   private static final String DB_DRIVER_CLASS_KEY = "jdbc.driverClass";
   private static final String DB_PASS_KEY = "jdbc.password";
@@ -46,15 +43,24 @@ public final class DataBaseTestHelper {
 
   private static final List<String> TABLES_THAT_SHOULD_NOT_BE_TRUNCATED = ImmutableList.of("schema_version", "institute");
 
-  private static final Logger logger = LoggerFactory.getLogger(DataBaseTestHelper.class);
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseTestHelper.class);
 
-  private DataBaseTestHelper() {
+  private DatabaseTestHelper() {
   }
 
   public static void clearSeleniumDatabaseSkipBaseData() {
+    truncateSeleniumTables(Collections.<String>emptyList());
+  }
+
+  public static void deleteReservationsFromSeleniumDatabase() {
+    truncateSeleniumTables(ImmutableList.of("reservation"));
+  }
+
+  private static void truncateSeleniumTables(List<String> tables) {
     Properties props = getSeleniumProperties();
 
     clearDatabaseAndSkipBaseData(
+      tables,
       props.getProperty(DB_URL_KEY),
       props.getProperty(DB_USER_KEY),
       props.getProperty(DB_PASS_KEY),
@@ -64,7 +70,7 @@ public final class DataBaseTestHelper {
   private static Properties getSeleniumProperties() {
     Properties props = new Properties();
     try {
-      props.load(DataBaseTestHelper.class.getResourceAsStream("/bod-selenium.properties"));
+      props.load(DatabaseTestHelper.class.getResourceAsStream("/bod-selenium.properties"));
       return props;
     }
     catch (IOException e) {
@@ -74,17 +80,19 @@ public final class DataBaseTestHelper {
 
   public static void clearIntegrationDatabaseSkipBaseData() {
     clearDatabaseAndSkipBaseData(
+      Collections.<String>emptyList(),
       IntegrationDbConfiguration.DB_URL,
       IntegrationDbConfiguration.DB_USER,
       IntegrationDbConfiguration.DB_PASSWORD,
       IntegrationDbConfiguration.DB_DRIVER_CLASS);
   }
 
-  private static void clearDatabaseAndSkipBaseData(String dbUrl, String dbUser, String dbPassword, String dbDriverClass) {
+  private static void clearDatabaseAndSkipBaseData(List<String> tables, String dbUrl, String dbUser, String dbPassword, String dbDriverClass) {
 
     try (Connection connection = createDbConnection(dbUrl, dbUser, dbPassword, dbDriverClass)) {
 
-      List<String> tablesToTruncate = getTablesToTruncate(connection);
+      List<String> tablesToTruncate = tables.isEmpty() ? getTablesToTruncate(connection) : tables;
+
       if (tablesToTruncate.isEmpty()) {
         logger.warn("Database [{}] has no tables, nothing to truncate", dbUrl);
       }

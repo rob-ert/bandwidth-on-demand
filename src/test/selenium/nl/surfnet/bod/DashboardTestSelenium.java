@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.service.DataBaseTestHelper;
+import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
@@ -40,7 +40,7 @@ public class DashboardTestSelenium extends TestExternalSupport {
       return;
     }
 
-    DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
+    DatabaseTestHelper.clearSeleniumDatabaseSkipBaseData();
 
     LocalDate startDate = LocalDate.now();
     LocalDate endDate = startDate;

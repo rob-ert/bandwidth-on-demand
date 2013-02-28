@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.support;
 
-import nl.surfnet.bod.service.DataBaseTestHelper;
+import nl.surfnet.bod.service.DatabaseTestHelper;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,7 +61,7 @@ public abstract class TestExternalSupport {
 
   @Before
   public void clearDatabase() {
-    DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
+    DatabaseTestHelper.clearSeleniumDatabaseSkipBaseData();
   }
 
   protected BodWebDriver getWebDriver() {

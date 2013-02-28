@@ -39,7 +39,6 @@ public class TextWithinWebElement implements Probe {
   @Override
   public void sample() {
     satisfied = element.getText().contains(text);
-    System.err.println(String.format("%d: could not find '%s' in '%s'", System.currentTimeMillis(), text, element.getText()));
   }
 
   @Override

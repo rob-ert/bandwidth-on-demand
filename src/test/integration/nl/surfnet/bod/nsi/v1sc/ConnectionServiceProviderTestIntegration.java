@@ -135,7 +135,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+    DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
 
     nsiRequester.addResponse("/bod/nsi/requester", new ClassPathResource(
         "web/services/nsi/mockNsiReservationFailedResponse.xml"));
@@ -195,7 +195,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @AfterTransaction
   public void teardown() {
     nsiRequester.clearRequests();
-    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
+    DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 
   @Test

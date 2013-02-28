@@ -22,18 +22,28 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
+  private static boolean setupDone;
+
   @Before
   public void setup() {
+    if (setupDone) {
+      return;
+    }
+
+    DatabaseTestHelper.clearSeleniumDatabaseSkipBaseData();
+
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
@@ -49,15 +59,26 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
+
+    setupDone = true;
+  }
+
+  @Override
+  public void clearDatabase() {
+  }
+
+  @After
+  public void dropReservations() {
+    DatabaseTestHelper.deleteReservationsFromSeleniumDatabase();
   }
 
   @Test
   public void createAndCancelAReservation() {
-    final LocalDate startDate = LocalDate.now().plusDays(3);
-    final LocalDate endDate = LocalDate.now().plusDays(5);
-    final LocalTime startTime = LocalTime.now().plusHours(1);
-    final LocalTime endTime = LocalTime.now();
-    final String reservationLabel = "Selenium Reservation";
+    LocalDate startDate = LocalDate.now().plusDays(3);
+    LocalDate endDate = LocalDate.now().plusDays(5);
+    LocalTime startTime = LocalTime.now().plusHours(1);
+    LocalTime endTime = LocalTime.now();
+    String reservationLabel = "Selenium Reservation";
 
     getManagerDriver().switchToUser();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
@@ -93,10 +114,10 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @Test
   public void searchAndFilterReservations() {
-    final String even = "Even reservation";
-    final String odd = "Odd reservation";
-    final LocalDate date = LocalDate.now().plusDays(1);
-    final LocalTime startTime = new LocalTime(8, 0);
+    String even = "Even reservation";
+    String odd = "Odd reservation";
+    LocalDate date = LocalDate.now().plusDays(1);
+    LocalTime startTime = new LocalTime(8, 0);
 
     getManagerDriver().switchToUser();
 
@@ -112,4 +133,5 @@ public class ReservationTestSelenium extends TestExternalSupport {
     // Search on odd
     getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "odd", odd);
   }
+
 }
