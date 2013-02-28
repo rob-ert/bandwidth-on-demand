@@ -82,9 +82,7 @@ public class NbiMtosiClient implements NbiClient {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.saveAndFlush(reservation);
 
-    serviceComponentActivationClient.reserve(savedReservation, autoProvision);
-
-    return savedReservation;
+    return serviceComponentActivationClient.reserve(savedReservation, autoProvision);
   }
 
   @Override

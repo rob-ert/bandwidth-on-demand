@@ -79,6 +79,7 @@ public class NbiMtosiClientTest {
   @Test
   public void shouldGenerateUUID() {
     when(reservationRepo.saveAndFlush(reservation)).thenReturn(reservation);
+    when(serviceComponentActivationClient.reserve(reservation, true)).thenReturn(reservation);
 
     assertThat(reservation.getReservationId(), nullValue());
     Reservation createdReservation = subject.createReservation(reservation, true);
@@ -115,7 +116,7 @@ public class NbiMtosiClientTest {
 
     when(inventoryRetrievalClient.getRfsInventory()).thenReturn(rfsList);
 
-    assertThat(ReservationStatus.RESERVED, is(subject.getReservationStatus(reservation.getReservationId()).get()));
+    assertThat(subject.getReservationStatus(reservation.getReservationId()).get(), is(ReservationStatus.SCHEDULED));
   }
 
   @Test

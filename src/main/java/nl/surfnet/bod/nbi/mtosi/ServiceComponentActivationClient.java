@@ -30,6 +30,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +45,17 @@ import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHtt
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 
-import com.google.common.base.Throwables;
-
 @Service
 public class ServiceComponentActivationClient {
 
   private static final String WSDL_LOCATION =
-    "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
+      "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
   private final String endPoint;
   private final ServiceComponentActivationInterfaceHttp client;
-  
+
   @Resource
   private AbstractSequenceMaxValueIncrementer sqlLSequenceMaxValueIncrementer;
 
@@ -65,11 +64,11 @@ public class ServiceComponentActivationClient {
     this.endPoint = endPoint;
     URL wsdlUrl = this.getClass().getResource(WSDL_LOCATION);
     this.client = new ServiceComponentActivationInterfaceHttp(
-      wsdlUrl,
-      new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0", "ServiceComponentActivationInterfaceHttp"));
+        wsdlUrl,
+        new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0", "ServiceComponentActivationInterfaceHttp"));
   }
 
-  public void reserve(final Reservation reservation, boolean autoProvision) {
+  public Reservation reserve(final Reservation reservation, boolean autoProvision) {
     Holder<Header> header = HeaderBuilder.buildReserveHeader(endPoint);
     ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision,
         sqlLSequenceMaxValueIncrementer.nextLongValue());
@@ -82,22 +81,29 @@ public class ServiceComponentActivationClient {
       logger.info("---->>");
       logger.info("{}", reserveResponse);
       logger.info("<<----");
+      System.err.println("After response");
 
       // TODO do something with the reserveResponse..
     }
     catch (ReserveException e) {
-      e.printStackTrace();
-      Throwables.propagate(e);
+      // Set reason, error message
+      reservation.setFailedReason(e.getMessage());
+      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
+      logger.warn("Error creating reservation with id: " + reservation.getReservationId(), e);
     }
+    return reservation;
   }
-  
+
   static {
     // Don't show full stack trace in soap result if an exception occurs
-//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+    // System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace",
+    // "false");
+    // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
+    // "true");
   }
-  
 
 }
