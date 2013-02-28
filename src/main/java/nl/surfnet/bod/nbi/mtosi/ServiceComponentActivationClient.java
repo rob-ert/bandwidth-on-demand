@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.support.incrementer.AbstractSequenceMaxValueIncrementer;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterface;
@@ -46,6 +47,8 @@ import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHtt
 import org.tmforum.mtop.sa.xsd.sairsp.v1.InitialResponseType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
+
+import com.google.common.annotations.VisibleForTesting;
 
 @Service
 public class ServiceComponentActivationClient {
@@ -79,26 +82,32 @@ public class ServiceComponentActivationClient {
       ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
       ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
-      List<Object> rfsNameOrRfsCreation = reserveResponse.getRfsNameOrRfsCreation();
-      if (rfsNameOrRfsCreation != null) {
-        if (rfsNameOrRfsCreation.get(0) != null) {
-          InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
-          if (initialResponseType.isAccept()) {
-            reservation.setStatus(ReservationStatus.REQUESTED);
-          }
-          else {
-            reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-          }
-        }
-      }
+      handleInitialReservationStatus(reservation, reserveResponse.getRfsNameOrRfsCreation());
     }
     catch (ReserveException e) {
-      // Set reason, error message
-      reservation.setFailedReason(e.getMessage());
-      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-      logger.warn("Error creating reservation with id: " + reservation.getReservationId(), e);
+      handleInitialReservationException(reservation, e);
     }
     return reservation;
+  }
+
+  @VisibleForTesting
+   void handleInitialReservationException(final Reservation reservation, ReserveException e) {
+    reservation.setFailedReason(e.getMessage());
+    reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
+    logger.warn("Error creating reservation with id: " + reservation.getReservationId(), e);
+  }
+
+  @VisibleForTesting
+   void handleInitialReservationStatus(final Reservation reservation, List<Object> rfsNameOrRfsCreation) {
+    if (!CollectionUtils.isEmpty(rfsNameOrRfsCreation)) {
+      InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
+      if (initialResponseType.isAccept()) {
+        reservation.setStatus(ReservationStatus.REQUESTED);
+      }
+      else {
+        reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
+      }
+    }
   }
 
   static {
