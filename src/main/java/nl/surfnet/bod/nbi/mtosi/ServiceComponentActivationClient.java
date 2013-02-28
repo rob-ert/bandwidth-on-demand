@@ -80,7 +80,7 @@ public class ServiceComponentActivationClient {
       ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
       List<Object> rfsNameOrRfsCreation = reserveResponse.getRfsNameOrRfsCreation();
-      if (rfsNameOrRfsCreation.size() == 6) {
+      if (rfsNameOrRfsCreation != null) {
         if (rfsNameOrRfsCreation.get(0) != null) {
           InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
           if (initialResponseType.isAccept()) {
