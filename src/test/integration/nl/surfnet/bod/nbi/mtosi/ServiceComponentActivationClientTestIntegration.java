@@ -22,45 +22,52 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.startsWith;
+
+import javax.annotation.Resource;
 import javax.xml.bind.Marshaller;
 
+import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.util.TestHelper;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { AppConfiguration.class, })
+@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
+@Transactional
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ServiceComponentActivationClientTestIntegration {
 
-  static {
-    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-  }
-
+  @Resource
   private ServiceComponentActivationClient subject;
 
   @Before
   public void setup() {
-    //String endPoint = productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
-    String endPoint = TestHelper.devProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
-    subject = new ServiceComponentActivationClient(endPoint);
+    // String endPoint =
+    // productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
+    // String endPoint =
+    // TestHelper.devProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
+    // subject = new ServiceComponentActivationClient(endPoint);
   }
 
   @Test
-  @Ignore("Needs access to london server... is more like integration, but now only for testing..")
-  public void reserve() {
+  public void shouldReturnSapNotFound() {
 
-    Reservation reservation = new ReservationFactory()
-      .setStartDateTime(DateTime.now().plusYears(2))
-      .setEndDateTime(DateTime.now().plusYears(2).plusDays(3))
-      .setName("mtosiSurfTest2").create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(2))
+        .setEndDateTime(DateTime.now().plusYears(2).plusDays(3)).setName("mtosiSurfTest2").create();
 
     reservation.getSourcePort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:cf:b0-50");
     reservation.getSourcePort().getPhysicalPort().setNmsPortId("1-1-1-8");
@@ -70,7 +77,22 @@ public class ServiceComponentActivationClientTestIntegration {
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-1");
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("00:03:18:58:ce:20");
 
-    subject.reserve(reservation, false);
+    Reservation savedReservation = subject.reserve(reservation, false);
+    
+    // Meaning error message has been removed?
+    assertThat(savedReservation.getFailedReason(), startsWith("Sap not found - SAP-00:03:18:58:cf:b0-50"));
+  }
+
+  static {
+    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+    // System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace",
+    // "false");
+    // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
+    // "true");
   }
 
 }
