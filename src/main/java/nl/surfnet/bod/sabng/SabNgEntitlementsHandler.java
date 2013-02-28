@@ -184,8 +184,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
     Document document = createDocument(responseStream);
 
-    logger.warn("Response document: {}", document);
-
     checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
 
     if (hasValidConditions(document)) {
