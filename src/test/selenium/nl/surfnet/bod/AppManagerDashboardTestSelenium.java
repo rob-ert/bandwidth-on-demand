@@ -22,19 +22,16 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.SeleniumWithSingleSetup;
+import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.Test;
 
-public class AppManagerDashboardTestSelenium extends SeleniumWithSingleSetup {
-
-  @Override
-  public void setupInitialData() {
-    getNocDriver().switchToAppManager();
-  }
+public class AppManagerDashboardTestSelenium extends TestExternalSupport {
 
   @Test
   public void verifyLinks() {
+    getNocDriver().switchToAppManager();
+
     getAppManagerDriver().verifyHealthCheckLink();
     getAppManagerDriver().verifyRefreshInstitutesLink();
     getAppManagerDriver().verifyReIndexSearchDatabaseLink();
@@ -43,6 +40,8 @@ public class AppManagerDashboardTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyMenu() {
+    getNocDriver().switchToAppManager();
+
     getAppManagerDriver().verifyMenu();
   }
 

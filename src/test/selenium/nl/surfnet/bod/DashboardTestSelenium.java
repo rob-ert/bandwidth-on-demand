@@ -49,6 +49,8 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyUserStatisticLinksFromDashboard() {
+    getNocDriver().switchToUser();
+
     getUserDriver().verifyDashboardToVirtualPortsLink("Selenium users");
     getUserDriver().verifyDashboardToComingReservationsLink("Selenium users");
     getUserDriver().verifyDashboardToElapsedReservationsLink("Selenium users");
