@@ -41,6 +41,10 @@
             <dd>
                 <util:serviceState health="${sabHealth}" />
             </dd>
+            <dt>VERS</dt>
+            <dd>
+                <util:serviceState health="${versHealth}" />
+            </dd>
         </dl>
     </div>
     <div class="actions"><!--  --></div>

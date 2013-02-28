@@ -88,11 +88,12 @@ public class HealthCheckControllerTest {
     subject.index(model);
 
     assertThat(logger.getErrorMessages(), hasItems(
-      containsString("IDD"),
-      containsString("NBI"),
-      containsString("OAuth"),
-      containsString("API"),
-      containsString("SAB")));
+        containsString("IDD"),
+        containsString("NBI"),
+        containsString("OAuth"),
+        containsString("API"),
+        containsString("SAB"),
+        containsString("VERS")));
   }
 
   private void supressErrorOutput() {

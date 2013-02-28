@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -33,6 +34,11 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.joda.time.YearMonth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +75,9 @@ public class VersReportingService {
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+
+  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
 
   @Scheduled(cron = FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION)
   public void sendInternalReport() throws Exception {
@@ -79,7 +87,7 @@ public class VersReportingService {
   }
 
   public void sendReports(YearMonth period) {
-    log.info(String.format("Sending reports to VERS for '%s'", period.toString("yyyy-MM")));
+    logger.info(String.format("Sending reports to VERS for '%s'", period.toString("yyyy-MM")));
 
     Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews(period);
 
@@ -90,10 +98,34 @@ public class VersReportingService {
 
       Collection<ErInsertReportDocument> reports = createAllReports(period, institute, reportView);
 
-      log.info(String.format("Sending %d reports for institute '%s'", reports.size(), institute.or("Null/Not set")));
+      logger.info(String.format("Sending %d reports for institute '%s'", reports.size(), institute.or("Null/Not set")));
 
       submitReports(reports);
     }
+  }
+
+  /**
+   * Simply tests if the wsdl of the vers reporting service can be retrieved
+   * 
+   * @return true if so, false otherwise
+   */
+  public boolean isWSDLAvailable() {
+
+    HttpGet httpGet = new HttpGet(serviceURL + "?wsdl");
+    try {
+      HttpResponse response = httpClient.execute(httpGet);
+
+      httpGet.releaseConnection();
+
+      if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
+        return true;
+      }
+    }
+    catch (IOException e) {
+      logger.warn("Error performing healthcheck on Vers", e);
+    }
+
+    return false;
   }
 
   Collection<ErInsertReportDocument> createAllReports(
@@ -119,12 +151,12 @@ public class VersReportingService {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsCancelSucceeded(), previousMonth, institute, "Succeeded"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsCancelSucceeded(), previousMonth, institute, "Succeeded"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsCancelFailed(), previousMonth, institute, "Failed"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsCancelFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
@@ -137,18 +169,18 @@ public class VersReportingService {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsModifiedSucceeded(), previousMonth, institute, "Succeeded"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsModifiedSucceeded(), previousMonth, institute, "Succeeded"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsModifiedFailed(), previousMonth, institute, "Failed"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsModifiedFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
 
   Collection<ErInsertReportDocument> createRequestsThroughPki(YearMonth previousMonth,
-    Optional<String> institute, ReservationReportView reportView) {
+      Optional<String> institute, ReservationReportView reportView) {
 
     final String pkiName = "Reservations through";
 
@@ -162,31 +194,32 @@ public class VersReportingService {
   }
 
   Collection<ErInsertReportDocument> createServicesPki(
-    YearMonth previousMonth, Optional<String> institute, ReservationReportView reportView) {
+      YearMonth previousMonth, Optional<String> institute, ReservationReportView reportView) {
 
     final String pkiName = "Services";
 
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRunningReservationsStillRunning(), previousMonth, institute, "Running"));
+        getVersRequest(
+            pkiName, reportView.getAmountRunningReservationsStillRunning(), previousMonth, institute, "Running"));
 
     reports.add(
-      getVersRequest(
+        getVersRequest(
         pkiName, reportView.getAmountRunningReservationsSucceeded(), previousMonth, institute, "Execution succeeded"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRunningReservationsFailed(), previousMonth, institute, "Execution failed"));
+        getVersRequest(
+            pkiName, reportView.getAmountRunningReservationsFailed(), previousMonth, institute, "Execution failed"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
+        getVersRequest(
+            pkiName, reportView.getAmountRunningReservationsStillScheduled(), previousMonth, institute, "Scheduled"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRunningReservationsNeverProvisioned(), previousMonth, institute, "Never provisioned"));
+        getVersRequest(
+            pkiName, reportView.getAmountRunningReservationsNeverProvisioned(), previousMonth, institute,
+            "Never provisioned"));
 
     return reports;
   }
@@ -199,12 +232,12 @@ public class VersReportingService {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsCreatedSucceeded(), previousMonth, institute, "Succeeded"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsCreatedSucceeded(), previousMonth, institute, "Succeeded"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reportView.getAmountRequestsCreatedFailed(), previousMonth, institute, "Failed"));
+        getVersRequest(
+            pkiName, reportView.getAmountRequestsCreatedFailed(), previousMonth, institute, "Failed"));
 
     return reports;
   }
@@ -217,16 +250,16 @@ public class VersReportingService {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.add(
-      getVersRequest(
-        pkiName, reservationReportView.getAmountReservationsProtected(), period, institute, "Protected"));
+        getVersRequest(
+            pkiName, reservationReportView.getAmountReservationsProtected(), period, institute, "Protected"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reservationReportView.getAmountReservationsUnprotected(), period, institute, "Unprotected"));
+        getVersRequest(
+            pkiName, reservationReportView.getAmountReservationsUnprotected(), period, institute, "Unprotected"));
 
     reports.add(
-      getVersRequest(
-        pkiName, reservationReportView.getAmountReservationsRedundant(), period, institute, "Redundant"));
+        getVersRequest(
+            pkiName, reservationReportView.getAmountReservationsRedundant(), period, institute, "Redundant"));
 
     return reports;
   }
@@ -238,12 +271,12 @@ public class VersReportingService {
       for (ErInsertReportDocument report : reports) {
         ErInsertReportResponse response = stub.er_InsertReport(report).getErInsertReportResponse();
         if (response.getReturnCode() < 0) {
-          log.warn("Sending report failed with {}, '{}'", response.getReturnCode(), response.getReturnText());
+          logger.warn("Sending report failed with {}, '{}'", response.getReturnCode(), response.getReturnText());
         }
       }
     }
     catch (RemoteException e) {
-      log.error("Could not send reports", e);
+      logger.error("Could not send reports", e);
     }
   }
 
@@ -254,7 +287,8 @@ public class VersReportingService {
 
     for (PhysicalResourceGroup physicalResourceGroup : prgWithPorts) {
       Optional<String> orgName = Optional.of(physicalResourceGroup.getInstitute().getShortName());
-      ReservationReportView report = reportingService.determineReportForAdmin(period.toInterval(), BodRole.createManager(physicalResourceGroup));
+      ReservationReportView report = reportingService.determineReportForAdmin(period.toInterval(), BodRole
+          .createManager(physicalResourceGroup));
 
       reportViews.put(orgName, report);
     }

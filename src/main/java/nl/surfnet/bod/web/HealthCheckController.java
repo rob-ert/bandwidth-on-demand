@@ -35,6 +35,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -65,6 +66,9 @@ public class HealthCheckController {
 
   @Resource
   private GroupService sabGroupService;
+
+  @Resource
+  private VersReportingService verseReportingService;
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
@@ -133,7 +137,8 @@ public class HealthCheckController {
       public ServiceState healty() throws IOException {
         if (environment.isSabEnabled()) {
           return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
-        } else {
+        }
+        else {
           return DISABLED;
         }
       }
@@ -144,13 +149,26 @@ public class HealthCheckController {
       }
     };
 
+    final ServiceCheck versCheck = new ServiceCheck() {
+      @Override
+      public ServiceState healty() throws IOException {
+        return verseReportingService.isWSDLAvailable() ? SUCCEEDED : FAILED;
+      };
+
+      @Override
+      public String getName() {
+        return "VERS (reporting service";
+      }
+    };
+
     @SuppressWarnings("unchecked")
     List<Callable<ServiceState>> tasks = Lists.newArrayList(
         callable(iddServiceCheck),
         callable(nbiServiceCheck),
         callable(oAuthServerServiceCheck),
         callable(apiServiceCheck),
-        callable(sabServiceCheck)
+        callable(sabServiceCheck),
+        callable(versCheck)
         );
 
     try {
@@ -161,6 +179,7 @@ public class HealthCheckController {
       model.addAttribute("oAuthServer", toState(futures.get(2)));
       model.addAttribute("openConextApi", toState(futures.get(3)));
       model.addAttribute("sabHealth", toState(futures.get(4)));
+      model.addAttribute("versHealth", toState(futures.get(5)));
     }
     catch (InterruptedException e) {
       logger.error("Error during calling healthchecks", e);
@@ -173,7 +192,7 @@ public class HealthCheckController {
     try {
       return healthFuture.get();
     }
-    catch (InterruptedException | ExecutionException e) {
+    catch (InterruptedException | ExecutionException | CancellationException e) {
       logger.error("Error during healthcheck", e);
       return ServiceState.FAILED;
     }
