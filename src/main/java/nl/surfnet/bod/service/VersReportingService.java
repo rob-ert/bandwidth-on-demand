@@ -38,7 +38,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.joda.time.YearMonth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +76,6 @@ public class VersReportingService {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
-
   @Scheduled(cron = FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION)
   public void sendInternalReport() throws Exception {
     YearMonth previousMonth = YearMonth.now().minusMonths(1);
@@ -106,26 +103,19 @@ public class VersReportingService {
 
   /**
    * Simply tests if the wsdl of the vers reporting service can be retrieved
-   * 
+   *
    * @return true if so, false otherwise
    */
-  public boolean isWSDLAvailable() {
-
-    HttpGet httpGet = new HttpGet(serviceURL + "?wsdl");
+  public boolean isWsdlAvailable() {
     try {
-      HttpResponse response = httpClient.execute(httpGet);
+      HttpResponse response = new DefaultHttpClient().execute(new HttpGet(serviceURL + "?wsdl"));
 
-      httpGet.releaseConnection();
-
-      if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
-        return true;
-      }
+      return HttpStatus.SC_OK == response.getStatusLine().getStatusCode();
     }
     catch (IOException e) {
       logger.warn("Error performing healthcheck on Vers", e);
+      return false;
     }
-
-    return false;
   }
 
   Collection<ErInsertReportDocument> createAllReports(

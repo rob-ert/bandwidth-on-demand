@@ -152,12 +152,12 @@ public class HealthCheckController {
     final ServiceCheck versCheck = new ServiceCheck() {
       @Override
       public ServiceState healty() throws IOException {
-        return verseReportingService.isWSDLAvailable() ? SUCCEEDED : FAILED;
+        return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
       };
 
       @Override
       public String getName() {
-        return "VERS (reporting service";
+        return "VERS (reporting service)";
       }
     };
 
@@ -172,7 +172,7 @@ public class HealthCheckController {
         );
 
     try {
-      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(4).invokeAll(tasks, 15, TimeUnit.SECONDS);
+      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(tasks.size()).invokeAll(tasks, 15, TimeUnit.SECONDS);
 
       model.addAttribute("iddHealth", toState(futures.get(0)));
       model.addAttribute("nbiHealth", toState(futures.get(1)));
