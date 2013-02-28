@@ -66,12 +66,11 @@ public class Institute implements Loggable {
   @Column(name = "aligned_idd")
   private boolean alignedWithIDD;
 
-  // No version!
-  @SuppressWarnings("unused")
   private Institute() {
   }
 
   public Institute(Long id, String name, String shortName, boolean alignedWithIDD) {
+    this();
     this.id = id;
     this.name = name;
     this.shortName = shortName;

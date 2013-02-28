@@ -29,7 +29,7 @@
         <ns1:getKlantListResponse xmlns:ns1="urn:ksr">
             <klantnamen xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Klanten[5]">
                 <item xsi:type="tns:Klanten">
-                        <klant_id xsi:type="xsd:int">1</klant_id>
+                        <klant_id xsi:type="xsd:int">536</klant_id>
                         <klantnaam xsi:type="xsd:string">SURFnet bv</klantnaam>
                         <klantafkorting xsi:type="xsd:string">SURFNET</klantafkorting>
                         <naw_ref xsi:type="xsd:string">SURFNET</naw_ref>
@@ -45,7 +45,7 @@
                         </instellingsbevoegden>
                     </item>
                     <item xsi:type="tns:Klanten">
-                        <klant_id xsi:type="xsd:int">2</klant_id>
+                        <klant_id xsi:type="xsd:int">529</klant_id>
                         <klantnaam xsi:type="xsd:string">Rijke Universiteit Gaanderen</klantnaam>
                         <klantafkorting xsi:type="xsd:string">RUG</klantafkorting>
                         <naw_ref xsi:type="xsd:string">RUG</naw_ref>
@@ -53,7 +53,7 @@
                         <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
                     </item>
                      <item xsi:type="tns:Klanten">
-                        <klant_id xsi:type="xsd:int">3</klant_id>
+                        <klant_id xsi:type="xsd:int">530</klant_id>
                         <klantnaam xsi:type="xsd:string">Stichting Algemeen Rekencentrum Achterveld</klantnaam>
                         <klantafkorting xsi:type="xsd:string">SARA</klantafkorting>
                         <naw_ref xsi:type="xsd:string">SARA</naw_ref>
@@ -75,7 +75,8 @@
                         <naw_ref xsi:type="xsd:string">UMC</naw_ref>
                         <klassenaam xsi:type="xsd:string">Academische Ziekenhuizen</klassenaam>
                         <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
-                    </item> </klantnamen>
+                    </item>
+                </klantnamen>
         </ns1:getKlantListResponse>
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

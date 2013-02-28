@@ -91,7 +91,7 @@ public class InstituteIddService implements InstituteService {
   private void detectAddedInstitutes(List<Institute> currentAlignedInstitutes, Collection<Institute> iddInstitutes) {
     iddInstitutes.removeAll(currentAlignedInstitutes);
 
-    logger.info(String.format("Found %d new or updated institutes from IDD", iddInstitutes.size()));
+    logger.info("Found {} new or updated institutes from IDD", iddInstitutes.size());
 
     instituteRepo.save(iddInstitutes);
 
@@ -102,9 +102,9 @@ public class InstituteIddService implements InstituteService {
     List<Institute> unalignedInstitutes = Lists.newArrayList(currentAlignedInstitutes);
     unalignedInstitutes.removeAll(iddInstitutes);
 
-    logger.info(String.format(
-        "Found %d institutes that are not in IDD anymore, marking them not aligned",
-        unalignedInstitutes.size()));
+    logger.info(
+      "Found {} institutes that are not in IDD anymore, marking them not aligned",
+      unalignedInstitutes.size());
 
     markNotAligned(unalignedInstitutes);
     instituteRepo.save(unalignedInstitutes);

@@ -34,6 +34,7 @@ import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.util.TestHelper;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,11 @@ public class SabNgEntitlementsHandlerTestIntegration {
   @BeforeClass
   public static void testEnvironment() {
     TestHelper.useTestEnv();
+  }
+
+  @AfterClass
+  public static void clearEnvironment() {
+    TestHelper.clearEnv();
   }
 
   @Test

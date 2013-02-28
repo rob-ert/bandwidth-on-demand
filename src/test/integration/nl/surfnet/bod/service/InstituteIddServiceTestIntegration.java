@@ -125,7 +125,7 @@ public class InstituteIddServiceTestIntegration {
   }
 
   @Test
-  public void shouldThrowSInceShortNameMustBeUnique() {
+  public void shouldThrowSinceShortNameMustBeUnique() {
     Institute instituteOne = new InstituteFactory().setName("Wesaidso Software Engineering")
         .setShortName("WSE").setAlignedWithIDD(true).create();
 
@@ -136,4 +136,5 @@ public class InstituteIddServiceTestIntegration {
 
     instituteRepo.save(instituteTwo);
   }
+
 }
