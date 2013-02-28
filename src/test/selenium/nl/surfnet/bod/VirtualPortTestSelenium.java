@@ -22,17 +22,16 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class VirtualPortTestSelenium extends TestExternalSupport {
+public class VirtualPortTestSelenium extends SeleniumWithSingleSetup {
 
   private static final String VP_DELETE_ALERT_TEXT = "reservations will be effected";
 
-  @Before
-  public void setup() {
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
 

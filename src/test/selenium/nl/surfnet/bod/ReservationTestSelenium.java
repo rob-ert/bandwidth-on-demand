@@ -24,26 +24,17 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ReservationTestSelenium extends TestExternalSupport {
+public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
-  private static boolean setupDone;
-
-  @Before
-  public void setup() {
-    if (setupDone) {
-      return;
-    }
-
-    DatabaseTestHelper.clearSeleniumDatabaseSkipBaseData();
-
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
@@ -59,12 +50,6 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
-
-    setupDone = true;
-  }
-
-  @Override
-  public void clearDatabase() {
   }
 
   @After

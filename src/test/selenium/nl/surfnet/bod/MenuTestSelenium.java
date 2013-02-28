@@ -22,15 +22,14 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class MenuTestSelenium extends TestExternalSupport {
+public class MenuTestSelenium extends SeleniumWithSingleSetup {
 
-  @Before
-  public void setup() {
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
   }

@@ -56,6 +56,10 @@ public final class DatabaseTestHelper {
     truncateSeleniumTables(ImmutableList.of("reservation"));
   }
 
+  public static void deleteVirtualPortsFromSeleniumDatabase() {
+    truncateSeleniumTables(ImmutableList.of("virtual_port"));
+  }
+
   private static void truncateSeleniumTables(List<String> tables) {
     Properties props = getSeleniumProperties();
 

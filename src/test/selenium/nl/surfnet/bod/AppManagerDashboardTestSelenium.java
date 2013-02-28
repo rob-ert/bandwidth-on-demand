@@ -22,15 +22,14 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class AppManagerDashboardTestSelenium extends TestExternalSupport {
+public class AppManagerDashboardTestSelenium extends SeleniumWithSingleSetup {
 
-  @Before
-  public void setUp() {
+  @Override
+  public void setupInitialData() {
     getNocDriver().switchToAppManager();
   }
 

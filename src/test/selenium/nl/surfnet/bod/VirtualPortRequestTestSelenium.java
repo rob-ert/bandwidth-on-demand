@@ -22,21 +22,27 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 
-public class VirtualPortRequestTestSelenium extends TestExternalSupport {
+public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
-  @Before
-  public void setup() {
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test@test.nl");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "Request a virtual port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
 
     getWebDriver().clickLinkInLastEmail();
+  }
+
+  @After
+  public void clearVirtualPorts() {
+    DatabaseTestHelper.deleteVirtualPortsFromSeleniumDatabase();
   }
 
   @Test

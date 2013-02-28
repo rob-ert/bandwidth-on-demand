@@ -22,26 +22,16 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.service.DatabaseTestHelper;
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.Before;
 import org.junit.Test;
 
-public class DashboardTestSelenium extends TestExternalSupport {
+public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
-  private static boolean setupDone = false;
-
-  @Before
-  public void setup() {
-    if (setupDone) {
-      return;
-    }
-
-    DatabaseTestHelper.clearSeleniumDatabaseSkipBaseData();
-
+  @Override
+  public void setupInitialData() {
     LocalDate startDate = LocalDate.now();
     LocalDate endDate = startDate;
     LocalTime startTime = LocalTime.now();
@@ -55,13 +45,6 @@ public class DashboardTestSelenium extends TestExternalSupport {
         "Res Coming", startDate.plusDays(1), endDate.plusDays(1), startTime.plusHours(1), endTime.plusHours(1));
 
     getUserDriver().createNewReservation("Res Active, which will not become active");
-
-    setupDone = true;
-  }
-
-  @Override
-  public void clearDatabase() {
-    // skip clearing database
   }
 
   @Test
