@@ -156,6 +156,12 @@ public final class MtosiUtils {
     return serviceCharacteristicValueType;
   }
 
+  /**
+   * Based on file:Dropbox/BOD/MTOSI/OneControl_R3
+   * .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
+   * 
+   * In tree 2 DataModel->UML->ServiceBasic-> TypeDefinitions->ServiceStateType
+   */
   public static ReservationStatus mapToReservationState(ServiceStateType serviceState) {
     ReservationStatus reservationState = null;
 
@@ -169,19 +175,19 @@ public final class MtosiUtils {
       break;
 
     case PROVISIONED_ACTIVE:
-      reservationState = ReservationStatus.AUTO_START;
+      reservationState = ReservationStatus.RUNNING;
       break;
 
     case PROVISIONED_INACTIVE:
-      // Not used
+      reservationState = ReservationStatus.AUTO_START;
       break;
 
     case RESERVED:
-      reservationState = ReservationStatus.RESERVED;
+      reservationState = ReservationStatus.SCHEDULED;
       break;
 
     case TERMINATED:
-      // Not used
+      reservationState = ReservationStatus.SUCCEEDED;
       break;
     }
 

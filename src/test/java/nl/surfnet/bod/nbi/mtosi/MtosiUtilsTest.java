@@ -124,13 +124,12 @@ public class MtosiUtilsTest {
 
   @Test
   public void shouldMapServiceStatesToReservationStates() {
-    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PLANNING_DESIGNED));
     assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PLANNING_FEASIBILITY_CHECK));
-    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_INACTIVE));
-    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.TERMINATED));
+    assertNull(MtosiUtils.mapToReservationState(ServiceStateType.PLANNING_DESIGNED));
 
-    assertThat(ReservationStatus.AUTO_START, is(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_ACTIVE)));
-    assertThat(ReservationStatus.RESERVED, is(MtosiUtils.mapToReservationState(ServiceStateType.RESERVED)));
+    assertThat(ReservationStatus.SCHEDULED, is(MtosiUtils.mapToReservationState(ServiceStateType.RESERVED)));
+    assertThat(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_INACTIVE), is(ReservationStatus.AUTO_START));
+    assertThat(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_ACTIVE), is(ReservationStatus.RUNNING));
+    assertThat(MtosiUtils.mapToReservationState(ServiceStateType.TERMINATED), is(ReservationStatus.SUCCEEDED));
   }
-
 }
