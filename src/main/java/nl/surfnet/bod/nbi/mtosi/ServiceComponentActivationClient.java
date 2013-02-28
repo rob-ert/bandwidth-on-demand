@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import java.net.URL;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
@@ -42,6 +43,7 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterface;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
+import org.tmforum.mtop.sa.xsd.sairsp.v1.InitialResponseType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 
@@ -76,14 +78,19 @@ public class ServiceComponentActivationClient {
     try {
       ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
       ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
-      logger.info("---->>");
-      logger.info("{}", reserveResponse);
-      logger.info("<<----");
-      System.err.println("After response");
-
-      // TODO do something with the reserveResponse..
+      List<Object> rfsNameOrRfsCreation = reserveResponse.getRfsNameOrRfsCreation();
+      if (rfsNameOrRfsCreation.size() == 6) {
+        if (rfsNameOrRfsCreation.get(0) != null) {
+          InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
+          if (initialResponseType.isAccept()) {
+            reservation.setStatus(ReservationStatus.REQUESTED);
+          }
+          else {
+            reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
+          }
+        }
+      }
     }
     catch (ReserveException e) {
       // Set reason, error message
