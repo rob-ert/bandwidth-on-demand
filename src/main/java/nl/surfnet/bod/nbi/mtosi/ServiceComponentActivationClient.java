@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import java.net.URL;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -53,34 +52,35 @@ import com.google.common.annotations.VisibleForTesting;
 @Service
 public class ServiceComponentActivationClient {
 
-  private static final String WSDL_LOCATION =
-      "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
+  private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
+  private static final String NAMESPACE_URI = "http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0";
+  private static final String LOCAL_PART = "ServiceComponentActivationInterfaceHttp";
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-  private final String endPoint;
   private final ServiceComponentActivationInterfaceHttp client;
+  private final ServiceComponentActivationInterface proxy;
+  private final Holder<Header> header;
+  private final String endPoint;
 
   @Resource
   private AbstractSequenceMaxValueIncrementer sqlLSequenceMaxValueIncrementer;
 
+  
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
-    URL wsdlUrl = this.getClass().getResource(WSDL_LOCATION);
-    this.client = new ServiceComponentActivationInterfaceHttp(
-        wsdlUrl,
-        new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0", "ServiceComponentActivationInterfaceHttp"));
+    this.client = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION), new QName(
+        NAMESPACE_URI, LOCAL_PART));
+    this.proxy = client.getServiceComponentActivationInterfaceSoapHttp();
+    this.header = HeaderBuilder.buildReserveHeader(endPoint);
   }
 
   public Reservation reserve(final Reservation reservation, boolean autoProvision) {
-    Holder<Header> header = HeaderBuilder.buildReserveHeader(endPoint);
+    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
     ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision,
         sqlLSequenceMaxValueIncrementer.nextLongValue());
-
     try {
-      ServiceComponentActivationInterface proxy = client.getServiceComponentActivationInterfaceSoapHttp();
-      ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
       handleInitialReservationStatus(reservation, reserveResponse.getRfsNameOrRfsCreation());
     }
@@ -91,14 +91,14 @@ public class ServiceComponentActivationClient {
   }
 
   @VisibleForTesting
-   void handleInitialReservationException(final Reservation reservation, ReserveException e) {
-    reservation.setFailedReason(e.getMessage());
+  void handleInitialReservationException(final Reservation reservation, ReserveException cause) {
+    reservation.setFailedReason(cause.getMessage());
     reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-    logger.warn("Error creating reservation with id: " + reservation.getReservationId(), e);
+    logger.warn("Error creating reservation with id: " + reservation.getReservationId(), cause);
   }
 
   @VisibleForTesting
-   void handleInitialReservationStatus(final Reservation reservation, List<Object> rfsNameOrRfsCreation) {
+  void handleInitialReservationStatus(final Reservation reservation, List<Object> rfsNameOrRfsCreation) {
     if (!CollectionUtils.isEmpty(rfsNameOrRfsCreation)) {
       InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
       if (initialResponseType.isAccept()) {
@@ -107,6 +107,9 @@ public class ServiceComponentActivationClient {
       else {
         reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
       }
+    }
+    else {
+      reservation.setStatus(ReservationStatus.FAILED);
     }
   }
 

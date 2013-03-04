@@ -1,8 +1,11 @@
 package nl.surfnet.bod.nbi.mtosi;
 
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -18,8 +21,7 @@ import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceComponentActivationClientTest {
-  
-  
+
   @InjectMocks
   private ServiceComponentActivationClient subject;
 
@@ -32,8 +34,23 @@ public class ServiceComponentActivationClientTest {
   }
 
   @Test
+  public void shouldHandleInitialReservationStatusFailed() {
+    Reservation reservation = getTestReservation();
+    List<Object> rfsNameOrRfsCreation = new ArrayList<>();
+    subject.handleInitialReservationStatus(reservation, rfsNameOrRfsCreation);
+    assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+  }
+
+  @Test
   public void shouldHandleInitialReservationException() {
-    
+    Reservation reservation = getTestReservation();
+    subject.handleInitialReservationException(reservation, new ReserveException("SAP is in use", null));
+
+    assertThat(reservation.getFailedReason(), is("SAP is in use"));
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
+  }
+
+  private Reservation getTestReservation() {
     Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(2))
         .setEndDateTime(DateTime.now().plusYears(2).plusDays(3)).setName("mtosiSurfTest2").create();
 
@@ -44,10 +61,7 @@ public class ServiceComponentActivationClientTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:ce:20-50");
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-1");
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("00:03:18:58:ce:20");
-    subject.handleInitialReservationException(reservation , new ReserveException("SAP is in use", null));
-    assertThat(reservation.getFailedReason(), is("SAP is in use"));
-    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
-    
+    return reservation;
   }
 
 }
