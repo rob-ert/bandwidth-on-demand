@@ -32,10 +32,10 @@ import javax.xml.bind.Marshaller;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.util.TestHelper;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -54,13 +54,17 @@ public class ServiceComponentActivationClientTestIntegration {
 
   @Resource
   private ServiceComponentActivationClient subject;
+  
+  @BeforeClass
+  public void setUpbeforeClass(){
+    System.setProperty("bod.env", "test-integration");
+  }
 
   @Before
   public void setup() {
     // String endPoint =
     // productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
     // String endPoint =
-     TestHelper.testProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
 //     subject = new ServiceComponentActivationClient(endPoint);
   }
 
