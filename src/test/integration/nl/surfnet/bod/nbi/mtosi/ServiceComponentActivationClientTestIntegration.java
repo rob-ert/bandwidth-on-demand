@@ -32,6 +32,7 @@ import javax.xml.bind.Marshaller;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.util.TestHelper;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -59,8 +60,8 @@ public class ServiceComponentActivationClientTestIntegration {
     // String endPoint =
     // productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
     // String endPoint =
-    // TestHelper.devProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
-    // subject = new ServiceComponentActivationClient(endPoint);
+     TestHelper.testProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
+//     subject = new ServiceComponentActivationClient(endPoint);
   }
 
   @Test
