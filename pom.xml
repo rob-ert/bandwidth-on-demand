@@ -874,39 +874,28 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.3</version>
                         <executions>
                             <execution>
                                 <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-                                        <if>
-                                            <available file="${project.build.directory}/sos-server/sos-server-${sos.version}.war" />
-                                            <then>
-                                                <echo message="sos war was found" />
-                                            </then>
-                                            <else>
-                                                <echo message="sos not found" />
-                                                <mkdir dir="${project.build.directory}/sos-server" />
-                                                <get src="http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war" dest="${project.build.directory}/sos-server/sos-server-${sos.version}.war" verbose="true" />
-                                            </else>
-                                        </if>
-                                    </target>
-                                </configuration>
                                 <goals>
-                                    <goal>run</goal>
+                                    <goal>copy</goal>
                                 </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/sos-server</outputDirectory>
+                                    <silent>true</silent>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>nl.surfnet</groupId>
+                                            <artifactId>sos-server</artifactId>
+                                            <version>${sos.version}</version>
+                                            <type>war</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
                             </execution>
                         </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>ant-contrib</groupId>
-                                <artifactId>ant-contrib</artifactId>
-                                <version>20020829</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
