@@ -121,7 +121,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     assertThat(editPage.getManagerLabel(), is(managerLabel));
   }
 
-  public void addPhysicalPortToInstitute(String groupName, String nocLabel, final String portLabel) {
+  public void addPhysicalPortToInstitute(String groupName, String nocLabel, String portLabel) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
     AddPhysicalPortPage addPage = page.addPhysicalPort(groupName);

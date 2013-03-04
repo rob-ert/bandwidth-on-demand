@@ -22,53 +22,49 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class SearchAndSortTestSelenium extends TestExternalSupport {
+public class SearchAndSortTestSelenium extends SeleniumWithSingleSetup {
 
-  @Before
-  public void setup() {
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
+
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
   }
 
   @Test
   public void verifySearch() {
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 3 label", "Mock_Poort 3de verdieping toren1c");
+    String bodPortIdLabel1 = "Mock_ETH-1-1-1";
+    String bodPortIdLabel2 = "Mock_ETH-1-2-3";
+    String bodPortIdLabel3 = "Mock_OME0039_OC12-1-12-2";
 
-    getNocDriver().verifyAllocatedPortsBySearch("1", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
-    getNocDriver().verifyAllocatedPortsBySearch("*1*", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 1 pport label", "Mock_Poort 1de verdieping toren2");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 2 pport label", "Mock_Poort 2de verdieping toren2");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 3 pport label", "Mock_Poort 3de verdieping toren2");
 
-    getNocDriver().verifyAllocatedPortsBySearch("'NOC 1 label'", BOD_PORT_ID_1);
-    getNocDriver().verifyAllocatedPortsBySearch("'NOC 1'", new String[] {});
-    getNocDriver().verifyAllocatedPortsBySearch("'NOC ? label'", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
+    getNocDriver().verifyAllocatedPortsBySearch("label", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
+    getNocDriver().verifyAllocatedPortsBySearch("*pport*", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
+
+    getNocDriver().verifyAllocatedPortsBySearch("\"NOC 1 pport label\"", bodPortIdLabel1);
+    getNocDriver().verifyAllocatedPortsBySearch("NOC ? pport", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
   }
 
   @Test
   public void verifySort() {
-    setupSortData();
-
     getNocDriver().verifyAllocatedPortsBySort("nocLabel", "123NOC", "987NOC", "abcNOC", "bbcNOC");
   }
 
   @Test
   public void verifySearchAndSort() {
-    setupSortData();
-
     getNocDriver().verifyAllocatedPortsBySearchAndSort("bcNO", "bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3);
 
     getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH10G", "nocLabel", "123NOC", "987NOC");
-  }
-
-  private void setupSortData() {
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
   }
 
 }
