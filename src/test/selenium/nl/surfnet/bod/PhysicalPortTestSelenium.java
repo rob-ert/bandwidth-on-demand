@@ -22,82 +22,20 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class PhysicalPortTestSelenium extends TestExternalSupport {
+public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
 
-  @Before
-  public void setup() {
+  private String vpOne = "VirtualPort One";
+  private String nocLabel = "My Selenium Port (Noc)";
+  private String managerLabel1 = "My Selenium Port (Manager 1st)";
+
+  @Override
+  public void setupInitialData() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
-  }
 
-  @Test
-  public void allocateAndUnallocatePhysicalPortFromInstitutePage() {
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC label", "Mock_Poort 1de verdieping toren1a");
-
-    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, "NOC label");
-
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-  }
-
-  @Test
-  public void createRenameAndDeleteAPhysicalPort() {
-    String nocLabel = "My Selenium Port (Noc)";
-    String managerLabel1 = "My Selenium Port (Manager 1st)";
-    String managerLabel2 = "My Selenium Port (Manager 2nd)";
-
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
-
-    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, nocLabel);
-
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, nocLabel);
-
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_1, managerLabel1);
-
-    getNocDriver().switchToManager();
-
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(BOD_PORT_ID_1, managerLabel2);
-
-    getManagerDriver().verifyManagerLabelChanged(BOD_PORT_ID_1, managerLabel2);
-
-    getManagerDriver().switchToNoc();
-
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_1, managerLabel2);
-
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-  }
-
-  @Test
-  public void checkUnallocateState() {
-    String vpOne = "VirtualPort One";
-    String nocLabel = "My Selenium Port (Noc)";
-    String managerLabel1 = "My Selenium Port (Manager 1st)";
-    setupVirtualPort(vpOne, nocLabel, managerLabel1);
-
-    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(BOD_PORT_ID_1, nocLabel);
-
-    getNocDriver().switchToManager();
-    getManagerDriver().deleteVirtualPort(vpOne);
-
-    // After delete VP, the PysicalPort should be able to unallocated
-    getManagerDriver().switchToNoc();
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
-  }
-
-  @Test
-  public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
-    String vpOne = "VirtualPort One";
-    String nocLabel = "My Selenium Port (Noc)";
-    String managerLabel1 = "My Selenium Port (Manager 1st)";
-    setupVirtualPort(vpOne, nocLabel, managerLabel1);
-
-    getManagerDriver().verifyPhysicalPortToVirtualPortsLink(managerLabel1, vpOne);
-  }
-
-  private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
 
@@ -108,6 +46,52 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().acceptVirtualPort(vpOne);
+  }
+
+  @Test
+  public void allocateAndUnallocatePhysicalPortFromInstitutePage() {
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC label", LABEL_PORT_2);
+
+    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_2, "NOC label");
+
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+  }
+
+  @Test
+  public void createRenameAndDeletePhysicalPort() {
+    String nocLabel = "My Selenium Port (Noc)";
+    String managerLabel1 = "My Selenium Port (Manager 1st)";
+    String managerLabel2 = "My Selenium Port (Manager 2nd)";
+
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, nocLabel, managerLabel1, GROUP_SURFNET);
+
+    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_2, nocLabel);
+
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_2, nocLabel);
+
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel1);
+
+    getNocDriver().switchToManager();
+
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(BOD_PORT_ID_2, managerLabel2);
+
+    getManagerDriver().verifyManagerLabelChanged(BOD_PORT_ID_2, managerLabel2);
+
+    getManagerDriver().switchToNoc();
+
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel2);
+
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+  }
+
+  @Test
+  public void checkUnallocateState() {
+    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(BOD_PORT_ID_1, nocLabel);
+  }
+
+  @Test
+  public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
+    getManagerDriver().verifyPhysicalPortToVirtualPortsLink(managerLabel1, vpOne);
   }
 
 }

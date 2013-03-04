@@ -40,6 +40,7 @@ public abstract class TestExternalSupport {
 
   protected static final String BOD_PORT_ID_1 = "Mock_ETH10G-1-13-1";
   protected static final String BOD_PORT_ID_2 = "Mock_ETH10G-1-13-2";
+  protected static final String LABEL_PORT_2 = "Mock_Poort 2de verdieping toren1b";
   protected static final String BOD_PORT_ID_3 = "Mock_ETH-1-13-5";
   protected static final String BOD_PORT_ID_4 = "Mock_ETH-1-13-4";
 
