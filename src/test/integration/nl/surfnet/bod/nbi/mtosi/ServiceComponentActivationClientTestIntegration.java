@@ -56,7 +56,7 @@ public class ServiceComponentActivationClientTestIntegration {
   private ServiceComponentActivationClient subject;
   
   @BeforeClass
-  public void setUpbeforeClass(){
+  public static void setUpbeforeClass(){
     System.setProperty("bod.env", "test-integration");
   }
 
