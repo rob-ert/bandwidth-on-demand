@@ -120,10 +120,6 @@ public class TestHelper {
   public static void useProdEnv() {
     useEnv("prod");
   }
-  
-  public static void useTestIntEnv() {
-    useEnv("test-integration");
-  }
 
   public static void clearEnv() {
     System.clearProperty("bod.env");

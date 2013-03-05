@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -46,7 +47,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, })
+@ContextConfiguration(classes = { AppConfiguration.class,IntegrationDbConfiguration.class})
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
@@ -57,16 +58,10 @@ public class ServiceComponentActivationClientTestIntegration {
   
   @BeforeClass
   public static void setUpbeforeClass(){
-    System.setProperty("bod.env", "test-integration");
-    System.out.println("jdbc.password: "+System.getProperty("jdbc.password"));
   }
 
   @Before
   public void setup() {
-    // String endPoint =
-    // productionProperties().getProperty("nbi.mtosi.service.reserve.endpoint");
-    // String endPoint =
-//     subject = new ServiceComponentActivationClient(endPoint);
   }
 
   @Test
