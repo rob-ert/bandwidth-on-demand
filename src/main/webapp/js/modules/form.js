@@ -16,6 +16,7 @@ app.form = function(){
         initPhysicalPortSelector();
         initAcceptDeclineSelector();
         initPhysicalPortSelectorForVirtualPort();
+        initApiSabSelector();
 
         // create reservation
         initBandwidthSelector();
@@ -223,13 +224,13 @@ app.form = function(){
                     timeInput.val('').prop('disabled', true);
                 }
             });
-            
+
             if (date.length == 0 && time.length == 0) {
               component.find(':checkbox').click();
             }
-            
+
         });
-        
+
     };
 
     var initAutoSuggest = function() {
@@ -267,14 +268,18 @@ app.form = function(){
                 preFill: [{id:preFillId, name:preFillName}],
                 selectionLimit: 1,
                 inputName: 'instituteId',
-                selectionAdded: function() {
+                selectionAdded: function(elem) {
                     $('input[name="'+inputName+'"]').hide();
-                    if (setup_done) $("#_adminGroup_id").focus();
+                },
+                resultClick: function(data) {
+                    instituteSelected(data.attributes);
                 },
                 selectionRemoved: function(elem) {
                     elem.remove();
                     $('input[name="'+inputName+'"]').show();
                     $("input[name='instituteId']").val('');
+
+                    instituteDeselected(elem);
                 },
                 end: function() {
                     setup_done = true;
@@ -365,6 +370,74 @@ app.form = function(){
             if (hidden.val() == "PROTECTED") {
                 component.find(":checkbox").attr("checked", "checked");
             }
+        }
+    };
+
+    var initApiSabSelector = function() {
+        var component = $('[data-component="authorization-type"]');
+
+        if (component.length) {
+            var adminGroupControls = component.parents('form').find('#adminGroup');
+            var adminGroupOutput = adminGroupControls.find('output');
+            var adminGroupHidden = adminGroupControls.find('input[type="hidden"]');
+            var adminGroupInput = adminGroupControls.find('input[type="text"]');
+            var sabPrefix = component.attr("data-sabprefix");
+
+            component.on('change', ':radio', function(event) {
+                if ($(event.target).val() === "sab") {
+                    sabSelected();
+                } else {
+                    apiSelected();
+                }
+            });
+
+            if ($('[data-component="authorization-type"]').find(':checked').val() === "sab") {
+                sabSelected();
+            } else {
+                apiSelected();
+            }
+
+            function sabSelected() {
+              var shortName = $('input[name="shortName"]').val();
+              if (shortName.length > 0) {
+                  var adminGroup = sabPrefix + shortName;
+                  var output = adminGroup;
+              } else {
+                  var adminGroup = "";
+                  var output = "Choose an institute";
+              }
+
+              adminGroupOutput.text(output).show();
+              adminGroupHidden.val(adminGroup).removeAttr("disabled");
+              adminGroupInput.attr("disabled", "true").hide();
+            }
+
+            function apiSelected() {
+              adminGroupOutput.text("").hide();
+              adminGroupInput.removeAttr("disabled").val("").show();
+              adminGroupHidden.attr("disabled", "true")
+            }
+        }
+    };
+
+    var instituteDeselected = function() {
+        $('input[name="shortName"]').val('');
+        var selectedAuthMethod = $('[data-component="authorization-type"]').find(':checked')
+
+        if (selectedAuthMethod.val() === "sab") {
+            selectedAuthMethod.trigger('change');
+        }
+    };
+
+    var instituteSelected = function(institute) {
+        $('input[name="shortName"]').val(institute.shortName);
+        var selectedAuthMethod = $('[data-component="authorization-type"]').find(':checked')
+
+        if (selectedAuthMethod.val() === "sab") {
+            selectedAuthMethod.trigger('change');
+            $('#_managerEmail_id').focus();
+        } else {
+            $('#_adminGroup_id').focus();
         }
     };
 

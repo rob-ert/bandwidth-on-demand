@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.noc;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Collections2.filter;
@@ -53,7 +53,7 @@ import com.google.common.base.Predicate;
 @Controller
 public class InstituteController {
 
-  public static final String PAGE_URL = "/institutes";
+  public static final String PAGE_URL = "/noc/institutes";
 
   static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;

@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.noc;
 
 import static com.google.common.collect.Lists.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -42,6 +42,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.web.noc.InstituteController;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteControllerTest {

@@ -98,6 +98,7 @@ public class PhysicalResourceGroupController extends
     validateAdminGroupUnique(command, result);
 
     if (result.hasErrors()) {
+      model.addAttribute("sabGroupPrefix", SabGroupService.GROUP_PREFIX);
       model.addAttribute(MODEL_KEY, command);
       return "noc/" + PAGE_URL + CREATE;
     }
@@ -130,14 +131,15 @@ public class PhysicalResourceGroupController extends
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model model) {
+    model.addAttribute("sabGroupPrefix", SabGroupService.GROUP_PREFIX);
     model.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand());
 
     return "noc/" + PAGE_URL + CREATE;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final PhysicalResourceGroupCommand command, final BindingResult result,
-      final Model model, final RedirectAttributes redirectAttributes) {
+  public String update(@Valid PhysicalResourceGroupCommand command, BindingResult result,
+      Model model, RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(command.getId());
 
@@ -274,6 +276,7 @@ public class PhysicalResourceGroupController extends
     private String managerEmail;
     private boolean active = false;
     private boolean managerEmailChanged;
+    private String authMethod = "sab";
 
     public PhysicalResourceGroupCommand() {
     }
@@ -364,6 +367,14 @@ public class PhysicalResourceGroupController extends
 
     public String getName() {
       return institute != null ? institute.getName() : String.valueOf(instituteId);
+    }
+
+    public String getAuthMethod() {
+      return authMethod;
+    }
+
+    public void setAuthMethod(String authMethod) {
+      this.authMethod = authMethod;
     }
   }
 

@@ -17,8 +17,9 @@ import com.google.common.base.Preconditions;
 
 @Service("sabGroupService")
 public class SabGroupService implements GroupService {
-  @VisibleForTesting
-  static final String GROUP_PREFIX = "urn:collab:person:sab:admin:bod.surfnet.nl:";
+
+  public static final String GROUP_PREFIX = "urn:collab:person:sab:admin:bod.surfnet.nl:";
+
   static final String NAME_PREFIX = "BoD Administrator ";
   static final String DESCRIPTION_PREFIX = NAME_PREFIX + " of ";
 
