@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.web.view;
 
+import org.springframework.context.MessageSource;
+
 
 /**
  * View responsible for holding state related to an element in the user
@@ -64,21 +66,27 @@ public class ElementActionView {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    ElementActionView other = (ElementActionView) obj;
-    if (allowed != other.allowed)
-      return false;
-    if (reasonKey == null) {
-      if (other.reasonKey != null)
-        return false;
     }
-    else if (!reasonKey.equals(other.reasonKey))
+    if (obj == null) {
       return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ElementActionView other = (ElementActionView) obj;
+    if (allowed != other.allowed) {
+      return false;
+    }
+    if (reasonKey == null) {
+      if (other.reasonKey != null) {
+        return false;
+      }
+    }
+    else if (!reasonKey.equals(other.reasonKey)) {
+      return false;
+    }
     return true;
   }
 

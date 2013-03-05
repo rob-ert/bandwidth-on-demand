@@ -373,6 +373,57 @@ public class Reservation implements Loggable, PersistableDomain {
     return getName();
   }
 
+  public String getFailedReason() {
+    return failedReason;
+  }
+
+  public void setFailedReason(String failedReason) {
+    this.failedReason = failedReason;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
+    this.virtualResourceGroup = virtualResourceGroup;
+  }
+
+  public String getCancelReason() {
+    return cancelReason;
+  }
+
+  public void setCancelReason(String cancelReason) {
+    this.cancelReason = cancelReason;
+  }
+
+  public Optional<Connection> getConnection() {
+    return Optional.fromNullable(connection);
+  }
+
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+
+  /**
+   * @return True if this reservation was made using NSI, false otherwise
+   */
+  public boolean isNSICreated() {
+    return connection != null;
+  }
+
+  public ProtectionType getProtectionType() {
+    return protectionType;
+  }
+
+  public void setProtectionType(ProtectionType protectionType) {
+    this.protectionType = protectionType;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -476,77 +527,32 @@ public class Reservation implements Loggable, PersistableDomain {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Reservation other = (Reservation) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (version == null) {
-      if (other.version != null)
+      if (other.version != null) {
         return false;
+      }
     }
-    else if (!version.equals(other.version))
+    else if (!version.equals(other.version)) {
       return false;
+    }
     return true;
-  }
-
-  public String getFailedReason() {
-    return failedReason;
-  }
-
-  public void setFailedReason(String failedReason) {
-    this.failedReason = failedReason;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  // needed for nsi and integration tests
-  public final void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
-    this.virtualResourceGroup = virtualResourceGroup;
-  }
-
-  public String getCancelReason() {
-    return cancelReason;
-  }
-
-  public void setCancelReason(String cancelReason) {
-    this.cancelReason = cancelReason;
-  }
-
-  public Optional<Connection> getConnection() {
-    return Optional.fromNullable(connection);
-  }
-
-  public void setConnection(Connection connection) {
-    this.connection = connection;
-  }
-
-  /**
-   * @return True if this reservation was made using NSI, false otherwise
-   */
-  public boolean isNSICreated() {
-    return connection != null;
-  }
-
-  public ProtectionType getProtectionType() {
-    return protectionType;
-  }
-
-  public void setProtectionType(ProtectionType protectionType) {
-    this.protectionType = protectionType;
   }
 }

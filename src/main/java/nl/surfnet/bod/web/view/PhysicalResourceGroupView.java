@@ -156,8 +156,9 @@ public class PhysicalResourceGroupView {
         return false;
       }
     }
-    else if (!adminGroup.equals(other.adminGroup))
+    else if (!adminGroup.equals(other.adminGroup)) {
       return false;
+    }
     if (id == null) {
       if (other.id != null) {
         return false;

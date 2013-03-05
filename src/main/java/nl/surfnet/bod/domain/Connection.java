@@ -263,6 +263,22 @@ public class Connection implements Loggable, PersistableDomain {
     return reservation != null ? reservation.getLabel() : connectionId;
   }
 
+  public NsiRequestDetails getProvisionRequestDetails() {
+    return provisionRequestDetails;
+  }
+
+  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.provisionRequestDetails = provisionRequestDetails;
+  }
+
+  public String getProtectionType() {
+    return protectionType;
+  }
+
+  public void setProtectionType(String protectionType) {
+    this.protectionType = protectionType;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -364,42 +380,33 @@ public class Connection implements Loggable, PersistableDomain {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Connection other = (Connection) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (version == null) {
-      if (other.version != null)
+      if (other.version != null) {
         return false;
+      }
     }
-    else if (!version.equals(other.version))
+    else if (!version.equals(other.version)) {
       return false;
+    }
     return true;
-  }
-
-  public NsiRequestDetails getProvisionRequestDetails() {
-    return provisionRequestDetails;
-  }
-
-  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
-    this.provisionRequestDetails = provisionRequestDetails;
-  }
-
-  public String getProtectionType() {
-    return protectionType;
-  }
-
-  public void setProtectionType(String protectionType) {
-    this.protectionType = protectionType;
   }
 
 }
