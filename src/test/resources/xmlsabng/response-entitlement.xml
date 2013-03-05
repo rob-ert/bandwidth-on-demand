@@ -11,48 +11,30 @@
         xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="_746aae3dc805719002b34ba54d7bd2b1a581479edc"
         Version="2.0" IssueInstant="2013-02-18T14:05:10Z">
         <saml:Issuer />
-        <saml:Conditions NotBefore="2013-02-18T14:04:40Z"
-          NotOnOrAfter="2013-02-18T14:10:10Z" />
+        <saml:Conditions NotBefore="2013-02-18T14:04:40Z" NotOnOrAfter="2013-02-18T14:10:10Z" />
         <saml:AttributeStatement>
-          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7"
-            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-            <saml:AttributeValue xsi:type="xs:string">Superuser
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Instellingsbevoegde
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Infraverantwoordelijke
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">OperationeelBeheerder
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Mailverantwoordelijke
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Domeinnamenverantwoordelijke
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">DNS-Beheerder
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">AAIverantwoordelijke
-            </saml:AttributeValue>
+          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+            <saml:AttributeValue xsi:type="xs:string">Superuser</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Instellingsbevoegde</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Infraverantwoordelijke</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">OperationeelBeheerder</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Mailverantwoordelijke</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Domeinnamenverantwoordelijke</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">DNS-Beheerder</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">AAIverantwoordelijke</saml:AttributeValue>
           </saml:Attribute>
-          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1"
-            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-            <saml:AttributeValue xsi:type="xs:string">SURFNET
-            </saml:AttributeValue>
+          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+            <saml:AttributeValue xsi:type="xs:string">SURFNET</saml:AttributeValue>
           </saml:Attribute>
         </saml:AttributeStatement>
         <saml:AttributeStatement>
-          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7"
-            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-            <saml:AttributeValue xsi:type="xs:string">Superuser
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Instellingsbevoegde
-            </saml:AttributeValue>
-            <saml:AttributeValue xsi:type="xs:string">Beveiligingsverantwoordelijke
-            </saml:AttributeValue>
+          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+            <saml:AttributeValue xsi:type="xs:string">Superuser</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Instellingsbevoegde</saml:AttributeValue>
+            <saml:AttributeValue xsi:type="xs:string">Beveiligingsverantwoordelijke</saml:AttributeValue>
           </saml:Attribute>
-          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1"
-            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-            <saml:AttributeValue xsi:type="xs:string">WESAIDSO
-            </saml:AttributeValue>
+          <saml:Attribute Name="urn:oid:1.3.6.1.4.1.1076.20.100.10.50.1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+            <saml:AttributeValue xsi:type="xs:string">WESAIDSO</saml:AttributeValue>
           </saml:Attribute>
         </saml:AttributeStatement>
       </saml:Assertion>

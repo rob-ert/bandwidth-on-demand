@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.sabng;
 
-import static nl.surfnet.bod.web.WebUtils.not;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -63,7 +63,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 
 public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
@@ -102,8 +101,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   @Override
   public List<String> checkInstitutes(String nameId) {
-
-    if (not(bodEnvironment.isSabEnabled())) {
+    if (!bodEnvironment.isSabEnabled()) {
       logger.warn("Consulting SaB Entitlements is disabled");
       return Collections.emptyList();
     }
@@ -125,10 +123,6 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
       throw new RuntimeException(e);
     }
 
-  }
-
-  private String getStatusToMatch() {
-    return STATUS_SUCCESS;
   }
 
   private boolean hasValidConditions(Document document) throws XPathExpressionException {
@@ -156,7 +150,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   boolean validateIssueInstant(DateTime issueInstant, DateTime notBeforeOrAfter, DateTime notOnOrAfter) {
     boolean result = issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter);
 
-    if (not(result)) {
+    if (!result) {
       logger.warn("IssueInstant [{}] not in expected timeframe [{}] and [{}]", issueInstant, notBeforeOrAfter,
           notOnOrAfter);
     }
@@ -180,21 +174,21 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
   @VisibleForTesting
   List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
       throws XPathExpressionException {
-    List<String> entitledInstitutes = new ArrayList<>();
 
     Document document = createDocument(responseStream);
 
-    checkStatusCodeAndMessageIdOrFail(document, getStatusToMatch(), messageId);
+    checkStatusCodeAndMessageIdOrFail(document, messageId);
 
-    if (hasValidConditions(document)) {
-      entitledInstitutes = getInstitutesWithRoleToMatch(document, sabRole);
+    if (!hasValidConditions(document)) {
+      return Collections.emptyList();
     }
 
-    return entitledInstitutes;
+    return getInstitutesWithRoleToMatch(document, sabRole);
   }
 
-  private List<String> getInstitutesWithRoleToMatch(final Document document, final String roleToMatch)
+  private List<String> getInstitutesWithRoleToMatch(Document document, String roleToMatch)
       throws XPathExpressionException {
+
     XPath xPath = getXPath();
     List<String> institutes = new ArrayList<>();
 
@@ -203,11 +197,9 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
     for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
       Node node = nodeList.item(i);
-      if (node != null) {
-        String entitlements = node.getParentNode().getTextContent();
-        if (checkEntitlements(entitlements, roleToMatch)) {
-          institutes.add(StringUtils.trimWhitespace(node.getTextContent()));
-        }
+      String entitlements = node.getParentNode().getTextContent();
+      if (checkEntitlements(entitlements, roleToMatch)) {
+        institutes.add(StringUtils.trimWhitespace(node.getTextContent()));
       }
     }
 
@@ -243,25 +235,24 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     return document;
   }
 
-  private void checkStatusCodeAndMessageIdOrFail(Document document, String statusToMatch, String inResponseToIdToMatch)
+  private void checkStatusCodeAndMessageIdOrFail(Document document, String inResponseToIdToMatch)
       throws XPathExpressionException {
     XPath xPath = getXPath();
 
     String statusCode = getStatusCode(document, xPath);
     String statusMessage = getStatusMessage(document, xPath);
-
-    if (not(statusCode.contains(statusToMatch))) {
-      Preconditions.checkState(
-          StringUtils.hasText(statusMessage) && statusMessage.contains(STATUS_MESSAGE_NO_ROLES),
-          "Could not retrieve roles, statusCode: [%s], statusMessage: %s",
-          statusCode,
-          statusMessage);
-    }
-
     String inResponseToId = getResponseId(document, xPath);
-    Preconditions.checkState(inResponseToId.equals(inResponseToIdToMatch),
-        "InResponseTo does not match. Expected [%s], but was: [%s]",
-        inResponseToIdToMatch, inResponseToId);
+
+    checkState(
+      statusCode.contains(STATUS_SUCCESS) || statusMessage.contains(STATUS_MESSAGE_NO_ROLES),
+      "Could not retrieve roles, statusCode: [%s], statusMessage: %s",
+      statusCode,
+      statusMessage);
+
+    checkState(
+      inResponseToId.equals(inResponseToIdToMatch),
+      "InResponseTo does not match. Expected [%s], but was: [%s]",
+      inResponseToIdToMatch, inResponseToId);
   }
 
   private XPath getXPath() {

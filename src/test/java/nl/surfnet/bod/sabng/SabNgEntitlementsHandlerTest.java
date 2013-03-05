@@ -54,8 +54,6 @@ public class SabNgEntitlementsHandlerTest {
   private static final String REQ_ID = "d6873bc2-809d-482c-a24c-ccc51d829cf8";
   private static final String NAME_ID = "urn:test:user";
   private static final String ISSUER = "dev";
-  private static final String RESPONSE_LOCATION = "/xmlsabng/response-entitlement.xml";
-
   private InputStream responseStream;
 
   @InjectMocks
@@ -69,7 +67,7 @@ public class SabNgEntitlementsHandlerTest {
 
   @Before
   public void setUp() {
-    responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream(RESPONSE_LOCATION);
+    responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream("/xmlsabng/response-entitlement.xml");
     subject.setSabEndPoint("http://localhost:7000/sap");
     subject.setSabPassword("secret");
     subject.setSabUser("user");
