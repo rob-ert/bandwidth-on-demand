@@ -58,6 +58,7 @@ public class ServiceComponentActivationClientTestIntegration {
   @BeforeClass
   public static void setUpbeforeClass(){
     System.setProperty("bod.env", "test-integration");
+    System.out.println("jdbc.password: "+System.getProperty("jdbc.password"));
   }
 
   @Before
