@@ -36,19 +36,19 @@ public class MenuTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyNocMenuStructure() {
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
     getNocDriver().verifyMenu();
   }
 
   @Test
   public void verifyManagerMenuStructure() {
-    getNocDriver().switchToManager();
+    getNocDriver().switchToManagerRole();
     getManagerDriver().verifyMenu();
   }
 
   @Test
   public void verifyUserMenuStructure() {
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().verifyMenu();
   }
 

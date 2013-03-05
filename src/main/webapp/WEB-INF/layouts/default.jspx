@@ -56,7 +56,7 @@
                             </spring:url>
                             <ul class="dev-nav">
                                 <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
-                                <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh/become John">RJ</a></li>
+                                <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh/become default user">RD</a></li>
                                 <li><a href="${other_user_url}" rel="tooltip" data-type="info" title="Refresh/become Hans"/>RH</li>
                             </ul>
                         </c:if>

@@ -39,7 +39,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
     new ReservationTestSelenium().setup();
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().createNewReservation(
         "Res Coming", startDate.plusDays(1), endDate.plusDays(1), startTime.plusHours(1), endTime.plusHours(1));
@@ -49,7 +49,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyUserStatisticLinksFromDashboard() {
-    getNocDriver().switchToUser();
+    getNocDriver().switchToUserRole();
 
     getUserDriver().verifyDashboardToVirtualPortsLink("Selenium users");
     getUserDriver().verifyDashboardToComingReservationsLink("Selenium users");
@@ -58,7 +58,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyNocStatisticLinksFromDashboard() {
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
 
     getNocDriver().verifyDashboardToAllocatedPhysicalPortsLink();
     getNocDriver().verifyDashboardToElapsedReservationsLink();
@@ -67,7 +67,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifyManagerStatisticLinksFromDashboard() {
-    getNocDriver().switchToManager();
+    getNocDriver().switchToManagerRole();
 
     getManagerDriver().verifyDashboardToPhysicalPortsLink();
     getManagerDriver().verifyDashboardToElapsedReservationsLink();

@@ -83,6 +83,14 @@ public class AbstractPage {
     });
   }
 
+  public void clickSwitchToDefaultUser() {
+    getDriver().findElementByLinkText("RD").click();
+  }
+
+  public void clickSwitchToUserHans() {
+    getDriver().findElementByLinkText("RH").click();
+  }
+
   public void clickSwitchRole(String... roleNames) {
     userBox.click();
 
@@ -129,7 +137,7 @@ public class AbstractPage {
 
   /**
    * Gets a time stamp from the specific row starting with the given year
-   * 
+   *
    * @param year
    *          Timestamp should start with this year
    * @param row
@@ -167,7 +175,7 @@ public class AbstractPage {
   /**
    * Verifies that the current page url contains the given page. Tries a number
    * of times, to give the page the time to load.
-   * 
+   *
    * @param pageUrlPart
    */
   protected void verifyIsCurrentPage(String pageUrlPart) {

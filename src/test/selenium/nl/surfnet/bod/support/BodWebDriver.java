@@ -219,7 +219,13 @@ public class BodWebDriver {
     driver.get(extractLink(body));
   }
 
-  public void verifyPageHasMessage(String text) {
+  public void verifyPageHasModalHeader(String text) {
+    WebElement modalHeader = driver.findElement(By.className("modal-header"));
+
+    assertThat(modalHeader.getText(), containsString(text));
+  }
+
+  public void verifyPageHasModalMessage(String text) {
     WebElement modal = driver.findElement(By.className("modal-body"));
 
     assertThat(modal.getText(), containsString(text));

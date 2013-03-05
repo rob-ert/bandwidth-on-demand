@@ -38,7 +38,7 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
 
   @Test
   public void anInactivePhysicalResourceGroupShouldGiveARedirectForManager() throws Exception {
-    getNocDriver().switchToManager();
+    getNocDriver().switchToManagerRole();
 
     getManagerDriver().verifyOnEditPhysicalResourceGroupPage(WRONG_EMAIL);
   }

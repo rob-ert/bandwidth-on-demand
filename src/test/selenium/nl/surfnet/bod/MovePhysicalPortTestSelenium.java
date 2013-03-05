@@ -35,28 +35,28 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
   public void setup() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
 
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP_2, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SARA);
 
-    getNocDriver().switchToUser();
+    getNocDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation("First reservation", LocalDateTime.now().plusDays(1),
         LocalDateTime.now().plusDays(1).plusHours(2));
     getUserDriver().createNewReservation("Second reservation", LocalDateTime.now().plusDays(2),
@@ -65,7 +65,7 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
   @Test
   public void moveAPhysicalPort() {
-    getUserDriver().switchToNoc();
+    getUserDriver().switchToNocRole();
 
     getNocDriver().movePhysicalPort("First port");
 

@@ -39,10 +39,10 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
-    getUserDriver().switchToManager(GROUP_SURFNET);
+    getUserDriver().switchToManagerRole(GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().acceptVirtualPort(vpOne);
@@ -71,13 +71,13 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
 
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel1);
 
-    getNocDriver().switchToManager();
+    getNocDriver().switchToManagerRole();
 
     getManagerDriver().changeManagerLabelOfPhyiscalPort(BOD_PORT_ID_2, managerLabel2);
 
     getManagerDriver().verifyManagerLabelChanged(BOD_PORT_ID_2, managerLabel2);
 
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
 
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel2);
 

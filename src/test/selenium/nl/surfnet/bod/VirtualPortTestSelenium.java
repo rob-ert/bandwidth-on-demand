@@ -54,22 +54,22 @@ public class VirtualPortTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("First port", VP_DELETE_ALERT_TEXT);
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().verifyMemberOf("Selenium users");
 
-    getUserDriver().switchToManager(GROUP_SARA);
+    getUserDriver().switchToManagerRole(GROUP_SARA);
     getManagerDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
     getNocDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
-    getUserDriver().switchToManager(GROUP_SARA);
+    getUserDriver().switchToManagerRole(GROUP_SARA);
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().verifyNotMemberOf("Selenium users");
   }

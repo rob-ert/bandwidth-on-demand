@@ -33,32 +33,46 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
     String initialEmail = "truus@example.com";
     String finalEmail = "henk@example.com";
 
-    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, initialEmail);
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_RUG, ICT_MANAGERS_GROUP, initialEmail);
 
-    getNocDriver().verifyGroupWasCreated(GROUP_SURFNET, initialEmail);
+    getNocDriver().verifyGroupWasCreated(GROUP_RUG, initialEmail);
 
     getWebDriver().verifyLastEmailRecipient(initialEmail);
 
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().verifyPhysicalResourceGroupIsActive(GROUP_SURFNET, initialEmail);
+    getNocDriver().verifyPhysicalResourceGroupIsActive(GROUP_RUG, initialEmail);
 
-    getNocDriver().editPhysicalResourceGroup(GROUP_SURFNET, finalEmail);
+    getNocDriver().editPhysicalResourceGroup(GROUP_RUG, finalEmail);
 
-    getNocDriver().verifyGroupExists(GROUP_SURFNET, finalEmail, false);
+    getNocDriver().verifyGroupExists(GROUP_RUG, finalEmail, false);
 
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
-    getNocDriver().deletePhysicalResourceGroup(GROUP_SURFNET);
+    getNocDriver().deletePhysicalResourceGroup(GROUP_RUG);
   }
 
   @Test
-  public void createActiveAndDeleteSabBasedPhysicalResourceGroup() {
+  public void createAndActiveSabBasedPhysicalResourceGroup() {
     String email = "managers@example.com";
 
-    getNocDriver().createNewSabBasedPhysicalResourceGroup(GROUP_RUG, email);
+    getNocDriver().createNewSabBasedPhysicalResourceGroup(GROUP_SURFNET, email);
 
-    getNocDriver().verifyGroupWasCreated(GROUP_RUG, email);
+    getNocDriver().verifyGroupWasCreated(GROUP_SURFNET, email);
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getWebDriver().verifyPageHasModalHeader("Access Denied");
+
+    getNocDriver().switchToUserHans();
+
+    getNocDriver().switchToManagerRole(GROUP_SURFNET);
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getWebDriver().verifyPageHasModalHeader("Email address is confirmed");
+
+    getNocDriver().verifyPhysicalResourceGroupIsActive(GROUP_SURFNET, email);
   }
 
   @Test

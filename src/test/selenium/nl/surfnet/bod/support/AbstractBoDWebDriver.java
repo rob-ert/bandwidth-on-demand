@@ -30,20 +30,28 @@ public abstract class AbstractBoDWebDriver<T extends AbstractListPage> {
     switchTo("Application Manager");
   }
 
-  public void switchToNoc() {
+  public void switchToNocRole() {
     switchTo("NOC Engineer");
   }
 
-  public void switchToManager(final String name) {
+  public void switchToManagerRole(final String name) {
     switchTo("BoD Administrator", name);
   }
 
-  public void switchToManager() {
+  public void switchToManagerRole() {
     switchTo("BoD Administrator");
   }
 
-  public void switchToUser() {
+  public void switchToUserRole() {
     switchTo("User");
+  }
+
+  public void switchToUserHans() {
+    getDashboardPage().clickSwitchToUserHans();
+  }
+
+  public void switchToDefaultUser() {
+    getDashboardPage().clickSwitchToDefaultUser();
   }
 
   protected abstract T getDashboardPage();

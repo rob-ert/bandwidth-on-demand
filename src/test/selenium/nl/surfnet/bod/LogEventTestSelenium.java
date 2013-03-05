@@ -62,22 +62,22 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_SARA);
+    getManagerDriver().switchToManagerRole(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_SURFNET);
+    getManagerDriver().switchToManagerRole(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
 
-    getManagerDriver().switchToManager(GROUP_RUG);
+    getManagerDriver().switchToManagerRole(GROUP_RUG);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, PORT_LABEL_3);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_3);
@@ -86,40 +86,40 @@ public class LogEventTestSelenium extends TestExternalSupport {
     createVPTwoForGroupTwo();
 
     // NOC sees all
-    getUserDriver().switchToNoc();
+    getUserDriver().switchToNocRole();
     getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getNocDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
 
     // Manager 1 only sees his pp and vp
-    getManagerDriver().switchToManager(GROUP_SARA);
+    getManagerDriver().switchToManagerRole(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
 
     // Manager 2 only sees his pp and vp
-    getManagerDriver().switchToManager(GROUP_SURFNET);
+    getManagerDriver().switchToManagerRole(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
 
     // Manager 3 only sees his pp
-    getManagerDriver().switchToManager(GROUP_RUG);
+    getManagerDriver().switchToManagerRole(GROUP_RUG);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
 
     // User sees only the vp
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_1);
     getUserDriver().verifyLogEventExists(CREATE_ACTION, VP_LABEL_2);
 
     getUserDriver().createNewReservation("Testing log events");
     getUserDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getUserDriver().switchToManager(GROUP_SARA);
+    getUserDriver().switchToManagerRole(GROUP_SARA);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getManagerDriver().switchToManager(GROUP_SURFNET);
+    getManagerDriver().switchToManagerRole(GROUP_SURFNET);
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
-    getManagerDriver().switchToManager(GROUP_RUG);
+    getManagerDriver().switchToManagerRole(GROUP_RUG);
     getManagerDriver().verifyLogEventDoesNotExist("Testing log events");
   }
 

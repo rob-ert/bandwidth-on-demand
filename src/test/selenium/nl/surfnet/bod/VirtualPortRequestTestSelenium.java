@@ -47,13 +47,13 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void requestAVirtualPortAndDecline() {
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().requestVirtualPort("Selenium users");
 
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
 
-    getUserDriver().switchToManager("SURFnet");
+    getUserDriver().switchToManagerRole("SURFnet");
 
     getWebDriver().clickLinkInLastEmail();
 
@@ -66,7 +66,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void requestVirtualPortAndCheckRequestCanOnlyBeUsedOnce() {
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().requestVirtualPort("Selenium users");
 
@@ -75,7 +75,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, "Mijn nieuwe poort", 1200,
         "I would like to have a new port");
 
-    getUserDriver().switchToManager("SURFnet");
+    getUserDriver().switchToManagerRole("SURFnet");
 
     getWebDriver().clickLinkInLastEmail();
 
@@ -87,54 +87,54 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().verifyVirtualResourceGroupExists("Selenium users", "1");
 
-    getManagerDriver().switchToManager(GROUP_SARA);
+    getManagerDriver().switchToManagerRole(GROUP_SARA);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();
 
     // requester has email about port creation
     getWebDriver().verifyLastEmailRecipient("Selenium Test User <selenium@test.com>");
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getWebDriver().clickLinkInBeforeLastEmail();
 
     // should be manager again and have a message link is already used
-    getWebDriver().verifyPageHasMessage("already processed");
+    getWebDriver().verifyPageHasModalMessage("already processed");
 
     // physical resource group should have one physical port
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
     getNocDriver().verifyPhysicalResourceGroupExists(GROUP_SURFNET, "test@test.nl", "1");
 
-    getNocDriver().switchToManager("SURFnet");
+    getNocDriver().switchToManagerRole("SURFnet");
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
     getUserDriver().editVirtualPort("Edited vport", "User label");
 
     getUserDriver().verifyVirtualPortExists("User label", "1000", "Selenium users");
 
-    getUserDriver().switchToManager("SURFnet");
+    getUserDriver().switchToManagerRole("SURFnet");
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
   }
 
   @Test
   public void requestAVirtualPortUsingButtonOnListPage() {
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "myVP", 1000,
         "Doe mijn een nieuw poort...");
 
-    getUserDriver().switchToManager("SURFnet");
+    getUserDriver().switchToManagerRole("SURFnet");
 
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().acceptVirtualPort("New VP");
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().verifyVirtualPortExists("myVP", "1000", "Selenium users", GROUP_SURFNET);
   }

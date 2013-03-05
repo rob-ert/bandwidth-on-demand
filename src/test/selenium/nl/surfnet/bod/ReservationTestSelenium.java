@@ -65,21 +65,21 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     LocalTime endTime = LocalTime.now();
     String reservationLabel = "Selenium Reservation";
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
-    getUserDriver().switchToManager(GROUP_SURFNET);
+    getUserDriver().switchToManagerRole(GROUP_SURFNET);
     getManagerDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
     getManagerDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getManagerDriver().verifyStatistics();
 
-    getManagerDriver().switchToNoc();
+    getManagerDriver().switchToNocRole();
     getNocDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getNocDriver().verifyStatistics();
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationIsCanceled(startDate, endDate, startTime, endTime);
   }
@@ -88,7 +88,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   public void createReservationWithNowAndForever() {
     String reservationLabel = "Starts now and forever";
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().createNewReservation(reservationLabel);
 
@@ -104,7 +104,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     LocalDate date = LocalDate.now().plusDays(1);
     LocalTime startTime = new LocalTime(8, 0);
 
-    getManagerDriver().switchToUser();
+    getManagerDriver().switchToUserRole();
 
     getUserDriver().createNewReservation(even, date, date, startTime, startTime.plusHours(1));
     getUserDriver().createNewReservation(odd, date, date, startTime.plusHours(2), startTime.plusHours(2 + 1));
