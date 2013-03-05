@@ -51,6 +51,12 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
   @FindBy(css = "input[name='managerEmail']")
   private WebElement managerEmailInput;
 
+  @FindBy(css = "input[value='api']")
+  private WebElement apiRadio;
+
+  @FindBy(css = "input[value='sab']")
+  private WebElement sabRadio;
+
   public NewPhysicalResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
     this.probes = new Probes(driver);
@@ -96,4 +102,11 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
     super.verifyIsCurrentPage(PAGE);
   }
 
+  public void selectApiMethod() {
+    apiRadio.click();
+  }
+
+  public void selectSabMethod() {
+    sabRadio.click();
+  }
 }

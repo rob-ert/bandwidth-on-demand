@@ -48,6 +48,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
   public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+    page.selectApiMethod();
     page.sendInstitute(institute);
     page.sendAdminGroup(adminGroup);
     page.sendEmail(email);

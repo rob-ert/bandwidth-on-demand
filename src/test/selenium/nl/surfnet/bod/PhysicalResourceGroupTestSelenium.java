@@ -29,7 +29,7 @@ import org.junit.Test;
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
-  public void createActivateEditAndDeletePhysicalResourceGroup() throws Exception {
+  public void createActivateEditAndDeleteApiBasedPhysicalResourceGroup() throws Exception {
     String initialEmail = "truus@example.com";
     String finalEmail = "henk@example.com";
 
