@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.VirtualPort;
@@ -128,7 +130,8 @@ public final class Emails {
       + "Stacktrace:\n%s" + FOOTER;
 
     public static String subject(String envUrl, Throwable throwable) {
-      return String.format("[Exception on %s] %s", envUrl, throwable.getMessage());
+      String exceptionMessage = isNullOrEmpty(throwable.getMessage()) ? throwable.getClass().getSimpleName() : throwable.getMessage();
+      return String.format("[Exception on %s] %s", envUrl, exceptionMessage);
     }
 
     public static String body(Throwable throwable, Optional<RichUserDetails> user, Optional<HttpServletRequest> request) {

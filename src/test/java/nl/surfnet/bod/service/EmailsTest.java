@@ -99,4 +99,25 @@ public class EmailsTest {
     assertThat(body, containsString("User: Unknown (Unknown)"));
     assertThat(body, containsString("Request: No request available (No request available)"));
   }
+
+  @Test
+  public void errorMailSubjectShouldContainExceptionMessage() {
+    String subject = Emails.ErrorMail.subject("http://localhost:8080/bod", new AssertionError("Er ging iets goed mis"));
+
+    assertThat(subject, containsString("Er ging iets goed mis"));
+  }
+
+  @Test
+  public void errorMailSubjectShouldContainExceptionClassIfMessageIsMissing() {
+    String subject = Emails.ErrorMail.subject("http://localhost:8080/bod", new AssertionError());
+
+    assertThat(subject, containsString("AssertionError"));
+  }
+
+  @Test
+  public void errorMailSubjectShouldContainEnvironmentUrl() {
+    String subject = Emails.ErrorMail.subject("http://localhost:8080/bod", new AssertionError());
+
+    assertThat(subject, containsString("http://localhost:8080/bod"));
+  }
 }
