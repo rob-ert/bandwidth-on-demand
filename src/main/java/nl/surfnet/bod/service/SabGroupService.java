@@ -44,7 +44,7 @@ public class SabGroupService implements GroupService {
   @VisibleForTesting
   String composeGroupName(String instituteName) {
     Preconditions.checkNotNull(instituteName);
-    return GROUP_PREFIX.concat(instituteName.toLowerCase());
+    return GROUP_PREFIX.concat(instituteName);
   }
 
   @VisibleForTesting

@@ -59,7 +59,7 @@ public class SabGroupServiceTest {
 
   @Test
   public void shouldComposeGroupName() {
-    assertThat(subject.composeGroupName(NAME_ID), is(SabGroupService.GROUP_PREFIX + NAME_ID.toLowerCase()));
+    assertThat(subject.composeGroupName(NAME_ID), is(SabGroupService.GROUP_PREFIX + NAME_ID));
   }
 
   @Test
