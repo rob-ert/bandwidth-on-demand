@@ -53,6 +53,7 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @BeforeClass
   public static void testEnvironment() {
+//    TestHelper.useAccEnv();
     TestHelper.useTestEnv();
   }
 
@@ -63,7 +64,7 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @Test
   public void shouldRetrieveRoles() {
-    String nameId = "urn:collab:person:test.surfguest.nl:prolokees";
+    String nameId = "urn:collab:person:surfnet.nl:hanst";
     List<String> institutes = subject.checkInstitutes(nameId);
 
     assertThat(institutes, contains("SURFNET"));
