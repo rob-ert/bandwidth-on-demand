@@ -396,27 +396,27 @@ app.form = function(){
             } else {
                 apiSelected();
             }
+        }
 
-            function sabSelected() {
-              var shortName = $('input[name="shortName"]').val();
-              if (shortName.length > 0) {
-                  var adminGroup = sabPrefix + shortName;
-                  var output = adminGroup;
-              } else {
-                  var adminGroup = "";
-                  var output = "Choose an institute";
-              }
+        function sabSelected() {
+          var shortName = $('input[name="shortName"]').val();
+          if (shortName.length > 0) {
+              var adminGroup = sabPrefix + shortName;
+              var output = adminGroup;
+          } else {
+              var adminGroup = "";
+              var output = "Choose an institute";
+          }
 
-              adminGroupOutput.text(output).show();
-              adminGroupHidden.val(adminGroup).removeAttr("disabled");
-              adminGroupInput.attr("disabled", "true").hide();
-            }
+          adminGroupOutput.text(output).show();
+          adminGroupHidden.val(adminGroup).removeAttr("disabled");
+          adminGroupInput.attr("disabled", "true").hide();
+        }
 
-            function apiSelected() {
-              adminGroupOutput.text("").hide();
-              adminGroupInput.removeAttr("disabled").val("").show();
-              adminGroupHidden.attr("disabled", "true")
-            }
+        function apiSelected() {
+          adminGroupOutput.text("").hide();
+          adminGroupInput.removeAttr("disabled").val("").show();
+          adminGroupHidden.attr("disabled", "true")
         }
     };
 
