@@ -46,7 +46,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   /* Physical Resource Group */
   /* **************************************** */
 
-  public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) {
+  public void createNewApiBasedPhysicalResourceGroup(String institute, String adminGroup, String email) {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.selectApiMethod();
     page.sendInstitute(institute);
@@ -55,6 +55,16 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
     page.save();
   }
+
+  public void createNewSabBasedPhysicalResourceGroup(String institute, String email) {
+    NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+    page.selectSabMethod();
+    page.sendInstitute(institute);
+    page.sendEmail(email);
+
+    page.save();
+  }
+
 
   public void deletePhysicalResourceGroup(String institute) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);

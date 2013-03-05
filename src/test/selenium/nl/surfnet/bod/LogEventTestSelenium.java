@@ -42,13 +42,13 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Before
   public void prepareUser() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test2@test.nl");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test2@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_RUG, ICT_USER_GROUP_2, "test3@test.nl");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_RUG, ICT_USER_GROUP_2, "test3@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);

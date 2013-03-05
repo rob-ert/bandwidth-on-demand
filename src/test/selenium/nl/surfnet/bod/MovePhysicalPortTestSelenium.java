@@ -33,11 +33,11 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().switchToNoc();
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP_2, "test@example.com");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP_2, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().switchToNoc();
 

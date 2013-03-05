@@ -34,7 +34,7 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
 
   @Override
   public void setupInitialData() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();

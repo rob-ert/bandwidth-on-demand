@@ -33,7 +33,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
     String initialEmail = "truus@example.com";
     String finalEmail = "henk@example.com";
 
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, initialEmail);
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, initialEmail);
 
     getNocDriver().verifyGroupWasCreated(GROUP_SURFNET, initialEmail);
 
@@ -53,8 +53,17 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
   }
 
   @Test
+  public void createActiveAndDeleteSabBasedPhysicalResourceGroup() {
+    String email = "managers@example.com";
+
+    getNocDriver().createNewSabBasedPhysicalResourceGroup(GROUP_RUG, email);
+
+    getNocDriver().verifyGroupWasCreated(GROUP_RUG, email);
+  }
+
+  @Test
   public void verifyNocLinkFromInstituteToPhysicalPorts() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@example.com");
 
     getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
     getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");

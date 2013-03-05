@@ -30,7 +30,7 @@ public class MenuTestSelenium extends SeleniumWithSingleSetup {
 
   @Override
   public void setupInitialData() {
-    getNocDriver().createNewPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
   }
 
