@@ -114,9 +114,6 @@ public class ServiceComponentActivationClient {
   }
 
   static {
-    // Don't show full stack trace in soap result if an exception occurs
-    // System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace",
-    // "false");
     // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
     // "true");
     // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",

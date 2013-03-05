@@ -50,17 +50,6 @@ public class InventoryRetrievalClientTestIntegration {
   private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
   private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
 
-  //@BeforeClass
-  public static void printXml() {
-    // Don't show full stack trace in soap result if an exception occurs
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
-        "true");
-    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
-        "true");
-    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
-        "true");
-  }
 
   @Before
   public void setup() {
