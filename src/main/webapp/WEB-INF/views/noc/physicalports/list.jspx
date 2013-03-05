@@ -34,9 +34,7 @@
         <c:if test="${not empty list[0].nmsNeId}">
           <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
         </c:if>
-        <c:if test="${not empty list[0].nmsPortSpeed}">
-          <table:sortableHeader labelCode="label_physicalport_nms_port_speed" property="nmsPortSpeed"  />
-        </c:if>
+        <table:sortableHeader labelCode="label_physicalport_nms_port_speed" property="nmsPortSpeed"  />
 
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
@@ -81,14 +79,24 @@
           </c:if>
 
           <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
-
-          <c:if test="${not empty item.nmsNeId}">
-            <table:column item="${item}" property="nmsNeId" />
-          </c:if>
-
-          <c:if test="${not empty item.nmsPortSpeed}">
-            <table:column item="${item}" property="nmsPortSpeed" />
-          </c:if>
+          
+          <c:choose>
+				<c:when test="${not empty item.nmsNeId}">
+               		<table:column item="${item}" property="nmsNeId" />                                         
+				</c:when>
+				<c:otherwise>
+					<td>N.A.</td>
+				</c:otherwise>
+			</c:choose>
+          
+          <c:choose>
+				<c:when test="${not empty item.nmsPortSpeed}">
+               		<table:column item="${item}" property="nmsPortSpeed" />                                         
+				</c:when>
+				<c:otherwise>
+					<td>N.A.</td>
+				</c:otherwise>
+			</c:choose>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="true"
