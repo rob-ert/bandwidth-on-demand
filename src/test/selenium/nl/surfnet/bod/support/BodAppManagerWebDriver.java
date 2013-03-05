@@ -86,22 +86,4 @@ public class BodAppManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> 
     return DashboardPage.get(driver, URL_UNDER_TEST);
   }
 
-  public void verifyDevelopmentLinkAmount(int amount) {
-    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
-    dashboardPage.verifyDevelopmentLinkAmount(amount);
-    dashboardPage.verifyIsCurrentPage();
-  }
-
-  public void verifyDevelopmentLinkRefreshMessage() {
-    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
-    dashboardPage.verifyDevelopmentLinkRefreshMessage();
-    dashboardPage.verifyIsCurrentPage();
-  }
-
-  public void verifyDevelopmentLinkRefreshRoles() {
-    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
-    dashboardPage.verifyDevelopmentLinkRefreshRoles();
-    dashboardPage.verifyIsCurrentPage();
-  }
-
 }

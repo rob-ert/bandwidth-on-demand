@@ -65,9 +65,6 @@ public class AbstractPage {
   @FindBy(css = ".navbar")
   private WebElement navBar;
 
-  @FindBy(css = ".dev-nav")
-  private WebElement developmentLinks;
-
   public AbstractPage(RemoteWebDriver driver) {
     this.driver = driver;
     probes = new Probes(driver);
@@ -111,39 +108,6 @@ public class AbstractPage {
         })));
   }
 
-  public void verifyDevelopmentLinkAmount(int amount) {
-    assertThat(developmentLinks.findElements(By.tagName("li")), hasSize(amount));
-  }
-
-  public void verifyDevelopmentLinkRefreshMessage() {
-    WebElement refreshMessagesLink = developmentLinks.findElement(By.partialLinkText("RM"));
-    refreshMessagesLink.click();
-
-    verifyOneInfoMessage("Messages");
-  }
-
-  public void verifyDevelopmentLinkRefreshRoles() {
-    WebElement refreshRolesLink = developmentLinks.findElement(By.partialLinkText("RR"));
-    refreshRolesLink.click();
-
-    verifyOneInfoMessage("Roles");
-  }
-
-  public void verifyDevelopmentLinkGenerateError() {
-    WebElement errorLink = developmentLinks.findElement(By.partialLinkText("ER"));
-    errorLink.click();
-
-  }
-
-  /**
-   * Gets a time stamp from the specific row starting with the given year
-   *
-   * @param year
-   *          Timestamp should start with this year
-   * @param row
-   *          Row to search
-   * @return {@link LocalDateTime} time stamp
-   */
   protected LocalDateTime getLocalDateTimeFromRow(WebElement row) {
     Optional<LocalDateTime> extractedDateTime = PageUtils.extractDateTime(row.getText());
     if (!extractedDateTime.isPresent()) {
@@ -162,10 +126,6 @@ public class AbstractPage {
 
   protected WebElement getMenuBar() {
     return navBar;
-  }
-
-  protected WebElement getDevelopmentLinks() {
-    return developmentLinks;
   }
 
   protected int getCountMenuItems() {
