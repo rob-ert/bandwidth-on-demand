@@ -50,10 +50,10 @@
                                 </c:when>
                                 <c:otherwise>
                                     <label class="radio inline">
-                                        Accept<input type="radio" name="acceptOrDecline" value="accept" />
+                                        Accept<input type="radio" name="acceptOrDecline" value="accept" id="_accept" />
                                     </label>
                                     <label class="radio inline">
-                                        Decline<input type="radio" name="acceptOrDecline" value="decline" checked="true" />
+                                        Decline<input type="radio" name="acceptOrDecline" value="decline" checked="true" id="_decline" />
                                     </label>
                                 </c:otherwise>
                             </c:choose>
