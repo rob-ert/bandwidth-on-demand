@@ -24,6 +24,8 @@ package nl.surfnet.bod.web.security;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
+import java.util.Enumeration;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 

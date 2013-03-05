@@ -49,9 +49,15 @@
                         <c:if test="${dev}">
                             <spring:url value="/dev/refresh/messages" var="refresh_messages_url" />
                             <spring:url value="/dev/refresh/roles" var="refresh_roles_url" />
+                            <spring:url value="/dev/refresh/roles" var="other_user_url">
+                                <spring:param name="nameId" value="urn:collab:person:surfnet.nl:hanst" />
+                                <spring:param name="displayName" value="HansT" />
+                                <spring:param name="email" value="hans@example.com" />
+                            </spring:url>
                             <ul class="dev-nav">
                                 <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
-                                <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh Roles">RR</a></li>
+                                <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh/become John">RJ</a></li>
+                                <li><a href="${other_user_url}" rel="tooltip" data-type="info" title="Refresh/become Hans"/>RH</li>
                             </ul>
                         </c:if>
                     </span>

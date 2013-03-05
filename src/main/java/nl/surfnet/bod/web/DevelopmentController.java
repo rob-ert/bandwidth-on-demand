@@ -36,6 +36,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
 @Controller
 @RequestMapping("/" + DevelopmentController.PAGE_URL)
 public class DevelopmentController {
@@ -77,10 +83,17 @@ public class DevelopmentController {
   public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {
     if (environment.isDevelopment()) {
       refreshGroups();
-      messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles");
+      messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles/User");
     }
 
-    return getRedirect(request);
+    RequestParameter[] parameters = Iterables.toArray(Optional.presentInstances(
+      ImmutableList.of(
+        RequestParameter.unwrap("nameId", request),
+        RequestParameter.unwrap("displayName", request),
+        RequestParameter.unwrap("email", request))),
+      RequestParameter.class);
+
+    return getRedirect(request, parameters);
   }
 
   private void refreshGroups() {
@@ -88,12 +101,54 @@ public class DevelopmentController {
     logger.info("Refreshing roles");
   }
 
-  private String getRedirect(HttpServletRequest request) {
-    return "redirect:" + request.getHeader("Referer");
+  private String getRedirect(HttpServletRequest request, RequestParameter... parameters) {
+    StringBuilder redirectBuilder = new StringBuilder("redirect:");
+    redirectBuilder.append(request.getHeader("Referer").split("\\?")[0]);
+
+    if (parameters.length > 0) {
+      redirectBuilder.append("?");
+      Joiner.on("&").appendTo(redirectBuilder, parameters);
+    }
+
+    return redirectBuilder.toString();
   }
 
   protected void setMessageManager(MessageManager messageManager) {
     this.messageManager = messageManager;
+  }
+
+  private static class RequestParameter {
+    private final String name;
+    private final String value;
+
+    private static Optional<RequestParameter> unwrap(String name, HttpServletRequest request) {
+      String value = Strings.nullToEmpty(request.getParameter(name));
+
+      if (value.isEmpty()) {
+        return Optional.absent();
+      } else {
+        return Optional.of(new RequestParameter(name, value));
+      }
+    }
+
+    private RequestParameter(String name, String value) {
+      this.name = name;
+      this.value = value;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return name+"="+value;
+    }
+
   }
 
 }

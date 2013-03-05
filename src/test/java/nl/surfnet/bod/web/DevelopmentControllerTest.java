@@ -105,13 +105,29 @@ public class DevelopmentControllerTest {
     Security.setUserDetails(new RichUserDetailsFactory().create());
 
     when(environmentMock.isDevelopment()).thenReturn(true);
-    when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Roles")).thenReturn("correctMessage");
+    when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Roles/User")).thenReturn("correctMessage");
 
     assertThat(Security.getUserDetails(), notNullValue());
 
-    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test")).andExpect(
-        status().isMovedTemporarily()).andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
-        .andExpect(view().name("redirect:/test"));
+    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART).header("Referer", "/test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
+      .andExpect(view().name("redirect:/test"));
+
+    assertThat(Security.getUserDetails(), nullValue());
+  }
+
+  @Test
+  public void refreshRolesShouldPreserveNameIdRequestParameter() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().create());
+
+    when(environmentMock.isDevelopment()).thenReturn(true);
+
+    assertThat(Security.getUserDetails(), notNullValue());
+
+    mockMvc.perform(get("/" + PAGE_URL + ROLES_PART + "?nameId=urn:hanst").header("Referer", "/test"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:/test?nameId=urn:hanst"));
 
     assertThat(Security.getUserDetails(), nullValue());
   }
