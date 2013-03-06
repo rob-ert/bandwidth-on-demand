@@ -16,18 +16,22 @@
                 <c:choose>
                   <c:when test="${physicalResourceGroupCommand.authMethod eq 'sab'}">
                     <label class="radio inline">
-                        SAB<input type="radio" name="authMethod" value="sab" checked="true" />
+                        <spring:message code="label_physicalresourcegroup_method_sab" />
+                        <input type="radio" name="authMethod" value="sab" checked="true" />
                     </label>
-                    <label class="radio inline" style="padding-right: 125px;">
-                        API<input type="radio" name="authMethod" value="api" />
+                    <label class="radio inline" style="padding-right: 73px;">
+                        <spring:message code="label_physicalresourcegroup_method_api" />
+                        <input type="radio" name="authMethod" value="api" />
                     </label>
                   </c:when>
                   <c:otherwise>
                     <label class="radio inline">
-                        SAB<input type="radio" name="authMethod" value="sab" />
+                        <spring:message code="label_physicalresourcegroup_method_sab" />
+                        <input type="radio" name="authMethod" value="sab" />
                     </label>
-                    <label class="radio inline" style="padding-right: 125px;">
-                        API<input type="radio" name="authMethod" value="api" checked="true" />
+                    <label class="radio inline" style="padding-right: 73px;">
+                        <spring:message code="label_physicalresourcegroup_method_api" />
+                        <input type="radio" name="authMethod" value="api" checked="true" />
                     </label>
                   </c:otherwise>
                 </c:choose>
