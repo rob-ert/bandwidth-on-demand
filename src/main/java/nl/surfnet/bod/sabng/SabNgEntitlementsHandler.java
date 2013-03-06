@@ -119,7 +119,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
       return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
     }
-    catch (XPathExpressionException | IllegalStateException | IOException e) {
+    catch (XPathExpressionException | IOException e) {
       throw new RuntimeException(e);
     }
 

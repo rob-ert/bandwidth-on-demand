@@ -28,17 +28,16 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import nl.surfnet.bod.util.Environment;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -62,9 +61,6 @@ public class SabNgEntitlementsHandlerTest {
   @Mock
   private Environment bodEnvironment;
 
-  @Mock
-  private HttpClient httpClient;
-
   @Before
   public void setUp() {
     responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream("/xmlsabng/response-entitlement.xml");
@@ -77,9 +73,9 @@ public class SabNgEntitlementsHandlerTest {
   public void whenSabDisabledShouldNotCallService() {
     when(bodEnvironment.isSabEnabled()).thenReturn(false);
 
-    subject.checkInstitutes("urn:henk");
+    List<String> institutes = subject.checkInstitutes("urn:henk");
 
-    verifyZeroInteractions(httpClient);
+    assertThat(institutes, hasSize(0));
   }
 
   @Test
