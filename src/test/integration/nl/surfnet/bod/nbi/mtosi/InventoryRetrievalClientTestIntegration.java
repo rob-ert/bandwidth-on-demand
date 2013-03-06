@@ -37,8 +37,10 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
@@ -46,9 +48,8 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 public class InventoryRetrievalClientTestIntegration {
 
-  private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
-
 
   @Before
   public void setup() {
@@ -66,13 +67,19 @@ public class InventoryRetrievalClientTestIntegration {
     PhysicalPort firstPhysicalPort = physicalPorts.get(0);
     assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
-    assertThat(firstPhysicalPort.getNmsPortSpeed(), nullValue());
+    assertThat(firstPhysicalPort.getNmsPortSpeed(), containsString("0"));
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
   }
 
   @Test
+  public void getUnallocatedPortsCount() {
+    assertThat(mtosiInventoryRetrievalLiveClient.getPhysicalPortCount(), greaterThan(0));
+  }
+
+  @Test
+  @Ignore
   public void justPrintTheInventory() {
     RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getCachedRfsInventory();
 
@@ -82,11 +89,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  public void getUnallocatedPortsCount() {
-    assertThat(mtosiInventoryRetrievalLiveClient.getPhysicalPortCount(), greaterThan(0));
-  }
-
-  @Test
+  @Ignore
   public void prettyPrintServiceInventoryXml() throws JAXBException, GetServiceInventoryException {
     GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithRfsFilter();
 
@@ -94,6 +97,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
+  @Ignore
   public void prettyPrintSapList() throws JAXBException, GetServiceInventoryException {
     GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithSapFilter();
 
@@ -101,13 +105,12 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   private <T> String getPrettyPrintXml(T xmlObject) throws JAXBException {
-    final JAXBContext context = JAXBContext.newInstance(xmlObject.getClass());
-    final Marshaller marshaller = context.createMarshaller();
+    JAXBContext context = JAXBContext.newInstance(xmlObject.getClass());
+    Marshaller marshaller = context.createMarshaller();
 
     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-    // Create a stringWriter to hold the XML
-    final StringWriter stringWriter = new StringWriter();
+    StringWriter stringWriter = new StringWriter();
     marshaller.marshal(xmlObject, stringWriter);
 
     return stringWriter.toString();
