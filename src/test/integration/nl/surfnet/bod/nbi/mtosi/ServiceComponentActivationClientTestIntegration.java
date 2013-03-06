@@ -35,8 +35,6 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -55,14 +53,6 @@ public class ServiceComponentActivationClientTestIntegration {
 
   @Resource
   private ServiceComponentActivationClient subject;
-  
-  @BeforeClass
-  public static void setUpbeforeClass(){
-  }
-
-  @Before
-  public void setup() {
-  }
 
   @Test
   public void shouldReturnSapNotFound() {
@@ -79,7 +69,7 @@ public class ServiceComponentActivationClientTestIntegration {
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("00:03:18:58:ce:20");
 
     Reservation savedReservation = subject.reserve(reservation, false);
-    
+
     // Meaning error message has been removed?
     assertThat(savedReservation.getFailedReason(), startsWith("Sap not found - SAP-00:03:18:58:cf:b0-50"));
   }
