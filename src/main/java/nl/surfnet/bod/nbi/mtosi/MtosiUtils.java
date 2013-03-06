@@ -38,8 +38,11 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 public final class MtosiUtils {
 
@@ -67,8 +70,35 @@ public final class MtosiUtils {
     return ptp;
   }
 
-  public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
+  public static Optional<String> findRdnValue(final String type, NamingAttributeType nat) {
+    return Iterables.tryFind(nat.getRdn(), new Predicate<RelativeDistinguishNameType>() {
+      @Override
+      public boolean apply(RelativeDistinguishNameType rdn) {
+        return rdn.getType().equals(type);
+      }
+    }).transform(new Function<RelativeDistinguishNameType, String>() {
+      @Override
+      public String apply(RelativeDistinguishNameType rdn) {
+        return rdn.getValue();
+      }
+    });
+  }
 
+  public static Optional<String> findSscValue(final String sscValue, List<ServiceCharacteristicValueType> characteristics) {
+    return Iterables.tryFind(characteristics, new Predicate<ServiceCharacteristicValueType>() {
+      @Override
+      public boolean apply(ServiceCharacteristicValueType scv) {
+        return findRdnValue("SSC", scv.getSscRef()).get().equals(sscValue);
+      }
+    }).transform(new Function<ServiceCharacteristicValueType, String>() {
+      @Override
+      public String apply(ServiceCharacteristicValueType ssc) {
+        return ssc.getValue();
+      }
+    });
+  }
+
+  public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
     Iterator<ServiceCharacteristicValueType> iterator = describedByList.iterator();
     while (iterator.hasNext()) {
       ServiceCharacteristicValueType type = iterator.next();
@@ -77,7 +107,7 @@ public final class MtosiUtils {
     }
   }
 
-  public static String getRdnString(List<RelativeDistinguishNameType> rdn) {
+  private static String getRdnString(List<RelativeDistinguishNameType> rdn) {
     List<String> contents = new ArrayList<>();
     Iterator<RelativeDistinguishNameType> iterator = rdn.iterator();
     while (iterator.hasNext()) {
@@ -87,14 +117,12 @@ public final class MtosiUtils {
     return StringUtils.collectionToCommaDelimitedString(contents);
   }
 
-  @VisibleForTesting
-  static String convertToShortPtP(String ptp) {
+  public static String convertToShortPtP(String ptp) {
     return ptp.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
         .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
   }
 
-  @VisibleForTesting
-  static String convertToLongPtP(String shortPtP) {
+  public static String convertToLongPtP(String shortPtP) {
     Object[] parts = shortPtP.split("-");
     if (parts.length == 4) {
       return String.format(PTP_FORMAT, parts);
@@ -126,16 +154,6 @@ public final class MtosiUtils {
     return namingAttributeType;
   }
 
-  public static String getValueFrom(ServiceCharacteristicValueType ssc, String key) {
-    String value = ssc.getValue();
-
-    List<RelativeDistinguishNameType> rdns = ssc.getSscRef().getRdn();
-    Preconditions.checkState(rdns.size() == 1);
-    Preconditions.checkState(key.equals(rdns.get(0).getValue()), "Key does not match, was %s", rdns.get(0).getValue());
-
-    return value;
-  }
-
   public static JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
     return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
         value));
@@ -159,7 +177,7 @@ public final class MtosiUtils {
   /**
    * Based on file:Dropbox/BOD/MTOSI/OneControl_R3
    * .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
-   * 
+   *
    * In tree 2 DataModel->UML->ServiceBasic-> TypeDefinitions->ServiceStateType
    */
   public static ReservationStatus mapToReservationState(ServiceStateType serviceState) {

@@ -23,12 +23,22 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import nl.surfnet.bod.nbi.NbiMtosiClient;
+import static org.hamcrest.Matchers.startsWith;
+
+import java.io.File;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.junit.Test;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTest {
 
@@ -60,17 +70,23 @@ public class InventoryRetrievalClientTest {
   }
 
   @Test
-  public void shouldDisableMtosiAccess() {
-    InventoryRetrievalClient subject = new InventoryRetrievalClient("");
-    subject.setNbiClientClass("someClass");
-    assertFalse(subject.isMtosiEnabled());
-  }
+  public void shouldTransformAllSaps() throws JAXBException {
+    Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
+    GetServiceInventoryResponse inventoryResponse = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/SapInventory.xml"));
+    SapList sapList = inventoryResponse.getInventoryData().getSapList();
 
-  @Test
-  public void shouldEnableMtosiAccess() {
-    InventoryRetrievalClient subject = new InventoryRetrievalClient("");
-    subject.setNbiClientClass(NbiMtosiClient.class.getName());
-    assertTrue(subject.isMtosiEnabled());
+    for (ServiceAccessPointType sap : sapList.getSap()) {
+      PhysicalPort physicalPort = subject.translateToPhysicalPort(sap);
+      assertThat(physicalPort.getNmsPortId(), containsString("1-1"));
+      assertThat(physicalPort.getNmsNeId(), containsString("0"));
+      assertThat(physicalPort.getBodPortId(), startsWith("SAP-"));
+      assertThat(physicalPort.getNmsPortSpeed(), containsString("0"));
+      assertThat(physicalPort.getNmsSapName(), startsWith("SAP-"));
+      assertThat(physicalPort.getNocLabel(), containsString("@"));
+      assertThat(physicalPort.getSupportedServiceType(), is("EPL"));
+      assertThat(physicalPort.getSignalingType(), is("NA"));
+      assertThat(physicalPort.isAlignedWithNMS(), is(true));
+    }
   }
 
 }

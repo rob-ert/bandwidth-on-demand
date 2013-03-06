@@ -22,38 +22,42 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.web.WebUtils.not;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findRdnValue;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findSscValue;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.NbiMtosiClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
-import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
-import org.tmforum.mtop.sb.xsd.svc.v1.*;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.FluentIterable;
 
 @Service
+@Lazy
 public class InventoryRetrievalClient {
 
   private static final String SAP_CACHE = "sapCache";
@@ -68,13 +72,33 @@ public class InventoryRetrievalClient {
 
   private final String endPoint;
 
-  @Value("${nbi.client.class}")
-  private String nbiClientClass;
+  private final LoadingCache<String, SapList> sapCache = CacheBuilder.newBuilder()
+      .expireAfterAccess(15, TimeUnit.MINUTES)
+      .build(
+          new CacheLoader<String, SapList>() {
+            @Override
+            public SapList load(String key) throws Exception {
+              if (key.equals(SAP_CACHE)) {
+                return getServiceInventoryWithSapFilter().getInventoryData().getSapList();
+              }
+              throw new AssertionError("Unsupported cache key " + key);
+            }
+          }
+      );
 
-  // Quick cache solution to prevent roundtrip off two minutes, will cause
-  // memory problems in future
-  private final ConcurrentMap<String, SapList> sapCache = new ConcurrentHashMap<String, ServiceInventoryDataType.SapList>();
-  private final ConcurrentMap<String, RfsList> rfsCache = new ConcurrentHashMap<String, ServiceInventoryDataType.RfsList>();
+  private final LoadingCache<String, RfsList> rfsCache = CacheBuilder.newBuilder()
+      .expireAfterAccess(15, TimeUnit.MINUTES)
+      .build(
+          new CacheLoader<String, RfsList>() {
+            @Override
+            public RfsList load(String key) throws Exception {
+              if (key.equals(RFS_CACHE)) {
+                return getServiceInventoryWithRfsFilter().getInventoryData().getRfsList();
+              }
+              throw new AssertionError("Unsupported cache key " + key);
+            }
+          }
+       );
 
   @Autowired
   public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
@@ -83,24 +107,28 @@ public class InventoryRetrievalClient {
         new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
   }
 
-  public List<PhysicalPort> getUnallocatedPorts() {
-    final List<PhysicalPort> mtosiPorts = new ArrayList<>();
+  public List<PhysicalPort> getPhysicalPorts() {
 
-    for (final ServiceAccessPointType sap : getSapInventory().getSap()) {
-      // Only unlocked and enabled ports are ready to use
-      if ((AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
-        // TODO not implemented by Cienna 1C, yet. Just log for now
-        // continue;
-        logger.debug("Sap has incorrect adminstate and/or operationalState: {}", sap);
-      }
-
-      mtosiPorts.add(createPhysicalPort(sap));
-    }
-    return mtosiPorts;
+    return FluentIterable
+      .from(getCachedSapInventory().getSap())
+      .filter(new Predicate<ServiceAccessPointType>() {
+        @Override
+        public boolean apply(ServiceAccessPointType sap) {
+          //(AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
+          return true;
+        }
+      })
+      .transform(new Function<ServiceAccessPointType, PhysicalPort>() {
+        @Override
+        public PhysicalPort apply(ServiceAccessPointType sap) {
+          return translateToPhysicalPort(sap);
+        }
+      })
+      .toList();
   }
 
-  public int getUnallocatedMtosiPortCount() {
-    return getSapInventory().getSap().size();
+  public int getPhysicalPortCount() {
+    return getCachedSapInventory().getSap().size();
   }
 
   @VisibleForTesting
@@ -113,7 +141,6 @@ public class InventoryRetrievalClient {
 
   @VisibleForTesting
   GetServiceInventoryResponse getServiceInventoryWithSapFilter() throws GetServiceInventoryException {
-
     GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
     addSapFilter(inventoryRequest);
 
@@ -121,46 +148,16 @@ public class InventoryRetrievalClient {
   }
 
   @VisibleForTesting
-  boolean isMtosiEnabled() {
-    return NbiMtosiClient.class.getName().equals(nbiClientClass);
-  }
+  PhysicalPort translateToPhysicalPort(ServiceAccessPointType sap) {
+    String nmsSapName = findRdnValue("SAP", sap.getName().getValue()).get();
+    String managedElement = findRdnValue("ME", sap.getResourceRef()).get();
+    String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
 
-  @VisibleForTesting
-  void setNbiClientClass(String nbiClientClass) {
-    this.nbiClientClass = nbiClientClass;
-  }
+    String nmsPortSpeed = findSscValue("Administrativespeedrate", sap.getDescribedByList()).get();
+    String supportedServiceType = findSscValue("Supportedservice", sap.getDescribedByList()).get();
+    boolean isVlanRequired = determineVlanRequired(supportedServiceType);
 
-  @VisibleForTesting
-  PhysicalPort createPhysicalPort(final ServiceAccessPointType sap) {
-    final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
-
-    String managedElement = null, ptp = null, nmsPortSpeed = null, supportedServiceType = null;
-    boolean isVlanRequired = false;
-
-    for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
-      if (relativeDistinguishNameType.getType().equals("ME")) {
-        managedElement = relativeDistinguishNameType.getValue();
-      }
-      else if (relativeDistinguishNameType.getType().equals("PTP")) {
-        ptp = relativeDistinguishNameType.getValue();
-      }
-    }
-
-    for (final ServiceCharacteristicValueType serviceCharacteristicValueType : sap.getDescribedByList()) {
-      final String value = serviceCharacteristicValueType.getValue();
-      for (final RelativeDistinguishNameType rdn : serviceCharacteristicValueType.getSscRef().getRdn()) {
-        final String rdnValue = rdn.getValue();
-        if ("AdministrativeSpeedRate".equals(rdnValue)) {
-          nmsPortSpeed = value;
-        }
-        else if ("SupportedServiceType".equals(rdnValue)) {
-          supportedServiceType = value;
-          isVlanRequired = determineVlanRequired(value);
-        }
-      }
-    }
-
-    final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
+    PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
     physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToShortPtP(ptp)));
     physicalPort.setNmsNeId(managedElement);
     physicalPort.setBodPortId(nmsSapName);
@@ -169,50 +166,21 @@ public class InventoryRetrievalClient {
     physicalPort.setNocLabel(managedElement + "@" + ptp);
     physicalPort.setSupportedServiceType(supportedServiceType);
     physicalPort.setSignalingType("NA");
-    logger.debug("Retrieve physicalport: {}", physicalPort);
+
+    logger.debug("Retrieved physicalport: {}", physicalPort);
+
     return physicalPort;
   }
 
-  /**
-   * Refresh Sap cache on startup and every x minutes
-   */
-  @Scheduled(initialDelay = 0, cron = "0 */15 * * * *")
-  void refreshSapCache() {
-    // Only when using the mtosi client, retrieve inventory otherwise skip
-    if (not(isMtosiEnabled())) {
-      logger.info("MTOSI is NOT enabled, skip refreshing of Sap cache");
-      return;
-    }
-
-    sapCache.remove(SAP_CACHE);
-    getSapInventory();
-    logger.debug("Sap cache refreshed");
-  }
-
-  /**
-   * Refresh Rfs cache on startup and every x minutes
-   */
-  @Scheduled(initialDelay = 0, cron = "0 */10 * * * *")
-  void refreshRfsCache() {
-    // Only when using the mtosi client, retrieve inventory otherwise skip
-    if (not(isMtosiEnabled())) {
-      logger.info("MTOSI is NOT enabled, skip refreshing of Rfs cache");
-      return;
-    }
-
-    rfsCache.remove(RFS_CACHE);
-    getRfsInventory();
-    logger.debug("Rfs cache refreshed");
-  }
-
   @VisibleForTesting
-  boolean determineVlanRequired(final String supportedServiceType) {
+  boolean determineVlanRequired(String supportedServiceType) {
     return "EVPL".equals(supportedServiceType) || "EVPLAN".equals(supportedServiceType);
   }
 
   private ServiceInventoryRetrievalRPC getServiceProxy() {
     ServiceInventoryRetrievalRPC proxy = service.getServiceInventoryRetrievalSoapHttp();
     ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
     return proxy;
   }
 
@@ -229,57 +197,32 @@ public class InventoryRetrievalClient {
   }
 
   private SimpleServiceFilterType getInventoryRequestSimpleFilter(String filter) {
-    final SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType();
+    SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType();
     simpleFilter.getScopeAndSelection().add(GranularityType.FULL);
-    final SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
+
+    SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
     scope.setServiceObjectType(filter);
     simpleFilter.getScopeAndSelection().add(scope);
 
     return simpleFilter;
   }
 
-  private SapList getSapInventory() {
+  private SapList getCachedSapInventory() {
     try {
-      if (sapCache.get(SAP_CACHE) == null) {
-        sapCache.put(SAP_CACHE, getServiceInventoryWithSapFilter().getInventoryData().getSapList());
-      }
-
       return sapCache.get(SAP_CACHE);
     }
-    catch (GetServiceInventoryException e) {
-      logger.error("Error: ", e);
-      return null;
+    catch (ExecutionException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  public RfsList getRfsInventory() {
-    try {
-      if (rfsCache.get(RFS_CACHE) == null) {
-        rfsCache.put(RFS_CACHE, getServiceInventoryWithRfsFilter().getInventoryData().getRfsList());
-      }
-
+  public RfsList getCachedRfsInventory() {
+     try {
       return rfsCache.get(RFS_CACHE);
     }
-    catch (GetServiceInventoryException e) {
-      logger.error("Error: ", e);
-      return null;
+    catch (ExecutionException e) {
+      throw new RuntimeException(e);
     }
-  }
-
-  private List<ServiceAccessPointType> getRfsPorts() {
-    List<ServiceAccessPointType> saps = new ArrayList<>();
-
-    for (ResourceFacingServiceType rfs : getRfsInventory().getRfs()) {
-      // Only unlocked and enabled ports are ready to use
-      if ((AdminStateType.UNLOCKED != rfs.getAdminState() && (OperationalStateType.ENABLED != rfs.getOperationalState()))) {
-        // TODO not implemented by Cienna 1C, yet. Just log for now
-        // continue;
-        logger.debug("Rfs has incorrect adminstate and/or operationalState: {}", rfs);
-      }
-      saps.addAll(rfs.getSapList());
-    }
-
-    return saps;
   }
 
   private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest)
@@ -288,6 +231,7 @@ public class InventoryRetrievalClient {
 
     GetServiceInventoryResponse serviceInventory =
         proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+
     return serviceInventory;
   }
 

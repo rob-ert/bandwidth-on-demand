@@ -37,7 +37,6 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
@@ -59,26 +58,23 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  // @Ignore("No ports left after filtering on adminState and operationalState")
-  public void getUnallocatedPorts() {
-    final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
-    assertThat(unallocatedPorts, hasSize(greaterThan(0)));
-    final PhysicalPort firstPhysicalPort = unallocatedPorts.get(0);
+  public void getPhysicalPorts() {
+    List<PhysicalPort> physicalPorts = mtosiInventoryRetrievalLiveClient.getPhysicalPorts();
 
-    // It's always /rack=1/shelf=1 for every NE so we can use 1-1 safely
+    assertThat(physicalPorts, hasSize(greaterThan(0)));
+
+    PhysicalPort firstPhysicalPort = physicalPorts.get(0);
     assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
-    // fails for now ??
-    // assertThat(firstPhysicalPort.getNmsPortSpeed(), notNullValue());
+    assertThat(firstPhysicalPort.getNmsPortSpeed(), nullValue());
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
   }
 
   @Test
-  @Ignore("For troubleshooting")
   public void justPrintTheInventory() {
-    RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getRfsInventory();
+    RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getCachedRfsInventory();
 
     for (ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
       MtosiUtils.printDescribedByList(rfs.getDescribedByList());
@@ -86,23 +82,22 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-  @Ignore("No ports left after filtering on adminState and operationalState")
   public void getUnallocatedPortsCount() {
-    assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
+    assertThat(mtosiInventoryRetrievalLiveClient.getPhysicalPortCount(), greaterThan(0));
   }
 
   @Test
   public void prettyPrintServiceInventoryXml() throws JAXBException, GetServiceInventoryException {
     GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithRfsFilter();
 
-    logger.debug("ServiceInventoryWithRfsFilter: \n" + getPrettyPrintXml(inventory));
+    logger.warn("ServiceInventoryWithRfsFilter: \n" + getPrettyPrintXml(inventory));
   }
 
   @Test
   public void prettyPrintSapList() throws JAXBException, GetServiceInventoryException {
     GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithSapFilter();
 
-    logger.debug("ServiceInventoryWithSapFilter: \n  " + getPrettyPrintXml(inventory));
+    logger.warn("ServiceInventoryWithSapFilter: \n  " + getPrettyPrintXml(inventory));
   }
 
   private <T> String getPrettyPrintXml(T xmlObject) throws JAXBException {

@@ -31,7 +31,6 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 public class MtosiUtilsTest {
@@ -108,18 +107,6 @@ public class MtosiUtilsTest {
 
     assertThat(rdn.getType(), is("type"));
     assertThat(rdn.getValue(), is("value"));
-  }
-
-  @Test
-  public void shouldGetValue() {
-    ServiceCharacteristicValueType ssc = MtosiUtils.createSscRef("value", MtosiUtils.createNamingAttrib("SSC", "key"));
-    assertThat(MtosiUtils.getValueFrom(ssc, "key"), is("value"));
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void shouldThrowWhenKeyNotPresent() {
-    ServiceCharacteristicValueType ssc = MtosiUtils.createSscRef("value", MtosiUtils.createNamingAttrib("SSC", "key"));
-    assertThat(MtosiUtils.getValueFrom(ssc, "non-existing-key"), is("value"));
   }
 
   @Test

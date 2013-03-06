@@ -66,7 +66,6 @@ public class ServiceComponentActivationClient {
   @Resource
   private AbstractSequenceMaxValueIncrementer sqlLSequenceMaxValueIncrementer;
 
-  
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
@@ -111,15 +110,6 @@ public class ServiceComponentActivationClient {
     else {
       reservation.setStatus(ReservationStatus.FAILED);
     }
-  }
-
-  static {
-    // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
-    // "true");
-    // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
-    // "true");
-    // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
-    // "true");
   }
 
 }

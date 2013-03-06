@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static nl.surfnet.bod.web.WebUtils.not;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +36,6 @@ import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.slf4j.Logger;
-import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
@@ -73,12 +70,11 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public long getPhysicalPortsCount() {
-    return inventoryRetrievalClient.getUnallocatedMtosiPortCount();
+    return inventoryRetrievalClient.getPhysicalPortCount();
   }
 
   @Override
   public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
-    // Generate id
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.saveAndFlush(reservation);
 
@@ -87,22 +83,20 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-    return inventoryRetrievalClient.getUnallocatedPorts();
+    return inventoryRetrievalClient.getPhysicalPorts();
   }
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(String reservationId) {
     // The status should ideally be determined by receiving events from 1C
 
-    RfsList rfsInventory = inventoryRetrievalClient.getRfsInventory();
+    RfsList rfsInventory = inventoryRetrievalClient.getCachedRfsInventory();
     for (ResourceFacingServiceType rfsType : rfsInventory.getRfs()) {
-      if (rfsType != null && //
-          not(CollectionUtils.isEmpty(rfsType.getName().getValue().getRdn())) && //
-          rfsType.getName().getValue().getRdn().get(0).getValue().equals(reservationId)) {
-        return Optional.<ReservationStatus> fromNullable(MtosiUtils.mapToReservationState(rfsType
-            .getServiceState()));
+
+      if (MtosiUtils.findRdnValue("RFS", rfsType.getName().getValue()).get().equals(reservationId)) {
+        ReservationStatus status = MtosiUtils.mapToReservationState(rfsType.getServiceState());
+        return Optional.of(status);
       }
-      continue;
     }
 
     return Optional.<ReservationStatus> absent();
@@ -111,22 +105,19 @@ public class NbiMtosiClient implements NbiClient {
   @Override
   public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
 
-    Optional<PhysicalPort> port = Optional.absent();
-    List<PhysicalPort> portList = inventoryRetrievalClient.getUnallocatedPorts();
-    if (portList != null) {
-      port = Iterables.tryFind(portList,
-          new Predicate<PhysicalPort>() {
-            @Override
-            public boolean apply(PhysicalPort physicalPort) {
-              return nmsPortId.equals(physicalPort.getNmsPortId());
-            }
-          });
-    }
+    List<PhysicalPort> portList = inventoryRetrievalClient.getPhysicalPorts();
+
+    Optional<PhysicalPort> port = Iterables.tryFind(portList, new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort physicalPort) {
+        return nmsPortId.equals(physicalPort.getNmsPortId());
+      }
+    });
+
     if (port.isPresent()) {
       return port.get();
     }
-    else {
-      throw new PortNotAvailableException(nmsPortId);
-    }
+
+    throw new PortNotAvailableException(nmsPortId);
   }
 }

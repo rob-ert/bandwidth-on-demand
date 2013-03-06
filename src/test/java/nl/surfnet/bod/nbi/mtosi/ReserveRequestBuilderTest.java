@@ -94,7 +94,8 @@ public class ReserveRequestBuilderTest {
     assertRfs(rfs);
 
     assertThat(rfs.getDescribedByList(), hasSize(2));
-    String startDateTime = MtosiUtils.getValueFrom(rfs.getDescribedByList().get(0), "startTime");
+
+    String startDateTime = MtosiUtils.findSscValue("startTime", rfs.getDescribedByList()).get();
     assertThat(XmlUtils.getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
 
     assertThat(rfs.getDescribedByList().get(1), hasServiceCharacteristic("AdmissionControl", "Strict"));
@@ -135,8 +136,8 @@ public class ReserveRequestBuilderTest {
     assertThat(sourceSapList.getDescribedByList().get(1),
         hasServiceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
 
-    String tmttt = MtosiUtils.getValueFrom(sourceSapList.getDescribedByList().get(2),
-        "TrafficMappingTo_Table_TrafficClass");
+    String tmttt = MtosiUtils.findSscValue("TrafficMappingTo_Table_TrafficClass", sourceSapList.getDescribedByList()).get();
+
     assertThat(tmttt, is(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
   }
 

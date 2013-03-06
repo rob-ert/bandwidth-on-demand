@@ -122,7 +122,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
-    final List<PhysicalPort> unallocatedPorts = mtosiClient.getUnallocatedPorts();
+    final List<PhysicalPort> unallocatedPorts = mtosiClient.getPhysicalPorts();
     return limitPorts(unallocatedPorts, firstResult, sizeNo);
   }
 
@@ -154,7 +154,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public long countUnallocatedMTOSI() {
-    return mtosiClient.getUnallocatedMtosiPortCount();
+    return mtosiClient.getPhysicalPortCount();
   }
 
   public long countUnalignedPhysicalPorts() {
