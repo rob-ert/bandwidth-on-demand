@@ -37,6 +37,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.hamcrest.Matcher;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
@@ -48,6 +49,7 @@ public class GroupOpenSocialServiceTestIntegration {
   private GroupOpenSocialService subject = new GroupOpenSocialService();
 
   @Test
+  @Ignore("Test is to unsable so the test fails often")
   public void retreiveGroupsFromApiForTest() {
     verifyRetreiveGroups(testEnvironment(), containsString("urn:collab:group:test.surfteams"));
   }
