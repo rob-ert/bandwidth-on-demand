@@ -83,9 +83,11 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   public long count() {
     return physicalResourceGroupRepo.count();
   }
-
+  
+   //TODO: Is merging the real solution?
   public void delete(final long primaryKey) {
-    physicalResourceGroupRepo.delete(primaryKey);
+    PhysicalResourceGroup merger = entityManager.merge(find(primaryKey));
+    physicalResourceGroupRepo.delete(merger);
   }
 
   public PhysicalResourceGroup find(final Long id) {
