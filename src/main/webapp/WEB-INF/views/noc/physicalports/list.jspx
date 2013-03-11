@@ -31,9 +31,7 @@
         <c:if test="${show_unallocated}">
           <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
         </c:if>
-        <c:if test="${not empty list[0].nmsNeId}">
-          <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
-        </c:if>
+        <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
         <table:sortableHeader labelCode="label_physicalport_nms_port_speed" property="nmsPortSpeed"  />
 
         <table:actionsHeader styleClass="cw75 center small" />
