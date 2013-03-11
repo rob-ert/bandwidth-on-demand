@@ -152,35 +152,6 @@ public class PhysicalResourceGroupDbTest {
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
   }
   
-  @Test
-  @Ignore("Always works....")
-  public void deletePhysicalResourceGroupWithPhysicalPort() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().withNoIds().create();
-    physicalResourceGroup.setInstitute(instituteRepo.save(physicalResourceGroup.getInstitute()));
-    physicalResourceGroup = physicalResourceGroupService.save(physicalResourceGroup);
-    physicalResourceGroupRepo.flush();
-    
-    
-    PhysicalPort physicalPort = new PhysicalPortFactory().withNoIds().setPhysicalResourceGroup(physicalResourceGroup).create();
-    physicalPortRepo.save(physicalPort);
-    physicalPortRepo.flush();
-    
-    
-    VirtualPort virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).withNodIds().create();
-    
-    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().withNoIds().create();
-    virtualPort.setVirtualResourceGroup(virtualResourceGroup);
-    virtualResourceGroup.addVirtualPort(virtualPort);
-    virtualResourceGroupService.save(virtualResourceGroup);
-    
-    
-    
-    assertThat(physicalResourceGroupService.find(physicalResourceGroup.getId()), notNullValue());
-    
-//    physicalResourceGroupService.deleteCascade(physicalResourceGroup.getId(), virtualPortService, physicalPortService);
-    
-    assertThat(physicalResourceGroupService.find(physicalResourceGroup.getId()), nullValue());
-  }
 
   @Test(expected = ConstraintViolationException.class)
   public void physicalResourceGroupWithoutAEmailNotSave() {
