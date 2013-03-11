@@ -26,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
@@ -36,10 +36,18 @@ import javax.validation.ConstraintViolationException;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.data.domain.Sort;
@@ -63,6 +71,18 @@ public class PhysicalResourceGroupDbTest {
 
   @Resource
   private InstituteRepo instituteRepo;
+  
+  @Resource
+  private PhysicalPortRepo physicalPortRepo;
+  
+  @Resource
+  private VirtualPortService virtualPortService;
+  
+  @Resource
+  private PhysicalPortService physicalPortService;
+  
+  @Resource
+  private VirtualResourceGroupService virtualResourceGroupService;
 
   @Test
   public void countAllPhysicalResourceGroups() {
@@ -130,6 +150,36 @@ public class PhysicalResourceGroupDbTest {
     physicalResourceGroupRepo.flush();
 
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
+  }
+  
+  @Test
+  @Ignore("Always works")
+  public void deletePhysicalResourceGroupWithPhysicalPort() {
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().withNoIds().create();
+    physicalResourceGroup.setInstitute(instituteRepo.save(physicalResourceGroup.getInstitute()));
+    physicalResourceGroup = physicalResourceGroupService.save(physicalResourceGroup);
+    physicalResourceGroupRepo.flush();
+    
+    
+    PhysicalPort physicalPort = new PhysicalPortFactory().withNoIds().setPhysicalResourceGroup(physicalResourceGroup).create();
+    physicalPortRepo.save(physicalPort);
+    physicalPortRepo.flush();
+    
+    
+    VirtualPort virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).withNodIds().create();
+    
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().withNoIds().create();
+    virtualPort.setVirtualResourceGroup(virtualResourceGroup);
+    virtualResourceGroup.addVirtualPort(virtualPort);
+    virtualResourceGroupService.save(virtualResourceGroup);
+    
+    
+    
+    assertThat(physicalResourceGroupService.find(physicalResourceGroup.getId()), notNullValue());
+    
+//    physicalResourceGroupService.deleteCascade(physicalResourceGroup.getId(), virtualPortService, physicalPortService);
+    
+    assertThat(physicalResourceGroupService.find(physicalResourceGroup.getId()), nullValue());
   }
 
   @Test(expected = ConstraintViolationException.class)
