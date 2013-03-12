@@ -193,9 +193,7 @@ public class PhysicalResourceGroupController extends
       Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
 
       virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
-      
-      //      physicalPort's will be cascade deleted when deleting the physicalResourceGroup
-      //      physicalPortService.deleteByNmsPortId(physicalPort.getNmsPortId());
+      // physicalPort's will be cascade deleted when deleting the physicalResourceGroup?
     }
 
     physicalResourceGroupService.delete(physicalResourceGroup.getId());
