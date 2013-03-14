@@ -55,9 +55,7 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   @Before
   public void setup() throws IOException {
-
     Endpoint.publish("http://localhost:9999/ws/hello", new NotificationConsumerHttp());
-
   }
 
   @Test

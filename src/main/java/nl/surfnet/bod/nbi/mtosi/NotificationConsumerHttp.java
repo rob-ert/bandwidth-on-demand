@@ -63,6 +63,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 
     for (JAXBElement<? extends CommonEventInformationType> jaxbElement : eventInformations) {
+      log.info("Type of Notification: {}", jaxbElement.getDeclaredType().getSimpleName());
       if (jaxbElement.getDeclaredType().equals(HeartbeatType.class)) {
         heartbeats.add((HeartbeatType) jaxbElement.getValue());
       }

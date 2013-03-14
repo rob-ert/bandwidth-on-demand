@@ -26,11 +26,17 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic;
 import nl.surfnet.bod.nbi.mtosi.NotificationConsumerHttp;
+import nl.surfnet.bod.web.base.MessageManager;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 
 import com.google.common.collect.FluentIterable;
 
@@ -40,6 +46,12 @@ public class MtosiNotificationsController {
 
   @Resource
   private NotificationConsumerHttp notificationConsumer;
+
+  @Resource
+  private MtosiNotificationLiveClient notificationClient;
+
+  @Resource
+  private MessageManager messageManager;
 
   @RequestMapping
   public String index() {
@@ -52,6 +64,20 @@ public class MtosiNotificationsController {
     model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
 
     return "appmanager/mtosi/notifications";
+  }
+
+  @RequestMapping(value = "/notifications/subscribe", method = RequestMethod.POST)
+  public String subscribe(String topic, String consumer, RedirectAttributes redirectAttributes) {
+    try {
+      String subscribe = notificationClient.subscribe(NotificationTopic.valueOf(topic), consumer);
+      messageManager.addInfoFlashMessage(redirectAttributes, "Subscribed to topic {}", subscribe);
+
+    }
+    catch (SubscribeException e) {
+      messageManager.addErrorFlashMessage(redirectAttributes, "Failed to subscribe");
+    }
+
+    return "redirect:appmanager/mtosi";
   }
 
   protected <T> List<T> last(List<T> collection, int size) {

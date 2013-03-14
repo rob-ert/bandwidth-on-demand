@@ -7,7 +7,26 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <section>
+    <spring:url value="/appmanager/mtosi/notifications/subscribe" var="postfaulturl">
+        <spring:param name="topic" value="FAULT" />
+        <spring:param name="consumer" value="http://192.87.102.28/mtosi/fmw/NotificationConsumer" />
+    </spring:url>
+    <spring:url value="/appmanager/mtosi/notifications/subscribe" var="postinventoryurl">
+        <spring:param name="topic" value="INVENTORY" />
+        <spring:param name="consumer" value="http://192.87.102.28/mtosi/fmw/NotificationConsumer" />
+    </spring:url>
+    <spring:url value="/appmanager/mtosi/notifications/subscribe" var="postserviceurl">
+        <spring:param name="topic" value="SERVICE" />
+        <spring:param name="consumer" value="http://192.87.102.28/mtosi/fmw/NotificationConsumer" />
+    </spring:url>
+
+    <div class="actions">
+        <a href="${postfaulturl}" class="btn btn-primary" data-form="true">Subscribe FAULT</a>
+        <a href="${postinventoryurl}" class="btn btn-primary" data-form="true">Subscribe INVENTORY</a>
+        <a href="${postserviceurl}" class="btn btn-primary" data-form="true">Subscribe SERVICE</a>
+    </div>
+
+    <section style="clear:both;">
         <h2>Heartbeats</h2>
         <div class="content">
             <table:table items="${heartbeats}" labelPluralCode="heartbeats">

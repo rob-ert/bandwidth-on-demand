@@ -104,6 +104,7 @@ public class MtosiNotificationLiveClient {
   }
 
   public enum NotificationTopic {
-    FAULT
+    FAULT, INVENTORY, SERVICE
   }
+
 }
