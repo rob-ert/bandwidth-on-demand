@@ -158,10 +158,10 @@ public class InventoryRetrievalClient {
 
     PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
     physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToShortPtP(ptp)));
-    physicalPort.setNmsNeId(managedElement);
-    physicalPort.setBodPortId(nmsSapName);
-    physicalPort.setNmsPortSpeed(nmsPortSpeed);
     physicalPort.setNmsSapName(nmsSapName);
+    physicalPort.setNmsNeId(managedElement);
+    physicalPort.setNmsPortSpeed(nmsPortSpeed);
+    physicalPort.setBodPortId(nmsSapName);
     physicalPort.setNocLabel(managedElement + "@" + ptp);
     physicalPort.setSupportedServiceType(supportedServiceType);
     physicalPort.setSignalingType("NA");

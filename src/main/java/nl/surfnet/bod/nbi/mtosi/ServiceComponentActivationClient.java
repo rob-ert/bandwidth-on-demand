@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.support.incrementer.AbstractSequenceMaxValueIncrementer;
+import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -58,29 +58,32 @@ public class ServiceComponentActivationClient {
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-  private final ServiceComponentActivationInterfaceHttp client;
   private final ServiceComponentActivationInterface proxy;
   private final Holder<Header> header;
   private final String endPoint;
 
   @Resource
-  private AbstractSequenceMaxValueIncrementer sqlLSequenceMaxValueIncrementer;
+  private DataFieldMaxValueIncrementer valueIncrementer;
 
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
-    this.client = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION), new QName(
-        NAMESPACE_URI, LOCAL_PART));
+    ServiceComponentActivationInterfaceHttp client = new ServiceComponentActivationInterfaceHttp(
+      this.getClass().getResource(WSDL_LOCATION),
+      new QName(NAMESPACE_URI, LOCAL_PART));
     this.proxy = client.getServiceComponentActivationInterfaceSoapHttp();
     this.header = HeaderBuilder.buildReserveHeader(endPoint);
   }
 
-  public Reservation reserve(final Reservation reservation, boolean autoProvision) {
+  public Reservation reserve(Reservation reservation, boolean autoProvision) {
     ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-    ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision,
-        sqlLSequenceMaxValueIncrementer.nextLongValue());
+
+    ReserveRequest reserveRequest = new ReserveRequestBuilder()
+      .createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
+
     try {
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
+
       handleInitialReservationStatus(reservation, reserveResponse.getRfsNameOrRfsCreation());
     }
     catch (ReserveException e) {
@@ -90,25 +93,25 @@ public class ServiceComponentActivationClient {
   }
 
   @VisibleForTesting
-  void handleInitialReservationException(final Reservation reservation, ReserveException cause) {
+  void handleInitialReservationException(Reservation reservation, ReserveException cause) {
     reservation.setFailedReason(cause.getMessage());
     reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
     logger.warn("Error creating reservation with id: " + reservation.getReservationId(), cause);
   }
 
   @VisibleForTesting
-  void handleInitialReservationStatus(final Reservation reservation, List<Object> rfsNameOrRfsCreation) {
-    if (!CollectionUtils.isEmpty(rfsNameOrRfsCreation)) {
-      InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
-      if (initialResponseType.isAccept()) {
-        reservation.setStatus(ReservationStatus.REQUESTED);
-      }
-      else {
-        reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-      }
+  void handleInitialReservationStatus(Reservation reservation, List<Object> rfsNameOrRfsCreation) {
+    if (CollectionUtils.isEmpty(rfsNameOrRfsCreation)) {
+      reservation.setStatus(ReservationStatus.FAILED);
+      return;
+    }
+
+    InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
+    if (initialResponseType.isAccept()) {
+      reservation.setStatus(ReservationStatus.REQUESTED);
     }
     else {
-      reservation.setStatus(ReservationStatus.FAILED);
+      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
     }
   }
   
