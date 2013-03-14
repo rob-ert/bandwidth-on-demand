@@ -23,67 +23,86 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.startsWith;
+import static nl.surfnet.bod.util.TestHelper.testProperties;
 
-import javax.annotation.Resource;
-import javax.xml.bind.Marshaller;
+import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.AppConfiguration;
-import nl.surfnet.bod.config.IntegrationDbConfiguration;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class,IntegrationDbConfiguration.class})
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-@Transactional
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ServiceComponentActivationClientTestIntegration {
 
-  @Resource
   private ServiceComponentActivationClient subject;
+
+  @Before
+  public void setup() {
+    PropertiesEnvironment testEnv = testProperties();
+    subject = new ServiceComponentActivationClient(testEnv.getProperty("nbi.mtosi.service.reserve.endpoint"));
+    subject.setValueIncrementer(new DataFieldMaxValueIncrementer() {
+
+      private final AtomicLong atomicLong = new AtomicLong();
+
+      @Override
+      public String nextStringValue() throws DataAccessException {
+        return "" + atomicLong.getAndIncrement();
+      }
+
+      @Override
+      public long nextLongValue() throws DataAccessException {
+        return atomicLong.getAndIncrement();
+      }
+
+      @Override
+      public int nextIntValue() throws DataAccessException {
+        return (int) atomicLong.getAndIncrement();
+      }
+    });
+  }
 
   @Test
   public void shouldReturnSapNotFound() {
+    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
+    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
 
-    Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(2))
-        .setEndDateTime(DateTime.now().plusYears(2).plusDays(3)).setName("mtosiSurfTest2").create();
+    Reservation reservation = new ReservationFactory()
+      .setReservationId("SURFnetTest2")
+      .setStartDateTime(DateTime.now().plusMinutes(5))
+      .setEndDateTime(DateTime.now().plusMinutes(35))
+      .setName("mtosiSurfTest5")
+      .create();
 
-    reservation.getSourcePort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:cf:b0-50");
-    reservation.getSourcePort().getPhysicalPort().setNmsPortId("1-1-1-8");
-    reservation.getSourcePort().getPhysicalPort().setNmsNeId("00:03:18:58:cf:b0");
-
-    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("SAP-00:03:18:58:ce:20-50");
-    reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-1");
-    reservation.getDestinationPort().getPhysicalPort().setNmsNeId("00:03:18:58:ce:20");
+    reservation.getSourcePort().setPhysicalPort(sourcePort);
+    reservation.getDestinationPort().setPhysicalPort(destPort);
 
     Reservation savedReservation = subject.reserve(reservation, false);
 
-    // Meaning error message has been removed?
-    assertThat(savedReservation.getFailedReason(), startsWith("Sap not found - SAP-00:03:18:58:cf:b0-50"));
+    System.err.println(savedReservation);
   }
 
-  static {
-    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-    // System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace",
-    // "false");
-    // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
-    // "true");
-    // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
-    // "true");
-    // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
-    // "true");
+  private PhysicalPort createPort(String name, String me, String ptp) {
+    return new PhysicalPortFactory()
+      .setNmsSapName(name)
+      .setNmsPortId(me+"@"+ptp)
+      .setNmsNeId(me)
+      .create();
   }
+
+  //00:03:18:58:ce:80-[5, 7]
+  // SAP-00:03:18:58:ce:80-5 00:03:18:58:ce:80@1-1-1-5
+  // SAP-00:03:18:58:ce:80-7 00:03:18:58:ce:80@1-1-1-7
+  //00:03:18:58:ce:20-[1, 4, 5, 8]
+  // SAP-00:03:18:58:ce:20-1 00:03:18:58:ce:20@1-1-1-1
+  // SAP-00:03:18:58:ce:20-4 00:03:18:58:ce:20@1-1-1-4
+  // SAP-00:03:18:58:ce:20-5 00:03:18:58:ce:20@1-1-1-5
+  // SAP-00:03:18:58:ce:20-8 00:03:18:58:ce:20@1-1-1-8
 
 }

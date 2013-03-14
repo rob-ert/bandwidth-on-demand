@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findRdnValue;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findSscValue;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.getSapName;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -149,7 +150,7 @@ public class InventoryRetrievalClient {
 
   @VisibleForTesting
   PhysicalPort translateToPhysicalPort(ServiceAccessPointType sap) {
-    String nmsSapName = findRdnValue("SAP", sap.getName().getValue()).get();
+    String nmsSapName = getSapName(sap);
     String managedElement = findRdnValue("ME", sap.getResourceRef()).get();
     String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
     String nmsPortSpeed = findSscValue("Administrativespeedrate", sap.getDescribedByList()).get();

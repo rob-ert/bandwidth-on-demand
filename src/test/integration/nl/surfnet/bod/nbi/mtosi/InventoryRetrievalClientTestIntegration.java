@@ -26,41 +26,30 @@ import static nl.surfnet.bod.util.TestHelper.devProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import java.io.StringWriter;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
-import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTestIntegration {
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private InventoryRetrievalClient mtosiInventoryRetrievalLiveClient;
+  private InventoryRetrievalClient subject;
 
   @Before
   public void setup() {
     PropertiesEnvironment testEnv = devProperties();
-    mtosiInventoryRetrievalLiveClient = new InventoryRetrievalClient(testEnv
-        .getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
+    subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
   }
 
   @Test
   public void getPhysicalPorts() {
-    List<PhysicalPort> physicalPorts = mtosiInventoryRetrievalLiveClient.getPhysicalPorts();
+    List<PhysicalPort> physicalPorts = subject.getPhysicalPorts();
 
     assertThat(physicalPorts, hasSize(greaterThan(0)));
 
@@ -71,48 +60,38 @@ public class InventoryRetrievalClientTestIntegration {
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
-  }
 
-  @Test
-  public void getUnallocatedPortsCount() {
-    assertThat(mtosiInventoryRetrievalLiveClient.getPhysicalPortCount(), greaterThan(0));
-  }
-
-  @Test
-  @Ignore
-  public void justPrintTheInventory() {
-    RfsList rfsInventory = mtosiInventoryRetrievalLiveClient.getCachedRfsInventory();
-
-    for (ResourceFacingServiceType rfs : rfsInventory.getRfs()) {
-      MtosiUtils.printDescribedByList(rfs.getDescribedByList());
+    for (PhysicalPort physicalPort : physicalPorts) {
+      System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
     }
   }
 
   @Test
-  @Ignore
-  public void prettyPrintServiceInventoryXml() throws JAXBException, GetServiceInventoryException {
-    GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithRfsFilter();
-
-    logger.warn("ServiceInventoryWithRfsFilter: \n" + getPrettyPrintXml(inventory));
+  public void getPhysicalPortCount() {
+    assertThat(subject.getPhysicalPortCount(), greaterThan(0));
   }
 
   @Test
-  @Ignore
-  public void prettyPrintSapList() throws JAXBException, GetServiceInventoryException {
-    GetServiceInventoryResponse inventory = mtosiInventoryRetrievalLiveClient.getServiceInventoryWithSapFilter();
+  public void getRfsInventory() {
+    RfsList inventory = subject.getCachedRfsInventory();
+    for (ResourceFacingServiceType rfs : inventory.getRfs()) {
+      System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
 
-    logger.warn("ServiceInventoryWithSapFilter: \n  " + getPrettyPrintXml(inventory));
+      for (ServiceAccessPointType sap : rfs.getSapList()) {
+        System.err.println("With SAP: ");
+        System.err.println(MtosiUtils.getSapName(sap));
+        System.err.println(MtosiUtils.findRdnValue("PTP", sap.getResourceRef()));
+        System.err.println(MtosiUtils.findRdnValue("ME", sap.getResourceRef()));
+      }
+    }
   }
 
-  private <T> String getPrettyPrintXml(T xmlObject) throws JAXBException {
-    JAXBContext context = JAXBContext.newInstance(xmlObject.getClass());
-    Marshaller marshaller = context.createMarshaller();
-
-    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-    StringWriter stringWriter = new StringWriter();
-    marshaller.marshal(xmlObject, stringWriter);
-
-    return stringWriter.toString();
-  }
+  //00:03:18:58:ce:80-[5, 7]
+  // SAP-00:03:18:58:ce:80-5 00:03:18:58:ce:80@1-1-1-5
+  // SAP-00:03:18:58:ce:80-7 00:03:18:58:ce:80@1-1-1-7
+  //00:03:18:58:ce:20-[1, 4, 5, 8]
+  // SAP-00:03:18:58:ce:20-1 00:03:18:58:ce:20@1-1-1-1
+  // SAP-00:03:18:58:ce:20-4 00:03:18:58:ce:20@1-1-1-4
+  // SAP-00:03:18:58:ce:20-5 00:03:18:58:ce:20@1-1-1-5
+  // SAP-00:03:18:58:ce:20-8 00:03:18:58:ce:20@1-1-1-8
 }

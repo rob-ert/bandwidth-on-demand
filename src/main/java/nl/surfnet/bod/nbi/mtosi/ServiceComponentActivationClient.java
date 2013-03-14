@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -43,7 +41,6 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterface;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
-import org.tmforum.mtop.sa.xsd.sairsp.v1.InitialResponseType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 
@@ -84,11 +81,12 @@ public class ServiceComponentActivationClient {
     try {
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
 
-      handleInitialReservationStatus(reservation, reserveResponse.getRfsNameOrRfsCreation());
+      handleInitialReservationStatus(reservation, reserveResponse);
     }
     catch (ReserveException e) {
       handleInitialReservationException(reservation, e);
     }
+
     return reservation;
   }
 
@@ -99,28 +97,19 @@ public class ServiceComponentActivationClient {
     logger.warn("Error creating reservation with id: " + reservation.getReservationId(), cause);
   }
 
-  @VisibleForTesting
-  void handleInitialReservationStatus(Reservation reservation, List<Object> rfsNameOrRfsCreation) {
-    if (CollectionUtils.isEmpty(rfsNameOrRfsCreation)) {
+  private void handleInitialReservationStatus(Reservation reservation, ReserveResponse reserveResponse) {
+    if (CollectionUtils.isEmpty(reserveResponse.getRfsNameOrRfsCreation())) {
       reservation.setStatus(ReservationStatus.FAILED);
       return;
     }
 
-    InitialResponseType initialResponseType = (InitialResponseType) rfsNameOrRfsCreation.get(0);
-    if (initialResponseType.isAccept()) {
-      reservation.setStatus(ReservationStatus.REQUESTED);
-    }
-    else {
-      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-    }
+    //NamingAttributeType namingAttr = (NamingAttributeType) rfsNameOrRfsCreation.get(0);
+
+    reservation.setStatus(ReservationStatus.RESERVED);
   }
-  
-  static {
-    // Don't show full stack trace in soap result if an exception occurs
-    //    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    //    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-    //    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-    //    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+
+  protected void setValueIncrementer(DataFieldMaxValueIncrementer valueIncrementer) {
+    this.valueIncrementer = valueIncrementer;
   }
 
 }

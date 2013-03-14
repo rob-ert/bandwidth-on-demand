@@ -35,6 +35,8 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
@@ -68,6 +70,14 @@ public final class MtosiUtils {
     }
 
     return ptp;
+  }
+
+  public static String getSapName(ServiceAccessPointType sap) {
+    return findRdnValue("SAP", sap.getName().getValue()).get();
+  }
+
+  public static String getRfsName(ResourceFacingServiceType rfs) {
+    return findRdnValue("RFS", rfs.getName().getValue()).get();
   }
 
   public static Optional<String> findRdnValue(final String type, NamingAttributeType nat) {

@@ -176,9 +176,9 @@ public class ReserveRequestBuilder {
     return XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
   }
 
-  
+
   @VisibleForTesting
-  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, final long sequence) {
+  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, long sequence) {
     NamingAttributeType resourceRef = createNamingAttrib();
     List<RelativeDistinguishNameType> resourceRefList = resourceRef.getRdn();
 
@@ -187,7 +187,7 @@ public class ReserveRequestBuilder {
     resourceRefList.add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
 
     // TODO: Where to get the CTP value?
-    // FIXME: Adding the CTP results in a "Sap is not valid" error message from 1C 
+    // FIXME: Adding the CTP results in a "Sap is not valid" error message from 1C
    //  resourceRefList.add(createRdn("CTP", "/dummy-"+sequence));
 
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
@@ -198,5 +198,4 @@ public class ReserveRequestBuilder {
     return serviceAccessPoint;
   }
 
-  
 }

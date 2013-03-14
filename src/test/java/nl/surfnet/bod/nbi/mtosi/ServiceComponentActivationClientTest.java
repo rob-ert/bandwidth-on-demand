@@ -24,17 +24,11 @@ package nl.surfnet.bod.nbi.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -46,22 +40,6 @@ public class ServiceComponentActivationClientTest {
 
   @InjectMocks
   private ServiceComponentActivationClient subject;
-
-  @Before
-  public void setUp() throws Exception {
-  }
-
-  @After
-  public void tearDown() throws Exception {
-  }
-
-  @Test
-  public void shouldHandleInitialReservationStatusFailed() {
-    Reservation reservation = getTestReservation();
-    List<Object> rfsNameOrRfsCreation = new ArrayList<>();
-    subject.handleInitialReservationStatus(reservation, rfsNameOrRfsCreation);
-    assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
-  }
 
   @Test
   public void shouldHandleInitialReservationException() {
