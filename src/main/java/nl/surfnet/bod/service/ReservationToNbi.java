@@ -92,11 +92,12 @@ public class ReservationToNbi {
     Reservation reservation = reservationRepo.findOne(reservationId);
     checkNotNull(reservation);
 
-    logger.info("Terminating reservation {}", reservation);
+    logger.info("Terminating reservation {}, {}", reservation, cancelReason);
 
     ReservationStatus orgStatus = reservation.getStatus();
 
     ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+
     reservation.setStatus(reservationState);
     reservation.setCancelReason(cancelReason);
     reservation = reservationRepo.save(reservation);

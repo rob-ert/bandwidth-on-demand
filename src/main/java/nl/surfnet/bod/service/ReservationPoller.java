@@ -92,6 +92,10 @@ public class ReservationPoller {
     }
   }
 
+  public void pollReservation(Reservation reservation) {
+    executorService.execute(new ReservationStatusChecker(reservation, maxPollingTries));
+  }
+
   protected void setMaxPollingTries(int maxPollingTries) {
     this.maxPollingTries = maxPollingTries;
   }

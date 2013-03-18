@@ -34,6 +34,7 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ConnectionService;
+import nl.surfnet.bod.service.ReservationPoller;
 import nl.surfnet.bod.web.appmanager.ConnectionController.ConnectionView;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -59,6 +60,9 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   @Resource
   private ConnectionService connectionService;
 
+  @Resource
+  private ReservationPoller reservationPoller;
+
   @RequestMapping("/illegal")
   public String listIllegal(
     @RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -74,6 +78,12 @@ public class ConnectionController extends AbstractSearchableSortableListControll
     );
 
     return listUrl() + "/illegal";
+  }
+
+  @RequestMapping("/poll")
+  public String pollReservation(Long connectionId) {
+    reservationPoller.pollReservation(connectionService.find(connectionId).getReservation());
+    return "redirect:illegal";
   }
 
   @Override
@@ -135,8 +145,10 @@ public class ConnectionController extends AbstractSearchableSortableListControll
     private final ReservationStatus reservationStatus;
     private final Optional<DateTime> startTime;
     private final Optional<DateTime> endTime;
+    private final Long id;
 
     public ConnectionView(Connection connection) {
+      this.id = connection.getId();
       this.description = connection.getDescription();
       this.label = connection.getLabel();
       this.nsiStatus = connection.getCurrentState();
@@ -167,6 +179,10 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
     public String getDescription() {
       return description;
+    }
+
+    public Long getId() {
+      return id;
     }
   }
 

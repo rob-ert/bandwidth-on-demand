@@ -279,6 +279,10 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     return result;
   }
 
+  public Connection find(Long id) {
+    return connectionRepo.findOne(id);
+  }
+
   public Collection<Connection> findAll() {
     return connectionRepo.findAll();
   }

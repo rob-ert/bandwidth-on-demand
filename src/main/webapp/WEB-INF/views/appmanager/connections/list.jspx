@@ -22,6 +22,7 @@
                     <table:sortableHeader labelCode="Res. Status" property="reservationStatus"  />
                     <table:sortableHeader labelCode="label_reservation_start" property="startTime"  />
                     <table:sortableHeader labelCode="label_reservation_end" property="endTime"  />
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +33,10 @@
                         <table:column item="${item}" property="reservationStatus" />
                         <td><c:out value="${bodfn:getOr(item.startTime, '-')}" /></td>
                         <td><c:out value="${bodfn:getOr(item.endTime, '-')}" /></td>
+                        <spring:url value="/appmanager/connections/poll" var="poll_url">
+                            <spring:param name="connectionId" value="${item.id}" />
+                        </spring:url>
+                        <td><a href="${poll_url}">Poll</a></td>
                     </tr>
                 </c:forEach>
             </tbody>
