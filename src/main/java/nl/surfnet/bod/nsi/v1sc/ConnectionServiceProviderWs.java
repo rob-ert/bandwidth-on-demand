@@ -182,7 +182,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     validateOAuthScope(NsiScope.PROVISION);
     validateProviderNsa(parameters.getProvision().getProviderNSA());
 
-    final Connection connection = getConnectionOrFail(parameters.getProvision().getConnectionId());
+    Connection connection = getConnectionOrFail(parameters.getProvision().getConnectionId());
 
     log.info("Received provision request for connection: {}", connection);
 

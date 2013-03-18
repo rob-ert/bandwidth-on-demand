@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -42,8 +44,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 public class ReservationToNbi {
@@ -95,7 +95,8 @@ public class ReservationToNbi {
     logger.info("Terminating reservation {}", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
-    final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+
+    ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
     reservation.setStatus(reservationState);
     reservation.setCancelReason(cancelReason);
     reservation = reservationRepo.save(reservation);

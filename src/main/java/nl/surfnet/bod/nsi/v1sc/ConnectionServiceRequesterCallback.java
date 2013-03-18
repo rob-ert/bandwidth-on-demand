@@ -58,7 +58,7 @@ public class ConnectionServiceRequesterCallback {
     connection.setCurrentState(ConnectionStateType.RESERVED);
     connectionRepo.save(connection);
 
-    final ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
+    ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
     reservationInfoType.setConnectionId(connection.getConnectionId());
     reservationInfoType.setDescription(connection.getDescription());
     reservationInfoType.setGlobalReservationId(connection.getGlobalReservationId());
@@ -66,7 +66,7 @@ public class ConnectionServiceRequesterCallback {
     reservationInfoType.setPath(connection.getPath());
     reservationInfoType.setServiceParameters(connection.getServiceParameters());
 
-    final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
+    ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
     reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
     reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
     reserveConfirmedType.setReservation(reservationInfoType);
@@ -90,7 +90,7 @@ public class ConnectionServiceRequesterCallback {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
-    final ServiceExceptionType serviceException = new ServiceExceptionType();
+    ServiceExceptionType serviceException = new ServiceExceptionType();
     serviceException.setErrorId("00600");
     serviceException.setText(failedReason.or("Unknown reason"));
     AttributeStatementType values = new AttributeStatementType();
@@ -100,7 +100,7 @@ public class ConnectionServiceRequesterCallback {
     reservationFailed.setServiceException(serviceException);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reservationFailed);
     }
     catch (ServiceException e) {
@@ -109,25 +109,17 @@ public class ConnectionServiceRequesterCallback {
   }
 
   public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
-    if (connection.getStartTime().isPresent() && (connection.getStartTime().get().isAfterNow())) {
-      connection.setCurrentState(ConnectionStateType.SCHEDULED);
-    }
-    else {
-      connection.setCurrentState(ConnectionStateType.RESERVED);
-    }
-    connectionRepo.save(connection);
-
     log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getConnectionId());
 
-    final GenericFailedType generic = new GenericFailedType();
+    GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
     generic.setRequesterNSA(connection.getRequesterNsa());
     generic.setConnectionId(connection.getConnectionId());
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), generic);
     }
     catch (ServiceException e) {
@@ -143,10 +135,10 @@ public class ConnectionServiceRequesterCallback {
     log.info("Sending provisionConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getConnectionId());
 
-    final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
+    GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
     }
     catch (ServiceException e) {
@@ -188,9 +180,9 @@ public class ConnectionServiceRequesterCallback {
       return;
     }
 
-    final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
+    GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
       port.terminateConfirmed(new Holder<>(requestDetails.get().getCorrelationId()), genericConfirmed);
     }
     catch (ServiceException e) {
@@ -203,10 +195,10 @@ public class ConnectionServiceRequesterCallback {
       return;
     }
 
-    final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
+    GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
       port.terminateFailed(new Holder<>(requestDetails.get().getCorrelationId()), genericFailed);
     }
     catch (ServiceException e) {
@@ -221,17 +213,13 @@ public class ConnectionServiceRequesterCallback {
   }
 
   public void queryConfirmed(QueryConfirmedType queryResult, NsiRequestDetails requestDetails) {
-    final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
+    ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
     try {
       port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
     }
     catch (ServiceException e) {
       log.error("Error: ", e);
     }
-  }
-
-  public void queryFailed() {
-
   }
 
 }

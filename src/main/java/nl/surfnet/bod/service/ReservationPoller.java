@@ -121,7 +121,6 @@ public class ReservationPoller {
       try {
         ReservationStatus currentStatus = null;
 
-
         // No need to retrieve status when there is no reservationId
         while (numberOfTries < maxPollingTries && reservation.getReservationId() != null) {
 
