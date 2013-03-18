@@ -4,7 +4,7 @@
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>1.14.1-SNAPSHOT</version>
+    <version>1.14.1</version>
     <name>bod</name>
 
     <parent>
@@ -35,7 +35,7 @@
       <connection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</connection>
       <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</developerConnection>
       <url>https://github.com/BandwidthOnDemand/bandwidth-on-demand-os</url>
-      <tag>HEAD</tag>
+      <tag>bod-1.14.1</tag>
   </scm>
 
     <dependencies>
