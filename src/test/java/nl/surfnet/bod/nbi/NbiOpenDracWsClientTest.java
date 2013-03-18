@@ -77,7 +77,7 @@ public class NbiOpenDracWsClientTest {
   public void init() throws Exception {
     subject = spy(new NbiOpenDracWsClient());
     when(subject.getNetworkMonitoringService()).thenReturn(networkingServiceMock);
-    when(subject.getResourceAllocationAndSchdulingService()).thenReturn(schedulingServiceMock);
+    when(subject.getResourceAllocationAndSchedulingService()).thenReturn(schedulingServiceMock);
 
     endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
         "src/test/resources/opendrac/queryEndpointsResponse.xml"));

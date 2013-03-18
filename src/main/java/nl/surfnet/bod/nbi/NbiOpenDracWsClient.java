@@ -72,7 +72,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  */
 public class NbiOpenDracWsClient implements NbiClient {
 
@@ -117,7 +117,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       try {
         ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId
             .get());
-        CompletionResponseDocument responseDocument = getResourceAllocationAndSchdulingService()
+        CompletionResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
             .activateReservationOccurrence(requestDocument, getSecurityDocument());
 
         return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
@@ -144,13 +144,12 @@ public class NbiOpenDracWsClient implements NbiClient {
   public ReservationStatus cancelReservation(final String reservationId) {
     try {
       CancelReservationScheduleRequestDocument requestDocument = createCancelReservationScheduleRequest(reservationId);
-      CompletionResponseDocument response = getResourceAllocationAndSchdulingService().cancelReservationSchedule(
+      CompletionResponseDocument response = getResourceAllocationAndSchedulingService().cancelReservationSchedule(
           requestDocument, getSecurityDocument());
 
       log.info("Status: {}", response.getCompletionResponse().getResult());
 
-      // CompletionResponseDocument always signals that the operation executed
-      // successfully.
+      // CompletionResponseDocument always signals that the operation executed successfully.
       return CANCELLED;
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
@@ -175,7 +174,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       CreateReservationScheduleRequestDocument requestDocument = createReservationScheduleRequest(reservation,
           autoProvision);
 
-      CreateReservationScheduleResponseDocument responseDocument = getResourceAllocationAndSchdulingService()
+      CreateReservationScheduleResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
           .createReservationSchedule(requestDocument, getSecurityDocument());
 
       log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
@@ -290,7 +289,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   private Optional<QueryReservationScheduleResponseDocument> queryReservation(String reservationId) {
     try {
       QueryReservationScheduleRequestDocument requestDocument = createQueryReservationScheduleRequest(reservationId);
-      return Optional.of(getResourceAllocationAndSchdulingService().queryReservationSchedule(requestDocument,
+      return Optional.of(getResourceAllocationAndSchedulingService().queryReservationSchedule(requestDocument,
           getSecurityDocument()));
     }
     catch (AxisFault e) {
@@ -609,7 +608,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     return new NetworkMonitoringService_v30Stub(inventoryServiceUrl);
   }
 
-  protected ResourceAllocationAndSchedulingService_v30Stub getResourceAllocationAndSchdulingService() throws AxisFault {
+  protected ResourceAllocationAndSchedulingService_v30Stub getResourceAllocationAndSchedulingService() throws AxisFault {
     ResourceAllocationAndSchedulingService_v30Stub schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(
         schedulingServiceUrl);
     schedulingService._getServiceClient().getOptions().setTimeOutInMilliSeconds(
