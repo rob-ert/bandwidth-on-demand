@@ -36,7 +36,10 @@
                         <spring:url value="/appmanager/connections/poll" var="poll_url">
                             <spring:param name="connectionId" value="${item.id}" />
                         </spring:url>
-                        <td><a href="${poll_url}">Poll</a></td>
+                        <spring:url value="/noc/logevents/search" var="log_url">
+                            <spring:param name="search" value="${item.reservationId}" />
+                        </spring:url>
+                        <td><a href="${poll_url}">poll</a><c:out value=" "/><a href="${log_url}">log</a></td>
                     </tr>
                 </c:forEach>
             </tbody>

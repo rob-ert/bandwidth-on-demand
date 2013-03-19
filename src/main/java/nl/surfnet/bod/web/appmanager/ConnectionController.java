@@ -146,6 +146,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
     private final Optional<DateTime> startTime;
     private final Optional<DateTime> endTime;
     private final Long id;
+    private final String reservationId;
 
     public ConnectionView(Connection connection) {
       this.id = connection.getId();
@@ -153,6 +154,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
       this.label = connection.getLabel();
       this.nsiStatus = connection.getCurrentState();
       this.reservationStatus = connection.getReservation() == null ? null : connection.getReservation().getStatus();
+      this.reservationId = connection.getReservation() == null ? null : connection.getReservation().getReservationId();
       this.startTime = connection.getStartTime();
       this.endTime = connection.getEndTime();
     }
@@ -183,6 +185,10 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
     public Long getId() {
       return id;
+    }
+
+    public String getReservationId() {
+      return reservationId;
     }
   }
 
