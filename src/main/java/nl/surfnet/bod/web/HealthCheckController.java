@@ -212,15 +212,15 @@ public class HealthCheckController {
     ServiceState result;
     try {
       result = check.healty();
-      logger.debug("Performed healthcheck for {}", check.getName());
+
+      if (result.failed()) {
+        logger.error("HealthCheck for '{}' failed", check.getName());
+      }
+
     }
     catch (Exception e) {
-      logger.error("Healthcheck failed: ", e);
+      logger.error("Healthcheck for " + check.getName() + " failed with an exception: ", e);
       result = ServiceState.FAILED;
-    }
-
-    if (result.failed()) {
-      logger.error("HealthCheck for '{}' failed", check.getName());
     }
 
     return result;

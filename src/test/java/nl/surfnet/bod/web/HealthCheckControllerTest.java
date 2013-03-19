@@ -120,6 +120,19 @@ public class HealthCheckControllerTest {
     }
 
     @Override
+    public void error(String msg, Throwable t) {
+      errorMessages.add(msg);
+    }
+
+    @Override
+    public void error(String msg) {
+    }
+
+    @Override
+    public void error(String format, Object arg1, Object arg2) {
+    }
+
+    @Override
     public boolean isTraceEnabled() {
       return false;
     }
@@ -222,18 +235,6 @@ public class HealthCheckControllerTest {
     @Override
     public boolean isErrorEnabled() {
       return false;
-    }
-
-    @Override
-    public void error(String msg) {
-    }
-
-    @Override
-    public void error(String format, Object arg1, Object arg2) {
-    }
-
-    @Override
-    public void error(String msg, Throwable t) {
     }
 
   }
