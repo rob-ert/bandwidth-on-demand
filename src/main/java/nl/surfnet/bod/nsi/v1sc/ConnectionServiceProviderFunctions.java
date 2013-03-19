@@ -49,7 +49,6 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.springframework.core.io.ClassPathResource;
@@ -86,20 +85,6 @@ public final class ConnectionServiceProviderFunctions {
         catch (IOException e) {
           throw new RuntimeException("Could not find the requester wsdl", e);
         }
-      }
-    };
-
-  public static final Function<Connection, GenericFailedType> CONNECTION_TO_GENERIC_FAILED =
-    new Function<Connection, GenericFailedType>() {
-      @Override
-      public GenericFailedType apply(final Connection connection) {
-        final GenericFailedType generic = new GenericFailedType();
-        generic.setProviderNSA(connection.getProviderNsa());
-        generic.setRequesterNSA(connection.getRequesterNsa());
-        generic.setConnectionId(connection.getConnectionId());
-        generic.setGlobalReservationId(connection.getGlobalReservationId());
-        generic.setConnectionState(connection.getCurrentState());
-        return generic;
       }
     };
 

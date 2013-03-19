@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 import javax.annotation.Resource;
@@ -96,12 +95,12 @@ public class ConnectionServiceRequesterCallback {
     AttributeStatementType values = new AttributeStatementType();
     serviceException.setVariables(values);
 
-    GenericFailedType reservationFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
-    reservationFailed.setServiceException(serviceException);
+    GenericFailedType reserveFailed = genericFailedForConnection(connection);
+    reserveFailed.setServiceException(serviceException);
 
     try {
       ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reservationFailed);
+      port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reserveFailed);
     }
     catch (ServiceException e) {
       log.error("Error: ", e);
@@ -112,15 +111,14 @@ public class ConnectionServiceRequesterCallback {
     log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getConnectionId());
 
-    GenericFailedType generic = new GenericFailedType();
-    generic.setProviderNSA(connection.getProviderNsa());
-    generic.setRequesterNSA(connection.getRequesterNsa());
-    generic.setConnectionId(connection.getConnectionId());
-    generic.setGlobalReservationId(connection.getGlobalReservationId());
+    connection.setCurrentState(ConnectionStateType.TERMINATED);
+    connectionRepo.save(connection);
+
+    GenericFailedType genericFailed = genericFailedForConnection(connection);
 
     try {
       ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), generic);
+      port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
     }
     catch (ServiceException e) {
       log.error("Error: ", e);
@@ -195,7 +193,7 @@ public class ConnectionServiceRequesterCallback {
       return;
     }
 
-    GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
+    GenericFailedType genericFailed = genericFailedForConnection(connection);
 
     try {
       ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
@@ -220,6 +218,16 @@ public class ConnectionServiceRequesterCallback {
     catch (ServiceException e) {
       log.error("Error: ", e);
     }
+  }
+
+  private GenericFailedType genericFailedForConnection(Connection connection) {
+    final GenericFailedType generic = new GenericFailedType();
+    generic.setProviderNSA(connection.getProviderNsa());
+    generic.setRequesterNSA(connection.getRequesterNsa());
+    generic.setConnectionId(connection.getConnectionId());
+    generic.setGlobalReservationId(connection.getGlobalReservationId());
+    generic.setConnectionState(connection.getCurrentState());
+    return generic;
   }
 
 }
