@@ -109,6 +109,10 @@ public class TestHelper {
     }
   }
 
+  public static void useDevEnv() {
+    useEnv("dev");
+  }
+
   public static void useTestEnv() {
     useEnv("test");
   }

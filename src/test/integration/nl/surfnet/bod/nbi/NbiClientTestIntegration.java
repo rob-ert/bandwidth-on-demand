@@ -51,18 +51,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class NbiClientTestIntegration {
 
-  @AfterClass
-  public static void clearEnvironment() {
-    TestHelper.clearEnv();
-  }
+  @Resource
+  private NbiClient nbiClient;
 
   @BeforeClass
   public static void testEnvironment() {
     TestHelper.useTestEnv();
   }
 
-  @Resource
-  private NbiClient nbiClient;
+  @AfterClass
+  public static void clearEnvironment() {
+    TestHelper.clearEnv();
+  }
 
   @Test
   public void testFindAllPhysicalPorts() throws PortNotAvailableException {

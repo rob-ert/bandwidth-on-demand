@@ -32,6 +32,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
@@ -61,9 +62,9 @@ public class InventoryRetrievalClientTestIntegration {
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
 
-    for (PhysicalPort physicalPort : physicalPorts) {
-      System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
-    }
+//    for (PhysicalPort physicalPort : physicalPorts) {
+//      System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
+//    }
   }
 
   @Test
@@ -72,6 +73,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
+  @Ignore("For dubugging..")
   public void getRfsInventory() {
     RfsList inventory = subject.getCachedRfsInventory();
     for (ResourceFacingServiceType rfs : inventory.getRfs()) {
