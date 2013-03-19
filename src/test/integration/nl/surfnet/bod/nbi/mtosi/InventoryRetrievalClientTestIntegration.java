@@ -77,11 +77,13 @@ public class InventoryRetrievalClientTestIntegration {
   public void getRfsInventory() {
     RfsList inventory = subject.getCachedRfsInventory();
     for (ResourceFacingServiceType rfs : inventory.getRfs()) {
-      System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
 
+      System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
+      System.err.println(MtosiUtils.getStartTime(rfs));
+
+      System.err.println("With SAPs: ");
       for (ServiceAccessPointType sap : rfs.getSapList()) {
-        System.err.println("With SAP: ");
-        System.err.println(MtosiUtils.getSapName(sap));
+        System.err.println("sap: " + MtosiUtils.getSapName(sap));
         System.err.println(MtosiUtils.findRdnValue("PTP", sap.getResourceRef()));
         System.err.println(MtosiUtils.findRdnValue("ME", sap.getResourceRef()));
       }

@@ -22,18 +22,48 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
+
+import java.io.File;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import org.joda.time.DateTime;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
+import com.google.common.base.Optional;
+
 public class MtosiUtilsTest {
+
+  private static GetServiceInventoryResponse rfsServiceInventory;
+  private static GetServiceInventoryResponse sapServiceInventory;
+
+  @BeforeClass
+  public static void initInvetoryObjects() {
+    try{
+      Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
+      rfsServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/RfsInventory.xml"));
+      sapServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/SapInventory.xml"));
+    }
+    catch (JAXBException e) {
+      throw new AssertionError(e);
+    }
+  }
 
   @Test
   public void convertPtp() {
@@ -65,8 +95,7 @@ public class MtosiUtilsTest {
 
   @Test
   public void shouldComposeNmsPortId() {
-    assertThat(MtosiUtils.composeNmsPortId("me", "1-1-1-1"), is("me@"
-        + "1-1-1-1"));
+    assertThat(MtosiUtils.composeNmsPortId("me", "1-1-1-1"), is("me@1-1-1-1"));
   }
 
   @Test
@@ -119,4 +148,63 @@ public class MtosiUtilsTest {
     assertThat(MtosiUtils.mapToReservationState(ServiceStateType.PROVISIONED_ACTIVE), is(ReservationStatus.RUNNING));
     assertThat(MtosiUtils.mapToReservationState(ServiceStateType.TERMINATED), is(ReservationStatus.SUCCEEDED));
   }
+
+  @Test
+  public void shouldGetRfsNameFromRfs() {
+    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
+
+    String rfsName = MtosiUtils.getRfsName(firstRfs);
+
+    assertThat(rfsName, is("mtosiRFS"));
+  }
+
+  @Test
+  public void shouldGetSapName() {
+    ServiceAccessPointType firstSap = sapServiceInventory.getInventoryData().getSapList().getSap().get(0);
+
+    String sapName = MtosiUtils.getSapName(firstSap);
+
+    assertThat(sapName, is("SAP-00:03:18:58:cf:b0-3"));
+  }
+
+  @Test
+  public void shouldGetSecondaryStateFromRfs() {
+    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
+
+    String secondaryState = MtosiUtils.getSecondaryState(firstRfs);
+
+    assertThat(secondaryState, is("INITIAL"));
+  }
+
+  @Test
+  public void shouldGetStartTimeFromRfs() {
+    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
+
+    DateTime startTime = MtosiUtils.getStartTime(firstRfs);
+
+    assertThat(startTime.getYear(), is(2012));
+    assertThat(startTime.getDayOfMonth(), is(24));
+    assertThat(startTime.getMonthOfYear(), is(11));
+    assertThat(startTime.getHourOfDay(), is(12));
+    assertThat(startTime.getMinuteOfHour(), is(32));
+  }
+
+  @Test
+  public void shouldFindVendorExtensionStartTime() {
+    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
+
+    Optional<String> startTime = MtosiUtils.findVendorExtension("startTime", firstRfs);
+
+    assertThat(startTime.get(), is("2012-11-24T12:32:52.000Z"));
+  }
+
+  @Test
+  public void shouldNotFindVendorExtensionFoo() {
+    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
+
+    Optional<String> secondaryState = MtosiUtils.findVendorExtension("foo", firstRfs);
+
+    assertThat(secondaryState, isAbsent());
+  }
+
 }

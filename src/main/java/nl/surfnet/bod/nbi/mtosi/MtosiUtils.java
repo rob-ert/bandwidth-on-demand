@@ -32,6 +32,8 @@ import javax.xml.bind.JAXBElement;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import org.apache.xerces.dom.ElementNSImpl;
+import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
@@ -39,6 +41,8 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -78,6 +82,58 @@ public final class MtosiUtils {
 
   public static String getRfsName(ResourceFacingServiceType rfs) {
     return findRdnValue("RFS", rfs.getName().getValue()).get();
+  }
+
+  public static DateTime getStartTime(ResourceFacingServiceType rfs) {
+    return findVendorExtension("startTime", rfs).transform(new Function<String, DateTime>() {
+      @Override
+      public DateTime apply(String time) {
+        return DateTime.parse(time);
+      }
+    }).get();
+  }
+
+  public static String getSecondaryState(ResourceFacingServiceType rfs) {
+    return findVendorExtension("secondaryState", rfs).get();
+  }
+
+  public static Optional<String> findVendorExtension(final String name, ResourceFacingServiceType rfs) {
+    List<Object> anys = rfs.getVendorExtensions().getValue().getAny();
+
+    return Iterables.tryFind(anys, new Predicate<Object>() {
+      @Override
+      public boolean apply(Object any) {
+        NodeList childs = ((ElementNSImpl) any).getChildNodes();
+
+        return getNodeWithLocalName("name", childs).transform(new Function<Node, Boolean>() {
+          @Override
+          public Boolean apply(Node node) {
+            return node.getTextContent().equals(name);
+          }
+        }).or(false);
+      }
+    }).transform(new Function<Object, String>() {
+      @Override
+      public String apply(Object any) {
+        NodeList childs = ((ElementNSImpl) any).getChildNodes();
+
+        return getNodeWithLocalName("value", childs).transform(new Function<Node, String>() {
+          @Override
+          public String apply(Node node) {
+            return node.getTextContent();
+          }
+        }).get();
+      }
+    });
+  }
+
+  private static Optional<Node> getNodeWithLocalName(String name, NodeList nodeList) {
+    for (int i = 0; i < nodeList.getLength(); i++) {
+      if (nodeList.item(i).getLocalName().equals(name)) {
+        return Optional.of(nodeList.item(i));
+      }
+    }
+    return Optional.absent();
   }
 
   public static Optional<String> findRdnValue(final String type, NamingAttributeType nat) {
