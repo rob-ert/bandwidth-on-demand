@@ -26,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
@@ -42,12 +42,8 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.data.domain.Sort;
@@ -71,16 +67,16 @@ public class PhysicalResourceGroupDbTest {
 
   @Resource
   private InstituteRepo instituteRepo;
-  
+
   @Resource
   private PhysicalPortRepo physicalPortRepo;
-  
+
   @Resource
   private VirtualPortService virtualPortService;
-  
+
   @Resource
   private PhysicalPortService physicalPortService;
-  
+
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
@@ -151,7 +147,7 @@ public class PhysicalResourceGroupDbTest {
 
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
   }
-  
+
 
   @Test(expected = ConstraintViolationException.class)
   public void physicalResourceGroupWithoutAEmailNotSave() {
