@@ -36,7 +36,7 @@ import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Test;
 
-public class NbiClientSmokeTestIntegration {
+public class NbiOpenDracWsClientSmokeTestIntegration {
 
   private NbiOpenDracWsClient subject;
 

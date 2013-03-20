@@ -49,10 +49,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class NbiClientTestIntegration {
+public class NbiOpenDracWsClientTestIntegration {
 
   @Resource
-  private NbiClient nbiClient;
+  private NbiOpenDracWsClient nbiClient;
 
   @BeforeClass
   public static void testEnvironment() {
