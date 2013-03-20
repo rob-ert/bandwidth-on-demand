@@ -83,7 +83,7 @@
                		<table:column item="${item}" property="nmsNeId" />                                         
 				</c:when>
 				<c:otherwise>
-					<td>N.A.</td>
+					<td>N/A</td>
 				</c:otherwise>
 			</c:choose>
           
@@ -92,7 +92,7 @@
                		<table:column item="${item}" property="nmsPortSpeed" />                                         
 				</c:when>
 				<c:otherwise>
-					<td>N.A.</td>
+					<td>N/A</td>
 				</c:otherwise>
 			</c:choose>
 
