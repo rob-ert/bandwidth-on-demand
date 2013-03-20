@@ -204,7 +204,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   public Flyway flyway() throws PropertyVetoException {
     Flyway flyway = new Flyway();
     flyway.setDataSource(dataSource());
-    flyway.setLocations("nl.surfnet.bod.db.migration");
+    flyway.setLocations("db/migration", "nl.surfnet.bod.db.migration");
     return flyway;
   }
 
