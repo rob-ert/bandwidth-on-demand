@@ -212,6 +212,10 @@ public final class MtosiUtils {
     return new NamingAttributeType();
   }
 
+  public static NamingAttributeType createRfs(String name) {
+    return createNamingAttrib("RFS", name);
+  }
+
   public static NamingAttributeType createNamingAttrib(String type, String value) {
     NamingAttributeType namingAttributeType = new NamingAttributeType();
 
@@ -221,22 +225,21 @@ public final class MtosiUtils {
   }
 
   public static JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
-        value));
+    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(
+        createNamingAttrib(type, value));
   }
 
-  public static void createServiceCharacteristicsAndAddToList(String value, NamingAttributeType namingAttributeType,
-      List<ServiceCharacteristicValueType> list) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = createSscRef(value, namingAttributeType);
-    list.add(serviceCharacteristicValueType);
+  public static ServiceCharacteristicValueType createSscValue(String name, String value) {
+    return createSscValue(createNamingAttrib("SSC", name), value);
   }
 
-  public static ServiceCharacteristicValueType createSscRef(String value, NamingAttributeType namingAttributeType) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceCharacteristicValueType();
+  private static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {
+    ServiceCharacteristicValueType serviceCharacteristicValueType =
+      new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceCharacteristicValueType();
+
     serviceCharacteristicValueType.setValue(value);
-
     serviceCharacteristicValueType.setSscRef(namingAttributeType);
+
     return serviceCharacteristicValueType;
   }
 

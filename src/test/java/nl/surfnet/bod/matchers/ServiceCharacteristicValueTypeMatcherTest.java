@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.matchers;
 
+import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.serviceCharacteristic;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 
@@ -32,15 +34,15 @@ public class ServiceCharacteristicValueTypeMatcherTest {
 
   @Test
   public void shouldMatch() {
-    ServiceCharacteristicValueType ssc = MtosiUtils.createSscRef("name", MtosiUtils.createNamingAttributeType("SSC",
-        "value").getValue());
-    assertThat(ssc, ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic("value", "name"));
+    ServiceCharacteristicValueType ssc = MtosiUtils.createSscValue("name", "value");
+
+    assertThat(ssc, serviceCharacteristic("name", "value"));
   }
 
-  @Test(expected = AssertionError.class)
+  @Test
   public void shouldNotMatch() {
-    ServiceCharacteristicValueType ssc = MtosiUtils.createSscRef("name", MtosiUtils.createNamingAttributeType("SSC",
-        "bla").getValue());
-    assertThat(ssc, ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic("value", "name"));
+    ServiceCharacteristicValueType ssc = MtosiUtils.createSscValue("name", "bla");
+
+    assertThat(ssc, not(serviceCharacteristic("name", "name")));
   }
 }

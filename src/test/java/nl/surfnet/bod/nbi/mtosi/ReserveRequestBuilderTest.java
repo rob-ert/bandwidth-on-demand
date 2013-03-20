@@ -22,13 +22,15 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.hasTypeValuePair;
-import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.hasServiceCharacteristic;
+import static nl.surfnet.bod.domain.ProtectionType.PROTECTED;
+import static nl.surfnet.bod.domain.ProtectionType.UNPROTECTED;
+import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.rdnValue;
+import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.serviceCharacteristic;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -37,7 +39,6 @@ import static org.junit.Assert.fail;
 
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -48,11 +49,11 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.matchers.RdnValueTypeMatcher;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.hamcrest.Matchers;
@@ -65,7 +66,6 @@ import org.tmforum.mtop.sb.xsd.svc.v1.*;
 import org.xml.sax.SAXException;
 
 import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
-import com.google.common.base.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReserveRequestBuilderTest {
@@ -98,7 +98,7 @@ public class ReserveRequestBuilderTest {
     String startDateTime = MtosiUtils.findSscValue("startTime", rfs.getDescribedByList()).get();
     assertThat(XmlUtils.getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
 
-    assertThat(rfs.getDescribedByList().get(1), hasServiceCharacteristic("AdmissionControl", "Strict"));
+    assertThat(rfs.getDescribedByList(), hasItem(serviceCharacteristic("AdmissionControl", "Strict")));
 
     assertThat(rfs.getSapList(), hasSize(2));
     ServiceAccessPointType sourceSapList = rfs.getSapList().get(0);
@@ -107,16 +107,16 @@ public class ReserveRequestBuilderTest {
     List<ServiceCharacteristicValueType> sourceSSCList = sourceSapList.getDescribedByList();
     assertThat(sourceSSCList, hasSize(8));
 
-    assertThat(sourceSSCList.get(0),
-        hasServiceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT));
+    assertThat(sourceSSCList,
+        hasItem(serviceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT)));
     assertThat(
-        sourceSSCList.get(1),
-        hasServiceCharacteristic("TrafficMappingFrom_Table_Priority",
-            ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+        sourceSSCList,
+        hasItem(serviceCharacteristic("TrafficMappingFrom_Table_Priority",
+            ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY)));
 
-    final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
+    JAXBContext context = JAXBContext.newInstance(ReserveRequest.class, Nvs.class);
 
-    final Marshaller marshaller = context.createMarshaller();
+    Marshaller marshaller = context.createMarshaller();
     // Enable schema validation
 
     if (schemaValidation) {
@@ -125,16 +125,16 @@ public class ReserveRequestBuilderTest {
     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
     // Create a stringWriter to hold the XML
-    final StringWriter stringWriter = new StringWriter();
+    StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
   }
 
   private void assertSourceSapList(ServiceAccessPointType sourceSapList) {
     assertThat(sourceSapList.getDescribedByList().get(0),
-        hasServiceCharacteristic("TrafficMappingTableCount", TRAFFIC_MAPPING_TABLECOUNT));
+        serviceCharacteristic("TrafficMappingTableCount", TRAFFIC_MAPPING_TABLECOUNT));
 
     assertThat(sourceSapList.getDescribedByList().get(1),
-        hasServiceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+        serviceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
 
     String tmttt = MtosiUtils.findSscValue("TrafficMappingTo_Table_TrafficClass", sourceSapList.getDescribedByList()).get();
 
@@ -142,7 +142,7 @@ public class ReserveRequestBuilderTest {
   }
 
   private void assertRfs(ResourceFacingServiceType rfs) {
-    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123:" + Long.MIN_VALUE));
+    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
     assertTrue(rfs.isIsMandatory());
     assertTrue(rfs.isIsStateful());
     assertThat(rfs.getAdminState(), is(AdminStateType.UNLOCKED));
@@ -151,80 +151,73 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void shouldAddDynamicCharacteristicsWithVlanPresent() {
-    List<ServiceCharacteristicValueType> describedByList = new ArrayList<>();
+    PhysicalPort physicalPort = new PhysicalPortFactory()
+      .setVlanRequired(true).create();
+    Reservation reservation = new ReservationFactory()
+      .withProtection()
+      .setBandwidth(1024)
+      .create();
+    VirtualPort port = new VirtualPortFactory()
+      .setVlanId(3)
+      .setPhysicalPort(physicalPort).create();
 
-    subject.addDynamicCharacteristicsTo(Optional.<Integer> of(3), ProtectionType.PROTECTED, 1024, "UNI-N",
-        describedByList);
+    ServiceAccessPointType sap = subject.getSap(reservation, port, 2L);
 
-    assertThat(describedByList, hasSize(5));
-
-    assertThat(describedByList.get(0), hasServiceCharacteristic("ServiceType", "EVPL"));
-    assertThat(describedByList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "3"));
-    assertThat(describedByList.get(2), hasServiceCharacteristic("InterfaceType", "UNI-N"));
-    assertThat(describedByList.get(3), hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024"));
-    assertThat(describedByList.get(4),
-        hasServiceCharacteristic("ProtectionLevel", ProtectionType.PROTECTED.getMtosiName()));
-
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ServiceType", "EVPL")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "3")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI-N")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", PROTECTED.getMtosiName())));
   }
 
   @Test
   public void shouldAddDynamicCharacteristicsWithVlanAbsent() {
-    List<ServiceCharacteristicValueType> describedByList = new ArrayList<>();
+    PhysicalPort physicalPort = new PhysicalPortFactory()
+      .setVlanRequired(false).create();
+    Reservation reservation = new ReservationFactory()
+      .withoutProtection()
+      .setBandwidth(1024)
+      .create();
+    VirtualPort port = new VirtualPortFactory()
+      .setVlanId(null)
+      .setPhysicalPort(physicalPort).create();
 
-    subject.addDynamicCharacteristicsTo(Optional.<Integer> absent(), ProtectionType.UNPROTECTED, 1024, "UNI-N",
-        describedByList);
+    ServiceAccessPointType sap = subject.getSap(reservation, port, 5L);
 
-    assertThat(describedByList, hasSize(5));
-
-    assertThat(describedByList.get(0), hasServiceCharacteristic("ServiceType", "EPL"));
-    assertThat(describedByList.get(1), hasServiceCharacteristic("TrafficMappingFrom_Table_VID", "all"));
-    assertThat(describedByList.get(2), hasServiceCharacteristic("InterfaceType", "UNI-N"));
-    assertThat(describedByList.get(3), hasServiceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024"));
-    assertThat(describedByList.get(4),
-        hasServiceCharacteristic("ProtectionLevel", ProtectionType.UNPROTECTED.getMtosiName()));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ServiceType", "EPL")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI-N")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", UNPROTECTED.getMtosiName())));
   }
 
   @Test
   public void shouldAddStaticCharacteristics() {
-    List<ServiceAccessPointType> sapList = new ArrayList<>();
-    PhysicalPort port = new PhysicalPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
-        .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
-    subject.addStaticCharacteristicsTo(sapList, port, 10L);
+    PhysicalPort physicalPort = new PhysicalPortFactory()
+      .setNmsSapName("SAP-TEST").setNmsNeId("NeId")
+      .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
+    Reservation reservation = new ReservationFactory().create();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
 
-    assertThat(sapList.get(0).getResourceRef().getRdn().get(0),
-        RdnValueTypeMatcher.hasTypeValuePair("MD", ReserveRequestBuilder.MANAGING_DOMAIN));
-    assertThat(sapList.get(0).getResourceRef().getRdn().get(1), hasTypeValuePair("ME", "NeId"));
-    assertThat(sapList.get(0).getResourceRef().getRdn().get(2),
-        hasTypeValuePair("PTP", MtosiUtils.convertToLongPtP("1-1-1-1")));
-   //TODO removed due to error in 1C assertThat(sapList.get(0).getResourceRef().getRdn().get(3), hasTypeValuePair("CTP", "/dummy-10"));
-  }
+    ServiceAccessPointType sap = subject.getSap(reservation, port, 1L);
 
-  @Test
-  public void shouldMapProtectionTypeProtected() {
-    assertThat(ProtectionType.PROTECTED.getMtosiName(), is("Partially Protected"));
-  }
-
-  @Test
-  public void shouldMapProtectionTypeUnprotected() {
-    assertThat(ProtectionType.UNPROTECTED.getMtosiName(), is("Unprotected"));
-  }
-
-  @Test
-  public void shouldNotMapProtectionTypRedundant() {
-    assertThat(ProtectionType.REDUNDANT.getMtosiName(), nullValue());
+    assertThat(sap.getResourceRef().getRdn(), hasItem(rdnValue("MD", ReserveRequestBuilder.MANAGING_DOMAIN)));
+    assertThat(sap.getResourceRef().getRdn(), hasItem(rdnValue("ME", "NeId")));
+    assertThat(sap.getResourceRef().getRdn(), hasItem(rdnValue("PTP", MtosiUtils.convertToLongPtP("1-1-1-1"))));
   }
 
   @Test
   public void shoudCreateServiceAccessPoint() {
-
-    PhysicalPort port = new PhysicalPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
-        .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
+    PhysicalPort port = new PhysicalPortFactory()
+      .setNmsSapName("SAP-TEST").setNmsNeId("NeId")
+      .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
 
     ServiceAccessPointType serviceAccessPoint = subject.createServiceAccessPoint(port, 123);
-    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(0), hasTypeValuePair("MD", "CIENA/OneControl"));
-    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(1), hasTypeValuePair("ME", "NeId"));
-    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(2), hasTypeValuePair("PTP", "/rack=1/shelf=1/slot=1/port=1"));
-   //Removed due to 1C errormessage    assertThat(serviceAccessPoint.getResourceRef().getRdn().get(3), hasTypeValuePair("CTP", "/dummy-123"));
+
+    assertThat(serviceAccessPoint.getResourceRef().getRdn(), hasItem(rdnValue("MD", "CIENA/OneControl")));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn(), hasItem(rdnValue("ME", "NeId")));
+    assertThat(serviceAccessPoint.getResourceRef().getRdn(), hasItem(rdnValue("PTP", "/rack=1/shelf=1/slot=1/port=1")));
+
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {

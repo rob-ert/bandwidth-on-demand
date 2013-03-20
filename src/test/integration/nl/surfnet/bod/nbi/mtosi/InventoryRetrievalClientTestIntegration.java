@@ -79,13 +79,16 @@ public class InventoryRetrievalClientTestIntegration {
     for (ResourceFacingServiceType rfs : inventory.getRfs()) {
 
       System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
-      System.err.println(MtosiUtils.getStartTime(rfs));
+      System.err.println("Starts: " + MtosiUtils.getStartTime(rfs));
+      System.err.println("Second state: " + MtosiUtils.getSecondaryState(rfs));
+      System.err.println("Service state: " + rfs.getServiceState());
+      System.err.println("Operational state: " + rfs.getOperationalState());
 
-      System.err.println("With SAPs: ");
+      System.err.println("SAPs: ");
       for (ServiceAccessPointType sap : rfs.getSapList()) {
         System.err.println("sap: " + MtosiUtils.getSapName(sap));
-        System.err.println(MtosiUtils.findRdnValue("PTP", sap.getResourceRef()));
-        System.err.println(MtosiUtils.findRdnValue("ME", sap.getResourceRef()));
+        System.err.println("PTP: " + MtosiUtils.findRdnValue("PTP", sap.getResourceRef()).get());
+        System.err.println("ME: " + MtosiUtils.findRdnValue("ME", sap.getResourceRef()).get());
       }
     }
   }

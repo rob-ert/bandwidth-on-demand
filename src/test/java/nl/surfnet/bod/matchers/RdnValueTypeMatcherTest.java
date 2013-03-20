@@ -22,7 +22,9 @@
  */
 package nl.surfnet.bod.matchers;
 
+import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.rdnValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 
 import org.junit.Test;
@@ -34,14 +36,14 @@ public class RdnValueTypeMatcherTest {
   public void shouldMatch() {
     RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "value");
 
-    assertThat(rdn, RdnValueTypeMatcher.hasTypeValuePair("type", "value"));
+    assertThat(rdn, RdnValueTypeMatcher.rdnValue("type", "value"));
   }
 
-  @Test(expected = AssertionError.class)
+  @Test
   public void shouldNotMatch() {
     RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "bla");
 
-    assertThat(rdn, RdnValueTypeMatcher.hasTypeValuePair("type", "value"));
+    assertThat(rdn, not(rdnValue("type", "value")));
   }
 
 }

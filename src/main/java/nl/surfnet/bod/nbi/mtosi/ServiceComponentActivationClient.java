@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRfs;
+
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -38,11 +40,11 @@ import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.*;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
-import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterface;
-import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
-import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.TerminateException;
+import org.tmforum.mtop.sa.xsd.scai.v1.*;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -88,6 +90,36 @@ public class ServiceComponentActivationClient {
     }
 
     return reservation;
+  }
+
+  public void activate(Reservation reservation) {
+    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+    ActivateRequest activateRequest = new ObjectFactory().createActivateRequest();
+    activateRequest.setRfsName(createRfs(reservation.getReservationId()));
+
+    try {
+      proxy.activate(header, activateRequest);
+    }
+    catch (ActivateException e) {
+      e.printStackTrace();
+      throw new AssertionError(e);
+    }
+  }
+
+  public void terminate(Reservation reservation) {
+    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+    TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest();
+    terminateRequest.setRfsName(createRfs(reservation.getReservationId()));
+
+    try {
+      proxy.terminate(header, terminateRequest);
+    }
+    catch (TerminateException e) {
+      e.printStackTrace();
+      throw new AssertionError(e);
+    }
   }
 
   @VisibleForTesting

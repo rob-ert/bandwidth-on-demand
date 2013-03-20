@@ -22,17 +22,28 @@
  */
 package nl.surfnet.bod.domain;
 
-public enum ProtectionType {
-  PROTECTED("Partially Protected"), UNPROTECTED("Unprotected"), REDUNDANT(null);
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
-  private String mtosiName;
+import org.junit.Test;
 
-  private ProtectionType(String mtosiName) {
-    this.mtosiName = mtosiName;
+
+public class ProtectionTypeTest {
+
+  @Test
+  public void shouldMapProtectionTypeProtected() {
+    assertThat(ProtectionType.PROTECTED.getMtosiName(), is("Partially Protected"));
   }
 
-  public String getMtosiName() {
-    return mtosiName;
+  @Test
+  public void shouldMapProtectionTypeUnprotected() {
+    assertThat(ProtectionType.UNPROTECTED.getMtosiName(), is("Unprotected"));
+  }
+
+  @Test
+  public void shouldNotMapProtectionTypRedundant() {
+    assertThat(ProtectionType.REDUNDANT.getMtosiName(), nullValue());
   }
 
 }

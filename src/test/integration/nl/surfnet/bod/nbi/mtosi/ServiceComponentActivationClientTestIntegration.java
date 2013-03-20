@@ -35,6 +35,7 @@ import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
@@ -69,14 +70,15 @@ public class ServiceComponentActivationClientTestIntegration {
   }
 
   @Test
-  public void shouldReturnSapNotFound() {
+  @Ignore
+  public void shouldCreateReservation() {
     PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
     PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
 
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest2")
-      .setStartDateTime(DateTime.now().plusMinutes(5))
-      .setEndDateTime(DateTime.now().plusMinutes(35))
+      .setReservationId("SURFnetTest3")
+      .setStartDateTime(DateTime.now().plusMinutes(2))
+      .setEndDateTime(DateTime.now().plusMinutes(20))
       .setName("mtosiSurfTest5")
       .create();
 
@@ -86,6 +88,26 @@ public class ServiceComponentActivationClientTestIntegration {
     Reservation savedReservation = subject.reserve(reservation, false);
 
     System.err.println(savedReservation);
+  }
+
+  @Test
+  @Ignore
+  public void shouldActivateReservation() {
+    Reservation reservation = new ReservationFactory()
+      .setReservationId("SURFnetTest3")
+      .create();
+
+    subject.activate(reservation);
+  }
+
+  @Test
+  @Ignore
+  public void shouldTerminateReservation() {
+    Reservation reservation = new ReservationFactory()
+      .setReservationId("SURFnetTest3")
+      .create();
+
+    subject.terminate(reservation);
   }
 
   private PhysicalPort createPort(String name, String me, String ptp) {
