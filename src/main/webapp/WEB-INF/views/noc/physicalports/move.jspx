@@ -36,7 +36,7 @@
                 <h3><spring:message code="label_physicalport_move_newport" /></h3>
             </div>
 
-            <field:select field="newPhysicalPort" itemValue="nmsPortId" id="c_new_physicalport" labelCode="physicalport_move_new_port"
+            <field:select field="newPhysicalPort" itemLabel="bodPortId" itemValue="nmsPortId" id="c_new_physicalport" labelCode="physicalport_move_new_port"
                 items="${unallocatedPhysicalPorts}" path="/noc/physicalports" create="false" />
 
             <sform:hidden id="_pp_id" path="id" />
