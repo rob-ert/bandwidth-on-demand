@@ -205,6 +205,8 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     Flyway flyway = new Flyway();
     flyway.setDataSource(dataSource());
     flyway.setLocations("db/migration", "nl.surfnet.bod.db.migration");
+    flyway.setInitVersion("0");
+
     return flyway;
   }
 
