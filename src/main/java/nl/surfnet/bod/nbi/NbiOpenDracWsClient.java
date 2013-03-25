@@ -123,7 +123,7 @@ public class NbiOpenDracWsClient implements NbiClient {
         return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
       }
       catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-        log.error("Error: ", e);
+        log.error("Error activating reservation (" + reservationId + "): ", e);
       }
     }
 
@@ -137,6 +137,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     ActivateReservationOccurrenceRequest activateReservationOccurrenceRequest = activateReservationOccurrenceRequestDocument
         .addNewActivateReservationOccurrenceRequest();
     activateReservationOccurrenceRequest.setOccurrenceId(serviceId);
+
     return activateReservationOccurrenceRequestDocument;
   }
 
@@ -153,7 +154,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       return CANCELLED;
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error: ", e);
+      log.error("Error canceling reservation (" + reservationId + "): ", e);
       return CANCEL_FAILED;
     }
 
@@ -293,7 +294,7 @@ public class NbiOpenDracWsClient implements NbiClient {
           getSecurityDocument()));
     }
     catch (AxisFault e) {
-      log.error("Error: ", e);
+      log.error("Error querying reservation (" + reservationId + "): ", e);
 
       String errorMessageToLowerCase = e.getMessage().toLowerCase();
 
@@ -310,7 +311,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error: ", e);
+      log.error("Error querying reservation (" + reservationId + "): ", e);
     }
 
     return Optional.absent();
