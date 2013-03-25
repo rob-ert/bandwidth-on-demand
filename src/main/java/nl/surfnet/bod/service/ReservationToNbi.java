@@ -118,8 +118,6 @@ public class ReservationToNbi {
     if (activateReservation) {
       ReservationStatus orgStatus = reservation.getStatus();
 
-      // FIXME this could also be running in case the start time already
-      // passed..
       reservation.setStatus(ReservationStatus.AUTO_START);
       reservationRepo.save(reservation);
 

@@ -52,7 +52,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class NbiOpenDracWsClientTestIntegration {
 
   @Resource
-  private NbiOpenDracWsClient nbiClient;
+  private NbiOpenDracWsClient subject;
 
   @BeforeClass
   public static void testEnvironment() {
@@ -66,36 +66,36 @@ public class NbiOpenDracWsClientTestIntegration {
 
   @Test
   public void testFindAllPhysicalPorts() throws PortNotAvailableException {
-    List<PhysicalPort> allPorts = nbiClient.findAllPhysicalPorts();
+    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
 
   @Test
   public void testFindPhysicalPortByNmsPortId() throws PortNotAvailableException {
-    PhysicalPort firstPort = nbiClient.findAllPhysicalPorts().get(0);
+    PhysicalPort firstPort = subject.findAllPhysicalPorts().get(0);
 
-    PhysicalPort foundPort = nbiClient.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
+    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
 
     assertThat(foundPort.getNmsPortId(), is(firstPort.getNmsPortId()));
   }
 
   @Test(expected = PortNotAvailableException.class)
   public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
-    nbiClient.findPhysicalPortByNmsPortId("nonExisting");
+    subject.findPhysicalPortByNmsPortId("nonExisting");
   }
 
   @Test
   public void portCountShouldMatchSizeOfAllPorts() {
-    long count = nbiClient.getPhysicalPortsCount();
-    List<PhysicalPort> ports = nbiClient.findAllPhysicalPorts();
+    long count = subject.getPhysicalPortsCount();
+    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
 
     assertThat(count, is((long) ports.size()));
   }
 
   @Test
   public void testRequireVlanIdWhenPortIdContainsLabel() {
-    for (PhysicalPort port : nbiClient.findAllPhysicalPorts()) {
+    for (PhysicalPort port : subject.findAllPhysicalPorts()) {
       assertThat(port.toString(), port.isVlanRequired(),
           not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
     }
