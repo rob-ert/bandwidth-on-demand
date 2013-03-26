@@ -778,17 +778,7 @@
                     <includes>
                         <include>**/*.scala</include>
                     </includes>
-                    <excludes>
-                        <exclude>old/*.scala</exclude>
-                    </excludes>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.excilys.ebi.gatling.highcharts</groupId>
-                        <artifactId>gatling-charts-highcharts</artifactId>
-                        <version>${gatling.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

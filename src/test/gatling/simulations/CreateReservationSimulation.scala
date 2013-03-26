@@ -20,6 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
@@ -29,8 +30,6 @@ class CreateReservationSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
   val httpConf = httpConfig.baseURL(baseUrl)
-
-  val oauthServer = "http://localhost:8080"
 
   val timeFeeder = (0 to 23).flatMap(hour =>
       List(
