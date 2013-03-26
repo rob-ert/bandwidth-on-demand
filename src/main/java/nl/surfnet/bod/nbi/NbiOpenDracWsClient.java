@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static org.joda.time.Minutes.minutes;
 import static org.joda.time.Minutes.minutesBetween;
@@ -111,12 +112,13 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public boolean activateReservation(final String reservationId) {
+    checkNotNull(reservationId);
+
     Optional<String> serviceId = findServiceId(reservationId);
 
     if (serviceId.isPresent()) {
       try {
-        ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId
-            .get());
+        ActivateReservationOccurrenceRequestDocument requestDocument = createActivateReservationOccurrenceRequest(serviceId.get());
         CompletionResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
             .activateReservationOccurrence(requestDocument, getSecurityDocument());
 
@@ -143,10 +145,11 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public ReservationStatus cancelReservation(final String reservationId) {
+    checkNotNull(reservationId);
+
     try {
-      CancelReservationScheduleRequestDocument requestDocument = createCancelReservationScheduleRequest(reservationId);
-      CompletionResponseDocument response = getResourceAllocationAndSchedulingService().cancelReservationSchedule(
-          requestDocument, getSecurityDocument());
+      CompletionResponseDocument response = getResourceAllocationAndSchedulingService()
+        .cancelReservationSchedule(createCancelReservationScheduleRequest(reservationId), getSecurityDocument());
 
       log.info("Status: {}", response.getCompletionResponse().getResult());
 
