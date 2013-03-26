@@ -36,6 +36,8 @@ import org.joda.time.DateTimeUtils;
 
 public class TestHelper {
 
+  private static final String LOG4JMAIL_ENABLED = "log4jmail.enabled";
+
   public interface TimeTraveller<T> {
     public T apply() throws Exception;
   }
@@ -127,9 +129,14 @@ public class TestHelper {
 
   public static void clearEnv() {
     System.clearProperty("bod.env");
+    System.clearProperty(LOG4JMAIL_ENABLED);
   }
 
   private static void useEnv(String env) {
     System.setProperty("bod.env", env);
+  }
+
+  public static void dontUserLog4jMailAppender() {
+    System.setProperty(LOG4JMAIL_ENABLED, "false");
   }
 }
