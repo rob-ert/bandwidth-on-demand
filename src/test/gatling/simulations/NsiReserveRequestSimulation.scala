@@ -12,23 +12,19 @@ class NsiReserveRequestSimulation extends Simulation {
   val baseUrl = "http://localhost:8082/bod"
   val httpConf = httpConfig.baseURL(baseUrl)
 
-  val timeFeeder = (0 to 23).flatMap(hour =>
-      List(
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(0), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(5)),
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(10), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(15)),
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(20), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(25)),
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(30), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(35)),
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(40), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(45)),
-          Map("startTime" -> DateTime.now().plusHours(hour).plusMinutes(50), "endTime" -> DateTime.now().plusHours(hour).plusMinutes(55))
+  val reservationTimeFeeder =
+    (0 to 20).flatMap(hours =>
+      (0 to 50 by 10) map (minutes =>
+        Map("startTime" -> DateTime.now().plusHours(hours).plusMinutes(minutes), "endTime" -> DateTime.now().plusHours(hours).plusMinutes(minutes + 5))
       )
-  ).toIterator
+    ).toIterator
 
   private val oauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
   private val sourceStp = "urn:ogf:network:stp:surfnet.nl:19"
   private val destinationStp = "urn:ogf:network:stp:surfnet.nl:22"
 
   val scn = scenario("Create a Reservation through NSI")
-    .feed(timeFeeder)
+    .feed(reservationTimeFeeder)
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
@@ -37,7 +33,7 @@ class NsiReserveRequestSimulation extends Simulation {
         .check(status.is(200))
     )
 
-  setUp(scn.users(10).ramp(2 seconds).protocolConfig(httpConf))
+  setUp(scn.users(50).ramp(10 seconds).protocolConfig(httpConf))
 
 
   private def reserveRequest(session: Session): String =
