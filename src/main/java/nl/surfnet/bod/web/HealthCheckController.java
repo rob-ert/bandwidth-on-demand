@@ -48,7 +48,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 @Controller
 public class HealthCheckController {
@@ -161,15 +161,14 @@ public class HealthCheckController {
       }
     };
 
-    @SuppressWarnings("unchecked")
-    List<Callable<ServiceState>> tasks = Lists.newArrayList(
-        callable(iddServiceCheck),
-        callable(nbiServiceCheck),
-        callable(oAuthServerServiceCheck),
-        callable(apiServiceCheck),
-        callable(sabServiceCheck),
-        callable(versCheck)
-        );
+    List<Callable<ServiceState>> tasks = ImmutableList.of(
+      callable(iddServiceCheck),
+      callable(nbiServiceCheck),
+      callable(oAuthServerServiceCheck),
+      callable(apiServiceCheck),
+      callable(sabServiceCheck),
+      callable(versCheck)
+    );
 
     try {
       List<Future<ServiceState>> futures = Executors.newFixedThreadPool(tasks.size()).invokeAll(tasks, 15, TimeUnit.SECONDS);
