@@ -23,7 +23,6 @@
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.jdbc.Predef._
 import akka.util.duration._
 
 class CreateReservationSimulation extends Simulation {

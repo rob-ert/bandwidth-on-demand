@@ -22,7 +22,6 @@
  */
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.jdbc.Predef._
 import bootstrap._
 import akka.util.duration._
 

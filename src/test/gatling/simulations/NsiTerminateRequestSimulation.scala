@@ -20,83 +20,55 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import com.excilys.ebi.gatling.jdbc.Predef._
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import akka.util.duration._
 import java.util.UUID
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.DateTime
 
-class NsiReserveRequestSimulation extends Simulation {
+class NsiTerminateRequestSimulation extends Simulation {
 
-  val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
-
-  val reservationTimeFeeder =
-    (0 to 20).flatMap(hours =>
-      (0 to 50 by 10) map (minutes =>
-        Map("startTime" -> DateTime.now().plusHours(hours).plusMinutes(minutes), "endTime" -> DateTime.now().plusHours(hours).plusMinutes(minutes + 5))
-      )
-    ).toIterator
+  val httpConf = httpConfig.baseURL("http://localhost:8082/bod")
+  val connectionIdFeeder = jdbcFeeder(
+    url = "jdbc:postgresql://localhost/bod",
+    username = "bod_user",
+    password = "",
+    sql = "select connection_id from connection where current_state = 'RESERVED'"
+  )
 
   private val oauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
-  private val sourceStp = "urn:ogf:network:stp:surfnet.nl:19"
-  private val destinationStp = "urn:ogf:network:stp:surfnet.nl:22"
 
-  val scn = scenario("Create a Reservation through NSI")
-    .feed(reservationTimeFeeder)
+  val scn = scenario("Terminate reservations through NSI")
+    .feed(connectionIdFeeder)
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
-        .body(reserveRequest)
+        .body(terminateRequest)
         .header("Authorization" -> ("bearer " + oauthToken))
         .check(status.is(200))
     )
 
-  setUp(scn.users(50).ramp(10 seconds).protocolConfig(httpConf))
+  setUp(scn.users(50).ramp(5 seconds).protocolConfig(httpConf))
 
 
-  private def reserveRequest(session: Session): String =
+  private def terminateRequest(session: Session): String =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:type="http://schemas.ogf.org/nsi/2011/10/connection/types"
       xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
       <soapenv:Header />
       <soapenv:Body>
-        <int:reserveRequest>
+        <int:terminateRequest>
           <int:correlationId>{ UUID.randomUUID() }</int:correlationId>
           <int:replyTo>http://localhost:9000/reply</int:replyTo>
-          <type:reserve>
+          <type:terminate>
             <requesterNSA>urn:ogf:network:nsa:surfnet-nsi-requester</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:surfnet.nl</providerNSA>
-            <reservation>
-              <globalReservationId/>
-              <description>Gatling NSI Reserve</description>
-              <connectionId>{ UUID.randomUUID() }</connectionId>
-              <serviceParameters>
-                <schedule>
-                  <startTime>{ printDateTime(session.getTypedAttribute[DateTime]("startTime")) }</startTime>
-                  <endTime>{ printDateTime(session.getTypedAttribute[DateTime]("endTime")) }</endTime>
-                </schedule>
-                <bandwidth>
-                  <desired>100</desired>
-                </bandwidth>
-              </serviceParameters>
-              <path>
-                <directionality>Bidirectional</directionality>
-                <sourceSTP>
-                  <stpId>{ sourceStp }</stpId>
-                </sourceSTP>
-                <destSTP>
-                  <stpId>{ destinationStp }</stpId>
-                </destSTP>
-              </path>
-            </reservation>
-          </type:reserve>
-        </int:reserveRequest>
+            <connectionId>{ session.getTypedAttribute[String]("connection_id") }</connectionId>
+          </type:terminate>
+        </int:terminateRequest>
       </soapenv:Body>
     </soapenv:Envelope>.toString
-
-  private def printDateTime(dateTime: DateTime) = ISODateTimeFormat.dateTime().print(dateTime)
 }
