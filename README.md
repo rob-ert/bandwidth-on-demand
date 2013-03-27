@@ -17,6 +17,10 @@ Further a (empty) `bod-selenium` database is expected.
 
     mvn verify -Pselenium
 
+Running a single test
+
+    mvn verify -Pselenium -Dit.test=ReservationTestSeleniu
+
 If you want to run the selenium tests from your IDE (like Eclipse), you could start a local server with selenium settings.
 
     mvn jetty:run -Pselenium-server
