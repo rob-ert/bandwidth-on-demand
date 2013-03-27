@@ -40,6 +40,7 @@ import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
+import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.*;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
@@ -92,18 +93,22 @@ public class ServiceComponentActivationClient {
     return reservation;
   }
 
-  public void activate(Reservation reservation) {
+  public boolean activate(Reservation reservation) {
     ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
 
     ActivateRequest activateRequest = new ObjectFactory().createActivateRequest();
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      proxy.activate(header, activateRequest);
+      ActivateResponse response = proxy.activate(header, activateRequest);
+      // TODO something with the response..
+      //response.getRfsNameOrRfsCreationOrRfsStateChange()
+      return true;
     }
     catch (ActivateException e) {
-      e.printStackTrace();
-      throw new AssertionError(e);
+      BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
+      logger.warn("Could not activate reservation {} because {}", reservation.getReservationId(), baseExceptionMessage.getReason());
+      throw new AssertionError(baseExceptionMessage.getReason(), e);
     }
   }
 

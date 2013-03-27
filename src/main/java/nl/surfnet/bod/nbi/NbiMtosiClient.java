@@ -58,14 +58,13 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public boolean activateReservation(String reservationId) {
-    throw new UnsupportedOperationException("Not implemented yet..");
+    return serviceComponentActivationClient.activate(reservationRepo.findByReservationId(reservationId));
   }
 
   @Override
-  public ReservationStatus cancelReservation(String scheduleId) {
-    // throw new UnsupportedOperationException("Not implemented yet..");
-    logger.debug("Error, not supported yet, for testing purposes no exception is thrown");
-    return ReservationStatus.CANCEL_FAILED;
+  public ReservationStatus cancelReservation(String reservationId) {
+    serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
+    return ReservationStatus.CANCELLED;
   }
 
   @Override

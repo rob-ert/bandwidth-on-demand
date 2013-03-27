@@ -35,8 +35,11 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.apache.xerces.dom.ElementNSImpl;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
+import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
+import org.tmforum.mtop.sa.xsd.saiexcpt.v1.BasicFailureEventType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
@@ -74,6 +77,14 @@ public final class MtosiUtils {
     }
 
     return ptp;
+  }
+
+  public static BaseExceptionMessageType getBaseExceptionMessage(ActivateException exception) {
+    return getBaseExceptionMessage(exception.getFaultInfo().getBasicFailureEvent());
+  }
+
+  private static BaseExceptionMessageType getBaseExceptionMessage(BasicFailureEventType basicFailure) {
+    return basicFailure.getNotInValidState();
   }
 
   public static String getSapName(ServiceAccessPointType sap) {
