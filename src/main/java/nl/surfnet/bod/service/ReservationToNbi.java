@@ -78,6 +78,7 @@ public class ReservationToNbi {
     checkNotNull(reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
+
     reservation = nbiClient.createReservation(reservation, autoProvision);
 
     reservation = reservationRepo.save(reservation);

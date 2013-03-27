@@ -61,14 +61,14 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
+ *
  */
 @Service
 public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
@@ -180,7 +180,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   /**
    * Deletes the specified port and all its related objects like the mapped
    * {@link VirtualPort}s, and {@link Reservation}s
-   * 
+   *
    * @param nmsPortId
    *          NmsPort of the port
    */
@@ -221,7 +221,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -316,7 +316,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   * 
+   *
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -346,10 +346,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -376,7 +376,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Determines the label to log for the given Role
-   * 
+   *
    * @param bodRole
    *          Role
    * @param physicalPort
