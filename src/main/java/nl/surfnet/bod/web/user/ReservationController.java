@@ -156,12 +156,12 @@ public class ReservationController extends AbstractFilteredReservationController
     return "index";
   }
 
-  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(value = "/copy", params = ID_KEY, method = RequestMethod.GET)
   public String copyReservation(@RequestParam(ID_KEY) Long id, Model model) {
 
-    final Reservation originalReservation = getReservationService().find(id);
+    Reservation originalReservation = getReservationService().find(id);
 
-    final Reservation reservation = new Reservation();
+    Reservation reservation = new Reservation();
     reservation.setBandwidth(originalReservation.getBandwidth());
     reservation.setDestinationPort(originalReservation.getDestinationPort());
     reservation.setEndDate(originalReservation.getEndDate());

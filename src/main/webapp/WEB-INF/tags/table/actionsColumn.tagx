@@ -16,6 +16,7 @@
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="updateUrl" type="java.lang.String" required="false" rtexprvalue="true" />
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
@@ -44,12 +45,15 @@
     <c:if test="${empty deleteConfirmLabelArgument}">
         <c:set var="deleteConfirmLabelArgument" value="" />
     </c:if>
+    <c:if test="${empty updateUrl}">
+        <c:set var="updateUrl" value="/edit" />
+    </c:if>
     <spring:message code="${labelCode}" var="label" />
 
     <td class="center actions-column">
         <c:if test="${empty update or update}">
             <spring:message code="${updateLabelCode}" arguments="${label}" var="edit_title" />
-            <spring:url var="editUrl" value="${path}/edit">
+            <spring:url var="editUrl" value="${path}${updateUrl}">
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
             <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}">

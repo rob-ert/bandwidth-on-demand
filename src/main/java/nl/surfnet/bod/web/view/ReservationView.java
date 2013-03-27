@@ -56,7 +56,7 @@ public class ReservationView {
   private final ProtectionType protectionType;
 
   public ReservationView(
-      final Reservation reservation, final ElementActionView deleteActionView, final ElementActionView editActionView) {
+      Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
     this.sourcePort = new PortView(reservation.getSourcePort());

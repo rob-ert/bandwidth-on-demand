@@ -152,10 +152,10 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" styleClass="status" />
-                        <table:actionsColumn item="${item}" update="${item.updateAllowedForSelectedRole}" delete="true"
-                          updateLabelCode="${item.updateReasonKey}" updateIcon="icon-copy"
-                          deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
-                          path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent" >
+                        <table:actionsColumn item="${item}" path="/reservations" labelCode="label_reservation"
+                          update="${item.updateAllowedForSelectedRole}" updateLabelCode="${item.updateReasonKey}" updateIcon="icon-copy" updateUrl="/copy"
+                          delete="true" deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
+                          successMessageCode="Termination request has been sent">
                       </table:actionsColumn>
                     </tr>
                 </c:forEach>
