@@ -1,0 +1,32 @@
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+        <S:Fault xmlns:ns4="http://www.w3.org/2003/05/soap-envelope">
+            <faultcode>S:Server</faultcode>
+            <faultstring>mtosiSurfTest2</faultstring>
+            <detail>
+                <ns18:activateException xmlns:ns9="http://www.tmforum.org/mtop/fmw/xsd/cornot/v1" xmlns:ns8="http://www.tmforum.org/mtop/nra/xsd/com/v1" xmlns:ns7="http://www.tmforum.org/mtop/nra/xsd/prc/v1" xmlns:ns6="http://www.tmforum.org/mtop/nra/xsd/alm/v1" xmlns:ns5="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:ns4="http://www.tmforum.org/mtop/fmw/xsd/ei/v1" xmlns:ns3="http://www.tmforum.org/mtop/fmw/xsd/cei/v1" xmlns:ns28="http://www.tmforum.org/mtop/sb/xsd/sodel/v1" xmlns:ns27="http://www.tmforum.org/mtop/sb/xsd/soc/v1" xmlns:ns26="http://www.tmforum.org/mtop/sb/xsd/savc/v1" xmlns:ns25="http://www.tmforum.org/mtop/nrb/xsd/rscoc/v1" xmlns:ns24="http://www.tmforum.org/mtop/nrb/xsd/rscavc/v1" xmlns:ns23="http://www.tmforum.org/mtop/nrb/xsd/rscodel/v1" xmlns:ns22="http://www.tmforum.org/mtop/fmw/xsd/oc/v1" xmlns:ns21="http://www.tmforum.org/mtop/fmw/xsd/avc/v1" xmlns:ns20="http://www.tmforum.org/mtop/sb/xsd/svc/v1" xmlns:ns2="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" xmlns:ns19="http://www.tmforum.org/mtop/sb/xsd/csi/v1" xmlns:ns17="http://www.tmforum.org/mtop/sa/xsd/saiexcpt/v1" xmlns:ns16="http://www.tmforum.org/mtop/rtm/xsd/ac/v1" xmlns:ns15="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" xmlns:ns14="http://www.tmforum.org/mtop/nra/xsd/asa/v1" xmlns:ns13="http://www.tmforum.org/mtop/nra/xsd/asap/v1" xmlns:ns12="http://www.tmforum.org/mtop/nrb/xsd/itu/v1" xmlns:ns11="http://www.tmforum.org/mtop/nrb/xsd/cri/v1" xmlns:ns10="http://www.tmforum.org/mtop/fmw/xsd/coi/v1" xmlns="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:ns18="http://www.tmforum.org/mtop/sa/xsd/scai/v1">
+                    <ns18:basicFailureEvent>
+                        <ns15:notInValidState>
+                            <header>
+                                <activityName>activate</activityName>
+                                <msgName>activateResponse</msgName>
+                                <msgType>ERROR</msgType>
+                                <senderURI>http://meili:9006/mtosi/sa/ServiceComponentActivationInterface</senderURI>
+                                <destinationURI>http://localhost:9009</destinationURI>
+                                <activityStatus qualifier="Not in valid state">FAILURE</activityStatus>
+                                <communicationPattern>SimpleResponse</communicationPattern>
+                                <communicationStyle>RPC</communicationStyle>
+                                <timestamp>2013-03-25T09:05:46.684Z</timestamp>
+                            </header>
+                            <ns15:reason>Not in valid state</ns15:reason>
+                        </ns15:notInValidState>
+                    </ns18:basicFailureEvent>
+                </ns18:activateException>
+                <ns2:exception xmlns:ns2="http://jax-ws.dev.java.net/" class="org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException" note="To disable this feature, set com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace system property to false">
+                    <message>mtosiSurfTest2</message>
+                    <ns2:stackTrace />
+                </ns2:exception>
+            </detail>
+        </S:Fault>
+    </S:Body>
+</S:Envelope>
