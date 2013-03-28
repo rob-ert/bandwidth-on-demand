@@ -76,91 +76,6 @@ public class HealthCheckController {
   @RequestMapping(value = "/healthcheck")
   public String index(Model model) {
 
-    final ServiceCheck iddServiceCheck = new ServiceCheck() {
-      @Override
-      public ServiceState healty() {
-        return iddClient.getInstitutes().size() > 0 ? SUCCEEDED : FAILED;
-      }
-
-      @Override
-      public String getName() {
-        return "IDD";
-      }
-    };
-
-    final ServiceCheck nbiServiceCheck = new ServiceCheck() {
-      @Override
-      public ServiceState healty() {
-        return nbiClient.getPhysicalPortsCount() > 0 ? SUCCEEDED : FAILED;
-      }
-
-      @Override
-      public String getName() {
-        return "NBI";
-      }
-    };
-
-    final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
-      @Override
-      public ServiceState healty() throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
-        HttpResponse response = client.execute(httpGet);
-        httpGet.releaseConnection();
-        return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN ? SUCCEEDED : FAILED;
-      }
-
-      @Override
-      public String getName() {
-        return "OAuth server";
-      }
-    };
-
-    final ServiceCheck apiServiceCheck = new ServiceCheck() {
-      private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
-
-      @Override
-      public ServiceState healty() throws IOException {
-        return openSocialGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
-      }
-
-      @Override
-      public String getName() {
-        return "API (groupService)";
-      }
-    };
-
-    final ServiceCheck sabServiceCheck = new ServiceCheck() {
-      private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
-
-      @Override
-      public ServiceState healty() throws IOException {
-        if (environment.isSabEnabled()) {
-          return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
-        }
-        else {
-          return DISABLED;
-        }
-      }
-
-      @Override
-      public String getName() {
-        return "SAB (groupService)";
-      }
-    };
-
-    final ServiceCheck versCheck = new ServiceCheck() {
-      @Override
-      public ServiceState healty() throws IOException {
-        return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
-      };
-
-      @Override
-      public String getName() {
-        return "VERS (reporting service)";
-      }
-    };
-
     List<Callable<ServiceState>> tasks = ImmutableList.of(
       callable(iddServiceCheck),
       callable(nbiServiceCheck),
@@ -179,6 +94,8 @@ public class HealthCheckController {
       model.addAttribute("openConextApi", toState(futures.get(3)));
       model.addAttribute("sabHealth", toState(futures.get(4)));
       model.addAttribute("versHealth", toState(futures.get(5)));
+      model.addAttribute("nbiImplementation", nbiClient.getClass().getSimpleName());
+      model.addAttribute("iddImplementation", iddClient.getClass().getSimpleName());
     }
     catch (InterruptedException e) {
       logger.error("Error during calling healthchecks", e);
@@ -224,6 +141,91 @@ public class HealthCheckController {
 
     return result;
   }
+
+  final ServiceCheck iddServiceCheck = new ServiceCheck() {
+    @Override
+    public ServiceState healty() {
+      return iddClient.getInstitutes().size() > 0 ? SUCCEEDED : FAILED;
+    }
+
+    @Override
+    public String getName() {
+      return "IDD";
+    }
+  };
+
+  final ServiceCheck nbiServiceCheck = new ServiceCheck() {
+    @Override
+    public ServiceState healty() {
+      return nbiClient.getPhysicalPortsCount() > 0 ? SUCCEEDED : FAILED;
+    }
+
+    @Override
+    public String getName() {
+      return "NBI";
+    }
+  };
+
+  final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
+    @Override
+    public ServiceState healty() throws IOException {
+      DefaultHttpClient client = new DefaultHttpClient();
+      HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
+      HttpResponse response = client.execute(httpGet);
+      httpGet.releaseConnection();
+      return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN ? SUCCEEDED : FAILED;
+    }
+
+    @Override
+    public String getName() {
+      return "OAuth server";
+    }
+  };
+
+  final ServiceCheck apiServiceCheck = new ServiceCheck() {
+    private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
+
+    @Override
+    public ServiceState healty() throws IOException {
+      return openSocialGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
+    }
+
+    @Override
+    public String getName() {
+      return "API (groupService)";
+    }
+  };
+
+  final ServiceCheck sabServiceCheck = new ServiceCheck() {
+    private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
+
+    @Override
+    public ServiceState healty() throws IOException {
+      if (environment.isSabEnabled()) {
+        return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
+      }
+      else {
+        return DISABLED;
+      }
+    }
+
+    @Override
+    public String getName() {
+      return "SAB (groupService)";
+    }
+  };
+
+  final ServiceCheck versCheck = new ServiceCheck() {
+    @Override
+    public ServiceState healty() throws IOException {
+      return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
+    };
+
+    @Override
+    public String getName() {
+      return "VERS (reporting service)";
+    }
+  };
 
   interface ServiceCheck {
     ServiceState healty() throws Exception;

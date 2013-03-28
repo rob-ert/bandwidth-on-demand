@@ -21,11 +21,11 @@
             <spring:message code="success_healthcheck_message" htmlEscape="false" />
         </p>
         <dl class="dl-horizontal" id="healthcheck" style="clear: left;">
-            <dt>IDD</dt>
+            <dt>IDD (<c:out value="${iddImplementation}" />)</dt>
             <dd>
                 <util:serviceState health="${iddHealth}" />
             </dd>
-            <dt>NBI / OpenDRAC</dt>
+            <dt>NBI (<c:out value="${nbiImplementation}" />)</dt>
             <dd>
                 <util:serviceState health="${nbiHealth}" />
             </dd>
