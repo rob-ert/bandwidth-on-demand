@@ -86,6 +86,9 @@ public class OpenDracStatusTranslatorTest {
     ReservationScheduleT reservationSchedule = ReservationScheduleT.Factory.newInstance();
     reservationSchedule.setStatus(ValidReservationScheduleStatusT.EXECUTION_PENDING);
     reservationSchedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
+    
+    // Added because an AUTOMATIC schedule in OpenDRAC is always true / activated
+    reservationSchedule.setActivated(true);
 
     ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
 
