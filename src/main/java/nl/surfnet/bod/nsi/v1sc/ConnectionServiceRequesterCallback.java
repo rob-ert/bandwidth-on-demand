@@ -107,12 +107,9 @@ public class ConnectionServiceRequesterCallback {
     }
   }
 
-  public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionFailedDontUpdateState(Connection connection, NsiRequestDetails requestDetails) {
     log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getConnectionId());
-
-    connection.setCurrentState(ConnectionStateType.TERMINATED);
-    connectionRepo.save(connection);
 
     GenericFailedType genericFailed = genericFailedForConnection(connection);
 
@@ -123,7 +120,13 @@ public class ConnectionServiceRequesterCallback {
     catch (ServiceException e) {
       log.error("Error: ", e);
     }
+  }
 
+  public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
+    connection.setCurrentState(ConnectionStateType.TERMINATED);
+    connectionRepo.save(connection);
+
+    provisionFailedDontUpdateState(connection, requestDetails);
   }
 
   public void provisionConfirmed(final Connection connection, NsiRequestDetails requestDetails) {

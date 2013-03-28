@@ -134,7 +134,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
     else {
       log.info("Provision is not possible for state '{}'", connection.getCurrentState());
-      connectionServiceRequester.provisionFailed(connection, requestDetails);
+      connectionServiceRequester.provisionFailedDontUpdateState(connection, requestDetails);
     }
   }
 
