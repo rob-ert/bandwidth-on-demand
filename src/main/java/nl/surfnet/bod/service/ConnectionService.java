@@ -165,6 +165,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
 
   private boolean isTerminatePossible(Connection connection) {
     return !ImmutableList.of(
+        ConnectionStateType.RESERVING,
         ConnectionStateType.TERMINATING,
         ConnectionStateType.TERMINATED,
         ConnectionStateType.CLEANING).contains(connection.getCurrentState());
