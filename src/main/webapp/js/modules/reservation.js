@@ -19,12 +19,9 @@ app.reservation = function() {
         $.socket.defaults.transports = ["longpoll"];
 
         $.socket(url)
-        .message(function(data) {
-            processEvent(data);
-        });
-        //.connecting(function() {})
-        //.open(function() {})
-        //.close(function(reason){});
+            .message(function(data) {
+                processEvent(data);
+            });
     };
 
     var processEvent = function(event) {
@@ -39,19 +36,14 @@ app.reservation = function() {
             actionCell = row.find('.actions-column');
 
         if (!deletable) {
-            actionCell.find('.icon-remove').parent().remove();
-            var disabledDelete = $('<span class="disabled-icon" data-type="info" rel="tooltip" title="'+deleteTooltip+'"><i class="icon-remove" /></span>');
-
-            actionCell.append(disabledDelete);
-            disabledDelete.tooltip({ placement: function(popup, element) {
-                popup.setAttribute('data-type', element.getAttribute('data-type'));
-                return 'top';
-            } });
+            actionCell.find('a .icon-remove').parent().hide();
+            actionCell.find('span .icon-remove').parent().show().attr("data-original-title", deleteTooltip).tooltip('fixTitle');
+        } else {
+            actionCell.find('span .icon-remove').parent().hide();
+            actionCell.find('a .icon-remove').parent().show().attr('data-original-title', deleteTooltip).tooltip('fixTitle');
         }
 
-        cell.css({
-            overflow: 'hidden'
-        });
+        cell.css({ overflow: 'hidden' });
 
         span.delay(500).animate(
             {

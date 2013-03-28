@@ -74,9 +74,12 @@
                 <c:when test="${not empty successMessageCode and deleteEnabled}">
                     <spring:message code="${successMessageCode}" arguments="${item['name']}" var="successMessage" />
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
-                        data-confirm="${delete_confirm_title}" data-success="${successMessage}"><i
-                        class="${deleteIcon}"><!--  --></i>
+                        data-confirm="${delete_confirm_title}" data-success="${successMessage}">
+                        <i class="${deleteIcon}"><!--  --></i>
                     </a>
+                    <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon" style="display: none">
+                        <i class="${deleteIcon}"><!--  --></i>
+                    </span>
                 </c:when>
                 <c:when test="${empty successMessageCode and deleteEnabled}">
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
@@ -84,7 +87,17 @@
                         <i class="${deleteIcon}"><!--  --></i>
                     </a>
                 </c:when>
-                <c:when test="${not deleteEnabled}">
+                <c:when test="${not empty successMessageCode and not deleteEnabled}">
+                    <spring:message code="${successMessageCode}" arguments="${item['name']}" var="successMessage" />
+                    <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
+                        data-confirm="${delete_confirm_title}" data-success="${successMessage}" style="display: none">
+                        <i class="${deleteIcon}"><!--  --></i>
+                    </a>
+                    <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">
+                        <i class="${deleteIcon}"><!--  --></i>
+                    </span>
+                </c:when>
+                <c:when test="${empty successMessageCode and not deleteEnabled}">
                     <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">
                         <i class="${deleteIcon}"><!--  --></i>
                     </span>

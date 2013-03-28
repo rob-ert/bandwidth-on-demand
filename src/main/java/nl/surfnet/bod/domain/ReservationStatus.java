@@ -75,7 +75,7 @@ public enum ReservationStatus {
    *
    */
   public boolean isDeleteAllowed() {
-    return isTransitionState();
+    return this != REQUESTED && isTransitionState();
   }
 
   public boolean isErrorState() {

@@ -164,8 +164,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime,
-        "no right to cancel");
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
   }
 
   public void verifyReservationByFilterAndSearch(String filterValue, String searchString, String... reservationLabels) {

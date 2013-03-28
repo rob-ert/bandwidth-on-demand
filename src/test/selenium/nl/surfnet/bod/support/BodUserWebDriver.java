@@ -72,7 +72,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
-  public void verifyReservationIsAutoStart(String label) {
+  public void verifyAndWaitForReservationIsAutoStart(String label) {
     ListReservationPage page = ListReservationPage.get(driver);
 
     page.reservationShouldBe(label, ReservationStatus.AUTO_START);
@@ -172,6 +172,13 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
     page.verifyRowWithLabelDoesNotExist(fields);
+  }
+
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
   }
 
   public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,

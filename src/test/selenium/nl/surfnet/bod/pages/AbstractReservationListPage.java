@@ -22,6 +22,10 @@
  */
 package nl.surfnet.bod.pages;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.BodWebDriver;
 
@@ -34,9 +38,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.Select;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 public abstract class AbstractReservationListPage extends AbstractListPage {
 
@@ -53,29 +54,35 @@ public abstract class AbstractReservationListPage extends AbstractListPage {
     return findReservationRow(label, startDate, endDate, startTime, endTime);
   }
 
-  public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
+  public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    assertTrue(isReservationCancallable(reservationLabel, startDate, endDate, startTime, endTime));
+    assertFalse(isReservationCancallableDisabled(reservationLabel, startDate, endDate, startTime, endTime));
+  }
 
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    assertFalse(isReservationCancallable(reservationLabel, startDate, endDate, startTime, endTime));
+    assertTrue(isReservationCancallableDisabled(reservationLabel, startDate, endDate, startTime, endTime));
+  }
+
+  public boolean isReservationCancallableDisabled(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
     WebElement row = verifyReservationExists(label, startDate, endDate, startTime, endTime);
 
     try {
-      row.findElement(By.cssSelector("span.disabled-icon"));
-      assertThat("Reservation should not contain disabled Icon", false);
-    }
-    catch (NoSuchElementException e) {
-      // Expected
+      return row.findElement(By.cssSelector("span.disabled-icon")).isDisplayed();
+    } catch (NoSuchElementException e) {
+      return false;
     }
   }
 
-  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
-      LocalTime startTime, LocalTime endTime, String toolTipText) {
+  public boolean isReservationCancallable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    WebElement row = verifyReservationExists(label, startDate, endDate, startTime, endTime);
 
-    WebElement row = verifyReservationExists(reservationLabel, startDate, endDate, startTime, endTime);
+    try {
+      return row.findElement(By.cssSelector("a i.icon-remove")).isDisplayed();
+    } catch (NoSuchElementException e) {
+      return false;
+    }
 
-    WebElement deleteElement = row.findElement(By.cssSelector("span.disabled-icon"));
-    String deleteTooltip = deleteElement.getAttribute("data-original-title");
-
-    assertThat(deleteTooltip, containsString(toolTipText));
   }
 
   public void filterReservations(String filterValue) {

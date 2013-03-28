@@ -47,10 +47,12 @@ public final class PushMessages {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
     }
 
-    final boolean deleteAllowed = reservation.getStatus().isDeleteAllowed();
-    String deleteTooltip = null;
+    boolean deleteAllowed = reservation.getStatus().isDeleteAllowed();
+    String deleteTooltip;
     if (!deleteAllowed) {
       deleteTooltip = messageRetriever.getMessage("reservation_state_transition_not_allowed", new String[] {});
+    } else {
+      deleteTooltip = messageRetriever.getMessage("label_cancel", new String[] {"Reservation"});
     }
 
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getAdminGroup(), new JsonEvent(message,

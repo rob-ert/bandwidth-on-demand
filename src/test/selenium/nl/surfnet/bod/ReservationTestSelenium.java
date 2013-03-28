@@ -68,6 +68,8 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+    getUserDriver().verifyAndWaitForReservationIsAutoStart(reservationLabel);
     getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
     getUserDriver().switchToManagerRole(GROUP_SURFNET);
@@ -94,7 +96,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     getUserDriver().verifyReservationWasCreated(reservationLabel);
 
-    getUserDriver().verifyReservationIsAutoStart(reservationLabel);
+    getUserDriver().verifyAndWaitForReservationIsAutoStart(reservationLabel);
   }
 
   @Test

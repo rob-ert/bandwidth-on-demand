@@ -53,7 +53,8 @@ public class ReservationStatusTest {
 
   @Test
   public void forTheseStatesShouldDeletionBeAllowed() {
-    assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(true));
+    assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(false));
+    assertThat(ReservationStatus.RESERVED.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.RUNNING.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.AUTO_START.isDeleteAllowed(), is(true));
   }

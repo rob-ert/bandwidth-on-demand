@@ -233,7 +233,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "state cannot");
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
   }
 
   public void verifyTeamToVirtualPortsLink(String teamName) {
