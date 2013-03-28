@@ -215,12 +215,12 @@ public class NbiOpenDracWsClient implements NbiClient {
     }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.warn("Creating a reservation failed", e);
-      reservation.setFailedReason(e.getMessage());
+      reservation.setFailedReason(e.getMessage().trim());
       reservation.setStatus(NOT_ACCEPTED);
     }
     catch (RemoteException e) {
       log.error("Unexpected exception while requesting reservation from OpenDRAC", e);
-      reservation.setFailedReason(e.getMessage());
+      reservation.setFailedReason(e.getMessage().trim());
       reservation.setStatus(FAILED);
     }
 
@@ -231,7 +231,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     List<String> reasons = Lists.newArrayList();
     for (ReservationOccurrenceInfoT occurenceInfo : responseDocument.getCreateReservationScheduleResponse()
         .getOccurrenceInfoArray()) {
-      reasons.add(occurenceInfo.getReason());
+      reasons.add(occurenceInfo.getReason().trim());
     }
 
     return Joiner.on(", ").join(reasons);
