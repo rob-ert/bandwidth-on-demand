@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.util.Environment;
@@ -59,6 +60,9 @@ public class HealthCheckControllerTest {
   private IddClient iddClientMock;
 
   @Mock
+  private NbiClient nbiClientMock;
+
+  @Mock
   private Environment bodEnvironment;
 
   @Test
@@ -74,6 +78,8 @@ public class HealthCheckControllerTest {
     assertThat((ServiceState) model.asMap().get("iddHealth"), is(ServiceState.SUCCEEDED));
     assertThat((ServiceState) model.asMap().get("nbiHealth"), is(ServiceState.FAILED));
     assertThat((ServiceState) model.asMap().get("sabHealth"), is(ServiceState.DISABLED));
+    assertThat((String) model.asMap().get("iddImplementation"), containsString("IddClient"));
+    assertThat((String) model.asMap().get("nbiImplementation"), containsString("NbiClient"));
   }
 
   @SuppressWarnings("unchecked")
