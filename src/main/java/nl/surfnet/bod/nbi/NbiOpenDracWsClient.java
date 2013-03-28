@@ -303,8 +303,9 @@ public class NbiOpenDracWsClient implements NbiClient {
   private Optional<QueryReservationScheduleResponseDocument> queryReservation(String reservationId) {
     try {
       QueryReservationScheduleRequestDocument requestDocument = createQueryReservationScheduleRequest(reservationId);
-      return Optional.of(getResourceAllocationAndSchedulingService().queryReservationSchedule(requestDocument,
-          getSecurityDocument()));
+      QueryReservationScheduleResponseDocument queryReservationSchedule = getResourceAllocationAndSchedulingService().queryReservationSchedule(requestDocument,
+          getSecurityDocument());
+      return Optional.of(queryReservationSchedule);
     }
     catch (AxisFault e) {
       log.error("Error querying reservation (" + reservationId + "): ", e);
@@ -398,7 +399,8 @@ public class NbiOpenDracWsClient implements NbiClient {
       ValidReservationScheduleStatusT.Enum status = reservationSchedule.getStatus();
 
       if (status.equals(ValidReservationScheduleStatusT.EXECUTION_PENDING)) {
-        return reservationSchedule.getType().equals(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC) ? AUTO_START
+        boolean isActivated = reservationSchedule.getActivated();
+        return isActivated ? AUTO_START
             : new DateTime(reservationSchedule.getStartTime()).isAfterNow() ? RESERVED : SCHEDULED;
       }
       else {
