@@ -59,9 +59,10 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation("First reservation", LocalDateTime.now().plusDays(1),
         LocalDateTime.now().plusDays(1).plusHours(2));
+    getUserDriver().verifyAndWaitForReservationIsAutoStart("First reservation");
+
     getUserDriver().createNewReservation("Second reservation", LocalDateTime.now().plusDays(2),
         LocalDateTime.now().plusDays(2).plusHours(5));
-    getUserDriver().verifyAndWaitForReservationIsAutoStart("First reservation");
     getUserDriver().verifyAndWaitForReservationIsAutoStart("Second reservation");
   }
 
