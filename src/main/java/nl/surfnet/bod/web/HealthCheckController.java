@@ -86,14 +86,14 @@ public class HealthCheckController {
     );
 
     try {
-      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(tasks.size()).invokeAll(tasks, 15, TimeUnit.SECONDS);
+      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(tasks.size()).invokeAll(tasks, 20, TimeUnit.SECONDS);
 
-      model.addAttribute("iddHealth", toState(futures.get(0)));
-      model.addAttribute("nbiHealth", toState(futures.get(1)));
-      model.addAttribute("oAuthServer", toState(futures.get(2)));
-      model.addAttribute("openConextApi", toState(futures.get(3)));
-      model.addAttribute("sabHealth", toState(futures.get(4)));
-      model.addAttribute("versHealth", toState(futures.get(5)));
+      addState(model, "iddHealth", futures.get(0));
+      addState(model, "nbiHealth", futures.get(1));
+      addState(model, "oAuthServer", futures.get(2));
+      addState(model, "openConextApi", futures.get(3));
+      addState(model, "sabHealth", futures.get(4));
+      addState(model, "versHealth", futures.get(5));
       model.addAttribute("nbiImplementation", nbiClient.getClass().getSimpleName());
       model.addAttribute("iddImplementation", iddClient.getClass().getSimpleName());
     }
@@ -104,12 +104,16 @@ public class HealthCheckController {
     return "healthcheck";
   }
 
-  private ServiceState toState(Future<ServiceState> healthFuture) {
+  private void addState(Model model, String name, Future<ServiceState> healthFuture) {
+      model.addAttribute(name, toState(name, healthFuture));
+  }
+
+  private ServiceState toState(String name, Future<ServiceState> healthFuture) {
     try {
       return healthFuture.get();
     }
     catch (InterruptedException | ExecutionException | CancellationException e) {
-      logger.error("Error during healthcheck", e);
+      logger.error("Error during healthcheck of " + name, e);
       return ServiceState.FAILED;
     }
 
