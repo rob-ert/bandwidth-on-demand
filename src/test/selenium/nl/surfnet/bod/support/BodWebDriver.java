@@ -152,20 +152,26 @@ public class BodWebDriver {
   private List<MimeMessage> getMailsSortedByDate() {
     Ordering<MimeMessage> mailMessageOrdering = new Ordering<MimeMessage>() {
 
+      private final DateTimeFormatter dateParser =
+        DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.ENGLISH);
+
       @Override
       public int compare(MimeMessage left, MimeMessage right) {
         return getDateTime(left).compareTo(getDateTime(right));
       }
 
       private DateTime getDateTime(MimeMessage message) {
-        final DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z '(CET)'")
-            .withLocale(Locale.ENGLISH);
         try {
-          return dateParser.parseDateTime(message.getHeader("Date")[0]);
+          // need to strip timezone because CEST and CET are not unique timezones
+          return dateParser.parseDateTime(stripTimezone(message.getHeader("Date")[0]));
         }
         catch (MessagingException e) {
           throw new RuntimeException(e);
         }
+      }
+
+      private String stripTimezone(String date) {
+        return date.replaceFirst(" \\(.*\\)", "");
       }
     };
 
