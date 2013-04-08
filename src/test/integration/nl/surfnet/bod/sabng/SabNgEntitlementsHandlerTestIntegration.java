@@ -53,8 +53,8 @@ public class SabNgEntitlementsHandlerTestIntegration {
 
   @BeforeClass
   public static void testEnvironment() {
-//    TestHelper.useAccEnv();
-    TestHelper.useTestEnv();
+    TestHelper.useAccEnv();
+//    TestHelper.useTestEnv();
   }
 
   @AfterClass
