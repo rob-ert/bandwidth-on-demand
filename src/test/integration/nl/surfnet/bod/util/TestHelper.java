@@ -121,10 +121,12 @@ public class TestHelper {
 
   public static void useAccEnv() {
     useEnv("acc");
+    dontUserLog4jMailAppender();
   }
 
   public static void useProdEnv() {
     useEnv("prod");
+    dontUserLog4jMailAppender();
   }
 
   public static void clearEnv() {
