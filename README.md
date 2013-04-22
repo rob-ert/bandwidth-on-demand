@@ -6,6 +6,11 @@
 * BoD connects to the SURFnet Customer Relation Management system called IDD to retrieve customer information and to a Network Management System (NMS) to retrieve network information and to delegate the reservation requests. Currently OpenDrac is the underlying NMS, but in 2013 the newly build OneControl NMS of Cienna will be used.
 
 ## Getting the project to work
+* Create databases
+
+        createuser bod_user -R -S -D
+        createdb -E 'UTF-8' -O bod_user bod
+
 * The application is configured in a properties file called `bod-default.properties`. The properites file is configured so that the application should run out of the box. All the external dependencies are replaced by offline/mock clients. The different bod environments are configured in a seperate git repo that is a git submodule of this project. Only team members will have access to this repo.
 * By default the application will not use SURFconext authentication nor SAB (another SURFnet service) but a mock implementation. The sos-server should be running to use bod locally. The server is found here [SoS][sos] and can be started with `mvn jetty:run`.
 * You need to set the environment variable `BOD_ENCRYPTION_PASSWORD` to some value. It will only be used for encrypted properties which are not present in the `bod-default.properties` file.
