@@ -24,7 +24,6 @@ package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -43,7 +42,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
@@ -65,7 +69,6 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -245,11 +248,6 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public DataFieldMaxValueIncrementer sqlSequenceMaxValueIncrementer() throws PropertyVetoException {
     return new PostgreSQLSequenceMaxValueIncrementer(dataSource(), "hibernate_sequence");
-  }
-
-  @Bean
-  public List<String> nsaProviderUrns() {
-    return Lists.newArrayList("urn:ogf:network:nsa:surfnet.nl");
   }
 
   @SuppressWarnings("unchecked")

@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
@@ -31,7 +30,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -41,6 +39,7 @@ import javax.xml.ws.BindingProvider;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.XmlUtils;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -133,7 +132,7 @@ public final class ConnectionServiceProviderFunctions {
 
         String globalReservationId = reservation.getGlobalReservationId();
         if (!StringUtils.hasText(globalReservationId)) {
-          globalReservationId = generateGlobalId();
+          globalReservationId = NsiHelper.generateGlobalReservationId();
         }
         connection.setGlobalReservationId(globalReservationId);
 
@@ -185,9 +184,6 @@ public final class ConnectionServiceProviderFunctions {
         return Optional.absent();
       }
 
-      private String generateGlobalId() {
-        return URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
-      }
     };
 
   private ConnectionServiceProviderFunctions() {

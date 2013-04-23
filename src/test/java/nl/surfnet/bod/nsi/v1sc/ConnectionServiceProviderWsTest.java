@@ -97,87 +97,20 @@ public class ConnectionServiceProviderWsTest {
   private final VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
   private final Connection connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
-      "Destination Port").setProviderNSA(nsaProvider).create();
+      "Destination Port").setProviderNsa(nsaProvider).create();
 
   private final int port = 55446;
   private final NsiRequestDetails request = new NsiRequestDetails("http://localhost:"+port, "123456");
 
   @Before
   public void setup() throws Exception {
-    subject.addNsaProvider(nsaProvider);
     when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
     when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
   }
 
   @Test
-  public void shouldComplainAboutTheProviderNsa() {
-    Connection connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
-        "Destination Port").setProviderNSA("non:existingh").create();
-
-    try {
-      subject.reserve(connection, request, userDetails);
-      fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
-    }
-  }
-
-  @Test
-  public void shouldComplainAboutNonExistingPort() {
-    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(null);
-
-    try {
-      subject.reserve(connection, request, userDetails);
-      fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
-    }
-  }
-
-  @Test
   public void shouldCreateReservation() throws ServiceException {
     subject.reserve(connection, request, userDetails);
-  }
-
-  @Test
-  public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForSourcePort() {
-    sourcePort.getVirtualResourceGroup().setAdminGroup("other");
-
-    try {
-      subject.reserve(connection, request, userDetails);
-      fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));
-    }
-  }
-
-  @Test
-  public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForDestinationPort() {
-    destinationPort.getVirtualResourceGroup().setAdminGroup("other");
-
-    try {
-      subject.reserve(connection, request, userDetails);
-      fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));
-    }
-  }
-
-  @Test
-  public void shouldThrowAlreadyExistsWhenNonUniqueConnectionIdIsUsed() {
-    when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new Connection());
-
-    try {
-      subject.reserve(connection, request, userDetails);
-      fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0003_ALREADY_EXISTS));
-    }
   }
 
   @Test

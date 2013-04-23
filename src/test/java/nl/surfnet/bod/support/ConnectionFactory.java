@@ -35,8 +35,8 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointTyp
 public class ConnectionFactory {
 
   private int desiredBandwidth;
-  private String requesterNSA = "nsa:requester:surfnet.nl";
-  private String providerNSA = "nsa:surfnet.nl";
+  private String requesterNsa = "nsa:requester:surfnet.nl";
+  private String providerNsa = "nsa:surfnet.nl";
   private String connectionId = UUID.randomUUID().toString();
   private String sourceStpId = "source port";
   private String destinationStpId = "destination port";
@@ -55,8 +55,8 @@ public class ConnectionFactory {
     connection.setId(id);
     connection.setVersion(version);
     connection.setDesiredBandwidth(desiredBandwidth);
-    connection.setRequesterNsa(requesterNSA);
-    connection.setProviderNsa(providerNSA);
+    connection.setRequesterNsa(requesterNsa);
+    connection.setProviderNsa(providerNsa);
     connection.setConnectionId(connectionId);
     connection.setSourceStpId(sourceStpId);
     connection.setDestinationStpId(destinationStpId);
@@ -105,13 +105,13 @@ public class ConnectionFactory {
     return this;
   }
 
-  public ConnectionFactory setProviderNSA(String providerNSA) {
-    this.providerNSA = providerNSA;
+  public ConnectionFactory setProviderNsa(String providerNsa) {
+    this.providerNsa = providerNsa;
     return this;
   }
 
-  public ConnectionFactory setRequesterNSA(String requesterNSA) {
-    this.requesterNSA = requesterNSA;
+  public ConnectionFactory setRequesterNsa(String requesterNsa) {
+    this.requesterNsa = requesterNsa;
     return this;
   }
 

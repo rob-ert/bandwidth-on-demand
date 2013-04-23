@@ -98,6 +98,9 @@ public class Environment {
   @Value("${sab.enabled}")
   private boolean sabEnabled;
 
+  @Value("${nsi.providerNsa}")
+  private String nsiProviderNsa;
+
   public Environment() {
   }
 
@@ -246,4 +249,9 @@ public class Environment {
   public String getEnvironment() {
     return environment;
   }
+
+  public String getNsiProviderNsa() {
+    return nsiProviderNsa;
+  }
+
 }

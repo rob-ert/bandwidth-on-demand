@@ -22,8 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
@@ -37,54 +37,56 @@ import java.util.EnumSet;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWsTest;
 import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.service.ConnectionService.ValidationException;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
-
-import com.google.common.base.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceTest {
 
-  @Mock
-  public ConnectionRepo connectionRepoMock;
+  @Mock private ConnectionRepo connectionRepoMock;
+  @Mock private ReservationService reservationServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private Environment environmentMock;
 
-  @Mock
-  private ReservationService reservationServiceMock;
+  @InjectMocks private ConnectionService subject;
 
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
+  private final String PROVIDER_NSA = "urn:ogf:network:surfnet";
 
-  @InjectMocks
-  private ConnectionService subject;
+  private RichUserDetails userDetails;
 
-  @Test
-  public void shouldUseRichUserDetailsAsCreater() throws ServiceException {
-    RichUserDetails userDetails = new RichUserDetailsFactory().setUsername("me").create();
+  @Before
+  public void setup() {
+    //PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("admin").create();
+    userDetails = new RichUserDetailsFactory().setUsername("me").addUserGroup("admin").create();
     Security.setUserDetails(userDetails);
 
-    ReserveRequestType reserveRequest = ConnectionServiceProviderWsTest.createReservationRequestType(512, Optional
-        .<String> absent());
-    reserveRequest.getReserve().setProviderNSA("nsa:surfnet.nl");
-    reserveRequest.getReserve().getReservation().setConnectionId("123");
+    when(environmentMock.getNsiProviderNsa()).thenReturn(PROVIDER_NSA);
+  }
+
+  @Test
+  public void shouldUseRichUserDetailsAsCreater() throws ValidationException {
     NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("replyTo", "123");
 
-    Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
-    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().create());
+    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+
+    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
     when(connectionRepoMock.saveAndFlush(any(Connection.class))).thenReturn(connection);
 
     subject.reserve(connection, nsiRequestDetails, true, userDetails);
@@ -114,6 +116,57 @@ public class ConnectionServiceTest {
 
     Connection connectionInvalid = new ConnectionFactory().setReservation(null).setCurrentState(PROVISIONED).create();
     assertThat(subject.hasValidState(connectionInvalid), is(false));
+  }
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void shouldThrowAValidationExceptionWenNotAuthorizedForPort() throws ValidationException {
+    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
+
+    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("wrong-admin").create());
+    thrown.expect(ValidationException.class);
+    thrown.expectMessage(containsString("Unauthorized"));
+
+    subject.reserve(connection, requestDetails, false, userDetails);
+  }
+
+  @Test
+  public void shouldThrowAValidationExceptionWhenNonUniqueConnectionIdIsUsed() throws ValidationException {
+    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
+
+    when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new Connection());
+    thrown.expect(ValidationException.class);
+    thrown.expectMessage(containsString("already exists"));
+
+    subject.reserve(connection, requestDetails, false, userDetails);
+  }
+
+  @Test
+  public void shouldThrowAValidationExceptionWhenPortDoesNotExist() throws ValidationException {
+    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
+
+    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(null);
+    thrown.expect(ValidationException.class);
+    thrown.expectMessage(containsString("Unknown STP"));
+
+    subject.reserve(connection, requestDetails, false, userDetails);
+  }
+
+  @Test
+  public void shouldThrowAValidationExceptionWhenTheProviderNsaDoesNotMatch() throws ValidationException {
+    Connection connection = new ConnectionFactory().setProviderNsa("urn:ogf:network:unknown").create();
+    NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
+
+    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
+    thrown.expect(ValidationException.class);
+    thrown.expectMessage("ProviderNsa 'urn:ogf:network:unknown' is not accepted");
+
+    subject.reserve(connection, requestDetails, false, userDetails);
   }
 
 }

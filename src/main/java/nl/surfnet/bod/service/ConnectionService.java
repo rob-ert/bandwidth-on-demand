@@ -33,12 +33,23 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -78,6 +89,9 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
   private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
   @Resource
+  private Environment bodEnvironment;
+
+  @Resource
   private ConnectionRepo connectionRepo;
 
   @Resource
@@ -93,13 +107,14 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
   private EntityManager entityManager;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision,
-      RichUserDetails userDetails) {
+  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
+    checkConnection(connection, userDetails);
+
     connection.setCurrentState(ConnectionStateType.RESERVING);
     connection = connectionRepo.saveAndFlush(connection);
 
-    final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
-    final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
+    VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
+    VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
     Reservation reservation = new Reservation();
     reservation.setConnection(connection);
@@ -116,6 +131,71 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+  }
+
+  public static class ValidationException extends Exception {
+    private final String attributeName;
+    private final String errorCode;
+
+    public ValidationException(String attributeName, String errorCode, String errorMessage) {
+      super(errorMessage);
+      this.attributeName = attributeName;
+      this.errorCode = errorCode;
+    }
+
+    public String getAttributeName() {
+      return attributeName;
+    }
+
+    public String getErrorCode() {
+      return errorCode;
+    }
+  }
+
+  private void checkConnection(Connection connection, RichUserDetails richUserDetails) throws ValidationException {
+    try {
+      checkProviderNsa(connection.getProviderNsa());
+      checkConnectionId(connection.getConnectionId());
+      checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
+      checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
+    }
+    catch (ValidationException e) {
+      connection.setCurrentState(ConnectionStateType.TERMINATED);
+      connectionRepo.save(connection);
+      throw e;
+    }
+  }
+
+  private void checkProviderNsa(String providerNsa) throws ValidationException {
+    if (!bodEnvironment.getNsiProviderNsa().equals(providerNsa)) {
+      log.warn("ProviderNsa '{}' is not accepted", providerNsa);
+
+      throw new ValidationException("providerNSA", "0100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
+    }
+  }
+
+  private void checkConnectionId(String connectionId) throws ValidationException {
+    if (!StringUtils.hasText(connectionId)) {
+      log.warn("ConnectionId was empty", connectionId);
+      throw new ValidationException("connectionId", "0100", "Connection id is empty");
+    }
+
+    if (connectionRepo.findByConnectionId(connectionId) != null) {
+      log.warn("ConnectionId {} was not unique", connectionId);
+      throw new ValidationException("connectionId", "0100", "Connection id already exists");
+    }
+  }
+
+  private void checkPort(String stpId, String attribute, RichUserDetails user) throws ValidationException {
+    VirtualPort port = virtualPortService.findByNsiStpId(stpId);
+
+    if (port == null) {
+      throw new ValidationException(attribute, "0100", String.format("Unknown STP '%s'", stpId));
+    }
+
+    if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
+      throw new ValidationException(attribute, "0100", String.format("Unauthorized for STP '%s'", stpId));
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
