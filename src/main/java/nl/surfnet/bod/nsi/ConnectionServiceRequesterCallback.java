@@ -20,48 +20,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nsi;
 
-import javax.xml.ws.Holder;
+import com.google.common.base.Optional;
 
-import nl.surfnet.bod.util.XmlUtils;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 
-import org.joda.time.DateTime;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
+public interface ConnectionServiceRequesterCallback {
 
-public final class HeaderBuilder {
+  void provisionSucceeded(Connection connection);
+  void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails);
+  void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
 
-  private HeaderBuilder() {
-  }
+  void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
+  void reserveFailed(Connection connection, NsiRequestDetails requestDetails, Optional<String> failedReason);
 
-  private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
-    final Header header = new Header();
-    header.setDestinationURI(endPoint);
-    header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()).get());
-    header.setActivityName(activityName);
-    header.setMsgName(msgName);
-    // TODO should change sender URI?
-    header.setSenderURI("http://localhost:9009");
-    header.setMsgType(MessageTypeType.REQUEST);
+  void terminateTimedOutReservation(Connection connection);
+  void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails);
+  void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 
-    return new Holder<Header>(header);
-  }
+  void executionSucceeded(Connection connection);
+  void executionFailed(Connection connection);
 
-  public static Holder<Header> buildReserveHeader(String endPoint) {
-    return buildHeader(endPoint, "reserve", "reserveRequest");
-  }
-
-  public static Holder<Header> buildInventoryHeader(String endPoint) {
-    return buildHeader(endPoint, "getServiceInventory", "getServiceInventoryRequest");
-  }
-
-  public static Holder<Header> buildNotificationHeader(String endPoint) {
-    return buildHeader(endPoint, "subscribe", "subscribeRequest");
-  }
-
+  void scheduleSucceeded(Connection connection);
 }

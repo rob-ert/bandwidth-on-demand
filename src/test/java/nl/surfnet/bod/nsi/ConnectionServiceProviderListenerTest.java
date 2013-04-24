@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi.v1sc;
+package nl.surfnet.bod.nsi;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static org.mockito.Matchers.anyLong;

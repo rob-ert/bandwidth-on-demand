@@ -30,6 +30,7 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 
@@ -42,10 +43,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 
-@Component
-public class ConnectionServiceRequesterCallback {
+@Component("connectionServiceRequesterVersionOne")
+public class ConnectionServiceRequesterVersionOneCallback implements ConnectionServiceRequesterCallback {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterCallback.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterVersionOneCallback.class);
 
   @Resource
   private ConnectionRepo connectionRepo;
@@ -75,7 +76,8 @@ public class ConnectionServiceRequesterCallback {
       port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      // The requesters end point is not healthy..
+      log.info("Error: ", e);
     }
   }
 
@@ -103,7 +105,8 @@ public class ConnectionServiceRequesterCallback {
       port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reserveFailed);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      // The requesters end point is not healthy..
+      log.info("Error: ", e);
     }
   }
 
@@ -118,7 +121,8 @@ public class ConnectionServiceRequesterCallback {
       port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      // The requesters end point is not healthy..
+      log.info("Error: ", e);
     }
   }
 
@@ -129,7 +133,7 @@ public class ConnectionServiceRequesterCallback {
     provisionFailedDontUpdateState(connection, requestDetails);
   }
 
-  public void provisionConfirmed(final Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
@@ -143,7 +147,8 @@ public class ConnectionServiceRequesterCallback {
       port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      // The requesters end point is not healthy..
+      log.info("Error: ", e);
     }
   }
 
@@ -187,7 +192,8 @@ public class ConnectionServiceRequesterCallback {
       port.terminateConfirmed(new Holder<>(requestDetails.get().getCorrelationId()), genericConfirmed);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      //
+      log.info("Error: ", e);
     }
   }
 
@@ -203,7 +209,7 @@ public class ConnectionServiceRequesterCallback {
       port.terminateFailed(new Holder<>(requestDetails.get().getCorrelationId()), genericFailed);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      log.info("Error: ", e);
     }
   }
 
@@ -219,7 +225,7 @@ public class ConnectionServiceRequesterCallback {
       port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
     }
     catch (ServiceException e) {
-      log.error("Error: ", e);
+      log.info("Error: ", e);
     }
   }
 

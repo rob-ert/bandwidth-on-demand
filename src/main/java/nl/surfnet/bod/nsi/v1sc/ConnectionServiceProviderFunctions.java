@@ -38,6 +38,7 @@ import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.XmlUtils;
@@ -61,7 +62,7 @@ public final class ConnectionServiceProviderFunctions {
   private static final QName SERVICE_NAME =
     new QName("http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester");
 
-  private static final String WSDL_LOCATION = "/wsdl/ogf_nsi_connection_requester_v1_0.wsdl";
+  private static final String WSDL_LOCATION = "/wsdl/1.0_sc/ogf_nsi_connection_requester_v1_0.wsdl";
 
   public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT =
     new Function<NsiRequestDetails, ConnectionRequesterPort>() {
@@ -78,8 +79,7 @@ public final class ConnectionServiceProviderFunctions {
 
       private URL getWsdlUrl() {
         try {
-          URL url = new ClassPathResource(WSDL_LOCATION).getURL();
-          return url;
+          return new ClassPathResource(WSDL_LOCATION).getURL();
         }
         catch (IOException e) {
           throw new RuntimeException("Could not find the requester wsdl", e);
@@ -90,31 +90,31 @@ public final class ConnectionServiceProviderFunctions {
   public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED =
     new Function<Connection, GenericConfirmedType>() {
       @Override
-      public GenericConfirmedType apply(final Connection connection) {
-        final GenericConfirmedType generic = new GenericConfirmedType();
-        generic.setProviderNSA(connection.getProviderNsa());
-        generic.setRequesterNSA(connection.getRequesterNsa());
-        generic.setConnectionId(connection.getConnectionId());
-        generic.setGlobalReservationId(connection.getGlobalReservationId());
-        return generic;
+      public GenericConfirmedType apply(Connection connection) {
+        return new GenericConfirmedType()
+          .withProviderNSA(connection.getProviderNsa())
+          .withRequesterNSA(connection.getRequesterNsa())
+          .withConnectionId(connection.getConnectionId())
+          .withGlobalReservationId(connection.getGlobalReservationId());
       }
     };
 
   public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION =
     new Function<ReserveRequestType, Connection>() {
       @Override
-      public Connection apply(final ReserveRequestType reserveRequestType) {
+      public Connection apply(ReserveRequestType reserveRequestType) {
 
         ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
 
         Connection connection = new Connection();
+        connection.setNsiVersion(NsiVersion.ONE);
         connection.setCurrentState(INITIAL);
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
 
         ServiceParametersType serviceParameters = reservation.getServiceParameters();
 
-        Optional<DateTime> startTime = XmlUtils.getDateFrom(serviceParameters.getSchedule().getStartTime());
+        Optional<DateTime> startTime = XmlUtils.toDateTime(serviceParameters.getSchedule().getStartTime());
         connection.setStartTime(startTime.orNull());
 
         Optional<DateTime> endTime = calculateEndTime(serviceParameters.getSchedule().getEndTime(),
@@ -171,7 +171,7 @@ public final class ConnectionServiceProviderFunctions {
       private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
           Optional<DateTime> startTime) {
         if (endTimeCalendar != null) {
-          return XmlUtils.getDateFrom(endTimeCalendar);
+          return XmlUtils.toDateTime(endTimeCalendar);
         }
 
         if (duration != null && startTime.isPresent()) {

@@ -1,3 +1,25 @@
+/**
+ * Copyright (c) 2012, SURFnet BV
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *     disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the SURFnet BV nor the names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.base.Strings.emptyToNull;
@@ -5,21 +27,13 @@ import static com.google.common.base.Strings.emptyToNull;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.jws.WebMethod;
 import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
-import javax.jws.WebResult;
 import javax.jws.WebService;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.ws.Holder;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
-import javax.xml.ws.WebServiceContext;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.ConnectionService;
@@ -48,9 +62,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
-import com.sun.xml.ws.api.message.Header;
-import com.sun.xml.ws.api.message.HeaderList;
-import com.sun.xml.ws.developer.JAXWSProperties;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v2")
@@ -63,32 +74,25 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
 
-  @Resource private WebServiceContext context;
   @Resource private ConnectionService connectionService;
   @Resource private Environment bodEnvironment;
 
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/reserve")
-  @RequestWrapper(localName = "reserve", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.ReserveType")
-  @ResponseWrapper(localName = "reserveResponse", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.ReserveResponseType")
-  public void reserve(
-      @WebParam(name = "globalReservationId", targetNamespace = "") String globalReservationId,
-      @WebParam(name = "description", targetNamespace = "") String description,
-      @WebParam(name = "connectionId", targetNamespace = "", mode = Mode.INOUT) Holder<String> connectionId,
-      @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria)
-      throws ServiceException {
-
+    public void reserve(
+        @WebParam(name = "globalReservationId", targetNamespace = "") String globalReservationId,
+        @WebParam(name = "description", targetNamespace = "") String description,
+        @WebParam(name = "connectionId", targetNamespace = "", mode = WebParam.Mode.INOUT) Holder<String> connectionId,
+        @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
+        @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+        throws ServiceException {
     log.info("Received a NSI v2 reserve request");
 
-    CommonHeaderType header = getNsiHeader();
-
-    NsiRequestDetails requestDetails = new NsiRequestDetails(header.getReplyTo(), header.getReplyTo());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(header.value.getReplyTo(), header.value.getCorrelationId());
 
     Connection connection = createConnection(
         Optional.fromNullable(emptyToNull(globalReservationId)),
         Optional.fromNullable(emptyToNull(description)),
-        header.getProviderNSA(),
-        header.getRequesterNSA(),
+        header.value.getProviderNSA(),
+        header.value.getRequesterNSA(),
         criteria);
 
     connectionId.value = connection.getConnectionId();
@@ -96,24 +100,9 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     reserve(connection, requestDetails, Security.getUserDetails());
   }
 
-  private CommonHeaderType getNsiHeader() throws ServiceException {
+  protected void reserve(Connection connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
-      HeaderList headerList = (HeaderList) context.getMessageContext().get(JAXWSProperties.INBOUND_HEADER_LIST_PROPERTY);
-      Header nsiHeader = headerList.get("http://schemas.ogf.org/nsi/2013/04/framework/headers", "nsiHeader", false);
-      return nsiHeader.<JAXBElement<CommonHeaderType>>readAsJAXB(JAXBContext.newInstance(CommonHeaderType.class).createUnmarshaller()).getValue();
-    } catch (JAXBException e) {
-      ServiceExceptionType faultInfo = new ServiceExceptionType()
-        .withErrorId(e.getErrorCode())
-        .withNsaId(bodEnvironment.getNsiProviderNsa())
-        .withText(e.getMessage());
-
-      throw new ServiceException("Could not parse NSI header", faultInfo, e);
-    }
-  }
-
-  protected void reserve(Connection connection, NsiRequestDetails request, RichUserDetails richUserDetails) throws ServiceException {
-    try {
-      connectionService.reserve(connection, request, false, richUserDetails);
+      connectionService.reserve(connection, requestDetails, false, richUserDetails);
     } catch (ValidationException e) {
       ServiceExceptionType faultInfo = new ServiceExceptionType()
         .withErrorId(e.getErrorCode())
@@ -125,9 +114,11 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   }
 
   private Connection createConnection(Optional<String> globalReservationId, Optional<String> description, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
-    Optional<DateTime> startTime = XmlUtils.getDateFrom(criteria.getSchedule().getStartTime());
-    Optional<DateTime> endTime = XmlUtils.getDateFrom(criteria.getSchedule().getEndTime());
+    Optional<DateTime> startTime = XmlUtils.toDateTime(criteria.getSchedule().getStartTime());
+    Optional<DateTime> endTime = XmlUtils.toDateTime(criteria.getSchedule().getEndTime());
+
     Connection connection = new Connection();
+    connection.setNsiVersion(NsiVersion.TWO);
     connection.setCurrentState(ConnectionStateType.INITIAL); // NSI 2 states...
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
@@ -153,145 +144,123 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   }
 
   @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/reserveCommit")
-  @RequestWrapper(localName = "reserveCommit", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericRequestType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void reserveCommit(@WebParam(name = "connectionId", targetNamespace = "") String connectionId)
+  public void reserveCommit(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
     notImplementedYet();
+  }
+  @Override
+  public void reserveAbort(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void provision(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void release(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void terminate(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void querySummary(@WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
+      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void querySummaryConfirmed(
+      @WebParam(name = "reservation", targetNamespace = "") List<QuerySummaryResultType> reservation,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void querySummaryFailed(
+      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void queryRecursive(
+      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
+      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void queryRecursiveConfirmed(
+      @WebParam(name = "reservation", targetNamespace = "") List<QueryRecursiveResultType> reservation,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public void queryRecursiveFailed(
+      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+
+    notImplementedYet();
+  }
+
+  @Override
+  public List<QuerySummaryResultType> querySummarySync(
+      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
+      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws QuerySummarySyncFailed {
+
+    throw new QuerySummarySyncFailed("Not implemented yet", new QueryFailedType().withServiceException(notImplementedServiceException()));
   }
 
   private void notImplementedYet() throws ServiceException {
-    ServiceExceptionType faultInfo = new ServiceExceptionType().withNsaId(bodEnvironment.getNsiProviderNsa())
-        .withErrorId("0100").withText("This operation is not implemented yet");
-    throw new ServiceException("", faultInfo);
+    throw new ServiceException("Not implemented yet", notImplementedServiceException());
   }
 
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/reserveAbort")
-  @RequestWrapper(localName = "reserveAbort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericRequestType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void reserveAbort(@WebParam(name = "connectionId", targetNamespace = "") String connectionId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/provision")
-  @RequestWrapper(localName = "provision", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericRequestType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void provision(@WebParam(name = "connectionId", targetNamespace = "") String connectionId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/release")
-  @RequestWrapper(localName = "release", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericRequestType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void release(@WebParam(name = "connectionId", targetNamespace = "") String connectionId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/terminate")
-  @RequestWrapper(localName = "terminate", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericRequestType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void terminate(@WebParam(name = "connectionId", targetNamespace = "") String connectionId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/querySummary")
-  @RequestWrapper(localName = "querySummary", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void querySummary(@WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/querySummaryConfirmed")
-  @RequestWrapper(localName = "querySummaryConfirmed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void querySummaryConfirmed(
-      @WebParam(name = "reservation", targetNamespace = "") List<QuerySummaryResultType> reservation)
-      throws ServiceException {
-    // TODO Auto-generated method stub
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/querySummaryFailed")
-  @RequestWrapper(localName = "querySummaryFailed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void querySummaryFailed(
-      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException)
-      throws ServiceException {
-    // TODO Auto-generated method stub
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/queryRecursive")
-  @RequestWrapper(localName = "queryRecursive", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void queryRecursive(@WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/queryRecursiveConfirmed")
-  @RequestWrapper(localName = "queryRecursiveConfirmed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveConfirmedType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void queryRecursiveConfirmed(
-      @WebParam(name = "reservation", targetNamespace = "") List<QueryRecursiveResultType> reservation)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/queryRecursiveFailed")
-  @RequestWrapper(localName = "queryRecursiveFailed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType")
-  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/interface", className = "org.ogf.schemas.nsi._2013._04.connection._interface.GenericAcknowledgmentType")
-  public void queryRecursiveFailed(
-      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException)
-      throws ServiceException {
-
-    notImplementedYet();
-  }
-
-  @Override
-  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/querySummarySync")
-  @WebResult(name = "reservation", targetNamespace = "")
-  @RequestWrapper(localName = "querySummarySync", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryType")
-  @ResponseWrapper(localName = "querySummarySyncConfirmed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType")
-  public List<QuerySummaryResultType> querySummarySync(
-      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId)
-      throws QuerySummarySyncFailed {
-
-    QueryFailedType faultInfo = new QueryFailedType().withServiceException(new ServiceExceptionType()
-        .withErrorId("0100")
-        .withNsaId(bodEnvironment.getNsiProviderNsa())
-        .withText("Not implemented yet"));
-
-    throw new QuerySummarySyncFailed("Not implemented yet", faultInfo);
+  private ServiceExceptionType notImplementedServiceException() {
+    return new ServiceExceptionType()
+      .withNsaId(bodEnvironment.getNsiProviderNsa())
+      .withErrorId("0100")
+      .withText("This operation is not implemented yet");
   }
 
 }

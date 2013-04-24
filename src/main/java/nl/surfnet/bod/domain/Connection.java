@@ -49,12 +49,6 @@ public class Connection implements Loggable, PersistableDomain {
   @DocumentId
   private Long id;
 
-  /**
-   * Connection id for the reservation is unique, but there have been
-   * discussions that it is only unique in the context of the requesting NSA. We
-   * save time and assume it is unique. This will also be the primary key used
-   * in the storage structure
-   */
   @Column(unique = true, nullable = false)
   @Field
   private String connectionId;
@@ -123,6 +117,10 @@ public class Connection implements Loggable, PersistableDomain {
   @Column(nullable = false)
   @Field
   private String protectionType;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private NsiVersion nsiVersion;
 
   @Override
   public Long getId() {
@@ -277,6 +275,14 @@ public class Connection implements Loggable, PersistableDomain {
 
   public void setProtectionType(String protectionType) {
     this.protectionType = protectionType;
+  }
+
+  public NsiVersion getNsiVersion() {
+    return nsiVersion;
+  }
+
+  public void setNsiVersion(NsiVersion nsiVersion) {
+    this.nsiVersion = nsiVersion;
   }
 
   @Override

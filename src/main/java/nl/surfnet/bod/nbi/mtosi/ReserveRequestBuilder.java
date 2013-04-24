@@ -110,7 +110,7 @@ public class ReserveRequestBuilder {
   private ReserveRequest createReserveRequest(DateTime endDateTime) {
     ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
 
-    reserveRequest.setExpiringTime(XmlUtils.getXmlTimeStampFromDateTime(endDateTime).get());
+    reserveRequest.setExpiringTime(XmlUtils.toGregorianCalendar(endDateTime).get());
 
     return reserveRequest;
   }
@@ -134,7 +134,7 @@ public class ReserveRequestBuilder {
   }
 
   public static String convertToXml(DateTime timeStamp) {
-    return XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
+    return XmlUtils.toGregorianCalendar(timeStamp).get().toXMLFormat();
   }
 
   @VisibleForTesting

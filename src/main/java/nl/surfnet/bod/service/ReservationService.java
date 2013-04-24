@@ -510,8 +510,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return ReservationId, scheduleId from NMS
    *
    */
-  public Future<Long> create(Reservation reservation, boolean autoProvision,
-      Optional<NsiRequestDetails> nsiRequestDetails) {
+  public Future<Long> create(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -525,7 +524,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
-    return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
+    return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, requestDetails);
   }
 
   public Reservation find(Long id) {

@@ -39,7 +39,6 @@ import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -100,9 +99,6 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
   @Resource
   private VirtualPortService virtualPortService;
 
-  @Resource
-  private ConnectionServiceRequesterCallback connectionServiceRequester;
-
   @PersistenceContext
   private EntityManager entityManager;
 
@@ -133,6 +129,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
 
+  @SuppressWarnings("serial")
   public static class ValidationException extends Exception {
     private final String attributeName;
     private final String errorCode;
@@ -205,7 +202,8 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
 
     if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
       log.info("Connection is already provisioned", connection.getCurrentState());
-      connectionServiceRequester.provisionConfirmed(connection, requestDetails);
+      // FIXME
+      //connectionServiceRequester.provisionConfirmed(connection, requestDetails);
     }
     else if (isProvisionPossible(connection)) {
       connection.setProvisionRequestDetails(requestDetails);
@@ -214,7 +212,8 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
     else {
       log.info("Provision is not possible for state '{}'", connection.getCurrentState());
-      connectionServiceRequester.provisionFailedDontUpdateState(connection, requestDetails);
+      // FIXME
+      //connectionServiceRequester.provisionFailedDontUpdateState(connection, requestDetails);
     }
   }
 
@@ -239,7 +238,8 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
     else {
       log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
-      connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
+      // FIXME
+//      connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
     }
   }
 
@@ -259,7 +259,8 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     QueryConfirmedType confirmedType =
       queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
 
-    connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
+    // FIXME
+    //connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
   }
 
   protected QueryConfirmedType queryConnections(Collection<String> connectionIds, Collection<String> globalReservationIds,
@@ -283,7 +284,8 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
 
     QueryConfirmedType confirmedType = queryAllForRequesterNsa(operation, requesterNsa, providerNsa);
 
-    connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
+    // FIXME
+    //connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
   }
 
   protected QueryConfirmedType queryAllForRequesterNsa(QueryOperationType operation, String requesterNsa, String providerNsa) {

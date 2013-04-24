@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi.v1sc;
+package nl.surfnet.bod.nsi;
 
 import static com.google.common.base.Optional.fromNullable;
 import static nl.surfnet.bod.web.WebUtils.not;
@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
@@ -47,14 +48,12 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
   private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListener.class);
 
-  @Resource
-  private ReservationEventPublisher reservationEventPublisher;
+  @Resource private ReservationEventPublisher reservationEventPublisher;
 
-  @Resource
-  private ConnectionServiceRequesterCallback connectionServiceRequester;
+  @Resource private ConnectionServiceRequesterCallback connectionServiceRequesterVersionOne;
+  @Resource private ConnectionServiceRequesterCallback connectionServiceRequesterVersionTwo;
 
-  @Resource
-  private ReservationService reservationService;
+  @Resource private ReservationService reservationService;
 
   @PostConstruct
   public void registerListener() {
@@ -75,38 +74,40 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
       Connection connection = reservation.getConnection().get();
 
+      ConnectionServiceRequesterCallback requester =
+        connection.getNsiVersion() == NsiVersion.ONE ? connectionServiceRequesterVersionOne : connectionServiceRequesterVersionTwo;
+
       switch (event.getNewStatus()) {
       case RESERVED:
-        connectionServiceRequester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+        requester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
         break;
       case AUTO_START:
-        connectionServiceRequester.provisionSucceeded(connection);
+        requester.provisionSucceeded(connection);
         break;
       case FAILED:
-        handleReservationFailed(connection, event);
+        handleReservationFailed(connection, event, requester);
         break;
       case NOT_ACCEPTED:
-        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
-          .getFailedReason()));
-        connectionServiceRequester.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
+        requester.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
         break;
       case TIMED_OUT:
-        connectionServiceRequester.terminateTimedOutReservation(connection);
+        requester.terminateTimedOutReservation(connection);
         break;
       case RUNNING:
-        connectionServiceRequester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+        requester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
         break;
       case CANCELLED:
-        connectionServiceRequester.terminateConfirmed(connection, event.getNsiRequestDetails());
+        requester.terminateConfirmed(connection, event.getNsiRequestDetails());
         break;
       case CANCEL_FAILED:
-        connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
+        requester.terminateFailed(connection, event.getNsiRequestDetails());
         break;
       case SUCCEEDED:
-        connectionServiceRequester.executionSucceeded(connection);
+        requester.executionSucceeded(connection);
         break;
       case SCHEDULED:
-        connectionServiceRequester.scheduleSucceeded(connection);
+        requester.scheduleSucceeded(connection);
         break;
       case REQUESTED:
         logger.error("Can not handle REQUESTED state. Could not happen because it is the initial state");
@@ -118,25 +119,25 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     }
   }
 
-  private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
+  private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterCallback requester) {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:
-      connectionServiceRequester.executionFailed(connection);
+      requester.executionFailed(connection);
       break;
     case RESERVING:
-      connectionServiceRequester.reserveFailed(
+      requester.reserveFailed(
         connection, event.getNsiRequestDetails().get(), fromNullable(connection.getReservation().getFailedReason()));
       break;
     case TERMINATING:
-      connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
+      requester.terminateFailed(connection, event.getNsiRequestDetails());
       break;
     case PROVISIONING:
     case AUTO_PROVISION:
     case SCHEDULED:
       // the connection is was ready to get started but the step to running/provisioned failed
       // so send a provisionFailed
-      connectionServiceRequester.provisionFailed(connection, event.getNsiRequestDetails().get());
+      requester.provisionFailed(connection, event.getNsiRequestDetails().get());
       break;
     case UNKNOWN:
     case TERMINATED:

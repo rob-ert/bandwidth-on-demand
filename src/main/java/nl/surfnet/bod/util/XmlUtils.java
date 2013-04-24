@@ -34,7 +34,6 @@ import org.joda.time.DateTimeZone;
 import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 
 public final class XmlUtils {
 
@@ -44,7 +43,7 @@ public final class XmlUtils {
   private XmlUtils() {
   }
 
-  public static Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
+  public static Optional<DateTime> toDateTime(XMLGregorianCalendar calendar) {
     if (calendar == null) {
       return Optional.absent();
     }
@@ -55,22 +54,21 @@ public final class XmlUtils {
     return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
   }
 
-  public static Optional<XMLGregorianCalendar> getXmlTimeStampFromDateTime(DateTime timeStamp) {
-    if (timeStamp == null) {
-      return Optional.absent();
-    }
-
-    XMLGregorianCalendar calendar = null;
+  public static XMLGregorianCalendar toGregorianCalendar(DateTime timeStamp) {
     try {
-      calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(BigInteger.valueOf(timeStamp.getYear()),
-          timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
-          timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
+      return DatatypeFactory.newInstance().newXMLGregorianCalendar(
+          BigInteger.valueOf(timeStamp.getYear()),
+          timeStamp.getMonthOfYear(),
+          timeStamp.getDayOfMonth(),
+          timeStamp.getHourOfDay(),
+          timeStamp.getMinuteOfHour(),
+          timeStamp.getSecondOfMinute(),
+          null,
+          (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
     }
     catch (DatatypeConfigurationException e) {
-      Throwables.propagate(e);
+      throw new AssertionError(e);
     }
-
-    return Optional.of(calendar);
   }
 
   public static DateTime getDateTimeFromXml(String xmlTimeStamp) {
