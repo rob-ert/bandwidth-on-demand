@@ -42,7 +42,7 @@ public final class HeaderBuilder {
     header.setDestinationURI(endPoint);
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()).get());
+    header.setTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()));
     header.setActivityName(activityName);
     header.setMsgName(msgName);
     // TODO should change sender URI?

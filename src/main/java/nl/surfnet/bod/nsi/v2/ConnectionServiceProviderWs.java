@@ -22,7 +22,9 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Strings.emptyToNull;
+import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
 
 import java.util.List;
 
@@ -39,7 +41,6 @@ import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.ConnectionService.ValidationException;
 import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -114,8 +115,8 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   }
 
   private Connection createConnection(Optional<String> globalReservationId, Optional<String> description, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
-    Optional<DateTime> startTime = XmlUtils.toDateTime(criteria.getSchedule().getStartTime());
-    Optional<DateTime> endTime = XmlUtils.toDateTime(criteria.getSchedule().getEndTime());
+    Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(calendarToDateTime);
+    Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     Connection connection = new Connection();
     connection.setNsiVersion(NsiVersion.TWO);

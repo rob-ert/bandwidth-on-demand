@@ -33,25 +33,27 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
-import com.google.common.base.Optional;
+import com.google.common.base.Function;
 
 public final class XmlUtils {
 
   private static DateTimeFormatterFactory dateTimeFormatterFactory = new DateTimeFormatterFactory(
       "yyyy-MM-dd'T'HH:mm:ssZ");
 
+  public static final Function<XMLGregorianCalendar, DateTime> calendarToDateTime = new Function<XMLGregorianCalendar, DateTime>() {
+    public DateTime apply(XMLGregorianCalendar calendar) {
+      return XmlUtils.toDateTime(calendar);
+    }
+  };
+
   private XmlUtils() {
   }
 
-  public static Optional<DateTime> toDateTime(XMLGregorianCalendar calendar) {
-    if (calendar == null) {
-      return Optional.absent();
-    }
-
+  public static DateTime toDateTime(XMLGregorianCalendar calendar) {
     GregorianCalendar gregorianCalendar = calendar.toGregorianCalendar();
     int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
-    // Create Timestamp while preserving the timezone, NO conversion
-    return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
+
+    return new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset));
   }
 
   public static XMLGregorianCalendar toGregorianCalendar(DateTime timeStamp) {

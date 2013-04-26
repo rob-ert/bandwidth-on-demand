@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
+import static com.google.common.base.Optional.fromNullable;
+import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
@@ -114,11 +116,13 @@ public final class ConnectionServiceProviderFunctions {
 
         ServiceParametersType serviceParameters = reservation.getServiceParameters();
 
-        Optional<DateTime> startTime = XmlUtils.toDateTime(serviceParameters.getSchedule().getStartTime());
+        Optional<DateTime> startTime = fromNullable(serviceParameters.getSchedule().getStartTime()).transform(calendarToDateTime);
         connection.setStartTime(startTime.orNull());
 
-        Optional<DateTime> endTime = calculateEndTime(serviceParameters.getSchedule().getEndTime(),
-            serviceParameters.getSchedule().getDuration(), startTime);
+        Optional<DateTime> endTime = calculateEndTime(
+          serviceParameters.getSchedule().getEndTime(),
+          serviceParameters.getSchedule().getDuration(),
+          startTime);
         connection.setEndTime(endTime.orNull());
 
         // Ignoring the max. and min. bandwidth attributes...
@@ -168,10 +172,9 @@ public final class ConnectionServiceProviderFunctions {
         return serviceParameters.getServiceAttributes() != null && serviceParameters.getServiceAttributes().getGuaranteed() != null;
       }
 
-      private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
-          Optional<DateTime> startTime) {
+      private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration, Optional<DateTime> startTime) {
         if (endTimeCalendar != null) {
-          return XmlUtils.toDateTime(endTimeCalendar);
+          return Optional.of(XmlUtils.toDateTime(endTimeCalendar));
         }
 
         if (duration != null && startTime.isPresent()) {

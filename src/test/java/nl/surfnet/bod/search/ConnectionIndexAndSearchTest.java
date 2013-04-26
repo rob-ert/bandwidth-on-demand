@@ -59,7 +59,6 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
 
   @Test
   public void findConnectionByItsCurrentState() throws ParseException {
-
     List<Connection> connections = searchFor("TERMINATED");
 
     assertThat(connections, hasSize(1));

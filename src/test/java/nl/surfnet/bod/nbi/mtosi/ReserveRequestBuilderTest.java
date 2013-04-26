@@ -88,7 +88,7 @@ public class ReserveRequestBuilderTest {
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false, Long.MIN_VALUE);
 
     assertThat(reserveRequest.getExpiringTime(),
-        Matchers.is(XmlUtils.toGregorianCalendar(reservation.getEndDateTime()).get()));
+        Matchers.is(XmlUtils.toGregorianCalendar(reservation.getEndDateTime())));
 
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
     assertRfs(rfs);

@@ -492,8 +492,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
     scheduleType.setDuration(null);
-    scheduleType.setStartTime(XmlUtils.toGregorianCalendar(start.orNull()).orNull());
-    scheduleType.setEndTime(XmlUtils.toGregorianCalendar(end.orNull()).orNull());
+    scheduleType.setStartTime(XmlUtils.toGregorianCalendar(start.orNull()));
+    scheduleType.setEndTime(XmlUtils.toGregorianCalendar(end.orNull()));
 
     return reservationRequest;
   }
