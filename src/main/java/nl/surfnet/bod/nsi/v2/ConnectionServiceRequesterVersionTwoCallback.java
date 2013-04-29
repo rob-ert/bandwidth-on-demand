@@ -40,11 +40,13 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -76,10 +78,12 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
       .withBandwidth(connection.getDesiredBandwidth())
       .withPath(new PathType()
         .withSourceSTP(toStpType(connection.getSourceStpId()))
-        .withDestSTP(toStpType(connection.getDestinationStpId())))
+        .withDestSTP(toStpType(connection.getDestinationStpId()))
+        .withDirectionality(DirectionalityType.BIDIRECTIONAL))
       .withSchedule(new ScheduleType()
         .withEndTime(XmlUtils.toGregorianCalendar(connection.getEndTime().get()))
         .withStartTime(XmlUtils.toGregorianCalendar(connection.getStartTime().get())))
+      .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
     Holder<CommonHeaderType> headerHolder = new Holder<>(new CommonHeaderType()
