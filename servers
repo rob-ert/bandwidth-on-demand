@@ -1,0 +1,58 @@
+#!/bin/sh
+
+usage() {
+    cat <<EOM
+Usage: servers [options]
+
+  -h          Prints this message
+  start       Starts the servers needed to run a full BoD
+  stop        Tries to stop the servers
+  status      Prints the status of the servers
+  checkout    Clones the git repositories of the servers
+EOM
+}
+
+stop_servers() {
+  echo "Stopping sos and auth server"
+  jps -vl | grep org.codehaus.plexus.classworlds.launcher.Launcher | awk '{print $1}' | xargs kill
+}
+
+start_servers() {
+  if [[ -d "../sos-server" ]] && [[ -d "../bod-authorization-server" ]]; then
+    echo "Starting sos and auth server"
+    cd ../sos-server
+    mvn -q jetty:run &
+    cd ../bod-authorization-server
+    mvn -q jetty:run &
+  else
+    echo "Could not find location of sos-server and/or bod-authorization-server"
+    exit 1;
+  fi
+}
+
+print_status() {
+  pids=`jps -vl | grep org.codehaus.plexus.classworlds.launcher.Launcher | awk '{print $1}'`
+  if [[ $pids ]]; then
+    echo "Servers seem to be running"
+    echo "$pids"
+  else
+    echo "NO servers seem to be running"
+  fi
+}
+
+checkout_servers() {
+  cd ..
+  git clone https://github.com/BandwidthOnDemand/sos-server.git sos-server
+  git clone https://github.com/BandwidthOnDemand/bod-authorization-server.git
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|-help) usage; exit 1 ;;
+    stop) stop_servers ;;
+    start) start_servers ;;
+    status) print_status ;;
+    checkout) checkout_servers ;;
+  esac
+done
+
