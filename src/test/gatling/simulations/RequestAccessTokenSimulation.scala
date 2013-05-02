@@ -20,9 +20,9 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import akka.util.duration._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import scala.concurrent.duration._
 
 class RequestAccessTokenSimulation extends Simulation {
 
@@ -86,5 +86,5 @@ class RequestAccessTokenSimulation extends Simulation {
         .param("csrf-token", "${csrf-token}")
     )
 
-  setUp(scn.users(10).ramp(2 seconds).protocolConfig(httpConf))
+  setUp(scn.inject(ramp( 10 users) over(2 seconds)).protocolConfig(httpConf))
 }

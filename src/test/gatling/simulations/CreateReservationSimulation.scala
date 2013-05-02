@@ -21,9 +21,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import akka.util.duration._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import scala.concurrent.duration._
 
 class CreateReservationSimulation extends Simulation {
 
@@ -67,5 +67,5 @@ class CreateReservationSimulation extends Simulation {
         .check(status.is(200))
     )
 
-  setUp(scn.users(15).ramp(2 seconds).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(15 users) over (2 seconds)).protocolConfig(httpConf))
 }

@@ -20,15 +20,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 import bootstrap._
-import akka.util.duration._
 
 class HealthCheckPageSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-//  val baseUrl = "https://bod.surfnet.nl"
   val httpConf = httpConfig.baseURL(baseUrl)
 
   val scn = scenario("Health check page")
@@ -36,5 +34,5 @@ class HealthCheckPageSimulation extends Simulation {
       exec(http("Healthcheck page").get("/healthcheck"))
     }
 
-  setUp(scn.users(5).protocolConfig(httpConf))
+  setUp(scn.inject(atOnce(5 users)).protocolConfig(httpConf))
 }

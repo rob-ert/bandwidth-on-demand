@@ -20,10 +20,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import akka.util.duration._
+import scala.concurrent.duration._
+import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 import java.util.UUID
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.DateTime
@@ -40,24 +40,24 @@ class NsiReserveRequestSimulation extends Simulation {
       )
     ).toIterator
 
-  private val oauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
-  private val sourceStp = "urn:ogf:network:stp:surfnet.nl:19"
-  private val destinationStp = "urn:ogf:network:stp:surfnet.nl:22"
+  private val OauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
+  private val SourceStp = "urn:ogf:network:stp:surfnet.nl:19"
+  private val DestinationStp = "urn:ogf:network:stp:surfnet.nl:22"
 
   val scn = scenario("Create a Reservation through NSI")
     .feed(reservationTimeFeeder)
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
-        .body(reserveRequest)
-        .header("Authorization" -> ("bearer " + oauthToken))
+        .body(s => reserveRequest(s.get[DateTime]("startTime"), s.get[DateTime]("endTime")))
+        .header("Authorization", session => s"bearer $OauthToken")
         .check(status.is(200))
     )
 
-  setUp(scn.users(50).ramp(10 seconds).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(50 users) over (10 seconds)).protocolConfig(httpConf))
 
 
-  private def reserveRequest(session: Session): String =
+  private def reserveRequest(startTime: Option[DateTime], endTime: Option[DateTime]): String =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:type="http://schemas.ogf.org/nsi/2011/10/connection/types"
@@ -76,8 +76,8 @@ class NsiReserveRequestSimulation extends Simulation {
               <connectionId>{ UUID.randomUUID() }</connectionId>
               <serviceParameters>
                 <schedule>
-                  <startTime>{ printDateTime(session.getTypedAttribute[DateTime]("startTime")) }</startTime>
-                  <endTime>{ printDateTime(session.getTypedAttribute[DateTime]("endTime")) }</endTime>
+                  <startTime>{ startTime.map(printDateTime).orNull }</startTime>
+                  <endTime>{ endTime.map(printDateTime).orNull }</endTime>
                 </schedule>
                 <bandwidth>
                   <desired>100</desired>
@@ -86,10 +86,10 @@ class NsiReserveRequestSimulation extends Simulation {
               <path>
                 <directionality>Bidirectional</directionality>
                 <sourceSTP>
-                  <stpId>{ sourceStp }</stpId>
+                  <stpId>{ SourceStp }</stpId>
                 </sourceSTP>
                 <destSTP>
-                  <stpId>{ destinationStp }</stpId>
+                  <stpId>{ DestinationStp }</stpId>
                 </destSTP>
               </path>
             </reservation>

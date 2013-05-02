@@ -20,12 +20,11 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.jdbc.Predef._
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import akka.util.duration._
+import scala.concurrent.duration._
+import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
 import java.util.UUID
 
 class NsiTerminateRequestSimulation extends Simulation {
@@ -38,22 +37,22 @@ class NsiTerminateRequestSimulation extends Simulation {
     sql = "select connection_id from connection where current_state = 'RESERVED'"
   )
 
-  private val oauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
+  private val OauthToken = "1f5bb411-71ad-406b-a10d-5889f59bdc22"
 
   val scn = scenario("Terminate reservations through NSI")
     .feed(connectionIdFeeder)
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
-        .body(terminateRequest)
-        .header("Authorization" -> ("bearer " + oauthToken))
+        .body(s => terminateRequest(s.get[String]("connection_id")))
+        .header("Authorization", s => s"bearer $OauthToken")
         .check(status.is(200))
     )
 
-  setUp(scn.users(50).ramp(5 seconds).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(50 users) over (5 seconds)).protocolConfig(httpConf))
 
 
-  private def terminateRequest(session: Session): String =
+  private def terminateRequest(connectionId: Option[String]): String =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:type="http://schemas.ogf.org/nsi/2011/10/connection/types"
@@ -66,7 +65,7 @@ class NsiTerminateRequestSimulation extends Simulation {
           <type:terminate>
             <requesterNSA>urn:ogf:network:nsa:surfnet-nsi-requester</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:surfnet.nl</providerNSA>
-            <connectionId>{ session.getTypedAttribute[String]("connection_id") }</connectionId>
+            <connectionId>{ connectionId.orNull }</connectionId>
           </type:terminate>
         </int:terminateRequest>
       </soapenv:Body>
