@@ -22,12 +22,38 @@
  */
 package nl.surfnet.bod.util;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 
-public class ServiceParametersTypeUserType extends JaxbUserType<ServiceParametersType> {
+public class ServiceParametersTypeUserTypeTest {
 
-    public ServiceParametersTypeUserType() {
-        super("serviceParameters", ServiceParametersType.class);
-    }
+  private String SERVICE_PARAMTERS_TYPE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+      + "<serviceParameters xmlns:ns2=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns4=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns3=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns5=\"http://schemas.ogf.org/nsi/2011/10/connection/types\">"
+      + "<bandwidth><desired>100</desired></bandwidth></serviceParameters>";
+  private ServiceParametersTypeUserType subject = new ServiceParametersTypeUserType();
 
+  @Test
+  public void shouldDeserializeFromXmlString() {
+    ServiceParametersType result = subject.fromXmlString(SERVICE_PARAMTERS_TYPE_XML);
+
+    assertNotNull(result);
+    assertThat(result.getBandwidth().getDesired(), is(100));
+  }
+
+  @Test
+  public void shouldSerializeToXmlString() {
+    BandwidthType bandwidth = new BandwidthType();
+    bandwidth.setDesired(100);
+    ServiceParametersType parameters = new ServiceParametersType();
+    parameters.setBandwidth(bandwidth);
+
+    String xml = subject.toXmlString(parameters);
+
+    assertThat(xml, is(SERVICE_PARAMTERS_TYPE_XML));
+  }
 }
