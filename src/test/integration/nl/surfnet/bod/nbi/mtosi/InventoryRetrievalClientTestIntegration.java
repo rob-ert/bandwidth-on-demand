@@ -38,6 +38,7 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
+@Ignore("London server gives different results, wait for local server")
 public class InventoryRetrievalClientTestIntegration {
 
   private InventoryRetrievalClient subject;
