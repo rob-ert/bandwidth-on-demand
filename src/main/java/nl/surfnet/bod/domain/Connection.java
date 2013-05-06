@@ -105,9 +105,11 @@ public class Connection implements Loggable, PersistableDomain {
   @Field
   private String destinationStpId;
 
+  @Type(type = "nl.surfnet.bod.util.PathTypeUserType")
   @Column(nullable = false, length = 4096)
   private PathType path;
 
+  @Type(type = "nl.surfnet.bod.util.ServiceParametersTypeUserType")
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
 
