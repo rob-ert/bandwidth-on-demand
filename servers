@@ -4,7 +4,7 @@ usage() {
     cat <<EOM
 Usage: servers [options]
 
-  -h          Prints this message
+  -h | -help  Prints this message
   start       Starts the servers needed to run a full BoD
   stop        Tries to stop the servers
   status      Prints the status of the servers
@@ -45,6 +45,11 @@ checkout_servers() {
   git clone https://github.com/BandwidthOnDemand/sos-server.git sos-server
   git clone https://github.com/BandwidthOnDemand/bod-authorization-server.git
 }
+
+if [[ $# -eq 0 ]]; then
+    usage
+    exit 1
+fi
 
 for arg in "$@"; do
   case "$arg" in
