@@ -587,6 +587,8 @@
                         <exclude>**/*TestIntegration.java</exclude>
                         <exclude>**/*DbTest.java</exclude>
                     </excludes>
+                    <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
             </plugin>
             <plugin>
@@ -1005,12 +1007,22 @@
         <repository>
             <id>server.oosnmp.net release</id>
             <name>server.oosnmp.net release</name>
-            <url>https://server.oosnmp.net/dist/release</url>
+            <url>https://oosnmp.net/dist/release</url>
         </repository>
         <repository>
             <id>excilys</id>
             <name>Excilys Repository</name>
             <url>http://repository.excilys.com/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>surfnet-public-releases</id>
+            <name>surfnet-public-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases</url>
+        </repository>
+        <repository>
+            <id>surfnet-releases</id>
+            <name>surfnet-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
         </repository>
         <repository>
             <id>surfnet-snapshots</id>
