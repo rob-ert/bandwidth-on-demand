@@ -90,7 +90,7 @@ public class JaxbUserType<T> implements UserType {
     @Override
     public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
         String string = rs.getString(names[0]);
-        if (rs.wasNull()) {
+        if (string == null || rs.wasNull()) {
             return null;
         }
 
@@ -117,6 +117,9 @@ public class JaxbUserType<T> implements UserType {
     }
 
     String toXmlString(Object value) {
+        if (value == null) {
+            return null;
+        }
         try (StringWriter writer = new StringWriter()) {
             jaxbContext.createMarshaller().marshal(new JAXBElement<T>(new QName("pathType"), type, type.cast(value)), writer);
             return writer.toString();
