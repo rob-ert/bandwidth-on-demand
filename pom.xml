@@ -684,9 +684,27 @@
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <version>1.10.b1</version>
+                <executions>
+                    <execution>
+                        <id>license-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
                 <configuration>
+                    <strictCheck>true</strictCheck>
                     <header>src/etc/header.txt</header>
                     <excludes>
+                        <exclude>.cache</exclude>
+                        <exclude>.gitignore</exclude>
+                        <exclude>.gitmodules</exclude>
+                        <exclude>LICENSE</exclude>
+                        <exclude>README.md</exclude>
+                        <exclude>**/*.yuml</exclude>
+                        <exclude>**/*.uml</exclude>
+                        <exclude>**/*.svg</exclude>
                         <exclude>src/main/webapp/**</exclude>
                         <exclude>src/main/resources/**/*.xsd</exclude>
                         <exclude>src/main/resources/**/*.xml</exclude>
