@@ -151,7 +151,7 @@ public final class ConnectionServiceProviderFunctions {
       private String getProtectionType(ServiceParametersType serviceParameters) {
         if (guaranteedAttributesAreSpecified(serviceParameters)) {
 
-          List<Serializable> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
+          List<Object> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
 
           // only supported 1 guaranteed attribute namely 'sNCP' with values of ProtectionType enum
           if (guaranteeds.size() == 1 && guaranteeds.get(0) instanceof AttributeType) {
