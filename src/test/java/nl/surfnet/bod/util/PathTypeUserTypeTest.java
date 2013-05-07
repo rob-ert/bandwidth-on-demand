@@ -34,8 +34,8 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointTyp
 public class PathTypeUserTypeTest {
 
   private static final String PATH_TYPE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-      + "<path xmlns:ns2=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns4=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns3=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns5=\"http://schemas.ogf.org/nsi/2011/10/connection/types\">"
-      + "<directionality>Bidirectional</directionality><destSTP><stpId>stp-id</stpId></destSTP></path>";
+      + "<ns5:path xmlns:ns2=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns4=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns3=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns5=\"http://schemas.ogf.org/nsi/2011/10/connection/types\">"
+      + "<directionality>Bidirectional</directionality><destSTP><stpId>stp-id</stpId></destSTP></ns5:path>";
   private PathTypeUserType subject = new PathTypeUserType();
 
   @Test

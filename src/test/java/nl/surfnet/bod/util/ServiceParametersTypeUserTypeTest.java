@@ -33,8 +33,8 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 public class ServiceParametersTypeUserTypeTest {
 
   private String SERVICE_PARAMTERS_TYPE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-      + "<serviceParameters xmlns:ns2=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns4=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns3=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns5=\"http://schemas.ogf.org/nsi/2011/10/connection/types\">"
-      + "<bandwidth><desired>100</desired></bandwidth></serviceParameters>";
+      + "<ns5:serviceParameters xmlns:ns2=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns4=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns3=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns5=\"http://schemas.ogf.org/nsi/2011/10/connection/types\">"
+      + "<bandwidth><desired>100</desired></bandwidth></ns5:serviceParameters>";
   private ServiceParametersTypeUserType subject = new ServiceParametersTypeUserType();
 
   @Test

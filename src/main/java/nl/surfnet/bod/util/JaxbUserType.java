@@ -60,11 +60,11 @@ public class JaxbUserType<T> implements UserType {
     }
   }
 
-  private final String localName;
+  private final QName xmlRootElementName;
   private final Class<T> type;
 
-  protected JaxbUserType(String localName, Class<T> type) {
-    this.localName = localName;
+  protected JaxbUserType(QName xmlRootElementName, Class<T> type) {
+    this.xmlRootElementName = xmlRootElementName;
     this.type = type;
   }
 
@@ -128,7 +128,7 @@ public class JaxbUserType<T> implements UserType {
       return null;
     }
     try (StringWriter writer = new StringWriter()) {
-      jaxbContext.createMarshaller().marshal(new JAXBElement<>(new QName(localName), type, type.cast(value)), writer);
+      jaxbContext.createMarshaller().marshal(new JAXBElement<>(xmlRootElementName, type, type.cast(value)), writer);
       return writer.toString();
     } catch (JAXBException | IOException e) {
       throw new HibernateException(e);

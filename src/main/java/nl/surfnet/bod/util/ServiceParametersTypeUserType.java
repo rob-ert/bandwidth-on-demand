@@ -22,12 +22,14 @@
  */
 package nl.surfnet.bod.util;
 
+import javax.xml.namespace.QName;
+
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 
 public class ServiceParametersTypeUserType extends JaxbUserType<ServiceParametersType> {
 
     public ServiceParametersTypeUserType() {
-        super("serviceParameters", ServiceParametersType.class);
+        super(new QName("http://schemas.ogf.org/nsi/2011/10/connection/types", "serviceParameters"), ServiceParametersType.class);
     }
 
 }

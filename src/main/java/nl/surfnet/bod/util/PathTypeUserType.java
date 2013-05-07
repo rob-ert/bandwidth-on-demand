@@ -22,12 +22,14 @@
  */
 package nl.surfnet.bod.util;
 
+import javax.xml.namespace.QName;
+
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 
 public class PathTypeUserType extends JaxbUserType<PathType> {
 
     public PathTypeUserType() {
-        super("path", PathType.class);
+        super(new QName("http://schemas.ogf.org/nsi/2011/10/connection/types", "path"), PathType.class);
     }
 
 }
