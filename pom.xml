@@ -537,16 +537,16 @@
         </dependency>
 
         <dependency>
-            <groupId>io.gatling</groupId>
-            <artifactId>gatling-http</artifactId>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
             <version>${gatling.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.gatling</groupId>
-            <artifactId>gatling-jdbc</artifactId>
-            <version>${gatling.version}</version>
-            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
