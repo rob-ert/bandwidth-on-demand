@@ -17,8 +17,12 @@
 * The project depends on the `bod-mtosi` jar. This jar is not publically available. The default configuration will not need MTOSI, remove the dependeny from the `pom.xml` to get the project building.
 
 ## Running the Selenium tests
-The easiest way to run the selenium tests is to run the mock open social server, [SoS][sos].
-Further a (empty) `bod-selenium` database is expected.
+An (empty) `bod-selenium` database is expected.
+
+    createuser bod-selenium_user -R -S -D
+    createdb -E 'UTF-8' -O bod-selenium_user bod-selenium
+
+Running all the selenium tests
 
     mvn verify -Pselenium
 
