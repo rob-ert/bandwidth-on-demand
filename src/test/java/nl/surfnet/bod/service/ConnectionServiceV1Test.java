@@ -34,11 +34,11 @@ import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType
 
 import java.util.EnumSet;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ConnectionService.ValidationException;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
+import nl.surfnet.bod.service.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -58,14 +58,14 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceTest {
+public class ConnectionServiceV1Test {
 
-  @Mock private ConnectionRepo connectionRepoMock;
+  @Mock private ConnectionV1Repo connectionRepoMock;
   @Mock private ReservationService reservationServiceMock;
   @Mock private VirtualPortService virtualPortServiceMock;
   @Mock private Environment environmentMock;
 
-  @InjectMocks private ConnectionService subject;
+  @InjectMocks private ConnectionServiceV1 subject;
 
   private final String PROVIDER_NSA = "urn:ogf:network:surfnet";
 
@@ -84,10 +84,10 @@ public class ConnectionServiceTest {
   public void shouldUseRichUserDetailsAsCreater() throws ValidationException {
     NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("replyTo", "123");
 
-    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
-    when(connectionRepoMock.saveAndFlush(any(Connection.class))).thenReturn(connection);
+    when(connectionRepoMock.saveAndFlush(any(ConnectionV1.class))).thenReturn(connection);
 
     subject.reserve(connection, nsiRequestDetails, true, userDetails);
 
@@ -105,16 +105,16 @@ public class ConnectionServiceTest {
   @Test
   public void allStatesShouldBeMapped() {
     for (ReservationStatus status : EnumSet.allOf(ReservationStatus.class)) {
-      assertThat(ConnectionService.STATE_MAPPING.get(status), notNullValue());
+      assertThat(ConnectionServiceV1.STATE_MAPPING.get(status), notNullValue());
     }
   }
 
   @Test
   public void aConnectionWithoutAReservationShouldBeTerminated() {
-    Connection connectionValid = new ConnectionFactory().setReservation(null).setCurrentState(TERMINATED).create();
+    ConnectionV1 connectionValid = new ConnectionFactory().setReservation(null).setCurrentState(TERMINATED).create();
     assertThat(subject.hasValidState(connectionValid), is(true));
 
-    Connection connectionInvalid = new ConnectionFactory().setReservation(null).setCurrentState(PROVISIONED).create();
+    ConnectionV1 connectionInvalid = new ConnectionFactory().setReservation(null).setCurrentState(PROVISIONED).create();
     assertThat(subject.hasValidState(connectionInvalid), is(false));
   }
 
@@ -123,7 +123,7 @@ public class ConnectionServiceTest {
 
   @Test
   public void shouldThrowAValidationExceptionWenNotAuthorizedForPort() throws ValidationException {
-    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("wrong-admin").create());
@@ -135,10 +135,10 @@ public class ConnectionServiceTest {
 
   @Test
   public void shouldThrowAValidationExceptionWhenNonUniqueConnectionIdIsUsed() throws ValidationException {
-    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
-    when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new Connection());
+    when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new ConnectionV1());
     thrown.expect(ValidationException.class);
     thrown.expectMessage(containsString("already exists"));
 
@@ -147,7 +147,7 @@ public class ConnectionServiceTest {
 
   @Test
   public void shouldThrowAValidationExceptionWhenPortDoesNotExist() throws ValidationException {
-    Connection connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(null);
@@ -159,7 +159,7 @@ public class ConnectionServiceTest {
 
   @Test
   public void shouldThrowAValidationExceptionWhenTheProviderNsaDoesNotMatch() throws ValidationException {
-    Connection connection = new ConnectionFactory().setProviderNsa("urn:ogf:network:unknown").create();
+    ConnectionV1 connection = new ConnectionFactory().setProviderNsa("urn:ogf:network:unknown").create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());

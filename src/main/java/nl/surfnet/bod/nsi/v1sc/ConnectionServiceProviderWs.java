@@ -32,12 +32,13 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ConnectionService;
-import nl.surfnet.bod.service.ConnectionService.ValidationException;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
+import nl.surfnet.bod.service.ConnectionServiceV1;
+import nl.surfnet.bod.service.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -77,13 +78,13 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
 
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
   @Resource
   private VirtualPortService virtualPortService;
 
   @Resource
-  private ConnectionService connectionService;
+  private ConnectionServiceV1 connectionService;
 
   @Override
   public GenericAcknowledgmentType reserve(ReserveRequestType reservationRequest) throws ServiceException {
@@ -91,7 +92,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
 
     log.info("Received a NSI v1 reserve request connectionId {}", reservationRequest.getReserve().getReservation().getConnectionId());
 
-    Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
+    ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(), reservationRequest.getCorrelationId());
 
@@ -100,7 +101,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
-  protected void reserve(Connection connection, NsiRequestDetails request, RichUserDetails richUserDetails) throws ServiceException {
+  protected void reserve(ConnectionV1 connection, NsiRequestDetails request, RichUserDetails richUserDetails) throws ServiceException {
     try {
       connectionService.reserve(connection, request, false, richUserDetails);
     } catch (ValidationException e) {

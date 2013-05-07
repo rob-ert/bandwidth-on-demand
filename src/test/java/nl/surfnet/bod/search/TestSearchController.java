@@ -49,7 +49,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<TestView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends TestView> list(int firstPage, int maxItems, Sort sort, Model model) {
     return transformToView(testEntities, null);
   }
 
@@ -72,7 +72,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<TestView> transformToView(List<TestEntity> entities, RichUserDetails user) {
+  protected List<? extends TestView> transformToView(List<? extends TestEntity> entities, RichUserDetails user) {
     return FluentIterable.from(entities).transform(new Function<TestEntity, TestView>() {
       @Override
       public TestView apply(TestEntity input) {

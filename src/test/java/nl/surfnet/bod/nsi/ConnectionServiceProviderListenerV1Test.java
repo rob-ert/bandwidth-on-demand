@@ -48,10 +48,10 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import com.google.common.base.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderListenerTest {
+public class ConnectionServiceProviderListenerV1Test {
 
   @InjectMocks
-  private ConnectionServiceProviderListener subject;
+  private ConnectionServiceProviderListenerV1 subject;
 
   @Mock
   private ConnectionServiceRequesterCallback connectionServiceRequesterMock;

@@ -23,7 +23,17 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,12 +44,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterVersionTwoCallback;
+import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -68,7 +80,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Service
-public class ConnectionService extends AbstractFullTextSearchService<Connection> {
+public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
 
   protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
     new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
@@ -85,13 +97,13 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
       .put(TIMED_OUT, ConnectionStateType.TERMINATED)
       .build();
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
 
   @Resource
   private Environment bodEnvironment;
 
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV2Repo connectionRepo;
 
   @Resource
   private ReservationService reservationService;
@@ -99,11 +111,14 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
   @Resource
   private VirtualPortService virtualPortService;
 
+  @Resource
+  private ConnectionServiceRequesterVersionTwoCallback connectionServiceRequester;
+
   @PersistenceContext
   private EntityManager entityManager;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
+  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
     connection.setCurrentState(ConnectionStateType.RESERVING);
@@ -149,7 +164,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
   }
 
-  private void checkConnection(Connection connection, RichUserDetails richUserDetails) throws ValidationException {
+  private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
     try {
       checkProviderNsa(connection.getProviderNsa());
       checkConnectionId(connection.getConnectionId());
@@ -197,7 +212,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void provision(Long connectionId, NsiRequestDetails requestDetails) {
-    Connection connection = connectionRepo.findOne(connectionId);
+    ConnectionV2 connection = connectionRepo.findOne(connectionId);
     checkNotNull(connection);
 
     if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
@@ -217,14 +232,14 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
   }
 
-  private boolean isProvisionPossible(Connection connection) {
+  private boolean isProvisionPossible(ConnectionV2 connection) {
     return ImmutableList.of(ConnectionStateType.RESERVED, ConnectionStateType.SCHEDULED).contains(connection.getCurrentState());
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
   public void asyncTerminate(Long connectionId, String requesterNsa, NsiRequestDetails requestDetails, RichUserDetails user) {
-    Connection connection = connectionRepo.findOne(connectionId);
+    ConnectionV2 connection = connectionRepo.findOne(connectionId);
 
     if (isTerminatePossible(connection)) {
       connection.setCurrentState(ConnectionStateType.TERMINATING);
@@ -243,7 +258,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
   }
 
-  private boolean isTerminatePossible(Connection connection) {
+  private boolean isTerminatePossible(ConnectionV2 connection) {
     return !ImmutableList.of(
         ConnectionStateType.RESERVING,
         ConnectionStateType.TERMINATING,
@@ -291,7 +306,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
   protected QueryConfirmedType queryAllForRequesterNsa(QueryOperationType operation, String requesterNsa, String providerNsa) {
     QueryConfirmedType confirmedType = getConfirmedType(requesterNsa, providerNsa);
 
-    for (Connection connection : findByRequesterNsa(requesterNsa)) {
+    for (ConnectionV2 connection : findByRequesterNsa(requesterNsa)) {
       addQueryResult(confirmedType, connection, operation);
     }
 
@@ -305,19 +320,19 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     return confirmedType;
   }
 
-  private Connection findByGlobalReservationId(String globalReservationId) {
+  private ConnectionV2 findByGlobalReservationId(String globalReservationId) {
     return connectionRepo.findByGlobalReservationId(globalReservationId);
   }
 
-  private Connection findByConnectionId(String connectionId) {
+  private ConnectionV2 findByConnectionId(String connectionId) {
     return connectionRepo.findByConnectionId(connectionId);
   }
 
-  private List<Connection> findByRequesterNsa(String requesterNsa) {
+  private List<ConnectionV2> findByRequesterNsa(String requesterNsa) {
     return connectionRepo.findByRequesterNsa(requesterNsa);
   }
 
-  private void addQueryResult(QueryConfirmedType confirmedType, Connection connection, QueryOperationType operation) {
+  private void addQueryResult(QueryConfirmedType confirmedType, ConnectionV2 connection, QueryOperationType operation) {
     if (connection == null) {
       return;
     }
@@ -330,7 +345,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
   }
 
-  private QueryDetailsResultType getQueryDetailsResult(Connection connection) {
+  private QueryDetailsResultType getQueryDetailsResult(ConnectionV2 connection) {
     QueryDetailsResultType result = new QueryDetailsResultType();
     result.setConnectionId(connection.getConnectionId());
     result.setDescription(connection.getDescription());
@@ -349,7 +364,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     return result;
   }
 
-  private QuerySummaryResultType getQuerySummaryResult(Connection connection) {
+  private QuerySummaryResultType getQuerySummaryResult(ConnectionV2 connection) {
     QuerySummaryResultType result = new QuerySummaryResultType();
     result.setConnectionId(connection.getConnectionId());
     result.setConnectionState(connection.getCurrentState());
@@ -366,15 +381,15 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     return connectionRepo.findOne(id);
   }
 
-  public Collection<Connection> findAll() {
+  public Collection<ConnectionV2> findAll() {
     return connectionRepo.findAll();
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return connectionRepo.findIdsWithWhereClause(Optional.<Specification<Connection>>absent(), sort);
+    return connectionRepo.findIdsWithWhereClause(Optional.<Specification<ConnectionV2>>absent(), sort);
   }
 
-  public List<Connection> findEntries(int firstResult, int maxResults, Sort sort) {
+  public List<ConnectionV2> findEntries(int firstResult, int maxResults, Sort sort) {
     return connectionRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -382,7 +397,7 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     return connectionRepo.count();
   }
 
-  protected boolean hasValidState(Connection connection) {
+  protected boolean hasValidState(ConnectionV2 connection) {
     if (connection.getReservation() == null) {
       return connection.getCurrentState() == ConnectionStateType.TERMINATED;
     }
@@ -391,12 +406,12 @@ public class ConnectionService extends AbstractFullTextSearchService<Connection>
     }
   }
 
-  public List<Connection> findWithIllegalState(int firstResult, int maxResults, Sort sort) {
-    List<Connection> connections = connectionRepo.findAll(sort);
+  public List<ConnectionV2> findWithIllegalState(int firstResult, int maxResults, Sort sort) {
+    List<ConnectionV2> connections = connectionRepo.findAll(sort);
 
-    return FluentIterable.from(connections).filter(new Predicate<Connection>() {
+    return FluentIterable.from(connections).filter(new Predicate<ConnectionV2>() {
       @Override
-      public boolean apply(Connection connection) {
+      public boolean apply(ConnectionV2 connection) {
         return !hasValidState(connection);
       }
     }).toList();

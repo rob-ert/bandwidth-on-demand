@@ -28,15 +28,22 @@ import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.NSI_REQ
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
-import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,14 +51,14 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Optional;
 
 @Component("connectionServiceRequesterVersionOne")
-public class ConnectionServiceRequesterVersionOneCallback implements ConnectionServiceRequesterCallback {
+public class ConnectionServiceRequesterVersionOneCallback implements ConnectionServiceRequesterCallback<ConnectionV1> {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterVersionOneCallback.class);
 
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
-  public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
+  public void reserveConfirmed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 
@@ -81,7 +88,7 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails,
+  public void reserveFailed(final ConnectionV1 connection, final NsiRequestDetails requestDetails,
       Optional<String> failedReason) {
     log.info("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
@@ -110,7 +117,7 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void provisionFailedDontUpdateState(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionFailedDontUpdateState(ConnectionV1 connection, NsiRequestDetails requestDetails) {
     log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getConnectionId());
 
@@ -126,14 +133,14 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionFailed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
     provisionFailedDontUpdateState(connection, requestDetails);
   }
 
-  public void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionConfirmed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
@@ -152,33 +159,33 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void provisionSucceeded(Connection connection) {
+  public void provisionSucceeded(ConnectionV1 connection) {
     // no need to inform the requester
     // a provision confirmed is only send when the reservation is running/provisioned
     connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
     connectionRepo.save(connection);
   }
 
-  public void executionSucceeded(Connection connection) {
+  public void executionSucceeded(ConnectionV1 connection) {
     // no need to inform the requester
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
   }
 
-  public void executionFailed(Connection connection) {
+  public void executionFailed(ConnectionV1 connection) {
     // no need to inform the requester
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
   }
 
 
-  public void scheduleSucceeded(Connection connection) {
+  public void scheduleSucceeded(ConnectionV1 connection) {
     // no need to inform the requester
     connection.setCurrentState(ConnectionStateType.SCHEDULED);
     connectionRepo.save(connection);
   }
 
-  public void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateConfirmed(ConnectionV1 connection, Optional<NsiRequestDetails> requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
@@ -197,7 +204,7 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateFailed(ConnectionV1 connection, Optional<NsiRequestDetails> requestDetails) {
     if (!requestDetails.isPresent()) {
       return;
     }
@@ -213,7 +220,7 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  public void terminateTimedOutReservation(Connection connection) {
+  public void terminateTimedOutReservation(ConnectionV1 connection) {
     // Talked to HansT and this is really the only step we have to take from a NSI perspective.
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
@@ -229,7 +236,7 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
     }
   }
 
-  private GenericFailedType genericFailedForConnection(Connection connection) {
+  private GenericFailedType genericFailedForConnection(ConnectionV1 connection) {
     final GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
     generic.setRequesterNSA(connection.getRequesterNsa());

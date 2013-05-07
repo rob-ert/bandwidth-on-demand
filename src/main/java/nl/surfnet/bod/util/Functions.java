@@ -124,7 +124,7 @@ public final class Functions {
    * @see #transformAllocatedPhysicalPort(PhysicalPort, VirtualPortService)
    *
    */
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends PhysicalPort> ports,
       final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
     List<PhysicalPortView> transformers = Lists.newArrayList();

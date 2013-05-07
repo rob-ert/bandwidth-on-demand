@@ -61,7 +61,7 @@ public class ReservationServiceDbTestHelper {
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
   Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status,
       PhysicalResourceGroup sourceGroup, PhysicalResourceGroup destinationGroup) {
@@ -99,7 +99,7 @@ public class ReservationServiceDbTestHelper {
   }
 
   Reservation addConnectionToReservation(Reservation reservation) {
-    Connection connection = new ConnectionFactory().setReservation(reservation).create();
+    ConnectionV1 connection = new ConnectionFactory().setReservation(reservation).create();
     connection = connectionRepo.saveAndFlush(connection);
 
     reservation.setConnection(connection);

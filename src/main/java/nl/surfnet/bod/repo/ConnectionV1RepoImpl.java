@@ -22,20 +22,44 @@
  */
 package nl.surfnet.bod.repo;
 
+import static nl.surfnet.bod.repo.CustomRepoHelper.addSortClause;
+
 import java.util.List;
 
-import nl.surfnet.bod.domain.Connection;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.ConnectionV1_;
 
-@Repository
-public interface ConnectionRepo extends JpaSpecificationExecutor<Connection>, JpaRepository<Connection, Long>, CustomRepo<Connection> {
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
-  Connection findByConnectionId(final String connectionId);
+import com.google.common.base.Optional;
 
-  Connection findByGlobalReservationId(final String globalReservationId);
+public class ConnectionV1RepoImpl implements CustomRepo<ConnectionV1> {
 
-  List<Connection> findByRequesterNsa(final String requesterNsa);
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  @Override
+  public List<Long> findIdsWithWhereClause(Optional<Specification<ConnectionV1>> whereClause, Optional<Sort> sort) {
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<ConnectionV1> root = criteriaQuery.from(ConnectionV1.class);
+
+    criteriaQuery.select(root.get(ConnectionV1_.id));
+
+    if (whereClause.isPresent()) {
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    }
+
+    addSortClause(sort, criteriaBuilder, criteriaQuery, root);
+
+    return entityManager.createQuery(criteriaQuery).getResultList();
+  }
+
 }

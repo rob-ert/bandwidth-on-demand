@@ -169,7 +169,7 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   @Override
-  protected List<ReservationView> transformToView(List<Reservation> reservationsToTransform, final RichUserDetails user) {
+  protected List<? extends ReservationView> transformToView(List<? extends Reservation> reservationsToTransform, final RichUserDetails user) {
 
     return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
       @Override

@@ -268,7 +268,9 @@ public final class ReservationPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate connectionPredicate = root.get(Reservation_.connection).get(Connection_.id).isNotNull();
+        final Predicate connectionPredicate = cb.or(
+            root.get(Reservation_.connectionV1).get(ConnectionV1_.id).isNotNull(),
+            root.get(Reservation_.connectionV2).get(ConnectionV2_.id).isNotNull());
         final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
 
         return cb.and(connectionPredicate, reservationIdIn);

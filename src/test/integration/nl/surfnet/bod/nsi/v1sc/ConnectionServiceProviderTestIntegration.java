@@ -110,7 +110,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private InstituteRepo instituteRepo;
 
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
   @Resource
   private ReservationService reservationService;
@@ -190,7 +190,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     Reservation reservation = reservationService.find(connection.getReservation().getId());
     entityManager.refresh(reservation);
     entityManager.refresh(connection);
@@ -248,7 +248,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     Reservation reservation = reservationService.find(connection.getReservation().getId());
 
     entityManager.refresh(reservation);
@@ -281,7 +281,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     Reservation reservation = reservationService.find(connection.getReservation().getId());
 
     entityManager.refresh(reservation);
@@ -327,7 +327,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     reservationService.cancel(connection.getReservation(), new RichUserDetailsFactory().addNocRole().create());
 
     listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
@@ -369,7 +369,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     nsiProvider.terminate(createTerminateRequest(connectionId));
     awaitTerminateConfirmed();
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     entityManager.refresh(connection);
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
 
@@ -437,7 +437,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     entityManager.refresh(connection);
 
     assertThat(connection.getCurrentState(), is(ConnectionStateType.SCHEDULED));

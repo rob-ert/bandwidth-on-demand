@@ -94,7 +94,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   private MessageManager messageManager;
 
   @Resource
-  private ConnectionService connectionService;
+  private ConnectionServiceV1 connectionService;
 
   @RequestMapping(value = "add", method = RequestMethod.GET)
   public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model,
@@ -406,7 +406,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -594,7 +594,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
+  protected List<? extends PhysicalPortView> transformToView(List<? extends PhysicalPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 

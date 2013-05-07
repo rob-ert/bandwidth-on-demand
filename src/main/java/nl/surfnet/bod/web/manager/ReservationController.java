@@ -48,7 +48,7 @@ public class ReservationController extends AbstractFilteredReservationController
   public static final String COMING_URL = PAGE_URL + "/" + FILTER_URL + ReservationFilterViewFactory.COMING;
 
   @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
    return transformToView(

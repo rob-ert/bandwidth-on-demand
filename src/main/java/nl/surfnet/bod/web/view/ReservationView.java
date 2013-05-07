@@ -29,7 +29,6 @@ import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 
 import com.google.common.base.Function;
 
@@ -50,7 +49,6 @@ public class ReservationView {
   private final String userCreated;
   private final String reservationId;
   private final String connectionId;
-  private final ConnectionStateType connectionStatus;
   private final DateTime creationDateTime;
   private final ElementActionView deleteActionView, editActionView;
   private final ProtectionType protectionType;
@@ -75,9 +73,11 @@ public class ReservationView {
     this.deleteActionView = deleteActionView;
     this.editActionView = editActionView;
     this.connectionId = reservation.getConnection().transform(CONNECTION_ID).orNull();
-    this.connectionStatus = reservation.getConnection().transform(CONNECTION_STATE).orNull();
   }
 
+  public String getConnectionStatus() {
+    return "FIXME";
+  }
   public String getVirtualResourceGroup() {
     return virtualResourceGroup;
   }
@@ -149,10 +149,6 @@ public class ReservationView {
 
   public String getConnectionId() {
     return connectionId;
-  }
-
-  public ConnectionStateType getConnectionStatus() {
-    return connectionStatus;
   }
 
   public String getCancelReason() {
@@ -330,13 +326,4 @@ public class ReservationView {
         return c.getConnectionId();
       }
     };
-
-  private static final Function<Connection, ConnectionStateType> CONNECTION_STATE =
-    new Function<Connection, ConnectionStateType>() {
-      @Override
-      public ConnectionStateType apply(Connection c) {
-        return c.getCurrentState();
-      }
-    };
-
 }

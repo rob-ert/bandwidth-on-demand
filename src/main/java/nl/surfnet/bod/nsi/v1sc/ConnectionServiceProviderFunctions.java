@@ -27,7 +27,6 @@ import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +37,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -89,10 +88,10 @@ public final class ConnectionServiceProviderFunctions {
       }
     };
 
-  public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED =
-    new Function<Connection, GenericConfirmedType>() {
+  public static final Function<ConnectionV1, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED =
+    new Function<ConnectionV1, GenericConfirmedType>() {
       @Override
-      public GenericConfirmedType apply(Connection connection) {
+      public GenericConfirmedType apply(ConnectionV1 connection) {
         return new GenericConfirmedType()
           .withProviderNSA(connection.getProviderNsa())
           .withRequesterNSA(connection.getRequesterNsa())
@@ -101,14 +100,14 @@ public final class ConnectionServiceProviderFunctions {
       }
     };
 
-  public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION =
-    new Function<ReserveRequestType, Connection>() {
+  public static final Function<ReserveRequestType, ConnectionV1> RESERVE_REQUEST_TO_CONNECTION =
+    new Function<ReserveRequestType, ConnectionV1>() {
       @Override
-      public Connection apply(ReserveRequestType reserveRequestType) {
+      public ConnectionV1 apply(ReserveRequestType reserveRequestType) {
 
         ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
 
-        Connection connection = new Connection();
+        ConnectionV1 connection = new ConnectionV1();
         connection.setNsiVersion(NsiVersion.ONE);
         connection.setCurrentState(INITIAL);
         connection.setConnectionId(reservation.getConnectionId());

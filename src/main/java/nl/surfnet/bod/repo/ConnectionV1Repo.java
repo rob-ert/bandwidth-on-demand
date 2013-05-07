@@ -20,28 +20,22 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.repo;
 
-import com.google.common.base.Optional;
+import java.util.List;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.ConnectionV1;
 
-public interface ConnectionServiceRequesterCallback<C extends Connection> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-  void provisionSucceeded(C connection);
-  void provisionConfirmed(C connection, NsiRequestDetails requestDetails);
-  void provisionFailed(C connection, NsiRequestDetails requestDetails);
+@Repository
+public interface ConnectionV1Repo extends JpaSpecificationExecutor<ConnectionV1>, JpaRepository<ConnectionV1, Long>, CustomRepo<ConnectionV1> {
 
-  void reserveConfirmed(C connection, NsiRequestDetails requestDetails);
-  void reserveFailed(C connection, NsiRequestDetails requestDetails, Optional<String> failedReason);
+  ConnectionV1 findByConnectionId(final String connectionId);
 
-  void terminateTimedOutReservation(C connection);
-  void terminateConfirmed(C connection, Optional<NsiRequestDetails> requestDetails);
-  void terminateFailed(C connection, Optional<NsiRequestDetails> requestDetails);
+  ConnectionV1 findByGlobalReservationId(final String globalReservationId);
 
-  void executionSucceeded(C connection);
-  void executionFailed(C connection);
-
-  void scheduleSucceeded(C connection);
+  List<ConnectionV1> findByRequesterNsa(final String requesterNsa);
 }

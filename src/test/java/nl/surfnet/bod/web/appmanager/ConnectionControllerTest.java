@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.service.ConnectionService;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.service.ConnectionServiceV1;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.Security;
@@ -56,7 +56,7 @@ public class ConnectionControllerTest {
   private ConnectionController subject;
 
   @Mock
-  private ConnectionService connectionServiceMock;
+  private ConnectionServiceV1 connectionServiceMock;
 
   private MockMvc mockMvc;
 
@@ -95,9 +95,9 @@ public class ConnectionControllerTest {
       .thenReturn(filterList);
     when(
       connectionServiceMock.searchForInFilteredList(
-        Connection.class, "TERMINATED", 0, MAX_ITEMS_PER_PAGE, Security.getUserDetails(), filterList)
+        ConnectionV1.class, "TERMINATED", 0, MAX_ITEMS_PER_PAGE, Security.getUserDetails(), filterList)
       ).thenReturn(
-        new FullTextSearchResult<Connection>(1, Lists.newArrayList(new ConnectionFactory().create())));
+        new FullTextSearchResult<ConnectionV1>(1, Lists.newArrayList(new ConnectionFactory().create())));
 
     mockMvc.perform(get("/appmanager/connections/search").param("search", "TERMINATED"))
       .andExpect(model().attribute("list", hasSize(1)))

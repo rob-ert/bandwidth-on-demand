@@ -23,14 +23,14 @@
 package nl.surfnet.bod.nsi;
 
 import static com.google.common.base.Optional.fromNullable;
-import static nl.surfnet.bod.web.WebUtils.not;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterVersionOneCallback;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
@@ -44,14 +44,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 @Component
-public class ConnectionServiceProviderListener implements ReservationListener {
+public class ConnectionServiceProviderListenerV1 implements ReservationListener {
 
-  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListener.class);
+  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListenerV1.class);
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
 
-  @Resource private ConnectionServiceRequesterCallback connectionServiceRequesterVersionOne;
-  @Resource private ConnectionServiceRequesterCallback connectionServiceRequesterVersionTwo;
+  @Resource private ConnectionServiceRequesterVersionOneCallback requester;
 
   @Resource private ReservationService reservationService;
 
@@ -67,15 +66,12 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
       Reservation reservation = reservationService.find(event.getReservation().getId());
 
-      if (not(reservation.isNSICreated())) {
-        logger.debug("Reservation {} was not created using NSI, no work to perform", reservation.getLabel());
+      if (!reservation.getConnection().isPresent() || reservation.getConnection().get().getNsiVersion() != NsiVersion.ONE) {
+        logger.debug("Reservation {} was not created using NSIv1, no work to perform", reservation.getLabel());
         return;
       }
 
-      Connection connection = reservation.getConnection().get();
-
-      ConnectionServiceRequesterCallback requester =
-        connection.getNsiVersion() == NsiVersion.ONE ? connectionServiceRequesterVersionOne : connectionServiceRequesterVersionTwo;
+      ConnectionV1 connection = (ConnectionV1) reservation.getConnection().get();
 
       switch (event.getNewStatus()) {
       case RESERVED:
@@ -119,7 +115,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     }
   }
 
-  private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterCallback requester) {
+  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterCallback<ConnectionV1> requester) {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:

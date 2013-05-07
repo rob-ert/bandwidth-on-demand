@@ -81,7 +81,7 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
     List<VirtualResourceGroup> entriesForManager =
         virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
 
@@ -109,7 +109,7 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
+  protected List<? extends VirtualResourceGroupView> transformToView(List<? extends VirtualResourceGroup> entities, RichUserDetails user) {
       return Lists.transform(entities, VirtualResourceGroupService.TO_MANAGER_VIEW);
   }
 

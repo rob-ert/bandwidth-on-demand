@@ -22,44 +22,20 @@
  */
 package nl.surfnet.bod.repo;
 
-import static nl.surfnet.bod.repo.CustomRepoHelper.addSortClause;
-
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import nl.surfnet.bod.domain.ConnectionV2;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Connection_;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+@Repository
+public interface ConnectionV2Repo extends JpaSpecificationExecutor<ConnectionV2>, JpaRepository<ConnectionV2, Long>, CustomRepo<ConnectionV2> {
 
-import com.google.common.base.Optional;
+  ConnectionV2 findByConnectionId(final String connectionId);
 
-public class ConnectionRepoImpl implements CustomRepo<Connection> {
+  ConnectionV2 findByGlobalReservationId(final String globalReservationId);
 
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Override
-  public List<Long> findIdsWithWhereClause(Optional<Specification<Connection>> whereClause, Optional<Sort> sort) {
-    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    Root<Connection> root = criteriaQuery.from(Connection.class);
-
-    criteriaQuery.select(root.get(Connection_.id));
-
-    if (whereClause.isPresent()) {
-      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
-    }
-
-    addSortClause(sort, criteriaBuilder, criteriaQuery, root);
-
-    return entityManager.createQuery(criteriaQuery).getResultList();
-  }
-
+  List<ConnectionV2> findByRequesterNsa(final String requesterNsa);
 }

@@ -30,10 +30,10 @@ import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
-import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -57,16 +57,16 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 @Component("connectionServiceRequesterVersionTwo")
-public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionServiceRequesterCallback {
+public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionServiceRequesterCallback<ConnectionV2> {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterVersionTwoCallback.class);
 
-  @Resource private ConnectionRepo connectionRepo;
+  @Resource private ConnectionV2Repo connectionRepo;
 
   @Override
-  public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
+  public void reserveConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.RESERVED); // TODO should be nsi 2 state..
@@ -130,61 +130,61 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
   }
 
   @Override
-  public void provisionSucceeded(Connection connection) {
+  public void provisionSucceeded(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
+  public void provisionFailed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void reserveFailed(Connection connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
+  public void reserveFailed(ConnectionV2 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void terminateTimedOutReservation(Connection connection) {
+  public void terminateTimedOutReservation(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateConfirmed(ConnectionV2 connection, Optional<NsiRequestDetails> requestDetails) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateFailed(ConnectionV2 connection, Optional<NsiRequestDetails> requestDetails) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void executionSucceeded(Connection connection) {
+  public void executionSucceeded(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void executionFailed(Connection connection) {
+  public void executionFailed(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void scheduleSucceeded(Connection connection) {
+  public void scheduleSucceeded(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
   }

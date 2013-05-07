@@ -31,8 +31,6 @@ import javax.persistence.Persistence;
 import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.lucene.queryParser.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -67,19 +65,8 @@ public abstract class AbstractIndexAndSearch<T> {
   }
 
   private void initEntityManager() {
-
-    try {
-      // Suppressing the error messages during (test) creation of foreign keys.
-      Level originalLevel = LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).getLevel();
-      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.FATAL);
-      entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
-      entityManager = entityManagerFactory.createEntityManager();
-      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(originalLevel);
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-    }
-
+    entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
+    entityManager = entityManagerFactory.createEntityManager();
   }
 
   protected void index() {

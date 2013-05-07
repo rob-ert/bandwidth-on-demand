@@ -39,7 +39,7 @@ import javax.persistence.PersistenceContext;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -100,7 +100,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private ReservationRepo reservationRepo;
 
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
@@ -552,7 +552,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Reservation findByConnectionId(String connectionId) {
-    return reservationRepo.findByConnectionConnectionId(connectionId);
+    return reservationRepo.findByConnectionV1ConnectionId(connectionId);
   }
 
   public Reservation findByReservationId(final String reservationId) {

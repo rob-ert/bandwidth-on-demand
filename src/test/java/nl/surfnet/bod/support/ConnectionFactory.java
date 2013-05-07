@@ -24,7 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
 
@@ -51,8 +51,8 @@ public class ConnectionFactory {
   private String description = "";
   private NsiVersion nsiVersion = NsiVersion.ONE;
 
-  public Connection create() {
-    Connection connection = new Connection();
+  public ConnectionV1 create() {
+    ConnectionV1 connection = new ConnectionV1();
 
     connection.setId(id);
     connection.setVersion(version);

@@ -33,13 +33,13 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.service.ConnectionService;
-import nl.surfnet.bod.service.ConnectionService.ValidationException;
+import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
+import nl.surfnet.bod.service.ConnectionServiceV2;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -75,7 +75,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
 
-  @Resource private ConnectionService connectionService;
+  @Resource private ConnectionServiceV2 connectionService;
   @Resource private Environment bodEnvironment;
 
     public void reserve(
@@ -89,7 +89,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(header.value.getReplyTo(), header.value.getCorrelationId());
 
-    Connection connection = createConnection(
+    ConnectionV2 connection = createConnection(
         Optional.fromNullable(emptyToNull(globalReservationId)),
         Optional.fromNullable(emptyToNull(description)),
         header.value.getProviderNSA(),
@@ -101,7 +101,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     reserve(connection, requestDetails, Security.getUserDetails());
   }
 
-  protected void reserve(Connection connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
+  protected void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
       connectionService.reserve(connection, requestDetails, false, richUserDetails);
     } catch (ValidationException e) {
@@ -114,11 +114,11 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     }
   }
 
-  private Connection createConnection(Optional<String> globalReservationId, Optional<String> description, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
+  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(calendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
-    Connection connection = new Connection();
+    ConnectionV2 connection = new ConnectionV2();
     connection.setNsiVersion(NsiVersion.TWO);
     connection.setCurrentState(ConnectionStateType.INITIAL); // NSI 2 states...
     connection.setConnectionId(NsiHelper.generateConnectionId());

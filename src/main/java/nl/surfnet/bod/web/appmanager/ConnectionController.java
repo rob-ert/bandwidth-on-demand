@@ -30,10 +30,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.ConnectionService;
+import nl.surfnet.bod.service.ConnectionServiceV1;
 import nl.surfnet.bod.service.ReservationPoller;
 import nl.surfnet.bod.web.appmanager.ConnectionController.ConnectionView;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
@@ -55,10 +55,10 @@ import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/appmanager/connections")
-public class ConnectionController extends AbstractSearchableSortableListController<ConnectionView, Connection> {
+public class ConnectionController extends AbstractSearchableSortableListController<ConnectionView, ConnectionV1> {
 
   @Resource
-  private ConnectionService connectionService;
+  private ConnectionServiceV1 connectionService;
 
   @Resource
   private ReservationPoller reservationPoller;
@@ -87,10 +87,10 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<ConnectionView> transformToView(List<Connection> entities, RichUserDetails user) {
-    return Lists.transform(entities, new Function<Connection, ConnectionView>() {
+  protected List<ConnectionView> transformToView(List<? extends ConnectionV1> entities, RichUserDetails user) {
+    return Lists.transform(entities, new Function<ConnectionV1, ConnectionView>() {
       @Override
-      public ConnectionView apply(Connection connection) {
+      public ConnectionView apply(ConnectionV1 connection) {
         return new ConnectionView(connection);
       }
     });
@@ -117,7 +117,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected AbstractFullTextSearchService<Connection> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<ConnectionV1> getFullTextSearchableService() {
     return connectionService;
   }
 
@@ -148,7 +148,7 @@ public class ConnectionController extends AbstractSearchableSortableListControll
     private final Long id;
     private final String reservationId;
 
-    public ConnectionView(Connection connection) {
+    public ConnectionView(ConnectionV1 connection) {
       this.id = connection.getId();
       this.description = connection.getDescription();
       this.label = connection.getLabel();

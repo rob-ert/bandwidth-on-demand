@@ -233,7 +233,7 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<PhysicalResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends PhysicalResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
     final List<PhysicalResourceGroup> physycalResourceGroups = physicalResourceGroupService.findEntries(firstPage,
         maxItems, sort);
 
@@ -389,7 +389,7 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<PhysicalResourceGroupView> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
+  protected List<? extends PhysicalResourceGroupView> transformToView(List<? extends PhysicalResourceGroup> entities, RichUserDetails user) {
     final List<PhysicalResourceGroupView> physicalResourceGroupViews = new ArrayList<>();
     for (final PhysicalResourceGroup physicalResourceGroup : entities) {
       final PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);

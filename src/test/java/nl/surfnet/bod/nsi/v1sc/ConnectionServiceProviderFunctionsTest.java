@@ -29,7 +29,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.support.ReserveRequestTypeFactory;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
@@ -47,7 +47,7 @@ public class ConnectionServiceProviderFunctionsTest {
         DatatypeFactory.newInstance().newXMLGregorianCalendar(2012, 5, 18, 14, 0, 0, 0,
             DatatypeConstants.FIELD_UNDEFINED)).setDuration(null).setConnectionId("connectionId1").create();
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
     assertThat(connection.getConnectionId(), is("connectionId1"));
     assertThat(connection.getStartTime().isPresent(), is(false));
@@ -63,7 +63,7 @@ public class ConnectionServiceProviderFunctionsTest {
             DatatypeConstants.FIELD_UNDEFINED)).setScheduleEndTime(null).setDuration(
         DatatypeFactory.newInstance().newDuration(true, 0, 0, 2, 5, 10, 0)).setConnectionId("connectionId1").create();
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
     assertThat(connection.getConnectionId(), is("connectionId1"));
     DateTime startTime = new DateTime(connection.getStartTime().get());
@@ -86,7 +86,7 @@ public class ConnectionServiceProviderFunctionsTest {
     serviceAttributes.setGuaranteed(guranteed);
     reserveRequest.getReserve().getReservation().getServiceParameters().setServiceAttributes(serviceAttributes);
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
     assertThat(connection.getProtectionType(), is("UNPROTECTED"));
   }
@@ -97,7 +97,7 @@ public class ConnectionServiceProviderFunctionsTest {
 
     reserveRequest.getReserve().getReservation().getServiceParameters().setServiceAttributes(null);
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
     assertThat(connection.getProtectionType(), is("PROTECTED"));
   }

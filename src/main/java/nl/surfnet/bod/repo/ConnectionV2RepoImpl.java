@@ -20,28 +20,46 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.repo;
+
+import static nl.surfnet.bod.repo.CustomRepoHelper.addSortClause;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.domain.ConnectionV2_;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+public class ConnectionV2RepoImpl implements CustomRepo<ConnectionV2> {
 
-public interface ConnectionServiceRequesterCallback<C extends Connection> {
+  @PersistenceContext
+  private EntityManager entityManager;
 
-  void provisionSucceeded(C connection);
-  void provisionConfirmed(C connection, NsiRequestDetails requestDetails);
-  void provisionFailed(C connection, NsiRequestDetails requestDetails);
+  @Override
+  public List<Long> findIdsWithWhereClause(Optional<Specification<ConnectionV2>> whereClause, Optional<Sort> sort) {
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<ConnectionV2> root = criteriaQuery.from(ConnectionV2.class);
 
-  void reserveConfirmed(C connection, NsiRequestDetails requestDetails);
-  void reserveFailed(C connection, NsiRequestDetails requestDetails, Optional<String> failedReason);
+    criteriaQuery.select(root.get(ConnectionV2_.id));
 
-  void terminateTimedOutReservation(C connection);
-  void terminateConfirmed(C connection, Optional<NsiRequestDetails> requestDetails);
-  void terminateFailed(C connection, Optional<NsiRequestDetails> requestDetails);
+    if (whereClause.isPresent()) {
+      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    }
 
-  void executionSucceeded(C connection);
-  void executionFailed(C connection);
+    addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
-  void scheduleSucceeded(C connection);
+    return entityManager.createQuery(criteriaQuery).getResultList();
+  }
+
 }

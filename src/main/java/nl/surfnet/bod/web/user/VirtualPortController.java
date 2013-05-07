@@ -115,12 +115,10 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final List<VirtualPortView> transformToView = transformToView(
+  protected List<? extends VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return transformToView(
         virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
         Security.getUserDetails());
-
-    return transformToView;
   }
 
   @Override
@@ -199,7 +197,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
+  protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
     return Lists.transform(entities, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
 

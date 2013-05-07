@@ -113,7 +113,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     return listUrl();
   }
 
-  protected abstract List<VIEW> transformToView(List<ENTITY> entities, RichUserDetails user);
+  protected abstract List<? extends VIEW> transformToView(List<? extends ENTITY> entities, RichUserDetails user);
 
   protected Sort prepareSortOptions(String sort, String order, Model model) {
     String sortProperty = sortProperty(sort);
@@ -127,7 +127,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
 
   protected abstract String listUrl();
 
-  protected abstract List<VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
+  protected abstract List<? extends VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
 
   protected abstract long count(Model model);
 

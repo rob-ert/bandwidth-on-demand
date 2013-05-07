@@ -111,9 +111,13 @@ public class Reservation implements Loggable, PersistableDomain {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   private final DateTime creationDateTime;
 
-  @OneToOne(mappedBy = "reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+  @OneToOne(mappedBy="reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
   @IndexedEmbedded
-  private Connection connection;
+  private ConnectionV1 connectionV1;
+
+  @OneToOne(mappedBy="reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+  @IndexedEmbedded
+  private ConnectionV2 connectionV2;
 
   @Enumerated(EnumType.STRING)
   @Field
@@ -402,18 +406,35 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   public Optional<Connection> getConnection() {
-    return Optional.fromNullable(connection);
+    if (connectionV1 != null) {
+      return Optional.fromNullable((Connection) connectionV1);
+    } else if (connectionV2 != null) {
+      return Optional.fromNullable((Connection) connectionV2);
+    } else {
+      return Optional.absent();
+    }
   }
 
   public void setConnection(Connection connection) {
-    this.connection = connection;
+    if (connection == null) {
+      this.connectionV1 = null;
+      this.connectionV2 = null;
+    } else if (connection instanceof ConnectionV1) {
+      this.connectionV1 = (ConnectionV1) connection;
+      this.connectionV2 = null;
+    } else if (connection instanceof ConnectionV2) {
+      this.connectionV1 = null;
+      this.connectionV2 = (ConnectionV2) connection;
+    } else {
+      throw new IllegalArgumentException("unknown connection type " + connection.getClass());
+    }
   }
 
   /**
    * @return True if this reservation was made using NSI, false otherwise
    */
   public boolean isNSICreated() {
-    return connection != null;
+    return connectionV1 != null || connectionV2 != null;
   }
 
   public ProtectionType getProtectionType() {
@@ -503,9 +524,10 @@ public class Reservation implements Loggable, PersistableDomain {
       builder.append(creationDateTime);
       builder.append(", ");
     }
-    if (connection != null) {
+    Optional<Connection> connection = getConnection();
+    if (connection.isPresent()) {
       builder.append("connection=");
-      builder.append(connection.getLabel());
+      builder.append(connection.get().getLabel());
       builder.append(", ");
     }
     if (protectionType != null) {

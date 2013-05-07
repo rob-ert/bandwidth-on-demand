@@ -53,7 +53,7 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
     return transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
