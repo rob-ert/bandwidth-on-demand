@@ -125,7 +125,7 @@ public class JaxbUserType<T> implements UserType {
       return null;
     }
     try (StringWriter writer = new StringWriter()) {
-      jaxbContext.createMarshaller().marshal(new JAXBElement<T>(new QName(localName), type, type.cast(value)), writer);
+      jaxbContext.createMarshaller().marshal(new JAXBElement<>(new QName(localName), type, type.cast(value)), writer);
       return writer.toString();
     } catch (JAXBException | IOException e) {
       throw new HibernateException(e);
