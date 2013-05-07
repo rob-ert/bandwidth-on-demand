@@ -78,15 +78,18 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().verifyMoveResultPage(2);
 
-    // Two reservations should appear in Active filter, since they have a
-    // transient state
+    // Two reservations should appear in Active filter, since they have a transient state
     getNocDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, null,
         "First reservation", "Second reservation");
 
-    // Four reservations should appear in 2012 filter, the two new above and the
-    // two cancelled old ones.
+    // Four reservations should appear in 2012 filter, the two new above and the two cancelled old ones.
     getNocDriver().verifyReservationByFilterAndSearch("" + LocalDateTime.now().plusDays(1).getYear(), null,
         "First reservation", "First reservation", "Second reservation", "Second reservation");
+
+    // make sure the async reserve jobs are finished
+    getNocDriver().switchToUserRole();
+    getUserDriver().verifyAndWaitForReservationIsAutoStart("Second reservation");
+    getUserDriver().verifyAndWaitForReservationIsAutoStart("First reservation");
   }
 
 }

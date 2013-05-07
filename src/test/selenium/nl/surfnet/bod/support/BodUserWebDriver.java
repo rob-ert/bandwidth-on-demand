@@ -73,7 +73,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyAndWaitForReservationIsAutoStart(String label) {
-    ListReservationPage page = ListReservationPage.get(driver);
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.reservationShouldBe(label, ReservationStatus.AUTO_START);
   }
