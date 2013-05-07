@@ -93,7 +93,7 @@ public class JaxbUserType<T> implements UserType {
   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
       throws HibernateException, SQLException {
     String string = rs.getString(names[0]);
-    if (string == null || rs.wasNull()) {
+    if (rs.wasNull()) {
       return null;
     }
 
@@ -101,6 +101,9 @@ public class JaxbUserType<T> implements UserType {
   }
 
   T fromXmlString(String string) {
+    if (string == null) {
+      return null;
+    }
     try (InputStream input = IOUtils.toInputStream(string, "UTF-8")) {
       XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
       try {
