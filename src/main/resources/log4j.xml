@@ -24,7 +24,7 @@
   </logger>
 
   <logger name="com.googlecode.flyway">
-    <level value="WARN" />
+    <level value="INFO" />
   </logger>
 
   <logger name="nl.surfnet">

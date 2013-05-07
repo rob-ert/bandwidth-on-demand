@@ -48,6 +48,7 @@ To make sure maven is using your jdk 7 set your env JAVA_HOME to ``/usr/libexec/
 
 To change the default jre in mac os X open java preferences.
 
+You also need to install the unlimited encryption extensions. These can be downloaded from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html).
 
 ### Postgresql
 When running postgresql on a Mac installed through Homebrew your conf file says it can have a maximum of 20 connections. When you would like to increase this because you are running out of connections you could do the following. Edit the `/usr/local/var/postgres/postgresl.conf` and change the `max_connections` to 100 for example. 
