@@ -36,8 +36,7 @@ object EncryptedString {
     enc
   }
 
-  implicit def stringToEncryptedString(str: String) = new {
-
+  implicit class stringToEncryptedString(str: String) {
     def encrypt(): String = encryptor.encrypt(str)
 
     def decrypt(): String = encryptor.decrypt(str)
