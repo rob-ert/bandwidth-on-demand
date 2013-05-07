@@ -36,9 +36,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.hibernate.HibernateException;
@@ -50,7 +48,6 @@ public class JaxbUserType<T> implements UserType {
   private static final int[] SQL_TYPES = { Types.LONGVARCHAR };
 
   private static JAXBContext jaxbContext;
-  private static XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
   static {
     try {
@@ -105,14 +102,9 @@ public class JaxbUserType<T> implements UserType {
       return null;
     }
     try (InputStream input = IOUtils.toInputStream(string, "UTF-8")) {
-      XMLStreamReader reader = inputFactory.createXMLStreamReader(input);
-      try {
-        return jaxbContext.createUnmarshaller().unmarshal(reader, type).getValue();
-      } finally {
-        reader.close();
-      }
-    } catch (JAXBException | IOException | XMLStreamException e) {
-      throw new HibernateException(e);
+      return jaxbContext.createUnmarshaller().unmarshal(new StreamSource(input), type).getValue();
+    } catch (RuntimeException | JAXBException | IOException e) {
+      throw new HibernateException("failed to deserialize: " + string, e);
     }
   }
 
@@ -130,8 +122,8 @@ public class JaxbUserType<T> implements UserType {
     try (StringWriter writer = new StringWriter()) {
       jaxbContext.createMarshaller().marshal(new JAXBElement<>(xmlRootElementName, type, type.cast(value)), writer);
       return writer.toString();
-    } catch (JAXBException | IOException e) {
-      throw new HibernateException(e);
+    } catch (RuntimeException | JAXBException | IOException e) {
+      throw new HibernateException("failed to serialize: " + value, e);
     }
   }
 
