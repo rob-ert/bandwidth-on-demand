@@ -30,8 +30,6 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Function;
-
 public class ReservationView {
   private final Long id;
   private final String name;
@@ -52,6 +50,7 @@ public class ReservationView {
   private final DateTime creationDateTime;
   private final ElementActionView deleteActionView, editActionView;
   private final ProtectionType protectionType;
+  private final String connectionStatus;
 
   public ReservationView(
       Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
@@ -72,11 +71,13 @@ public class ReservationView {
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
     this.editActionView = editActionView;
-    this.connectionId = reservation.getConnection().transform(CONNECTION_ID).orNull();
+    Connection connection = reservation.getConnection().orNull();
+    this.connectionId = connection == null ? null : connection.getConnectionId();
+    this.connectionStatus = connection == null ? null : connection.getConnectionStatus();
   }
 
   public String getConnectionStatus() {
-    return "FIXME";
+    return connectionStatus;
   }
   public String getVirtualResourceGroup() {
     return virtualResourceGroup;
@@ -319,11 +320,4 @@ public class ReservationView {
     }
     return true;
   }
-
-  private static final Function<Connection, String> CONNECTION_ID = new Function<Connection, String>() {
-      @Override
-      public String apply(Connection c) {
-        return c.getConnectionId();
-      }
-    };
 }

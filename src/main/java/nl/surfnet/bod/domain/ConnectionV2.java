@@ -124,6 +124,11 @@ public class ConnectionV2 extends AbstractConnection {
     this.description = description;
   }
 
+  @Override
+  public String getConnectionStatus() {
+    return currentState.toString();
+  }
+
   public ConnectionStateType getCurrentState() {
     return currentState;
   }
