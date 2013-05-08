@@ -106,15 +106,6 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
     }
   }
 
-  private CommonHeaderType createHeader(NsiRequestDetails requestDetails, String providerNsa, String requesterNsa) {
-    return new CommonHeaderType()
-      .withCorrelationId(requestDetails.getCorrelationId())
-      .withProtocolVersion("urn:2.0:FIXME")
-      .withProviderNSA(providerNsa)
-      .withRequesterNSA(requesterNsa);
-
-  }
-
   private StpType toStpType(String sourceStpId) {
     String[] parts = sourceStpId.split(":");
     String networkId = Joiner.on(":").join(Arrays.copyOfRange(parts, 0, parts.length - 2));
@@ -123,19 +114,13 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
       .withLocalId(parts[parts.length - 1]);
   }
 
-  private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {
-    ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
+  public void reserveCommitConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+    ConnectionRequesterPort port = createPort(requestDetails);
 
-    return port;
-  }
-
-  private URL wsdlUrl() {
     try {
-      return new ClassPathResource(WSDL_LOCATION).getURL();
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Could not find the requester wsdl", e);
+      port.reserveCommitConfirmed(connection.getGlobalReservationId(), connection.getConnectionId(), new Holder<>(createHeader(requestDetails, "requester", "provider")));
+    } catch (ServiceException e) {
+      log.info("", e);
     }
   }
 
@@ -151,7 +136,7 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.querySummaryConfirmed(results, new Holder<CommonHeaderType>(createHeader(requestDetails, "provider", "requester")));
+      port.querySummaryConfirmed(results, new Holder<>(createHeader(requestDetails, "provider", "requester")));
     } catch (ServiceException e) {
       log.info("Failed to send query summary confirmed", e);
     }
@@ -211,6 +196,30 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
   public void scheduleSucceeded(ConnectionV2 connection) {
     // TODO Auto-generated method stub
 
+  }
+
+  private CommonHeaderType createHeader(NsiRequestDetails requestDetails, String providerNsa, String requesterNsa) {
+    return new CommonHeaderType()
+      .withCorrelationId(requestDetails.getCorrelationId())
+      .withProtocolVersion("urn:2.0:FIXME")
+      .withProviderNSA(providerNsa)
+      .withRequesterNSA(requesterNsa);
+  }
+
+  private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {
+    ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
+    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
+
+    return port;
+  }
+
+  private URL wsdlUrl() {
+    try {
+      return new ClassPathResource(WSDL_LOCATION).getURL();
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Could not find the requester wsdl", e);
+    }
   }
 
 }

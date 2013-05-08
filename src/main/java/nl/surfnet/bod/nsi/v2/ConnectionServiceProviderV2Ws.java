@@ -36,7 +36,9 @@ import javax.xml.ws.Holder;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ConnectionServiceV2;
 import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
 import nl.surfnet.bod.util.Environment;
@@ -73,6 +75,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV2Ws.class);
 
   @Resource private ConnectionServiceV2 connectionService;
+  @Resource private ConnectionV2Repo connectionRepo;
   @Resource private Environment bodEnvironment;
 
     public void reserve(
@@ -82,6 +85,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
         @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
         @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
         throws ServiceException {
+
+    checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received a NSI v2 reserve request");
 
@@ -97,10 +102,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connectionId.value = connection.getConnectionId();
 
     reserve(connection, requestDetails, Security.getUserDetails());
-  }
-
-  private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
-    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
   }
 
   protected void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
@@ -147,8 +148,16 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    // Checking for the reserve scope for now..
+    checkOAuthScope(NsiScope.RESERVE);
+
+    log.info("Received reserve commit request for connection: {}", connectionId);
+
+    ConnectionV2 connection = getConnectionOrFail(connectionId);
+
+    connectionService.asyncReserveCommit(connection, createRequestDetails(header.value));
   }
+
   @Override
   public void reserveAbort(
       @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
@@ -250,18 +259,49 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
 
-    throw new QuerySummarySyncFailed("Not implemented yet", new QueryFailedType().withServiceException(notImplementedServiceException()));
+    throw new QuerySummarySyncFailed("Not implemented yet", new QueryFailedType().withServiceException(createServiceExceptionType("This operation is not implemented yet")));
+  }
+
+  private ConnectionV2 getConnectionOrFail(String connectionId) throws ServiceException {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+    if (connection == null) {
+      throw connectionNotFoundServiceException();
+    }
+
+    return connection;
+  }
+
+  private void checkOAuthScope(NsiScope scope) throws ServiceException {
+    if (!Security.hasOauthScope(scope)) {
+      throw unAuthorizedServiceException();
+    }
+  }
+
+  private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
+    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
   }
 
   private void notImplementedYet() throws ServiceException {
-    throw new ServiceException("Not implemented yet", notImplementedServiceException());
+    throw notImplementedServiceException();
   }
 
-  private ServiceExceptionType notImplementedServiceException() {
+  private ServiceException connectionNotFoundServiceException() {
+    return new ServiceException("Could not find connection", createServiceExceptionType("Not found"));
+  }
+
+  private ServiceException unAuthorizedServiceException() {
+    return new ServiceException("Unauthorized", createServiceExceptionType("Unauthorized"));
+  }
+
+  private ServiceException notImplementedServiceException() {
+    return new ServiceException("Not implemented yet", createServiceExceptionType("This operation is not implemented yet"));
+  }
+
+  private ServiceExceptionType createServiceExceptionType(String message) {
     return new ServiceExceptionType()
       .withNsaId(bodEnvironment.getNsiProviderNsa())
       .withErrorId("0100")
-      .withText("This operation is not implemented yet");
+      .withText(message);
   }
 
 }

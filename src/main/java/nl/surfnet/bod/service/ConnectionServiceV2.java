@@ -127,6 +127,16 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
+  public void asyncReserveCommit(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+    connection.setCurrentState(ReservationStateEnumType.RESERVE_COMMITTING);
+    // TODO ???
+    connection.setCurrentState(ReservationStateEnumType.RESERVED);
+    connectionRepo.save(connection);
+
+    connectionServiceRequester.reserveCommitConfirmed(connection, requestDetails);
+  }
+
+  @Async
   public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
     List<ConnectionV2> connections;
 

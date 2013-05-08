@@ -214,7 +214,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
   }
 
   private void checkOAuthScope(NsiScope scope) throws ServiceException {
-    if (!Security.getUserDetails().getNsiScopes().contains(scope)) {
+    if (!Security.hasOauthScope(scope)) {
       log.warn("OAuth access token not valid for {}", scope);
       throw createServiceException(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE);
     }
