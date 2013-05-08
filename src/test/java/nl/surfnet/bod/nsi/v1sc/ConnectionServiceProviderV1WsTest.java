@@ -74,10 +74,10 @@ import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderWsTest {
+public class ConnectionServiceProviderV1WsTest {
 
   @InjectMocks
-  private ConnectionServiceProviderWs subject;
+  private ConnectionServiceProviderV1Ws subject;
 
   @Mock
   private ConnectionV1Repo connectionRepoMock;

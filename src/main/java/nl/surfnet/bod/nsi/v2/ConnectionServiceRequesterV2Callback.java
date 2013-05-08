@@ -24,7 +24,9 @@ package nl.surfnet.bod.nsi.v2;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
@@ -39,10 +41,13 @@ import nl.surfnet.bod.util.XmlUtils;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
@@ -56,12 +61,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-@Component("connectionServiceRequesterVersionTwo")
-public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionServiceRequesterCallback<ConnectionV2> {
+@Component("connectionServiceRequesterV2")
+public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRequesterCallback<ConnectionV2> {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterVersionTwoCallback.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV2Callback.class);
 
   @Resource private ConnectionV2Repo connectionRepo;
 
@@ -86,11 +91,8 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
-    Holder<CommonHeaderType> headerHolder = new Holder<>(new CommonHeaderType()
-      .withCorrelationId(requestDetails.getCorrelationId())
-      .withProtocolVersion("urn:2.0:FIXME")
-      .withProviderNSA(connection.getProviderNsa())
-      .withRequesterNSA(connection.getRequesterNsa()));
+    Holder<CommonHeaderType> headerHolder = new Holder<>(
+        createHeader(requestDetails, connection.getProviderNsa(), connection.getRequesterNsa()));
 
     try {
       port.reserveConfirmed(
@@ -100,9 +102,17 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
           ImmutableList.of(criteria),
           headerHolder);
     } catch (ServiceException e) {
-      log.info("Sending reserve confirmed failed");
-      e.printStackTrace();
+      log.info("Sending reserve confirmed failed", e);
     }
+  }
+
+  private CommonHeaderType createHeader(NsiRequestDetails requestDetails, String providerNsa, String requesterNsa) {
+    return new CommonHeaderType()
+      .withCorrelationId(requestDetails.getCorrelationId())
+      .withProtocolVersion("urn:2.0:FIXME")
+      .withProviderNSA(providerNsa)
+      .withRequesterNSA(requesterNsa);
+
   }
 
   private StpType toStpType(String sourceStpId) {
@@ -129,28 +139,42 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
     }
   }
 
+  public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
+    List<QuerySummaryResultType> results = new ArrayList<>();
+
+    for (ConnectionV2 connection : connections) {
+      results.add(new QuerySummaryResultType()
+        .withConnectionId(connection.getConnectionId())
+        .withConnectionStates(new ConnectionStatesType()
+          .withReservationState(new ReservationStateType().withState(connection.getCurrentState()).withVersion(0))));
+    }
+
+    ConnectionRequesterPort port = createPort(requestDetails);
+    try {
+      port.querySummaryConfirmed(results, new Holder<CommonHeaderType>(createHeader(requestDetails, "provider", "requester")));
+    } catch (ServiceException e) {
+      log.info("Failed to send query summary confirmed", e);
+    }
+  }
+
   @Override
   public void provisionSucceeded(ConnectionV2 connection) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   public void provisionConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   public void provisionFailed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   public void reserveFailed(ConnectionV2 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
     // TODO Auto-generated method stub
-
   }
 
   @Override

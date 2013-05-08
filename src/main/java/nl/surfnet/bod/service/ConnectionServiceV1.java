@@ -50,7 +50,7 @@ import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterVersionOneCallback;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterV1Callback;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -99,20 +99,11 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV1.class);
 
-  @Resource
-  private Environment bodEnvironment;
-
-  @Resource
-  private ConnectionV1Repo connectionRepo;
-
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private ConnectionServiceRequesterVersionOneCallback connectionServiceRequester;
+  @Resource private Environment bodEnvironment;
+  @Resource private ConnectionV1Repo connectionRepo;
+  @Resource private ReservationService reservationService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private ConnectionServiceRequesterV1Callback connectionServiceRequester;
 
   @PersistenceContext
   private EntityManager entityManager;

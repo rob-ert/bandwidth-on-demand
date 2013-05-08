@@ -68,9 +68,9 @@ import com.sun.xml.ws.developer.SchemaValidation;
   endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort",
   targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/provider")
 @SchemaValidation
-public class ConnectionServiceProviderWs implements ConnectionProviderPort {
+public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV2Ws.class);
 
   @Resource private ConnectionServiceV2 connectionService;
   @Resource private Environment bodEnvironment;
@@ -82,9 +82,10 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
         @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
         @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
         throws ServiceException {
+
     log.info("Received a NSI v2 reserve request");
 
-    NsiRequestDetails requestDetails = new NsiRequestDetails(header.value.getReplyTo(), header.value.getCorrelationId());
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
 
     ConnectionV2 connection = createConnection(
         Optional.fromNullable(emptyToNull(globalReservationId)),
@@ -96,6 +97,10 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     connectionId.value = connection.getConnectionId();
 
     reserve(connection, requestDetails, Security.getUserDetails());
+  }
+
+  private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
+    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
   }
 
   protected void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
@@ -181,12 +186,15 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   }
 
   @Override
-  public void querySummary(@WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
+  public void querySummary(
+      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionIds,
+      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationIds,
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
+    connectionService.asyncQuerySummary(connectionIds, globalReservationIds, requestDetails, header.value.getRequesterNSA());
   }
 
   @Override

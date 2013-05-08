@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static com.google.common.base.Optional.fromNullable;
 
@@ -30,7 +30,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterVersionOneCallback;
+import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
@@ -49,9 +49,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
   private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListenerV1.class);
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
-
-  @Resource private ConnectionServiceRequesterVersionOneCallback requester;
-
+  @Resource private ConnectionServiceRequesterV1Callback requester;
   @Resource private ReservationService reservationService;
 
   @PostConstruct

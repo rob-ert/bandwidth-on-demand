@@ -69,22 +69,13 @@ import com.sun.xml.ws.developer.SchemaValidation;
   endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
   targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 @SchemaValidation
-public class ConnectionServiceProviderWs implements ConnectionProviderPort {
+public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
-  static final String SVC0003_ALREADY_EXISTS = "SVC0003";
-  static final String SVC0005_INVALID_CREDENTIALS = "SVC0005";
-  static final String SVC0001_INVALID_PARAM = "SVC0001";
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV1Ws.class);
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
-
-  @Resource
-  private ConnectionV1Repo connectionRepo;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private ConnectionServiceV1 connectionService;
+  @Resource private ConnectionV1Repo connectionRepo;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private ConnectionServiceV1 connectionService;
 
   @Override
   public GenericAcknowledgmentType reserve(ReserveRequestType reservationRequest) throws ServiceException {
@@ -230,7 +221,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
   }
 
   private ServiceException createServiceException(ConnectionServiceProviderErrorCodes.SECURITY error) {
-    final ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
+    ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
     serviceExceptionType.setErrorId(error.getId());
     serviceExceptionType.setText(error.getText());
 

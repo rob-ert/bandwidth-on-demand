@@ -50,10 +50,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 
-@Component("connectionServiceRequesterVersionOne")
-public class ConnectionServiceRequesterVersionOneCallback implements ConnectionServiceRequesterCallback<ConnectionV1> {
+@Component("connectionServiceRequesterV1")
+public class ConnectionServiceRequesterV1Callback implements ConnectionServiceRequesterCallback<ConnectionV1> {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterVersionOneCallback.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1Callback.class);
 
   @Resource
   private ConnectionV1Repo connectionRepo;
@@ -232,17 +232,18 @@ public class ConnectionServiceRequesterVersionOneCallback implements ConnectionS
       port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
     }
     catch (ServiceException e) {
-      log.info("Error: ", e);
+      log.info("Sending query confirmed failed", e);
     }
   }
 
   private GenericFailedType genericFailedForConnection(ConnectionV1 connection) {
-    final GenericFailedType generic = new GenericFailedType();
+    GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
     generic.setRequesterNSA(connection.getRequesterNsa());
     generic.setConnectionId(connection.getConnectionId());
     generic.setGlobalReservationId(connection.getGlobalReservationId());
     generic.setConnectionState(connection.getCurrentState());
+
     return generic;
   }
 

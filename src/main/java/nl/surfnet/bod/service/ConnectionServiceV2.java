@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterVersionTwoCallback;
+import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2Callback;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +93,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   private VirtualPortService virtualPortService;
 
   @Resource
-  private ConnectionServiceRequesterVersionTwoCallback connectionServiceRequester;
+  private ConnectionServiceRequesterV2Callback connectionServiceRequester;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -120,7 +122,24 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
     reservation.setConnection(connection);
     connection.setReservation(reservation);
+
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+  }
+
+  @Async
+  public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
+    List<ConnectionV2> connections;
+
+    if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
+      connections = connectionRepo.findByRequesterNsa(requesterNsa);
+    } else {
+      connections = new ArrayList<>();
+      for (String connectionId : connectionIds) {
+        connections.add(connectionRepo.findByConnectionId(connectionId));
+      }
+    }
+
+    connectionServiceRequester.querySummaryConfirmed(connections, requestDetails);
   }
 
   @SuppressWarnings("serial")
@@ -194,7 +213,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   public void provision(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     checkNotNull(connection);
-
   }
 
   public Connection find(Long id) {
@@ -221,4 +239,5 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   protected EntityManager getEntityManager() {
     return entityManager;
   }
+
 }

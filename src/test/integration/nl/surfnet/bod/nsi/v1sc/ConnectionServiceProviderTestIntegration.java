@@ -92,7 +92,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private static MockHttpServer nsiRequester = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
 
   @Resource
-  private ConnectionServiceProviderWs nsiProvider;
+  private ConnectionServiceProviderV1Ws nsiProvider;
 
   @Resource
   private VirtualPortRepo virtualPortRepo;

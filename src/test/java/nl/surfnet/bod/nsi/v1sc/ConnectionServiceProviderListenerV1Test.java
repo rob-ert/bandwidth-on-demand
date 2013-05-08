@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -28,7 +28,6 @@ import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterVersionOneCallback;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionFactory;
@@ -50,7 +49,7 @@ public class ConnectionServiceProviderListenerV1Test {
   private ConnectionServiceProviderListenerV1 subject;
 
   @Mock
-  private ConnectionServiceRequesterVersionOneCallback connectionServiceRequesterMock;
+  private ConnectionServiceRequesterV1Callback connectionServiceRequesterMock;
 
   @Mock
   private ReservationService reservationServiceMock;
