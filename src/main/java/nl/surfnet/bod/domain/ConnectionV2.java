@@ -34,6 +34,8 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
 @Entity
@@ -47,9 +49,16 @@ public class ConnectionV2 extends AbstractConnection {
   private String globalReservationId;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 50)
   @Field
-  private ReservationStateEnumType currentState = ReservationStateEnumType.INITIAL;
+  private ReservationStateEnumType reservationState = ReservationStateEnumType.INITIAL;
+
+  @Enumerated(EnumType.STRING)
+  @Field
+  private ProvisionStateEnumType provisionState = ProvisionStateEnumType.RELEASED;
+
+  @Enumerated(EnumType.STRING)
+  @Field
+  private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.INITIAL;
 
   @Column(nullable = false)
   @Field
@@ -91,15 +100,31 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Override
   public String getConnectionStatus() {
-    return currentState.toString();
+    return reservationState.toString();
   }
 
-  public ReservationStateEnumType getCurrentState() {
-    return currentState;
+  public ReservationStateEnumType getReservationState() {
+    return reservationState;
   }
 
-  public void setCurrentState(ReservationStateEnumType currentState) {
-    this.currentState = currentState;
+  public LifecycleStateEnumType getLifecycleState() {
+    return lifecycleState;
+  }
+
+  public void setLifecycleState(LifecycleStateEnumType lifecycleState) {
+    this.lifecycleState = lifecycleState;
+  }
+
+  public ProvisionStateEnumType getProvisionState() {
+    return provisionState;
+  }
+
+  public void setProvisionState(ProvisionStateEnumType provisionState) {
+    this.provisionState = provisionState;
+  }
+
+  public void setReservationState(ReservationStateEnumType reservationState) {
+    this.reservationState = reservationState;
   }
 
   public int getDesiredBandwidth() {
@@ -185,9 +210,9 @@ public class ConnectionV2 extends AbstractConnection {
       builder.append(description);
       builder.append(", ");
     }
-    if (currentState != null) {
-      builder.append("currentState=");
-      builder.append(currentState);
+    if (reservationState != null) {
+      builder.append("resevationState=");
+      builder.append(reservationState);
       builder.append(", ");
     }
     if (startTime != null) {

@@ -50,7 +50,7 @@ public class ConnectionV1 extends AbstractConnection {
   private String globalReservationId;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 50)
+  @Column(length = 50)
   @Field
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 

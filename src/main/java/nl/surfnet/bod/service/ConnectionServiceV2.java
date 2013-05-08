@@ -45,6 +45,7 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
-    connection.setCurrentState(ReservationStateEnumType.RESERVE_CHECKING);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
     connection = connectionRepo.saveAndFlush(connection);
 
     VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
@@ -128,9 +129,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @Async
   public void asyncReserveCommit(ConnectionV2 connection, NsiRequestDetails requestDetails) {
-    connection.setCurrentState(ReservationStateEnumType.RESERVE_COMMITTING);
-    // TODO ???
-    connection.setCurrentState(ReservationStateEnumType.RESERVED);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_COMMITTING);
     connectionRepo.save(connection);
 
     connectionServiceRequester.reserveCommitConfirmed(connection, requestDetails);
@@ -138,13 +137,21 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @Async
   public void asyncReserveAbort(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
-    connection.setCurrentState(ReservationStateEnumType.RESERVE_ABORTING);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
 
     reservationService.cancelWithReason(
       connection.getReservation(),
       "NSIv2 terminate by " + user.getNameId(),
       user,
       Optional.of(requestDetails));
+  }
+
+  @Async
+  public void asyncProvision(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+    connection.setProvisionState(ProvisionStateEnumType.PROVISIONING);
+    connectionRepo.save(connection);
+
+    reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
   }
 
   @Async
@@ -192,7 +199,8 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     }
     catch (ValidationException e) {
       // TODO should go to terminated in Life-cycle state machine?
-      connection.setCurrentState(ReservationStateEnumType.RESERVED);
+      //connection.setLifecyhlceState(TERMINATED);
+      connection.setReservationState(ReservationStateEnumType.RESERVED);
       connectionRepo.save(connection);
       throw e;
     }
@@ -228,12 +236,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
       throw new ValidationException(attribute, "0100", String.format("Unauthorized for STP '%s'", stpId));
     }
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void provision(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
-    checkNotNull(connection);
   }
 
   public Connection find(Long id) {

@@ -122,7 +122,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
-    connection.setCurrentState(ReservationStateEnumType.INITIAL);
+    connection.setReservationState(ReservationStateEnumType.INITIAL);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
@@ -167,7 +167,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     // using TERMINATE scope for now
     checkOAuthScope(NsiScope.TERMINATE);
 
-    log.info("Received reserve abort for connection: {}", connectionId);
+    log.info("Received Reserve Abort for connection: {}", connectionId);
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
@@ -180,7 +180,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    checkOAuthScope(NsiScope.PROVISION);
+
+    log.info("Received a Provision for connection: {}", connectionId);
+
+    ConnectionV2 connection = getConnectionOrFail(connectionId);
+
+    connectionService.asyncProvision(connection, createRequestDetails(header.value));
   }
 
   @Override

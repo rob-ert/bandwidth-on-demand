@@ -40,15 +40,7 @@ import nl.surfnet.bod.util.XmlUtils;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
-import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
+import org.ogf.schemas.nsi._2013._04.connection.types.*;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
@@ -71,7 +63,7 @@ public class ConnectionServiceRequesterV2Callback {
   public void reserveConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getGlobalReservationId());
 
-    connection.setCurrentState(ReservationStateEnumType.RESERVE_HELD);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
@@ -110,7 +102,7 @@ public class ConnectionServiceRequesterV2Callback {
   }
 
   public void abortConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
-    connection.setCurrentState(ReservationStateEnumType.RESERVED);
+    connection.setReservationState(ReservationStateEnumType.RESERVED);
     connectionRepo.save(connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);
@@ -120,21 +112,39 @@ public class ConnectionServiceRequesterV2Callback {
         connection.getConnectionId(),
         createHeader(requestDetails, "requester", "provider"));
     } catch (ServiceException e) {
-      log.info("Sending reserve abort confirmed failed", e);
+      log.info("Sending Reserve Abort Confirmed failed", e);
     }
   }
 
   public void reserveCommitConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
-    ConnectionRequesterPort port = createPort(requestDetails);
+    connection.setReservationState(ReservationStateEnumType.RESERVED);
+    connectionRepo.save(connection);
 
+    ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.reserveCommitConfirmed(
         connection.getGlobalReservationId(),
         connection.getConnectionId(),
         createHeader(requestDetails, "requester", "provider"));
     } catch (ServiceException e) {
-      log.info("", e);
+      log.info("Sending Reserve Commit failed", e);
     }
+  }
+
+  public void provisionConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+    connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
+    connectionRepo.save(connection);
+
+    ConnectionRequesterPort port = createPort(requestDetails);
+    try {
+      port.provisionConfirmed(
+        connection.getGlobalReservationId(),
+        connection.getConnectionId(),
+        createHeader(requestDetails, "provider", "requester"));
+    } catch (ServiceException e) {
+      log.info("Sending Provision Confirmed failed", e);
+    }
+
   }
 
   public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
@@ -144,7 +154,10 @@ public class ConnectionServiceRequesterV2Callback {
       results.add(new QuerySummaryResultType()
         .withConnectionId(connection.getConnectionId())
         .withConnectionStates(new ConnectionStatesType()
-          .withReservationState(new ReservationStateType().withState(connection.getCurrentState()).withVersion(0))));
+          .withReservationState(new ReservationStateType().withState(connection.getReservationState()).withVersion(0))
+          .withLifecycleState(new LifecycleStateType().withState(connection.getLifecycleState()).withVersion(0))
+          .withProvisionState(new ProvisionStateType().withState(connection.getProvisionState()).withVersion(0))
+          .withDataPlaneStatus(new DataPlaneStatusType().withActive(false).withVersionConsistent(true).withVersion(0))));
     }
 
     ConnectionRequesterPort port = createPort(requestDetails);

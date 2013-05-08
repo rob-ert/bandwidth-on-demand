@@ -87,8 +87,7 @@ public class ConnectionServiceRequesterV1Callback {
     }
   }
 
-  public void reserveFailed(final ConnectionV1 connection, final NsiRequestDetails requestDetails,
-      Optional<String> failedReason) {
+  public void reserveFailed(ConnectionV1 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
     log.info("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 

@@ -50,22 +50,27 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
 
-    Optional<Connection> connection = event.getReservation().getConnection();
+    Optional<Connection> optConnection = event.getReservation().getConnection();
 
-    System.err.println("Change v2 detected.." + connection);
-
-    if (!connection.isPresent() || connection.get().getNsiVersion() != NsiVersion.TWO) {
+    if (!optConnection.isPresent() || optConnection.get().getNsiVersion() != NsiVersion.TWO) {
       return;
     }
 
-    ConnectionV2 connectionV2 = (ConnectionV2) connection.get();
+    ConnectionV2 connection = (ConnectionV2) optConnection.get();
 
     switch (event.getNewStatus()) {
     case RESERVED:
-      requester.reserveConfirmed(connectionV2, event.getNsiRequestDetails().get());
+      requester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case CANCELLED:
-      requester.abortConfirmed(connectionV2, event.getNsiRequestDetails().get());
+      // or a terminate confirmed ??? arrggg..
+      requester.abortConfirmed(connection, event.getNsiRequestDetails().get());
+      break;
+    case AUTO_START:
+      requester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+      break;
+    case SCHEDULED:
+      // start time passed but no provision.. nothing to do..
       break;
     default:
       throw new RuntimeException("ARGG not implemented..");
