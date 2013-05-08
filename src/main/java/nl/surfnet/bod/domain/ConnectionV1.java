@@ -29,52 +29,30 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 
-import com.google.common.base.Optional;
-
 @Entity
+@DiscriminatorValue("V1")
 @Indexed
 @Analyzer(definition = "customanalyzer")
-@DiscriminatorValue("V1")
-@Table(name = "CONNECTION")
 public class ConnectionV1 extends AbstractConnection {
 
   @Column(unique = true, nullable = false)
   @Field
   private String globalReservationId;
 
-  @Column(nullable = false)
-  @Field
-  private String description;
-
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   @Field
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
-
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field
-  @FieldBridge(impl = TimeStampBridge.class)
-  private DateTime startTime;
-
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field
-  @FieldBridge(impl = TimeStampBridge.class)
-  private DateTime endTime;
 
   @Column(nullable = false)
   @Field
@@ -104,9 +82,9 @@ public class ConnectionV1 extends AbstractConnection {
   @Field
   private String protectionType;
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private NsiVersion nsiVersion;
+  public ConnectionV1() {
+    super(NsiVersion.ONE);
+  }
 
   public String getGlobalReservationId() {
     return globalReservationId;
@@ -114,14 +92,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   public void setGlobalReservationId(String globalReservationId) {
     this.globalReservationId = globalReservationId;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   @Override
@@ -143,22 +113,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   public void setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
-  }
-
-  public Optional<DateTime> getStartTime() {
-    return Optional.fromNullable(startTime);
-  }
-
-  public void setStartTime(DateTime startTime) {
-    this.startTime = startTime;
-  }
-
-  public Optional<DateTime> getEndTime() {
-    return Optional.fromNullable(endTime);
-  }
-
-  public void setEndTime(DateTime endTime) {
-    this.endTime = endTime;
   }
 
   public String getSourceStpId() {
@@ -211,10 +165,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   public NsiVersion getNsiVersion() {
     return nsiVersion;
-  }
-
-  public void setNsiVersion(NsiVersion nsiVersion) {
-    this.nsiVersion = nsiVersion;
   }
 
   @Override

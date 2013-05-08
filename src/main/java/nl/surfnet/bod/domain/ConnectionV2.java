@@ -29,52 +29,27 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
-import nl.surfnet.bod.util.TimeStampBridge;
-
-import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-
-import com.google.common.base.Optional;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
 @Entity
+@DiscriminatorValue("V2")
 @Indexed
 @Analyzer(definition = "customanalyzer")
-@DiscriminatorValue("V2")
-@Table(name = "CONNECTION")
 public class ConnectionV2 extends AbstractConnection {
 
   @Column(unique = true, nullable = false)
   @Field
   private String globalReservationId;
 
-  @Column(nullable = false)
-  @Field
-  private String description;
-
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   @Field
-  private ConnectionStateType currentState = ConnectionStateType.INITIAL;
-
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field
-  @FieldBridge(impl = TimeStampBridge.class)
-  private DateTime startTime;
-
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field
-  @FieldBridge(impl = TimeStampBridge.class)
-  private DateTime endTime;
+  private ReservationStateEnumType currentState = ReservationStateEnumType.INITIAL;
 
   @Column(nullable = false)
   @Field
@@ -88,13 +63,11 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private String destinationStpId;
 
-  @Type(type = "nl.surfnet.bod.util.PathTypeUserType")
   @Column(nullable = false, length = 4096)
-  private PathType path;
+  private String path = "FIXME";
 
-  @Type(type = "nl.surfnet.bod.util.ServiceParametersTypeUserType")
   @Column(nullable = false, length = 4096)
-  private ServiceParametersType serviceParameters;
+  private String serviceParameters = "FIXME";
 
   @OneToOne(cascade = CascadeType.ALL)
   @IndexedEmbedded
@@ -104,9 +77,9 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private String protectionType;
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private NsiVersion nsiVersion;
+  public ConnectionV2() {
+    super(NsiVersion.TWO);
+  }
 
   public String getGlobalReservationId() {
     return globalReservationId;
@@ -116,24 +89,16 @@ public class ConnectionV2 extends AbstractConnection {
     this.globalReservationId = globalReservationId;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
   @Override
   public String getConnectionStatus() {
     return currentState.toString();
   }
 
-  public ConnectionStateType getCurrentState() {
+  public ReservationStateEnumType getCurrentState() {
     return currentState;
   }
 
-  public void setCurrentState(ConnectionStateType currentState) {
+  public void setCurrentState(ReservationStateEnumType currentState) {
     this.currentState = currentState;
   }
 
@@ -143,22 +108,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   public void setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
-  }
-
-  public Optional<DateTime> getStartTime() {
-    return Optional.fromNullable(startTime);
-  }
-
-  public void setStartTime(DateTime startTime) {
-    this.startTime = startTime;
-  }
-
-  public Optional<DateTime> getEndTime() {
-    return Optional.fromNullable(endTime);
-  }
-
-  public void setEndTime(DateTime endTime) {
-    this.endTime = endTime;
   }
 
   public String getSourceStpId() {
@@ -175,22 +124,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   public void setDestinationStpId(String destitnationStpId) {
     this.destinationStpId = destitnationStpId;
-  }
-
-  public PathType getPath() {
-    return path;
-  }
-
-  public void setPath(PathType path) {
-    this.path = path;
-  }
-
-  public ServiceParametersType getServiceParameters() {
-    return serviceParameters;
-  }
-
-  public void setServiceParameters(ServiceParametersType serviceParameters) {
-    this.serviceParameters = serviceParameters;
   }
 
   public NsiRequestDetails getProvisionRequestDetails() {
@@ -211,10 +144,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   public NsiVersion getNsiVersion() {
     return nsiVersion;
-  }
-
-  public void setNsiVersion(NsiVersion nsiVersion) {
-    this.nsiVersion = nsiVersion;
   }
 
   @Override
@@ -282,16 +211,6 @@ public class ConnectionV2 extends AbstractConnection {
     if (destinationStpId != null) {
       builder.append("destinationStpId=");
       builder.append(destinationStpId);
-      builder.append(", ");
-    }
-    if (path != null) {
-      builder.append("path=");
-      builder.append(path);
-      builder.append(", ");
-    }
-    if (serviceParameters != null) {
-      builder.append("serviceParameters=");
-      builder.append(serviceParameters);
       builder.append(", ");
     }
     if (reservation != null) {

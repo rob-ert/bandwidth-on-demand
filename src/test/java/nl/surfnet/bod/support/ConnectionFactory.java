@@ -25,7 +25,6 @@ package nl.surfnet.bod.support;
 import java.util.UUID;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -49,7 +48,6 @@ public class ConnectionFactory {
   private Long id = 0L;
   private Integer version = 0;
   private String description = "";
-  private NsiVersion nsiVersion = NsiVersion.ONE;
 
   public ConnectionV1 create() {
     ConnectionV1 connection = new ConnectionV1();
@@ -68,7 +66,6 @@ public class ConnectionFactory {
     connection.setServiceParameters(serviceParameters);
     connection.setProtectionType(protectionType);
     connection.setDescription(description);
-    connection.setNsiVersion(nsiVersion);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);

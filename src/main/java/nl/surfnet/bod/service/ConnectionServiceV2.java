@@ -23,17 +23,6 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
 
 import java.util.Collection;
 import java.util.List;
@@ -55,46 +44,36 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Service
 public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
 
-  protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
-    new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
-      .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
-      .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
-      .put(CANCELLED, ConnectionStateType.TERMINATED)
-      .put(FAILED, ConnectionStateType.TERMINATED)
-      .put(REQUESTED, ConnectionStateType.INITIAL)
-      .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
-      .put(RESERVED, ConnectionStateType.RESERVED)
-      .put(RUNNING, ConnectionStateType.PROVISIONED)
-      .put(SCHEDULED, ConnectionStateType.SCHEDULED)
-      .put(SUCCEEDED, ConnectionStateType.TERMINATED)
-      .put(TIMED_OUT, ConnectionStateType.TERMINATED)
+  protected static final Map<ReservationStatus, ReservationStateEnumType> STATE_MAPPING =
+    new ImmutableMap.Builder<ReservationStatus, ReservationStateEnumType>()
+//      .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
+//      .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
+//      .put(CANCELLED, ConnectionStateType.TERMINATED)
+//      .put(FAILED, ConnectionStateType.TERMINATED)
+//      .put(REQUESTED, ConnectionStateType.INITIAL)
+//      .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
+//      .put(RESERVED, ConnectionStateType.RESERVED)
+//      .put(RUNNING, ConnectionStateType.PROVISIONED)
+//      .put(SCHEDULED, ConnectionStateType.SCHEDULED)
+//      .put(SUCCEEDED, ConnectionStateType.TERMINATED)
+//      .put(TIMED_OUT, ConnectionStateType.TERMINATED)
       .build();
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
@@ -121,7 +100,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
-    connection.setCurrentState(ConnectionStateType.RESERVING);
+    connection.setCurrentState(ReservationStateEnumType.RESERVE_CHECKING);
     connection = connectionRepo.saveAndFlush(connection);
 
     VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
@@ -172,7 +151,8 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
       checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
     }
     catch (ValidationException e) {
-      connection.setCurrentState(ConnectionStateType.TERMINATED);
+      // TODO should go to terminated in Life-cycle state machine?
+      connection.setCurrentState(ReservationStateEnumType.RESERVED);
       connectionRepo.save(connection);
       throw e;
     }
@@ -215,166 +195,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     checkNotNull(connection);
 
-    if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
-      log.info("Connection is already provisioned", connection.getCurrentState());
-      // FIXME
-      //connectionServiceRequester.provisionConfirmed(connection, requestDetails);
-    }
-    else if (isProvisionPossible(connection)) {
-      connection.setProvisionRequestDetails(requestDetails);
-      connection = connectionRepo.saveAndFlush(connection);
-      reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
-    }
-    else {
-      log.info("Provision is not possible for state '{}'", connection.getCurrentState());
-      // FIXME
-      //connectionServiceRequester.provisionFailedDontUpdateState(connection, requestDetails);
-    }
-  }
-
-  private boolean isProvisionPossible(ConnectionV2 connection) {
-    return ImmutableList.of(ConnectionStateType.RESERVED, ConnectionStateType.SCHEDULED).contains(connection.getCurrentState());
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  @Async
-  public void asyncTerminate(Long connectionId, String requesterNsa, NsiRequestDetails requestDetails, RichUserDetails user) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
-
-    if (isTerminatePossible(connection)) {
-      connection.setCurrentState(ConnectionStateType.TERMINATING);
-      connectionRepo.saveAndFlush(connection);
-
-      reservationService.cancelWithReason(
-          connection.getReservation(),
-          "NSI terminate by " + user.getNameId(),
-          user,
-          Optional.of(requestDetails));
-    }
-    else {
-      log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
-      // FIXME
-//      connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
-    }
-  }
-
-  private boolean isTerminatePossible(ConnectionV2 connection) {
-    return !ImmutableList.of(
-        ConnectionStateType.RESERVING,
-        ConnectionStateType.TERMINATING,
-        ConnectionStateType.TERMINATED,
-        ConnectionStateType.CLEANING).contains(connection.getCurrentState());
-  }
-
-  @Async
-  public void asyncQueryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
-      Collection<String> globalReservationIds, QueryOperationType operation, String requesterNsa, String providerNsa) {
-    Preconditions.checkArgument(!connectionIds.isEmpty());
-
-    QueryConfirmedType confirmedType =
-      queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
-
-    // FIXME
-    //connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
-  }
-
-  protected QueryConfirmedType queryConnections(Collection<String> connectionIds, Collection<String> globalReservationIds,
-      QueryOperationType operation, String requesterNsa, String providerNsa) {
-    QueryConfirmedType confirmedType = getConfirmedType(requesterNsa, providerNsa);
-
-    for (String connectionId : connectionIds) {
-      addQueryResult(confirmedType, findByConnectionId(connectionId), operation);
-    }
-
-    for (String globalReservationId : globalReservationIds) {
-      addQueryResult(confirmedType, findByGlobalReservationId(globalReservationId), operation);
-    }
-
-    return confirmedType;
-  }
-
-  @Async
-  public void asyncQueryAllForRequesterNsa(NsiRequestDetails requestDetails,
-      QueryOperationType operation, String requesterNsa, String providerNsa) {
-
-    QueryConfirmedType confirmedType = queryAllForRequesterNsa(operation, requesterNsa, providerNsa);
-
-    // FIXME
-    //connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
-  }
-
-  protected QueryConfirmedType queryAllForRequesterNsa(QueryOperationType operation, String requesterNsa, String providerNsa) {
-    QueryConfirmedType confirmedType = getConfirmedType(requesterNsa, providerNsa);
-
-    for (ConnectionV2 connection : findByRequesterNsa(requesterNsa)) {
-      addQueryResult(confirmedType, connection, operation);
-    }
-
-    return confirmedType;
-  }
-
-  private QueryConfirmedType getConfirmedType(String requesterNsa, String providerNsa) {
-    QueryConfirmedType confirmedType = new QueryConfirmedType();
-    confirmedType.setProviderNSA(providerNsa);
-    confirmedType.setRequesterNSA(requesterNsa);
-    return confirmedType;
-  }
-
-  private ConnectionV2 findByGlobalReservationId(String globalReservationId) {
-    return connectionRepo.findByGlobalReservationId(globalReservationId);
-  }
-
-  private ConnectionV2 findByConnectionId(String connectionId) {
-    return connectionRepo.findByConnectionId(connectionId);
-  }
-
-  private List<ConnectionV2> findByRequesterNsa(String requesterNsa) {
-    return connectionRepo.findByRequesterNsa(requesterNsa);
-  }
-
-  private void addQueryResult(QueryConfirmedType confirmedType, ConnectionV2 connection, QueryOperationType operation) {
-    if (connection == null) {
-      return;
-    }
-
-    if (operation.equals(QueryOperationType.DETAILS)) {
-      confirmedType.getReservationDetails().add(getQueryDetailsResult(connection));
-    }
-    else {
-      confirmedType.getReservationSummary().add(getQuerySummaryResult(connection));
-    }
-  }
-
-  private QueryDetailsResultType getQueryDetailsResult(ConnectionV2 connection) {
-    QueryDetailsResultType result = new QueryDetailsResultType();
-    result.setConnectionId(connection.getConnectionId());
-    result.setDescription(connection.getDescription());
-    result.setServiceParameters(connection.getServiceParameters());
-
-    DetailedPathType path = new DetailedPathType();
-    path.setConnectionState(connection.getCurrentState());
-    path.setConnectionId(connection.getConnectionId());
-    path.setProviderNSA(connection.getProviderNsa());
-    result.setDetailedPath(path);
-
-    if (StringUtils.hasText(connection.getGlobalReservationId())) {
-      result.setGlobalReservationId(connection.getGlobalReservationId());
-    }
-
-    return result;
-  }
-
-  private QuerySummaryResultType getQuerySummaryResult(ConnectionV2 connection) {
-    QuerySummaryResultType result = new QuerySummaryResultType();
-    result.setConnectionId(connection.getConnectionId());
-    result.setConnectionState(connection.getCurrentState());
-    result.setDescription(connection.getDescription());
-
-    if (StringUtils.hasText(connection.getGlobalReservationId())) {
-      result.setGlobalReservationId(connection.getGlobalReservationId());
-    }
-
-    return result;
   }
 
   public Connection find(Long id) {
@@ -395,26 +215,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   public long count() {
     return connectionRepo.count();
-  }
-
-  protected boolean hasValidState(ConnectionV2 connection) {
-    if (connection.getReservation() == null) {
-      return connection.getCurrentState() == ConnectionStateType.TERMINATED;
-    }
-    else {
-        return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
-    }
-  }
-
-  public List<ConnectionV2> findWithIllegalState(int firstResult, int maxResults, Sort sort) {
-    List<ConnectionV2> connections = connectionRepo.findAll(sort);
-
-    return FluentIterable.from(connections).filter(new Predicate<ConnectionV2>() {
-      @Override
-      public boolean apply(ConnectionV2 connection) {
-        return !hasValidState(connection);
-      }
-    }).toList();
   }
 
   @Override

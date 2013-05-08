@@ -33,9 +33,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ConnectionV2Repo extends JpaSpecificationExecutor<ConnectionV2>, JpaRepository<ConnectionV2, Long>, CustomRepo<ConnectionV2> {
 
-  ConnectionV2 findByConnectionId(final String connectionId);
+  ConnectionV2 findByConnectionId(String connectionId);
 
-  ConnectionV2 findByGlobalReservationId(final String globalReservationId);
+  ConnectionV2 findByGlobalReservationId(String globalReservationId);
 
-  List<ConnectionV2> findByRequesterNsa(final String requesterNsa);
+  List<ConnectionV2> findByRequesterNsa(String requesterNsa);
 }

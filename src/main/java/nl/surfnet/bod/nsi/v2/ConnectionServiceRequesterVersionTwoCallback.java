@@ -36,13 +36,13 @@ import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
@@ -69,7 +69,7 @@ public class ConnectionServiceRequesterVersionTwoCallback implements ConnectionS
   public void reserveConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getGlobalReservationId());
 
-    connection.setCurrentState(ConnectionStateType.RESERVED); // TODO should be nsi 2 state..
+    connection.setCurrentState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);

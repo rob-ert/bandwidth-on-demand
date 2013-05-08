@@ -25,29 +25,24 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
+
+import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.FieldBridge;
+import org.joda.time.DateTime;
 
-@MappedSuperclass
+import com.google.common.base.Optional;
+
+@Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="TYPE")
 @Table(name = "CONNECTION")
-@Indexed
 public abstract class AbstractConnection implements Connection {
 
   @Id
@@ -70,10 +65,32 @@ public abstract class AbstractConnection implements Connection {
   @Field
   protected String providerNsa;
 
+  @Column(nullable = false)
+  @Field
+  protected String description;
+
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  @Field
+  @FieldBridge(impl = TimeStampBridge.class)
+  protected DateTime startTime;
+
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  @Field
+  @FieldBridge(impl = TimeStampBridge.class)
+  protected DateTime endTime;
+
   @OneToOne
   @JsonIgnore //prevent loop back to reservation
   @ContainedIn
   protected Reservation reservation;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  protected final NsiVersion nsiVersion;
+
+  public AbstractConnection(NsiVersion nsiVersion) {
+    this.nsiVersion = nsiVersion;
+  }
 
   @Override
   public Long getId() {
@@ -132,6 +149,30 @@ public abstract class AbstractConnection implements Connection {
   @Override
   public String getLabel() {
     return reservation != null ? reservation.getLabel() : connectionId;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Optional<DateTime> getStartTime() {
+    return Optional.fromNullable(startTime);
+  }
+
+  public void setStartTime(DateTime startTime) {
+    this.startTime = startTime;
+  }
+
+  public Optional<DateTime> getEndTime() {
+    return Optional.fromNullable(endTime);
+  }
+
+  public void setEndTime(DateTime endTime) {
+    this.endTime = endTime;
   }
 
   @Override

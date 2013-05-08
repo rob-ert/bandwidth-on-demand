@@ -35,19 +35,15 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
 import nl.surfnet.bod.service.ConnectionServiceV2;
+import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
@@ -55,6 +51,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
@@ -119,8 +116,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
-    connection.setNsiVersion(NsiVersion.TWO);
-    connection.setCurrentState(ConnectionStateType.INITIAL); // NSI 2 states...
+    connection.setCurrentState(ReservationStateEnumType.INITIAL);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
@@ -132,10 +128,6 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
     connection.setDestinationStpId(stpTypeToStpId(criteria.getPath().getDestSTP()));
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
-
-    // FIXME this is NSI 1.0 stuff
-    connection.setPath(new PathType());
-    connection.setServiceParameters(new ServiceParametersType());
 
     return connection;
   }

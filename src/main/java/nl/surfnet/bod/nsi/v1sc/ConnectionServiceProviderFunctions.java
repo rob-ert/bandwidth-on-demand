@@ -39,7 +39,6 @@ import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.XmlUtils;
@@ -108,7 +107,6 @@ public final class ConnectionServiceProviderFunctions {
         ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
 
         ConnectionV1 connection = new ConnectionV1();
-        connection.setNsiVersion(NsiVersion.ONE);
         connection.setCurrentState(INITIAL);
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
