@@ -26,7 +26,6 @@ import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,7 @@ public final class ConnectionServiceProviderFunctions {
   private static final QName SERVICE_NAME =
     new QName("http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester");
 
-  private static final String WSDL_LOCATION = "/wsdl/ogf_nsi_connection_requester_v1_0.wsdl";
+  private static final String WSDL_LOCATION = "/wsdl/1.0_sc/ogf_nsi_connection_requester_v1_0.wsdl";
 
   public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT =
     new Function<NsiRequestDetails, ConnectionRequesterPort>() {
@@ -148,7 +147,7 @@ public final class ConnectionServiceProviderFunctions {
       private String getProtectionType(ServiceParametersType serviceParameters) {
         if (guaranteedAttributesAreSpecified(serviceParameters)) {
 
-          List<Serializable> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
+          List<Object> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
 
           // only supported 1 guaranteed attribute namely 'sNCP' with values of ProtectionType enum
           if (guaranteeds.size() == 1 && guaranteeds.get(0) instanceof AttributeType) {
