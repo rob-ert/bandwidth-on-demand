@@ -36,7 +36,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import nl.surfnet.bod.search.TestSearchController;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.util.TestEntity;

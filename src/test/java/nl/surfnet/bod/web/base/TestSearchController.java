@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.search;
+package nl.surfnet.bod.web.base;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ import org.springframework.ui.Model;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 
-public class TestSearchController extends AbstractSearchableSortableListController<TestView, TestEntity> {
+class TestSearchController extends AbstractSearchableSortableListController<TestView, TestEntity> {
 
   private AbstractFullTextSearchService<TestEntity> testFullTextService;
   private List<TestEntity> testEntities;
