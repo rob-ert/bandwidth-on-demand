@@ -30,7 +30,6 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 
@@ -51,7 +50,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Optional;
 
 @Component("connectionServiceRequesterV1")
-public class ConnectionServiceRequesterV1Callback implements ConnectionServiceRequesterCallback<ConnectionV1> {
+public class ConnectionServiceRequesterV1Callback {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1Callback.class);
 

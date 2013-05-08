@@ -64,6 +64,9 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     case RESERVED:
       requester.reserveConfirmed(connectionV2, event.getNsiRequestDetails().get());
       break;
+    case CANCELLED:
+      requester.abortConfirmed(connectionV2, event.getNsiRequestDetails().get());
+      break;
     default:
       throw new RuntimeException("ARGG not implemented..");
     }

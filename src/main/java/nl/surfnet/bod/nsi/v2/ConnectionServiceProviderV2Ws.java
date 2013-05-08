@@ -164,7 +164,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    // using TERMINATE scope for now
+    checkOAuthScope(NsiScope.TERMINATE);
+
+    log.info("Received reserve abort for connection: {}", connectionId);
+
+    ConnectionV2 connection = getConnectionOrFail(connectionId);
+
+    connectionService.asyncReserveAbort(connection, createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override

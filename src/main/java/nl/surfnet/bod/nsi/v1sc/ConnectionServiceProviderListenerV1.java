@@ -30,7 +30,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
@@ -113,7 +112,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
     }
   }
 
-  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterCallback<ConnectionV1> requester) {
+  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterV1Callback requester) {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:

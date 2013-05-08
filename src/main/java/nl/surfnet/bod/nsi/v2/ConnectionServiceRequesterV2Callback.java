@@ -34,7 +34,6 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.nsi.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -58,11 +57,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 @Component("connectionServiceRequesterV2")
-public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRequesterCallback<ConnectionV2> {
+public class ConnectionServiceRequesterV2Callback {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
@@ -70,14 +68,11 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
 
   @Resource private ConnectionV2Repo connectionRepo;
 
-  @Override
   public void reserveConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getGlobalReservationId());
 
     connection.setCurrentState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
-
-    ConnectionRequesterPort port = createPort(requestDetails);
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
       .withBandwidth(connection.getDesiredBandwidth())
@@ -91,16 +86,16 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
-    Holder<CommonHeaderType> headerHolder = new Holder<>(
-        createHeader(requestDetails, connection.getProviderNsa(), connection.getRequesterNsa()));
+    Holder<CommonHeaderType> headerHolder = createHeader(requestDetails, connection.getProviderNsa(), connection.getRequesterNsa());
 
+    ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.reserveConfirmed(
-          connection.getGlobalReservationId(),
-          connection.getDescription(),
-          connection.getConnectionId(),
-          ImmutableList.of(criteria),
-          headerHolder);
+        connection.getGlobalReservationId(),
+        connection.getDescription(),
+        connection.getConnectionId(),
+        ImmutableList.of(criteria),
+        headerHolder);
     } catch (ServiceException e) {
       log.info("Sending reserve confirmed failed", e);
     }
@@ -114,11 +109,29 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
       .withLocalId(parts[parts.length - 1]);
   }
 
+  public void abortConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+    connection.setCurrentState(ReservationStateEnumType.RESERVED);
+    connectionRepo.save(connection);
+
+    ConnectionRequesterPort port = createPort(requestDetails);
+    try {
+      port.reserveAbortConfirmed(
+        connection.getGlobalReservationId(),
+        connection.getConnectionId(),
+        createHeader(requestDetails, "requester", "provider"));
+    } catch (ServiceException e) {
+      log.info("Sending reserve abort confirmed failed", e);
+    }
+  }
+
   public void reserveCommitConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails);
 
     try {
-      port.reserveCommitConfirmed(connection.getGlobalReservationId(), connection.getConnectionId(), new Holder<>(createHeader(requestDetails, "requester", "provider")));
+      port.reserveCommitConfirmed(
+        connection.getGlobalReservationId(),
+        connection.getConnectionId(),
+        createHeader(requestDetails, "requester", "provider"));
     } catch (ServiceException e) {
       log.info("", e);
     }
@@ -136,74 +149,18 @@ public class ConnectionServiceRequesterV2Callback implements ConnectionServiceRe
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.querySummaryConfirmed(results, new Holder<>(createHeader(requestDetails, "provider", "requester")));
+      port.querySummaryConfirmed(results, createHeader(requestDetails, "provider", "requester"));
     } catch (ServiceException e) {
       log.info("Failed to send query summary confirmed", e);
     }
   }
 
-  @Override
-  public void provisionSucceeded(ConnectionV2 connection) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void provisionConfirmed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void provisionFailed(ConnectionV2 connection, NsiRequestDetails requestDetails) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void reserveFailed(ConnectionV2 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void terminateTimedOutReservation(ConnectionV2 connection) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void terminateConfirmed(ConnectionV2 connection, Optional<NsiRequestDetails> requestDetails) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void terminateFailed(ConnectionV2 connection, Optional<NsiRequestDetails> requestDetails) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void executionSucceeded(ConnectionV2 connection) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void executionFailed(ConnectionV2 connection) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void scheduleSucceeded(ConnectionV2 connection) {
-    // TODO Auto-generated method stub
-
-  }
-
-  private CommonHeaderType createHeader(NsiRequestDetails requestDetails, String providerNsa, String requesterNsa) {
-    return new CommonHeaderType()
+  private Holder<CommonHeaderType> createHeader(NsiRequestDetails requestDetails, String providerNsa, String requesterNsa) {
+    return new Holder<>(new CommonHeaderType()
       .withCorrelationId(requestDetails.getCorrelationId())
       .withProtocolVersion("urn:2.0:FIXME")
       .withProviderNSA(providerNsa)
-      .withRequesterNSA(requesterNsa);
+      .withRequesterNSA(requesterNsa));
   }
 
   private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {

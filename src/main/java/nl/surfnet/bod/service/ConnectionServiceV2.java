@@ -137,6 +137,17 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
+  public void asyncReserveAbort(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
+    connection.setCurrentState(ReservationStateEnumType.RESERVE_ABORTING);
+
+    reservationService.cancelWithReason(
+      connection.getReservation(),
+      "NSIv2 terminate by " + user.getNameId(),
+      user,
+      Optional.of(requestDetails));
+  }
+
+  @Async
   public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
     List<ConnectionV2> connections;
 
