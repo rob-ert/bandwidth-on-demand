@@ -35,7 +35,6 @@ import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
-import org.slf4j.Logger;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
@@ -44,8 +43,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
-
-  private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private InventoryRetrievalClient inventoryRetrievalClient;

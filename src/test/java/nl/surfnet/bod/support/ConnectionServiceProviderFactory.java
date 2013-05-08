@@ -123,8 +123,6 @@ public class ConnectionServiceProviderFactory {
   }
 
   private class MutableQueryFilterType extends QueryFilterType {
-    private static final long serialVersionUID = 1L;
-
     public void setConnectionId(String connectionId) {
       super.connectionId = Lists.newArrayList(connectionId);
     }
