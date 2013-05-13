@@ -100,7 +100,7 @@ public class ServiceComponentActivationClient {
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      ActivateResponse response = proxy.activate(header, activateRequest);
+      proxy.activate(header, activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;

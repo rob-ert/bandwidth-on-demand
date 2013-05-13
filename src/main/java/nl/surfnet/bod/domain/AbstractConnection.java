@@ -35,6 +35,7 @@ import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Optional;
@@ -87,6 +88,14 @@ public abstract class AbstractConnection implements Connection {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   protected final NsiVersion nsiVersion;
+
+  @Column(nullable = false)
+  @Field
+  protected int desiredBandwidth;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @IndexedEmbedded
+  protected NsiRequestDetails provisionRequestDetails;
 
   public AbstractConnection(NsiVersion nsiVersion) {
     this.nsiVersion = nsiVersion;
@@ -173,6 +182,22 @@ public abstract class AbstractConnection implements Connection {
 
   public void setEndTime(DateTime endTime) {
     this.endTime = endTime;
+  }
+
+  public NsiRequestDetails getProvisionRequestDetails() {
+    return provisionRequestDetails;
+  }
+
+  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.provisionRequestDetails = provisionRequestDetails;
+  }
+
+  public int getDesiredBandwidth() {
+    return desiredBandwidth;
+  }
+
+  public void setDesiredBandwidth(int desiredBandwidth) {
+    this.desiredBandwidth = desiredBandwidth;
   }
 
   @Override

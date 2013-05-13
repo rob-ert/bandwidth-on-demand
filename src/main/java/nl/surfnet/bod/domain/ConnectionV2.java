@@ -22,18 +22,15 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
 
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
@@ -54,15 +51,11 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Enumerated(EnumType.STRING)
   @Field
-  private ProvisionStateEnumType provisionState = ProvisionStateEnumType.RELEASED;
+  private ProvisionStateEnumType provisionState = ProvisionStateEnumType.UNKNOWN;
 
   @Enumerated(EnumType.STRING)
   @Field
   private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.INITIAL;
-
-  @Column(nullable = false)
-  @Field
-  private int desiredBandwidth;
 
   @Column(nullable = false)
   @Field
@@ -77,10 +70,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Column(nullable = false, length = 4096)
   private String serviceParameters = "FIXME";
-
-  @OneToOne(cascade = CascadeType.ALL)
-  @IndexedEmbedded
-  private NsiRequestDetails provisionRequestDetails;
 
   @Column(nullable = false)
   @Field
@@ -127,14 +116,6 @@ public class ConnectionV2 extends AbstractConnection {
     this.reservationState = reservationState;
   }
 
-  public int getDesiredBandwidth() {
-    return desiredBandwidth;
-  }
-
-  public void setDesiredBandwidth(int desiredBandwidth) {
-    this.desiredBandwidth = desiredBandwidth;
-  }
-
   public String getSourceStpId() {
     return sourceStpId;
   }
@@ -149,14 +130,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   public void setDestinationStpId(String destitnationStpId) {
     this.destinationStpId = destitnationStpId;
-  }
-
-  public NsiRequestDetails getProvisionRequestDetails() {
-    return provisionRequestDetails;
-  }
-
-  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
-    this.provisionRequestDetails = provisionRequestDetails;
   }
 
   public String getProtectionType() {

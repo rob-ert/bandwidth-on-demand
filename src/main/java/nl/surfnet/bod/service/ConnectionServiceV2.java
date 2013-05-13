@@ -22,12 +22,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -38,13 +35,13 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2Callback;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
@@ -54,57 +51,28 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 
 @Service
 public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
 
-  protected static final Map<ReservationStatus, ReservationStateEnumType> STATE_MAPPING =
-    new ImmutableMap.Builder<ReservationStatus, ReservationStateEnumType>()
-//      .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
-//      .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
-//      .put(CANCELLED, ConnectionStateType.TERMINATED)
-//      .put(FAILED, ConnectionStateType.TERMINATED)
-//      .put(REQUESTED, ConnectionStateType.INITIAL)
-//      .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
-//      .put(RESERVED, ConnectionStateType.RESERVED)
-//      .put(RUNNING, ConnectionStateType.PROVISIONED)
-//      .put(SCHEDULED, ConnectionStateType.SCHEDULED)
-//      .put(SUCCEEDED, ConnectionStateType.TERMINATED)
-//      .put(TIMED_OUT, ConnectionStateType.TERMINATED)
-      .build();
-
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
 
-  @Resource
-  private Environment bodEnvironment;
+  @Resource private Environment bodEnvironment;
+  @Resource private ConnectionV2Repo connectionRepo;
+  @Resource private ReservationService reservationService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private ConnectionServiceRequesterV2Callback connectionServiceRequester;
 
-  @Resource
-  private ConnectionV2Repo connectionRepo;
+  @PersistenceContext private EntityManager entityManager;
 
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private ConnectionServiceRequesterV2Callback connectionServiceRequester;
-
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
     connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
-    connection = connectionRepo.saveAndFlush(connection);
+    connectionRepo.save(connection);
 
     VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
@@ -132,13 +100,18 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     connection.setReservationState(ReservationStateEnumType.RESERVE_COMMITTING);
     connectionRepo.save(connection);
 
-    connectionServiceRequester.reserveCommitConfirmed(connection, requestDetails);
+    connectionServiceRequester.reserveCommitConfirmed(connection.getId(), requestDetails);
   }
 
   @Async
   public void asyncReserveAbort(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
     connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
+    connectionRepo.save(connection);
 
+    terminate(connection, requestDetails, user);
+  }
+
+  private void terminate(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
     reservationService.cancelWithReason(
       connection.getReservation(),
       "NSIv2 terminate by " + user.getNameId(),
@@ -156,6 +129,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @Async
   public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
+    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails, requesterNsa), requestDetails);
+  }
+
+  public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
     List<ConnectionV2> connections;
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
@@ -167,27 +144,14 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
       }
     }
 
-    connectionServiceRequester.querySummaryConfirmed(connections, requestDetails);
+    return connections;
   }
 
-  @SuppressWarnings("serial")
-  public static class ValidationException extends Exception {
-    private final String attributeName;
-    private final String errorCode;
+  public void asyncTerminate(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
+    connection.setLifecycleState(LifecycleStateEnumType.TERMINATING);
+    connectionRepo.save(connection);
 
-    public ValidationException(String attributeName, String errorCode, String errorMessage) {
-      super(errorMessage);
-      this.attributeName = attributeName;
-      this.errorCode = errorCode;
-    }
-
-    public String getAttributeName() {
-      return attributeName;
-    }
-
-    public String getErrorCode() {
-      return errorCode;
-    }
+    terminate(connection, requestDetails, user);
   }
 
   private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
@@ -261,6 +225,26 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
+  }
+
+  @SuppressWarnings("serial")
+  public static class ValidationException extends Exception {
+    private final String attributeName;
+    private final String errorCode;
+
+    public ValidationException(String attributeName, String errorCode, String errorMessage) {
+      super(errorMessage);
+      this.attributeName = attributeName;
+      this.errorCode = errorCode;
+    }
+
+    public String getAttributeName() {
+      return attributeName;
+    }
+
+    public String getErrorCode() {
+      return errorCode;
+    }
   }
 
 }

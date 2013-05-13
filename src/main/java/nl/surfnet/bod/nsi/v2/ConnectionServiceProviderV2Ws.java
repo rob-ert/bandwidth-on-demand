@@ -24,6 +24,8 @@ package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.collect.Lists.transform;
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
 
 import java.util.List;
@@ -49,6 +51,8 @@ import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
@@ -95,6 +99,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     ConnectionV2 connection = createConnection(
         Optional.fromNullable(emptyToNull(globalReservationId)),
         Optional.fromNullable(emptyToNull(description)),
+        requestDetails,
         header.value.getProviderNSA(),
         header.value.getRequesterNSA(),
         criteria);
@@ -117,12 +122,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
-  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
+  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiRequestDetails requestDetails, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(calendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setReservationState(ReservationStateEnumType.INITIAL);
+    connection.setLifecycleState(LifecycleStateEnumType.INITIAL);
+    connection.setProvisionState(ProvisionStateEnumType.UNKNOWN);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
@@ -134,6 +141,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setDestinationStpId(stpTypeToStpId(criteria.getPath().getDestSTP()));
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
+    connection.setProvisionRequestDetails(requestDetails);
 
     return connection;
   }
@@ -186,7 +194,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
+    checkProvisionAllowed(connection);
+
     connectionService.asyncProvision(connection, createRequestDetails(header.value));
+  }
+
+  private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
+    if (connection.getProvisionState() != ProvisionStateEnumType.RELEASED) {
+      notApplicable();
+    }
   }
 
   @Override
@@ -195,7 +211,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
@@ -204,7 +220,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    checkOAuthScope(NsiScope.TERMINATE);
+
+    log.info("Received a Terminate for connection: {}", connectionId);
+
+    ConnectionV2 connection = getConnectionOrFail(connectionId);
+
+    connectionService.asyncTerminate(connection, createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override
@@ -213,6 +235,10 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationIds,
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
+
+    checkOAuthScope(NsiScope.QUERY);
+
+    log.info("Received a Query Summary");
 
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
 
@@ -225,7 +251,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
@@ -234,7 +260,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
@@ -244,7 +270,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
@@ -253,7 +279,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
@@ -262,17 +288,33 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
-    notImplementedYet();
+    notSupporedOperation();
   }
 
   @Override
   public List<QuerySummaryResultType> querySummarySync(
-      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
+      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionIds,
+      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationIds,
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
 
-    throw new QuerySummarySyncFailed("Not implemented yet", new QueryFailedType().withServiceException(createServiceExceptionType("This operation is not implemented yet")));
+    try {
+      checkOAuthScope(NsiScope.QUERY);
+    } catch (ServiceException e) {
+      throw toQuerySummarySyncFailed(e);
+    }
+
+    log.info("Received a Query Summary Sync");
+
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
+    List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails, header.value.getRequesterNSA());
+
+    return transform(connections, toQuerySummaryResultType);
+  }
+
+  private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {
+    return new QuerySummarySyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
   }
 
   private ConnectionV2 getConnectionOrFail(String connectionId) throws ServiceException {
@@ -294,8 +336,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
   }
 
-  private void notImplementedYet() throws ServiceException {
-    throw notImplementedServiceException();
+  private void notApplicable() throws ServiceException {
+    throw new ServiceException("This operation is not applicable", createServiceExceptionType("Not Applicable"));
+  }
+
+  private void notSupporedOperation() throws ServiceException {
+    throw new ServiceException("This operation is not supported by this provider", createServiceExceptionType("Not Supported"));
   }
 
   private ServiceException connectionNotFoundServiceException() {
@@ -304,10 +350,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private ServiceException unAuthorizedServiceException() {
     return new ServiceException("Unauthorized", createServiceExceptionType("Unauthorized"));
-  }
-
-  private ServiceException notImplementedServiceException() {
-    return new ServiceException("Not implemented yet", createServiceExceptionType("This operation is not implemented yet"));
   }
 
   private ServiceExceptionType createServiceExceptionType(String message) {

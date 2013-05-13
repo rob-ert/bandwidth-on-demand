@@ -24,7 +24,6 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -37,7 +36,7 @@ public class ReservationArchiveTest {
   @Ignore("fix JSON")
   @Test
   public void testReservationArchive() throws Exception {
-    final ObjectMapper mapper = new ReservationService().getObjectMapper();
+    final ObjectMapper mapper = null; //new ReservationService().getObjectMapper();
 
     assertThat(mapper.canSerialize(Reservation.class), is(true));
 

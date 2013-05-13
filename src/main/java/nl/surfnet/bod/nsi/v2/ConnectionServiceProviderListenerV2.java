@@ -25,6 +25,7 @@ package nl.surfnet.bod.nsi.v2;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.springframework.stereotype.Component;
 
 import nl.surfnet.bod.domain.Connection;
@@ -60,17 +61,27 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
 
     switch (event.getNewStatus()) {
     case RESERVED:
-      requester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+      requester.reserveConfirmed(connection.getId(), event.getNsiRequestDetails().get());
       break;
     case CANCELLED:
-      // or a terminate confirmed ??? arrggg..
-      requester.abortConfirmed(connection, event.getNsiRequestDetails().get());
+      // What if cancel was initiated through GUI..
+      if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
+        requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      } else {
+        requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      }
       break;
     case AUTO_START:
-      requester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+      requester.provisionConfirmed(connection.getId(), event.getNsiRequestDetails().get());
       break;
     case SCHEDULED:
       // start time passed but no provision.. nothing to do..
+      break;
+    case TIMED_OUT:
+      // TODO what todo
+      break;
+    case RUNNING:
+      requester.dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
       break;
     default:
       throw new RuntimeException("ARGG not implemented..");

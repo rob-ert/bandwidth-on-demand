@@ -22,19 +22,16 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
@@ -56,10 +53,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   @Column(nullable = false)
   @Field
-  private int desiredBandwidth;
-
-  @Column(nullable = false)
-  @Field
   private String sourceStpId;
 
   @Column(nullable = false)
@@ -73,10 +66,6 @@ public class ConnectionV1 extends AbstractConnection {
   @Type(type = "nl.surfnet.bod.util.ServiceParametersTypeUserType")
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
-
-  @OneToOne(cascade = CascadeType.ALL)
-  @IndexedEmbedded
-  private NsiRequestDetails provisionRequestDetails;
 
   @Column(nullable = false)
   @Field
@@ -105,14 +94,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   public void setCurrentState(ConnectionStateType currentState) {
     this.currentState = currentState;
-  }
-
-  public int getDesiredBandwidth() {
-    return desiredBandwidth;
-  }
-
-  public void setDesiredBandwidth(int desiredBandwidth) {
-    this.desiredBandwidth = desiredBandwidth;
   }
 
   public String getSourceStpId() {
@@ -145,14 +126,6 @@ public class ConnectionV1 extends AbstractConnection {
 
   public void setServiceParameters(ServiceParametersType serviceParameters) {
     this.serviceParameters = serviceParameters;
-  }
-
-  public NsiRequestDetails getProvisionRequestDetails() {
-    return provisionRequestDetails;
-  }
-
-  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
-    this.provisionRequestDetails = provisionRequestDetails;
   }
 
   public String getProtectionType() {

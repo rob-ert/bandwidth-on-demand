@@ -24,12 +24,24 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
@@ -39,8 +51,6 @@ import javax.persistence.PersistenceContext;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ConnectionV1Repo;
-import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -59,7 +69,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -68,20 +77,34 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 
 @Service
-@Transactional
 public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper();
+  static {
+    mapper.setVisibilityChecker(
+      mapper.getSerializationConfig().getDefaultVisibilityChecker()
+        .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+        .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+        .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+        .withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
+        .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
+  }
 
-  private final Function<Reservation, ReservationArchive> toReservationArchive = new Function<Reservation, ReservationArchive>() {
+  private static final Function<Reservation, ReservationArchive> toReservationArchive = new Function<Reservation, ReservationArchive>() {
     @Override
     public ReservationArchive apply(Reservation reservation) {
-      final ReservationArchive reservationArchive = new ReservationArchive();
+      ReservationArchive reservationArchive = new ReservationArchive();
       reservationArchive.setReservationPrimaryKey(reservation.getId());
-      final StringWriter writer = new StringWriter();
+
+      StringWriter writer = new StringWriter();
       try {
         mapper.writeValue(writer, reservation);
       }
@@ -90,42 +113,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         throw new RuntimeException(e);
       }
       reservationArchive.setReservationAsJson(writer.toString());
+
       return reservationArchive;
     }
   };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  @Resource
-  private ReservationRepo reservationRepo;
+  @Resource private ReservationRepo reservationRepo;
+  @Resource private ReservationArchiveRepo reservationArchiveRepo;
+  @Resource private NbiClient nbiClient;
+  @Resource private ReservationToNbi reservationToNbi;
+  @Resource private LogEventService logEventService;
 
-  @Resource
-  private ConnectionV1Repo connectionRepo;
-
-  @Resource
-  private ReservationArchiveRepo reservationArchiveRepo;
-
-  @Resource
-  private NbiClient nbiClient;
-
-  @Resource
-  private ReservationToNbi reservationToNbi;
-
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Resource
-  private LogEventService logEventService;
-
-  @Resource
-  private LogEventRepo logEventRepo;
-
-  public ReservationService() {
-    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker().withFieldVisibility(
-        JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE).withSetterVisibility(
-        JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE).withIsGetterVisibility(
-        JsonAutoDetect.Visibility.NONE));
-  }
+  @PersistenceContext private EntityManager entityManager;
 
   void alignConnectionWithReservation(Reservation reservation) {
     if (reservation.isNSICreated()) {
@@ -135,26 +136,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
   }
 
-  /**
-   * Cancels a reservation if the current user has the correct role and the
-   * reservation is allowed to be deleted depending on its state. Updates the
-   * state of the reservation.
-   *
-   * @param reservation
-   *          {@link Reservation} to delete
-   * @return the future with the resulting reservation, or null if delete is not
-   *         allowed.
-   */
   public Optional<Future<Long>> cancel(Reservation reservation, RichUserDetails user) {
     return cancelWithReason(reservation, "Cancelled by " + user.getDisplayName(), user);
   }
 
-  public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
-    for (final Reservation reservation : reservations) {
+  public void cancelAndArchiveReservations(List<Reservation> reservations, RichUserDetails user) {
+    for (Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
 
         if (StringUtils.hasText(reservation.getReservationId())) {
-          final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+          ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
           reservation.setStatus(reservationState);
 
           if (reservationState == ReservationStatus.CANCEL_FAILED) {
@@ -180,7 +171,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       Optional<NsiRequestDetails> requestDetails) {
 
     if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
-
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
     }
 
@@ -199,13 +189,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count();
   }
 
-  public long countActiveReservationsBetweenWithState(final List<Long> reservationIdsInPeriod, final DateTime start,
-      final DateTime end, final ReservationStatus state, final Collection<String> adminGroups) {
+  public long countActiveReservationsBetweenWithState(List<Long> reservationIdsInPeriod, DateTime start,
+      DateTime end, ReservationStatus state, Collection<String> adminGroups) {
     long count = 0;
 
     for (Long id : reservationIdsInPeriod) {
-      LogEvent logEvent = logEventService
-          .findLatestStateChangeForReservationIdBeforeInAdminGroups(id, end, adminGroups);
+      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeInAdminGroups(id, end, adminGroups);
       if ((logEvent != null) && (state == logEvent.getNewReservationStatus())) {
         count++;
       }
@@ -219,8 +208,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return 0;
     }
 
-    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
-        .specActiveByVirtualPorts(virtualPorts);
+    Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications.specActiveByVirtualPorts(virtualPorts);
+
     return reservationRepo.count(whereClause);
   }
 
@@ -228,11 +217,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return countForFilterAndVirtualResourceGroup(ReservationFilterViewFactory.ACTIVE, group);
   }
 
-  public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
+  public long countActiveReservationsForPhysicalPort(PhysicalPort port) {
     return reservationRepo.count(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
-  public long countAllEntriesUsingFilter(final ReservationFilterView filter) {
+  public long countAllEntriesUsingFilter(ReservationFilterView filter) {
     return reservationRepo.count(specFilteredReservations(filter));
   }
 
@@ -265,7 +254,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(specFilteredReservationsForVirtualResourceGroup(filterView, vrg));
   }
 
-  public long countForPhysicalPort(final PhysicalPort port) {
+  public long countForPhysicalPort(PhysicalPort port) {
     return reservationRepo.count(specByPhysicalPort(port));
   }
 
@@ -281,8 +270,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(forVirtualResourceGroup(vrg));
   }
 
-  public long countReservationsCreatedThroughChannelNSIInAdminGroups(DateTime start, DateTime end,
-      Collection<String> adminGroups) {
+  public long countReservationsCreatedThroughChannelNSIInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
     List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
         ReservationStatus.REQUESTED, adminGroups);
 
@@ -293,8 +281,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
 
-  public long countReservationsCancelledThroughChannelNSIInAdminGroups(DateTime start, DateTime end,
-      Collection<String> adminGroups) {
+  public long countReservationsCancelledThroughChannelNSIInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
 
     List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenWithStateInAdminGroups(start, end,
         adminGroups, CANCELLED, CANCEL_FAILED);
@@ -351,8 +338,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
-  public long countReservationsWhichHadStateTransitionBetweenInAdminGroups(final DateTime start, final DateTime end,
-      final ReservationStatus oldStatus, final ReservationStatus newStatus, Collection<String> adminGroups) {
+  public long countReservationsWhichHadStateTransitionBetweenInAdminGroups(DateTime start, DateTime end,
+      ReservationStatus oldStatus, ReservationStatus newStatus, Collection<String> adminGroups) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(oldStatus, newStatus, null, start, end,
@@ -393,7 +380,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          Filter on these groups
    * @return long totalAmount
    */
-  public long countSuccesfullReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
+  public long countSuccesfullReservationRequestsInAdminGroups(DateTime start, DateTime end,
       Collection<String> adminGroups) {
     return findSuccessfullReservationRequestsInAdminGroups(start, end, adminGroups).size();
   }
@@ -418,8 +405,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          {@link DateTime} end of period
    * @return long totalAmount
    */
-  public long countFailedReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
-      Collection<String> adminGroups) {
+  public long countFailedReservationRequestsInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
 
     long failedRequests = countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups,
         ReservationStatus.NOT_ACCEPTED);
@@ -440,21 +426,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @param reservationIdsInPeriod
    * @return long totalAmount
    */
-  public long countRunningReservationsInAdminGroupsSucceeded(final List<Long> reservationIdsInPeriod,
-      final DateTime start, final DateTime end, Collection<String> adminGroups) {
+  public long countRunningReservationsInAdminGroupsSucceeded(List<Long> reservationIdsInPeriod,
+      DateTime start, DateTime end, Collection<String> adminGroups) {
 
-    final Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
         .specForReservationBetweenForAdminGroupsWithStateIn(reservationIdsInPeriod, start, end, adminGroups, SUCCEEDED);
 
-    final Specification<LogEvent> specScheduledToCancelled = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> specScheduledToCancelled = LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(ReservationStatus.SCHEDULED, CANCELLED,
             reservationIdsInPeriod, start, end, adminGroups);
 
-    final Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING, CANCELLED, reservationIdsInPeriod,
             start, end, adminGroups);
 
-    final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
+    Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
         specScheduledToCancelled).or(specRunningToCancelled);
 
     return logEventService.countDistinctDomainObjectId(specRunningReservations);
@@ -473,18 +459,18 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @param reservationIdsInPeriod
    * @return long totalAmount
    */
-  public long countRunningReservationsInAdminGroupsFailed(final List<Long> reservationIdsInPeriod,
-      final DateTime start, final DateTime end, Collection<String> adminGroups) {
+  public long countRunningReservationsInAdminGroupsFailed(List<Long> reservationIdsInPeriod,
+      DateTime start, DateTime end, Collection<String> adminGroups) {
 
-    final Specification<LogEvent> specRunningToFailed = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> specRunningToFailed = LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING, FAILED, reservationIdsInPeriod,
             start, end, adminGroups);
 
-    final Specification<LogEvent> specScheduledToFailed = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> specScheduledToFailed = LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(SCHEDULED, FAILED, reservationIdsInPeriod,
             start, end, adminGroups);
 
-    final Specifications<LogEvent> specRunningReservations = Specifications.where(specRunningToFailed).or(
+    Specifications<LogEvent> specRunningReservations = Specifications.where(specRunningToFailed).or(
         specScheduledToFailed);
 
     return logEventService.countDistinctDomainObjectId(specRunningReservations);
@@ -518,10 +504,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     stripSecondsAndMillis(reservation);
     alignConnectionWithReservation(reservation);
 
-    // make sure the reservation is written to the database before we call the async reserve
-    reservation = reservationRepo.saveAndFlush(reservation);
-
-    // Log event after creation, so the ID is set by hibernate
+    reservationRepo.save(reservation);
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, requestDetails);
@@ -531,20 +514,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findOne(id);
   }
 
-  public Collection<Reservation> findActiveByPhysicalPort(final PhysicalPort port) {
+  public Collection<Reservation> findActiveByPhysicalPort(PhysicalPort port) {
     return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
-  public Collection<Reservation> findAllActiveByVirtualPort(final VirtualPort port) {
+  public Collection<Reservation> findAllActiveByVirtualPort(VirtualPort port) {
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()));
   }
 
-  public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
+  public Collection<Reservation> findAllActiveByVirtualPortForManager(VirtualPort port, RichUserDetails user) {
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
         specByVirtualPortAndManager(port, user)));
   }
 
-  public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
+  public List<Reservation> findAllEntriesUsingFilter(ReservationFilterView filter, int firstResult,
       int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservations(filter),
@@ -555,7 +538,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findByConnectionV1ConnectionId(connectionId);
   }
 
-  public Reservation findByReservationId(final String reservationId) {
+  public Reservation findByReservationId(String reservationId) {
     return reservationRepo.findByReservationId(reservationId);
   }
 
@@ -568,7 +551,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Reservation> findEntries(int firstResult, int maxResults, Sort sort) {
-    final RichUserDetails user = Security.getUserDetails();
+    RichUserDetails user = Security.getUserDetails();
 
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
@@ -585,14 +568,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<Reservation> findEntriesForUserUsingFilter(final RichUserDetails user,
-      final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
+  public List<Reservation> findEntriesForUserUsingFilter(RichUserDetails user,
+      ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
 
     if (user.getUserGroupIds().isEmpty()) {
       return Collections.emptyList();
     }
 
-    final List<Reservation> content = reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
+    List<Reservation> content = reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
 
     return content;
@@ -616,7 +599,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public List<Long> findReservationIdsBeforeOrOnInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
       ReservationStatus... states) {
-    final Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
         .specForReservationBeforeInAdminGroupsWithStateIn(Optional.<Long> absent(), before, adminGroups, states);
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(whereClause);
@@ -624,7 +607,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public List<Long> findReservationIdsStartBeforeAndEndInOrAfter(DateTime start, DateTime end) {
 
-    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
+    Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specReservationStartBeforeAndEndInOrAfter(start, end);
 
     return reservationRepo.findIdsWithWhereClause(Optional.<Specification<Reservation>> of(whereClause), Optional
@@ -674,11 +657,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
-  }
-
-  @VisibleForTesting
-  public ObjectMapper getObjectMapper() {
-    return mapper;
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
@@ -768,7 +746,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   @VisibleForTesting
-  Collection<ReservationArchive> transformToReservationArchives(final List<Reservation> reservations) {
+  Collection<ReservationArchive> transformToReservationArchives(List<Reservation> reservations) {
     return Collections2.transform(reservations, toReservationArchive);
   }
 
