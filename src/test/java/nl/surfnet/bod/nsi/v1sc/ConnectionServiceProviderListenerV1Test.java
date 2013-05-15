@@ -49,7 +49,7 @@ public class ConnectionServiceProviderListenerV1Test {
   private ConnectionServiceProviderListenerV1 subject;
 
   @Mock
-  private ConnectionServiceRequesterV1Callback connectionServiceRequesterMock;
+  private ConnectionServiceRequesterV1 connectionServiceRequesterMock;
 
   @Mock
   private ReservationService reservationServiceMock;

@@ -41,7 +41,7 @@ import com.google.common.base.Optional;
 public class ConnectionServiceProviderListenerV2 implements ReservationListener {
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
-  @Resource private ConnectionServiceRequesterV2Callback requester;
+  @Resource private ConnectionServiceRequesterV2 requester;
 
   @PostConstruct
   public void registerListener() {

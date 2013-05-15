@@ -40,6 +40,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
@@ -62,16 +63,15 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 
 @Component("connectionServiceRequesterV2")
-public class ConnectionServiceRequesterV2Callback {
+public class ConnectionServiceRequesterV2 {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV2Callback.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV2.class);
 
   @Resource private ConnectionV2Repo connectionRepo;
 
   public void reserveConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
-
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
@@ -170,12 +170,14 @@ public class ConnectionServiceRequesterV2Callback {
 
   public void dataPlaneActivated(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
-    XMLGregorianCalendar timeStamp = null;
+
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true);
+    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
+    Holder<CommonHeaderType> header = createHeader(requestDetails, connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, createHeader(requestDetails, connection));
+      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, header);
     } catch (ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }

@@ -50,9 +50,9 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Optional;
 
 @Component("connectionServiceRequesterV1")
-public class ConnectionServiceRequesterV1Callback {
+public class ConnectionServiceRequesterV1 {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1Callback.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1.class);
 
   @Resource
   private ConnectionV1Repo connectionRepo;

@@ -50,7 +50,7 @@ import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterV1Callback;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterV1;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -103,7 +103,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   @Resource private ConnectionV1Repo connectionRepo;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
-  @Resource private ConnectionServiceRequesterV1Callback connectionServiceRequester;
+  @Resource private ConnectionServiceRequesterV1 connectionServiceRequester;
 
   @PersistenceContext
   private EntityManager entityManager;

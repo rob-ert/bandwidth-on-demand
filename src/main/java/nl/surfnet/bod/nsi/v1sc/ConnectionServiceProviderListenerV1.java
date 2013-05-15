@@ -48,7 +48,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
   private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListenerV1.class);
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
-  @Resource private ConnectionServiceRequesterV1Callback requester;
+  @Resource private ConnectionServiceRequesterV1 requester;
   @Resource private ReservationService reservationService;
 
   @PostConstruct
@@ -112,7 +112,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
     }
   }
 
-  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterV1Callback requester) {
+  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterV1 requester) {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:

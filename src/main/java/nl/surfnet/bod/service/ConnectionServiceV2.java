@@ -36,7 +36,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2Callback;
+import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -64,7 +64,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
-  @Resource private ConnectionServiceRequesterV2Callback connectionServiceRequester;
+  @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
 
   @PersistenceContext private EntityManager entityManager;
 
