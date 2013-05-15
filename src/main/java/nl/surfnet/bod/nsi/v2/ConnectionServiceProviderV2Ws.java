@@ -82,13 +82,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private Environment bodEnvironment;
 
-    public void reserve(
-        @WebParam(name = "globalReservationId", targetNamespace = "") String globalReservationId,
-        @WebParam(name = "description", targetNamespace = "") String description,
-        @WebParam(name = "connectionId", targetNamespace = "", mode = WebParam.Mode.INOUT) Holder<String> connectionId,
-        @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
-        @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-        throws ServiceException {
+  @Override
+  public void reserve(
+      @WebParam(name = "connectionId", targetNamespace = "", mode = WebParam.Mode.INOUT) Holder<String> connectionId,
+      @WebParam(name = "globalReservationId", targetNamespace = "") String globalReservationId,
+      @WebParam(name = "description", targetNamespace = "") String description,
+      @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
 
     checkOAuthScope(NsiScope.RESERVE);
 

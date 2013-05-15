@@ -112,10 +112,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveAbortConfirmed(
-        connection.getGlobalReservationId(),
-        connection.getConnectionId(),
-        createHeader(requestDetails, connection));
+      port.reserveAbortConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
     } catch (ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
@@ -128,7 +125,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.terminateConfirmed(connection.getGlobalReservationId(), connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.terminateConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
     } catch (ServiceException e) {
       log.info("Sending Terminate Confirmed failed", e);
     }
@@ -142,10 +139,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveCommitConfirmed(
-        connection.getGlobalReservationId(),
-        connection.getConnectionId(),
-        createHeader(requestDetails, connection));
+      port.reserveCommitConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
     } catch (ServiceException e) {
       log.info("Sending Reserve Commit failed", e);
     }
@@ -158,10 +152,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.provisionConfirmed(
-        connection.getGlobalReservationId(),
-        connection.getConnectionId(),
-        createHeader(requestDetails, connection));
+      port.provisionConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
     } catch (ServiceException e) {
       log.info("Sending Provision Confirmed failed", e);
     }
