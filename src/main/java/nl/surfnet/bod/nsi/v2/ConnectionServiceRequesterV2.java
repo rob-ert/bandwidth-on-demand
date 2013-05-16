@@ -95,9 +95,9 @@ public class ConnectionServiceRequesterV2 {
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.reserveConfirmed(
+        connection.getConnectionId(),
         connection.getGlobalReservationId(),
         connection.getDescription(),
-        connection.getConnectionId(),
         ImmutableList.of(criteria),
         headerHolder);
     } catch (ServiceException e) {
