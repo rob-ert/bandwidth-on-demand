@@ -54,7 +54,6 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
@@ -247,45 +246,9 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void querySummaryConfirmed(
-      @WebParam(name = "reservation", targetNamespace = "") List<QuerySummaryResultType> reservation,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    notSupporedOperation();
-  }
-
-  @Override
-  public void querySummaryFailed(
-      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    notSupporedOperation();
-  }
-
-  @Override
   public void queryRecursive(
       @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
       @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    notSupporedOperation();
-  }
-
-  @Override
-  public void queryRecursiveConfirmed(
-      @WebParam(name = "reservation", targetNamespace = "") List<QueryRecursiveResultType> reservation,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    notSupporedOperation();
-  }
-
-  @Override
-  public void queryRecursiveFailed(
-      @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceException,
       @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
       throws ServiceException {
 
