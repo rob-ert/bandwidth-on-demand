@@ -107,7 +107,7 @@ public class ConnectionServiceRequesterV2 {
 
   public void abortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
-    connection.setReservationState(ReservationStateEnumType.RESERVED);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connectionRepo.save(connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);
@@ -133,7 +133,7 @@ public class ConnectionServiceRequesterV2 {
 
   public void reserveCommitConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
-    connection.setReservationState(ReservationStateEnumType.RESERVED);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connectionRepo.save(connection);
 

@@ -47,7 +47,7 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Enumerated(EnumType.STRING)
   @Field
-  private ReservationStateEnumType reservationState = ReservationStateEnumType.INITIAL;
+  private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
 
   @Enumerated(EnumType.STRING)
   @Field
@@ -55,7 +55,7 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Enumerated(EnumType.STRING)
   @Field
-  private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.INITIAL;
+  private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
 
   @Column(nullable = false)
   @Field

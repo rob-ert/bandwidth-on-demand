@@ -163,8 +163,8 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     }
     catch (ValidationException e) {
       // TODO should go to terminated in Life-cycle state machine?
-      //connection.setLifecyhlceState(TERMINATED);
-      connection.setReservationState(ReservationStateEnumType.RESERVED);
+      //connection.setLifecycleState(TERMINATED);
+      connection.setReservationState(ReservationStateEnumType.RESERVE_START);
       connectionRepo.save(connection);
       throw e;
     }

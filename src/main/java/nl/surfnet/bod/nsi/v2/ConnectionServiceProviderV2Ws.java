@@ -127,8 +127,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
-    connection.setReservationState(ReservationStateEnumType.INITIAL);
-    connection.setLifecycleState(LifecycleStateEnumType.INITIAL);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
+    connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connection.setProvisionState(ProvisionStateEnumType.UNKNOWN);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
