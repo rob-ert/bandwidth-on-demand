@@ -53,9 +53,9 @@ public final class ConnectionsV2 {
             .withDirectionality(DirectionalityType.BIDIRECTIONAL)))
         .withConnectionId(connection.getConnectionId())
         .withConnectionStates(new ConnectionStatesType()
-          .withReservationState(new ReservationStateType().withState(connection.getReservationState()))
-          .withLifecycleState(new LifecycleStateType().withState(connection.getLifecycleState()))
-          .withProvisionState(new ProvisionStateType().withState(connection.getProvisionState()))
+          .withReservationState(connection.getReservationState())
+          .withLifecycleState(connection.getLifecycleState())
+          .withProvisionState(connection.getProvisionState())
           .withDataPlaneStatus(new DataPlaneStatusType().withActive(false).withVersionConsistent(true).withVersion(0)));
     }
   };

@@ -47,15 +47,15 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Enumerated(EnumType.STRING)
   @Field
-  private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
+  private ReservationStateEnumType reservationState;
 
   @Enumerated(EnumType.STRING)
   @Field
-  private ProvisionStateEnumType provisionState = ProvisionStateEnumType.UNKNOWN;
+  private ProvisionStateEnumType provisionState;
 
   @Enumerated(EnumType.STRING)
   @Field
-  private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
+  private LifecycleStateEnumType lifecycleState;
 
   @Column(nullable = false)
   @Field

@@ -129,7 +129,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     ConnectionV2 connection = new ConnectionV2();
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
-    connection.setProvisionState(ProvisionStateEnumType.UNKNOWN);
+    connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
