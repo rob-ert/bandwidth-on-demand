@@ -85,8 +85,9 @@ public class HealthCheckController {
       callable(versCheck)
     );
 
+    ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
     try {
-      List<Future<ServiceState>> futures = Executors.newFixedThreadPool(tasks.size()).invokeAll(tasks, 20, TimeUnit.SECONDS);
+      List<Future<ServiceState>> futures = threadPool.invokeAll(tasks, 20, TimeUnit.SECONDS);
 
       addState(model, "iddHealth", futures.get(0));
       addState(model, "nbiHealth", futures.get(1));
@@ -99,6 +100,8 @@ public class HealthCheckController {
     }
     catch (InterruptedException e) {
       logger.error("Error during calling healthchecks", e);
+    } finally {
+      threadPool.shutdown();
     }
 
     return "healthcheck";
