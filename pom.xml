@@ -713,6 +713,7 @@
                         <exclude>src/test/**/*.xml</exclude>
                         <exclude>src/test/**/*.properties</exclude>
                         <exclude>src/etc/*.txt</exclude>
+						<exclude>.idea/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
