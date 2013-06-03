@@ -45,7 +45,7 @@ import org.hibernate.usertype.UserType;
 
 public class JaxbUserType<T> implements UserType {
 
-  private static final int[] SQL_TYPES = { Types.LONGVARCHAR };
+  private static final int[] SQL_TYPES = { Types.VARCHAR };
 
   private static JAXBContext jaxbContext;
 

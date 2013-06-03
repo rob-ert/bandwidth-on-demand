@@ -16,4 +16,6 @@ logfile
 .worksheet/
 .apt_generated/
 *.sc
+*.iml
+.idea/
 /src/test/cache/
