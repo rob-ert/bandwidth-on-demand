@@ -31,7 +31,6 @@ import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
@@ -83,11 +82,11 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserve(
-      @WebParam(name = "connectionId", targetNamespace = "", mode = WebParam.Mode.INOUT) Holder<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") String globalReservationId,
-      @WebParam(name = "description", targetNamespace = "") String description,
-      @WebParam(name = "criteria", targetNamespace = "") ReservationRequestCriteriaType criteria,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      Holder<String> connectionId,
+      String globalReservationId,
+      String description,
+      ReservationRequestCriteriaType criteria,
+      Holder<CommonHeaderType> header)
       throws ServiceException {
 
     checkOAuthScope(NsiScope.RESERVE);
@@ -151,13 +150,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void reserveCommit(
-      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    // Checking for the reserve scope for now..
-    checkOAuthScope(NsiScope.RESERVE);
+  public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    checkOAuthScope(NsiScope.RESERVE); // Checking for the reserve scope for now..
 
     log.info("Received reserve commit request for connection: {}", connectionId);
 
@@ -167,13 +161,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void reserveAbort(
-      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    // using TERMINATE scope for now
-    checkOAuthScope(NsiScope.TERMINATE);
+  public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    checkOAuthScope(NsiScope.TERMINATE); // using TERMINATE scope for now
 
     log.info("Received Reserve Abort for connection: {}", connectionId);
 
@@ -183,11 +172,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void provision(
-      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
+  public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     checkOAuthScope(NsiScope.PROVISION);
 
     log.info("Received a Provision for connection: {}", connectionId);
@@ -206,20 +191,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void release(
-      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
+  public void release(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     notSupporedOperation();
   }
 
   @Override
-  public void terminate(
-      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
+  public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     checkOAuthScope(NsiScope.TERMINATE);
 
     log.info("Received a Terminate for connection: {}", connectionId);
@@ -230,12 +207,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void querySummary(
-      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionIds,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationIds,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
-      throws ServiceException {
-
+  public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Summary");
@@ -246,20 +218,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void queryRecursive(
-      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionId,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationId,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+  public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header)
       throws ServiceException {
 
     notSupporedOperation();
   }
 
   @Override
-  public List<QuerySummaryResultType> querySummarySync(
-      @WebParam(name = "connectionId", targetNamespace = "") List<String> connectionIds,
-      @WebParam(name = "globalReservationId", targetNamespace = "") List<String> globalReservationIds,
-      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+  public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
 
     try {
