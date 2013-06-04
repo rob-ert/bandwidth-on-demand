@@ -26,7 +26,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -43,10 +42,7 @@ public class Log4JMail {
 
   private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-  public static String MAIL_LOGER_NAME = "MAIL";
-
-  @Resource(name = "bodEnvironment")
-  private Environment bodEnvironment;
+  public static String MAIL_LOGGER_NAME = "MAIL";
 
   @Value("${log4jmail.smtphost}")
   private String smpthost;
@@ -70,16 +66,15 @@ public class Log4JMail {
   private String patternLayout;
 
   @Value("${log4jmail.enabled}")
-  private String enabled;
+  private boolean enabled;
 
   @PostConstruct
   public void init() throws UnknownHostException {
-
-    if (Boolean.parseBoolean(enabled)) {
+    if (enabled) {
       log.info("MAIL LOGGER ENABLED!");
 
       final SMTPAppender smtpAppender = new SMTPAppender();
-      smtpAppender.setName(MAIL_LOGER_NAME);
+      smtpAppender.setName(MAIL_LOGGER_NAME);
       smtpAppender.setSMTPHost(smpthost);
       smtpAppender.setSMTPPort(smptport);
       smtpAppender.setSMTPDebug(isDebug);
@@ -94,11 +89,12 @@ public class Log4JMail {
     }
     else {
       log.info("MAIL LOGGER DISABLED!");
+      Logger.getRootLogger().removeAppender(MAIL_LOGGER_NAME);
     }
   }
 
   @VisibleForTesting
-  void setEnabled(String enabled) {
+  void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 }

@@ -269,7 +269,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
-        emailSender().sendErrorMail(e);
+        logger.error("Uncaught exception in thread " + t + ": " + e, e);
       }
     });
 
@@ -282,6 +282,9 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     return new HandlingExecutor(executor);
   }
 
+  /**
+   * Executor that logs errors when a thread fails with an exception.
+   */
   public class HandlingExecutor implements AsyncTaskExecutor {
 
     private final AsyncTaskExecutor executor;
@@ -341,9 +344,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     }
 
     private void handle(Exception exception) {
-      logger.error("Exception during async call", exception);
-      emailSender().sendErrorMail(exception);
+      logger.error("Exception during async call: " + exception, exception);
     }
   }
-
 }
