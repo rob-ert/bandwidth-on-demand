@@ -27,6 +27,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Collections;
 import java.util.EnumSet;
 
 import javax.xml.ws.Holder;
@@ -49,6 +50,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -242,6 +244,30 @@ public class ConnectionServiceProviderV2WsTest {
       fail("ServiceException expected");
     } catch (ServiceException expected) {
       assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+    }
+  }
+
+  @Test
+  public void should_require_nsi_query_scope_on_query_summary() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.querySummary(Collections.<String>emptyList(), null, headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+    }
+  }
+
+  @Test
+  public void should_require_nsi_query_scope_on_query_summary_sync() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.querySummarySync(Collections.<String>emptyList(), null, headerHolder);
+      fail("QuerySummarySyncFailed expected");
+    } catch (QuerySummarySyncFailed expected) {
+      assertThat(expected.getFaultInfo().getServiceException().getText(), is("Unauthorized"));
     }
   }
 
