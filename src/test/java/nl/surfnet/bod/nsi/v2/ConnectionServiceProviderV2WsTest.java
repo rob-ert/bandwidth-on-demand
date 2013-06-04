@@ -91,10 +91,12 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connectionIdHolder.value, is(notNullValue()));
 
     ArgumentCaptor<ConnectionV2> connection = ArgumentCaptor.forClass(ConnectionV2.class);
-    verify(connectionService).reserve(connection.capture(), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
+    ArgumentCaptor<NsiRequestDetails> nsiRequestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
+    verify(connectionService).reserve(connection.capture(), nsiRequestDetails.capture(), eq(Security.getUserDetails()));
     assertThat(connection.getValue().getDesiredBandwidth(), is(100));
     assertThat(connection.getValue().getGlobalReservationId(), is("globalReservationId"));
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
+    assertThat(nsiRequestDetails.getValue().getReplyTo(), is("replyTo"));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }
 
