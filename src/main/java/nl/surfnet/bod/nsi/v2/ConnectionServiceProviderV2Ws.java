@@ -205,7 +205,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     log.info("Received a Terminate for connection: {}", connectionId);
 
-    ConnectionV2 connection = getConnectionOrFail(connectionId);
+    getConnectionOrFail(connectionId);
 
     connectionService.asyncTerminate(connectionId, createRequestDetails(header.value), Security.getUserDetails());
   }

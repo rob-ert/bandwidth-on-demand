@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -45,6 +46,7 @@ public class ConnectionV2Factory {
   private Integer version = 0;
   private String description = "";
   private ReservationStateEnumType reservationState;
+  private ProvisionStateEnumType provisionState;
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -56,6 +58,7 @@ public class ConnectionV2Factory {
     connection.setProviderNsa(providerNsa);
     connection.setConnectionId(connectionId);
     connection.setReservationState(reservationState);
+    connection.setProvisionState(provisionState);
     connection.setReservation(reservation);
     connection.setGlobalReservationId(globalReservationId);
 //    connection.setServiceParameters(serviceParameters);
@@ -126,8 +129,13 @@ public class ConnectionV2Factory {
     return this;
   }
 
-  public ConnectionV2Factory setReservationState(ReservationStateEnumType reserveStart) {
-    this.reservationState = reserveStart;
+  public ConnectionV2Factory setReservationState(ReservationStateEnumType reservationState) {
+    this.reservationState = reservationState;
+    return this;
+  }
+
+  public ConnectionV2Factory setProvisionState(ProvisionStateEnumType provisionState) {
+    this.provisionState = provisionState;
     return this;
   }
 }

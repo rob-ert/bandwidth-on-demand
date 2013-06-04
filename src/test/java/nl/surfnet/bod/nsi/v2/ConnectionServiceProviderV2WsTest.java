@@ -51,6 +51,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
@@ -186,6 +187,64 @@ public class ConnectionServiceProviderV2WsTest {
       assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
     }
   }
+
+  @Test
+  public void should_only_provision_when_released() {
+    try {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(ProvisionStateEnumType.PROVISIONED).create());
+
+      subject.provision("connectionId", headerHolder);
+
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+    }
+  }
+
+  @Test
+  public void should_provision_when_released() throws Exception {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(ProvisionStateEnumType.RELEASED).create());
+
+      subject.provision("connectionId", headerHolder);
+
+      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
+      verify(connectionService).asyncProvision(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class));
+  }
+
+  @Test
+  public void should_require_nsi_provision_scope_on_provision() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.provision("connectionId", headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+    }
+  }
+
+  @Test
+  public void should_terminate() throws Exception {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().create());
+
+      subject.terminate("connectionId", headerHolder);
+
+      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
+      verify(connectionService).asyncTerminate(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
+  }
+
+  @Test
+  public void should_require_nsi_terminate_scope_on_terminate() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.terminate("connectionId", headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+    }
+  }
+
 
   private CommonHeaderType headers() {
     return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA("providerNSA").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
