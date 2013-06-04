@@ -40,7 +40,7 @@ public final class ConnectionsV2 {
 
       return new QuerySummaryResultType()
         .withRequesterNSA("requester")
-        .withCriteria(new ReservationConfirmCriteriaType()
+        .withCriteria(new QuerySummaryResultCriteriaType()
           .withBandwidth(connection.getDesiredBandwidth())
           .withSchedule(new ScheduleType()
             .withEndTime(XmlUtils.toGregorianCalendar(connection.getEndTime().get()))
