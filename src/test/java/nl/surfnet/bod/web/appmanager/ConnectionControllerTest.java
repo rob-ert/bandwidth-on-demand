@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.service.ConnectionServiceV1;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.Security;
 
@@ -69,7 +69,7 @@ public class ConnectionControllerTest {
   public void listConnectionsShouldAddConnectionToModel() throws Exception {
 
     when(connectionServiceMock.findEntries(0, MAX_ITEMS_PER_PAGE, new Sort(Direction.ASC, subject.getDefaultSortProperty())))
-      .thenReturn(Lists.newArrayList(new ConnectionFactory().create(), new ConnectionFactory().create()));
+      .thenReturn(Lists.newArrayList(new ConnectionV1Factory().create(), new ConnectionV1Factory().create()));
 
     mockMvc.perform(get("/appmanager/connections"))
       .andExpect(model().attribute("list", hasSize(2)))
@@ -80,7 +80,7 @@ public class ConnectionControllerTest {
   public void listConnectionsSortedByReservationStatus() throws Exception {
 
     when(connectionServiceMock.findEntries(0, MAX_ITEMS_PER_PAGE, new Sort(Direction.ASC, "reservation.status")))
-      .thenReturn(Lists.newArrayList(new ConnectionFactory().create(), new ConnectionFactory().create()));
+      .thenReturn(Lists.newArrayList(new ConnectionV1Factory().create(), new ConnectionV1Factory().create()));
 
     mockMvc.perform(get("/appmanager/connections").param("sort", "reservationStatus"))
       .andExpect(model().attribute("list", hasSize(2)))
@@ -97,7 +97,7 @@ public class ConnectionControllerTest {
       connectionServiceMock.searchForInFilteredList(
         ConnectionV1.class, "TERMINATED", 0, MAX_ITEMS_PER_PAGE, Security.getUserDetails(), filterList)
       ).thenReturn(
-        new FullTextSearchResult<ConnectionV1>(1, Lists.newArrayList(new ConnectionFactory().create())));
+        new FullTextSearchResult<ConnectionV1>(1, Lists.newArrayList(new ConnectionV1Factory().create())));
 
     mockMvc.perform(get("/appmanager/connections/search").param("search", "TERMINATED"))
       .andExpect(model().attribute("list", hasSize(1)))
@@ -109,7 +109,7 @@ public class ConnectionControllerTest {
   public void listIllegalConnectionsShouldAddConnectionToModel() throws Exception {
 
     when(connectionServiceMock.findWithIllegalState(0, MAX_ITEMS_PER_PAGE, new Sort(Direction.ASC, subject.getDefaultSortProperty())))
-      .thenReturn(Lists.newArrayList(new ConnectionFactory().create(), new ConnectionFactory().create()));
+      .thenReturn(Lists.newArrayList(new ConnectionV1Factory().create(), new ConnectionV1Factory().create()));
 
     mockMvc.perform(get("/appmanager/connections/illegal"))
       .andExpect(model().attribute("list", hasSize(2)))

@@ -45,7 +45,7 @@ import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.service.ConnectionServiceV1;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
@@ -101,7 +101,7 @@ public class ConnectionServiceProviderV1WsTest {
 
   private final VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
-  private final ConnectionV1 connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
+  private final ConnectionV1 connection = new ConnectionV1Factory().setSourceStpId("Source Port").setDestinationStpId(
       "Destination Port").setProviderNsa(nsaProvider).create();
 
   private final int port = 55446;

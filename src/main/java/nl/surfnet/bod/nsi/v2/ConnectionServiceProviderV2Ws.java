@@ -55,6 +55,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
@@ -144,26 +145,31 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     headersAsReply(header);
-    checkOAuthScope(NsiScope.RESERVE); // Checking for the reserve scope for
-                                       // now..
+    checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received reserve commit request for connection: {}", connectionId);
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
+    if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
+      throw notApplicable();
+    }
 
-    connectionService.asyncReserveCommit(connection.getConnectionId(), createRequestDetails(header.value));
+    connectionService.asyncReserveCommit(connectionId, createRequestDetails(header.value));
   }
 
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     headersAsReply(header);
-    checkOAuthScope(NsiScope.TERMINATE); // using TERMINATE scope for now
+    checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received Reserve Abort for connection: {}", connectionId);
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
+    if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
+      throw notApplicable();
+    }
 
-    connectionService.asyncReserveAbort(connection.getConnectionId(), createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncReserveAbort(connectionId, createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override
@@ -177,12 +183,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     checkProvisionAllowed(connection);
 
-    connectionService.asyncProvision(connection.getConnectionId(), createRequestDetails(header.value));
+    connectionService.asyncProvision(connectionId, createRequestDetails(header.value));
   }
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
     if (connection.getProvisionState() != ProvisionStateEnumType.RELEASED) {
-      notApplicable();
+      throw notApplicable();
     }
   }
 
@@ -201,7 +207,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
-    connectionService.asyncTerminate(connection.getConnectionId(), createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncTerminate(connectionId, createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override
@@ -269,8 +275,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     return new ServiceException("Missing parameter '" + parameter + "'", createServiceExceptionType("Missing parameter '" + parameter + "'"));
   }
 
-  private void notApplicable() throws ServiceException {
-    throw new ServiceException("This operation is not applicable", createServiceExceptionType("Not Applicable"));
+  private ServiceException notApplicable() throws ServiceException {
+    return new ServiceException("This operation is not applicable", createServiceExceptionType("Not Applicable"));
   }
 
   private ServiceException notSupportedOperation() {

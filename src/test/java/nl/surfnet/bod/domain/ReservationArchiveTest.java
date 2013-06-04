@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -40,7 +40,7 @@ public class ReservationArchiveTest {
 
     assertThat(mapper.canSerialize(Reservation.class), is(true));
 
-    final Connection connection = new ConnectionFactory().create();
+    final Connection connection = new ConnectionV1Factory().create();
     final Reservation reservation = new ReservationFactory().setConnection(connection).create();
 
 //    ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ConnectionServiceV2;
+import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
@@ -51,6 +52,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
@@ -65,9 +67,12 @@ public class ConnectionServiceProviderV2WsTest {
   @Mock private ConnectionV2Repo connectionRepoMock;
   @Mock private ConnectionServiceV2 connectionService;
 
+  private Holder<CommonHeaderType> headerHolder;
+
   @Before
   public void setUp() {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.allOf(NsiScope.class)).create());
+    headerHolder = new Holder<>(headers());
   }
 
   @After
@@ -78,7 +83,6 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
     Holder<String> connectionIdHolder = new Holder<String>();
-    Holder<CommonHeaderType> headerHolder = new Holder<>(headers());
     subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
     assertThat(connectionIdHolder.value, is(notNullValue()));
@@ -96,7 +100,7 @@ public class ConnectionServiceProviderV2WsTest {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
 
     try {
-      subject.reserve(new Holder<String>(), null, null, initialReservationCriteria(), new Holder<>(headers()));
+      subject.reserve(new Holder<String>(), null, null, initialReservationCriteria(), headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
       assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
@@ -106,10 +110,80 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_reject_reserve_with_connection_id_until_modify_is_supported() {
     try {
-      subject.reserve(new Holder<>("connectionId"), null, null, initialReservationCriteria(), new Holder<>(headers()));
+      subject.reserve(new Holder<>("connectionId"), null, null, initialReservationCriteria(), headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
       assertThat(expected.getFaultInfo().getText(), is("Not Supported"));
+    }
+  }
+
+  @Test
+  public void should_only_commit_when_reserve_held() {
+    try {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_START).create());
+
+      subject.reserveCommit("connectionId", headerHolder);
+
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+    }
+  }
+
+  @Test
+  public void should_commit_when_reserve_held() throws Exception {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_HELD).create());
+
+      subject.reserveCommit("connectionId", headerHolder);
+
+      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
+      verify(connectionService).asyncReserveCommit(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class));
+  }
+
+  @Test
+  public void should_require_nsi_reserve_scope_on_reserve_commit() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.reserveCommit("connectionId", headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+    }
+  }
+
+  @Test
+  public void should_only_abort_when_reserve_held() {
+    try {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_START).create());
+
+      subject.reserveAbort("connectionId", headerHolder);
+
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+    }
+  }
+
+  @Test
+  public void should_abort_when_reserve_held() throws Exception {
+    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_HELD).create());
+
+    subject.reserveAbort("connectionId", headerHolder);
+
+    assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
+    verify(connectionService).asyncReserveAbort(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
+  }
+
+  @Test
+  public void should_require_nsi_reserve_scope_on_reserve_abort() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
+
+    try {
+      subject.reserveAbort("connectionId", headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
     }
   }
 

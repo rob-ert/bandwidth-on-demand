@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -81,7 +81,7 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnection(new ConnectionV1Factory().create());
 
     reservationTwo = reservationFactory.create();
 
@@ -101,7 +101,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationToString() {
-    Connection connection = new ConnectionFactory().create();
+    Connection connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
     reservation.setConnection(connection);
     logger.info(reservation.toString());
@@ -109,7 +109,7 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyContainLabelsOfConnectionAndVirtualResourceGroupInReservation() {
-    Connection connection = new ConnectionFactory().create();
+    Connection connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
     reservation.setConnection(connection);
     String reservationString = reservation.toString();
@@ -133,13 +133,13 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationEquals() {
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnection(new ConnectionV1Factory().create());
     reservation.equals(reservationTwo);
   }
 
   @Test
   public void shouldNotOverflowInConnectionToString() {
-    Connection connection = new ConnectionFactory().create();
+    Connection connection = new ConnectionV1Factory().create();
     connection.toString();
   }
 
@@ -149,7 +149,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationHashCode() {
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnection(new ConnectionV1Factory().create());
     reservation.hashCode();
   }
 
@@ -282,8 +282,8 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInConnectionEquals() {
-    ConnectionV1 connection = new ConnectionFactory().setRequesterNsa("SURFnet").setId(2l).create();
-    ConnectionV1 con = new ConnectionFactory().setRequesterNsa("wesaidso").setId(3l).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setRequesterNsa("SURFnet").setId(2l).create();
+    ConnectionV1 con = new ConnectionV1Factory().setRequesterNsa("wesaidso").setId(3l).create();
     connection.setId(3l);
     connection.setVersion(3);
     assertThat("Only on id and version", connection, not(con));
@@ -295,8 +295,8 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInConnectionHashcode() {
-    ConnectionV1 connection = new ConnectionFactory().setRequesterNsa("SURFnet").setId(2l).create();
-    ConnectionV1 con = new ConnectionFactory().setRequesterNsa("wesaidso").setId(3l).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setRequesterNsa("SURFnet").setId(2l).create();
+    ConnectionV1 con = new ConnectionV1Factory().setRequesterNsa("wesaidso").setId(3l).create();
     connection.setId(3l);
     connection.setVersion(3);
 

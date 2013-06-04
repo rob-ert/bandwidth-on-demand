@@ -31,7 +31,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -99,7 +99,7 @@ public class ReservationServiceDbTestHelper {
   }
 
   Reservation addConnectionToReservation(Reservation reservation) {
-    ConnectionV1 connection = new ConnectionFactory().setReservation(reservation).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setReservation(reservation).create();
     connection = connectionRepo.saveAndFlush(connection);
 
     reservation.setConnection(connection);

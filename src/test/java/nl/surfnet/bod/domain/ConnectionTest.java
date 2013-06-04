@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
@@ -36,7 +36,7 @@ public class ConnectionTest {
 
   @Test
   public void getAdminGroupsWhenConnectionHasNoReservation() {
-    Connection subject = new ConnectionFactory().setReservation(null).create();
+    Connection subject = new ConnectionV1Factory().setReservation(null).create();
 
     assertThat(subject.getAdminGroups(), hasSize(0));
   }
@@ -47,7 +47,7 @@ public class ConnectionTest {
     VirtualPort source = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:managers1").setVirtualResourceGroup(vrg).create();
     VirtualPort destination = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:managers2").setVirtualResourceGroup(vrg).create();
     Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
-    Connection subject = new ConnectionFactory().setReservation(reservation).create();
+    Connection subject = new ConnectionV1Factory().setReservation(reservation).create();
 
     assertThat(subject.getAdminGroups(), hasSize(3));
   }

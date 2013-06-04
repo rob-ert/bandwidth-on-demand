@@ -31,7 +31,7 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -50,7 +50,7 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
   @Before
   public void setupSearchData() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).withNoIds().create();
-    Connection connection = new ConnectionFactory()
+    Connection connection = new ConnectionV1Factory()
       .setReservation(reservation)
       .setCurrentState(ConnectionStateType.TERMINATED)
       .withNoIds().create();

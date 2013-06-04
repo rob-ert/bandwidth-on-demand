@@ -32,7 +32,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 
-public class ConnectionFactory {
+public class ConnectionV1Factory {
 
   private int desiredBandwidth;
   private String requesterNsa = "nsa:requester:surfnet.nl";
@@ -80,64 +80,64 @@ public class ConnectionFactory {
     return connection;
   }
 
-  public ConnectionFactory setReservation(Reservation reservation) {
+  public ConnectionV1Factory setReservation(Reservation reservation) {
     this.reservation = reservation;
     return this;
   }
 
-  public ConnectionFactory setDestinationStpId(String destinationStpId) {
+  public ConnectionV1Factory setDestinationStpId(String destinationStpId) {
     this.destinationStpId = destinationStpId;
     return this;
   }
 
-  public ConnectionFactory setSourceStpId(String sourceStpId) {
+  public ConnectionV1Factory setSourceStpId(String sourceStpId) {
     this.sourceStpId = sourceStpId;
     return this;
   }
 
-  public ConnectionFactory setProtectionType(String protectionType) {
+  public ConnectionV1Factory setProtectionType(String protectionType) {
     this.protectionType = protectionType;
     return this;
   }
 
-  public ConnectionFactory setConnectionId(String connectionId) {
+  public ConnectionV1Factory setConnectionId(String connectionId) {
     this.connectionId = connectionId;
     return this;
   }
 
-  public ConnectionFactory setProviderNsa(String providerNsa) {
+  public ConnectionV1Factory setProviderNsa(String providerNsa) {
     this.providerNsa = providerNsa;
     return this;
   }
 
-  public ConnectionFactory setRequesterNsa(String requesterNsa) {
+  public ConnectionV1Factory setRequesterNsa(String requesterNsa) {
     this.requesterNsa = requesterNsa;
     return this;
   }
 
-  public ConnectionFactory setDesiredBandwidth(int desiredBandwidth) {
+  public ConnectionV1Factory setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
     return this;
   }
 
-  public ConnectionFactory setCurrentState(ConnectionStateType currentState) {
+  public ConnectionV1Factory setCurrentState(ConnectionStateType currentState) {
     this.currentState = currentState;
     return this;
   }
 
-  public ConnectionFactory withNoIds() {
+  public ConnectionV1Factory withNoIds() {
     this.id = null;
     this.version = null;
 
     return this;
   }
 
-  public ConnectionFactory setId(Long id) {
+  public ConnectionV1Factory setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public ConnectionFactory setDescription(String description) {
+  public ConnectionV1Factory setDescription(String description) {
     this.description = description;
     return this;
   }

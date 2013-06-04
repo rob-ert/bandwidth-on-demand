@@ -30,7 +30,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class ConnectionServiceProviderListenerV1Test {
     String failedReason = "No available bandwidth";
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
 
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.RESERVING).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVING).create();
     Reservation reservation = new ReservationFactory()
       .setStatus(ReservationStatus.NOT_ACCEPTED)
       .setConnection(connection)
@@ -89,7 +89,7 @@ public class ConnectionServiceProviderListenerV1Test {
   @Test
   public void terminateFailed() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.TERMINATING).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).setConnection(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
 
@@ -103,7 +103,7 @@ public class ConnectionServiceProviderListenerV1Test {
   @Test
   public void terminateSucceed() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.TERMINATING).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.CANCELLED).setConnection(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
 
@@ -117,7 +117,7 @@ public class ConnectionServiceProviderListenerV1Test {
   @Test
   public void provisionSucceeded() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.RESERVED).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVED).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).setConnection(connection).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
@@ -132,7 +132,7 @@ public class ConnectionServiceProviderListenerV1Test {
   @Test
   public void reservationStarts() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.AUTO_PROVISION).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.AUTO_PROVISION).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setConnection(connection).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
@@ -147,7 +147,7 @@ public class ConnectionServiceProviderListenerV1Test {
   @Test
   public void succeedShouldTerminate() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
-    ConnectionV1 connection = new ConnectionFactory().setCurrentState(ConnectionStateType.PROVISIONED).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.PROVISIONED).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUCCEEDED).setConnection(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation, requestDetails);
 

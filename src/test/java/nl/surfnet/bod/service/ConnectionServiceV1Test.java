@@ -39,7 +39,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.service.ConnectionServiceV1.ValidationException;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.util.Environment;
@@ -84,7 +84,7 @@ public class ConnectionServiceV1Test {
   public void shouldUseRichUserDetailsAsCreater() throws ValidationException {
     NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("replyTo", "123");
 
-    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
     when(connectionRepoMock.saveAndFlush(any(ConnectionV1.class))).thenReturn(connection);
@@ -111,10 +111,10 @@ public class ConnectionServiceV1Test {
 
   @Test
   public void aConnectionWithoutAReservationShouldBeTerminated() {
-    ConnectionV1 connectionValid = new ConnectionFactory().setReservation(null).setCurrentState(TERMINATED).create();
+    ConnectionV1 connectionValid = new ConnectionV1Factory().setReservation(null).setCurrentState(TERMINATED).create();
     assertThat(subject.hasValidState(connectionValid), is(true));
 
-    ConnectionV1 connectionInvalid = new ConnectionFactory().setReservation(null).setCurrentState(PROVISIONED).create();
+    ConnectionV1 connectionInvalid = new ConnectionV1Factory().setReservation(null).setCurrentState(PROVISIONED).create();
     assertThat(subject.hasValidState(connectionInvalid), is(false));
   }
 
@@ -123,7 +123,7 @@ public class ConnectionServiceV1Test {
 
   @Test
   public void shouldThrowAValidationExceptionWenNotAuthorizedForPort() throws ValidationException {
-    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("wrong-admin").create());
@@ -135,7 +135,7 @@ public class ConnectionServiceV1Test {
 
   @Test
   public void shouldThrowAValidationExceptionWhenNonUniqueConnectionIdIsUsed() throws ValidationException {
-    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new ConnectionV1());
@@ -147,7 +147,7 @@ public class ConnectionServiceV1Test {
 
   @Test
   public void shouldThrowAValidationExceptionWhenPortDoesNotExist() throws ValidationException {
-    ConnectionV1 connection = new ConnectionFactory().setProviderNsa(PROVIDER_NSA).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(null);
@@ -159,7 +159,7 @@ public class ConnectionServiceV1Test {
 
   @Test
   public void shouldThrowAValidationExceptionWhenTheProviderNsaDoesNotMatch() throws ValidationException {
-    ConnectionV1 connection = new ConnectionFactory().setProviderNsa("urn:ogf:network:unknown").create();
+    ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa("urn:ogf:network:unknown").create();
     NsiRequestDetails requestDetails = new NsiRequestDetails("replyTo", "123");
 
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
