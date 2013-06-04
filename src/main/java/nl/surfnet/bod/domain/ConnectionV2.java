@@ -22,18 +22,14 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+
+import javax.persistence.*;
 
 @Entity
 @DiscriminatorValue("V2")
@@ -75,6 +71,9 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private String protectionType;
 
+  @Field
+  private boolean dataPlaneActive = false;
+
   public ConnectionV2() {
     super(NsiVersion.TWO);
   }
@@ -85,11 +84,6 @@ public class ConnectionV2 extends AbstractConnection {
 
   public void setGlobalReservationId(String globalReservationId) {
     this.globalReservationId = globalReservationId;
-  }
-
-  @Override
-  public String getConnectionStatus() {
-    return reservationState.toString();
   }
 
   public ReservationStateEnumType getReservationState() {
@@ -142,6 +136,14 @@ public class ConnectionV2 extends AbstractConnection {
 
   public NsiVersion getNsiVersion() {
     return nsiVersion;
+  }
+
+  public boolean isDataPlaneActive() {
+    return dataPlaneActive;
+  }
+
+  public void setDataPlaneActive(boolean dataPlaneActive) {
+    this.dataPlaneActive = dataPlaneActive;
   }
 
   @Override

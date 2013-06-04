@@ -25,18 +25,28 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import nl.surfnet.bod.domain.*;
+import org.junit.Before;
 import org.junit.Test;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
 public class ReservationViewTest {
+
+  private ElementActionView dummyElementActionView;
+
+
+  @Before
+  public void before(){
+    dummyElementActionView = new ElementActionView(false, "too_hot_outside");
+  }
 
   @Test
   public void reservationViewShouldShowUserLabel() {
@@ -78,5 +88,62 @@ public class ReservationViewTest {
     assertThat(reservationView.isDeleteAllowedForSelectedRole(), is(true));
     assertThat(reservationView.getDeleteReasonKey(), nullValue());
   }
+
+  @Test
+  public void shouldNotFillConnectionFieldsWhenNoConnectionPresent(){
+    Reservation reservation = new ReservationFactory().create();
+    ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
+
+    assertThat(reservationView.getConnectionId(), nullValue());
+    assertThat(reservationView.getReservationState(), nullValue());
+    assertThat(reservationView.getProvisionState(), nullValue());
+    assertThat(reservationView.getLifeCycleState(), nullValue());
+    assertThat(reservationView.isDataPlaneActive(), is(false));
+
+  }
+
+  @Test
+  public void shouldOnlyFillConnectionStateWhenV1ConnectionPresent(){
+    String id = "foo";
+    ConnectionV1 connectionV1 = new ConnectionV1();
+    connectionV1.setConnectionId(id);
+
+    Reservation reservation = new ReservationFactory().setConnection(connectionV1).create();
+    ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
+
+    assertThat(reservationView.getConnectionId(), is(id));
+    assertThat(reservationView.getReservationState(), nullValue());
+    assertThat(reservationView.getProvisionState(), nullValue());
+    assertThat(reservationView.getLifeCycleState(), nullValue());
+    assertThat(reservationView.isDataPlaneActive(), is(false));
+  }
+
+  @Test
+  public void shouldFillNsiV2FieldsWhenV2ConnectionPresent(){
+    String id = "foo";
+
+    final ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_CHECKING;
+    final ProvisionStateEnumType provisionState = ProvisionStateEnumType.PROVISIONED;
+    final LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
+    final boolean dataPlaneActive = true;
+
+    ConnectionV2 connectionV2 = new ConnectionV2();
+    connectionV2.setConnectionId(id);
+
+    connectionV2.setReservationState(reservationState);
+    connectionV2.setProvisionState(provisionState);
+    connectionV2.setLifecycleState(lifecycleState);
+    connectionV2.setDataPlaneActive(dataPlaneActive);
+
+    Reservation reservation = new ReservationFactory().setConnection(connectionV2).create();
+    ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
+
+    assertThat(reservationView.getConnectionId(), is(id));
+    assertThat(reservationView.getReservationState(), is(reservationState.value()));
+    assertThat(reservationView.getProvisionState(), is(provisionState.value()));
+    assertThat(reservationView.getLifeCycleState(), is(lifecycleState.value()));
+    assertThat(reservationView.isDataPlaneActive(), is(dataPlaneActive));
+  }
+
 
 }

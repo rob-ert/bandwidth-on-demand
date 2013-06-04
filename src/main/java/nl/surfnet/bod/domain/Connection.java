@@ -51,6 +51,4 @@ public interface Connection extends Loggable, PersistableDomain {
   void setStartTime(DateTime startDateTime);
 
   void setEndTime(DateTime endDateTime);
-
-  String getConnectionStatus();
 }

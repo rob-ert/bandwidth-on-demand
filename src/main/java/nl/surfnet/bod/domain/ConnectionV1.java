@@ -83,11 +83,6 @@ public class ConnectionV1 extends AbstractConnection {
     this.globalReservationId = globalReservationId;
   }
 
-  @Override
-  public String getConnectionStatus() {
-    return currentState.toString();
-  }
-
   public ConnectionStateType getCurrentState() {
     return currentState;
   }
