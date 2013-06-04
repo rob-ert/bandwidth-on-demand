@@ -22,11 +22,11 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.base.Strings.emptyToNull;
-import static com.google.common.collect.Lists.transform;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
-import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
+import static com.google.common.base.Optional.*;
+import static com.google.common.base.Strings.*;
+import static com.google.common.collect.Lists.*;
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.*;
+import static nl.surfnet.bod.util.XmlUtils.*;
 
 import java.util.List;
 
@@ -50,12 +50,11 @@ import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
@@ -64,13 +63,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v2")
-@WebService(serviceName = "ConnectionServiceProvider",
-  portName = "ConnectionServiceProviderPort",
-  endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort",
-  targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/provider")
 @SchemaValidation
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
@@ -81,54 +78,45 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Resource private Environment bodEnvironment;
 
   @Override
-  public void reserve(
-      Holder<String> connectionId,
-      String globalReservationId,
-      String description,
-      ReservationRequestCriteriaType criteria,
-      Holder<CommonHeaderType> header)
-      throws ServiceException {
+  public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
+      Holder<CommonHeaderType> header) throws ServiceException {
 
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received a NSI v2 reserve request");
 
+    if (!Strings.isNullOrEmpty(connectionId.value)) {
+      throw notSupportedOperation();
+    }
+
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
 
-    ConnectionV2 connection = createConnection(
-        Optional.fromNullable(emptyToNull(globalReservationId)),
-        Optional.fromNullable(emptyToNull(description)),
-        requestDetails,
-        header.value.getProviderNSA(),
-        header.value.getRequesterNSA(),
-        criteria);
+    ConnectionV2 connection = createConnection(Optional.fromNullable(emptyToNull(globalReservationId)),
+        Optional.fromNullable(emptyToNull(description)), requestDetails, header.value.getProviderNSA(), header.value.getRequesterNSA(),
+        convertInitialRequestCriteria(criteria));
 
     connectionId.value = connection.getConnectionId();
 
     reserve(connection, requestDetails, Security.getUserDetails());
   }
 
-  protected void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
+  private void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
       connectionService.reserve(connection, requestDetails, false, richUserDetails);
     } catch (ValidationException e) {
-      ServiceExceptionType faultInfo = new ServiceExceptionType()
-        .withErrorId(e.getErrorCode())
-        .withNsaId(bodEnvironment.getNsiProviderNsa())
-        .withText(e.getMessage());
+      ServiceExceptionType faultInfo = new ServiceExceptionType().withErrorId(e.getErrorCode()).withNsaId(bodEnvironment.getNsiProviderNsa())
+          .withText(e.getMessage());
 
       throw new ServiceException(e.getMessage(), faultInfo, e);
     }
   }
 
-  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiRequestDetails requestDetails, String providerNsa, String requesterNsa, ReservationRequestCriteriaType criteria) {
+  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiRequestDetails requestDetails,
+      String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(calendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
-    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
-    connection.setLifecycleState(LifecycleStateEnumType.CREATED);
-    connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
@@ -151,7 +139,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    checkOAuthScope(NsiScope.RESERVE); // Checking for the reserve scope for now..
+    checkOAuthScope(NsiScope.RESERVE); // Checking for the reserve scope for
+                                       // now..
 
     log.info("Received reserve commit request for connection: {}", connectionId);
 
@@ -192,7 +181,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void release(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    notSupporedOperation();
+    throw notSupportedOperation();
   }
 
   @Override
@@ -218,10 +207,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header)
-      throws ServiceException {
-
-    notSupporedOperation();
+  public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header) throws ServiceException {
+    throw notSupportedOperation();
   }
 
   @Override
@@ -238,7 +225,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
 
-    List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails, header.value.getRequesterNSA());
+    List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails,
+        header.value.getRequesterNSA());
 
     return transform(connections, toQuerySummaryResultType);
   }
@@ -266,12 +254,16 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
   }
 
+  private ServiceException missingParameter(String parameter) throws ServiceException {
+    return new ServiceException("Missing parameter '" + parameter + "'", createServiceExceptionType("Missing parameter '" + parameter + "'"));
+  }
+
   private void notApplicable() throws ServiceException {
     throw new ServiceException("This operation is not applicable", createServiceExceptionType("Not Applicable"));
   }
 
-  private void notSupporedOperation() throws ServiceException {
-    throw new ServiceException("This operation is not supported by this provider", createServiceExceptionType("Not Supported"));
+  private ServiceException notSupportedOperation() {
+    return new ServiceException("This operation is not supported by this provider", createServiceExceptionType("Not Supported"));
   }
 
   private ServiceException connectionNotFoundServiceException() {
@@ -283,10 +275,25 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ServiceExceptionType createServiceExceptionType(String message) {
-    return new ServiceExceptionType()
-      .withNsaId(bodEnvironment.getNsiProviderNsa())
-      .withErrorId("0100")
-      .withText(message);
+    return new ServiceExceptionType().withNsaId(bodEnvironment.getNsiProviderNsa()).withErrorId("0100").withText(message);
   }
 
+  private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {
+    if (criteria.getBandwidth() == null) {
+      throw missingParameter("bandwidth");
+    }
+    if (criteria.getPath() == null) {
+      throw missingParameter("path");
+    }
+    if (criteria.getSchedule() == null) {
+      throw missingParameter("schedule");
+    }
+    if (criteria.getServiceAttributes() == null) {
+      throw missingParameter("serviceAttributes");
+    }
+
+    return new ReservationConfirmCriteriaType().withBandwidth(criteria.getBandwidth()).withPath(criteria.getPath())
+        .withSchedule(criteria.getSchedule()).withServiceAttributes(criteria.getServiceAttributes())
+        .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion().intValue());
+  }
 }
