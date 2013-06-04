@@ -96,7 +96,9 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncReserveCommit(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+  public void asyncReserveCommit(String connectionId, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
     connection.setReservationState(ReservationStateEnumType.RESERVE_COMMITTING);
     connectionRepo.save(connection);
 
@@ -104,7 +106,9 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncReserveAbort(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
+  public void asyncReserveAbort(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
     connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
     connectionRepo.save(connection);
 
@@ -120,7 +124,9 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncProvision(ConnectionV2 connection, NsiRequestDetails requestDetails) {
+  public void asyncProvision(String connectionId, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONING);
     connectionRepo.save(connection);
 
@@ -147,7 +153,9 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     return connections;
   }
 
-  public void asyncTerminate(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
+  public void asyncTerminate(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATING);
     connectionRepo.save(connection);
 

@@ -157,7 +157,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
-    connectionService.asyncReserveCommit(connection, createRequestDetails(header.value));
+    connectionService.asyncReserveCommit(connection.getConnectionId(), createRequestDetails(header.value));
   }
 
   @Override
@@ -168,7 +168,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
-    connectionService.asyncReserveAbort(connection, createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncReserveAbort(connection.getConnectionId(), createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override
@@ -181,7 +181,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     checkProvisionAllowed(connection);
 
-    connectionService.asyncProvision(connection, createRequestDetails(header.value));
+    connectionService.asyncProvision(connection.getConnectionId(), createRequestDetails(header.value));
   }
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
@@ -203,7 +203,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
 
-    connectionService.asyncTerminate(connection, createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncTerminate(connection.getConnectionId(), createRequestDetails(header.value), Security.getUserDetails());
   }
 
   @Override
