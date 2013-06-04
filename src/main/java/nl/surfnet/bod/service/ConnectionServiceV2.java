@@ -68,7 +68,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @PersistenceContext private EntityManager entityManager;
 
-  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
+  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
     connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
@@ -92,7 +92,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     reservation.setConnection(connection);
     connection.setReservation(reservation);
 
-    reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+    reservationService.create(reservation, false, Optional.of(requestDetails));
   }
 
   @Async

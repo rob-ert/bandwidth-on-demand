@@ -80,7 +80,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
       Holder<CommonHeaderType> header) throws ServiceException {
-
+    headersAsReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received a NSI v2 reserve request");
@@ -100,9 +100,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     reserve(connection, requestDetails, Security.getUserDetails());
   }
 
+  private void headersAsReply(Holder<CommonHeaderType> header) {
+    header.value.setReplyTo(null);
+  }
+
   private void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
-      connectionService.reserve(connection, requestDetails, false, richUserDetails);
+      connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ValidationException e) {
       ServiceExceptionType faultInfo = new ServiceExceptionType().withErrorId(e.getErrorCode()).withNsaId(bodEnvironment.getNsiProviderNsa())
           .withText(e.getMessage());
@@ -139,6 +143,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     checkOAuthScope(NsiScope.RESERVE); // Checking for the reserve scope for
                                        // now..
 
@@ -151,6 +156,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     checkOAuthScope(NsiScope.TERMINATE); // using TERMINATE scope for now
 
     log.info("Received Reserve Abort for connection: {}", connectionId);
@@ -162,6 +168,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     checkOAuthScope(NsiScope.PROVISION);
 
     log.info("Received a Provision for connection: {}", connectionId);
@@ -181,11 +188,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void release(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     throw notSupportedOperation();
   }
 
   @Override
   public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     checkOAuthScope(NsiScope.TERMINATE);
 
     log.info("Received a Terminate for connection: {}", connectionId);
@@ -197,6 +206,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Summary");
@@ -208,27 +218,28 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header) throws ServiceException {
+    headersAsReply(header);
     throw notSupportedOperation();
   }
 
   @Override
   public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
-
     try {
+      headersAsReply(header);
       checkOAuthScope(NsiScope.QUERY);
+
+      log.info("Received a Query Summary Sync");
+
+      NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
+      List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails,
+          header.value.getRequesterNSA());
+
+      return transform(connections, toQuerySummaryResultType);
     } catch (ServiceException e) {
       throw toQuerySummarySyncFailed(e);
     }
-
-    log.info("Received a Query Summary Sync");
-
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
-
-    List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails,
-        header.value.getRequesterNSA());
-
-    return transform(connections, toQuerySummaryResultType);
   }
 
   private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {

@@ -78,16 +78,17 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
     Holder<String> connectionIdHolder = new Holder<String>();
-    subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), new Holder<>(headers()));
+    Holder<CommonHeaderType> headerHolder = new Holder<>(headers());
+    subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
     assertThat(connectionIdHolder.value, is(notNullValue()));
 
     ArgumentCaptor<ConnectionV2> connection = ArgumentCaptor.forClass(ConnectionV2.class);
-    verify(connectionService).reserve(connection.capture(),
-        org.mockito.Matchers.any(NsiRequestDetails.class), eq(false), eq(Security.getUserDetails()));
+    verify(connectionService).reserve(connection.capture(), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
     assertThat(connection.getValue().getDesiredBandwidth(), is(100));
     assertThat(connection.getValue().getGlobalReservationId(), is("globalReservationId"));
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
+    assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }
 
   @Test
@@ -113,7 +114,7 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   private CommonHeaderType headers() {
-    return new CommonHeaderType();
+    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA("providerNSA").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
   }
 
   private ReservationRequestCriteriaType initialReservationCriteria() {
