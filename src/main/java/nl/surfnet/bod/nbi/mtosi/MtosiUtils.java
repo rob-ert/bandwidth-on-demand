@@ -32,7 +32,6 @@ import javax.xml.bind.JAXBElement;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.apache.xerces.dom.ElementNSImpl;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
@@ -44,6 +43,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -114,7 +114,7 @@ public final class MtosiUtils {
     return Iterables.tryFind(anys, new Predicate<Object>() {
       @Override
       public boolean apply(Object any) {
-        NodeList childs = ((ElementNSImpl) any).getChildNodes();
+        NodeList childs = ((Element) any).getChildNodes();
 
         return getNodeWithLocalName("name", childs).transform(new Function<Node, Boolean>() {
           @Override
@@ -126,7 +126,7 @@ public final class MtosiUtils {
     }).transform(new Function<Object, String>() {
       @Override
       public String apply(Object any) {
-        NodeList childs = ((ElementNSImpl) any).getChildNodes();
+        NodeList childs = ((Element) any).getChildNodes();
 
         return getNodeWithLocalName("value", childs).transform(new Function<Node, String>() {
           @Override
