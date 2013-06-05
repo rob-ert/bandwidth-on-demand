@@ -25,6 +25,9 @@ package nl.surfnet.bod.nsi.v2;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.*;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
@@ -43,6 +46,28 @@ public class ConnectionServiceRequesterV2Test {
   @InjectMocks private ConnectionServiceRequesterV2 subject = new ConnectionServiceRequesterV2();
 
   @Mock private ConnectionV2Repo connectionRepMock;
+
+  @Test
+  public void should_goto_reserve_held_when_sending_reserve_confirmed() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_CHECKING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getReservationState(), is(RESERVE_HELD));
+  }
+
+  @Test
+  public void should_goto_provisioned_when_sending_provision_confirmed() {
+    ConnectionV2 connection = new ConnectionV2Factory().setProvisionState(PROVISIONING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.provisionConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getProvisionState(), is(PROVISIONED));
+  }
 
   @Test
   public void should_activate_the_data_plane_status() {

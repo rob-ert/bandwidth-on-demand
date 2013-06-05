@@ -23,7 +23,7 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static com.google.common.base.Optional.fromNullable;
-import static nl.surfnet.bod.util.XmlUtils.calendarToDateTime;
+import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
@@ -113,7 +113,7 @@ public final class ConnectionServiceProviderFunctions {
 
         ServiceParametersType serviceParameters = reservation.getServiceParameters();
 
-        Optional<DateTime> startTime = fromNullable(serviceParameters.getSchedule().getStartTime()).transform(calendarToDateTime);
+        Optional<DateTime> startTime = fromNullable(serviceParameters.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
         connection.setStartTime(startTime.orNull());
 
         Optional<DateTime> endTime = calculateEndTime(

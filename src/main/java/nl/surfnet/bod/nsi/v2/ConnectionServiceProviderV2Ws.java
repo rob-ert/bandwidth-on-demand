@@ -121,8 +121,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiRequestDetails requestDetails,
       String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) {
-    Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(calendarToDateTime);
-    Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(calendarToDateTime);
+    Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
+    Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(xmlCalendarToDateTime);
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());

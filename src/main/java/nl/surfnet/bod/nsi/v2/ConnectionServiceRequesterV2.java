@@ -25,6 +25,7 @@ package nl.surfnet.bod.nsi.v2;
 import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toStpType;
+import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
 import java.io.IOException;
 import java.net.URL;
@@ -86,8 +87,8 @@ public class ConnectionServiceRequesterV2 {
         .withDestSTP(toStpType(connection.getDestinationStpId()))
         .withDirectionality(DirectionalityType.BIDIRECTIONAL))
       .withSchedule(new ScheduleType()
-        .withEndTime(XmlUtils.toGregorianCalendar(connection.getEndTime().get()))
-        .withStartTime(XmlUtils.toGregorianCalendar(connection.getStartTime().get())))
+        .withEndTime(connection.getEndTime().transform(dateTimeToXmlCalendar).orNull())
+        .withStartTime(connection.getStartTime().transform(dateTimeToXmlCalendar).orNull()))
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
@@ -101,7 +102,7 @@ public class ConnectionServiceRequesterV2 {
         connection.getDescription(),
         ImmutableList.of(criteria),
         headerHolder);
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Sending reserve confirmed failed", e);
     }
   }
@@ -127,7 +128,7 @@ public class ConnectionServiceRequesterV2 {
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.terminateConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Terminate Confirmed failed", e);
     }
   }
@@ -141,7 +142,7 @@ public class ConnectionServiceRequesterV2 {
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.reserveCommitConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Commit failed", e);
     }
   }
@@ -154,7 +155,7 @@ public class ConnectionServiceRequesterV2 {
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.provisionConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Provision Confirmed failed", e);
     }
 
