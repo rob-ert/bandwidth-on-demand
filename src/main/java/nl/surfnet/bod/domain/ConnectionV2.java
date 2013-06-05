@@ -34,6 +34,7 @@ import javax.persistence.Enumerated;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
@@ -170,7 +171,15 @@ public class ConnectionV2 extends AbstractConnection {
       .withDirectionality(DirectionalityType.BIDIRECTIONAL);
   }
 
-  public DataPlaneStatusType getDataPlaneStatus() {
+  public ConnectionStatesType getConnectionStates() {
+    return new ConnectionStatesType()
+      .withReservationState(getReservationState())
+      .withLifecycleState(getLifecycleState())
+      .withProvisionState(getProvisionState())
+      .withDataPlaneStatus(getDataPlaneStatus());
+  }
+
+  private DataPlaneStatusType getDataPlaneStatus() {
     // FIXME committed version?
     return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(0);
   }

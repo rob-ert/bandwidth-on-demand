@@ -29,7 +29,6 @@ import com.google.common.base.Joiner;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
@@ -50,11 +49,7 @@ public final class ConnectionsV2 {
           .withPath(connection.getPath())
           .withVersion(0)) // FIXME: committed version? in-progress version?
         .withRequesterNSA(connection.getRequesterNsa())
-        .withConnectionStates(new ConnectionStatesType()
-          .withReservationState(connection.getReservationState())
-          .withLifecycleState(connection.getLifecycleState())
-          .withProvisionState(connection.getProvisionState())
-          .withDataPlaneStatus(connection.getDataPlaneStatus()));
+        .withConnectionStates(connection.getConnectionStates());
     }
   };
 
