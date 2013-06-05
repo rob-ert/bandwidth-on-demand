@@ -103,7 +103,7 @@ public class ConnectionServiceRequesterV2 {
         ImmutableList.of(criteria),
         headerHolder);
     } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending reserve confirmed failed", e);
+      log.info("Sending Reserve Confirmed failed", e);
     }
   }
 
@@ -133,6 +133,19 @@ public class ConnectionServiceRequesterV2 {
     }
   }
 
+  public void reserveAbortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
+    connectionRepo.save(connection);
+
+    ConnectionRequesterPort port = createPort(requestDetails);
+    try {
+      port.reserveAbortConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Sending Reserve Abort Confirmed failed", e);
+    }
+  }
+
   public void reserveCommitConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
@@ -143,7 +156,7 @@ public class ConnectionServiceRequesterV2 {
     try {
       port.reserveCommitConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
     } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Commit failed", e);
+      log.info("Sending Reserve Commit Confirmed failed", e);
     }
   }
 

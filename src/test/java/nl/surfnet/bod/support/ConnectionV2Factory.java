@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
@@ -47,6 +48,7 @@ public class ConnectionV2Factory {
   private String description = "";
   private ReservationStateEnumType reservationState;
   private ProvisionStateEnumType provisionState;
+  private LifecycleStateEnumType lifecycleState;
   private boolean dataPlaneActive;
 
   public ConnectionV2 create() {
@@ -67,6 +69,7 @@ public class ConnectionV2Factory {
     connection.setReservationState(reservationState);
     connection.setProvisionState(provisionState);
     connection.setDataPlaneActive(dataPlaneActive);
+    connection.setLifecycleState(lifecycleState);
 
     connection.setSourceStpId(sourceStpId);
     connection.setDestinationStpId(destinationStpId);
@@ -143,6 +146,11 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setDataPlaneActive(boolean dataPlaneActive) {
     this.dataPlaneActive = dataPlaneActive;
+    return this;
+  }
+
+  public ConnectionV2Factory setLifecycleState(LifecycleStateEnumType lifecycleState) {
+    this.lifecycleState = lifecycleState;
     return this;
   }
 }

@@ -25,9 +25,15 @@ package nl.surfnet.bod.nsi.v2;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.*;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_ABORTING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_CHECKING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
@@ -59,6 +65,28 @@ public class ConnectionServiceRequesterV2Test {
   }
 
   @Test
+  public void should_goto_reserve_start_when_sending_reserve_abort_confirm() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_ABORTING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reserveAbortConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getReservationState(), is(RESERVE_START));
+  }
+
+  @Test
+  public void should_goto_reserve_start_when_sending_reserve_commit_confirm() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_COMMITTING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reserveCommitConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getReservationState(), is(RESERVE_START));
+  }
+
+  @Test
   public void should_goto_provisioned_when_sending_provision_confirmed() {
     ConnectionV2 connection = new ConnectionV2Factory().setProvisionState(PROVISIONING).create();
 
@@ -79,4 +107,16 @@ public class ConnectionServiceRequesterV2Test {
 
     assertThat(connection.isDataPlaneActive(), is(true));
   }
+
+  @Test
+  public void should_goto_terminated_when_sending_terminate_confirm() {
+    ConnectionV2 connection = new ConnectionV2Factory().setLifecycleState(TERMINATING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.terminateConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getLifecycleState(), is(TERMINATED));
+  }
+
 }
