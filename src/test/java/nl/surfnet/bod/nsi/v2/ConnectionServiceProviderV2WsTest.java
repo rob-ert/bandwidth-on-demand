@@ -143,8 +143,10 @@ public class ConnectionServiceProviderV2WsTest {
 
       subject.reserveCommit("connectionId", headerHolder);
 
+      ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
+      verify(connectionService).asyncReserveCommit(eq("connectionId"), requestDetails.capture());
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      verify(connectionService).asyncReserveCommit(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class));
+      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
   }
 
   @Test
@@ -178,8 +180,10 @@ public class ConnectionServiceProviderV2WsTest {
 
     subject.reserveAbort("connectionId", headerHolder);
 
+    ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
+    verify(connectionService).asyncReserveAbort(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-    verify(connectionService).asyncReserveAbort(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
+    assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
   }
 
   @Test
@@ -213,8 +217,10 @@ public class ConnectionServiceProviderV2WsTest {
 
       subject.provision("connectionId", headerHolder);
 
+      ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
+      verify(connectionService).asyncProvision(eq("connectionId"), requestDetails.capture());
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      verify(connectionService).asyncProvision(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class));
+      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
   }
 
   @Test
@@ -235,8 +241,10 @@ public class ConnectionServiceProviderV2WsTest {
 
       subject.terminate("connectionId", headerHolder);
 
+      ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
+      verify(connectionService).asyncTerminate(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      verify(connectionService).asyncTerminate(eq("connectionId"), org.mockito.Matchers.isA(NsiRequestDetails.class), eq(Security.getUserDetails()));
+      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
   }
 
   @Test

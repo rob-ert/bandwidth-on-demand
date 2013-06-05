@@ -147,6 +147,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
     headersAsReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -156,12 +157,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
       throw notApplicable();
     }
-
-    connectionService.asyncReserveCommit(connectionId, createRequestDetails(header.value));
+    connectionService.asyncReserveCommit(connectionId, requestDetails);
   }
 
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
     headersAsReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -172,11 +173,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       throw notApplicable();
     }
 
-    connectionService.asyncReserveAbort(connectionId, createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncReserveAbort(connectionId, requestDetails, Security.getUserDetails());
   }
 
   @Override
   public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
     headersAsReply(header);
     checkOAuthScope(NsiScope.PROVISION);
 
@@ -186,7 +188,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     checkProvisionAllowed(connection);
 
-    connectionService.asyncProvision(connectionId, createRequestDetails(header.value));
+    connectionService.asyncProvision(connectionId, requestDetails);
   }
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
@@ -203,6 +205,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
     headersAsReply(header);
     checkOAuthScope(NsiScope.TERMINATE);
 
@@ -210,7 +213,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     getConnectionOrFail(connectionId);
 
-    connectionService.asyncTerminate(connectionId, createRequestDetails(header.value), Security.getUserDetails());
+    connectionService.asyncTerminate(connectionId, requestDetails, Security.getUserDetails());
   }
 
   @Override
