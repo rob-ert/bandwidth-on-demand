@@ -24,12 +24,14 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.Reservation;
+
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 
 
 public class ConnectionV2Factory {
@@ -38,13 +40,12 @@ public class ConnectionV2Factory {
   private String requesterNsa = "nsa:requester:surfnet.nl";
   private String providerNsa = "nsa:surfnet.nl";
   private String connectionId = UUID.randomUUID().toString();
-  private String sourceStpId = "networkId:source";
-  private String destinationStpId = "networkId:dest";
   private Reservation reservation = new ReservationFactory().create();
   private final String globalReservationId = UUID.randomUUID().toString();
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
+  private PathType path = new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
   private ReservationStateEnumType reservationState;
   private ProvisionStateEnumType provisionState;
   private LifecycleStateEnumType lifecycleState;
@@ -62,14 +63,12 @@ public class ConnectionV2Factory {
     connection.setGlobalReservationId(globalReservationId);
     connection.setProtectionType(protectionType);
     connection.setDescription(description);
+    connection.setPath(path);
 
     connection.setReservationState(reservationState);
     connection.setProvisionState(provisionState);
     connection.setDataPlaneActive(dataPlaneActive);
     connection.setLifecycleState(lifecycleState);
-
-    connection.setSourceStpId(sourceStpId);
-    connection.setDestinationStpId(destinationStpId);
 
     return connection;
   }
@@ -80,12 +79,12 @@ public class ConnectionV2Factory {
   }
 
   public ConnectionV2Factory setDestinationStpId(String networkId, String localId) {
-    this.destinationStpId = networkId + ":" + localId;
+    this.path.getDestSTP().withNetworkId(networkId).withLocalId(localId);
     return this;
   }
 
   public ConnectionV2Factory setSourceStpId(String networkId, String localId) {
-    this.sourceStpId = networkId + ":" + localId;
+    this.path.getSourceSTP().withNetworkId(networkId).withLocalId(localId);
     return this;
   }
 

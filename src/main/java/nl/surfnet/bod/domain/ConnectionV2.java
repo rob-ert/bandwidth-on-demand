@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toStpType;
 import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
 import javax.persistence.Column;
@@ -30,18 +29,26 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
+import javax.xml.namespace.QName;
 
+import nl.surfnet.bod.util.JaxbUserType;
+
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @Entity
 @DiscriminatorValue("V2")
@@ -73,11 +80,15 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private String destinationStpId;
 
-  @Column(nullable = false, length = 4096)
-  private String path = "FIXME";
+  @NotNull
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$PathTypeUserType")
+  @Column(nullable = false)
+  private PathType path;
 
-  @Column(nullable = false, length = 4096)
-  private String serviceParameters = "FIXME";
+  @NotNull
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$ServiceAttributesUserType")
+  @Column(nullable = true)
+  private TypeValuePairListType serviceAttributes;
 
   @Column(nullable = false)
   @Field
@@ -126,16 +137,8 @@ public class ConnectionV2 extends AbstractConnection {
     return sourceStpId;
   }
 
-  public void setSourceStpId(String sourceStpId) {
-    this.sourceStpId = sourceStpId;
-  }
-
   public String getDestinationStpId() {
     return destinationStpId;
-  }
-
-  public void setDestinationStpId(String destitnationStpId) {
-    this.destinationStpId = destitnationStpId;
   }
 
   public String getProtectionType() {
@@ -158,25 +161,50 @@ public class ConnectionV2 extends AbstractConnection {
     this.dataPlaneActive = dataPlaneActive;
   }
 
+  public QuerySummaryResultType getQuerySummaryResult() {
+    return new QuerySummaryResultType()
+        .withConnectionId(getConnectionId())
+        .withGlobalReservationId(getGlobalReservationId())
+        .withDescription(getDescription())
+        .withCriteria(new QuerySummaryResultCriteriaType()
+            .withSchedule(getSchedule())
+            .withBandwidth(getDesiredBandwidth())
+            .withServiceAttributes(getServiceAttributes())
+            .withPath(getPath())
+            .withVersion(0)) // FIXME: committed version?
+        .withRequesterNSA(getRequesterNsa()).withConnectionStates(getConnectionStates());
+  }
+
   public ScheduleType getSchedule() {
-    return new ScheduleType()
-      .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
-      .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
+    return new ScheduleType().withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull()).withStartTime(
+        getStartTime().transform(dateTimeToXmlCalendar).orNull());
+  }
+
+  public void setPath(PathType path) {
+    this.path = path;
+    this.sourceStpId = stpTypeToStpId(path.getSourceSTP());
+    this.destinationStpId = stpTypeToStpId(path.getDestSTP());
+  }
+
+  private String stpTypeToStpId(StpType type) {
+    return type.getNetworkId() + ":" + type.getLocalId();
   }
 
   public PathType getPath() {
-    return new PathType()
-      .withSourceSTP(toStpType(getSourceStpId()))
-      .withDestSTP(toStpType(getDestinationStpId()))
-      .withDirectionality(DirectionalityType.BIDIRECTIONAL);
+    return path;
+  }
+
+  public void setServiceAttributes(TypeValuePairListType serviceAttributes) {
+    this.serviceAttributes = serviceAttributes;
+  }
+
+  public TypeValuePairListType getServiceAttributes() {
+    return serviceAttributes;
   }
 
   public ConnectionStatesType getConnectionStates() {
-    return new ConnectionStatesType()
-      .withReservationState(getReservationState())
-      .withLifecycleState(getLifecycleState())
-      .withProvisionState(getProvisionState())
-      .withDataPlaneStatus(getDataPlaneStatus());
+    return new ConnectionStatesType().withReservationState(getReservationState()).withLifecycleState(getLifecycleState())
+        .withProvisionState(getProvisionState()).withDataPlaneStatus(getDataPlaneStatus());
   }
 
   private DataPlaneStatusType getDataPlaneStatus() {
@@ -262,5 +290,16 @@ public class ConnectionV2 extends AbstractConnection {
     }
     builder.append("]");
     return builder.toString();
+  }
+
+  public static class PathTypeUserType extends JaxbUserType<PathType> {
+    public PathTypeUserType() {
+      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "path"), PathType.class);
+    }
+  }
+  public static class ServiceAttributesUserType extends JaxbUserType<TypeValuePairListType> {
+    public ServiceAttributesUserType() {
+      super(new QName("http://schemas.ogf.org/nsi/2013/04/framework/types", "serviceAttributes"), TypeValuePairListType.class);
+    }
   }
 }

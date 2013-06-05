@@ -29,27 +29,14 @@ import com.google.common.base.Joiner;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 public final class ConnectionsV2 {
 
   public static final Function<ConnectionV2, QuerySummaryResultType> toQuerySummaryResultType = new Function<ConnectionV2, QuerySummaryResultType>() {
     public QuerySummaryResultType apply(ConnectionV2 connection) {
-      return new QuerySummaryResultType()
-        .withConnectionId(connection.getConnectionId())
-        .withGlobalReservationId(connection.getGlobalReservationId())
-        .withDescription(connection.getDescription())
-        .withCriteria(new QuerySummaryResultCriteriaType()
-          .withSchedule(connection.getSchedule())
-          .withBandwidth(connection.getDesiredBandwidth())
-          .withServiceAttributes(new TypeValuePairListType())
-          .withPath(connection.getPath())
-          .withVersion(0)) // FIXME: committed version? in-progress version?
-        .withRequesterNSA(connection.getRequesterNsa())
-        .withConnectionStates(connection.getConnectionStates());
+      return connection.getQuerySummaryResult();
     }
   };
 

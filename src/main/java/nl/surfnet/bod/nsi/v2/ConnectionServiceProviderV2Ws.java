@@ -132,17 +132,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setEndTime(endTime.orNull());
     connection.setDesiredBandwidth(criteria.getBandwidth());
     connection.setProtectionType(ProtectionType.PROTECTED.name());
-    connection.setSourceStpId(stpTypeToStpId(criteria.getPath().getSourceSTP()));
-    connection.setDestinationStpId(stpTypeToStpId(criteria.getPath().getDestSTP()));
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
     connection.setProvisionRequestDetails(requestDetails);
+    connection.setPath(criteria.getPath());
+    connection.setServiceAttributes(criteria.getServiceAttributes());
 
     return connection;
-  }
-
-  private String stpTypeToStpId(StpType type) {
-    return type.getNetworkId() + ":" + type.getLocalId();
   }
 
   @Override
