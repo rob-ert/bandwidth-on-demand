@@ -61,6 +61,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
+import com.sun.xml.ws.client.ClientTransportException;
 
 @Component("connectionServiceRequesterV2")
 public class ConnectionServiceRequesterV2 {
@@ -161,6 +162,8 @@ public class ConnectionServiceRequesterV2 {
 
   public void dataPlaneActivated(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
+    connection.setDataPlaneActive(true);
+    connectionRepo.save(connection);
 
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
@@ -169,7 +172,7 @@ public class ConnectionServiceRequesterV2 {
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, header);
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }
   }

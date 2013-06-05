@@ -91,9 +91,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       throw notSupportedOperation();
     }
 
-
-    ConnectionV2 connection = createConnection(Optional.fromNullable(emptyToNull(globalReservationId)),
-        Optional.fromNullable(emptyToNull(description)), requestDetails, header.value.getProviderNSA(), header.value.getRequesterNSA(),
+    ConnectionV2 connection = createConnection(
+        Optional.fromNullable(emptyToNull(globalReservationId)),
+        Optional.fromNullable(emptyToNull(description)),
+        requestDetails,
+        header.value.getProviderNSA(),
+        header.value.getRequesterNSA(),
         convertInitialRequestCriteria(criteria));
 
     connectionId.value = connection.getConnectionId();

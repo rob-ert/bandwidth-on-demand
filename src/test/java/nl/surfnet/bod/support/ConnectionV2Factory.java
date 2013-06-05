@@ -47,6 +47,7 @@ public class ConnectionV2Factory {
   private String description = "";
   private ReservationStateEnumType reservationState;
   private ProvisionStateEnumType provisionState;
+  private boolean dataPlaneActive;
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -57,14 +58,15 @@ public class ConnectionV2Factory {
     connection.setRequesterNsa(requesterNsa);
     connection.setProviderNsa(providerNsa);
     connection.setConnectionId(connectionId);
-    connection.setReservationState(reservationState);
-    connection.setProvisionState(provisionState);
     connection.setReservation(reservation);
     connection.setGlobalReservationId(globalReservationId);
 //    connection.setServiceParameters(serviceParameters);
     connection.setProtectionType(protectionType);
     connection.setDescription(description);
 
+    connection.setReservationState(reservationState);
+    connection.setProvisionState(provisionState);
+    connection.setDataPlaneActive(dataPlaneActive);
 
     connection.setSourceStpId(sourceStpId);
     connection.setDestinationStpId(destinationStpId);
@@ -136,6 +138,11 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setProvisionState(ProvisionStateEnumType provisionState) {
     this.provisionState = provisionState;
+    return this;
+  }
+
+  public ConnectionV2Factory setDataPlaneActive(boolean dataPlaneActive) {
+    this.dataPlaneActive = dataPlaneActive;
     return this;
   }
 }
