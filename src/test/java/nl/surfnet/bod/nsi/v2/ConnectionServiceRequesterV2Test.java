@@ -34,7 +34,11 @@ import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnu
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
+
+import java.util.ArrayList;
+
 import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
@@ -117,6 +121,14 @@ public class ConnectionServiceRequesterV2Test {
     subject.terminateConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getLifecycleState(), is(TERMINATED));
+  }
+
+  @Test
+  public void should_send_queryResultConfirmed_even_if_no_connection_was_found() {
+
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
+
+    subject.querySummaryConfirmed(new ArrayList<ConnectionV2>(), nsiRequestDetails);
   }
 
 }

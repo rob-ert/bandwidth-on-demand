@@ -214,14 +214,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
     headersAsReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Summary");
 
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
-
-    connectionService.asyncQuerySummary(connectionIds, globalReservationIds, requestDetails, header.value.getRequesterNSA());
+    connectionService.asyncQuerySummary(connectionIds, globalReservationIds, requestDetails);
   }
 
   @Override
@@ -267,7 +266,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
-    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId());
+    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId(), header.getRequesterNSA(), header.getProviderNSA());
   }
 
   private ServiceException missingParameter(String parameter) throws ServiceException {

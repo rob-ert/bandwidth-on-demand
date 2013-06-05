@@ -22,10 +22,12 @@
  */
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.xml.ws.Holder;
 
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
@@ -33,6 +35,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 @Entity
 @Indexed
@@ -45,10 +48,15 @@ public class NsiRequestDetails {
   private Long id;
 
   @Field
+  @Column(nullable = false)
   private String replyTo;
 
   @Field
+  @Column(nullable = false)
   private String correlationId;
+
+  @Field private String requesterNsa;
+  @Field private String providerNsa;
 
   @SuppressWarnings("unused")
   private NsiRequestDetails() {
@@ -57,6 +65,21 @@ public class NsiRequestDetails {
   public NsiRequestDetails(String replyTo, String correlationId) {
     this.replyTo = replyTo;
     this.correlationId = correlationId;
+  }
+
+  public NsiRequestDetails(String replyTo, String correlationId, String requesterNsa, String providerNsa) {
+    this.replyTo = replyTo;
+    this.correlationId = correlationId;
+    this.requesterNsa = requesterNsa;
+    this.providerNsa = providerNsa;
+  }
+
+  public CommonHeaderType getCommonHeaderType() {
+    return new CommonHeaderType()
+      .withCorrelationId(getCorrelationId())
+      .withProtocolVersion("urn:2.0:FIXME")
+      .withProviderNSA(getProviderNsa())
+      .withRequesterNSA(getRequesterNsa());
   }
 
   public String getReplyTo() {
@@ -75,6 +98,14 @@ public class NsiRequestDetails {
   @VisibleForTesting
   void setId(Long id) {
     this.id = id;
+  }
+
+  public String getRequesterNsa() {
+    return requesterNsa;
+  }
+
+  public String getProviderNsa() {
+    return providerNsa;
   }
 
   @Override

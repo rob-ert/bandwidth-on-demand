@@ -49,7 +49,6 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +81,6 @@ public class ConnectionServiceRequesterV2 {
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
-    Holder<CommonHeaderType> headerHolder = createHeader(requestDetails, connection);
-
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
       port.reserveConfirmed(
@@ -91,7 +88,7 @@ public class ConnectionServiceRequesterV2 {
         connection.getGlobalReservationId(),
         connection.getDescription(),
         ImmutableList.of(criteria),
-        headerHolder);
+        new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Confirmed failed", e);
     }
@@ -104,7 +101,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
     } catch (ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
@@ -117,7 +114,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.terminateConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.terminateConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Terminate Confirmed failed", e);
     }
@@ -130,7 +127,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
@@ -144,7 +141,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveCommitConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.reserveCommitConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Commit Confirmed failed", e);
     }
@@ -157,7 +154,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.provisionConfirmed(connection.getConnectionId(), createHeader(requestDetails, connection));
+      port.provisionConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Provision Confirmed failed", e);
     }
@@ -171,11 +168,10 @@ public class ConnectionServiceRequesterV2 {
 
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
-    Holder<CommonHeaderType> header = createHeader(requestDetails, connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, header);
+      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }
@@ -186,19 +182,10 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      // FIXME requersterNsa and providerNsa, connection can be null
-      port.querySummaryConfirmed(results, createHeader(requestDetails, connections.get(0)));
-    } catch (ServiceException e) {
+      port.querySummaryConfirmed(results, new Holder(requestDetails.getCommonHeaderType()));
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send query summary confirmed", e);
     }
-  }
-
-  private Holder<CommonHeaderType> createHeader(NsiRequestDetails requestDetails, ConnectionV2 connection) {
-    return new Holder<>(new CommonHeaderType()
-      .withCorrelationId(requestDetails.getCorrelationId())
-      .withProtocolVersion("urn:2.0:FIXME")
-      .withProviderNSA(connection.getProviderNsa())
-      .withRequesterNSA(connection.getRequesterNsa()));
   }
 
   private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {

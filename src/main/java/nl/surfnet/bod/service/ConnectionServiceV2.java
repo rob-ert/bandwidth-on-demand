@@ -134,8 +134,8 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
-    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requesterNsa), requestDetails);
+  public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails) {
+    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
   }
 
   public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, String requesterNsa) {
@@ -146,7 +146,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     } else {
       connections = new ArrayList<>();
       for (String connectionId : connectionIds) {
-        connections.add(connectionRepo.findByConnectionId(connectionId));
+        ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+        if (connection != null) {
+          connections.add(connection);
+        }
       }
     }
 
