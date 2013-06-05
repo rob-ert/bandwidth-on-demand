@@ -281,33 +281,6 @@ public class DomainModelTest {
   }
 
   @Test
-  public void shouldOnlyConsiderIdAndVersionInConnectionEquals() {
-    ConnectionV1 connection = new ConnectionV1Factory().setRequesterNsa("SURFnet").setId(2l).create();
-    ConnectionV1 con = new ConnectionV1Factory().setRequesterNsa("wesaidso").setId(3l).create();
-    connection.setId(3l);
-    connection.setVersion(3);
-    assertThat("Only on id and version", connection, not(con));
-
-    con.setId(connection.getId());
-    con.setVersion(connection.getVersion());
-    assertThat("Only on id and version", connection, is(con));
-  }
-
-  @Test
-  public void shouldOnlyConsiderIdAndVersionInConnectionHashcode() {
-    ConnectionV1 connection = new ConnectionV1Factory().setRequesterNsa("SURFnet").setId(2l).create();
-    ConnectionV1 con = new ConnectionV1Factory().setRequesterNsa("wesaidso").setId(3l).create();
-    connection.setId(3l);
-    connection.setVersion(3);
-
-    assertFalse("Only consider id and version", connection.hashCode() == con.hashCode());
-
-    con.setId(connection.getId());
-    con.setVersion(connection.getVersion());
-    assertTrue("Only consider id and version", connection.hashCode() == con.hashCode());
-  }
-
-  @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestHashcode() {
     NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
     nsiReqDetails.setId(4l);

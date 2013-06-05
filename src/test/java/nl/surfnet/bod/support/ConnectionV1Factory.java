@@ -46,14 +46,12 @@ public class ConnectionV1Factory {
   private final ServiceParametersType serviceParameters = new ServiceParametersType();
   private String protectionType = "PROTECTED";
   private Long id = 0L;
-  private Integer version = 0;
   private String description = "";
 
   public ConnectionV1 create() {
     ConnectionV1 connection = new ConnectionV1();
 
     connection.setId(id);
-    connection.setVersion(version);
     connection.setDesiredBandwidth(desiredBandwidth);
     connection.setRequesterNsa(requesterNsa);
     connection.setProviderNsa(providerNsa);
@@ -127,8 +125,6 @@ public class ConnectionV1Factory {
 
   public ConnectionV1Factory withNoIds() {
     this.id = null;
-    this.version = null;
-
     return this;
   }
 

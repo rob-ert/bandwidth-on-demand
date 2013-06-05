@@ -149,9 +149,9 @@ public class ConnectionV1 extends AbstractConnection {
       builder.append(connectionId);
       builder.append(", ");
     }
-    if (version != null) {
-      builder.append("version=");
-      builder.append(version);
+    if (jpaVersion != null) {
+      builder.append("jpaVersion=");
+      builder.append(jpaVersion);
       builder.append(", ");
     }
     if (requesterNsa != null) {
@@ -224,45 +224,4 @@ public class ConnectionV1 extends AbstractConnection {
     builder.append("]");
     return builder.toString();
   }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    ConnectionV1 other = (ConnectionV1) obj;
-    if (id == null) {
-      if (other.id != null) {
-        return false;
-      }
-    }
-    else if (!id.equals(other.id)) {
-      return false;
-    }
-    if (version == null) {
-      if (other.version != null) {
-        return false;
-      }
-    }
-    else if (!version.equals(other.version)) {
-      return false;
-    }
-    return true;
-  }
-
 }

@@ -44,7 +44,6 @@ public class ConnectionV2Factory {
   private final String globalReservationId = UUID.randomUUID().toString();
   private String protectionType = "PROTECTED";
   private Long id = 0L;
-  private Integer version = 0;
   private String description = "";
   private ReservationStateEnumType reservationState;
   private ProvisionStateEnumType provisionState;
@@ -55,7 +54,6 @@ public class ConnectionV2Factory {
     ConnectionV2 connection = new ConnectionV2();
 
     connection.setId(id);
-    connection.setVersion(version);
     connection.setDesiredBandwidth(desiredBandwidth);
     connection.setRequesterNsa(requesterNsa);
     connection.setProviderNsa(providerNsa);
@@ -119,8 +117,6 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory withNoIds() {
     this.id = null;
-    this.version = null;
-
     return this;
   }
 

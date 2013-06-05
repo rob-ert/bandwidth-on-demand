@@ -240,10 +240,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       log.info("Received a Query Summary Sync");
 
-      NsiRequestDetails requestDetails = createRequestDetails(header.value);
-
-      List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, requestDetails,
-          header.value.getRequesterNSA());
+      List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, header.value.getRequesterNSA());
 
       return transform(connections, toQuerySummaryResultType);
     } catch (ServiceException e) {

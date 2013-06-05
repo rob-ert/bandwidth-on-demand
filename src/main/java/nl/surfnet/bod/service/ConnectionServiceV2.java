@@ -135,10 +135,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @Async
   public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
-    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails, requesterNsa), requestDetails);
+    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requesterNsa), requestDetails);
   }
 
-  public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails, String requesterNsa) {
+  public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, String requesterNsa) {
     List<ConnectionV2> connections;
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {

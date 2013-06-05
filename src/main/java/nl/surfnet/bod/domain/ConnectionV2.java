@@ -160,9 +160,9 @@ public class ConnectionV2 extends AbstractConnection {
       builder.append(connectionId);
       builder.append(", ");
     }
-    if (version != null) {
-      builder.append("version=");
-      builder.append(version);
+    if (jpaVersion != null) {
+      builder.append("jpaVersion=");
+      builder.append(jpaVersion);
       builder.append(", ");
     }
     if (requesterNsa != null) {
