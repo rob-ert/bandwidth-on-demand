@@ -32,6 +32,8 @@ import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.util.JaxbUserType;
 
 import org.hibernate.annotations.Type;
@@ -113,16 +115,16 @@ public class ConnectionV2 extends AbstractConnection {
     return reservationState;
   }
 
-  public LifecycleStateEnumType getLifecycleState() {
-    return lifecycleState;
+  public Optional<LifecycleStateEnumType> getLifecycleState() {
+    return Optional.fromNullable(lifecycleState);
   }
 
   public void setLifecycleState(LifecycleStateEnumType lifecycleState) {
     this.lifecycleState = lifecycleState;
   }
 
-  public ProvisionStateEnumType getProvisionState() {
-    return provisionState;
+  public Optional<ProvisionStateEnumType> getProvisionState() {
+    return Optional.fromNullable(provisionState);
   }
 
   public void setProvisionState(ProvisionStateEnumType provisionState) {
@@ -203,8 +205,8 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public ConnectionStatesType getConnectionStates() {
-    return new ConnectionStatesType().withReservationState(getReservationState()).withLifecycleState(getLifecycleState())
-        .withProvisionState(getProvisionState()).withDataPlaneStatus(getDataPlaneStatus());
+    return new ConnectionStatesType().withReservationState(getReservationState()).withLifecycleState(getLifecycleState().orNull())
+        .withProvisionState(getProvisionState().orNull()).withDataPlaneStatus(getDataPlaneStatus());
   }
 
   private DataPlaneStatusType getDataPlaneStatus() {

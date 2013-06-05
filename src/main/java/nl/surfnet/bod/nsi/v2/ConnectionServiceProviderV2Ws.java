@@ -188,7 +188,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
-    if (connection.getProvisionState() != ProvisionStateEnumType.RELEASED) {
+    if (!connection.getProvisionState().isPresent() || connection.getProvisionState().get() != ProvisionStateEnumType.RELEASED) {
       throw notApplicable();
     }
   }

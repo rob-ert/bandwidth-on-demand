@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -98,7 +99,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.provisionConfirmed(1L, new NsiRequestDetailsFactory().create());
 
-    assertThat(connection.getProvisionState(), is(PROVISIONED));
+    assertThat(connection.getProvisionState(), isPresent(PROVISIONED));
   }
 
   @Test
@@ -120,7 +121,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.terminateConfirmed(1L, new NsiRequestDetailsFactory().create());
 
-    assertThat(connection.getLifecycleState(), is(TERMINATED));
+    assertThat(connection.getLifecycleState(), isPresent(TERMINATED));
   }
 
   @Test

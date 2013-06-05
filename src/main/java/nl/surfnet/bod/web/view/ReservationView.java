@@ -22,7 +22,13 @@
  */
 package nl.surfnet.bod.web.view;
 
-import nl.surfnet.bod.domain.*;
+import static nl.surfnet.bod.util.Functions.enumToValue;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
@@ -91,12 +97,12 @@ public class ReservationView {
       lifeCycleState = null;
       dataPlaneActive = false;
       connectionState = connectionV1.getCurrentState().toString();
-    }else {
+    } else {
       ConnectionV2 connectionV2 = (ConnectionV2) connection;
       connectionState = null;
-      reservationState = connectionV2.getReservationState().value();
-      provisionState = connectionV2.getProvisionState().value();
-      lifeCycleState = connectionV2.getLifecycleState().value();
+      reservationState = connectionV2.getReservationState().name();
+      provisionState = connectionV2.getProvisionState().transform(enumToValue).or("-");
+      lifeCycleState = connectionV2.getLifecycleState().transform(enumToValue).or("-");
       dataPlaneActive = connectionV2.isDataPlaneActive();
     }
 

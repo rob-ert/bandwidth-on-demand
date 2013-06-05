@@ -23,6 +23,7 @@
 package nl.surfnet.bod.matchers;
 
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import com.google.common.base.Optional;
@@ -53,6 +54,34 @@ public class OptionalMatchers {
       @Override
       protected boolean matchesSafely(Optional<?> other) {
         return !other.isPresent();
+      }
+    };
+  }
+
+  public static <T> org.hamcrest.Matcher<Optional<T>> isPresent(final T value) {
+    return new TypeSafeMatcher<Optional<T>>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("should be present");
+      }
+
+      @Override
+      protected boolean matchesSafely(Optional<T> other) {
+        return other.isPresent() && other.get().equals(value);
+      }
+    };
+  }
+
+  public static <T> org.hamcrest.Matcher<Optional<T>> isPresent(final Matcher<T> matcher) {
+    return new TypeSafeMatcher<Optional<T>>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("should be present");
+      }
+
+      @Override
+      protected boolean matchesSafely(Optional<T> other) {
+        return other.isPresent() && matcher.matches(other.get());
       }
     };
   }

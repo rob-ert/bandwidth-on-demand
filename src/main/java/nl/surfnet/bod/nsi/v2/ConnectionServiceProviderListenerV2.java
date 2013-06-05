@@ -65,7 +65,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       break;
     case CANCELLED:
       // What if cancel was initiated through GUI..
-      if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
+      if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
         requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
       } else {
         requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());

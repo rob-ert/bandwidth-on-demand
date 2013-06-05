@@ -25,6 +25,9 @@ package nl.surfnet.bod.util;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -36,11 +39,16 @@ import nl.surfnet.bod.web.view.PhysicalPortView;
 import nl.surfnet.bod.web.view.UserGroupView;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-
 public final class Functions {
+
+  private Functions() {
+  }
+
+  public static final Function<Enum<?>, String> enumToValue = new Function<Enum<?>, String>() {
+    public String apply(Enum<?> e) {
+      return e.name();
+    }
+  };
 
   public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = new Function<PhysicalPort, String>() {
     @Override
@@ -49,19 +57,6 @@ public final class Functions {
     }
   };
 
-  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED = new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort physicalPort) {
-      return !physicalPort.isAlignedWithNMS();
-    }
-  };
-
-  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED = new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort physicalPort) {
-      return !MISSING_PORTS_PRED.apply(physicalPort);
-    }
-  };
 
   public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW =
       new Function<UserGroup, UserGroupView>() {
@@ -86,9 +81,6 @@ public final class Functions {
           return new VirtualPortView(port);
         }
       };
-
-  private Functions() {
-  }
 
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to
@@ -118,12 +110,6 @@ public final class Functions {
     return physicalPortView;
   }
 
-  /**
-   * Transforms a Collection
-   *
-   * @see #transformAllocatedPhysicalPort(PhysicalPort, VirtualPortService)
-   *
-   */
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends PhysicalPort> ports,
       final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
