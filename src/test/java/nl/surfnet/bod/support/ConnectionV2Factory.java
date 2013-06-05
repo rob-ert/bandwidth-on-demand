@@ -60,7 +60,6 @@ public class ConnectionV2Factory {
     connection.setConnectionId(connectionId);
     connection.setReservation(reservation);
     connection.setGlobalReservationId(globalReservationId);
-//    connection.setServiceParameters(serviceParameters);
     connection.setProtectionType(protectionType);
     connection.setDescription(description);
 

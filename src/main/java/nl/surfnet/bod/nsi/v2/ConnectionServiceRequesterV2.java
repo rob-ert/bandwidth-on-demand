@@ -24,8 +24,6 @@ package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toStpType;
-import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,14 +44,11 @@ import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
@@ -82,13 +77,8 @@ public class ConnectionServiceRequesterV2 {
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
       .withBandwidth(connection.getDesiredBandwidth())
-      .withPath(new PathType()
-        .withSourceSTP(toStpType(connection.getSourceStpId()))
-        .withDestSTP(toStpType(connection.getDestinationStpId()))
-        .withDirectionality(DirectionalityType.BIDIRECTIONAL))
-      .withSchedule(new ScheduleType()
-        .withEndTime(connection.getEndTime().transform(dateTimeToXmlCalendar).orNull())
-        .withStartTime(connection.getStartTime().transform(dateTimeToXmlCalendar).orNull()))
+      .withPath(connection.getPath())
+      .withSchedule(connection.getSchedule())
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 

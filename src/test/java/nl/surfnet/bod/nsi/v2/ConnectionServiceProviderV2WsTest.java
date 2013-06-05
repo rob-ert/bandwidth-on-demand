@@ -29,6 +29,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.xml.ws.Holder;
 
@@ -54,6 +55,7 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
@@ -259,6 +261,19 @@ public class ConnectionServiceProviderV2WsTest {
     } catch (ServiceException expected) {
       assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
     }
+  }
+
+  @Test
+  public void should_return_query_information_synchronously() throws Exception {
+    ConnectionV2 connection = new ConnectionV2Factory().setRequesterNsa("requesterNSA").create();
+    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+
+    List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+
+    assertThat(results, hasSize(1));
+    QuerySummaryResultType result = results.get(0);
+    assertThat(result.getConnectionId(), is(connection.getConnectionId()));
+    assertThat(result.getRequesterNSA(), is("requesterNSA"));
   }
 
   @Test

@@ -22,14 +22,25 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toStpType;
+import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
+
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-
-import javax.persistence.*;
+import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 
 @Entity
 @DiscriminatorValue("V2")
@@ -146,6 +157,24 @@ public class ConnectionV2 extends AbstractConnection {
     this.dataPlaneActive = dataPlaneActive;
   }
 
+  public ScheduleType getSchedule() {
+    return new ScheduleType()
+      .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
+      .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
+  }
+
+  public PathType getPath() {
+    return new PathType()
+      .withSourceSTP(toStpType(getSourceStpId()))
+      .withDestSTP(toStpType(getDestinationStpId()))
+      .withDirectionality(DirectionalityType.BIDIRECTIONAL);
+  }
+
+  public DataPlaneStatusType getDataPlaneStatus() {
+    // FIXME committed version?
+    return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(0);
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -225,5 +254,4 @@ public class ConnectionV2 extends AbstractConnection {
     builder.append("]");
     return builder.toString();
   }
-
 }

@@ -22,17 +22,21 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static com.google.common.base.Optional.*;
-import static com.google.common.base.Strings.*;
-import static com.google.common.collect.Lists.*;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.*;
-import static nl.surfnet.bod.util.XmlUtils.*;
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.collect.Lists.transform;
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
+import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -62,10 +66,6 @@ import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v2")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/provider")
