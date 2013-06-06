@@ -46,6 +46,7 @@ import nl.surfnet.bod.service.ConnectionServiceV1;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionV1Factory;
+import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
@@ -104,8 +105,7 @@ public class ConnectionServiceProviderV1WsTest {
   private final ConnectionV1 connection = new ConnectionV1Factory().setSourceStpId("Source Port").setDestinationStpId(
       "Destination Port").setProviderNsa(nsaProvider).create();
 
-  private final int port = 55446;
-  private final NsiRequestDetails request = new NsiRequestDetails("http://localhost:"+port, "123456");
+  private final NsiRequestDetails request = new NsiRequestDetailsFactory().create();
 
   @Before
   public void setup() throws Exception {

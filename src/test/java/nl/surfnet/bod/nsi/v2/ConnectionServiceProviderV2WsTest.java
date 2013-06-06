@@ -38,6 +38,7 @@ import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumT
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -116,7 +117,7 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
     assertThat(connection.getValue().getReserveVersion(), is(3));
     assertThat(connection.getValue().getCommittedVersion(), is(Optional.<Integer>absent()));
-    assertThat(nsiRequestDetails.getValue().getReplyTo(), is("replyTo"));
+    assertThat(nsiRequestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }
 
@@ -164,7 +165,7 @@ public class ConnectionServiceProviderV2WsTest {
       ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
       verify(connectionService).asyncReserveCommit(eq("connectionId"), requestDetails.capture());
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
+      assertThat(requestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
   }
 
   @Test
@@ -201,7 +202,7 @@ public class ConnectionServiceProviderV2WsTest {
     ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
     verify(connectionService).asyncReserveAbort(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-    assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
+    assertThat(requestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
   }
 
   @Test
@@ -251,7 +252,7 @@ public class ConnectionServiceProviderV2WsTest {
       ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
       verify(connectionService).asyncProvision(eq("connectionId"), requestDetails.capture());
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
+      assertThat(requestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
   }
 
   @Test
@@ -287,7 +288,7 @@ public class ConnectionServiceProviderV2WsTest {
       ArgumentCaptor<NsiRequestDetails> requestDetails = ArgumentCaptor.forClass(NsiRequestDetails.class);
       verify(connectionService).asyncTerminate(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
       assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
-      assertThat(requestDetails.getValue().getReplyTo(), is("replyTo"));
+      assertThat(requestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
   }
 
   @Test

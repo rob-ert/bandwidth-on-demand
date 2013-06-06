@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.net.URI;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,6 +32,7 @@ import javax.persistence.Id;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -48,7 +51,8 @@ public class NsiRequestDetails {
 
   @Field
   @Column(nullable = false)
-  private String replyTo;
+  @Type(type = "nl.surfnet.bod.util.PersistentUri")
+  private URI replyTo;
 
   @Field
   @Column(nullable = false)
@@ -61,12 +65,12 @@ public class NsiRequestDetails {
   private NsiRequestDetails() {
   }
 
-  public NsiRequestDetails(String replyTo, String correlationId) {
+  public NsiRequestDetails(URI replyTo, String correlationId) {
     this.replyTo = replyTo;
     this.correlationId = correlationId;
   }
 
-  public NsiRequestDetails(String replyTo, String correlationId, String requesterNsa, String providerNsa) {
+  public NsiRequestDetails(URI replyTo, String correlationId, String requesterNsa, String providerNsa) {
     this.replyTo = replyTo;
     this.correlationId = correlationId;
     this.requesterNsa = requesterNsa;
@@ -81,7 +85,7 @@ public class NsiRequestDetails {
       .withRequesterNSA(getRequesterNsa());
   }
 
-  public String getReplyTo() {
+  public URI getReplyTo() {
     return replyTo;
   }
 

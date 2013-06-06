@@ -25,8 +25,12 @@ package nl.surfnet.bod.nsi.v2;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
@@ -41,6 +45,8 @@ import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnu
 
 import java.util.ArrayList;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -49,9 +55,12 @@ import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,6 +69,7 @@ public class ConnectionServiceRequesterV2Test {
   @InjectMocks private ConnectionServiceRequesterV2 subject = new ConnectionServiceRequesterV2();
 
   @Mock private ConnectionV2Repo connectionRepMock;
+  @Mock private ConnectionServiceRequesterClient requesterClientMock;
 
   @Test
   public void should_goto_reserve_held_when_sending_reserve_confirmed() {
@@ -112,12 +122,18 @@ public class ConnectionServiceRequesterV2Test {
   @Test
   public void should_activate_the_data_plane_status() {
     ConnectionV2 connection = new ConnectionV2Factory().setDataPlaneActive(false).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.dataPlaneActivated(1L, new NsiRequestDetailsFactory().create());
+    subject.dataPlaneActivated(1L, requestDetails);
 
+    ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
+    ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
+    verify(requesterClientMock).sendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
     assertThat(connection.isDataPlaneActive(), is(true));
+    assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
+    assertThat(status.getValue().isActive(), is(true));
   }
 
   @Test

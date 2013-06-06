@@ -25,6 +25,7 @@ package nl.surfnet.bod.nsi.v1sc;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -85,7 +86,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
     ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
-    NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(), reservationRequest.getCorrelationId());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(URI.create(reservationRequest.getReplyTo()), reservationRequest.getCorrelationId());
 
     reserve(connection, requestDetails, Security.getUserDetails());
 
@@ -108,7 +109,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
     Connection connection = getConnectionOrFail(parameters.getProvision().getConnectionId());
 
-    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(URI.create(parameters.getReplyTo()), parameters.getCorrelationId());
     connectionService.provision(connection.getId(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
@@ -134,7 +135,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
     Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
 
-    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(URI.create(parameters.getReplyTo()), parameters.getCorrelationId());
 
     connectionService.asyncTerminate(connection.getId(), parameters.getTerminate().getRequesterNSA(),
         requestDetails, Security.getUserDetails());
@@ -151,7 +152,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
     log.info("Received NSI query request connectionIds: {}, globalReservationIds: {}", connectionIds, globalReservationIds);
 
-    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(URI.create(parameters.getReplyTo()), parameters.getCorrelationId());
     QueryOperationType operation = parameters.getQuery().getOperation();
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {

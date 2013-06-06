@@ -22,14 +22,26 @@
  */
 package nl.surfnet.bod.support;
 
+import java.net.URI;
+
 import nl.surfnet.bod.domain.NsiRequestDetails;
 
 public class NsiRequestDetailsFactory {
 
-  private String replyTo = "http://localhost/reply";
+  private URI replyTo = URI.create("http://localhost/reply");
   private String correlationId = "correlationId";
 
   public NsiRequestDetails create() {
     return new NsiRequestDetails(replyTo, correlationId);
+  }
+
+  public NsiRequestDetailsFactory setReplyTo(URI replyTo) {
+    this.replyTo = replyTo;
+    return this;
+  }
+
+  public NsiRequestDetailsFactory setCorrelationId(String correlationId) {
+    this.correlationId = correlationId;
+    return this;
   }
 }

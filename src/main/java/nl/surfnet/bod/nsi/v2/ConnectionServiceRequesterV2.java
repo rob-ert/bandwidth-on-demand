@@ -23,16 +23,15 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.collect.Lists.transform;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
-import java.io.IOException;
-import java.net.URL;
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
+
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
+
+import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -41,9 +40,6 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -53,29 +49,18 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteria
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ImmutableList;
-import com.sun.xml.ws.client.ClientTransportException;
-
-@Component("connectionServiceRequesterV2")
+@Component
 public class ConnectionServiceRequesterV2 {
 
-  private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
-
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV2.class);
-
   @Resource private ConnectionV2Repo connectionRepo;
+  @Resource private ConnectionServiceRequesterClient client;
 
   public void reserveConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
-
-    log.info("Sending a reserveConfirmed on endpoint: {} for connectionId: {}", requestDetails.getReplyTo(), connection.getConnectionId());
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
       .withBandwidth(connection.getDesiredBandwidth())
@@ -84,17 +69,13 @@ public class ConnectionServiceRequesterV2 {
       .withServiceAttributes(new TypeValuePairListType())
       .withVersion(0);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.reserveConfirmed(
+    client.sendReserveConfirmed(
+        requestDetails.getCommonHeaderType(),
         connection.getConnectionId(),
         connection.getGlobalReservationId(),
         connection.getDescription(),
         ImmutableList.of(criteria),
-        new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Confirmed failed", e);
-    }
+        requestDetails.getReplyTo());
   }
 
   public void abortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -102,12 +83,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connectionRepo.save(connection);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ServiceException e) {
-      log.info("Sending Reserve Abort Confirmed failed", e);
-    }
+    client.sendAbortConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void terminateConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -115,12 +91,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
     connectionRepo.save(connection);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.terminateConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Terminate Confirmed failed", e);
-    }
+    client.sendTerminateConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void reserveAbortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -128,12 +99,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connectionRepo.save(connection);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Abort Confirmed failed", e);
-    }
+    client.sendReserveAbortConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void reserveCommitConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -143,12 +109,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connectionRepo.save(connection);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.reserveCommitConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Commit Confirmed failed", e);
-    }
+    client.sendReserveCommitConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void provisionConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -156,12 +117,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
     connectionRepo.save(connection);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.provisionConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Provision Confirmed failed", e);
-    }
+    client.sendProvisionConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void dataPlaneActivated(Long id, NsiRequestDetails requestDetails) {
@@ -184,53 +140,21 @@ public class ConnectionServiceRequesterV2 {
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.isDataPlaneActive()).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());
-      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Data Plane State Change");
-    }
+    CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());
+
+    client.sendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
 
   public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
     List<QuerySummaryResultType> results = transform(connections, toQuerySummaryResultType);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.querySummaryConfirmed(results, new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send query summary confirmed", e);
-    }
+    client.sendQuerySummaryConfirmed(requestDetails.getCommonHeaderType(), results, requestDetails.getReplyTo());
   }
 
   public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails){
     List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
 
-    ConnectionRequesterPort port = createPort(requestDetails);
-    try {
-      port.queryRecursiveConfirmed(result, new Holder<>(requestDetails.getCommonHeaderType()));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send query recursive confirmed", e);
-    }
-
-
-  }
-
-  private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {
-    ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
-
-    return port;
-  }
-
-  private URL wsdlUrl() {
-    try {
-      return new ClassPathResource(WSDL_LOCATION).getURL();
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Could not find the requester wsdl", e);
-    }
+    client.sendQueryRecursiveConfirmed(requestDetails.getCommonHeaderType(), result, requestDetails.getReplyTo());
   }
 
 }

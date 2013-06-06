@@ -28,6 +28,7 @@ import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -274,7 +275,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
-    return new NsiRequestDetails(header.getReplyTo(), header.getCorrelationId(), header.getRequesterNSA(), header.getProviderNSA());
+    return new NsiRequestDetails(URI.create(header.getReplyTo()), header.getCorrelationId(), header.getRequesterNSA(), header.getProviderNSA());
   }
 
   private ServiceException missingParameter(String parameter) throws ServiceException {

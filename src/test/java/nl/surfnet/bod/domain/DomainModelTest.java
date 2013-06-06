@@ -23,6 +23,7 @@
 package nl.surfnet.bod.domain;
 
 import nl.surfnet.bod.support.ConnectionV1Factory;
+import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -282,9 +283,9 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestHashcode() {
-    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetailsFactory().create();
     nsiReqDetails.setId(4l);
-    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
 
     assertFalse("Only consider id", nsiReqDetails.hashCode() == nsiRequestDetails.hashCode());
 
@@ -294,9 +295,9 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestEquals() {
-    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetailsFactory().create();
     nsiReqDetails.setId(4l);
-    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
 
     assertThat("Only on id", nsiReqDetails, not(nsiRequestDetails));
 
