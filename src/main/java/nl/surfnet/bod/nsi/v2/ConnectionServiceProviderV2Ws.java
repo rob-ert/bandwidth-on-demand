@@ -60,7 +60,6 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
       Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received a NSI v2 reserve request");
@@ -102,10 +101,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connectionId.value = connection.getConnectionId();
 
     reserve(connection, requestDetails, Security.getUserDetails());
-  }
-
-  private void headersAsReply(Holder<CommonHeaderType> header) {
-    header.value.setReplyTo(null);
   }
 
   private void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
@@ -144,7 +139,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received reserve commit request for connection: {}", connectionId);
@@ -159,7 +154,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received Reserve Abort for connection: {}", connectionId);
@@ -175,7 +170,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.PROVISION);
 
     log.info("Received a Provision for connection: {}", connectionId);
@@ -195,14 +190,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void release(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    headersAsReply(header);
+    updateHeadersForReply(header);
     throw notSupportedOperation();
   }
 
   @Override
   public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.TERMINATE);
 
     log.info("Received a Terminate for connection: {}", connectionId);
@@ -215,7 +210,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
-    headersAsReply(header);
+    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Summary");
@@ -225,7 +220,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header) throws ServiceException {
-    headersAsReply(header);
+    updateHeadersForReply(header);
     throw notSupportedOperation();
   }
 
@@ -233,7 +228,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
     try {
-      headersAsReply(header);
+      updateHeadersForReply(header);
       checkOAuthScope(NsiScope.QUERY);
 
       log.info("Received a Query Summary Sync");
@@ -310,5 +305,9 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     return new ReservationConfirmCriteriaType().withBandwidth(criteria.getBandwidth()).withPath(criteria.getPath())
         .withSchedule(criteria.getSchedule()).withServiceAttributes(criteria.getServiceAttributes())
         .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion().intValue());
+  }
+
+  private void updateHeadersForReply(Holder<CommonHeaderType> header) {
+    header.value.setReplyTo(null);
   }
 }
