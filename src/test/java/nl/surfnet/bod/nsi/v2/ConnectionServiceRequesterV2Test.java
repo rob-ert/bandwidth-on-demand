@@ -22,14 +22,17 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_ABORTING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_CHECKING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.matchers.OptionalMatchers;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
@@ -49,6 +53,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,6 +84,8 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveAbortConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
+    assertThat(connection.getLifecycleState(), isAbsent());
+    assertThat(connection.getProvisionState(), isAbsent());
   }
 
   @Test
@@ -89,6 +97,8 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveCommitConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
+    assertThat(connection.getLifecycleState(), isPresent(CREATED));
+    assertThat(connection.getProvisionState(), isPresent(RELEASED));
   }
 
   @Test

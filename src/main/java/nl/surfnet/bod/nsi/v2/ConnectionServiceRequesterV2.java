@@ -88,7 +88,7 @@ public class ConnectionServiceRequesterV2 {
         connection.getGlobalReservationId(),
         connection.getDescription(),
         ImmutableList.of(criteria),
-        new Holder(requestDetails.getCommonHeaderType()));
+        new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Confirmed failed", e);
     }
@@ -101,7 +101,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
+      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
@@ -114,7 +114,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.terminateConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
+      port.terminateConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Terminate Confirmed failed", e);
     }
@@ -127,7 +127,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
+      port.reserveAbortConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
@@ -137,11 +137,12 @@ public class ConnectionServiceRequesterV2 {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
+    connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connectionRepo.save(connection);
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.reserveCommitConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
+      port.reserveCommitConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Commit Confirmed failed", e);
     }
@@ -154,7 +155,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.provisionConfirmed(connection.getConnectionId(), new Holder(requestDetails.getCommonHeaderType()));
+      port.provisionConfirmed(connection.getConnectionId(), new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Provision Confirmed failed", e);
     }
@@ -171,7 +172,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder(requestDetails.getCommonHeaderType()));
+      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }
@@ -182,7 +183,7 @@ public class ConnectionServiceRequesterV2 {
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.querySummaryConfirmed(results, new Holder(requestDetails.getCommonHeaderType()));
+      port.querySummaryConfirmed(results, new Holder<>(requestDetails.getCommonHeaderType()));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send query summary confirmed", e);
     }
