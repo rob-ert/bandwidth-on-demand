@@ -407,9 +407,9 @@ public class Reservation implements Loggable, PersistableDomain {
 
   public Optional<Connection> getConnection() {
     if (connectionV1 != null) {
-      return Optional.fromNullable((Connection) connectionV1);
+      return Optional.<Connection>fromNullable(connectionV1);
     } else if (connectionV2 != null) {
-      return Optional.fromNullable((Connection) connectionV2);
+      return Optional.<Connection>fromNullable(connectionV2);
     } else {
       return Optional.absent();
     }

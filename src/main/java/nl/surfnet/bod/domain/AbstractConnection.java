@@ -40,10 +40,7 @@ import org.joda.time.DateTime;
 
 import com.google.common.base.Optional;
 
-@Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="TYPE")
-@Table(name = "CONNECTION")
+@MappedSuperclass
 public abstract class AbstractConnection implements Connection {
 
   @Id
@@ -86,10 +83,6 @@ public abstract class AbstractConnection implements Connection {
   protected Reservation reservation;
 
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  protected final NsiVersion nsiVersion;
-
-  @Column(nullable = false)
   @Field
   protected int desiredBandwidth;
 
@@ -97,8 +90,11 @@ public abstract class AbstractConnection implements Connection {
   @IndexedEmbedded
   protected NsiRequestDetails provisionRequestDetails;
 
-  public AbstractConnection(NsiVersion nsiVersion) {
-    this.nsiVersion = nsiVersion;
+  @Column(nullable = false)
+  @Field
+  private String protectionType = "PROTECTED";
+
+  public AbstractConnection() {
   }
 
   @Override
@@ -190,5 +186,13 @@ public abstract class AbstractConnection implements Connection {
 
   public void setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
+  }
+
+  public String getProtectionType() {
+    return protectionType;
+  }
+
+  public void setProtectionType(String protectionType) {
+    this.protectionType = protectionType;
   }
 }

@@ -23,10 +23,10 @@
 package nl.surfnet.bod.domain;
 
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import nl.surfnet.bod.util.NsiV1UserType;
@@ -40,9 +40,9 @@ import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 
 @Entity
-@DiscriminatorValue("V1")
 @Indexed
 @Analyzer(definition = "customanalyzer")
+@Table(name = "CONNECTION_V1")
 public class ConnectionV1 extends AbstractConnection {
 
   @Column(unique = true, nullable = false)
@@ -70,12 +70,7 @@ public class ConnectionV1 extends AbstractConnection {
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
 
-  @Column(nullable = false)
-  @Field
-  private String protectionType;
-
   public ConnectionV1() {
-    super(NsiVersion.ONE);
   }
 
   public String getGlobalReservationId() {
@@ -126,16 +121,8 @@ public class ConnectionV1 extends AbstractConnection {
     this.serviceParameters = serviceParameters;
   }
 
-  public String getProtectionType() {
-    return protectionType;
-  }
-
-  public void setProtectionType(String protectionType) {
-    this.protectionType = protectionType;
-  }
-
   public NsiVersion getNsiVersion() {
-    return nsiVersion;
+    return NsiVersion.ONE;
   }
 
   @Override

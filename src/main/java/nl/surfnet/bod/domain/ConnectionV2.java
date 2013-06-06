@@ -25,10 +25,10 @@ package nl.surfnet.bod.domain;
 import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
@@ -55,9 +55,9 @@ import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @Entity
-@DiscriminatorValue("V2")
 @Indexed
 @Analyzer(definition = "customanalyzer")
+@Table(name = "CONNECTION_V2")
 public class ConnectionV2 extends AbstractConnection {
 
   @Column(unique = true, nullable = false)
@@ -94,10 +94,6 @@ public class ConnectionV2 extends AbstractConnection {
   @Column(nullable = true)
   private TypeValuePairListType serviceAttributes;
 
-  @Column(nullable = false)
-  @Field
-  private String protectionType;
-
   @Field
   private boolean dataPlaneActive = false;
 
@@ -110,7 +106,6 @@ public class ConnectionV2 extends AbstractConnection {
   private Integer committedVersion;
 
   public ConnectionV2() {
-    super(NsiVersion.TWO);
   }
 
   public String getGlobalReservationId() {
@@ -153,16 +148,8 @@ public class ConnectionV2 extends AbstractConnection {
     return destinationStpId;
   }
 
-  public String getProtectionType() {
-    return protectionType;
-  }
-
-  public void setProtectionType(String protectionType) {
-    this.protectionType = protectionType;
-  }
-
   public NsiVersion getNsiVersion() {
-    return nsiVersion;
+    return NsiVersion.TWO;
   }
 
   public boolean isDataPlaneActive() {
@@ -221,8 +208,9 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public ScheduleType getSchedule() {
-    return new ScheduleType().withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull()).withStartTime(
-        getStartTime().transform(dateTimeToXmlCalendar).orNull());
+    return new ScheduleType()
+        .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
+        .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
   }
 
   public void setPath(PathType path) {
