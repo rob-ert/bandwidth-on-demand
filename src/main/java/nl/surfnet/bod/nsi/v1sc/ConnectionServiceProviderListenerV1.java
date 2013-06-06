@@ -27,8 +27,10 @@ import static com.google.common.base.Optional.fromNullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
@@ -38,9 +40,6 @@ import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 
 @Component
 public class ConnectionServiceProviderListenerV1 implements ReservationListener {
