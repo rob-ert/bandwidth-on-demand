@@ -25,11 +25,14 @@ package nl.surfnet.bod;
 import java.beans.PropertyVetoException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ObjectArrays;
+import com.googlecode.flyway.core.Flyway;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -52,7 +55,6 @@ import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
@@ -67,11 +69,8 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ObjectArrays;
-import com.googlecode.flyway.core.Flyway;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod")
@@ -279,53 +278,34 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     executor.setQueueCapacity(11);
     executor.setThreadNamePrefix("BoDExecutor-");
     executor.initialize();
-    return new HandlingExecutor(executor);
+    return new TransactionAwareExecutor(executor);
   }
 
   /**
-   * Executor that logs errors when a thread fails with an exception.
+   * Executor that only submits tasks after the current transaction commits. If
+   * there is no current transaction, the task is submitted immediately.
+   *
+   * Exceptions from tasks are also logged.
    */
-  public class HandlingExecutor implements AsyncTaskExecutor {
+  public class TransactionAwareExecutor implements Executor {
+    private final Executor executor;
 
-    private final AsyncTaskExecutor executor;
-
-    public HandlingExecutor(AsyncTaskExecutor executor) {
+    public TransactionAwareExecutor(Executor executor) {
       this.executor = executor;
     }
 
     @Override
-    public void execute(Runnable task) {
-      executor.execute(createWrappedRunnable(task));
-    }
-
-    @Override
-    public void execute(Runnable task, long startTimeout) {
-      executor.execute(createWrappedRunnable(task), startTimeout);
-    }
-
-    @Override
-    public Future<?> submit(Runnable task) {
-      return executor.submit(createWrappedRunnable(task));
-    }
-
-    @Override
-    public <T> Future<T> submit(Callable<T> task) {
-      return executor.submit(createWrappedCallable(task));
-    }
-
-    private <T> Callable<T> createWrappedCallable(final Callable<T> task) {
-      return new Callable<T>() {
-        @Override
-        public T call() throws Exception {
-          try {
-            return task.call();
+    public void execute(final Runnable task) {
+      if (TransactionSynchronizationManager.isActualTransactionActive()) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+          @Override
+          public void afterCommit() {
+            executor.execute(createWrappedRunnable(task));
           }
-          catch (Exception e) {
-            handle(e);
-            throw e;
-          }
-        }
-      };
+        });
+      } else {
+        executor.execute(createWrappedRunnable(task));
+      }
     }
 
     private Runnable createWrappedRunnable(final Runnable task) {
