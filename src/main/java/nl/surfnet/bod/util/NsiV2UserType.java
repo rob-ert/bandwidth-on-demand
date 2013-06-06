@@ -22,14 +22,23 @@
  */
 package nl.surfnet.bod.util;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+public class NsiV2UserType<T> extends JaxbUserType<T> {
 
-public class ServiceParametersTypeUserType extends JaxbUserType<ServiceParametersType> {
+  private static JAXBContext jaxbContext;
 
-    public ServiceParametersTypeUserType() {
-        super(new QName("http://schemas.ogf.org/nsi/2011/10/connection/types", "serviceParameters"), ServiceParametersType.class);
+  static {
+    try {
+      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._04.connection.types:org.ogf.schemas.nsi._2013._04.framework.types");
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  protected NsiV2UserType(QName xmlRootElementName, Class<T> type) {
+    super(jaxbContext, xmlRootElementName, type);
+  }
 
 }

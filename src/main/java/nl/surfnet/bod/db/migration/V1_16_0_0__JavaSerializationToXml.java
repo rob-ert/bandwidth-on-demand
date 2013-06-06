@@ -26,8 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import nl.surfnet.bod.util.PathTypeUserType;
-import nl.surfnet.bod.util.ServiceParametersTypeUserType;
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -36,12 +35,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-
 public class V1_16_0_0__JavaSerializationToXml implements SpringJdbcMigration {
 
-    private static final PathTypeUserType PATH_TYPE = new PathTypeUserType();
-    private static final ServiceParametersTypeUserType SERVICE_PARAMETERS_TYPE = new ServiceParametersTypeUserType();
+    private static final nl.surfnet.bod.domain.ConnectionV1.PathTypeUserType PATH_TYPE = new nl.surfnet.bod.domain.ConnectionV1.PathTypeUserType();
+    private static final nl.surfnet.bod.domain.ConnectionV1.ServiceParametersTypeUserType SERVICE_PARAMETERS_TYPE = new nl.surfnet.bod.domain.ConnectionV1.ServiceParametersTypeUserType();
 
     @Override
     public void migrate(final JdbcTemplate jdbcTemplate) throws Exception {

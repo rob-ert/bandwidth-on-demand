@@ -27,6 +27,9 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.xml.namespace.QName;
+
+import nl.surfnet.bod.util.NsiV1UserType;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
@@ -59,11 +62,11 @@ public class ConnectionV1 extends AbstractConnection {
   @Field
   private String destinationStpId;
 
-  @Type(type = "nl.surfnet.bod.util.PathTypeUserType")
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV1$PathTypeUserType")
   @Column(nullable = false, length = 4096)
   private PathType path;
 
-  @Type(type = "nl.surfnet.bod.util.ServiceParametersTypeUserType")
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV1$ServiceParametersTypeUserType")
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
 
@@ -224,4 +227,16 @@ public class ConnectionV1 extends AbstractConnection {
     builder.append("]");
     return builder.toString();
   }
+
+  public static class PathTypeUserType extends NsiV1UserType<PathType> {
+    public PathTypeUserType() {
+        super(new QName("http://schemas.ogf.org/nsi/2011/10/connection/types", "path"), PathType.class);
+    }
+  }
+  public static class ServiceParametersTypeUserType extends NsiV1UserType<ServiceParametersType> {
+    public ServiceParametersTypeUserType() {
+        super(new QName("http://schemas.ogf.org/nsi/2011/10/connection/types", "serviceParameters"), ServiceParametersType.class);
+    }
+  }
+
 }

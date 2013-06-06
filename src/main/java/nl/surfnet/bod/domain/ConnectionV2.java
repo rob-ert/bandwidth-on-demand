@@ -34,7 +34,7 @@ import javax.xml.namespace.QName;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.util.JaxbUserType;
+import nl.surfnet.bod.util.NsiV2UserType;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
@@ -294,12 +294,12 @@ public class ConnectionV2 extends AbstractConnection {
     return builder.toString();
   }
 
-  public static class PathTypeUserType extends JaxbUserType<PathType> {
+  public static class PathTypeUserType extends NsiV2UserType<PathType> {
     public PathTypeUserType() {
       super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "path"), PathType.class);
     }
   }
-  public static class ServiceAttributesUserType extends JaxbUserType<TypeValuePairListType> {
+  public static class ServiceAttributesUserType extends NsiV2UserType<TypeValuePairListType> {
     public ServiceAttributesUserType() {
       super(new QName("http://schemas.ogf.org/nsi/2013/04/framework/types", "serviceAttributes"), TypeValuePairListType.class);
     }
