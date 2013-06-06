@@ -50,7 +50,8 @@ public class ReservationFactory {
   private String failedReason;
   private String cancelReason;
   private VirtualResourceGroup virtualResourceGroup;
-  private Connection connection;
+  private ConnectionV1 connectionV1;
+  private ConnectionV2 connectionV2;
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
   private boolean noIds = false;
@@ -73,11 +74,18 @@ public class ReservationFactory {
     reservation.setReservationId(reservationId);
     reservation.setFailedReason(failedReason);
     reservation.setCancelReason(cancelReason);
-    reservation.setConnection(connection);
+    if (connectionV1 != null) {
+      reservation.setConnectionV1(connectionV1);
+    } else if (connectionV2 != null) {
+      reservation.setConnectionV2(connectionV2);
+    }
     reservation.setProtectionType(protectionType);
 
-    if (connection != null) {
-      connection.setReservation(reservation);
+    if (connectionV1 != null) {
+      connectionV1.setReservation(reservation);
+    }
+    if (connectionV2 != null) {
+      connectionV2.setReservation(reservation);
     }
 
     return reservation;
@@ -184,8 +192,13 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setConnection(Connection connection) {
-    this.connection = connection;
+  public ReservationFactory setConnectionV1(ConnectionV1 connection) {
+    this.connectionV1 = connection;
+    return this;
+  }
+
+  public ReservationFactory setConnectionV2(ConnectionV2 connection) {
+    this.connectionV2 = connection;
     return this;
   }
 

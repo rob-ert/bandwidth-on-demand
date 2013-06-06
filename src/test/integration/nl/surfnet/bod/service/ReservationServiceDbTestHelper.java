@@ -102,7 +102,7 @@ public class ReservationServiceDbTestHelper {
     ConnectionV1 connection = new ConnectionV1Factory().setReservation(reservation).create();
     connection = connectionRepo.saveAndFlush(connection);
 
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     return reservationRepo.saveAndFlush(reservation);
   }
 

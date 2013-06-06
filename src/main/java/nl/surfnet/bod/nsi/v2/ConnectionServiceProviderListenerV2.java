@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
@@ -50,13 +49,13 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
 
-    Optional<Connection> optConnection = event.getReservation().getConnection();
+    Optional<ConnectionV2> optConnection = event.getReservation().getConnectionV2();
 
-    if (!(optConnection.isPresent() && optConnection.get() instanceof ConnectionV2)) {
+    if (!optConnection.isPresent()) {
       return;
     }
 
-    ConnectionV2 connection = (ConnectionV2) optConnection.get();
+    ConnectionV2 connection = optConnection.get();
 
     switch (event.getNewStatus()) {
     case RESERVED:

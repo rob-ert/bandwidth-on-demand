@@ -82,7 +82,7 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
-    reservation.setConnection(new ConnectionV1Factory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
 
     reservationTwo = reservationFactory.create();
 
@@ -102,17 +102,17 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationToString() {
-    Connection connection = new ConnectionV1Factory().create();
+    ConnectionV1 connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     logger.info(reservation.toString());
   }
 
   @Test
   public void shouldOnlyContainLabelsOfConnectionAndVirtualResourceGroupInReservation() {
-    Connection connection = new ConnectionV1Factory().create();
+    ConnectionV1 connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     String reservationString = reservation.toString();
 
     assertThat(reservationString, not(containsString("Connection [")));
@@ -134,7 +134,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationEquals() {
-    reservation.setConnection(new ConnectionV1Factory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
     reservation.equals(reservationTwo);
   }
 
@@ -150,7 +150,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationHashCode() {
-    reservation.setConnection(new ConnectionV1Factory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
     reservation.hashCode();
   }
 

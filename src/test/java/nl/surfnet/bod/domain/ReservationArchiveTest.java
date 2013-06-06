@@ -40,8 +40,8 @@ public class ReservationArchiveTest {
 
     assertThat(mapper.canSerialize(Reservation.class), is(true));
 
-    final Connection connection = new ConnectionV1Factory().create();
-    final Reservation reservation = new ReservationFactory().setConnection(connection).create();
+    final ConnectionV1 connection = new ConnectionV1Factory().create();
+    final Reservation reservation = new ReservationFactory().setConnectionV1(connection).create();
 
 //    ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 //    System.out.println(writer.writeValueAsString(reservation));
@@ -49,7 +49,7 @@ public class ReservationArchiveTest {
     final String reservationAsJson = mapper.writeValueAsString(reservation);
 
     final Reservation reservationFromJson = mapper.readValue(reservationAsJson, Reservation.class);
-    final Connection connectionFromJson = reservationFromJson.getConnection().get();
+    final Connection connectionFromJson = reservationFromJson.getConnectionV1().get();
 
     assertThat(reservation.getStartDate(), is(reservationFromJson.getStartDate()));
     assertThat(reservation.getEndDate(), is(reservationFromJson.getEndDate()));

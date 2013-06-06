@@ -63,12 +63,12 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
 
       Reservation reservation = reservationService.find(event.getReservation().getId());
 
-      if (!reservation.getConnection().isPresent() || reservation.getConnection().get().getNsiVersion() != NsiVersion.ONE) {
+      if (!reservation.getConnectionV1().isPresent()) {
         logger.debug("Reservation {} was not created using NSIv1, no work to perform", reservation.getLabel());
         return;
       }
 
-      ConnectionV1 connection = (ConnectionV1) reservation.getConnection().get();
+      ConnectionV1 connection = reservation.getConnectionV1().get();
 
       switch (event.getNewStatus()) {
       case RESERVED:

@@ -405,6 +405,14 @@ public class Reservation implements Loggable, PersistableDomain {
     this.cancelReason = cancelReason;
   }
 
+  public Optional<ConnectionV1> getConnectionV1() {
+    return Optional.<ConnectionV1>fromNullable(connectionV1);
+  }
+
+  public Optional<ConnectionV2> getConnectionV2() {
+    return Optional.<ConnectionV2>fromNullable(connectionV2);
+  }
+
   public Optional<Connection> getConnection() {
     if (connectionV1 != null) {
       return Optional.<Connection>fromNullable(connectionV1);
@@ -415,19 +423,14 @@ public class Reservation implements Loggable, PersistableDomain {
     }
   }
 
-  public void setConnection(Connection connection) {
-    if (connection == null) {
-      this.connectionV1 = null;
-      this.connectionV2 = null;
-    } else if (connection instanceof ConnectionV1) {
-      this.connectionV1 = (ConnectionV1) connection;
-      this.connectionV2 = null;
-    } else if (connection instanceof ConnectionV2) {
-      this.connectionV1 = null;
-      this.connectionV2 = (ConnectionV2) connection;
-    } else {
-      throw new IllegalArgumentException("unknown connection type " + connection.getClass());
-    }
+  public void setConnectionV1(ConnectionV1 connection) {
+    this.connectionV1 = connection;
+    this.connectionV2 = null;
+  }
+
+  public void setConnectionV2(ConnectionV2 connection) {
+    this.connectionV1 = null;
+    this.connectionV2 = connection;
   }
 
   /**

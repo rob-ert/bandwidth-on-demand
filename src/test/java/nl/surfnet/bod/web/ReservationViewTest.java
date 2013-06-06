@@ -108,7 +108,7 @@ public class ReservationViewTest {
     ConnectionV1 connectionV1 = new ConnectionV1();
     connectionV1.setConnectionId(id);
 
-    Reservation reservation = new ReservationFactory().setConnection(connectionV1).create();
+    Reservation reservation = new ReservationFactory().setConnectionV1(connectionV1).create();
     ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
 
     assertThat(reservationView.getConnectionId(), is(id));
@@ -135,7 +135,7 @@ public class ReservationViewTest {
     connectionV2.setLifecycleState(lifecycleState);
     connectionV2.setDataPlaneActive(dataPlaneActive);
 
-    Reservation reservation = new ReservationFactory().setConnection(connectionV2).create();
+    Reservation reservation = new ReservationFactory().setConnectionV2(connectionV2).create();
     ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
 
     assertThat(reservationView.getConnectionId(), is(id));

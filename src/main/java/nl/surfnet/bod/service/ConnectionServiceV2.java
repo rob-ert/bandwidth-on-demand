@@ -78,7 +78,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
     Reservation reservation = new Reservation();
-    reservation.setConnection(connection);
+    reservation.setConnectionV2(connection);
     reservation.setName(connection.getDescription());
     reservation.setStartDateTime(connection.getStartTime().orNull());
     reservation.setEndDateTime(connection.getEndTime().orNull());
@@ -88,8 +88,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(userDetails.getNameId());
     reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
-
-    reservation.setConnection(connection);
     connection.setReservation(reservation);
 
     reservationService.create(reservation, false, Optional.of(requestDetails));

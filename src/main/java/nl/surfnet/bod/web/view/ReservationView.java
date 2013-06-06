@@ -84,28 +84,29 @@ public class ReservationView {
     Connection connection = reservation.getConnection().orNull();
     this.connectionId = connection == null ? null : connection.getConnectionId();
 
-    if (connection == null) {
+    if (!reservation.isNSICreated()) {
       connectionState = null;
       reservationState = null;
       provisionState = null;
       lifeCycleState = null;
       dataPlaneActive = false;
-    } else if (connection instanceof ConnectionV1) {
-      ConnectionV1 connectionV1 = (ConnectionV1) connection;
+    } else if (reservation.getConnectionV1().isPresent()) {
+      ConnectionV1 connectionV1 = reservation.getConnectionV1().get();
       reservationState = null;
       provisionState = null;
       lifeCycleState = null;
       dataPlaneActive = false;
       connectionState = connectionV1.getCurrentState().toString();
-    } else {
-      ConnectionV2 connectionV2 = (ConnectionV2) connection;
+    } else if (reservation.getConnectionV2().isPresent()) {
+      ConnectionV2 connectionV2 = reservation.getConnectionV2().get();
       connectionState = null;
       reservationState = connectionV2.getReservationState().name();
       provisionState = connectionV2.getProvisionState().transform(enumToValue).or("-");
       lifeCycleState = connectionV2.getLifecycleState().transform(enumToValue).or("-");
       dataPlaneActive = connectionV2.isDataPlaneActive();
+    } else {
+      throw new IllegalStateException("Reservation is NSI created but has no connection");
     }
-
   }
 
   public String getConnectionState() {

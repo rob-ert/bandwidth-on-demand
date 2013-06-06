@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -43,8 +43,8 @@ public class ReservationIndexAndSearchTest extends AbstractIndexAndSearch<Reserv
 
   @Test
   public void searchAndFindReservationOnNsiConnectionId() throws ParseException {
-    Connection connection = new ConnectionV1Factory().setConnectionId("123-abc-456-def").withNoIds().create();
-    Reservation reservation = new ReservationFactory().setConnection(connection).withNoIds().create();
+    ConnectionV1 connection = new ConnectionV1Factory().setConnectionId("123-abc-456-def").withNoIds().create();
+    Reservation reservation = new ReservationFactory().setConnectionV1(connection).withNoIds().create();
 
     persist(reservation);
 

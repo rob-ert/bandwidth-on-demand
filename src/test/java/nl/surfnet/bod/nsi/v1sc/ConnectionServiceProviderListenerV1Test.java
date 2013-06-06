@@ -77,7 +77,7 @@ public class ConnectionServiceProviderListenerV1Test {
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVING).create();
     Reservation reservation = new ReservationFactory()
       .setStatus(ReservationStatus.NOT_ACCEPTED)
-      .setConnection(connection)
+      .setConnectionV1(connection)
       .setFailedReason(failedReason).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation, requestDetails);
 
@@ -93,7 +93,7 @@ public class ConnectionServiceProviderListenerV1Test {
   public void terminateFailed() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).create();
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
@@ -107,7 +107,7 @@ public class ConnectionServiceProviderListenerV1Test {
   public void terminateSucceed() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).create();
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.CANCELLED).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.CANCELLED).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
@@ -121,7 +121,7 @@ public class ConnectionServiceProviderListenerV1Test {
   public void provisionSucceeded() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVED).create();
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
 
@@ -136,7 +136,7 @@ public class ConnectionServiceProviderListenerV1Test {
   public void reservationStarts() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.AUTO_PROVISION).create();
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
 
@@ -151,7 +151,7 @@ public class ConnectionServiceProviderListenerV1Test {
   public void succeedShouldTerminate() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.PROVISIONED).create();
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUCCEEDED).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUCCEEDED).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
