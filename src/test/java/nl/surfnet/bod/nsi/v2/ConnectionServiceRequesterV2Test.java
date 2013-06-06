@@ -43,7 +43,6 @@ import java.util.ArrayList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.matchers.OptionalMatchers;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
@@ -53,8 +52,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 
 
 @RunWith(MockitoJUnitRunner.class)

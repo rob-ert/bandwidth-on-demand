@@ -22,10 +22,19 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -54,10 +63,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
@@ -127,7 +134,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_only_commit_when_reserve_held() {
     try {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_START).create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).create());
 
       subject.reserveCommit("connectionId", headerHolder);
 
@@ -139,7 +146,7 @@ public class ConnectionServiceProviderV2WsTest {
 
   @Test
   public void should_commit_when_reserve_held() throws Exception {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_HELD).create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_HELD).create());
 
       subject.reserveCommit("connectionId", headerHolder);
 
@@ -164,7 +171,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_only_abort_when_reserve_held() {
     try {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_START).create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).create());
 
       subject.reserveAbort("connectionId", headerHolder);
 
@@ -176,7 +183,7 @@ public class ConnectionServiceProviderV2WsTest {
 
   @Test
   public void should_abort_when_reserve_held() throws Exception {
-    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_HELD).create());
+    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_HELD).create());
 
     subject.reserveAbort("connectionId", headerHolder);
 
@@ -201,7 +208,20 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_only_provision_when_released() {
     try {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(ProvisionStateEnumType.PROVISIONED).create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(PROVISIONED).create());
+
+      subject.provision("connectionId", headerHolder);
+
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+    }
+  }
+
+  @Test
+  public void should_not_provision_when_psm_does_not_exists() {
+    try {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setProvisionState(null).create());
 
       subject.provision("connectionId", headerHolder);
 
@@ -213,7 +233,7 @@ public class ConnectionServiceProviderV2WsTest {
 
   @Test
   public void should_provision_when_released() throws Exception {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(ProvisionStateEnumType.RELEASED).create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(RELEASED).create());
 
       subject.provision("connectionId", headerHolder);
 
