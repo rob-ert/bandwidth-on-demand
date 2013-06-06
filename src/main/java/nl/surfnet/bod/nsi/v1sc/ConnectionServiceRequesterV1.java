@@ -49,7 +49,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 
-@Component("connectionServiceRequesterV1")
+@Component
 public class ConnectionServiceRequesterV1 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1.class);

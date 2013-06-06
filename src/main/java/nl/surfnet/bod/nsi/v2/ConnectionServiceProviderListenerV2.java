@@ -25,17 +25,16 @@ package nl.surfnet.bod.nsi.v2;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.springframework.stereotype.Component;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
-import com.google.common.base.Optional;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ConnectionServiceProviderListenerV2 implements ReservationListener {
@@ -53,7 +52,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
 
     Optional<Connection> optConnection = event.getReservation().getConnection();
 
-    if (!optConnection.isPresent() || optConnection.get().getNsiVersion() != NsiVersion.TWO) {
+    if (!(optConnection.isPresent() && optConnection.get() instanceof ConnectionV2)) {
       return;
     }
 
@@ -78,10 +77,13 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       // start time passed but no provision.. nothing to do..
       break;
     case TIMED_OUT:
-      // TODO what todo
+      // end time passed but no provision.. nothing to do..
       break;
     case RUNNING:
       requester.dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
+      break;
+    case SUCCEEDED:
+      requester.dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
       break;
     default:
       throw new RuntimeException("ARGG not implemented..");

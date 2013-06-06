@@ -38,4 +38,8 @@ public final class NsiHelper {
     return UUID.randomUUID().toString();
   }
 
+  public static String generateCorrelationId() {
+    return "urn:uuid:" + UUID.randomUUID().toString();
+  }
+
 }

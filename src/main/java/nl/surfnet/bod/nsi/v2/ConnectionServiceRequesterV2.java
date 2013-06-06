@@ -36,6 +36,7 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -50,6 +51,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,20 +162,32 @@ public class ConnectionServiceRequesterV2 {
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Provision Confirmed failed", e);
     }
-
   }
 
-  public void dataPlaneActivated(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+  public void dataPlaneActivated(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(true);
     connectionRepo.save(connection);
 
-    DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true);
-    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
+    sendDataPlaneStatus(requestDetails, connection, DateTime.now());
+  }
+
+  public void dataPlaneDeactivated(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
+    connection.setDataPlaneActive(false);
+    connectionRepo.save(connection);
+
+    sendDataPlaneStatus(requestDetails, connection, DateTime.now());
+  }
+
+  private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
+    DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.isDataPlaneActive()).withVersion(0).withVersionConsistent(true);
+    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
     ConnectionRequesterPort port = createPort(requestDetails);
     try {
-      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder<>(requestDetails.getCommonHeaderType()));
+      CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());
+      port.dataPlaneStateChange(connection.getConnectionId(), dataPlaneStatus, timeStamp, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }

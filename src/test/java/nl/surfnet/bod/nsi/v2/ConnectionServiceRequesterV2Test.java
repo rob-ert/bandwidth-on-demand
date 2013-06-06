@@ -121,6 +121,17 @@ public class ConnectionServiceRequesterV2Test {
   }
 
   @Test
+  public void should_deactivate_the_data_plane_status() {
+    ConnectionV2 connection = new ConnectionV2Factory().setDataPlaneActive(true).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.dataPlaneDeactivated(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.isDataPlaneActive(), is(false));
+  }
+
+  @Test
   public void should_goto_terminated_when_sending_terminate_confirm() {
     ConnectionV2 connection = new ConnectionV2Factory().setLifecycleState(TERMINATING).create();
 
