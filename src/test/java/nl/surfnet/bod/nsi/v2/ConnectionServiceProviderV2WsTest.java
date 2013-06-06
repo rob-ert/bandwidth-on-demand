@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
@@ -72,6 +73,10 @@ import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
+
+  private static final String UNAUTHORIZED = "Unauthorized";
+
+  private static final String NOT_APPLICABLE = "Not Applicable";
 
   @InjectMocks private ConnectionServiceProviderV2Ws subject;
 
@@ -117,7 +122,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.reserve(new Holder<String>(), null, null, initialReservationCriteria(), headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
@@ -140,7 +145,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
     }
   }
 
@@ -164,7 +169,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.reserveCommit("connectionId", headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
@@ -177,7 +182,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
     }
   }
 
@@ -201,7 +206,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.reserveAbort("connectionId", headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
@@ -214,7 +219,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
     }
   }
 
@@ -227,7 +232,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Not Applicable"));
+      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
     }
   }
 
@@ -251,13 +256,25 @@ public class ConnectionServiceProviderV2WsTest {
       subject.provision("connectionId", headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
   @Test
+  public void should_have_a_lsm_when_sending_a_terminate() throws Exception {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setLifecycleState(null).create());
+
+      try {
+        subject.terminate("connectionId", headerHolder);
+        fail("ServiceException expected");
+      } catch (ServiceException expected) {
+        assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+      }
+  }
+
+  @Test
   public void should_terminate() throws Exception {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().create());
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setLifecycleState(CREATED).create());
 
       subject.terminate("connectionId", headerHolder);
 
@@ -275,7 +292,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.terminate("connectionId", headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
@@ -287,7 +304,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.querySummary(Collections.<String>emptyList(), null, headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getText(), is(UNAUTHORIZED));
     }
   }
 
@@ -312,7 +329,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.querySummarySync(Collections.<String>emptyList(), null, headerHolder);
       fail("QuerySummarySyncFailed expected");
     } catch (QuerySummarySyncFailed expected) {
-      assertThat(expected.getFaultInfo().getServiceException().getText(), is("Unauthorized"));
+      assertThat(expected.getFaultInfo().getServiceException().getText(), is(UNAUTHORIZED));
     }
   }
 

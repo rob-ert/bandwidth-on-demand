@@ -176,7 +176,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     log.info("Received a Provision for connection: {}", connectionId);
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
-
     checkProvisionAllowed(connection);
 
     connectionService.asyncProvision(connectionId, requestDetails);
@@ -202,9 +201,16 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     log.info("Received a Terminate for connection: {}", connectionId);
 
-    getConnectionOrFail(connectionId);
+    ConnectionV2 connection = getConnectionOrFail(connectionId);
+    checkTerminateAllowed(connection);
 
     connectionService.asyncTerminate(connectionId, requestDetails, Security.getUserDetails());
+  }
+
+  private void checkTerminateAllowed(ConnectionV2 connection) throws ServiceException {
+    if (!connection.getLifecycleState().isPresent()) {
+      throw notApplicable();
+    }
   }
 
   @Override
