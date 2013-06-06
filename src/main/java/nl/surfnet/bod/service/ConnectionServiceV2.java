@@ -158,6 +158,12 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
           connections.add(connection);
         }
       }
+      for (String globalReservationId : globalReservationIds) {
+        ConnectionV2 connection = connectionRepo.findByGlobalReservationId(globalReservationId);
+        if (connection != null) {
+          connections.add(connection);
+        }
+      }
     }
 
     return connections;

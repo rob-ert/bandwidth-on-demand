@@ -22,17 +22,20 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
-import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.support.ConnectionV2Factory;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -45,23 +48,46 @@ public class ConnectionServiceV2Test {
   @InjectMocks
   private ConnectionServiceV2 subject = new ConnectionServiceV2();
 
-  @Mock private Environment bodEnvironment;
   @Mock private ConnectionV2Repo connectionRepo;
-  @Mock private ReservationService reservationService;
-  @Mock private VirtualPortService virtualPortService;
-  @Mock private ConnectionServiceRequesterV2 connectionServiceRequester;
 
   @Test
-  public void querySummarySync_should_return_an_empty_list_when_no_connection_objects_where_found(){
-
+  public void querySummarySync_should_return_an_empty_list_when_no_connection_objects_where_found() {
     final String nonExistingConnectionId = "1";
-
-    List<String> connectionIds = Arrays.asList(nonExistingConnectionId);
 
     when(connectionRepo.findByConnectionId(nonExistingConnectionId)).thenReturn(null);
 
-    List<ConnectionV2> connections = subject.querySummarySync(connectionIds, new ArrayList<String>(), "foo");
-    assertTrue("There may be no null element(s) in the list", connections.size() == 0);
+    List<ConnectionV2> connections = subject.querySummarySync(ImmutableList.of(nonExistingConnectionId), Collections.<String>emptyList(), "requesterNsa");
 
+    assertThat(connections, hasSize(0));
+  }
+
+  @Test
+  public void querySummarySync_should_query_by_connection_id() {
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    when(connectionRepo.findByConnectionId("connectionId")).thenReturn(connection);
+
+    List<ConnectionV2> connections = subject.querySummarySync(ImmutableList.of("connectionId"), Collections.<String>emptyList(), "requesterNsa");
+
+    assertThat(connections, contains(connection));
+  }
+
+  @Test
+  public void querySummarySync_should_query_by_global_reservation_id() {
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    when(connectionRepo.findByGlobalReservationId("globalReservationId")).thenReturn(connection);
+
+    List<ConnectionV2> connections = subject.querySummarySync(Collections.<String>emptyList(), ImmutableList.of("globalReservationId"), "requesterNsa");
+
+    assertThat(connections, contains(connection));
+  }
+
+  @Test
+  public void querySummarySync_should_query_by_requester_nsa_when_both_global_reservation_id_and_connection_id_are_empty() {
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    when(connectionRepo.findByRequesterNsa("requesterNsa")).thenReturn(ImmutableList.of(connection));
+
+    List<ConnectionV2> connections = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNsa");
+
+    assertThat(connections, contains(connection));
   }
 }
