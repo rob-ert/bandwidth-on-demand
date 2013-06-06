@@ -51,7 +51,7 @@ public class JaxbUserType<T> implements UserType {
 
   static {
     try {
-      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2011._10.connection.types");
+      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2011._10.connection.types:org.ogf.schemas.nsi._2013._04.connection.types:org.ogf.schemas.nsi._2013._04.framework.types");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

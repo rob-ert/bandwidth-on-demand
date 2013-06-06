@@ -27,14 +27,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.xml.ws.Holder;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 @Entity
