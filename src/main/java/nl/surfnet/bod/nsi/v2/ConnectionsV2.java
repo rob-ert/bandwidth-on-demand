@@ -29,6 +29,7 @@ import com.google.common.base.Joiner;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 
@@ -37,6 +38,12 @@ public final class ConnectionsV2 {
   public static final Function<ConnectionV2, QuerySummaryResultType> toQuerySummaryResultType = new Function<ConnectionV2, QuerySummaryResultType>() {
     public QuerySummaryResultType apply(ConnectionV2 connection) {
       return connection.getQuerySummaryResult();
+    }
+  };
+
+  public static final Function<ConnectionV2, QueryRecursiveResultType> toQueryRecursiveResultType = new Function<ConnectionV2, QueryRecursiveResultType>() {
+    public QueryRecursiveResultType apply(ConnectionV2 connection) {
+      return connection.getQueryRecursiveResult();
     }
   };
 

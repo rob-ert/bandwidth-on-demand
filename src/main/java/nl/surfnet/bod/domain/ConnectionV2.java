@@ -45,6 +45,8 @@ import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
@@ -203,6 +205,19 @@ public class ConnectionV2 extends AbstractConnection {
           .withVersion(committedVersion));
     }
     return result;
+  }
+  public QueryRecursiveResultType getQueryRecursiveResult() {
+    return new QueryRecursiveResultType()
+        .withConnectionId(getConnectionId())
+        .withGlobalReservationId(getGlobalReservationId())
+        .withDescription(getDescription())
+        .withCriteria(new QueryRecursiveResultCriteriaType()
+            .withSchedule(getSchedule())
+            .withBandwidth(getDesiredBandwidth())
+            .withServiceAttributes(getServiceAttributes())
+            .withPath(getPath())
+            .withVersion(0)) // FIXME: committed version?
+        .withRequesterNSA(getRequesterNsa()).withConnectionStates(getConnectionStates());
   }
 
   public ScheduleType getSchedule() {

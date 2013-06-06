@@ -24,7 +24,7 @@ package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
-
+import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -46,6 +46,7 @@ import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
@@ -187,6 +188,19 @@ public class ConnectionServiceRequesterV2 {
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send query summary confirmed", e);
     }
+  }
+
+  public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails){
+    List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
+
+    ConnectionRequesterPort port = createPort(requestDetails);
+    try {
+      port.queryRecursiveConfirmed(result, new Holder<>(requestDetails.getCommonHeaderType()));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Failed to send query recursive confirmed", e);
+    }
+
+
   }
 
   private ConnectionRequesterPort createPort(NsiRequestDetails requestDetails) {

@@ -138,6 +138,15 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
   }
 
+  @Async
+  /**
+   * Implement this just like querySummary, because BoD has no downstream agents to delegate to.
+   */
+  public void asyncQueryRecursive(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails) {
+    List<ConnectionV2> result = querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa());
+    connectionServiceRequester.queryRecursiveConfirmed(result, requestDetails);
+  }
+
   public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, String requesterNsa) {
     List<ConnectionV2> connections;
 
@@ -237,6 +246,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   protected EntityManager getEntityManager() {
     return entityManager;
   }
+
 
   @SuppressWarnings("serial")
   public static class ValidationException extends Exception {

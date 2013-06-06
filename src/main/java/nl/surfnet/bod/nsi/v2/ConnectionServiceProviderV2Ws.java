@@ -226,9 +226,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void queryRecursive(List<String> connectionId, List<String> globalReservationId, Holder<CommonHeaderType> header) throws ServiceException {
+  public void queryRecursive(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
     updateHeadersForReply(header);
-    throw notSupportedOperation();
+    checkOAuthScope(NsiScope.QUERY);
+
+    log.info("Received a Query Recursive");
+
+    connectionService.asyncQueryRecursive(connectionIds, globalReservationIds, requestDetails);
   }
 
   @Override
@@ -311,7 +317,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     return new ReservationConfirmCriteriaType().withBandwidth(criteria.getBandwidth()).withPath(criteria.getPath())
         .withSchedule(criteria.getSchedule()).withServiceAttributes(criteria.getServiceAttributes())
-        .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion().intValue());
+        .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
   }
 
   private void updateHeadersForReply(Holder<CommonHeaderType> header) {
