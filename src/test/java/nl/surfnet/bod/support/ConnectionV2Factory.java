@@ -24,6 +24,8 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.Reservation;
 
@@ -46,10 +48,12 @@ public class ConnectionV2Factory {
   private Long id = 0L;
   private String description = "";
   private PathType path = new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
-  private ReservationStateEnumType reservationState;
+  private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
   private ProvisionStateEnumType provisionState;
   private LifecycleStateEnumType lifecycleState;
   private boolean dataPlaneActive;
+  private int reserveVersion = 0;
+  private Optional<Integer> committedVersion = Optional.absent();
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -69,6 +73,9 @@ public class ConnectionV2Factory {
     connection.setProvisionState(provisionState);
     connection.setDataPlaneActive(dataPlaneActive);
     connection.setLifecycleState(lifecycleState);
+
+    connection.setReserveVersion(reserveVersion);
+    connection.setCommittedVersion(committedVersion);
 
     return connection;
   }
@@ -145,6 +152,20 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setLifecycleState(LifecycleStateEnumType lifecycleState) {
     this.lifecycleState = lifecycleState;
+    return this;
+  }
+
+  public ConnectionV2Factory setReserveVersion(int reserveVersion) {
+    this.reserveVersion = reserveVersion;
+    return this;
+  }
+
+  public ConnectionV2Factory committed(int committedVersion) {
+    this.reservationState = ReservationStateEnumType.RESERVE_START;
+    this.provisionState = ProvisionStateEnumType.RELEASED;
+    this.lifecycleState = LifecycleStateEnumType.CREATED;
+    this.reserveVersion = committedVersion;
+    this.committedVersion  = Optional.of(committedVersion);
     return this;
   }
 }

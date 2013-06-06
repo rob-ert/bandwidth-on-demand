@@ -130,6 +130,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
     connection.setProvisionRequestDetails(requestDetails);
+    connection.setReserveVersion(criteria.getVersion());
     connection.setPath(criteria.getPath());
     connection.setServiceAttributes(criteria.getServiceAttributes());
 

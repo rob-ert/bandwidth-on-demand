@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -42,6 +43,8 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.xml.ws.Holder;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -64,6 +67,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
@@ -110,6 +114,8 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getDesiredBandwidth(), is(100));
     assertThat(connection.getValue().getGlobalReservationId(), is("globalReservationId"));
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
+    assertThat(connection.getValue().getReserveVersion(), is(3));
+    assertThat(connection.getValue().getCommittedVersion(), is(Optional.<Integer>absent()));
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is("replyTo"));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }
@@ -322,6 +328,33 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
+  public void query_should_not_include_criteria_when_connection_has_not_been_committed() throws Exception {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_START).create();
+    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+
+    List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+
+    assertThat(results, hasSize(1));
+    QuerySummaryResultType result = results.get(0);
+    assertThat(result.getCriteria(), empty());
+  }
+
+  @Test
+  public void query_should_include_criteria_for_committed_connection() throws Exception {
+    ConnectionV2 connection = new ConnectionV2Factory().committed(3).setDesiredBandwidth(100).create();
+    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+
+    List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+
+    assertThat(results, hasSize(1));
+    QuerySummaryResultType result = results.get(0);
+    assertThat(result.getCriteria(), hasSize(1));
+    QuerySummaryResultCriteriaType criteria = result.getCriteria().get(0);
+    assertThat(criteria.getVersion(), is(3));
+    assertThat(criteria.getBandwidth(), is(100));
+  }
+
+  @Test
   public void should_require_nsi_query_scope_on_query_summary_sync() throws Exception {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.noneOf(NsiScope.class)).create());
 
@@ -344,6 +377,7 @@ public class ConnectionServiceProviderV2WsTest {
         .withPath(
             new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(
                 new StpType().withNetworkId("networkId").withLocalId("dest"))).withSchedule(new ScheduleType())
-        .withServiceAttributes(new TypeValuePairListType());
+        .withServiceAttributes(new TypeValuePairListType())
+        .withVersion(3);
   }
 }

@@ -99,6 +99,14 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private boolean dataPlaneActive = false;
 
+  @NotNull
+  @Field
+  @Column(nullable = true)
+  private int reserveVersion;
+
+  @Field
+  private Integer committedVersion;
+
   public ConnectionV2() {
     super(NsiVersion.TWO);
   }
@@ -163,18 +171,38 @@ public class ConnectionV2 extends AbstractConnection {
     this.dataPlaneActive = dataPlaneActive;
   }
 
+  public void setReserveVersion(int reserveVersion) {
+    this.reserveVersion = reserveVersion;
+  }
+
+  public int getReserveVersion() {
+    return reserveVersion;
+  }
+
+  public void setCommittedVersion(Optional<Integer> committedVersion) {
+    this.committedVersion = committedVersion.orNull();
+  }
+
+  public Optional<Integer> getCommittedVersion() {
+    return Optional.fromNullable(committedVersion);
+  }
+
   public QuerySummaryResultType getQuerySummaryResult() {
-    return new QuerySummaryResultType()
+    QuerySummaryResultType result = new QuerySummaryResultType()
         .withConnectionId(getConnectionId())
         .withGlobalReservationId(getGlobalReservationId())
         .withDescription(getDescription())
-        .withCriteria(new QuerySummaryResultCriteriaType()
-            .withSchedule(getSchedule())
-            .withBandwidth(getDesiredBandwidth())
-            .withServiceAttributes(getServiceAttributes())
-            .withPath(getPath())
-            .withVersion(0)) // FIXME: committed version?
-        .withRequesterNSA(getRequesterNsa()).withConnectionStates(getConnectionStates());
+        .withRequesterNSA(getRequesterNsa())
+        .withConnectionStates(getConnectionStates());
+    if (committedVersion != null) {
+      result.withCriteria(new QuerySummaryResultCriteriaType()
+          .withSchedule(getSchedule())
+          .withBandwidth(getDesiredBandwidth())
+          .withServiceAttributes(getServiceAttributes())
+          .withPath(getPath())
+          .withVersion(committedVersion));
+    }
+    return result;
   }
 
   public ScheduleType getSchedule() {
@@ -205,13 +233,16 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public ConnectionStatesType getConnectionStates() {
-    return new ConnectionStatesType().withReservationState(getReservationState()).withLifecycleState(getLifecycleState().orNull())
-        .withProvisionState(getProvisionState().orNull()).withDataPlaneStatus(getDataPlaneStatus());
+    // FIXME LSM, PSM, and DPS only defined when committed but required by XSD.
+    return new ConnectionStatesType()
+        .withReservationState(getReservationState())
+        .withLifecycleState(getLifecycleState().orNull())
+        .withProvisionState(getProvisionState().orNull())
+        .withDataPlaneStatus(getDataPlaneStatus());
   }
 
   private DataPlaneStatusType getDataPlaneStatus() {
-    // FIXME committed version?
-    return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(0);
+    return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(committedVersion != null ? committedVersion : reserveVersion);
   }
 
   @Override
