@@ -22,9 +22,17 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -45,14 +53,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.scheduling.annotation.AsyncResult;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NocServiceTest {
@@ -72,11 +76,19 @@ public class NocServiceTest {
   @Mock
   private EntityManager entityManagerMock;
 
+  private TransactionOperations transactionOperations = new TransactionOperations() {
+    @Override
+    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+      return action.doInTransaction(new SimpleTransactionStatus(true));
+    }
+  };
+
   private final RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
   @Before
   public void setNocUser() {
     Security.setUserDetails(user);
+    subject.setTransactionOperations(transactionOperations);
   }
 
   @Test

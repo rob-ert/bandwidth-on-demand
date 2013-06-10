@@ -32,6 +32,12 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -39,11 +45,10 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.Collections2;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 public class NocService {
@@ -59,31 +64,42 @@ public class NocService {
   @Resource
   private PhysicalPortService physicalPortService;
 
+  @Resource
+  private TransactionOperations transactionOperations;
+
   @PersistenceContext
   private EntityManager entityManager;
 
-  @Transactional
-  public Collection<Reservation> movePort(PhysicalPort oldPort, PhysicalPort newPort) {
-    Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
-    Collection<Reservation> reservations = getActiveReservations(oldPort);
+  public Collection<Reservation> movePort(final PhysicalPort oldPort, final PhysicalPort newPort) {
+    Preconditions.checkState(
+        !TransactionSynchronizationManager.isActualTransactionActive(),
+        "transaction cannot be active");
+
+    final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
+    final Collection<Reservation> reservations = getActiveReservations(oldPort);
 
     logger.info("Move a port with {} reservations.", reservations.size());
 
     cancelReservationsAndWait(reservations);
 
-    saveNewPort(oldPort, newPort);
+    return transactionOperations.execute(new TransactionCallback<Collection<Reservation>>() {
+      @Override
+      public Collection<Reservation> doInTransaction(TransactionStatus status) {
+        saveNewPort(oldPort, newPort);
 
-    switchVirtualPortsToNewPort(newPort, virtualPorts);
+        switchVirtualPortsToNewPort(newPort, virtualPorts);
 
-    unallocateOldPort(oldPort);
+        unallocateOldPort(oldPort);
 
-    Collection<Reservation> newReservations = makeNewReserations(reservations);
+        Collection<Reservation> newReservations = makeNewReserations(reservations);
 
-    for (Reservation reservation : newReservations) {
-      reservationService.create(reservation);
-    }
+        for (Reservation reservation : newReservations) {
+          reservationService.create(reservation);
+        }
 
-    return newReservations;
+        return newReservations;
+      }
+    });
   }
 
   private Collection<Reservation> makeNewReserations(Collection<Reservation> reservations) {
@@ -145,10 +161,14 @@ public class NocService {
       // refresh the reservations, have been changed in different thread
       entityManager.refresh(reservation);
     }
-
   }
 
   private Collection<Reservation> getActiveReservations(PhysicalPort port) {
     return reservationService.findActiveByPhysicalPort(port);
+  }
+
+  @VisibleForTesting
+  void setTransactionOperations(TransactionOperations transactionOperations) {
+    this.transactionOperations = transactionOperations;
   }
 }
