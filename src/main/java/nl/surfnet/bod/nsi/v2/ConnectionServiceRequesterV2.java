@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
@@ -48,6 +49,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.springframework.stereotype.Component;
 
@@ -57,8 +59,8 @@ public class ConnectionServiceRequesterV2 {
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private ConnectionServiceRequesterClient client;
 
-  public void reserveConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+  public void reserveConfirmed(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connectionRepo.save(connection);
 
@@ -78,16 +80,30 @@ public class ConnectionServiceRequesterV2 {
         requestDetails.getReplyTo());
   }
 
-  public void abortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+  public void reserveFailed(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_FAILED);
+    connectionRepo.save(connection);
+
+    ServiceExceptionType exception = new ServiceExceptionType()
+      .withConnectionId(connection.getConnectionId())
+      .withErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId())
+      .withNsaId(requestDetails.getProviderNsa())
+      .withText(connection.getReservation().getFailedReason());
+
+    client.sendReserveFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
+  }
+
+  public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connectionRepo.save(connection);
 
     client.sendAbortConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
-  public void terminateConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+  public void terminateConfirmed(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
     connectionRepo.save(connection);
 

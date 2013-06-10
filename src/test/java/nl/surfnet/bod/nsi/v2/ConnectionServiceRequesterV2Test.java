@@ -27,10 +27,10 @@ import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
@@ -40,6 +40,7 @@ import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumT
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_ABORTING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_CHECKING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_FAILED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
 
@@ -80,6 +81,19 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_HELD));
+  }
+
+  @Test
+  public void should_goto_reserve_failed_when_sending_reserve_failed() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_CHECKING).create();
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reserveFailed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getReservationState(), is(RESERVE_FAILED));
+    assertThat(connection.getLifecycleState(), isAbsent());
+    assertThat(connection.getProvisionState(), isAbsent());
   }
 
   @Test

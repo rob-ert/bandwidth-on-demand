@@ -37,11 +37,13 @@ import com.sun.xml.ws.client.ClientTransportException;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -61,6 +63,15 @@ public class ConnectionServiceRequesterClient {
       port.reserveConfirmed(connectionId, globalReservationId, description, criteria, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Confirmed failed", e);
+    }
+  }
+
+  public void sendReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
+    ConnectionRequesterPort port = createPort(replyTo);
+    try {
+      port.reserveFailed(connectionId, connectionStates, exception, new Holder<>(header));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Failed to send Reserve Failed", e);
     }
   }
 
@@ -125,7 +136,7 @@ public class ConnectionServiceRequesterClient {
     try {
       port.querySummaryConfirmed(results, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send query summary confirmed", e);
+      log.info("Failed to send Query Summary Confirmed", e);
     }
   }
 
@@ -134,7 +145,7 @@ public class ConnectionServiceRequesterClient {
     try {
       port.queryRecursiveConfirmed(result, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send query recursive confirmed", e);
+      log.info("Failed to send Query Recursive Confirmed", e);
     }
   }
 
