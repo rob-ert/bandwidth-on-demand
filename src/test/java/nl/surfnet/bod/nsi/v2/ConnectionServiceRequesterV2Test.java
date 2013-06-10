@@ -144,7 +144,7 @@ public class ConnectionServiceRequesterV2Test {
 
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
     ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
-    verify(requesterClientMock).sendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
+    verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
     assertThat(connection.isDataPlaneActive(), is(true));
     assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
     assertThat(status.getValue().isActive(), is(true));

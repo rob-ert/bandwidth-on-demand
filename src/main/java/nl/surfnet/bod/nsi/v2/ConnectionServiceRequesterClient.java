@@ -49,6 +49,7 @@ import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -58,7 +59,8 @@ public class ConnectionServiceRequesterClient {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterClient.class);
 
-  public void sendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId,
+  @Async
+  public void asyncSendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId,
       String description, ImmutableList<ReservationConfirmCriteriaType> criteria, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
@@ -77,7 +79,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  @Async
+  public void asyncSendAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveAbortConfirmed(connectionId, new Holder<>(header));
@@ -86,7 +89,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendTerminateConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  @Async
+  public void asyncSendTerminateConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.terminateConfirmed(connectionId, new Holder<>(header));
@@ -95,7 +99,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendReserveAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  @Async
+  public void asyncSendReserveAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveAbortConfirmed(connectionId, new Holder<>(header));
@@ -105,7 +110,8 @@ public class ConnectionServiceRequesterClient {
 
   }
 
-  public void sendReserveCommitConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  @Async
+  public void asyncSendReserveCommitConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveCommitConfirmed(connectionId, new Holder<>(header));
@@ -114,7 +120,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendProvisionConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  @Async
+  public void asyncSendProvisionConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.provisionConfirmed(connectionId, new Holder<>(header));
@@ -123,7 +130,9 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
+  @Async
+  public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus,
+      XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.dataPlaneStateChange(connectionId, dataPlaneStatus, timeStamp, new Holder<>(header));
@@ -132,11 +141,13 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendDataPlaneError(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+  @Async
+  public void asyncSendDataPlaneError(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
     sendErrorEvent(EventEnumType.DATAPLANE_ERROR, header, connectionId, timeStamp, replyTo);
   }
 
-  public void sendDeactivateFailed(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+  @Async
+  public void asyncSendDeactivateFailed(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
     sendErrorEvent(EventEnumType.DEACTIVATE_FAILED, header, connectionId, timeStamp, replyTo);
   }
 
@@ -151,7 +162,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, URI replyTo) {
+  @Async
+  public void asyncSendQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.querySummaryConfirmed(results, new Holder<>(header));
@@ -160,7 +172,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, URI replyTo) {
+  @Async
+  public void asyncSendQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.queryRecursiveConfirmed(result, new Holder<>(header));
