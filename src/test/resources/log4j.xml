@@ -22,9 +22,6 @@
   <logger name="org.springframework">
     <level value="WARN" />
   </logger>
-  <logger name="org.apache.http">
-      <level value="DEBUG"/>
-  </logger>
   <logger name="nl.surfnet.bod">
     <level value="DEBUG" />
   </logger>
