@@ -48,7 +48,6 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
-
     Optional<ConnectionV2> optConnection = event.getReservation().getConnectionV2();
 
     if (!optConnection.isPresent()) {
@@ -58,8 +57,22 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     ConnectionV2 connection = optConnection.get();
 
     switch (event.getNewStatus()) {
+    case REQUESTED:
+      throw new AssertionError("Should not have got a change event going to initial state REQUESTED");
     case RESERVED:
       requester.reserveConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      break;
+    case AUTO_START:
+      requester.provisionConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      break;
+    case SCHEDULED:
+      // start time passed but no provision.. nothing to do..
+      break;
+    case RUNNING:
+      requester.dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
+      break;
+    case SUCCEEDED:
+      requester.dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
       break;
     case CANCELLED:
       // What if cancel was initiated through GUI..
@@ -69,23 +82,16 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
         requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());
       }
       break;
-    case AUTO_START:
-      requester.provisionConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+    case FAILED:
       break;
-    case SCHEDULED:
-      // start time passed but no provision.. nothing to do..
+    case NOT_ACCEPTED:
+      requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
       break;
     case TIMED_OUT:
       // end time passed but no provision.. nothing to do..
       break;
-    case RUNNING:
-      requester.dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
+    case CANCEL_FAILED:
       break;
-    case SUCCEEDED:
-      requester.dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
-      break;
-    default:
-      throw new RuntimeException("ARGG not implemented..");
     }
   }
 
