@@ -153,8 +153,8 @@ public class InventoryRetrievalClient {
     String nmsSapName = getSapName(sap);
     String managedElement = findRdnValue("ME", sap.getResourceRef()).get();
     String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
-    String nmsPortSpeed = findSscValue("Administrativespeedrate", sap.getDescribedByList()).get();
-    String supportedServiceType = findSscValue("Supportedservice", sap.getDescribedByList()).get();
+    String nmsPortSpeed = findSscValue("AdministrativeSpeedRate", sap.getDescribedByList()).get();
+    String supportedServiceType = findSscValue("SupportedServices", sap.getDescribedByList()).get();
     boolean isVlanRequired = determineVlanRequired(supportedServiceType);
 
     PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
