@@ -1,0 +1,1 @@
+ALTER TABLE connection_v2 RENAME COLUMN provision_request_details TO reserve_request_details;

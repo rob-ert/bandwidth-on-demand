@@ -36,8 +36,6 @@ public interface Connection extends Loggable, PersistableDomain {
 
   String getProviderNsa();
 
-  NsiRequestDetails getProvisionRequestDetails();
-
   NsiVersion getNsiVersion();
 
   void setReservation(Reservation reservation);

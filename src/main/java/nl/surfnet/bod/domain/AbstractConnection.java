@@ -25,7 +25,15 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
@@ -35,10 +43,7 @@ import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.joda.time.DateTime;
-
-import com.google.common.base.Optional;
 
 @MappedSuperclass
 public abstract class AbstractConnection implements Connection {
@@ -85,10 +90,6 @@ public abstract class AbstractConnection implements Connection {
   @Column(nullable = false)
   @Field
   protected int desiredBandwidth;
-
-  @OneToOne(cascade = CascadeType.ALL)
-  @IndexedEmbedded
-  protected NsiRequestDetails provisionRequestDetails;
 
   @Column(nullable = false)
   @Field
@@ -170,14 +171,6 @@ public abstract class AbstractConnection implements Connection {
 
   public void setEndTime(DateTime endTime) {
     this.endTime = endTime;
-  }
-
-  public NsiRequestDetails getProvisionRequestDetails() {
-    return provisionRequestDetails;
-  }
-
-  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
-    this.provisionRequestDetails = provisionRequestDetails;
   }
 
   public int getDesiredBandwidth() {

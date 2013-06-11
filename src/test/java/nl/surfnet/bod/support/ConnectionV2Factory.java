@@ -79,7 +79,7 @@ public class ConnectionV2Factory {
     connection.setReserveVersion(reserveVersion);
     connection.setCommittedVersion(committedVersion);
 
-    connection.setProvisionRequestDetails(provisionRequestDetails);
+    connection.setReserveRequestDetails(provisionRequestDetails);
 
     return connection;
   }

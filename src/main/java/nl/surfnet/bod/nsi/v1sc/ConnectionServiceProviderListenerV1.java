@@ -87,7 +87,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
         requester.terminateTimedOutReservation(connection);
         break;
       case RUNNING:
-        requester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+        requester.provisionConfirmed(connection, connection.getProvisionRequestDetails());
         break;
       case CANCELLED:
         requester.terminateConfirmed(connection, event.getNsiRequestDetails());

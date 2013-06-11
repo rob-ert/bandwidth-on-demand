@@ -142,16 +142,7 @@ public class ReservationPoller {
 
             reservationFresh = reservationService.updateStatus(reservationFresh, currentStatus);
 
-            Optional<NsiRequestDetails> requestDetails;
-            if (reservationFresh.getConnection().isPresent()) {
-              requestDetails = Optional.fromNullable(reservationFresh.getConnection().get().getProvisionRequestDetails());
-            }
-            else {
-              requestDetails = Optional.absent();
-            }
-
-            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh,
-                requestDetails));
+            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.<NsiRequestDetails>absent()));
 
             return;
           }

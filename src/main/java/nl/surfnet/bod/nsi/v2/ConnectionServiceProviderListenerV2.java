@@ -74,10 +74,10 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       // start time passed but no provision.. nothing to do..
       break;
     case RUNNING:
-      requester.dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
+      requester.dataPlaneActivated(connection.getId(), connection.getReserveRequestDetails());
       break;
     case SUCCEEDED:
-      requester.dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
+      requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
       break;
     case CANCELLED:
       if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
@@ -92,7 +92,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       if (connection.getReservationState() == ReservationStateEnumType.RESERVE_CHECKING) {
         requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
       } else if (connection.isDataPlaneActive()) {
-        requester.dataPlaneError(connection.getId(), connection.getProvisionRequestDetails());
+        requester.dataPlaneError(connection.getId(), connection.getReserveRequestDetails());
       } else {
         logger.warn("State transition to FAILED unhandled {}", event);
       }

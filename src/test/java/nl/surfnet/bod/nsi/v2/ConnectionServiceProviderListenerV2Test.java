@@ -194,7 +194,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verify(requesterMock).dataPlaneActivated(connection.getId(), connection.getProvisionRequestDetails());
+    verify(requesterMock).dataPlaneActivated(connection.getId(), connection.getReserveRequestDetails());
     verifyNoMoreInteractions(requesterMock);
   }
 
@@ -210,7 +210,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verify(requesterMock).dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
+    verify(requesterMock).dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
     verifyNoMoreInteractions(requesterMock);
   }
 
@@ -228,7 +228,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verify(requesterMock).dataPlaneError(connection.getId(), connection.getProvisionRequestDetails());
+    verify(requesterMock).dataPlaneError(connection.getId(), connection.getReserveRequestDetails());
     verifyNoMoreInteractions(requesterMock);
   }
 

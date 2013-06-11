@@ -48,14 +48,10 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderListenerV1Test {
 
-  @InjectMocks
-  private ConnectionServiceProviderListenerV1 subject;
+  @InjectMocks private ConnectionServiceProviderListenerV1 subject;
 
-  @Mock
-  private ConnectionServiceRequesterV1 connectionServiceRequesterMock;
-
-  @Mock
-  private ReservationService reservationServiceMock;
+  @Mock private ConnectionServiceRequesterV1 connectionServiceRequesterMock;
+  @Mock private ReservationService reservationServiceMock;
 
   @Test
   public void absentNsiRequestDetailsShouldDoNothing() {
@@ -122,8 +118,7 @@ public class ConnectionServiceProviderListenerV1Test {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVED).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).setConnectionV1(connection).create();
-    ReservationStatusChangeEvent event =
-        new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
@@ -134,17 +129,16 @@ public class ConnectionServiceProviderListenerV1Test {
 
   @Test
   public void reservationStarts() {
-    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetailsFactory().create());
-    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.AUTO_PROVISION).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.AUTO_PROVISION).setProvisionRequestDetails(requestDetails).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setConnectionV1(connection).create();
-    ReservationStatusChangeEvent event =
-        new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, requestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation, Optional.<NsiRequestDetails>absent());
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceRequesterMock).provisionConfirmed(connection, requestDetails.get());
+    verify(connectionServiceRequesterMock).provisionConfirmed(connection, requestDetails);
   }
 
   @Test

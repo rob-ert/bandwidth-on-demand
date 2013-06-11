@@ -24,10 +24,12 @@ package nl.surfnet.bod.domain;
 
 import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
@@ -40,6 +42,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
@@ -104,6 +107,10 @@ public class ConnectionV2 extends AbstractConnection {
 
   @Field
   private Integer committedVersion;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @IndexedEmbedded
+  private NsiRequestDetails reserveRequestDetails;
 
   public ConnectionV2() {
   }
@@ -248,6 +255,14 @@ public class ConnectionV2 extends AbstractConnection {
     return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(committedVersion != null ? committedVersion : reserveVersion);
   }
 
+  public NsiRequestDetails getReserveRequestDetails() {
+    return reserveRequestDetails;
+  }
+
+  public void setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
+    this.reserveRequestDetails = reserveRequestDetails;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -320,9 +335,9 @@ public class ConnectionV2 extends AbstractConnection {
       builder.append(reservation.getId()).append(" ").append(reservation.getName());
       builder.append(", ");
     }
-    if (provisionRequestDetails != null) {
-      builder.append("provisionRequestDetails=");
-      builder.append(provisionRequestDetails);
+    if (reserveRequestDetails != null) {
+      builder.append("reserveRequestDetails=");
+      builder.append(reserveRequestDetails);
     }
     builder.append("]");
     return builder.toString();

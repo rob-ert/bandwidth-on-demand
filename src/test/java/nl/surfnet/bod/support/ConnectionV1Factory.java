@@ -25,6 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.UUID;
 
 import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -47,6 +48,7 @@ public class ConnectionV1Factory {
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
+  private NsiRequestDetails provisionRequestDetails;
 
   public ConnectionV1 create() {
     ConnectionV1 connection = new ConnectionV1();
@@ -74,6 +76,8 @@ public class ConnectionV1Factory {
     pathType.setDestSTP(dstStp);
     pathType.setSourceSTP(sourceStp);
     connection.setPath(pathType);
+
+    connection.setProvisionRequestDetails(provisionRequestDetails);
 
     return connection;
   }
@@ -135,6 +139,11 @@ public class ConnectionV1Factory {
 
   public ConnectionV1Factory setDescription(String description) {
     this.description = description;
+    return this;
+  }
+
+  public ConnectionV1Factory setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.provisionRequestDetails = provisionRequestDetails;
     return this;
   }
 }

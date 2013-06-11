@@ -22,10 +22,12 @@
  */
 package nl.surfnet.bod.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
@@ -35,6 +37,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
@@ -69,6 +72,10 @@ public class ConnectionV1 extends AbstractConnection {
   @Type(type = "nl.surfnet.bod.domain.ConnectionV1$ServiceParametersTypeUserType")
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @IndexedEmbedded
+  private NsiRequestDetails provisionRequestDetails;
 
   public ConnectionV1() {
   }
@@ -123,6 +130,14 @@ public class ConnectionV1 extends AbstractConnection {
 
   public NsiVersion getNsiVersion() {
     return NsiVersion.ONE;
+  }
+
+  public NsiRequestDetails getProvisionRequestDetails() {
+    return provisionRequestDetails;
+  }
+
+  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.provisionRequestDetails = provisionRequestDetails;
   }
 
   @Override
