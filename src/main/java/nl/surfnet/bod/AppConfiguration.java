@@ -57,6 +57,7 @@ import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
@@ -72,15 +73,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod")
-@ImportResource({
-    "classpath:spring/appCtx-security.xml",
-    "classpath:spring/appCtx-ws.xml" })
+@ImportResource({ "classpath:spring/appCtx-security.xml", "classpath:spring/appCtx-ws.xml" })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
@@ -88,7 +85,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
-  private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
+  private static Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
   @Value("${jdbc.jdbcUrl}")
   private String jdbcUrl;
@@ -121,9 +118,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
-    Resource[] resources = addEnvPropertyResource(new Resource[] {
-        new ClassPathResource("bod-default.properties")
-    });
+    Resource[] resources = addEnvPropertyResource(new Resource[] { new ClassPathResource("bod-default.properties") });
 
     logger.info("Using property files: {}", Joiner.on(",").join(resources));
 
@@ -139,8 +134,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
       Resource devProperties = new ClassPathResource(getPropertyEnvName("dev"));
 
       return devProperties.exists() ? ObjectArrays.concat(resources, devProperties) : resources;
-    }
-    else {
+    } else {
       return ObjectArrays.concat(resources, new ClassPathResource(getPropertyEnvName(env)));
     }
   }
@@ -159,8 +153,10 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
   @Bean
   public JavaMailSender mailSender(
-      @Value("${mail.host}") String host, @Value("${mail.port}") int port,
-      @Value("${mail.protocol}") String protocol, @Value("${mail.debug}") boolean debug) {
+      @Value("${mail.host}") String host,
+      @Value("${mail.port}") int port,
+      @Value("${mail.protocol}") String protocol,
+      @Value("${mail.debug}") boolean debug) {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
     mailSender.setDefaultEncoding("UTF-8");
     mailSender.setHost(host);
@@ -190,18 +186,14 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   }
 
   @Bean
-  public IddClient iddclient(
-      @Value("${idd.client.class}") String iddClientClass,
-      @Value("${idd.user}") String username,
-      @Value("${idd.password}") String password,
+  public IddClient iddclient(@Value("${idd.client.class}") String iddClientClass,
+      @Value("${idd.user}") String username, @Value("${idd.password}") String password,
       @Value("${idd.url}") String endPoint) {
 
     try {
-      return (IddClient) Class.forName(iddClientClass)
-          .getConstructor(String.class, String.class, String.class)
+      return (IddClient) Class.forName(iddClientClass).getConstructor(String.class, String.class, String.class)
           .newInstance(username, password, endPoint);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -244,12 +236,13 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   }
 
   @Bean
-  public JpaTransactionManager transactionManager() {
+  public PlatformTransactionManager transactionManager() {
     return new JpaTransactionManager();
   }
 
   // TransactionTemplate is mutable, so provide a new instance to each user.
-  @Bean @Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Bean
+  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
     return new TransactionTemplate(transactionManager);
   }
@@ -263,8 +256,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   private <T> T quietlyInitiateClass(String clazz) {
     try {
       return (T) Class.forName(clazz).newInstance();
-    }
-    catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -288,53 +280,9 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     executor.setQueueCapacity(11);
     executor.setThreadNamePrefix("BoDExecutor-");
     executor.initialize();
-    return new TransactionAwareExecutor(executor);
+
+
+    return new LoggingExecutor(new TaskExecutorAdapter(new TransactionAwareExecutor(executor)), logger);
   }
 
-  /**
-   * Executor that only submits tasks after the current transaction commits. If
-   * there is no current transaction, the task is submitted immediately.
-   *
-   * Exceptions from tasks are also logged.
-   */
-  public class TransactionAwareExecutor implements Executor {
-    private final Executor executor;
-
-    public TransactionAwareExecutor(Executor executor) {
-      this.executor = executor;
-    }
-
-    @Override
-    public void execute(final Runnable task) {
-      if (TransactionSynchronizationManager.isActualTransactionActive()) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-          @Override
-          public void afterCommit() {
-            executor.execute(createWrappedRunnable(task));
-          }
-        });
-      } else {
-        executor.execute(createWrappedRunnable(task));
-      }
-    }
-
-    private Runnable createWrappedRunnable(final Runnable task) {
-      return new Runnable() {
-        @Override
-        public void run() {
-          try {
-            task.run();
-          }
-          catch (Exception e) {
-            handle(e);
-            throw e;
-          }
-        }
-      };
-    }
-
-    private void handle(Exception exception) {
-      logger.error("Exception during async call: " + exception, exception);
-    }
-  }
 }
