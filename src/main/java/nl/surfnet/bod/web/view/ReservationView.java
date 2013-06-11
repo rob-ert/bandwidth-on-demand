@@ -60,7 +60,7 @@ public class ReservationView {
   private final String reservationState;
   private final String provisionState;
   private final String lifeCycleState;
-  private final boolean dataPlaneActive;
+  private final Boolean dataPlaneActive;
 
 
   public ReservationView(Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
@@ -89,13 +89,13 @@ public class ReservationView {
       reservationState = null;
       provisionState = null;
       lifeCycleState = null;
-      dataPlaneActive = false;
+      dataPlaneActive = null;
     } else if (reservation.getConnectionV1().isPresent()) {
       ConnectionV1 connectionV1 = reservation.getConnectionV1().get();
       reservationState = null;
       provisionState = null;
       lifeCycleState = null;
-      dataPlaneActive = false;
+      dataPlaneActive = null;
       connectionState = connectionV1.getCurrentState().toString();
     } else if (reservation.getConnectionV2().isPresent()) {
       ConnectionV2 connectionV2 = reservation.getConnectionV2().get();
@@ -205,7 +205,7 @@ public class ReservationView {
     return lifeCycleState;
   }
 
-  public boolean isDataPlaneActive() {
+  public Boolean getDataPlaneActive() {
     return dataPlaneActive;
   }
 

@@ -74,23 +74,23 @@
                                         </dd>
 
                                         <c:if test="${not empty item.connectionId}">
-                                            <dt><spring:message code="label_reservation_nsi"/></dt>
-                                            <dd>
-                                                <strong><spring:message code="label_reservation_nsi_connectionid" />: </strong><c:out value="${item.connectionId}" /><br />
-                                                <c:if test="${not empty item.connectionState}">
-                                                    <strong><spring:message code="label_reservation_nsi_connection_state" />: </strong> <c:out value="${item.connectionState}" /><br/>
+                                            <dt><spring:message code="label_reservation_nsi_connectionid"/></dt>
+                                            <dd><c:out value="${item.connectionId}" /></dd>
+                                            <dt><spring:message code="label_reservation_nsi_connection_state"/></dt>
+                                            <dd><c:if test="${not empty item.connectionState}">
+                                                    <c:out value="${item.connectionState}" />
                                                 </c:if>
                                                 <c:if test="${not empty item.reservationState}">
-                                                    <strong><spring:message code="label_reservation_nsi_connection_reservation_state" />: </strong><c:out value="${item.reservationState}" /><br/>
+                                                    <c:out value="${item.reservationState}" />
                                                 </c:if>
                                                 <c:if test="${not empty item.provisionState}">
-                                                    <strong><spring:message code="label_reservation_nsi_connection_provision_state" />: </strong><c:out value="${item.provisionState}" /><br />
+                                                    <c:out value=", ${item.provisionState}" />
                                                 </c:if>
                                                 <c:if test="${not empty item.lifeCycleState}">
-                                                    <strong><spring:message code="label_reservation_nsi_connection_lifecycle_state" />: </strong><c:out value="${item.lifeCycleState}" /><br />
+                                                    <c:out value=", ${item.lifeCycleState}" />
                                                 </c:if>
                                                 <c:if test="${not empty item.dataPlaneActive}">
-                                                    <strong><spring:message code="label_reservation_nsi_connection_dataplane_active" />: </strong><c:out value="${item.dataPlaneActive}" />
+                                                    <c:out value=", ${item.dataPlaneActive}" />
                                                 </c:if>
                                             </dd>
                                         </c:if>

@@ -29,6 +29,8 @@ import nl.surfnet.bod.domain.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.surfnet.bod.support.ConnectionV1Factory;
+import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
@@ -98,15 +100,14 @@ public class ReservationViewTest {
     assertThat(reservationView.getReservationState(), nullValue());
     assertThat(reservationView.getProvisionState(), nullValue());
     assertThat(reservationView.getLifeCycleState(), nullValue());
-    assertThat(reservationView.isDataPlaneActive(), is(false));
+    assertThat(reservationView.getDataPlaneActive(), nullValue());
 
   }
 
   @Test
   public void shouldOnlyFillConnectionStateWhenV1ConnectionPresent(){
     String id = "foo";
-    ConnectionV1 connectionV1 = new ConnectionV1();
-    connectionV1.setConnectionId(id);
+    ConnectionV1 connectionV1 = new ConnectionV1Factory().setConnectionId(id).create();
 
     Reservation reservation = new ReservationFactory().setConnectionV1(connectionV1).create();
     ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
@@ -115,7 +116,7 @@ public class ReservationViewTest {
     assertThat(reservationView.getReservationState(), nullValue());
     assertThat(reservationView.getProvisionState(), nullValue());
     assertThat(reservationView.getLifeCycleState(), nullValue());
-    assertThat(reservationView.isDataPlaneActive(), is(false));
+    assertThat(reservationView.getDataPlaneActive(), nullValue());
   }
 
   @Test
@@ -127,13 +128,13 @@ public class ReservationViewTest {
     final LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
     final boolean dataPlaneActive = true;
 
-    ConnectionV2 connectionV2 = new ConnectionV2();
-    connectionV2.setConnectionId(id);
+    ConnectionV2 connectionV2 = new ConnectionV2Factory()
+      .setReservationState(reservationState)
+      .setProvisionState(provisionState)
+      .setLifecycleState(lifecycleState)
+      .setDataPlaneActive(dataPlaneActive)
+      .setConnectionId(id).create();
 
-    connectionV2.setReservationState(reservationState);
-    connectionV2.setProvisionState(provisionState);
-    connectionV2.setLifecycleState(lifecycleState);
-    connectionV2.setDataPlaneActive(dataPlaneActive);
 
     Reservation reservation = new ReservationFactory().setConnectionV2(connectionV2).create();
     ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
@@ -142,8 +143,7 @@ public class ReservationViewTest {
     assertThat(reservationView.getReservationState(), is(reservationState.name()));
     assertThat(reservationView.getProvisionState(), is(provisionState.name()));
     assertThat(reservationView.getLifeCycleState(), is(lifecycleState.name()));
-    assertThat(reservationView.isDataPlaneActive(), is(dataPlaneActive));
+    assertThat(reservationView.getDataPlaneActive(), is(dataPlaneActive));
   }
-
 
 }
