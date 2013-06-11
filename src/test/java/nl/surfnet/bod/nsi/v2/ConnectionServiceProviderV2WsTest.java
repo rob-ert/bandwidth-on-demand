@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -44,8 +45,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.xml.ws.Holder;
-
-import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -116,7 +115,10 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getGlobalReservationId(), is("globalReservationId"));
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
     assertThat(connection.getValue().getReserveVersion(), is(3));
-    assertThat(connection.getValue().getCommittedVersion(), is(Optional.<Integer>absent()));
+    assertThat(connection.getValue().getCommittedVersion(), isAbsent());
+    assertThat(connection.getValue().getDataPlaneActive(), isAbsent());
+    assertThat(connection.getValue().getLifecycleState(), isAbsent());
+    assertThat(connection.getValue().getProvisionState(), isAbsent());
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }

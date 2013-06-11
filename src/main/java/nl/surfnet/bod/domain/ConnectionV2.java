@@ -34,6 +34,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.util.NsiV2UserType;
@@ -101,7 +102,7 @@ public class ConnectionV2 extends AbstractConnection {
   private TypeValuePairListType serviceAttributes;
 
   @Field
-  private boolean dataPlaneActive = false;
+  private Boolean dataPlaneActive;
 
   @NotNull
   @Field
@@ -167,11 +168,11 @@ public class ConnectionV2 extends AbstractConnection {
     return NsiVersion.TWO;
   }
 
-  public boolean isDataPlaneActive() {
-    return dataPlaneActive;
+  public Optional<Boolean> getDataPlaneActive() {
+    return Optional.fromNullable(dataPlaneActive);
   }
 
-  public void setDataPlaneActive(boolean dataPlaneActive) {
+  public void setDataPlaneActive(Boolean dataPlaneActive) {
     this.dataPlaneActive = dataPlaneActive;
   }
 
@@ -264,11 +265,18 @@ public class ConnectionV2 extends AbstractConnection {
         .withReservationState(getReservationState())
         .withLifecycleState(getLifecycleState().orNull())
         .withProvisionState(getProvisionState().orNull())
-        .withDataPlaneStatus(getDataPlaneStatus());
+        .withDataPlaneStatus(getDataPlaneStatus().orNull());
   }
 
-  private DataPlaneStatusType getDataPlaneStatus() {
-    return new DataPlaneStatusType().withActive(dataPlaneActive).withVersionConsistent(true).withVersion(committedVersion != null ? committedVersion : reserveVersion);
+  private Optional<DataPlaneStatusType> getDataPlaneStatus() {
+    return getDataPlaneActive().transform(new Function<Boolean, DataPlaneStatusType>() {
+      public DataPlaneStatusType apply(Boolean active) {
+        return new DataPlaneStatusType()
+          .withActive(dataPlaneActive)
+          .withVersionConsistent(true)
+          .withVersion(committedVersion != null ? committedVersion : reserveVersion);
+      }
+    });
   }
 
   public NsiRequestDetails getReserveRequestDetails() {

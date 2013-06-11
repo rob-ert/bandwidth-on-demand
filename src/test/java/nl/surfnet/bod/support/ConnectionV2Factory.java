@@ -52,7 +52,7 @@ public class ConnectionV2Factory {
   private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
   private ProvisionStateEnumType provisionState;
   private LifecycleStateEnumType lifecycleState;
-  private boolean dataPlaneActive;
+  private Boolean dataPlaneActive;
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
   private NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();

@@ -126,7 +126,7 @@ public class ReservationViewTest {
     final ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_CHECKING;
     final ProvisionStateEnumType provisionState = ProvisionStateEnumType.PROVISIONED;
     final LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
-    final boolean dataPlaneActive = true;
+    final Boolean dataPlaneActive = true;
 
     ConnectionV2 connectionV2 = new ConnectionV2Factory()
       .setReservationState(reservationState)
@@ -143,7 +143,7 @@ public class ReservationViewTest {
     assertThat(reservationView.getReservationState(), is(reservationState.name()));
     assertThat(reservationView.getProvisionState(), is(provisionState.name()));
     assertThat(reservationView.getLifeCycleState(), is(lifecycleState.name()));
-    assertThat(reservationView.getDataPlaneActive(), is(dataPlaneActive));
+    assertThat(reservationView.getDataPlaneActive(), is(dataPlaneActive.toString()));
   }
 
 }

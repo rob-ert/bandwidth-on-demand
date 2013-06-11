@@ -91,7 +91,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     case FAILED:
       if (connection.getReservationState() == ReservationStateEnumType.RESERVE_CHECKING) {
         requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
-      } else if (connection.isDataPlaneActive()) {
+      } else if (connection.getDataPlaneActive().or(false)) {
         requester.dataPlaneError(connection.getId(), connection.getReserveRequestDetails());
       } else {
         logger.warn("State transition to FAILED unhandled {}", event);

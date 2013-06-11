@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
@@ -123,6 +124,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
+    connection.setDataPlaneActive(false);
     connectionRepo.save(connection);
 
     client.asyncSendReserveCommitConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
@@ -172,7 +174,9 @@ public class ConnectionServiceRequesterV2 {
   }
 
   private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
-    DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.isDataPlaneActive()).withVersion(0).withVersionConsistent(true);
+    checkArgument(connection.getDataPlaneActive().isPresent());
+
+    DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.getDataPlaneActive().get()).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
     CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());

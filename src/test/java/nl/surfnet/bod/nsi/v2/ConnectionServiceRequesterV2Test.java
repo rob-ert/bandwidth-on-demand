@@ -107,6 +107,7 @@ public class ConnectionServiceRequesterV2Test {
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getLifecycleState(), isAbsent());
     assertThat(connection.getProvisionState(), isAbsent());
+    assertThat(connection.getDataPlaneActive(), isAbsent());
   }
 
   @Test
@@ -120,6 +121,7 @@ public class ConnectionServiceRequesterV2Test {
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getLifecycleState(), isPresent(CREATED));
     assertThat(connection.getProvisionState(), isPresent(RELEASED));
+    assertThat(connection.getDataPlaneActive(), isPresent(false));
   }
 
   @Test
@@ -145,7 +147,7 @@ public class ConnectionServiceRequesterV2Test {
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
     ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
     verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
-    assertThat(connection.isDataPlaneActive(), is(true));
+    assertThat(connection.getDataPlaneActive(), isPresent(true));
     assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
     assertThat(status.getValue().isActive(), is(true));
   }
@@ -158,7 +160,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.dataPlaneDeactivated(1L, new NsiRequestDetailsFactory().create());
 
-    assertThat(connection.isDataPlaneActive(), is(false));
+    assertThat(connection.getDataPlaneActive(), isPresent(false));
   }
 
   @Test
