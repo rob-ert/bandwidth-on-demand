@@ -27,6 +27,7 @@ import java.util.UUID;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
@@ -54,6 +55,7 @@ public class ConnectionV2Factory {
   private boolean dataPlaneActive;
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
+  private NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -76,6 +78,8 @@ public class ConnectionV2Factory {
 
     connection.setReserveVersion(reserveVersion);
     connection.setCommittedVersion(committedVersion);
+
+    connection.setProvisionRequestDetails(provisionRequestDetails);
 
     return connection;
   }

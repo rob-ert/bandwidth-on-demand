@@ -39,11 +39,13 @@ import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceReque
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -79,7 +81,7 @@ public class ConnectionServiceRequesterClient {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveAbortConfirmed(connectionId, new Holder<>(header));
-    } catch (ServiceException e) {
+    } catch (ClientTransportException | ServiceException e) {
       log.info("Sending Reserve Abort Confirmed failed", e);
     }
   }
@@ -121,13 +123,31 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus,
-      XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void sendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.dataPlaneStateChange(connectionId, dataPlaneStatus, timeStamp, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
+    }
+  }
+
+  public void sendDataPlaneError(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    sendErrorEvent(EventEnumType.DATAPLANE_ERROR, header, connectionId, timeStamp, replyTo);
+  }
+
+  public void sendDeactivateFailed(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    sendErrorEvent(EventEnumType.DEACTIVATE_FAILED, header, connectionId, timeStamp, replyTo);
+  }
+
+  private void sendErrorEvent(EventEnumType type, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    TypeValuePairListType additionalInfo = null;
+    ServiceExceptionType serviceException = null;
+    ConnectionRequesterPort port = createPort(replyTo);
+    try {
+      port.errorEvent(connectionId, type, timeStamp, additionalInfo, serviceException, new Holder<>(header));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Failed to send Data Plane Error ({})", type);
     }
   }
 

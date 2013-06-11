@@ -152,6 +152,25 @@ public class ConnectionServiceRequesterV2 {
     sendDataPlaneStatus(requestDetails, connection, DateTime.now());
   }
 
+  public void dataPlaneError(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
+    connection.setDataPlaneActive(false);
+    connection.setLifecycleState(LifecycleStateEnumType.FAILED);
+    connectionRepo.save(connection);
+
+    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
+
+    client.sendDataPlaneError(requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+  }
+
+  public void deactivateFailed(Long id, NsiRequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
+
+    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
+
+    client.sendDeactivateFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+  }
+
   private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.isDataPlaneActive()).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);

@@ -33,10 +33,15 @@ import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConnectionServiceProviderListenerV2 implements ReservationListener {
+
+  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListenerV2.class);
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private ConnectionServiceRequesterV2 requester;
@@ -75,14 +80,22 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       requester.dataPlaneDeactivated(connection.getId(), connection.getProvisionRequestDetails());
       break;
     case CANCELLED:
-      // What if cancel was initiated through GUI..
       if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
         requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
-      } else {
+      } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_ABORTING){
         requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      } else if (event.getNsiRequestDetails().isPresent()) {
+        logger.warn("State transition to CANCELLED unhandled {}", event);
       }
       break;
     case FAILED:
+      if (connection.getReservationState() == ReservationStateEnumType.RESERVE_CHECKING) {
+        requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
+      } else if (connection.isDataPlaneActive()) {
+        requester.dataPlaneError(connection.getId(), connection.getProvisionRequestDetails());
+      } else {
+        logger.warn("State transition to FAILED unhandled {}", event);
+      }
       break;
     case NOT_ACCEPTED:
       requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
@@ -91,6 +104,11 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       // end time passed but no provision.. nothing to do..
       break;
     case CANCEL_FAILED:
+      if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
+        requester.deactivateFailed(connection.getId(), event.getNsiRequestDetails().get());
+      } else {
+        logger.warn("State transition to CANCEL_FAILED unhandled {}", event);
+      }
       break;
     }
   }
