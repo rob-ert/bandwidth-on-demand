@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -198,7 +199,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withServiceAttributes(new TypeValuePairListType()
     );
 
-    String correlationId = "foo";
+    String correlationId = "urn:uuid:" + UUID.randomUUID().toString();
     Holder<String> connectionId = new Holder<>(null);
     connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(correlationId));
     assertThat(connectionId.value, is(notNullValue()));

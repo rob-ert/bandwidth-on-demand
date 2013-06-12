@@ -24,9 +24,22 @@ package nl.surfnet.bod.support.soap;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -56,6 +69,9 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Simple server that always replies "200 OK" and exposes a stack of response objects,
@@ -66,23 +82,21 @@ public class SoapReplyListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SoapReplyListener.class);
 
+  private static String[] SCHEMA_LOCATIONS = {
+      "/wsdl/soap/soap-envelope-1.1.xsd",
+      "/wsdl/2.0/xmldsig-core-schema.xsd",
+      "/wsdl/2.0/xenc-schema.xsd",
+      "/wsdl/2.0/saml-schema-assertion-2.0.xsd",
+      "/wsdl/2.0/ogf_nsi_framework_types_v2_0.xsd",
+      "/wsdl/2.0/ogf_nsi_connection_types_v2_0.xsd",
+      "/wsdl/2.0/ogf_nsi_framework_headers_v2_0.xsd"
+  };
+
   private Stack<String> responses = new Stack<>();
 
-  public String waitForReply(){
+  private static int LISTEN_TIMEOUT = 5000;
 
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e) {
-      throw new IllegalStateException("No reply received in time!");
-    }
-
-    // TODO perform XML/XSD validation at this point, throw some RuntimeException if it fails
-    return responses.pop();
-  }
-
-
-  public SoapReplyListener(Integer port) {
-
+  public SoapReplyListener(final Integer port) {
     try {
       Thread t = new RequestListenerThread(port, responses);
       t.setDaemon(false);
@@ -91,6 +105,59 @@ public class SoapReplyListener {
       LOG.error("Unable to start soap reply listener... Something else still running on our port? (=" + port + ") ", e);
     }
 
+  }
+
+
+  public String waitForReply(){
+    try {
+      Thread.sleep(LISTEN_TIMEOUT);
+    } catch (InterruptedException e) {
+      throw new IllegalStateException("No reply received in time!");
+    }
+    String reply = responses.pop();
+    LOG.debug("reply body: " + reply);
+    validate(reply);
+
+    return reply;
+  }
+
+  public static void validate(String xml){
+    // Docs state that SchemaFactory is not thread-safe...
+    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    List<StreamSource> schemaSources = new ArrayList<>();
+    for (String location: SCHEMA_LOCATIONS){
+      schemaSources.add(new StreamSource(SoapReplyListener.class.getResourceAsStream(location)));
+    }
+
+    Schema schema;
+    try {
+      schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      schema = schemaFactory.newSchema(schemaSources.toArray(new Source[0]));
+    } catch (SAXException e) {
+      throw new RuntimeException("Failed to parse schema files: ", e);
+    }
+    Validator validator = schema.newValidator();
+    try {
+
+      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+      documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      documentBuilderFactory.setNamespaceAware(true);
+      documentBuilderFactory.setIgnoringComments(true);
+      documentBuilderFactory.setIgnoringElementContentWhitespace(true);
+      documentBuilderFactory.setSchema(schema);
+
+
+      InputSource is = new InputSource(new StringReader(xml));
+      Document document = documentBuilderFactory.newDocumentBuilder().parse(is);
+
+      validator.validate(new DOMSource(document));
+    } catch (SAXException e) {
+      throw new IllegalStateException("XML message did not validate, reason: " + e.getMessage(), e);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (ParserConfigurationException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   static class SoapPostRequestHandler implements HttpRequestHandler {
