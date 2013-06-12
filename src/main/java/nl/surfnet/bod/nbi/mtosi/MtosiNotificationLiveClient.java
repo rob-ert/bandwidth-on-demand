@@ -43,8 +43,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.*;
 @Service("mtosiNotificationLiveClient")
 public class MtosiNotificationLiveClient {
 
-  private static final String WSDL_LOCATION =
-    "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
+  private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 

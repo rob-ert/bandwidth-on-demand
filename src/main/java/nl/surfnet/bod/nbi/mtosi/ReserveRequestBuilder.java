@@ -29,7 +29,7 @@ import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createSscValue;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
+import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -37,13 +37,13 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sb.xsd.svc.v1.*;
-
-import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
-import com.google.common.annotations.VisibleForTesting;
+import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 public class ReserveRequestBuilder {
 
@@ -60,24 +60,11 @@ public class ReserveRequestBuilder {
 
     rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort(), sequence));
 
-    rfsData.setVendorExtensions(createVendorExtensions(reservation.getStartDateTime()));
-
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
     reserveRequest.setRfsCreateData(rfsData);
 
     return reserveRequest;
-  }
-
-  private JAXBElement<AnyListType> createVendorExtensions(DateTime startDateTime) {
-    Nvs nvs = new Nvs();
-    nvs.setName("startTime");
-    nvs.setValue(convertToXml(startDateTime));
-
-    AnyListType anyListType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
-    anyListType.getAny().add(nvs);
-
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeVendorExtensions(anyListType);
   }
 
   @VisibleForTesting
@@ -127,7 +114,7 @@ public class ReserveRequestBuilder {
     rfsData.setAdminState(AdminStateType.UNLOCKED);
     rfsData.setServiceState(ServiceStateType.RESERVED);
 
-    rfsData.getDescribedByList().add(createSscValue("startTime", convertToXml(reservation.getStartDateTime())));
+    rfsData.getDescribedByList().add(createSscValue("StartTime", convertToXml(reservation.getStartDateTime())));
     rfsData.getDescribedByList().add(createSscValue("AdmissionControl", "Strict"));
 
     return rfsData;

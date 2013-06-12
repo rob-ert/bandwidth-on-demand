@@ -168,28 +168,6 @@ public class MtosiUtilsTest {
   }
 
   @Test
-  public void shouldGetSecondaryStateFromRfs() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    String secondaryState = MtosiUtils.getSecondaryState(firstRfs);
-
-    assertThat(secondaryState, is("INITIAL"));
-  }
-
-  @Test
-  public void shouldGetStartTimeFromRfs() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    DateTime startTime = MtosiUtils.getStartTime(firstRfs);
-
-    assertThat(startTime.getYear(), is(2012));
-    assertThat(startTime.getDayOfMonth(), is(24));
-    assertThat(startTime.getMonthOfYear(), is(11));
-    assertThat(startTime.getHourOfDay(), is(12));
-    assertThat(startTime.getMinuteOfHour(), is(32));
-  }
-
-  @Test
   public void shouldFindVendorExtensionStartTime() {
     ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
 

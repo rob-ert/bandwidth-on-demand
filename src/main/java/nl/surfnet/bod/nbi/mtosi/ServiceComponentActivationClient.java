@@ -107,7 +107,7 @@ public class ServiceComponentActivationClient {
     }
     catch (ActivateException e) {
       BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
-      logger.warn("Could not activate reservation {} because {}", reservation.getReservationId(), baseExceptionMessage.getReason());
+      logger.warn("Could not activate reservation {} because {}", reservation, baseExceptionMessage.getReason());
       throw new AssertionError(baseExceptionMessage.getReason(), e);
     }
   }

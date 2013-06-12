@@ -30,9 +30,14 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
@@ -46,12 +51,6 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 public final class MtosiUtils {
 
@@ -95,18 +94,18 @@ public final class MtosiUtils {
     return findRdnValue("RFS", rfs.getName().getValue()).get();
   }
 
-  public static DateTime getStartTime(ResourceFacingServiceType rfs) {
-    return findVendorExtension("startTime", rfs).transform(new Function<String, DateTime>() {
-      @Override
-      public DateTime apply(String time) {
-        return DateTime.parse(time);
-      }
-    }).get();
-  }
+//  public static DateTime getStartTime(ResourceFacingServiceType rfs) {
+//    return findVendorExtension("StartTime", rfs).transform(new Function<String, DateTime>() {
+//      @Override
+//      public DateTime apply(String time) {
+//        return DateTime.parse(time);
+//      }
+//    }).get();
+//  }
 
-  public static String getSecondaryState(ResourceFacingServiceType rfs) {
-    return findVendorExtension("secondaryState", rfs).get();
-  }
+//  public static String getSecondaryState(ResourceFacingServiceType rfs) {
+//    return findVendorExtension("SecondaryState", rfs).get();
+//  }
 
   public static Optional<String> findVendorExtension(final String name, ResourceFacingServiceType rfs) {
     List<Object> anys = rfs.getVendorExtensions().getValue().getAny();

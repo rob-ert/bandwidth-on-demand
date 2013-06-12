@@ -72,14 +72,19 @@ public class ServiceComponentActivationClientTestIntegration {
   @Test
   @Ignore
   public void shouldCreateReservation() {
-    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
-    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
+//    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
+//    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
+    PhysicalPort sourcePort = createPort("00:03:18:f2:9a:30-3", "00:03:18:f2:9a:30", "1-1-1-3-1");
+    PhysicalPort destPort = createPort("00:03:18:f2:9a:30-2", "00:03:18:f2:9a:30", "1-1-1-2-1");
+//    PhysicalPort destPort = createPort("00:03:18:f2:9a:50-4", "00:03:18:f2:9a:50", "1-1-1-4");
 
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
-      .setStartDateTime(DateTime.now().plusMinutes(2))
-      .setEndDateTime(DateTime.now().plusMinutes(20))
-      .setName("mtosiSurfTest5")
+      .setReservationId("HansAlanTest7")
+      .setStartDateTime(DateTime.now().plusMinutes(25))
+      .setEndDateTime(DateTime.now().plusMinutes(45))
+      .setName("HansAlanTest7")
+      .setBandwidth(100)
+      .withoutProtection()
       .create();
 
     reservation.getSourcePort().setPhysicalPort(sourcePort);
@@ -91,10 +96,10 @@ public class ServiceComponentActivationClientTestIntegration {
   }
 
   @Test
-  @Ignore
+//  @Ignore
   public void shouldActivateReservation() {
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
+      .setReservationId("HansAlanTest6")
       .create();
 
     subject.activate(reservation);
@@ -104,7 +109,7 @@ public class ServiceComponentActivationClientTestIntegration {
   @Ignore
   public void shouldTerminateReservation() {
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
+      .setReservationId("HansAlanTest5")
       .create();
 
     subject.terminate(reservation);
