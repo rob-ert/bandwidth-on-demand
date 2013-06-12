@@ -37,12 +37,15 @@ import javax.xml.namespace.QName;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.util.NsiV2UserType;
+import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
@@ -111,6 +114,11 @@ public class ConnectionV2 extends AbstractConnection {
   @OneToOne(cascade = CascadeType.ALL)
   @IndexedEmbedded
   private NsiRequestDetails reserveRequestDetails;
+
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  @Field
+  @FieldBridge(impl = TimeStampBridge.class)
+  private DateTime reserveHeldTimeout;
 
   public ConnectionV2() {
   }
@@ -181,6 +189,14 @@ public class ConnectionV2 extends AbstractConnection {
 
   public Optional<Integer> getCommittedVersion() {
     return Optional.fromNullable(committedVersion);
+  }
+
+  public void setReserveHeldTimeout(DateTime reserveHeldTimeout) {
+    this.reserveHeldTimeout = reserveHeldTimeout;
+  }
+
+  public DateTime getReserveHeldTimeout() {
+    return reserveHeldTimeout;
   }
 
   public QuerySummaryResultType getQuerySummaryResult() {
