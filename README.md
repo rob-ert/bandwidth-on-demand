@@ -28,7 +28,7 @@ Running all the selenium tests
 
 Running a single test
 
-    mvn verify -Pselenium -Dit.test=ReservationTestSeleniu
+    mvn verify -Pselenium -Dit.test=ReservationTestSelenium
 
 If you want to run the selenium tests from your IDE (like Eclipse), you could start a local server with selenium settings.
 
