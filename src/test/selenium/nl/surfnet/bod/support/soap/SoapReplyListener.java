@@ -66,10 +66,6 @@ public class SoapReplyListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SoapReplyListener.class);
 
-  public Stack<String> getResponses() {
-    return responses;
-  }
-
   private Stack<String> responses = new Stack<>();
 
   public String waitForReply(){
@@ -80,6 +76,7 @@ public class SoapReplyListener {
       throw new IllegalStateException("No reply received in time!");
     }
 
+    // TODO perform XML/XSD validation at this point, throw some RuntimeException if it fails
     return responses.pop();
   }
 

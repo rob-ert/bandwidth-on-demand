@@ -22,65 +22,39 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.surfnet.bod.pages.AbstractListPage;
-
+import nl.surfnet.bod.pages.AbstractPage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualPortPage extends AbstractListPage {
+public class OauthTokenRequestFormPage extends AbstractPage {
 
-  private static final String PAGE = "/virtualports";
+  @FindBy(css = "input[name='username']")
+  private WebElement identifierField;
 
-  @FindBy(id = "reqVpId")
-  private WebElement requestVirtualPortLink;
+  @FindBy(css = "input[name='password']")
+  private WebElement passwordField;
 
-  public ListVirtualPortPage(RemoteWebDriver driver) {
+  @FindBy(className = "btn-primary")
+  private WebElement loginButton;
+
+  public OauthTokenRequestFormPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver) {
-    ListVirtualPortPage page = new ListVirtualPortPage(driver);
+  public static OauthTokenRequestFormPage get(RemoteWebDriver driver){
+    OauthTokenRequestFormPage page = new OauthTokenRequestFormPage(driver);
     PageFactory.initElements(driver, page);
-
     return page;
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
-  }
+  public OauthTokensPage fillAndSubmit(String username, String password) {
+    identifierField.sendKeys(username);
+    passwordField.sendKeys(password);
+    loginButton.click();
 
-  public EditVirtualPortPage edit(String oldLabel) {
-    editRow(oldLabel);
-    return EditVirtualPortPage.get(getDriver());
-  }
-
-  public RequestNewVirtualPortSelectTeamPage requestVirtualPort() {
-    requestVirtualPortLink.click();
-
-    return RequestNewVirtualPortSelectTeamPage.get(getDriver());
-  }
-
-  public void verifyIsCurrentPage() {
-    super.verifyIsCurrentPage(PAGE);
-  }
-
-  public List<String> getAllVirtualPortIds() {
-    // their details which we are after actually have to be visible
-    for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
-      moreLink.click();
-    }
-    List<WebElement> ddElements = getDriver().findElementsByClassName("nsiStpId");
-    List<String> virtualPortIds = new ArrayList<>();
-    for(WebElement webElement: ddElements) {
-      virtualPortIds.add(webElement.getText());
-    }
-    return virtualPortIds;
+    return OauthTokensPage.get(getDriver());
   }
 
 }

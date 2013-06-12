@@ -22,65 +22,47 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.surfnet.bod.pages.AbstractListPage;
-
+import com.google.common.base.Optional;
+import nl.surfnet.bod.pages.AbstractPage;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualPortPage extends AbstractListPage {
+public class OauthTokensPage extends AbstractPage{
 
-  private static final String PAGE = "/virtualports";
+  private static final String PAGE = "/oauth2/tokens";
 
-  @FindBy(id = "reqVpId")
-  private WebElement requestVirtualPortLink;
+  @FindBy(className = "requestLink")
+  private WebElement requestLink;
 
-  public ListVirtualPortPage(RemoteWebDriver driver) {
+
+  @FindBy(className = "nsiToken")
+  private WebElement nsiToken;
+
+  public OauthTokensPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver) {
-    ListVirtualPortPage page = new ListVirtualPortPage(driver);
-    PageFactory.initElements(driver, page);
+  public Optional<String> getToken(){
+    try{
+      return Optional.of(nsiToken.getAttribute("value"));
+    }catch (NoSuchElementException e){
+      return Optional.absent();
+    }
+  }
 
+  public static OauthTokensPage get(RemoteWebDriver driver){
+    OauthTokensPage page = new OauthTokensPage(driver);
+    PageFactory.initElements(driver, page);
     return page;
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
+  public OauthAuthorizePage clickRequestButton(){
+    requestLink.click();
+    OauthAuthorizePage page = OauthAuthorizePage.get(getDriver());
+    PageFactory.initElements(getDriver(), page);
+    return page;
   }
-
-  public EditVirtualPortPage edit(String oldLabel) {
-    editRow(oldLabel);
-    return EditVirtualPortPage.get(getDriver());
-  }
-
-  public RequestNewVirtualPortSelectTeamPage requestVirtualPort() {
-    requestVirtualPortLink.click();
-
-    return RequestNewVirtualPortSelectTeamPage.get(getDriver());
-  }
-
-  public void verifyIsCurrentPage() {
-    super.verifyIsCurrentPage(PAGE);
-  }
-
-  public List<String> getAllVirtualPortIds() {
-    // their details which we are after actually have to be visible
-    for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
-      moreLink.click();
-    }
-    List<WebElement> ddElements = getDriver().findElementsByClassName("nsiStpId");
-    List<String> virtualPortIds = new ArrayList<>();
-    for(WebElement webElement: ddElements) {
-      virtualPortIds.add(webElement.getText());
-    }
-    return virtualPortIds;
-  }
-
 }

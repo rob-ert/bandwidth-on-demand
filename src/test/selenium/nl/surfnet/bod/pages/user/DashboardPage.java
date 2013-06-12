@@ -110,6 +110,17 @@ public class DashboardPage extends AbstractListPage {
     clickMenuLink("Advanced");
   }
 
+  public AdvancedPage clickAdvancedMenuLink(){
+    clickMenuLink("Advanced");
+    AdvancedPage page = AdvancedPage.get(getDriver());
+    return page;
+  }
+
+  public ListVirtualPortPage clickVirtualPortsLink(){
+    clickMenuLink("Virtual Ports");
+    return ListVirtualPortPage.get(getDriver());
+  }
+
   public void verifyMenuOverview() {
     clickMenuLink("Overview");
     verifyIsCurrentPage();

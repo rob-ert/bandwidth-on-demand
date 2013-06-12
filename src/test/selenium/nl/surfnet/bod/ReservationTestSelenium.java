@@ -25,10 +25,11 @@ package nl.surfnet.bod;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -36,12 +37,17 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import nl.surfnet.bod.support.soap.SoapReplyListener;
+import nl.surfnet.bod.support.soap.VirtualPortDefinition;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -57,6 +63,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteria
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -71,10 +78,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   private static final Integer REPLY_SERVER_PORT = 31337;
   private static final String REPLY_PATH = "http://localhost:" + REPLY_SERVER_PORT + "/";
 
-  private String OAUTH_TOKEN = "a7dc882f-64b2-40d6-a208-3f59efb7a7ef";
 
-  private SoapReplyListener soapReplyListener;
-  private ConnectionProviderPort connectionServiceProviderPort;
 
   @Override
   public void setupInitialData() {
@@ -93,17 +97,6 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
-  }
-
-  @Before
-  public void before(){
-
-    // set and retrieve the oauth token that we can use when using the soap api
-
-
-    soapReplyListener = new SoapReplyListener(REPLY_SERVER_PORT);
-    connectionServiceProviderPort = createPort();
-
   }
 
   @After
@@ -177,67 +170,89 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  @Ignore
-  public void createAndCancelAReservationThroughSoap() {
+  public void createAndCancelAReservationThroughSoap() throws Exception {
 
     LocalDateTime startTime = LocalDateTime.now().plusHours(1);
     LocalDateTime endTime = LocalDateTime.now();
+    String oauthToken = getUserDriver().requestOauthToken();
+
+    SoapReplyListener soapReplyListener = new SoapReplyListener(REPLY_SERVER_PORT);
+    ConnectionProviderPort connectionServiceProviderPort = createPort(oauthToken);
+
+    List<String> virtualPortIds = getUserDriver().getVirtualPortIds();
+
+    Function<String, VirtualPortDefinition> stringToPortDef =
+        new Function<String, VirtualPortDefinition>() {
+          public VirtualPortDefinition apply(String port) {
+            final String[] parts = port.split(":");
+            return new VirtualPortDefinition(StringUtils.join(parts, ":", 0, parts.length - 1), parts[parts.length - 1]);
+          }
+        };
+
+    List<VirtualPortDefinition> portDefinitions = Lists.transform(virtualPortIds, stringToPortDef);
+    assertTrue("We need at least two portDefinitions to be able to continue", portDefinitions.size() >= 2);
+    VirtualPortDefinition sourceVirtualPortDefinition = portDefinitions.get(0);
+    VirtualPortDefinition destVirtualPortDefinition = portDefinitions.get(1);
+
+    GregorianCalendar gregorianCalendar = new GregorianCalendar();
+
+    gregorianCalendar.setTime(startTime.toDate());
+    XMLGregorianCalendar xmlGregorianCalendarStart = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+
+    gregorianCalendar.setTime(endTime.toDate());
+    XMLGregorianCalendar xmlGregorianCalendarEnd = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
 
 
-    try {
+    String description = "NSI v2 Reservation";
+    String globalReservationId = NsiHelper.generateGlobalReservationId();
+    ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
+        .withSchedule(new ScheduleType()
+            .withStartTime(xmlGregorianCalendarStart)
+            .withEndTime(xmlGregorianCalendarEnd)
+        )
+        .withBandwidth(100)
+        .withPath(new PathType()
+            .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+            .withSourceSTP(new StpType()
+                .withNetworkId(sourceVirtualPortDefinition.networkId)
+                .withLocalId(sourceVirtualPortDefinition.localId)
+            )
+            .withDestSTP(new StpType()
+                .withNetworkId(destVirtualPortDefinition.networkId)
+                .withLocalId(destVirtualPortDefinition.localId)
+            )
+        )
+        .withServiceAttributes(new TypeValuePairListType()
+    );
 
-      GregorianCalendar gregorianCalendar = new GregorianCalendar();
+    String correlationId = "foo";
+    connectionServiceProviderPort.reserve(null, globalReservationId, description, criteria, createHeader(correlationId));
+    String reply = soapReplyListener.waitForReply();
+    LOG.debug(reply);
+    assertTrue(reply != null);
+    // assert that it was indeed created
 
-      gregorianCalendar.setTime(startTime.toDate());
-      XMLGregorianCalendar xmlGregorianCalendarStart = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+    // cancel it (as a NOC manager?)
 
-      gregorianCalendar.setTime(endTime.toDate());
-      XMLGregorianCalendar xmlGregorianCalendarEnd = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+    // verify that it is indeed cancelled.
 
-
-      String description = "NSI v2 Reservation";
-      String globalReservationId = NsiHelper.generateGlobalReservationId();
-      ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType();
-
-      criteria.setSchedule(new ScheduleType().withStartTime(xmlGregorianCalendarStart).withEndTime(xmlGregorianCalendarEnd));
-      criteria.setBandwidth(100);
-      criteria.setPath(new PathType()
-          .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-          .withSourceSTP(new StpType().withNetworkId(NMS_PORT_ID_1))
-          .withDestSTP(new StpType().withNetworkId(NMS_PORT_ID_2))
-      );
-
-      connectionServiceProviderPort.reserve(null, globalReservationId, description, criteria, getHeader());
-      String reply = soapReplyListener.waitForReply();
-      LOG.debug(reply);
-      assertTrue(reply != null);
-      // assert that it was indeed created
-
-      // cancel it (as a NOC manager?)
-
-      // verify that it is indeed cancelled.
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
-  private Holder<CommonHeaderType> getHeader(){
+  private Holder<CommonHeaderType> createHeader(final String correlationId){
     return new Holder<CommonHeaderType>(new CommonHeaderType()
         .withProtocolVersion("2.0")
-        .withRequesterNSA("reqNSA")
-        .withProviderNSA("provnsa")
+        .withRequesterNSA("urn:ogf:network:nsa:foo")
+        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA)
         .withReplyTo(REPLY_PATH)
+        .withCorrelationId(correlationId)
     );
   }
 
-  private ConnectionProviderPort createPort() {
-
-
+  private ConnectionProviderPort createPort(String oauthToken) {
     ConnectionProviderPort port = new ConnectionServiceProvider(wsdlUrl()).getConnectionServiceProviderPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ENDPOINT);
-
-    ((BindingProvider) port).getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, Collections.singletonMap("Authorization", Collections.singletonList("bearer " + OAUTH_TOKEN)));
-
+    Map<String,Object> requestContext = ((BindingProvider) port).getRequestContext();
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ENDPOINT);
+    requestContext.put(MessageContext.HTTP_REQUEST_HEADERS, Collections.singletonMap("Authorization", Collections.singletonList("bearer " + oauthToken)));
     return port;
   }
 

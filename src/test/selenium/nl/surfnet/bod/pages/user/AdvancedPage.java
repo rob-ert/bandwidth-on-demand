@@ -22,65 +22,32 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.surfnet.bod.pages.AbstractListPage;
-
+import nl.surfnet.bod.pages.AbstractPage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualPortPage extends AbstractListPage {
+public class AdvancedPage extends AbstractPage {
 
-  private static final String PAGE = "/virtualports";
+  private static final String PAGE = "/advanced";
 
-  @FindBy(id = "reqVpId")
-  private WebElement requestVirtualPortLink;
+  @FindBy(className = "oAuthTokensLink")
+  private WebElement oauthTokensLink;
 
-  public ListVirtualPortPage(RemoteWebDriver driver) {
+  public AdvancedPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver) {
-    ListVirtualPortPage page = new ListVirtualPortPage(driver);
-    PageFactory.initElements(driver, page);
-
+  public OauthTokensPage clickTokenLink() {
+    oauthTokensLink.click();
+    OauthTokensPage page = OauthTokensPage.get(getDriver());
     return page;
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
+  public static AdvancedPage get(RemoteWebDriver driver) {
+    AdvancedPage page = new AdvancedPage(driver);
+    PageFactory.initElements(driver, page);
+    return page;
   }
-
-  public EditVirtualPortPage edit(String oldLabel) {
-    editRow(oldLabel);
-    return EditVirtualPortPage.get(getDriver());
-  }
-
-  public RequestNewVirtualPortSelectTeamPage requestVirtualPort() {
-    requestVirtualPortLink.click();
-
-    return RequestNewVirtualPortSelectTeamPage.get(getDriver());
-  }
-
-  public void verifyIsCurrentPage() {
-    super.verifyIsCurrentPage(PAGE);
-  }
-
-  public List<String> getAllVirtualPortIds() {
-    // their details which we are after actually have to be visible
-    for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
-      moreLink.click();
-    }
-    List<WebElement> ddElements = getDriver().findElementsByClassName("nsiStpId");
-    List<String> virtualPortIds = new ArrayList<>();
-    for(WebElement webElement: ddElements) {
-      virtualPortIds.add(webElement.getText());
-    }
-    return virtualPortIds;
-  }
-
 }

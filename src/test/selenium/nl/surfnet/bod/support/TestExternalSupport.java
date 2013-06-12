@@ -33,6 +33,8 @@ public abstract class TestExternalSupport {
   protected static final String GROUP_SARA = "Stichting Algemeen Rekencentrum Achterveld";
   protected static final String GROUP_RUG = "Rijke Universiteit Gaanderen";
 
+  protected static final String SELENIUM_USER_URN = "urn:collab:person:surfguest.nl:selenium-user";
+
   protected static final String ICT_MANAGERS_GROUP =
     "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers";
   protected static final String ICT_MANAGERS_GROUP_2 =
