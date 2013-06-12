@@ -179,6 +179,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Optional.absent();
   }
 
+  public void cancelDueToReserveTimeout(Reservation reservation, NsiRequestDetails requestDetails) {
+    reservationToNbi.asyncTerminate(reservation.getId(), "Canceled due to reserve held timeout", Optional.of(requestDetails));
+  }
+
   private void correctStart(Reservation reservation) {
     if (reservation.getStartDateTime() == null || reservation.getStartDateTime().isBeforeNow()) {
       reservation.setStartDateTime(DateTime.now().plusMinutes(1));

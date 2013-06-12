@@ -137,6 +137,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setReserveVersion(criteria.getVersion());
     connection.setPath(criteria.getPath());
     connection.setServiceAttributes(criteria.getServiceAttributes());
+    connection.setReserveHeldTimeoutValue(bodEnvironment.getNsiReserveHeldTimeoutValueInSeconds());
 
     return connection;
   }

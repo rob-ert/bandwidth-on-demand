@@ -81,6 +81,17 @@ public class ConnectionServiceRequesterClient {
   }
 
   @Async
+  public void asyncSendReserveTimeout(CommonHeaderType header, String connectionId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
+    ConnectionRequesterPort port = createPort(replyTo);
+    try {
+      // FIXME notification id
+      port.reserveTimeout(connectionId, 0, timeStamp, timeoutValue, connectionId, header.getProviderNSA(), new Holder<>(header));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Failed to send Reserve Timeout", e);
+    }
+  }
+
+  @Async
   public void asyncSendAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {

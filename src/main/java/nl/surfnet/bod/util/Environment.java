@@ -101,6 +101,9 @@ public class Environment {
   @Value("${nsi.providerNsa}")
   private String nsiProviderNsa;
 
+  @Value("${nsi.reserve.held.timeout.value.in.seconds}")
+  private int nsiReserveHeldTimeoutValueInSeconds;
+
   public Environment() {
   }
 
@@ -254,4 +257,11 @@ public class Environment {
     return nsiProviderNsa;
   }
 
+  public void setNsiReserveHeldTimeoutValueInSeconds(int nsiReserveHeldTimeoutValueInSeconds) {
+    this.nsiReserveHeldTimeoutValueInSeconds = nsiReserveHeldTimeoutValueInSeconds;
+  }
+
+  public int getNsiReserveHeldTimeoutValueInSeconds() {
+    return nsiReserveHeldTimeoutValueInSeconds;
+  }
 }

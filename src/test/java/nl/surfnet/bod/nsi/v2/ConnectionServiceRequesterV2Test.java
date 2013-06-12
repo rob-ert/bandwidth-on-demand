@@ -43,17 +43,24 @@ import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnu
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_FAILED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
+import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
 
 import java.util.ArrayList;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.util.XmlUtils;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -72,6 +79,11 @@ public class ConnectionServiceRequesterV2Test {
   @Mock private ConnectionV2Repo connectionRepMock;
   @Mock private ConnectionServiceRequesterClient requesterClientMock;
 
+  @After
+  public void tearDown() {
+    DateTimeUtils.setCurrentMillisSystem();
+  }
+
   @Test
   public void should_goto_reserve_held_when_sending_reserve_confirmed() {
     ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_CHECKING).create();
@@ -81,6 +93,20 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_HELD));
+  }
+
+  @Test
+  public void should_set_reserve_held_timeout_when_going_to_reserve_held() {
+    DateTime now = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_CHECKING).setReserveHeldTimeoutValue(100).create();
+    assertThat(connection.getReserveHeldTimeout().isPresent(), is(false));
+
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
+
+    assertThat(connection.getReserveHeldTimeout(), is(Optional.of(now.plusSeconds(100))));
   }
 
   @Test
@@ -180,6 +206,20 @@ public class ConnectionServiceRequesterV2Test {
     NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
 
     subject.querySummaryConfirmed(new ArrayList<ConnectionV2>(), nsiRequestDetails);
+  }
+
+  @Test
+  public void should_goto_reserve_timeout_when_connection_times_out() {
+    DateTime now = DateTime.now();
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_HELD).setReserveHeldTimeoutValue(100).create();
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+
+    subject.reserveTimeout(1L, now);
+
+    assertThat(connection.getReservationState(), is(RESERVE_TIMEOUT));
+    ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
+    verify(requesterClientMock).asyncSendReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
   }
 
 }

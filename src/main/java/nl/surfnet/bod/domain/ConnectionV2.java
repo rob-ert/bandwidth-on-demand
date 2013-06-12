@@ -116,6 +116,9 @@ public class ConnectionV2 extends AbstractConnection {
   @IndexedEmbedded
   private NsiRequestDetails reserveRequestDetails;
 
+  @Field
+  private int reserveHeldTimeoutValue;
+
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field
   @FieldBridge(impl = TimeStampBridge.class)
@@ -192,12 +195,20 @@ public class ConnectionV2 extends AbstractConnection {
     return Optional.fromNullable(committedVersion);
   }
 
-  public void setReserveHeldTimeout(DateTime reserveHeldTimeout) {
-    this.reserveHeldTimeout = reserveHeldTimeout;
+  public void setReserveHeldTimeoutValue(int reserveHeldTimeoutValue) {
+    this.reserveHeldTimeoutValue = reserveHeldTimeoutValue;
   }
 
-  public DateTime getReserveHeldTimeout() {
-    return reserveHeldTimeout;
+  public int getReserveHeldTimeoutValue() {
+    return this.reserveHeldTimeoutValue;
+  }
+
+  public void setReserveHeldTimeout(Optional<DateTime> reserveHeldTimeout) {
+    this.reserveHeldTimeout = reserveHeldTimeout.orNull();
+  }
+
+  public Optional<DateTime> getReserveHeldTimeout() {
+    return Optional.fromNullable(reserveHeldTimeout);
   }
 
   public QuerySummaryResultType getQuerySummaryResult() {

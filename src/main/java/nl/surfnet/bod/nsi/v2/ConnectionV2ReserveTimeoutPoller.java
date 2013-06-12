@@ -20,26 +20,48 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.repo;
+package nl.surfnet.bod.nsi.v2;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.repo.ConnectionV2Repo;
+import nl.surfnet.bod.service.ReservationService;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-@Repository
-public interface ConnectionV2Repo extends JpaSpecificationExecutor<ConnectionV2>, JpaRepository<ConnectionV2, Long>, CustomRepo<ConnectionV2> {
+@Component
+public class ConnectionV2ReserveTimeoutPoller {
 
-  ConnectionV2 findByConnectionId(String connectionId);
+  private final Logger logger = LoggerFactory.getLogger(ConnectionV2ReserveTimeoutPoller.class);
 
-  ConnectionV2 findByGlobalReservationId(String globalReservationId);
+  @Resource
+  private ConnectionV2Repo connectionRepo;
 
-  List<ConnectionV2> findByRequesterNsa(String requesterNsa);
+  @Resource
+  private ConnectionServiceRequesterV2 connectionServiceRequesterV2;
 
-  List<ConnectionV2> findByReservationStateAndReserveHeldTimeoutBefore(ReservationStateEnumType status, DateTime timestamp);
+  @Resource
+  private ReservationService reservationService;
+
+
+  @Scheduled(fixedDelay = 60 * 1000)
+  public void timeOutUncommittedReservations() {
+    DateTime now = DateTime.now();
+    List<ConnectionV2> timedOut = connectionRepo.findByReservationStateAndReserveHeldTimeoutBefore(ReservationStateEnumType.RESERVE_HELD, now);
+    logger.debug("Found {} timed out NSIv2 reservations", timedOut.size());
+
+    for (ConnectionV2 connection : timedOut) {
+      logger.info("Cancelling NSIv2 connection {} due to RESERVE_HELD timeout {}", connection.getConnectionId(), connection.getReserveHeldTimeout().orNull());
+      reservationService.cancelDueToReserveTimeout(connection.getReservation(), connection.getReserveRequestDetails());
+      connectionServiceRequesterV2.reserveTimeout(connection.getId(), now);
+    }
+  }
 }

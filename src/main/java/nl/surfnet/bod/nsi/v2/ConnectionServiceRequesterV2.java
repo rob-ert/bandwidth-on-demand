@@ -32,6 +32,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -63,6 +64,7 @@ public class ConnectionServiceRequesterV2 {
   public void reserveConfirmed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
+    connection.setReserveHeldTimeout(Optional.of(new DateTime().plusSeconds(connection.getReserveHeldTimeoutValue())));
     connectionRepo.save(connection);
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
@@ -93,6 +95,15 @@ public class ConnectionServiceRequesterV2 {
       .withText(connection.getReservation().getFailedReason());
 
     client.asyncSendReserveFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
+  }
+
+  public void reserveTimeout(Long id, DateTime timestamp) {
+    ConnectionV2 connection = connectionRepo.findOne(id);
+    connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
+    connectionRepo.save(connection);
+
+    NsiRequestDetails requestDetails = connection.getReserveRequestDetails();
+    client.asyncSendReserveTimeout(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), XmlUtils.toGregorianCalendar(timestamp), requestDetails.getReplyTo());
   }
 
   public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {

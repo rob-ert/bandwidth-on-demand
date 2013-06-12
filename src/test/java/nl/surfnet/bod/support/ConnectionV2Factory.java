@@ -30,6 +30,7 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -56,6 +57,8 @@ public class ConnectionV2Factory {
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
   private NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();
+  private int reserveHeldTimeoutValue = 1200;
+  private Optional<DateTime> reserveHeldTimeout = Optional.absent();
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -80,6 +83,9 @@ public class ConnectionV2Factory {
     connection.setCommittedVersion(committedVersion);
 
     connection.setReserveRequestDetails(provisionRequestDetails);
+
+    connection.setReserveHeldTimeoutValue(reserveHeldTimeoutValue);
+    connection.setReserveHeldTimeout(reserveHeldTimeout);
 
     return connection;
   }
@@ -161,6 +167,11 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setReserveVersion(int reserveVersion) {
     this.reserveVersion = reserveVersion;
+    return this;
+  }
+
+  public ConnectionV2Factory setReserveHeldTimeoutValue(int reserveHeldTimeoutValue) {
+    this.reserveHeldTimeoutValue = reserveHeldTimeoutValue;
     return this;
   }
 
