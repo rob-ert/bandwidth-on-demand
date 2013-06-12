@@ -22,38 +22,35 @@
  */
 package nl.surfnet.bod;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
-
 import nl.surfnet.bod.support.soap.SoapReplyListener;
-import nl.surfnet.bod.support.soap.VirtualPortDefinition;
-import org.apache.commons.lang.StringUtils;
+import nl.surfnet.bod.util.XmlUtils;
+
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
@@ -73,7 +70,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   private static final Logger LOG = LoggerFactory.getLogger(ReservationTestSelenium.class);
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_provider_v2_0.wsdl";
-  private static final String ENDPOINT = "http://localhost:8083/bod/nsi/v2/provider";
+  private static final String ENDPOINT = BodWebDriver.URL_UNDER_TEST + "/nsi/v2/provider";
 
   private static final Integer REPLY_SERVER_PORT = 31337;
   private static final String REPLY_PATH = "http://localhost:" + REPLY_SERVER_PORT + "/";
@@ -172,8 +169,8 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   @Test
   public void createAndCancelAReservationThroughSoap() throws Exception {
 
-    LocalDateTime startTime = LocalDateTime.now().plusHours(1);
-    LocalDateTime endTime = LocalDateTime.now();
+    DateTime startTime = DateTime.now().plusHours(1);
+    DateTime endTime = DateTime.now();
     String oauthToken = getUserDriver().requestOauthToken();
 
     SoapReplyListener soapReplyListener = new SoapReplyListener(REPLY_SERVER_PORT);
@@ -181,52 +178,31 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     List<String> virtualPortIds = getUserDriver().getVirtualPortIds();
 
-    Function<String, VirtualPortDefinition> stringToPortDef =
-        new Function<String, VirtualPortDefinition>() {
-          public VirtualPortDefinition apply(String port) {
-            final String[] parts = port.split(":");
-            return new VirtualPortDefinition(StringUtils.join(parts, ":", 0, parts.length - 1), parts[parts.length - 1]);
-          }
-        };
-
-    List<VirtualPortDefinition> portDefinitions = Lists.transform(virtualPortIds, stringToPortDef);
-    assertTrue("We need at least two portDefinitions to be able to continue", portDefinitions.size() >= 2);
-    VirtualPortDefinition sourceVirtualPortDefinition = portDefinitions.get(0);
-    VirtualPortDefinition destVirtualPortDefinition = portDefinitions.get(1);
-
-    GregorianCalendar gregorianCalendar = new GregorianCalendar();
-
-    gregorianCalendar.setTime(startTime.toDate());
-    XMLGregorianCalendar xmlGregorianCalendarStart = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-
-    gregorianCalendar.setTime(endTime.toDate());
-    XMLGregorianCalendar xmlGregorianCalendarEnd = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-
+    assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
+    StpType sourceStp = ConnectionsV2.toStpType(virtualPortIds.get(0));
+    StpType destStp = ConnectionsV2.toStpType(virtualPortIds.get(1));
 
     String description = "NSI v2 Reservation";
     String globalReservationId = NsiHelper.generateGlobalReservationId();
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
         .withSchedule(new ScheduleType()
-            .withStartTime(xmlGregorianCalendarStart)
-            .withEndTime(xmlGregorianCalendarEnd)
+            .withStartTime(XmlUtils.toGregorianCalendar(startTime))
+            .withEndTime(XmlUtils.toGregorianCalendar(endTime))
         )
         .withBandwidth(100)
         .withPath(new PathType()
             .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-            .withSourceSTP(new StpType()
-                .withNetworkId(sourceVirtualPortDefinition.networkId)
-                .withLocalId(sourceVirtualPortDefinition.localId)
-            )
-            .withDestSTP(new StpType()
-                .withNetworkId(destVirtualPortDefinition.networkId)
-                .withLocalId(destVirtualPortDefinition.localId)
-            )
+            .withSourceSTP(sourceStp)
+            .withDestSTP(destStp)
         )
         .withServiceAttributes(new TypeValuePairListType()
     );
 
     String correlationId = "foo";
-    connectionServiceProviderPort.reserve(null, globalReservationId, description, criteria, createHeader(correlationId));
+    Holder<String> connectionId = new Holder<>(null);
+    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(correlationId));
+    assertThat(connectionId.value, is(notNullValue()));
+
     String reply = soapReplyListener.waitForReply();
     LOG.debug(reply);
     assertTrue(reply != null);
@@ -235,7 +211,6 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     // cancel it (as a NOC manager?)
 
     // verify that it is indeed cancelled.
-
   }
 
   private Holder<CommonHeaderType> createHeader(final String correlationId){

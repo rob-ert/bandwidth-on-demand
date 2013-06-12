@@ -49,7 +49,7 @@ public final class ConnectionsV2 {
 
   public static StpType toStpType(String sourceStpId) {
     String[] parts = sourceStpId.split(":");
-    String networkId = Joiner.on(":").join(Arrays.copyOfRange(parts, 0, parts.length - 2));
+    String networkId = Joiner.on(":").join(Arrays.copyOfRange(parts, 0, parts.length - 1));
 
     return new StpType().withNetworkId(networkId).withLocalId(parts[parts.length - 1]);
   }
