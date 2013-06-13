@@ -30,16 +30,20 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebParam;
+import javax.jws.WebParam.Mode;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Holder;
 
 import com.sun.xml.ws.developer.SchemaValidation;
+
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
@@ -79,8 +83,6 @@ public class SoapReplyListener implements ConnectionRequesterPort {
       throw new RuntimeException("response did not arrive in time", e);
     }
   }
-
-
 
   @Override
   public void reserveConfirmed(String connectionId, String globalReservationId, String description, List<ReservationConfirmCriteriaType> reservationConfirmCriteria, Holder<CommonHeaderType> header) throws ServiceException {
@@ -169,27 +171,41 @@ public class SoapReplyListener implements ConnectionRequesterPort {
   }
 
   @Override
-  public void queryRecursiveFailed(@WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "headerHolder") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+  public GenericAcknowledgmentType queryNotificationConfirmed(QueryNotificationConfirmedType queryNotificationConfirmed, Holder<CommonHeaderType> header) throws ServiceException {
     throw new RuntimeException("Not implemented (or not required)");
   }
 
   @Override
-  public void errorEvent(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "event", targetNamespace = "") EventEnumType eventEnumType, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "additionalInfo", targetNamespace = "") TypeValuePairListType typeValuePairListType, @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "headerHolder") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+  public void queryNotificationFailed(ServiceExceptionType serviceException, Holder<CommonHeaderType> header)
+      throws ServiceException {
     throw new RuntimeException("Not implemented (or not required)");
   }
 
   @Override
-  public void dataPlaneStateChange(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "dataPlaneStatus", targetNamespace = "") DataPlaneStatusType dataPlaneStatusType, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "headerHolder") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+  public void errorEvent(String connectionId, int notificationId, XMLGregorianCalendar timeStamp, EventEnumType event, TypeValuePairListType additionalInfo, ServiceExceptionType serviceException, Holder<CommonHeaderType> header) throws ServiceException {
     throw new RuntimeException("Not implemented (or not required)");
   }
 
   @Override
-  public void reserveTimeout(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "timeoutValue", targetNamespace = "") int i, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "originatingConnectionId", targetNamespace = "") String s2, @WebParam(name = "originatingNSA", targetNamespace = "") String s3, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "headerHolder") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+  public void dataPlaneStateChange(String connectionId, int notificationId, XMLGregorianCalendar timeStamp, DataPlaneStatusType dataPlaneStatus, Holder<CommonHeaderType> header)
+      throws ServiceException {
     throw new RuntimeException("Not implemented (or not required)");
   }
 
   @Override
-  public void messageDeliveryTimeout(@WebParam(name = "correlationId", targetNamespace = "") String s, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "headerHolder") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+  public void reserveTimeout(String connectionId, int notificationId, XMLGregorianCalendar timeStamp, int timeoutValue, String originatingConnectionId, String originatingNSA, Holder<CommonHeaderType> header)
+      throws ServiceException {
     throw new RuntimeException("Not implemented (or not required)");
   }
+
+  @Override
+  public void messageDeliveryTimeout(String connectionId, int notificationId, XMLGregorianCalendar timeStamp, String correlationId, Holder<CommonHeaderType> header) throws ServiceException {
+    throw new RuntimeException("Not implemented (or not required)");
+  }
+
+  @Override
+  public void queryRecursiveFailed(ServiceExceptionType serviceException, Holder<CommonHeaderType> header) throws ServiceException {
+    throw new RuntimeException("Not implemented (or not required)");
+  }
+
 }

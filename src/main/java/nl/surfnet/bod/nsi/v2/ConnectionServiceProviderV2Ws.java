@@ -53,10 +53,13 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
+import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
@@ -255,6 +258,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
+  @Override
+  public void queryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
+  }
+
+  @Override
+  public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
+    return null;
+  }
+
   private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {
     return new QuerySummarySyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
   }
@@ -324,4 +336,5 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private void updateHeadersForReply(Holder<CommonHeaderType> header) {
     header.value.setReplyTo(null);
   }
+
 }

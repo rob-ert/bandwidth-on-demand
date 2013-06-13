@@ -131,11 +131,11 @@ public class ConnectionServiceRequesterClient {
   }
 
   @Async
-  public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus,
-      XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      port.dataPlaneStateChange(connectionId, dataPlaneStatus, timeStamp, new Holder<>(header));
+      // FIXME notification id
+      port.dataPlaneStateChange(connectionId, 0, timeStamp, dataPlaneStatus, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }
@@ -156,7 +156,8 @@ public class ConnectionServiceRequesterClient {
     ServiceExceptionType serviceException = null;
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      port.errorEvent(connectionId, type, timeStamp, additionalInfo, serviceException, new Holder<>(header));
+      // FIXME notification id
+      port.errorEvent(connectionId, 0, timeStamp, type, additionalInfo, serviceException, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane Error ({})", type);
     }
