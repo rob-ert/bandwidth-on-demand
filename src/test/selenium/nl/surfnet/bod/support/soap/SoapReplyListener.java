@@ -28,10 +28,15 @@ import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
+import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.xml.XMLConstants;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
@@ -40,7 +45,10 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import javax.xml.ws.Holder;
 
+import com.sun.xml.ws.developer.SchemaValidation;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -67,6 +75,17 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
+import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
+import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -78,212 +97,123 @@ import org.xml.sax.SAXException;
  * which you obviously should only use pop() on.
  *
  */
-public class SoapReplyListener {
+@WebService(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/request")
+@SchemaValidation
+public class SoapReplyListener implements ConnectionRequesterPort {
 
   private static final Logger LOG = LoggerFactory.getLogger(SoapReplyListener.class);
 
-  private static String[] SCHEMA_LOCATIONS = {
-      "/wsdl/soap/soap-envelope-1.1.xsd",
-      "/wsdl/2.0/xmldsig-core-schema.xsd",
-      "/wsdl/2.0/xenc-schema.xsd",
-      "/wsdl/2.0/saml-schema-assertion-2.0.xsd",
-      "/wsdl/2.0/ogf_nsi_framework_types_v2_0.xsd",
-      "/wsdl/2.0/ogf_nsi_connection_types_v2_0.xsd",
-      "/wsdl/2.0/ogf_nsi_framework_headers_v2_0.xsd"
-  };
-
-  private Stack<String> responses = new Stack<>();
+  private Stack<Map<String, Object>> responses = new Stack<>();
 
   private static int LISTEN_TIMEOUT = 5000;
 
-  public SoapReplyListener(final Integer port) {
-    try {
-      Thread t = new RequestListenerThread(port, responses);
-      t.setDaemon(false);
-      t.start();
-    } catch (IOException e) {
-      LOG.error("Unable to start soap reply listener... Something else still running on our port? (=" + port + ") ", e);
-    }
+  public static final String HEADER_KEY = "header";
+  public static final String MESSAGE_TYPE_KEY = "MESSAGE_TYPE";
 
-  }
+  public static final String CONNECTION_ID_KEY = "connectionId";
+  public static final String GLOBAL_RESERVATION_ID_KEY = "globalReservationId";
+  public static final String RESERVATION_CONFIRM_CRITERIA = "reservationConfirmCriteria";
 
-
-  public String waitForReply(){
+  public Map<String, Object> waitForReply(){
     try {
       Thread.sleep(LISTEN_TIMEOUT);
     } catch (InterruptedException e) {
-      throw new IllegalStateException("No reply received in time!");
+      throw new IllegalStateException("No reply received in time");
     }
-    String reply = responses.pop();
-    LOG.debug("reply body: " + reply);
-    validate(reply);
-
-    return reply;
+    if (responses.size() > 1){
+      throw new IllegalStateException("there are more than one responses left on the queue, don't know which to pop");
+    }
+    return responses.pop();
   }
 
-  public static void validate(String xml){
-    // Docs state that SchemaFactory is not thread-safe...
-    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    List<StreamSource> schemaSources = new ArrayList<>();
-    for (String location: SCHEMA_LOCATIONS){
-      schemaSources.add(new StreamSource(SoapReplyListener.class.getResourceAsStream(location)));
-    }
 
-    Schema schema;
-    try {
-      schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      schema = schemaFactory.newSchema(schemaSources.toArray(new Source[0]));
-    } catch (SAXException e) {
-      throw new RuntimeException("Failed to parse schema files: ", e);
-    }
-    Validator validator = schema.newValidator();
-    try {
+  @Override
+  public void reserveConfirmed(String connectionId, String globalReservationId, String description, List<ReservationConfirmCriteriaType> reservationConfirmCriteria, Holder<CommonHeaderType> header) throws ServiceException {
 
-      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-      documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      documentBuilderFactory.setNamespaceAware(true);
-      documentBuilderFactory.setIgnoringComments(true);
-      documentBuilderFactory.setIgnoringElementContentWhitespace(true);
-      documentBuilderFactory.setSchema(schema);
+    LOG.debug("Received reserveConfirmed for globalResId: " + globalReservationId);
 
+    Map<String, Object> result = new HashMap<>();
+    result.put(MESSAGE_TYPE_KEY, "reserveConfirmed");
+    result.put(HEADER_KEY, header);
 
-      InputSource is = new InputSource(new StringReader(xml));
-      Document document = documentBuilderFactory.newDocumentBuilder().parse(is);
-
-      validator.validate(new DOMSource(document));
-    } catch (SAXException e) {
-      throw new IllegalStateException("XML message did not validate, reason: " + e.getMessage(), e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (ParserConfigurationException e) {
-      throw new RuntimeException(e);
-    }
+    result.put(CONNECTION_ID_KEY, connectionId);
+    result.put(GLOBAL_RESERVATION_ID_KEY, globalReservationId);
+    result.put(RESERVATION_CONFIRM_CRITERIA, reservationConfirmCriteria);
+    responses.push(result);
   }
 
-  static class SoapPostRequestHandler implements HttpRequestHandler {
+  @Override
+  public void reserveFailed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "connectionStates", targetNamespace = "") ConnectionStatesType connectionStatesType, @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SoapPostRequestHandler.class);
-
-    private Stack<String> responses;
-
-    SoapPostRequestHandler(Stack<String> responses) {
-      this.responses = responses;
-    }
-
-    @Override
-    public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
-      LOG.debug("Handling request: " + request);
-
-      if (! (request instanceof  HttpEntityEnclosingRequest)){
-        throw new IllegalArgumentException("Request did not have a body: " + request);
-      }
-
-      HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) request;
-      responses.push(EntityUtils.toString(httpEntityEnclosingRequest.getEntity(), "UTF-8"));
-      response.setStatusCode(200);
-    }
   }
 
-  static class RequestListenerThread extends Thread {
+  @Override
+  public void reserveCommitConfirmed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestListenerThread.class);
-
-    private final ServerSocket serversocket;
-    private final HttpParams params;
-    private final HttpService httpService;
-
-    public RequestListenerThread(int port, Stack<String> responses) throws IOException {
-      this.serversocket = new ServerSocket(port);
-      this.params = new SyncBasicHttpParams();
-      this.params
-          .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-          .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-          .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-          .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-          .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
-
-      // Set up the HTTP protocol processor
-      HttpProcessor httpProcessor = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-          new ResponseDate(),
-          new ResponseServer(),
-          new ResponseContent(),
-          new ResponseConnControl()
-      });
-
-      // Set up request handlers
-      HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
-      reqistry.register("*", new SoapPostRequestHandler(responses));
-
-      // Set up the HTTP service
-      this.httpService = new HttpService(
-          httpProcessor,
-          new DefaultConnectionReuseStrategy(),
-          new DefaultHttpResponseFactory(),
-          reqistry,
-          this.params);
-    }
-
-    @Override
-    public void run() {
-      LOG.debug("Listening on port " + this.serversocket.getLocalPort());
-      while (!Thread.interrupted()) {
-        try {
-          // Set up HTTP connection
-          Socket socket = this.serversocket.accept();
-          DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
-          LOG.debug("Incoming connection from " + socket.getInetAddress());
-          conn.bind(socket, this.params);
-
-          // Start worker thread
-          Thread t = new WorkerThread(this.httpService, conn);
-          t.setDaemon(true);
-          t.start();
-        } catch (InterruptedIOException ex) {
-          LOG.debug("interrupted!", ex);
-          break;
-        } catch (IOException e) {
-          LOG.error("I/O error initialising connection thread: " + e.getMessage(), e);
-          break;
-        }
-      }
-    }
   }
 
-  static class WorkerThread extends Thread {
+  @Override
+  public void reserveCommitFailed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "connectionStates", targetNamespace = "") ConnectionStatesType connectionStatesType, @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestListenerThread.class);
+  }
 
-    private final HttpService httpservice;
-    private final HttpServerConnection conn;
+  @Override
+  public void reserveAbortConfirmed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
 
-    public WorkerThread(
-        final HttpService httpservice,
-        final HttpServerConnection conn) {
-      super();
-      this.httpservice = httpservice;
-      this.conn = conn;
-    }
+  }
 
-    @Override
-    public void run() {
-      LOG.debug("New connection thread");
-      HttpContext context = new BasicHttpContext(null);
-      try {
-        while (!Thread.interrupted() && this.conn.isOpen()) {
-          this.httpservice.handleRequest(this.conn, context);
-        }
-      } catch (ConnectionClosedException ex) {
-        LOG.error("Client closed connection");
-      } catch (IOException ex) {
-        LOG.error("I/O error: " + ex.getMessage());
-      } catch (HttpException ex) {
-        LOG.error("Unrecoverable HTTP protocol violation: " + ex.getMessage());
-      } finally {
-        try {
-          this.conn.shutdown();
-        } catch (IOException ignore) {}
-      }
-    }
+  @Override
+  public void provisionConfirmed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void releaseConfirmed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void terminateConfirmed(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void querySummaryConfirmed(@WebParam(name = "reservation", targetNamespace = "") List<QuerySummaryResultType> querySummaryResultTypes, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void querySummaryFailed(@WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void queryRecursiveConfirmed(@WebParam(name = "reservation", targetNamespace = "") List<QueryRecursiveResultType> queryRecursiveResultTypes, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void queryRecursiveFailed(@WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void errorEvent(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "event", targetNamespace = "") EventEnumType eventEnumType, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "additionalInfo", targetNamespace = "") TypeValuePairListType typeValuePairListType, @WebParam(name = "serviceException", targetNamespace = "") ServiceExceptionType serviceExceptionType, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void dataPlaneStateChange(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "dataPlaneStatus", targetNamespace = "") DataPlaneStatusType dataPlaneStatusType, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void reserveTimeout(@WebParam(name = "connectionId", targetNamespace = "") String s, @WebParam(name = "timeoutValue", targetNamespace = "") int i, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "originatingConnectionId", targetNamespace = "") String s2, @WebParam(name = "originatingNSA", targetNamespace = "") String s3, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
+
+  }
+
+  @Override
+  public void messageDeliveryTimeout(@WebParam(name = "correlationId", targetNamespace = "") String s, @WebParam(name = "timeStamp", targetNamespace = "") XMLGregorianCalendar xmlGregorianCalendar, @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = WebParam.Mode.INOUT, partName = "header") Holder<CommonHeaderType> commonHeaderTypeHolder) throws ServiceException {
 
   }
 }

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
@@ -47,7 +48,6 @@ import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.support.soap.SoapReplyListener;
 import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -74,9 +74,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   private static final String ENDPOINT = BodWebDriver.URL_UNDER_TEST + "/nsi/v2/provider";
 
   private static final Integer REPLY_SERVER_PORT = 31337;
-  private static final String REPLY_PATH = "http://localhost:" + REPLY_SERVER_PORT + "/";
-
-
+  private static final String REPLY_ADDRESS = "http://localhost:" + REPLY_SERVER_PORT + "/requester";
 
   @Override
   public void setupInitialData() {
@@ -174,7 +172,10 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     DateTime endTime = DateTime.now();
     String oauthToken = getUserDriver().requestOauthToken();
 
-    SoapReplyListener soapReplyListener = new SoapReplyListener(REPLY_SERVER_PORT);
+
+    SoapReplyListener soapReplyListener = new SoapReplyListener();
+    Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
+
     ConnectionProviderPort connectionServiceProviderPort = createPort(oauthToken);
 
     List<String> virtualPortIds = getUserDriver().getVirtualPortIds();
@@ -204,10 +205,11 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(correlationId));
     assertThat(connectionId.value, is(notNullValue()));
 
-    String reply = soapReplyListener.waitForReply();
-    LOG.debug(reply);
-    assertTrue(reply != null);
-    // assert that it was indeed created
+    Map<String, Object> reply = soapReplyListener.waitForReply();
+
+    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveConfirmed"));
+
+    // assert that it was indeed created, use xpath to see that it was a reserveConfirmed message and that we have a connection id
 
     // cancel it (as a NOC manager?)
 
@@ -219,7 +221,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
         .withProviderNSA(NsiConstants.URN_PROVIDER_NSA)
-        .withReplyTo(REPLY_PATH)
+        .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
     );
   }
