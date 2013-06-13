@@ -169,6 +169,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     return connections;
   }
 
+  @Async
   public void asyncTerminate(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
