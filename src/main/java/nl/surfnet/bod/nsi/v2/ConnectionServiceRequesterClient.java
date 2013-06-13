@@ -70,7 +70,8 @@ public class ConnectionServiceRequesterClient {
     }
   }
 
-  public void sendReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
+  @Async
+  public void asyncSendReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveFailed(connectionId, connectionStates, exception, new Holder<>(header));

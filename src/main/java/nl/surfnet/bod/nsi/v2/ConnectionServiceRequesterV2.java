@@ -92,7 +92,7 @@ public class ConnectionServiceRequesterV2 {
       .withNsaId(requestDetails.getProviderNsa())
       .withText(connection.getReservation().getFailedReason());
 
-    client.sendReserveFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
+    client.asyncSendReserveFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
   }
 
   public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {
