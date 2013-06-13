@@ -115,7 +115,7 @@ public class AppConfigurationTest {
     @Bean
     @Lazy
     public PlatformTransactionManager transactionManager() {
-      DataSource dataSource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:mem:test_mem", "sa", "");
+      DataSource dataSource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:mem:test_mem");
       return new DataSourceTransactionManager(dataSource);
     }
   }
