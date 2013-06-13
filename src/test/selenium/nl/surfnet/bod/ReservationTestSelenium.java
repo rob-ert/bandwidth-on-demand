@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,18 +58,17 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 public class ReservationTestSelenium extends SeleniumWithSingleSetup {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ReservationTestSelenium.class);
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_provider_v2_0.wsdl";
   private static final String ENDPOINT = BodWebDriver.URL_UNDER_TEST + "/nsi/v2/provider";
@@ -166,12 +166,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  public void createAndCancelAReservationThroughSoap() throws Exception {
+  @SuppressWarnings("unchecked")
+  public void soapReservationHappyFlow() throws Exception {
 
     DateTime startTime = DateTime.now().plusHours(1);
     DateTime endTime = DateTime.now();
     String oauthToken = getUserDriver().requestOauthToken();
-
 
     SoapReplyListener soapReplyListener = new SoapReplyListener();
     Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
@@ -199,25 +199,52 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
         )
         .withServiceAttributes(new TypeValuePairListType()
     );
-
     String correlationId = "urn:uuid:" + UUID.randomUUID().toString();
+
     Holder<String> connectionId = new Holder<>(null);
-    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(correlationId));
+    Holder<CommonHeaderType> header = createHeader(correlationId);
+
+    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, header);
     assertThat(connectionId.value, is(notNullValue()));
 
-    Map<String, Object> reply = soapReplyListener.waitForReply();
+    Map<String, Object> reply = soapReplyListener.getLastReply();
 
     assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveConfirmed"));
-
     // assert that it was indeed created, use xpath to see that it was a reserveConfirmed message and that we have a connection id
+    assertTrue("connection id must match", connectionId.value.equals(reply.get(SoapReplyListener.CONNECTION_ID_KEY)));
+    assertTrue("global reservation id must match", globalReservationId.equals(reply.get(SoapReplyListener.GLOBAL_RESERVATION_ID_KEY)));
 
-    // cancel it (as a NOC manager?)
+    // do reserveCommit
+    connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(correlationId));
+    // expect a reserveCommitConfirmed
+    reply = soapReplyListener.getLastReply();
+    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveCommitConfirmed"));
 
-    // verify that it is indeed cancelled.
+    // perform query, assert that reservation_state == reserve_start
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(correlationId));
+    reply = soapReplyListener.getLastReply();
+    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
+
+    List<QuerySummaryResultType> result = (List<QuerySummaryResultType>) reply.get(SoapReplyListener.QUERY_RESULT_KEY);
+    assertTrue(result.size() == 1);
+    assertTrue(result.get(0).getConnectionStates().getReservationState().equals(ReservationStateEnumType.RESERVE_START));
+
+    // do a provision, assert that we receive a provisionConfirmed message
+    connectionServiceProviderPort.provision(connectionId.value, createHeader(correlationId));
+    reply = soapReplyListener.getLastReply();
+    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("provisionConfirmed"));
+
+    // query again, see that provisionState is now 'provisioned'
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(correlationId));
+    reply = soapReplyListener.getLastReply();
+    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
+    result = (List<QuerySummaryResultType>) reply.get(SoapReplyListener.QUERY_RESULT_KEY);
+    assertTrue(result.size() == 1);
+    assertTrue(result.get(0).getConnectionStates().getProvisionState().equals(ProvisionStateEnumType.PROVISIONED));
   }
 
   private Holder<CommonHeaderType> createHeader(final String correlationId){
-    return new Holder<CommonHeaderType>(new CommonHeaderType()
+    return new Holder<>(new CommonHeaderType()
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
         .withProviderNSA(NsiConstants.URN_PROVIDER_NSA)
