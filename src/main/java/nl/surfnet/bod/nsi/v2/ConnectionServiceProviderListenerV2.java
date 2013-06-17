@@ -81,6 +81,10 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       break;
     case CANCELLED:
       if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
+        // if the connections dataplane status is active, notify that dataPlane was de activated first
+        if (connection.getDataPlaneActive().isPresent() && connection.getDataPlaneActive().get() == true) {
+          requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
+        }
         requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_ABORTING){
         requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());

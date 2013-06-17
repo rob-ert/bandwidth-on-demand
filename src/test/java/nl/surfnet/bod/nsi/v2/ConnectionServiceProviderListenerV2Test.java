@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -233,12 +234,32 @@ public class ConnectionServiceProviderListenerV2Test {
   }
 
   @Test
-  public void should_send_terminate_confirmed() {
+  public void should_send_terminate_confirmed_and_dataplane_deactivated_when_connection_was_active() {
     ConnectionV2 connection = new ConnectionV2Factory()
       .setReservationState(ReservationStateEnumType.RESERVE_START)
       .setProvisionState(ProvisionStateEnumType.PROVISIONED)
       .setLifecycleState(LifecycleStateEnumType.TERMINATING)
       .setDataPlaneActive(true).create();
+    Reservation reservation = new ReservationFactory().setConnectionV2(connection)
+        .setStatus(ReservationStatus.CANCELLED).create();
+    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation, Optional.of(requestDetails));
+
+    subject.onStatusChange(event);
+
+    verify(requesterMock).terminateConfirmed(connection.getId(), requestDetails);
+    verify(requesterMock).dataPlaneDeactivated(connection.getId(), requestDetails);
+    verifyNoMoreInteractions(requesterMock);
+  }
+
+  @Test
+  public void should_send_terminate_confirmed(){
+    ConnectionV2 connection = new ConnectionV2Factory()
+        .setReservationState(ReservationStateEnumType.RESERVE_START)
+        .setProvisionState(ProvisionStateEnumType.PROVISIONED)
+        .setLifecycleState(LifecycleStateEnumType.TERMINATING)
+        .setDataPlaneActive(false).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.CANCELLED).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();

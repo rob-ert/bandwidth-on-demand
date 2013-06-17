@@ -127,6 +127,7 @@ public class ConnectionServiceRequesterV2 {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
 
+    //client.asy
     client.asyncSendTerminateConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
