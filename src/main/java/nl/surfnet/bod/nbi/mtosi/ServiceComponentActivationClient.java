@@ -78,8 +78,7 @@ public class ServiceComponentActivationClient {
   public Reservation reserve(Reservation reservation, boolean autoProvision) {
     ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
 
-    ReserveRequest reserveRequest = new ReserveRequestBuilder()
-      .createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
+    ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
 
     try {
       ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);

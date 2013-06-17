@@ -52,12 +52,13 @@ public class ReserveRequestBuilder {
   static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
   static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
+  private static final String CTP_PREFIX = "/eth=";
+
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
 
     ResourceFacingServiceType rfsData = createBasicRfsData(reservation, sequence);
 
     rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort(), sequence));
-
     rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort(), sequence));
 
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
@@ -70,7 +71,7 @@ public class ReserveRequestBuilder {
   @VisibleForTesting
   ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort, long sequence) {
 
-    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), sequence);
+    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId(), sequence);
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -81,8 +82,7 @@ public class ReserveRequestBuilder {
     if (virtualPort.getVlanId() != null) {
       describedByList.add(createSscValue("ServiceType", "EVPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(virtualPort.getVlanId())));
-    }
-    else {
+    } else {
       describedByList.add(createSscValue("ServiceType", "EPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
     }
@@ -104,8 +104,7 @@ public class ReserveRequestBuilder {
 
   @VisibleForTesting
   ResourceFacingServiceType createBasicRfsData(Reservation reservation, long sequence) {
-    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createResourceFacingServiceType();
+    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType();
 
     rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
 
@@ -125,12 +124,13 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, long sequence) {
+  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId, long sequence) {
     NamingAttributeType resourceRef = createNamingAttrib();
 
     resourceRef.getRdn().add(createRdn("MD", MANAGING_DOMAIN));
     resourceRef.getRdn().add(createRdn("ME", port.getNmsNeId()));
     resourceRef.getRdn().add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
+    resourceRef.getRdn().add(createRdn("CTP", CTP_PREFIX + reservationId));
 
     ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();

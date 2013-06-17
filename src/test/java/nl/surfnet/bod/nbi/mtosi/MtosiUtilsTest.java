@@ -34,9 +34,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
@@ -45,8 +46,6 @@ import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
-
-import com.google.common.base.Optional;
 
 public class MtosiUtilsTest {
 

@@ -38,8 +38,7 @@ import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceComponentActivationClientTest {
 
-  @InjectMocks
-  private ServiceComponentActivationClient subject;
+  @InjectMocks private ServiceComponentActivationClient subject;
 
   @Test
   public void shouldHandleInitialReservationException() {
