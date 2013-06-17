@@ -125,7 +125,7 @@ public class ConnectionServiceRequesterClient {
       XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      port.dataPlaneStateChange(connectionId, dataPlaneStatus, timeStamp, new Holder<>(header));
+      port.dataPlaneStateChange(connectionId, 0, timeStamp, dataPlaneStatus, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
     }

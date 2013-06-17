@@ -95,7 +95,7 @@ public class ReserveRequestBuilderTest {
 
     assertThat(rfs.getDescribedByList(), hasSize(2));
 
-    String startDateTime = MtosiUtils.findSscValue("startTime", rfs.getDescribedByList()).get();
+    String startDateTime = MtosiUtils.findSscValue("StartTime", rfs.getDescribedByList()).get();
     assertThat(XmlUtils.getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
 
     assertThat(rfs.getDescribedByList(), hasItem(serviceCharacteristic("AdmissionControl", "Strict")));

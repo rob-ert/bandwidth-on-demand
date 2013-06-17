@@ -324,4 +324,30 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private void updateHeadersForReply(Holder<CommonHeaderType> header) {
     header.value.setReplyTo(null);
   }
+
+  @Override
+  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/queryNotification")
+  @RequestWrapper(localName = "queryNotification", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationType")
+  @ResponseWrapper(localName = "acknowledgment", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", className = "org.ogf.schemas.nsi._2013._04.connection.types.GenericAcknowledgmentType")
+  public void queryNotification(
+      @WebParam(name = "connectionId", targetNamespace = "") String connectionId,
+      @WebParam(name = "startNotificationId", targetNamespace = "") Integer startNotificationId,
+      @WebParam(name = "endNotificationId", targetNamespace = "") Integer endNotificationId,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws ServiceException {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  @WebMethod(action = "http://schemas.ogf.org/nsi/2013/04/connection/service/queryNotificationSync")
+  @WebResult(name = "queryNotificationSyncConfirmed", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", partName = "queryNotificationSyncConfirmed")
+  @SOAPBinding(parameterStyle = ParameterStyle.BARE)
+  public QueryNotificationConfirmedType queryNotificationSync(
+      @WebParam(name = "queryNotificationSync", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/types", partName = "queryNotificationSync") QueryNotificationType queryNotificationSync,
+      @WebParam(name = "nsiHeader", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/framework/headers", header = true, mode = Mode.INOUT, partName = "header") Holder<CommonHeaderType> header)
+      throws QueryNotificationSyncFailed {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
