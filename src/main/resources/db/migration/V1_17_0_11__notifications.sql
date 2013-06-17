@@ -1,8 +1,6 @@
 CREATE TABLE notification (
-        id BIGINT NOT NULL,
         notification TEXT,
-        connectionv2 BIGINT,
-    CONSTRAINT notification_pkey PRIMARY KEY (id)
+        connectionv2 BIGINT
 );
 
 ALTER TABLE ONLY notification

@@ -31,11 +31,15 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
@@ -46,9 +50,17 @@ public class ConnectionV2TDbTest {
   @Resource private ConnectionV2Repo connectionRepo;
 
   @Test
-  public void asdfsadf() {
+  public void saving_a_connection_with_notifications_should_work() {
     ConnectionV2 connection = new ConnectionV2Factory().create();
 
-    connectionRepo.save(connection);
+    connection.addNotification(new DataPlaneStateChangeRequestType().withConnectionId(connection.getConnectionId()).withNotificationId(0));
+    ConnectionV2 savedConnection = connectionRepo.save(connection);
+
+    assertTrue("the two may not be the same", connection != savedConnection);
+    assertTrue(savedConnection.getNotifications().size() > 0);
+    savedConnection.addNotification(new DataPlaneStateChangeRequestType().withConnectionId(connection.getConnectionId()).withNotificationId(1));
+
+    ConnectionV2 anotherSavedConnection = connectionRepo.save(savedConnection);
+    assertTrue(anotherSavedConnection.getNotifications().size() == 2);
   }
 }

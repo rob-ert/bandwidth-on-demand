@@ -155,15 +155,12 @@ public class ConnectionServiceRequesterV2 {
   public void dataPlaneActivated(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(true);
-    connectionRepo.save(connection);
-
     sendDataPlaneStatus(requestDetails, connection, DateTime.now());
   }
 
   public void dataPlaneDeactivated(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(false);
-    connectionRepo.save(connection);
 
     sendDataPlaneStatus(requestDetails, connection, DateTime.now());
   }
@@ -198,9 +195,11 @@ public class ConnectionServiceRequesterV2 {
     DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType();
     notification.setConnectionId(connection.getConnectionId());
     notification.setDataPlaneStatus(dataPlaneStatus);
-    notification.setNotificationId(0);
+    notification.setNotificationId(connection.getNotifications().size() + 1);
     notification.setTimeStamp(timeStamp);
     connection.addNotification(notification);
+
+    connectionRepo.save(connection);
 
     client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
