@@ -43,9 +43,12 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
@@ -192,6 +195,13 @@ public class ConnectionServiceRequesterV2 {
 
     CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());
 
+    DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType();
+    notification.setConnectionId(connection.getConnectionId());
+    notification.setDataPlaneStatus(dataPlaneStatus);
+    notification.setNotificationId(0);
+    notification.setTimeStamp(timeStamp);
+    connection.addNotification(notification);
+
     client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
 
@@ -205,5 +215,11 @@ public class ConnectionServiceRequesterV2 {
     List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
 
     client.asyncSendQueryRecursiveConfirmed(requestDetails.getCommonHeaderType(), result, requestDetails.getReplyTo());
+  }
+
+  public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiRequestDetails requestDetails) {
+    QueryNotificationConfirmedType query = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
+
+    client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(), query, requestDetails.getReplyTo());
   }
 }

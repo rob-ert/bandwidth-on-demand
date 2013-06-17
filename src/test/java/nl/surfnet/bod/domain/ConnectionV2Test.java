@@ -23,14 +23,22 @@
 package nl.surfnet.bod.domain;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV2.PathTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV2.ServiceAttributesUserType;
+import nl.surfnet.bod.util.XmlUtils;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
@@ -92,5 +100,33 @@ public class ConnectionV2Test {
     String xml = new ServiceAttributesUserType().toXmlString(serviceParameters);
 
     assertThat(xml, is(SERVICE_ATTRIBUTES_TYPE_XML));
+  }
+
+  private static final String DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+      + "<ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+      + "<connectionId>ConnectionId</connectionId>"
+      + "<notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp>"
+      + "<dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus>"
+      + "</ns2:notificationBaseType>";
+
+  @Test
+  public void shoud_serialize_data_plane_state_change_request_type_to_xml_string() {
+    DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType()
+      .withConnectionId("ConnectionId")
+      .withDataPlaneStatus(new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true))
+      .withNotificationId(22)
+      .withTimeStamp(XmlUtils.toGregorianCalendar(new DateTime(2013, 6, 17, 13, 10, 14, DateTimeZone.UTC)));
+
+    String xml = new NotificationBaseTypeUserType().toXmlString(notification);
+
+    assertThat(xml, is(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML));
+  }
+
+  @Test
+  public void should_deserialize_data_plane_state_change_request_type_from_xml_string() {
+    NotificationBaseType dataPlaneNotification = new NotificationBaseTypeUserType().fromXmlString(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML);
+
+    assertThat(dataPlaneNotification, is(instanceOf(DataPlaneStateChangeRequestType.class)));
   }
 }

@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -42,6 +43,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
@@ -179,6 +181,20 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     terminate(connection, requestDetails, user);
   }
 
+  @Async
+  // TODO start, end notification..
+  public void asyncQueryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, NsiRequestDetails requestDetails) {
+    // query our notifications from the db
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+    Collection<NotificationBaseType> notifications = Collections.emptyList();
+
+    if (connection != null){
+      notifications = connection.getNotifications();
+    }
+
+    connectionServiceRequester.queryNotificationConfirmed(null, requestDetails);
+  }
+
   private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
     try {
       checkProviderNsa(connection.getProviderNsa());
@@ -272,5 +288,4 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
       return errorCode;
     }
   }
-
 }

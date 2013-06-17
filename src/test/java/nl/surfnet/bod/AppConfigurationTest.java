@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -101,7 +100,6 @@ public class AppConfigurationTest {
     ctx.close();
   }
 
-  @Configuration
   @EnableTransactionManagement
   @EnableAsync
   public static class TestConfiguration implements AsyncConfigurer {

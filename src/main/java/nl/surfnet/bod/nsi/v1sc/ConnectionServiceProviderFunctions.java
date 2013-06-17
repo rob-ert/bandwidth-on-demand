@@ -72,7 +72,7 @@ public final class ConnectionServiceProviderFunctions {
             .getConnectionServiceRequesterPort();
 
           Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-          requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
+          requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo().toASCIIString());
 
           return port;
       }

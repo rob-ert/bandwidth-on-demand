@@ -40,6 +40,7 @@ import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
@@ -192,6 +193,16 @@ public class ConnectionServiceRequesterClient {
       port.queryRecursiveConfirmed(result, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Query Recursive Confirmed", e);
+    }
+  }
+
+  @Async
+  public void asyncSendQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, URI replyTo) {
+    ConnectionRequesterPort port = createPort(replyTo);
+    try {
+      port.queryNotificationConfirmed(queryNotificationConfirmed, new Holder<>(header));
+    } catch (ClientTransportException | ServiceException e) {
+      log.info("Failed to send Query Notification Confirmed", e);
     }
   }
 

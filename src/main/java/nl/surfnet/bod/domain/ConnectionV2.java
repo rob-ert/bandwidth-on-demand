@@ -24,11 +24,17 @@ package nl.surfnet.bod.domain;
 
 import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -50,6 +56,7 @@ import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultCriteriaType;
@@ -123,6 +130,12 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime reserveHeldTimeout;
+
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$NotificationBaseTypeUserType")
+  @CollectionTable(name = "notification")
+  @Column(name = "notification")
+  private List<NotificationBaseType> notifications = new ArrayList<>();
 
   public ConnectionV2() {
   }
@@ -298,6 +311,18 @@ public class ConnectionV2 extends AbstractConnection {
     this.reserveRequestDetails = reserveRequestDetails;
   }
 
+  public List<NotificationBaseType> getNotifications() {
+    return notifications;
+  }
+
+  public void setNotifications(List<NotificationBaseType> notifications) {
+    this.notifications = notifications;
+  }
+
+  public boolean addNotification(NotificationBaseType notification) {
+    return this.notifications.add(notification);
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -378,6 +403,11 @@ public class ConnectionV2 extends AbstractConnection {
     return builder.toString();
   }
 
+  public static class NotificationBaseTypeUserType extends NsiV2UserType<NotificationBaseType> {
+    public NotificationBaseTypeUserType() {
+      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "notificationBaseType"), NotificationBaseType.class);
+    }
+  }
   public static class PathTypeUserType extends NsiV2UserType<PathType> {
     public PathTypeUserType() {
       super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "path"), PathType.class);

@@ -261,6 +261,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void queryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
+    updateHeadersForReply(header);
+    checkOAuthScope(NsiScope.QUERY);
+
+    log.info("Received a Query Notifcation");
+
+    connectionService.asyncQueryNotification(connectionId, startNotificationId, endNotificationId, requestDetails);
   }
 
   @Override
