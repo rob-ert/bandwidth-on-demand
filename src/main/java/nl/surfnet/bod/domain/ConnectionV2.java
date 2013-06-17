@@ -34,7 +34,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -42,10 +41,8 @@ import javax.xml.namespace.QName;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
-
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
@@ -131,7 +128,7 @@ public class ConnectionV2 extends AbstractConnection {
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime reserveHeldTimeout;
 
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Type(type = "nl.surfnet.bod.domain.ConnectionV2$NotificationBaseTypeUserType")
   @CollectionTable(name = "notification")
   @Column(name = "notification")
@@ -140,6 +137,14 @@ public class ConnectionV2 extends AbstractConnection {
   public ConnectionV2() {
   }
 
+  /**
+   *
+   * @return the next id that you can assign to the NotificationBaseType that you want to add to the collection of notifications
+   */
+  public int nextNotificationId(){
+    // this looks like its vulnerable to lost updates but it won't, because a lost update will be prevented by an optimistic locking exception
+    return notifications.size() + 1;
+  }
   public String getGlobalReservationId() {
     return globalReservationId;
   }

@@ -33,20 +33,18 @@ import javax.xml.ws.Holder;
 
 import com.google.common.collect.ImmutableList;
 import com.sun.xml.ws.client.ClientTransportException;
-
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -85,7 +83,6 @@ public class ConnectionServiceRequesterClient {
   public void asyncSendReserveTimeout(CommonHeaderType header, String connectionId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      // FIXME notification id
       port.reserveTimeout(connectionId, 0, timeStamp, timeoutValue, connectionId, header.getProviderNSA(), new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Reserve Timeout", e);
@@ -147,7 +144,6 @@ public class ConnectionServiceRequesterClient {
   public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      // FIXME notification id
       port.dataPlaneStateChange(connectionId, 0, timeStamp, dataPlaneStatus, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
@@ -155,24 +151,22 @@ public class ConnectionServiceRequesterClient {
   }
 
   @Async
-  public void asyncSendDataPlaneError(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    sendErrorEvent(EventEnumType.DATAPLANE_ERROR, header, connectionId, timeStamp, replyTo);
+  public void asyncSendDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
-
   @Async
-  public void asyncSendDeactivateFailed(CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    sendErrorEvent(EventEnumType.DEACTIVATE_FAILED, header, connectionId, timeStamp, replyTo);
+  public void asyncSendDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
 
-  private void sendErrorEvent(EventEnumType type, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    TypeValuePairListType additionalInfo = null;
-    ServiceExceptionType serviceException = null;
+  private void sendErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+
     ConnectionRequesterPort port = createPort(replyTo);
     try {
-      // FIXME notification id
-      port.errorEvent(connectionId, 0, timeStamp, type, additionalInfo, serviceException, new Holder<>(header));
+      port.errorEvent(connectionId, notification.getNotificationId(), timeStamp, notification.getEvent(),
+          notification.getAdditionalInfo(), notification.getServiceException(), new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Data Plane Error ({})", type);
+      log.info("Failed to send Data Plane Error ({})", notification.getEvent());
     }
   }
 

@@ -34,17 +34,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -53,6 +53,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReserveTimeoutRequestType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
@@ -100,12 +101,19 @@ public class ConnectionServiceRequesterV2 {
     client.asyncSendReserveFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
   }
 
-  public void reserveTimeout(Long id, DateTime timestamp) {
+  public void reserveTimeout(Long id, DateTime when) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
+    final XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
     NsiRequestDetails requestDetails = connection.getReserveRequestDetails();
-    client.asyncSendReserveTimeout(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), XmlUtils.toGregorianCalendar(timestamp), requestDetails.getReplyTo());
+    ReserveTimeoutRequestType notification = new ReserveTimeoutRequestType();
+    notification.setTimeoutValue(connection.getReserveHeldTimeoutValue());
+    populateNotification(notification, connection, timeStamp);
+    notification.setOriginatingNSA(requestDetails.getRequesterNsa());
+    notification.setOriginatingConnectionId(connection.getConnectionId());
+
+    client.asyncSendReserveTimeout(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
   }
 
   public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {
@@ -166,15 +174,21 @@ public class ConnectionServiceRequesterV2 {
 
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
 
-    client.asyncSendDataPlaneError(requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+    ErrorEventType notification = new ErrorEventType();
+    notification.setEvent(EventEnumType.DATAPLANE_ERROR);
+    populateNotification(notification, connection, timeStamp);
+
+    client.asyncSendDataPlaneError(notification, requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
   public void deactivateFailed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
 
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
-
-    client.asyncSendDeactivateFailed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+    ErrorEventType notification = new ErrorEventType();
+    notification.setEvent(EventEnumType.DEACTIVATE_FAILED);
+    populateNotification(notification, connection, timeStamp);
+    client.asyncSendDeactivateFailed(notification, requestDetails.getCommonHeaderType(), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
   private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
@@ -186,11 +200,8 @@ public class ConnectionServiceRequesterV2 {
     CommonHeaderType header = requestDetails.getCommonHeaderType().withCorrelationId(NsiHelper.generateCorrelationId());
 
     DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType();
-    notification.setConnectionId(connection.getConnectionId());
+    populateNotification(notification, connection, timeStamp);
     notification.setDataPlaneStatus(dataPlaneStatus);
-    notification.setNotificationId(connection.getNotifications().size() + 1);
-    notification.setTimeStamp(timeStamp);
-    connection.addNotification(notification);
 
     client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
@@ -211,5 +222,12 @@ public class ConnectionServiceRequesterV2 {
     QueryNotificationConfirmedType query = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
 
     client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(), query, requestDetails.getReplyTo());
+  }
+
+  private void populateNotification(final NotificationBaseType notification, final ConnectionV2 connection, final XMLGregorianCalendar timeStamp){
+    notification.setConnectionId(connection.getConnectionId());
+    notification.setTimeStamp(timeStamp);
+    notification.setNotificationId(connection.nextNotificationId());
+    connection.addNotification(notification);
   }
 }
