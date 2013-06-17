@@ -24,13 +24,16 @@ package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -41,7 +44,6 @@ import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -54,8 +56,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import com.google.common.base.Optional;
 
 @Service
 public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
@@ -182,17 +182,20 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  // TODO start, end notification..
   public void asyncQueryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, NsiRequestDetails requestDetails) {
-    // query our notifications from the db
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
-    Collection<NotificationBaseType> notifications = Collections.emptyList();
 
-    if (connection != null){
-      notifications = connection.getNotifications();
+    RangeSet<Integer> notificationRange = TreeRangeSet.create();
+    notificationRange.add(Range.closed(startNotificationId, endNotificationId));
+    List<NotificationBaseType> selectedNotifications = new ArrayList<>();
+
+    for (NotificationBaseType notification: connection.getNotifications()){
+      if (notificationRange.contains(notification.getNotificationId())){
+        selectedNotifications.add(notification);
+      }
     }
 
-    connectionServiceRequester.queryNotificationConfirmed(null, requestDetails);
+    connectionServiceRequester.queryNotificationConfirmed(selectedNotifications, requestDetails);
   }
 
   private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
