@@ -57,8 +57,10 @@ import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class ConnectionServiceRequesterV2 {
 
   @Resource private ConnectionV2Repo connectionRepo;
@@ -68,7 +70,6 @@ public class ConnectionServiceRequesterV2 {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connection.setReserveHeldTimeout(Optional.of(new DateTime().plusSeconds(connection.getReserveHeldTimeoutValue())));
-    connectionRepo.save(connection);
 
     ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
       .withBandwidth(connection.getDesiredBandwidth())
@@ -89,7 +90,6 @@ public class ConnectionServiceRequesterV2 {
   public void reserveFailed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_FAILED);
-    connectionRepo.save(connection);
 
     ServiceExceptionType exception = new ServiceExceptionType()
       .withConnectionId(connection.getConnectionId())
@@ -103,7 +103,6 @@ public class ConnectionServiceRequesterV2 {
   public void reserveTimeout(Long id, DateTime timestamp) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
-    connectionRepo.save(connection);
 
     NsiRequestDetails requestDetails = connection.getReserveRequestDetails();
     client.asyncSendReserveTimeout(requestDetails.getCommonHeaderType(), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), XmlUtils.toGregorianCalendar(timestamp), requestDetails.getReplyTo());
@@ -112,7 +111,6 @@ public class ConnectionServiceRequesterV2 {
   public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
-    connectionRepo.save(connection);
 
     client.asyncSendAbortConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
@@ -120,7 +118,6 @@ public class ConnectionServiceRequesterV2 {
   public void terminateConfirmed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
-    connectionRepo.save(connection);
 
     client.asyncSendTerminateConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
@@ -128,7 +125,6 @@ public class ConnectionServiceRequesterV2 {
   public void reserveAbortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
-    connectionRepo.save(connection);
 
     client.asyncSendReserveAbortConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
@@ -139,7 +135,6 @@ public class ConnectionServiceRequesterV2 {
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connection.setDataPlaneActive(false);
-    connectionRepo.save(connection);
 
     client.asyncSendReserveCommitConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
@@ -147,7 +142,6 @@ public class ConnectionServiceRequesterV2 {
   public void provisionConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
-    connectionRepo.save(connection);
 
     client.asyncSendProvisionConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
@@ -169,7 +163,6 @@ public class ConnectionServiceRequesterV2 {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(false);
     connection.setLifecycleState(LifecycleStateEnumType.FAILED);
-    connectionRepo.save(connection);
 
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
 
@@ -198,8 +191,6 @@ public class ConnectionServiceRequesterV2 {
     notification.setNotificationId(connection.getNotifications().size() + 1);
     notification.setTimeStamp(timeStamp);
     connection.addNotification(notification);
-
-    connectionRepo.save(connection);
 
     client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }

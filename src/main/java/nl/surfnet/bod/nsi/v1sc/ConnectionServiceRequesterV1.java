@@ -48,8 +48,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class ConnectionServiceRequesterV1 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1.class);
