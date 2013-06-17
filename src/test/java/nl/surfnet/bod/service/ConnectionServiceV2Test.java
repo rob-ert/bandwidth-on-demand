@@ -100,6 +100,7 @@ public class ConnectionServiceV2Test {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void asyncQueryNotification_should_only_post_back_notifications_that_are_in_range() {
     final Integer lowerBound = 2;
     final Integer upperBound = 3;
