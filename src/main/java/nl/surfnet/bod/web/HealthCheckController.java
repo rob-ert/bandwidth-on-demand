@@ -27,14 +27,24 @@ import static nl.surfnet.bod.web.HealthCheckController.ServiceState.FAILED;
 import static nl.surfnet.bod.web.HealthCheckController.ServiceState.SUCCEEDED;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.util.Environment;
 
@@ -42,13 +52,13 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.google.common.collect.ImmutableList;
 
 @Controller
 public class HealthCheckController {
@@ -57,6 +67,9 @@ public class HealthCheckController {
 
   @Resource
   private IddClient iddClient;
+
+  @Resource
+  private InstituteService instituteService;
 
   @Resource
   private NbiClient nbiClient;
@@ -73,95 +86,27 @@ public class HealthCheckController {
   @Resource(name = "bodEnvironment")
   private Environment environment;
 
-  @RequestMapping(value = "/healthcheck")
-  public String index(Model model) {
+  public interface ServiceCheck {
+    ServiceState healty() throws Exception;
 
-    List<Callable<ServiceState>> tasks = ImmutableList.of(
-      callable(iddServiceCheck),
-      callable(nbiServiceCheck),
-      callable(oAuthServerServiceCheck),
-      callable(apiServiceCheck),
-      callable(sabServiceCheck),
-      callable(versCheck)
-    );
-
-    ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
-    try {
-      List<Future<ServiceState>> futures = threadPool.invokeAll(tasks, 20, TimeUnit.SECONDS);
-
-      addState(model, "iddHealth", futures.get(0));
-      addState(model, "nbiHealth", futures.get(1));
-      addState(model, "oAuthServer", futures.get(2));
-      addState(model, "openConextApi", futures.get(3));
-      addState(model, "sabHealth", futures.get(4));
-      addState(model, "versHealth", futures.get(5));
-      model.addAttribute("nbiImplementation", nbiClient.getClass().getSimpleName());
-      model.addAttribute("iddImplementation", iddClient.getClass().getSimpleName());
-    }
-    catch (InterruptedException e) {
-      logger.error("Error during calling healthchecks", e);
-    } finally {
-      threadPool.shutdown();
-    }
-
-    return "healthcheck";
+    String getName();
   }
 
-  private void addState(Model model, String name, Future<ServiceState> healthFuture) {
-      model.addAttribute(name, toState(name, healthFuture));
-  }
-
-  private ServiceState toState(String name, Future<ServiceState> healthFuture) {
-    try {
-      return healthFuture.get();
-    }
-    catch (InterruptedException | ExecutionException | CancellationException e) {
-      logger.error("Error during healthcheck of " + name, e);
-      return ServiceState.FAILED;
-    }
-
-  }
-
-  private Callable<ServiceState> callable(final ServiceCheck serviceCheck) {
-    return new Callable<ServiceState>() {
-      @Override
-      public ServiceState call() {
-        return isServiceHealthy(serviceCheck);
-      }
-    };
-  }
-
-  public ServiceState isServiceHealthy(ServiceCheck check) {
-    ServiceState result;
-    try {
-      result = check.healty();
-
-      if (result.failed()) {
-        logger.error("HealthCheck for '{}' failed", check.getName());
-      }
-
-    }
-    catch (Exception e) {
-      logger.error("Healthcheck for " + check.getName() + " failed with an exception: ", e);
-      result = ServiceState.FAILED;
-    }
-
-    return result;
-  }
-
-  final ServiceCheck iddServiceCheck = new ServiceCheck() {
+  private final ServiceCheck iddServiceCheck = new ServiceCheck() {
     @Override
     public ServiceState healty() {
-      return iddClient.getInstitutes().size() > 0 ? SUCCEEDED : FAILED;
+      Instant lastUpdatedAt = instituteService.instituteslastUpdatedAt();
+      Duration timeout = environment.getInstituteCacheMaxAge();
+      return (lastUpdatedAt != null && lastUpdatedAt.plus(timeout.getMillis()).isAfterNow()) ? SUCCEEDED : FAILED;
     }
 
     @Override
     public String getName() {
-      return "IDD";
+      return "IDD (using " + iddClient.getClass().getSimpleName() + ")";
     }
   };
 
-  final ServiceCheck nbiServiceCheck = new ServiceCheck() {
+  private final ServiceCheck nbiServiceCheck = new ServiceCheck() {
     @Override
     public ServiceState healty() {
       return nbiClient.getPhysicalPortsCount() > 0 ? SUCCEEDED : FAILED;
@@ -169,11 +114,11 @@ public class HealthCheckController {
 
     @Override
     public String getName() {
-      return "NBI";
+      return "NBI (using " + nbiClient.getClass().getSimpleName() + ")";
     }
   };
 
-  final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
+  private final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
     @Override
     public ServiceState healty() throws IOException {
       DefaultHttpClient client = new DefaultHttpClient();
@@ -189,7 +134,7 @@ public class HealthCheckController {
     }
   };
 
-  final ServiceCheck apiServiceCheck = new ServiceCheck() {
+  private final ServiceCheck apiServiceCheck = new ServiceCheck() {
     private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
     @Override
@@ -203,7 +148,7 @@ public class HealthCheckController {
     }
   };
 
-  final ServiceCheck sabServiceCheck = new ServiceCheck() {
+  private final ServiceCheck sabServiceCheck = new ServiceCheck() {
     private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
     @Override
@@ -222,7 +167,7 @@ public class HealthCheckController {
     }
   };
 
-  final ServiceCheck versCheck = new ServiceCheck() {
+  private final ServiceCheck versCheck = new ServiceCheck() {
     @Override
     public ServiceState healty() throws IOException {
       return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
@@ -234,14 +179,87 @@ public class HealthCheckController {
     }
   };
 
-  interface ServiceCheck {
-    ServiceState healty() throws Exception;
+  private List<ServiceCheck> checks = Arrays.asList(
+      iddServiceCheck,
+      nbiServiceCheck,
+      oAuthServerServiceCheck,
+      apiServiceCheck,
+      sabServiceCheck,
+      versCheck);
 
-    String getName();
+  @RequestMapping(value = "/healthcheck")
+  public String index(Model model, HttpServletResponse response) {
+    List<Callable<ServiceCheckResult>> tasks = new ArrayList<>();
+    for (ServiceCheck check : checks) {
+      tasks.add(callable(check));
+    }
+
+    boolean everythingOk = true;
+    ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
+    List<ServiceCheckResult> systems = new ArrayList<>();
+    try {
+      List<Future<ServiceCheckResult>> futures = threadPool.invokeAll(tasks, 20, TimeUnit.SECONDS);
+      for (int i = 0; i < futures.size(); ++i) {
+        systems.add(toState(checks.get(i).getName(), futures.get(i)));
+      }
+      model.addAttribute("systems", systems);
+
+      for (ServiceCheckResult result : systems) {
+        everythingOk &= result.state != ServiceState.FAILED;
+      }
+    } catch (InterruptedException e) {
+      everythingOk = false;
+      logger.error("Error during calling healthchecks", e);
+    } finally {
+      threadPool.shutdown();
+    }
+    response.setStatus(everythingOk ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+    return "healthcheck";
+  }
+
+  private ServiceCheckResult toState(String name, Future<ServiceCheckResult> healthFuture) {
+    try {
+      return healthFuture.get();
+    } catch (InterruptedException | ExecutionException | CancellationException e) {
+      logger.error("Error during healthcheck of " + name, e);
+      return new ServiceCheckResult(name, ServiceState.FAILED);
+    }
+
+  }
+
+  private Callable<ServiceCheckResult> callable(final ServiceCheck serviceCheck) {
+    return new Callable<ServiceCheckResult>() {
+      @Override
+      public ServiceCheckResult call() {
+        return new ServiceCheckResult(serviceCheck.getName(), isServiceHealthy(serviceCheck));
+      }
+    };
+  }
+
+  public ServiceState isServiceHealthy(ServiceCheck check) {
+    ServiceState result;
+    try {
+      result = check.healty();
+
+      if (result.failed()) {
+        logger.error("HealthCheck for '{}' failed", check.getName());
+      }
+
+    } catch (Exception e) {
+      logger.error("Healthcheck for " + check.getName() + " failed with an exception: ", e);
+      result = ServiceState.FAILED;
+    }
+
+    return result;
   }
 
   protected void setLogger(Logger logger) {
     this.logger = logger;
+  }
+
+  public void setChecks(List<ServiceCheck> checks) {
+    this.checks = checks;
   }
 
   public enum ServiceState {
@@ -249,6 +267,52 @@ public class HealthCheckController {
 
     public boolean failed() {
       return this == FAILED;
+    }
+  }
+
+  public static class ServiceCheckResult {
+    private String name;
+    private ServiceState state;
+
+    public ServiceCheckResult(String name, ServiceState state) {
+      this.name = name;
+      this.state = state;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public ServiceState getState() {
+      return state;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((name == null) ? 0 : name.hashCode());
+      result = prime * result + ((state == null) ? 0 : state.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ServiceCheckResult other = (ServiceCheckResult) obj;
+      if (name == null) {
+        if (other.name != null)
+          return false;
+      } else if (!name.equals(other.name))
+        return false;
+      if (state != other.state)
+        return false;
+      return true;
     }
   }
 }

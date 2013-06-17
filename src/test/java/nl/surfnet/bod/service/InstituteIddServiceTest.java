@@ -25,6 +25,7 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -35,19 +36,27 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 
+import org.joda.time.DateTimeUtils;
+import org.joda.time.Instant;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteIddServiceTest {
@@ -66,6 +75,23 @@ public class InstituteIddServiceTest {
 
   @Mock
   private SnmpAgentService snmpAgentService;
+
+  private TransactionOperations transactionOperations = new TransactionOperations() {
+    @Override
+    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+      return action.doInTransaction(new SimpleTransactionStatus(true));
+    }
+  };
+
+  @Before
+  public void setUp() {
+    subject.setTransactionOperations(transactionOperations);
+  }
+
+  @After
+  public void tearDown() {
+    DateTimeUtils.setCurrentMillisSystem();
+  }
 
   @Test
   public void whenAllInstituesEqualDontUpdate() {
@@ -154,4 +180,15 @@ public class InstituteIddServiceTest {
     assertThat(institutes.get(0).isAlignedWithIDD(), is(true));
   }
 
+  @Test
+  public void whenInstitutesAreUpdatedTheLastUpdatedAtShouldBeSetAfterCommit() {
+    Instant now = Instant.now();
+    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+
+    assertThat(subject.instituteslastUpdatedAt(), is(nullValue()));
+
+    subject.refreshInstitutes();
+
+    assertThat(subject.instituteslastUpdatedAt(), is(now));
+  }
 }

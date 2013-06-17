@@ -25,28 +25,34 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Lists;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionOperations;
 
 @Service
-@Transactional
 public class InstituteIddService implements InstituteService {
 
   private static final String INSTITUTE_REFRESH_CRON_KEY = "institute.refresh.job.cron";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  private volatile Instant institutesLastUpdatedAt = null;
 
   @Resource
   private IddClient iddClient;
@@ -59,6 +65,9 @@ public class InstituteIddService implements InstituteService {
 
   @Resource
   private SnmpAgentService snmpAgentService;
+
+  @Resource
+  private TransactionOperations transactionOperations;
 
   @Override
   public Institute find(Long id) {
@@ -76,16 +85,28 @@ public class InstituteIddService implements InstituteService {
   }
 
   @Override
+  @PostConstruct
   @Scheduled(cron = "${" + INSTITUTE_REFRESH_CRON_KEY + "}")
   public void refreshInstitutes() {
-    logger.info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
+    logger.info("Refreshing institutes from IDD");
 
-    List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
-    Collection<Institute> iddInstitutes = iddClient.getInstitutes();
+    transactionOperations.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
+        Collection<Institute> iddInstitutes = iddClient.getInstitutes();
 
-    detectRemovedInstitutes(currentAlignedInstitutes, iddInstitutes);
+        detectRemovedInstitutes(currentAlignedInstitutes, iddInstitutes);
 
-    detectAddedInstitutes(currentAlignedInstitutes, iddInstitutes);
+        detectAddedInstitutes(currentAlignedInstitutes, iddInstitutes);
+      }
+    });
+    institutesLastUpdatedAt = Instant.now();
+  }
+
+  @Override
+  public Instant instituteslastUpdatedAt() {
+    return institutesLastUpdatedAt;
   }
 
   private void detectAddedInstitutes(List<Institute> currentAlignedInstitutes, Collection<Institute> iddInstitutes) {
@@ -103,8 +124,8 @@ public class InstituteIddService implements InstituteService {
     unalignedInstitutes.removeAll(iddInstitutes);
 
     logger.info(
-      "Found {} institutes that are not in IDD anymore, marking them not aligned",
-      unalignedInstitutes.size());
+        "Found {} institutes that are not in IDD anymore, marking them not aligned",
+        unalignedInstitutes.size());
 
     markNotAligned(unalignedInstitutes);
     instituteRepo.save(unalignedInstitutes);
@@ -117,6 +138,11 @@ public class InstituteIddService implements InstituteService {
       institute.setAlignedWithIDD(false);
       snmpAgentService.sendMissingInstituteEvent(institute.getId().toString());
     }
+  }
+
+  @VisibleForTesting
+  void setTransactionOperations(TransactionOperations transactionOperations) {
+    this.transactionOperations = transactionOperations;
   }
 
 }

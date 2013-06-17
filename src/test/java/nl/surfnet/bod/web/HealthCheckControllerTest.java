@@ -23,20 +23,26 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.HealthCheckController.ServiceCheck;
+import nl.surfnet.bod.web.HealthCheckController.ServiceCheckResult;
 import nl.surfnet.bod.web.HealthCheckController.ServiceState;
 
 import org.junit.Test;
@@ -47,8 +53,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 import org.slf4j.helpers.NOPLoggerFactory;
-
-import com.google.common.collect.Lists;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HealthCheckControllerTest {
@@ -65,21 +70,40 @@ public class HealthCheckControllerTest {
   @Mock
   private Environment bodEnvironment;
 
+  private HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+
+  @SuppressWarnings("unchecked")
   @Test
-  public void iddShouldPassTheHealthCheck() {
+  public void should_have_status_200_when_all_checks_pass() throws Exception {
     supressErrorOutput();
     ModelStub model = new ModelStub();
+    ServiceCheck check = mock(ServiceCheck.class);
+    subject.setChecks(Collections.singletonList(check));
 
-    when(iddClientMock.getInstitutes()).thenReturn(Lists.newArrayList(new InstituteFactory().create()));
-    when(bodEnvironment.isSabEnabled()).thenReturn(false);
+    when(check.getName()).thenReturn("mock check");
+    when(check.healty()).thenReturn(ServiceState.SUCCEEDED);
 
-    subject.index(model);
+    subject.index(model, httpServletResponse);
 
-    assertThat((ServiceState) model.asMap().get("iddHealth"), is(ServiceState.SUCCEEDED));
-    assertThat((ServiceState) model.asMap().get("nbiHealth"), is(ServiceState.FAILED));
-    assertThat((ServiceState) model.asMap().get("sabHealth"), is(ServiceState.DISABLED));
-    assertThat((String) model.asMap().get("iddImplementation"), containsString("IddClient"));
-    assertThat((String) model.asMap().get("nbiImplementation"), containsString("NbiClient"));
+    assertThat(httpServletResponse.getStatus(), is(HttpServletResponse.SC_OK));
+    assertThat((Iterable<ServiceCheckResult>)model.asMap().get("systems"), contains(new ServiceCheckResult("mock check", ServiceState.SUCCEEDED)));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void should_have_status_500_when_at_least_one_check_fails() throws Exception {
+    supressErrorOutput();
+    ModelStub model = new ModelStub();
+    ServiceCheck check = mock(ServiceCheck.class);
+    subject.setChecks(Collections.singletonList(check));
+
+    when(check.getName()).thenReturn("mock check");
+    when(check.healty()).thenReturn(ServiceState.FAILED);
+
+    subject.index(model, httpServletResponse);
+
+    assertThat(httpServletResponse.getStatus(), is(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+    assertThat((Iterable<ServiceCheckResult>)model.asMap().get("systems"), contains(new ServiceCheckResult("mock check", ServiceState.FAILED)));
   }
 
   @SuppressWarnings("unchecked")
@@ -91,7 +115,7 @@ public class HealthCheckControllerTest {
 
     when(bodEnvironment.isSabEnabled()).thenReturn(true);
 
-    subject.index(model);
+    subject.index(model, httpServletResponse);
 
     assertThat(logger.getErrorMessages(), hasItems(
         containsString("IDD"),

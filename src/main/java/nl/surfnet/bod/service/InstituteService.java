@@ -26,11 +26,13 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.Institute;
 
+import org.joda.time.Instant;
+
 public interface InstituteService {
 
   /**
    * Finds the {@link Institute} related to the given Id.
-   * 
+   *
    * @param id
    *          Id to search for.
    * @return {@link Institute} related to the id
@@ -39,7 +41,7 @@ public interface InstituteService {
 
   /**
    * Finds the {@link Institute} related to the given shortName
-   * 
+   *
    * @param shortName
    *          ShortName to search for
    * @return {@link Institute} related to the shortName ofr null when not found
@@ -48,7 +50,7 @@ public interface InstituteService {
 
   /**
    * Finds all {@link Institute}s which are aligned with IDD.
-   * 
+   *
    * @return
    */
   Collection<Institute> findAlignedWithIDD();
@@ -62,4 +64,9 @@ public interface InstituteService {
    */
   void refreshInstitutes();
 
+  /**
+   * @return last time the institute table was successfully updated or
+   *         <code>null</code> when unknown.
+   */
+  Instant instituteslastUpdatedAt();
 }

@@ -16,36 +16,19 @@
         </h3>
     </div>
     <div class="modal-body">
-        <i class="icon-info-sign"> <!--  --> </i>
-        <p>
-            <spring:message code="success_healthcheck_message" htmlEscape="false" />
-        </p>
-        <dl class="dl-horizontal" id="healthcheck" style="clear: left;">
-            <dt>IDD (<c:out value="${iddImplementation}" />)</dt>
-            <dd>
-                <util:serviceState health="${iddHealth}" />
-            </dd>
-            <dt>NBI (<c:out value="${nbiImplementation}" />)</dt>
-            <dd>
-                <util:serviceState health="${nbiHealth}" />
-            </dd>
-            <dt>OpenConext API</dt>
-            <dd>
-                <util:serviceState health="${openConextApi}" />
-            </dd>
-            <dt>OAuth Server</dt>
-            <dd>
-                <util:serviceState health="${oAuthServer}" />
-            </dd>
-            <dt>SabNG</dt>
-            <dd>
-                <util:serviceState health="${sabHealth}" />
-            </dd>
-            <dt>VERS</dt>
-            <dd>
-                <util:serviceState health="${versHealth}" />
-            </dd>
-        </dl>
+        <table class="table" id="healthcheck">
+            <thead>
+                <tr><td>System</td><td>Status</td></tr>
+            </thead>
+            <tbody>
+            <c:forEach var="system" items="${systems}">
+                <tr>
+                    <td><c:out value="${system.name}"/></td>
+                    <td><util:serviceState health="${system.state}" /></td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
     </div>
     <div class="actions"><!--  --></div>
 </div>

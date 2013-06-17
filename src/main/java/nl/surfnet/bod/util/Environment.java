@@ -23,6 +23,7 @@
 package nl.surfnet.bod.util;
 
 import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -97,6 +98,9 @@ public class Environment {
 
   @Value("${sab.enabled}")
   private boolean sabEnabled;
+
+  @Value("${institute.cache.max.age.in.hours}")
+  private int instituteCacheMaxAgeInHours;
 
   public Environment() {
   }
@@ -245,5 +249,9 @@ public class Environment {
 
   public String getEnvironment() {
     return environment;
+  }
+
+  public Duration getInstituteCacheMaxAge() {
+    return Duration.standardHours(instituteCacheMaxAgeInHours);
   }
 }

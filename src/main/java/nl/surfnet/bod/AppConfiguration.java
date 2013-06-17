@@ -32,6 +32,12 @@ import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.ObjectArrays;
+import com.googlecode.flyway.core.Flyway;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.sabng.EntitlementsHandler;
@@ -42,8 +48,15 @@ import org.jasypt.util.text.StrongTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
@@ -62,13 +75,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.ObjectArrays;
-import com.googlecode.flyway.core.Flyway;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod")
@@ -240,6 +249,12 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public JpaTransactionManager transactionManager() {
     return new JpaTransactionManager();
+  }
+
+  // TransactionTemplate is mutable, so provide a new instance to each user.
+  @Bean @Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
+    return new TransactionTemplate(transactionManager);
   }
 
   @Bean
