@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
@@ -68,6 +69,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 
@@ -222,4 +224,14 @@ public class ConnectionServiceRequesterV2Test {
     verify(requesterClientMock).asyncSendReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
   }
 
+  @Test
+  public void should_goto_passed_end_time_when_connection_is_passed_end_time() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_START).setLifecycleState(LifecycleStateEnumType.CREATED).create();
+    when(connectionRepMock.findOne(1L)).thenReturn(connection);
+
+    subject.reservePassedEndTime(1L);
+
+    assertThat(connection.getLifecycleState(), is(Optional.of(LifecycleStateEnumType.PASSED_END_TIME)));
+    verifyNoMoreInteractions(requesterClientMock);
+  }
 }

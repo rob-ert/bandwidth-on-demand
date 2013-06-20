@@ -273,7 +273,7 @@ public class ConnectionServiceProviderListenerV2Test {
   }
 
   @Test
-  public void should_send_nothing_when_reserve_passed_end_time() {
+  public void should_update_connection_lifecycle_state_machine() {
     ConnectionV2 connection = new ConnectionV2Factory()
       .setReservationState(ReservationStateEnumType.RESERVE_START)
       .setProvisionState(ProvisionStateEnumType.RELEASED)
@@ -287,7 +287,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verifyZeroInteractions(requesterMock);
+    verify(requesterMock).reservePassedEndTime(connection.getId());
   }
 
   @Test

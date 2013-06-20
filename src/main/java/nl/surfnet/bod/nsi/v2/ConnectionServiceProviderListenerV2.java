@@ -105,7 +105,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
       break;
     case PASSED_END_TIME:
-      // end time passed but no provision.. nothing to do..
+      requester.reservePassedEndTime(connection.getId());
       break;
     case CANCEL_FAILED:
       if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {

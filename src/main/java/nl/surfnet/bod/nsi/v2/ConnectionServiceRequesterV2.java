@@ -155,6 +155,11 @@ public class ConnectionServiceRequesterV2 {
     client.asyncSendProvisionConfirmed(requestDetails.getCommonHeaderType(), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
+  public void reservePassedEndTime(Long connectionId) {
+    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+    connection.setLifecycleState(LifecycleStateEnumType.PASSED_END_TIME);
+  }
+
   public void dataPlaneActivated(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(true);
