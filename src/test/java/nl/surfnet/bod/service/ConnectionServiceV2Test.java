@@ -26,13 +26,12 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -42,11 +41,12 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceV2Test {
@@ -100,26 +100,58 @@ public class ConnectionServiceV2Test {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
-  public void asyncQueryNotification_should_only_post_back_notifications_that_are_in_range() {
-    final Integer lowerBound = 2;
-    final Integer upperBound = 3;
+  public void queryNotification_should_not_return_dataplane_status_changes() {
     final String connectionId = "f00f";
     final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     connection.setConnectionId(connectionId);
 
-    for (int i = lowerBound - 1; i <= upperBound + 1; i++){
+    connection.addNotification(new ErrorEventType().withNotificationId(0));
+    connection.addNotification(new DataPlaneStateChangeRequestType().withNotificationId(1));
+
+    when(connectionRepo.findByConnectionId(connectionId)).thenReturn(connection);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
+
+    assertTrue(notifications.size() == 1);
+  }
+
+  @Test
+  public void queryNotification_ranges_are_optional() {
+    final String connectionId = "f00f";
+    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    connection.setConnectionId(connectionId);
+
+    for (int i = 0; i < 4; i++){
       ErrorEventType notification = new ErrorEventType();
       notification.setNotificationId(i);
       connection.addNotification(notification);
     }
 
     when(connectionRepo.findByConnectionId(connectionId)).thenReturn(connection);
-    ArgumentCaptor<List> argument = ArgumentCaptor.forClass(List.class);
-    subject.asyncQueryNotification(connectionId, lowerBound, upperBound, requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
 
-    verify(connectionServiceRequester).queryNotificationConfirmed(argument.capture(), eq(requestDetails));
-    assertTrue(argument.getValue().size() == 2);
+    assertTrue(notifications.size() == 4);
+  }
+
+  @Test
+  public void queryNotification_should_only_post_back_notifications_that_are_in_range() {
+    final Optional<Integer> lowerBound = Optional.of(2);
+    final Optional<Integer> upperBound = Optional.of(3);
+    final String connectionId = "f00f";
+    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    connection.setConnectionId(connectionId);
+
+    for (int i = lowerBound.get() - 1; i <= upperBound.get() + 1; i++){
+      ErrorEventType notification = new ErrorEventType();
+      notification.setNotificationId(i);
+      connection.addNotification(notification);
+    }
+
+    when(connectionRepo.findByConnectionId(connectionId)).thenReturn(connection);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, lowerBound, upperBound, requestDetails);
+
+    assertTrue(notifications.size() == 2);
   }
 }

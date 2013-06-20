@@ -225,9 +225,9 @@ public class ConnectionServiceRequesterV2 {
   }
 
   public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiRequestDetails requestDetails) {
-    QueryNotificationConfirmedType query = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
+    QueryNotificationConfirmedType result = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
 
-    client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(), query, requestDetails.getReplyTo());
+    client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(), result, requestDetails.getReplyTo());
   }
 
   private void populateNotification(final NotificationBaseType notification, final ConnectionV2 connection, final XMLGregorianCalendar timeStamp){

@@ -34,6 +34,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -43,6 +44,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
@@ -128,7 +130,7 @@ public class ConnectionV2 extends AbstractConnection {
   @FieldBridge(impl = TimeStampBridge.class)
   private DateTime reserveHeldTimeout;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @Type(type = "nl.surfnet.bod.domain.ConnectionV2$NotificationBaseTypeUserType")
   @CollectionTable(name = "notification")
   @Column(name = "notification")

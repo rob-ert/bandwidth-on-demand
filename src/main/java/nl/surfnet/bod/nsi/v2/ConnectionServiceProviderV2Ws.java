@@ -56,6 +56,7 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
@@ -266,14 +267,21 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
-    log.info("Received a Query Notifcation");
+    log.info("Received a Query Notifcation async");
 
-    connectionService.asyncQueryNotification(connectionId, startNotificationId, endNotificationId, requestDetails);
+    connectionService.asyncQueryNotification(connectionId, Optional.fromNullable(startNotificationId),
+        Optional.fromNullable(endNotificationId), requestDetails);
   }
 
   @Override
   public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
-    return null;
+
+    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
+        Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
+        Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
+        requestDetails);
+    return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
   }
 
   private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {

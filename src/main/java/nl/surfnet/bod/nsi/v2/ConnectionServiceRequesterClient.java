@@ -144,6 +144,7 @@ public class ConnectionServiceRequesterClient {
   public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
+      // FIXME the dataplane_status_change notification_id should be passed to the port here, instead of 0
       port.dataPlaneStateChange(connectionId, 0, timeStamp, dataPlaneStatus, new Holder<>(header));
     } catch (ClientTransportException | ServiceException e) {
       log.info("Failed to send Data Plane State Change");
