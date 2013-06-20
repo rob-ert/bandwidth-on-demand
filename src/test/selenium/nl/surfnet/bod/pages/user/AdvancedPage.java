@@ -30,8 +30,6 @@ import org.openqa.selenium.support.PageFactory;
 
 public class AdvancedPage extends AbstractPage {
 
-  private static final String PAGE = "/advanced";
-
   @FindBy(className = "oAuthTokensLink")
   private WebElement oauthTokensLink;
 

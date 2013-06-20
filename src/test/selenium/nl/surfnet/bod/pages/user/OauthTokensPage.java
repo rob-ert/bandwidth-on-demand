@@ -30,9 +30,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class OauthTokensPage extends AbstractPage{
-
-  private static final String PAGE = "/oauth2/tokens";
+public class OauthTokensPage extends AbstractPage {
 
   @FindBy(className = "requestLink")
   private WebElement requestLink;
