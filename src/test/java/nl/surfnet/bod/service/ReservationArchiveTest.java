@@ -20,31 +20,35 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.domain;
+package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Ignore;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 
 public class ReservationArchiveTest {
 
-  @Ignore("fix JSON")
   @Test
   public void testReservationArchive() throws Exception {
-    final ObjectMapper mapper = null; //new ReservationService().getObjectMapper();
+    final ObjectMapper mapper = ReservationService.mapper;
 
     assertThat(mapper.canSerialize(Reservation.class), is(true));
 
     final ConnectionV1 connection = new ConnectionV1Factory().create();
     final Reservation reservation = new ReservationFactory().setConnectionV1(connection).create();
 
-//    ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-//    System.out.println(writer.writeValueAsString(reservation));
+    ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+    System.out.println(writer.writeValueAsString(reservation));
 
     final String reservationAsJson = mapper.writeValueAsString(reservation);
 

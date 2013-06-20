@@ -87,7 +87,8 @@ import com.google.common.collect.Sets;
 @Service
 public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  @VisibleForTesting
+  static final ObjectMapper mapper = new ObjectMapper();
   static {
     mapper.setVisibilityChecker(
       mapper.getSerializationConfig().getDefaultVisibilityChecker()
