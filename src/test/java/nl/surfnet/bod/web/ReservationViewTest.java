@@ -139,9 +139,9 @@ public class ReservationViewTest {
     ReservationView reservationView = new ReservationView(reservation, dummyElementActionView, dummyElementActionView);
 
     assertThat(reservationView.getConnectionId(), is(id));
-    assertThat(reservationView.getReservationState(), is(reservationState.name()));
-    assertThat(reservationView.getProvisionState(), is(provisionState.name()));
-    assertThat(reservationView.getLifeCycleState(), is(lifecycleState.name()));
+    assertThat(reservationView.getReservationState(), is(reservationState.value()));
+    assertThat(reservationView.getProvisionState(), is(provisionState.value()));
+    assertThat(reservationView.getLifeCycleState(), is(lifecycleState.value()));
     assertThat(reservationView.getDataPlaneActive(), is("Active"));
   }
 

@@ -44,12 +44,6 @@ public final class Functions {
   private Functions() {
   }
 
-  public static final Function<Enum<?>, String> enumToValue = new Function<Enum<?>, String>() {
-    public String apply(Enum<?> e) {
-      return e.name();
-    }
-  };
-
   public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = new Function<PhysicalPort, String>() {
     @Override
     public String apply(PhysicalPort physicalPort) {

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.web.view;
 
-import static nl.surfnet.bod.util.Functions.enumToValue;
+import com.google.common.base.Function;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
@@ -33,6 +33,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 
 public class ReservationView {
   private final Long id;
@@ -100,9 +101,13 @@ public class ReservationView {
     } else if (reservation.getConnectionV2().isPresent()) {
       ConnectionV2 connectionV2 = reservation.getConnectionV2().get();
       connectionState = null;
-      reservationState = connectionV2.getReservationState().name();
-      provisionState = connectionV2.getProvisionState().transform(enumToValue).or("-");
-      lifeCycleState = connectionV2.getLifecycleState().name();
+      reservationState = connectionV2.getReservationState().value();
+      provisionState = connectionV2.getProvisionState().transform(new Function<ProvisionStateEnumType, String>() {
+        public String apply(ProvisionStateEnumType state) {
+          return state.value();
+        }
+      }).or("-");
+      lifeCycleState = connectionV2.getLifecycleState().value();
       dataPlaneActive = connectionV2.getDataPlaneActive() ? "Active" : "Inactive";
     } else {
       throw new IllegalStateException("Reservation is NSI created but has no connection");
