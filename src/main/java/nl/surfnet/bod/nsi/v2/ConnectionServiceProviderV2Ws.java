@@ -57,6 +57,7 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFa
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
@@ -139,6 +140,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setPath(criteria.getPath());
     connection.setServiceAttributes(criteria.getServiceAttributes());
     connection.setReserveHeldTimeoutValue(bodEnvironment.getNsiReserveHeldTimeoutValueInSeconds());
+    connection.setLifecycleState(LifecycleStateEnumType.CREATED);
 
     return connection;
   }
@@ -215,7 +217,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void checkTerminateAllowed(ConnectionV2 connection) throws ServiceException {
-    if (!connection.getLifecycleState().isPresent()) {
+    if (connection.getLifecycleState() != LifecycleStateEnumType.CREATED) {
       throw notApplicable();
     }
   }

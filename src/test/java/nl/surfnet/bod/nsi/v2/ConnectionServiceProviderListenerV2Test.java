@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;

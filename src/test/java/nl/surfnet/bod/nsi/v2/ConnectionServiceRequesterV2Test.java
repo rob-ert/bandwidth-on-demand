@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.PASSED_END_TIME;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
@@ -120,7 +121,6 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveFailed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_FAILED));
-    assertThat(connection.getLifecycleState(), isAbsent());
     assertThat(connection.getProvisionState(), isAbsent());
   }
 
@@ -133,9 +133,8 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveAbortConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
-    assertThat(connection.getLifecycleState(), isAbsent());
     assertThat(connection.getProvisionState(), isAbsent());
-    assertThat(connection.getDataPlaneActive(), isAbsent());
+    assertThat(connection.getDataPlaneActive(), is(false));
   }
 
   @Test
@@ -147,9 +146,9 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveCommitConfirmed(1L, new NsiRequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
-    assertThat(connection.getLifecycleState(), isPresent(CREATED));
+    assertThat(connection.getLifecycleState(), is(CREATED));
     assertThat(connection.getProvisionState(), isPresent(RELEASED));
-    assertThat(connection.getDataPlaneActive(), isPresent(false));
+    assertThat(connection.getDataPlaneActive(), is(false));
   }
 
   @Test
@@ -175,7 +174,7 @@ public class ConnectionServiceRequesterV2Test {
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
     ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
     verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
-    assertThat(connection.getDataPlaneActive(), isPresent(true));
+    assertThat(connection.getDataPlaneActive(), is(true));
     assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
     assertThat(status.getValue().isActive(), is(true));
   }
@@ -188,7 +187,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.dataPlaneDeactivated(1L, new NsiRequestDetailsFactory().create());
 
-    assertThat(connection.getDataPlaneActive(), isPresent(false));
+    assertThat(connection.getDataPlaneActive(), is(false));
   }
 
   @Test
@@ -199,7 +198,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.terminateConfirmed(1L, new NsiRequestDetailsFactory().create());
 
-    assertThat(connection.getLifecycleState(), isPresent(TERMINATED));
+    assertThat(connection.getLifecycleState(), is(TERMINATED));
   }
 
   @Test
@@ -231,7 +230,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.reservePassedEndTime(1L);
 
-    assertThat(connection.getLifecycleState(), is(Optional.of(LifecycleStateEnumType.PASSED_END_TIME)));
+    assertThat(connection.getLifecycleState(), is(PASSED_END_TIME));
     verifyNoMoreInteractions(requesterClientMock);
   }
 }

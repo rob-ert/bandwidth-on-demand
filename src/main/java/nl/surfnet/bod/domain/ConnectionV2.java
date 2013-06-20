@@ -40,7 +40,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
@@ -108,7 +107,7 @@ public class ConnectionV2 extends AbstractConnection {
   private TypeValuePairListType serviceAttributes;
 
   @Field
-  private Boolean dataPlaneActive;
+  private boolean dataPlaneActive;
 
   @NotNull
   @Field
@@ -159,8 +158,8 @@ public class ConnectionV2 extends AbstractConnection {
     return reservationState;
   }
 
-  public Optional<LifecycleStateEnumType> getLifecycleState() {
-    return Optional.fromNullable(lifecycleState);
+  public LifecycleStateEnumType getLifecycleState() {
+    return lifecycleState;
   }
 
   public void setLifecycleState(LifecycleStateEnumType lifecycleState) {
@@ -191,11 +190,11 @@ public class ConnectionV2 extends AbstractConnection {
     return NsiVersion.TWO;
   }
 
-  public Optional<Boolean> getDataPlaneActive() {
-    return Optional.fromNullable(dataPlaneActive);
+  public boolean getDataPlaneActive() {
+    return dataPlaneActive;
   }
 
-  public void setDataPlaneActive(Boolean dataPlaneActive) {
+  public void setDataPlaneActive(boolean dataPlaneActive) {
     this.dataPlaneActive = dataPlaneActive;
   }
 
@@ -291,23 +290,18 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public ConnectionStatesType getConnectionStates() {
-    // FIXME LSM, PSM, and DPS only defined when committed but required by XSD.
     return new ConnectionStatesType()
         .withReservationState(getReservationState())
-        .withLifecycleState(getLifecycleState().orNull())
+        .withLifecycleState(getLifecycleState())
         .withProvisionState(getProvisionState().orNull())
-        .withDataPlaneStatus(getDataPlaneStatus().orNull());
+        .withDataPlaneStatus(getDataPlaneStatus());
   }
 
-  private Optional<DataPlaneStatusType> getDataPlaneStatus() {
-    return getDataPlaneActive().transform(new Function<Boolean, DataPlaneStatusType>() {
-      public DataPlaneStatusType apply(Boolean active) {
-        return new DataPlaneStatusType()
-          .withActive(dataPlaneActive)
-          .withVersionConsistent(true)
-          .withVersion(committedVersion != null ? committedVersion : reserveVersion);
-      }
-    });
+  private DataPlaneStatusType getDataPlaneStatus() {
+    return new DataPlaneStatusType()
+      .withActive(dataPlaneActive)
+      .withVersionConsistent(true)
+      .withVersion(committedVersion != null ? committedVersion : reserveVersion);
   }
 
   public NsiRequestDetails getReserveRequestDetails() {

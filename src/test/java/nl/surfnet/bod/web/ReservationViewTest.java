@@ -44,7 +44,6 @@ public class ReservationViewTest {
 
   private ElementActionView dummyElementActionView;
 
-
   @Before
   public void before(){
     dummyElementActionView = new ElementActionView(false, "too_hot_outside");
@@ -143,7 +142,7 @@ public class ReservationViewTest {
     assertThat(reservationView.getReservationState(), is(reservationState.name()));
     assertThat(reservationView.getProvisionState(), is(provisionState.name()));
     assertThat(reservationView.getLifeCycleState(), is(lifecycleState.name()));
-    assertThat(reservationView.getDataPlaneActive(), is(dataPlaneActive.toString()));
+    assertThat(reservationView.getDataPlaneActive(), is("Active"));
   }
 
 }

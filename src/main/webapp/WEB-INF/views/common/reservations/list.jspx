@@ -81,16 +81,16 @@
                                                     <c:out value="${item.connectionState}" />
                                                 </c:if>
                                                 <c:if test="${not empty item.reservationState}">
-                                                    <c:out value="${item.reservationState}" />
+                                                    <strong>Reservation: </strong><c:out value="${item.reservationState}" /><br/>
                                                 </c:if>
                                                 <c:if test="${not empty item.provisionState}">
-                                                    <c:out value=", ${item.provisionState}" />
+                                                    <strong>Provision: </strong> <c:out value="${item.provisionState}" /><br/>
                                                 </c:if>
                                                 <c:if test="${not empty item.lifeCycleState}">
-                                                    <c:out value=", ${item.lifeCycleState}" />
+                                                    <strong>Lifecyle: </strong><c:out value="${item.lifeCycleState}" /><br/>
                                                 </c:if>
                                                 <c:if test="${not empty item.dataPlaneActive}">
-                                                    <c:out value=", ${item.dataPlaneActive}" />
+                                                    <strong>DataPlane: </strong> <c:out value="${item.dataPlaneActive}" /><br/>
                                                 </c:if>
                                             </dd>
                                         </c:if>

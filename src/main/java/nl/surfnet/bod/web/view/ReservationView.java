@@ -24,8 +24,6 @@ package nl.surfnet.bod.web.view;
 
 import static nl.surfnet.bod.util.Functions.enumToValue;
 
-import com.google.common.base.Functions;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -104,8 +102,8 @@ public class ReservationView {
       connectionState = null;
       reservationState = connectionV2.getReservationState().name();
       provisionState = connectionV2.getProvisionState().transform(enumToValue).or("-");
-      lifeCycleState = connectionV2.getLifecycleState().transform(enumToValue).or("-");
-      dataPlaneActive = connectionV2.getDataPlaneActive().transform(Functions.toStringFunction()).or("-");
+      lifeCycleState = connectionV2.getLifecycleState().name();
+      dataPlaneActive = connectionV2.getDataPlaneActive() ? "Active" : "Inactive";
     } else {
       throw new IllegalStateException("Reservation is NSI created but has no connection");
     }

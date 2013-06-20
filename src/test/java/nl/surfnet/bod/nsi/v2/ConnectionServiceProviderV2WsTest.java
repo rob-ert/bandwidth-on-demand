@@ -34,6 +34,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
+import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
 import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
@@ -116,8 +117,8 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
     assertThat(connection.getValue().getReserveVersion(), is(3));
     assertThat(connection.getValue().getCommittedVersion(), isAbsent());
-    assertThat(connection.getValue().getDataPlaneActive(), isAbsent());
-    assertThat(connection.getValue().getLifecycleState(), isAbsent());
+    assertThat(connection.getValue().getDataPlaneActive(), is(false));
+    assertThat(connection.getValue().getLifecycleState(), is(CREATED));
     assertThat(connection.getValue().getProvisionState(), isAbsent());
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
@@ -270,8 +271,8 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
-  public void should_have_a_lsm_when_sending_a_terminate() throws Exception {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setLifecycleState(null).create());
+  public void should_respond_not_applicalbe_when_already_terminated_when_sending_a_terminate() throws Exception {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setLifecycleState(TERMINATED).create());
 
       try {
         subject.terminate("connectionId", headerHolder);

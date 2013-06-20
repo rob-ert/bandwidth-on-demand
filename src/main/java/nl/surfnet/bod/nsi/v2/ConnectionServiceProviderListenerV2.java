@@ -80,9 +80,9 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
       break;
     case CANCELLED:
-      if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
-        // if the connections dataplane status is active, notify that dataPlane was de activated first
-        if (connection.getDataPlaneActive().isPresent() && connection.getDataPlaneActive().get() == true) {
+      if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
+        // if the connections dataplane status is active, notify that dataPlane was deactivated first
+        if (connection.getDataPlaneActive()) {
           requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
         }
         requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
@@ -95,7 +95,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     case FAILED:
       if (connection.getReservationState() == ReservationStateEnumType.RESERVE_CHECKING) {
         requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
-      } else if (connection.getDataPlaneActive().or(false)) {
+      } else if (connection.getDataPlaneActive()) {
         requester.dataPlaneError(connection.getId(), connection.getReserveRequestDetails());
       } else {
         logger.warn("State transition to FAILED unhandled {}", event);
@@ -108,7 +108,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
       requester.reservePassedEndTime(connection.getId());
       break;
     case CANCEL_FAILED:
-      if (connection.getLifecycleState().isPresent() && connection.getLifecycleState().get() == LifecycleStateEnumType.TERMINATING) {
+      if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
         requester.deactivateFailed(connection.getId(), event.getNsiRequestDetails().get());
       } else {
         logger.warn("State transition to CANCEL_FAILED unhandled {}", event);
