@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -113,6 +114,7 @@ public class ConnectionServiceV2Test {
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
 
     assertTrue(notifications.size() == 1);
+    assertFalse(notifications.get(0) instanceof DataPlaneStateChangeRequestType);
   }
 
   @Test
