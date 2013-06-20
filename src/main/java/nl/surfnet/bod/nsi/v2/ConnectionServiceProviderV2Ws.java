@@ -56,6 +56,7 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -94,6 +95,10 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     if (!Strings.isNullOrEmpty(connectionId.value)) {
       throw notSupportedOperation();
+    }
+
+    if (criteria.getPath().getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
+      throw notSupporedAttribute("Directionality", criteria.getPath().getDirectionality());
     }
 
     ConnectionV2 connection = createConnection(
@@ -315,6 +320,10 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private ServiceException notApplicable() throws ServiceException {
     return new ServiceException("This operation is not applicable", createServiceExceptionType("Not Applicable"));
+  }
+
+  private ServiceException notSupporedAttribute(String attribute, Object value) {
+    return new ServiceException(String.format("This attribute '%s' with value '%s' is not supported by this provider", attribute, value), createServiceExceptionType("Not Supported"));
   }
 
   private ServiceException notSupportedOperation() {

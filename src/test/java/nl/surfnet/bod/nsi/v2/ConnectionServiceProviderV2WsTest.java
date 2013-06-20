@@ -23,6 +23,8 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -59,7 +61,9 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -67,6 +71,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
@@ -105,6 +110,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
     Holder<String> connectionIdHolder = new Holder<String>();
+
     subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
     assertThat(connectionIdHolder.value, is(notNullValue()));
@@ -122,6 +128,21 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getProvisionState(), isAbsent());
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is(URI.create("replyTo")));
     assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
+  }
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void should_reject_a_reserve_with_directionality_unidirectional() throws Exception {
+    Holder<String> connectionIdHolder = new Holder<String>();
+    ReservationRequestCriteriaType criteria = initialReservationCriteria();
+    criteria.getPath().setDirectionality(DirectionalityType.UNIDIRECTIONAL);
+
+    thrown.expect(ServiceException.class);
+    thrown.expectMessage(allOf(containsString("Directionality"), containsString("not supported")));
+
+    subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
   }
 
   @Test
