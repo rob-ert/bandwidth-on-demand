@@ -379,7 +379,7 @@ public class NbiOpenDracWsClient implements NbiClient {
             ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING).put(
             ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
             ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED).put(
-            ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT).put(
+            ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, PASSED_END_TIME).put(
             ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
             ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
             ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();

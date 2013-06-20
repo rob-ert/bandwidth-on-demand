@@ -38,14 +38,14 @@ public class ReservationStatusTest {
     assertThat(ReservationStatus.CANCELLED.isTransitionState(), is(false));
 
     assertThat(ReservationStatus.NOT_ACCEPTED.isTransitionState(), is(false));
-    assertThat(ReservationStatus.TIMED_OUT.isTransitionState(), is(false));
+    assertThat(ReservationStatus.PASSED_END_TIME.isTransitionState(), is(false));
   }
 
   @Test
   public void someStatesShouldBeEndStates() {
     assertThat(ReservationStatus.FAILED.isEndState(), is(true));
     assertThat(ReservationStatus.NOT_ACCEPTED.isEndState(), is(true));
-    assertThat(ReservationStatus.TIMED_OUT.isEndState(), is(true));
+    assertThat(ReservationStatus.PASSED_END_TIME.isEndState(), is(true));
     assertThat(ReservationStatus.CANCELLED.isEndState(), is(true));
 
     assertThat(ReservationStatus.RUNNING.isEndState(), is(false));
@@ -64,7 +64,7 @@ public class ReservationStatusTest {
     assertThat(ReservationStatus.CANCELLED.isDeleteAllowed(), is(false));
     assertThat(ReservationStatus.FAILED.isDeleteAllowed(), is(false));
     assertThat(ReservationStatus.NOT_ACCEPTED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.TIMED_OUT.isDeleteAllowed(), is(false));
+    assertThat(ReservationStatus.PASSED_END_TIME.isDeleteAllowed(), is(false));
     assertThat(ReservationStatus.SUCCEEDED.isDeleteAllowed(), is(false));
   }
 

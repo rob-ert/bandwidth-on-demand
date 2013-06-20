@@ -36,7 +36,7 @@ public class V1_8_0_5__FixingWrongNsiStates implements SpringJdbcMigration {
     jdbcTemplate.update(queryChangeState(ConnectionStateType.CLEANING, ConnectionStateType.TERMINATED));
     jdbcTemplate.update(queryChangeState(ConnectionStateType.TERMINATING, ConnectionStateType.TERMINATED));
 
-    jdbcTemplate.update(queryChangeState(ReservationStatus.TIMED_OUT, ConnectionStateType.TERMINATED));
+    jdbcTemplate.update(queryChangeState(ReservationStatus.PASSED_END_TIME, ConnectionStateType.TERMINATED));
     jdbcTemplate.update(queryChangeState(ReservationStatus.CANCELLED, ConnectionStateType.TERMINATED));
     jdbcTemplate.update(queryChangeState(ReservationStatus.SUCCEEDED, ConnectionStateType.TERMINATED));
   }

@@ -68,7 +68,7 @@ public class OpenDracStatusTranslatorTest {
 
     ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
 
-    assertThat(status, is(ReservationStatus.TIMED_OUT));
+    assertThat(status, is(ReservationStatus.PASSED_END_TIME));
   }
 
   @Test

@@ -33,7 +33,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
+import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
 
 import java.util.Collection;
 import java.util.List;
@@ -94,7 +94,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
       .put(RUNNING, ConnectionStateType.PROVISIONED)
       .put(SCHEDULED, ConnectionStateType.SCHEDULED)
       .put(SUCCEEDED, ConnectionStateType.TERMINATED)
-      .put(TIMED_OUT, ConnectionStateType.TERMINATED)
+      .put(PASSED_END_TIME, ConnectionStateType.TERMINATED)
       .build();
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV1.class);

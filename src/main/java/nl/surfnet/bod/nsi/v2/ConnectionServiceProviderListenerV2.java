@@ -104,7 +104,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     case NOT_ACCEPTED:
       requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
       break;
-    case TIMED_OUT:
+    case PASSED_END_TIME:
       // end time passed but no provision.. nothing to do..
       break;
     case CANCEL_FAILED:

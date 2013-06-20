@@ -555,7 +555,7 @@ public class ReportReservationServiceDbTest {
   @Test
   public void shouldVerifyActiveReservationsNeverProvisioned() {
     reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
-        ReservationStatus.TIMED_OUT);
+        ReservationStatus.PASSED_END_TIME);
 
     ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
     reportingService.determineActiveRunningReservations(reservationReport, adminGroups);

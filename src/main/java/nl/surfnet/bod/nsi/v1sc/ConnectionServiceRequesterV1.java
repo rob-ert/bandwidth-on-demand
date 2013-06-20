@@ -220,7 +220,7 @@ public class ConnectionServiceRequesterV1 {
     }
   }
 
-  public void terminateTimedOutReservation(ConnectionV1 connection) {
+  public void terminateReservationPassedEndTime(ConnectionV1 connection) {
     // Talked to HansT and this is really the only step we have to take from a NSI perspective.
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);

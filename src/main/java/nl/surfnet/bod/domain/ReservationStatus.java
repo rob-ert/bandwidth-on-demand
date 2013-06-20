@@ -30,12 +30,12 @@ import java.util.Set;
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED;
+  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED;
 
   /**
    * All states which are considered as error states.
    */
-  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED);
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED);
 
   /**
    * All states that could transfer to a RUNNING state

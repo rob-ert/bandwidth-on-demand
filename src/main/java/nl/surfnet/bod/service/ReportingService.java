@@ -161,7 +161,7 @@ public class ReportingService {
         .countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, SCHEDULED, adminGroups));
 
     reservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.TIMED_OUT));
+        .countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.PASSED_END_TIME));
   }
 
 }

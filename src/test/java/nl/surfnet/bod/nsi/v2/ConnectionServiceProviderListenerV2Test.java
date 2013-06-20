@@ -273,14 +273,14 @@ public class ConnectionServiceProviderListenerV2Test {
   }
 
   @Test
-  public void should_send_nothing_when_reserve_timeout() {
+  public void should_send_nothing_when_reserve_passed_end_time() {
     ConnectionV2 connection = new ConnectionV2Factory()
       .setReservationState(ReservationStateEnumType.RESERVE_START)
       .setProvisionState(ProvisionStateEnumType.RELEASED)
       .setLifecycleState(LifecycleStateEnumType.CREATED)
       .setDataPlaneActive(true).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
-        .setStatus(ReservationStatus.TIMED_OUT).create();
+        .setStatus(ReservationStatus.PASSED_END_TIME).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.SCHEDULED, reservation, Optional.of(requestDetails));

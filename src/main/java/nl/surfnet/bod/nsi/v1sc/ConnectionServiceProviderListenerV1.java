@@ -83,8 +83,8 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
         requester.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
         break;
-      case TIMED_OUT:
-        requester.terminateTimedOutReservation(connection);
+      case PASSED_END_TIME:
+        requester.terminateReservationPassedEndTime(connection);
         break;
       case RUNNING:
         requester.provisionConfirmed(connection, connection.getProvisionRequestDetails());
