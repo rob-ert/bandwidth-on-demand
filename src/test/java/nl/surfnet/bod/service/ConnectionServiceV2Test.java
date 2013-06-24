@@ -185,4 +185,15 @@ public class ConnectionServiceV2Test {
 
     assertTrue(notifications.size() == 2);
   }
+
+  @Test
+  public void queryNotification_should_return_empty_list_when_connection_not_found(){
+    final String connectionId = "f00f";
+    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+
+    when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(null);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
+
+    assertTrue(notifications.size() == 0);
+  }
 }

@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -187,6 +188,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   public List<NotificationBaseType> queryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+    if (connection == null) {
+      return Collections.emptyList();
+    }
+
 
     RangeSet<Integer> notificationRange = TreeRangeSet.create();
     if (startNotificationId.isPresent() && endNotificationId.isPresent()) {
