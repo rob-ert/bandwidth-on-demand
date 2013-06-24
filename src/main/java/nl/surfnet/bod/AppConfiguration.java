@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -24,16 +24,12 @@ package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -61,7 +57,7 @@ import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
@@ -81,9 +77,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod")
-@ImportResource({
-    "classpath:spring/appCtx-security.xml",
-    "classpath:spring/appCtx-ws.xml" })
+@ImportResource({ "classpath:spring/appCtx-security.xml", "classpath:spring/appCtx-ws.xml" })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
@@ -91,7 +85,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
-  private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
+  private static Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
   @Value("${jdbc.jdbcUrl}")
   private String jdbcUrl;
@@ -124,9 +118,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
-    Resource[] resources = addEnvPropertyResource(new Resource[] {
-        new ClassPathResource("bod-default.properties")
-    });
+    Resource[] resources = addEnvPropertyResource(new Resource[] { new ClassPathResource("bod-default.properties") });
 
     logger.info("Using property files: {}", Joiner.on(",").join(resources));
 
@@ -142,8 +134,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
       Resource devProperties = new ClassPathResource(getPropertyEnvName("dev"));
 
       return devProperties.exists() ? ObjectArrays.concat(resources, devProperties) : resources;
-    }
-    else {
+    } else {
       return ObjectArrays.concat(resources, new ClassPathResource(getPropertyEnvName(env)));
     }
   }
@@ -162,8 +153,10 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
   @Bean
   public JavaMailSender mailSender(
-      @Value("${mail.host}") String host, @Value("${mail.port}") int port,
-      @Value("${mail.protocol}") String protocol, @Value("${mail.debug}") boolean debug) {
+      @Value("${mail.host}") String host,
+      @Value("${mail.port}") int port,
+      @Value("${mail.protocol}") String protocol,
+      @Value("${mail.debug}") boolean debug) {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
     mailSender.setDefaultEncoding("UTF-8");
     mailSender.setHost(host);
@@ -193,18 +186,14 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   }
 
   @Bean
-  public IddClient iddclient(
-      @Value("${idd.client.class}") String iddClientClass,
-      @Value("${idd.user}") String username,
-      @Value("${idd.password}") String password,
+  public IddClient iddclient(@Value("${idd.client.class}") String iddClientClass,
+      @Value("${idd.user}") String username, @Value("${idd.password}") String password,
       @Value("${idd.url}") String endPoint) {
 
     try {
-      return (IddClient) Class.forName(iddClientClass)
-          .getConstructor(String.class, String.class, String.class)
+      return (IddClient) Class.forName(iddClientClass).getConstructor(String.class, String.class, String.class)
           .newInstance(username, password, endPoint);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -247,7 +236,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   }
 
   @Bean
-  public JpaTransactionManager transactionManager() {
+  public PlatformTransactionManager transactionManager() {
     return new JpaTransactionManager();
   }
 
@@ -262,17 +251,11 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     return new PostgreSQLSequenceMaxValueIncrementer(dataSource(), "hibernate_sequence");
   }
 
-  @Bean
-  public List<String> nsaProviderUrns() {
-    return Lists.newArrayList("urn:ogf:network:nsa:surfnet.nl");
-  }
-
   @SuppressWarnings("unchecked")
   private <T> T quietlyInitiateClass(String clazz) {
     try {
       return (T) Class.forName(clazz).newInstance();
-    }
-    catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -286,7 +269,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
-        emailSender().sendErrorMail(e);
+        logger.error("Uncaught exception in thread " + t + ": " + e, e);
       }
     });
 
@@ -296,71 +279,9 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     executor.setQueueCapacity(11);
     executor.setThreadNamePrefix("BoDExecutor-");
     executor.initialize();
-    return new HandlingExecutor(executor);
-  }
 
-  public class HandlingExecutor implements AsyncTaskExecutor {
 
-    private final AsyncTaskExecutor executor;
-
-    public HandlingExecutor(AsyncTaskExecutor executor) {
-      this.executor = executor;
-    }
-
-    @Override
-    public void execute(Runnable task) {
-      executor.execute(createWrappedRunnable(task));
-    }
-
-    @Override
-    public void execute(Runnable task, long startTimeout) {
-      executor.execute(createWrappedRunnable(task), startTimeout);
-    }
-
-    @Override
-    public Future<?> submit(Runnable task) {
-      return executor.submit(createWrappedRunnable(task));
-    }
-
-    @Override
-    public <T> Future<T> submit(Callable<T> task) {
-      return executor.submit(createWrappedCallable(task));
-    }
-
-    private <T> Callable<T> createWrappedCallable(final Callable<T> task) {
-      return new Callable<T>() {
-        @Override
-        public T call() throws Exception {
-          try {
-            return task.call();
-          }
-          catch (Exception e) {
-            handle(e);
-            throw e;
-          }
-        }
-      };
-    }
-
-    private Runnable createWrappedRunnable(final Runnable task) {
-      return new Runnable() {
-        @Override
-        public void run() {
-          try {
-            task.run();
-          }
-          catch (Exception e) {
-            handle(e);
-            throw e;
-          }
-        }
-      };
-    }
-
-    private void handle(Exception exception) {
-      logger.error("Exception during async call", exception);
-      emailSender().sendErrorMail(exception);
-    }
+    return new LoggingExecutor(new TaskExecutorAdapter(new TransactionAwareExecutor(executor)), logger);
   }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -88,7 +88,7 @@ public class ReserveRequestBuilderTest {
     ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false, Long.MIN_VALUE);
 
     assertThat(reserveRequest.getExpiringTime(),
-        Matchers.is(XmlUtils.getXmlTimeStampFromDateTime(reservation.getEndDateTime()).get()));
+        Matchers.is(XmlUtils.toGregorianCalendar(reservation.getEndDateTime())));
 
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
     assertRfs(rfs);

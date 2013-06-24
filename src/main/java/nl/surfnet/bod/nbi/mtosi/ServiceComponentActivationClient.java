@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -100,7 +100,7 @@ public class ServiceComponentActivationClient {
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      ActivateResponse response = proxy.activate(header, activateRequest);
+      proxy.activate(header, activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;

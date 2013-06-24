@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -21,6 +21,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package nl.surfnet.bod.pages.user;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import nl.surfnet.bod.pages.AbstractListPage;
 
@@ -66,4 +69,18 @@ public class ListVirtualPortPage extends AbstractListPage {
   public void verifyIsCurrentPage() {
     super.verifyIsCurrentPage(PAGE);
   }
+
+  public List<String> getAllVirtualPortIds() {
+    // their details which we are after actually have to be visible
+    for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
+      moreLink.click();
+    }
+    List<WebElement> ddElements = getDriver().findElementsByClassName("nsiStpId");
+    List<String> virtualPortIds = new ArrayList<>();
+    for(WebElement webElement: ddElements) {
+      virtualPortIds.add(webElement.getText());
+    }
+    return virtualPortIds;
+  }
+
 }

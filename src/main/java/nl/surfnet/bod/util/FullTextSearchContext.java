@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -24,6 +24,7 @@ package nl.surfnet.bod.util;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -47,7 +48,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Class which holds state related to creating and executing a full text search
- * 
+ *
  */
 public class FullTextSearchContext<T> {
 
@@ -82,7 +83,7 @@ public class FullTextSearchContext<T> {
   /**
    * Default implementation which returns all fields and related fields of the
    * given entity. Can be overridden to limit the fields to search for.
-   * 
+   *
    * @param entity
    *          Entity to inspect
    * @return String[] with (nested)fieldnames
@@ -96,7 +97,7 @@ public class FullTextSearchContext<T> {
   }
 
   /**
-   * 
+   *
    * @param entity
    *          entity to inspect
    * @param prefix
@@ -107,16 +108,16 @@ public class FullTextSearchContext<T> {
    *         are annotated with {@link Field} to mark them indexable.
    */
   private List<String> getIndexedFields(Class<?> entity, Optional<String> prefix) {
+    List<String> fieldNames = new ArrayList<>();
 
-    java.lang.reflect.Field[] declaredFields = entity.getDeclaredFields();
-    List<String> fieldNames = Lists.newArrayList();
-    for (java.lang.reflect.Field field : declaredFields) {
-      if (field.getAnnotation(Field.class) != null) {
-        fieldNames.add(prefix.isPresent() ? prefix.get() + "." + field.getName() : field.getName());
-      }
-      else if (field.getAnnotation(IndexedEmbedded.class) != null) {
-        fieldNames.addAll(getIndexedFields(field.getType(), Optional.of((prefix.isPresent() ? prefix.get() + "." : "")
-            + field.getName())));
+    for (Class<?> klass = entity; klass != null; klass = klass.getSuperclass()) {
+      for (java.lang.reflect.Field field : klass.getDeclaredFields()) {
+        if (field.getAnnotation(Field.class) != null) {
+          fieldNames.add(prefix.isPresent() ? prefix.get() + "." + field.getName() : field.getName());
+        } else if (field.getAnnotation(IndexedEmbedded.class) != null) {
+          fieldNames.addAll(getIndexedFields(field.getType(),
+              Optional.of((prefix.isPresent() ? prefix.get() + "." : "") + field.getName())));
+        }
       }
     }
 

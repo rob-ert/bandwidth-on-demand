@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -22,16 +22,18 @@
  */
 package nl.surfnet.bod.web.view;
 
+import com.google.common.base.Function;
+
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-
-import com.google.common.base.Function;
+import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 
 public class ReservationView {
   private final Long id;
@@ -50,13 +52,19 @@ public class ReservationView {
   private final String userCreated;
   private final String reservationId;
   private final String connectionId;
-  private final ConnectionStateType connectionStatus;
   private final DateTime creationDateTime;
   private final ElementActionView deleteActionView, editActionView;
   private final ProtectionType protectionType;
 
-  public ReservationView(
-      Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
+  private final String connectionState; // v1 only
+
+  private final String reservationState;
+  private final String provisionState;
+  private final String lifeCycleState;
+  private final String dataPlaneActive;
+
+
+  public ReservationView(Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
     this.sourcePort = new PortView(reservation.getSourcePort());
@@ -74,10 +82,41 @@ public class ReservationView {
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
     this.editActionView = editActionView;
-    this.connectionId = reservation.getConnection().transform(CONNECTION_ID).orNull();
-    this.connectionStatus = reservation.getConnection().transform(CONNECTION_STATE).orNull();
+    Connection connection = reservation.getConnection().orNull();
+    this.connectionId = connection == null ? null : connection.getConnectionId();
+
+    if (!reservation.isNSICreated()) {
+      connectionState = null;
+      reservationState = null;
+      provisionState = null;
+      lifeCycleState = null;
+      dataPlaneActive = null;
+    } else if (reservation.getConnectionV1().isPresent()) {
+      ConnectionV1 connectionV1 = reservation.getConnectionV1().get();
+      reservationState = null;
+      provisionState = null;
+      lifeCycleState = null;
+      dataPlaneActive = null;
+      connectionState = connectionV1.getCurrentState().toString();
+    } else if (reservation.getConnectionV2().isPresent()) {
+      ConnectionV2 connectionV2 = reservation.getConnectionV2().get();
+      connectionState = null;
+      reservationState = connectionV2.getReservationState().value();
+      provisionState = connectionV2.getProvisionState().transform(new Function<ProvisionStateEnumType, String>() {
+        public String apply(ProvisionStateEnumType state) {
+          return state.value();
+        }
+      }).or("-");
+      lifeCycleState = connectionV2.getLifecycleState().value();
+      dataPlaneActive = connectionV2.getDataPlaneActive() ? "Active" : "Inactive";
+    } else {
+      throw new IllegalStateException("Reservation is NSI created but has no connection");
+    }
   }
 
+  public String getConnectionState() {
+    return connectionState;
+  }
   public String getVirtualResourceGroup() {
     return virtualResourceGroup;
   }
@@ -151,16 +190,28 @@ public class ReservationView {
     return connectionId;
   }
 
-  public ConnectionStateType getConnectionStatus() {
-    return connectionStatus;
-  }
-
   public String getCancelReason() {
     return cancelReason;
   }
 
   public ProtectionType getProtectionType() {
     return protectionType;
+  }
+
+  public String getReservationState() {
+    return reservationState;
+  }
+
+  public String getProvisionState() {
+    return provisionState;
+  }
+
+  public String getLifeCycleState() {
+    return lifeCycleState;
+  }
+
+  public String getDataPlaneActive() {
+    return dataPlaneActive;
   }
 
   @Override
@@ -323,20 +374,5 @@ public class ReservationView {
     }
     return true;
   }
-
-  private static final Function<Connection, String> CONNECTION_ID = new Function<Connection, String>() {
-      @Override
-      public String apply(Connection c) {
-        return c.getConnectionId();
-      }
-    };
-
-  private static final Function<Connection, ConnectionStateType> CONNECTION_STATE =
-    new Function<Connection, ConnectionStateType>() {
-      @Override
-      public ConnectionStateType apply(Connection c) {
-        return c.getCurrentState();
-      }
-    };
 
 }

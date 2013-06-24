@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -111,9 +111,13 @@ public class Reservation implements Loggable, PersistableDomain {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   private final DateTime creationDateTime;
 
-  @OneToOne(mappedBy = "reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+  @OneToOne(mappedBy="reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
   @IndexedEmbedded
-  private Connection connection;
+  private ConnectionV1 connectionV1;
+
+  @OneToOne(mappedBy="reservation", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+  @IndexedEmbedded
+  private ConnectionV2 connectionV2;
 
   @Enumerated(EnumType.STRING)
   @Field
@@ -401,19 +405,39 @@ public class Reservation implements Loggable, PersistableDomain {
     this.cancelReason = cancelReason;
   }
 
-  public Optional<Connection> getConnection() {
-    return Optional.fromNullable(connection);
+  public Optional<ConnectionV1> getConnectionV1() {
+    return Optional.<ConnectionV1>fromNullable(connectionV1);
   }
 
-  public void setConnection(Connection connection) {
-    this.connection = connection;
+  public Optional<ConnectionV2> getConnectionV2() {
+    return Optional.<ConnectionV2>fromNullable(connectionV2);
+  }
+
+  public Optional<Connection> getConnection() {
+    if (connectionV1 != null) {
+      return Optional.<Connection>fromNullable(connectionV1);
+    } else if (connectionV2 != null) {
+      return Optional.<Connection>fromNullable(connectionV2);
+    } else {
+      return Optional.absent();
+    }
+  }
+
+  public void setConnectionV1(ConnectionV1 connection) {
+    this.connectionV1 = connection;
+    this.connectionV2 = null;
+  }
+
+  public void setConnectionV2(ConnectionV2 connection) {
+    this.connectionV1 = null;
+    this.connectionV2 = connection;
   }
 
   /**
    * @return True if this reservation was made using NSI, false otherwise
    */
   public boolean isNSICreated() {
-    return connection != null;
+    return connectionV1 != null || connectionV2 != null;
   }
 
   public ProtectionType getProtectionType() {
@@ -503,9 +527,10 @@ public class Reservation implements Loggable, PersistableDomain {
       builder.append(creationDateTime);
       builder.append(", ");
     }
-    if (connection != null) {
+    Optional<Connection> connection = getConnection();
+    if (connection.isPresent()) {
       builder.append("connection=");
-      builder.append(connection.getLabel());
+      builder.append(connection.get().getLabel());
       builder.append(", ");
     }
     if (protectionType != null) {

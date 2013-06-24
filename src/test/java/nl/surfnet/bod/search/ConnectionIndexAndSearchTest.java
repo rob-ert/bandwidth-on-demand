@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -28,9 +28,10 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -40,16 +41,16 @@ import org.junit.Test;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 
 
-public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connection> {
+public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<ConnectionV1> {
 
   public ConnectionIndexAndSearchTest() {
-    super(Connection.class);
+    super(ConnectionV1.class);
   }
 
   @Before
   public void setupSearchData() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).withNoIds().create();
-    Connection connection = new ConnectionFactory()
+    Connection connection = new ConnectionV1Factory()
       .setReservation(reservation)
       .setCurrentState(ConnectionStateType.TERMINATED)
       .withNoIds().create();
@@ -59,8 +60,7 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
 
   @Test
   public void findConnectionByItsCurrentState() throws ParseException {
-
-    List<Connection> connections = searchFor("TERMINATED");
+    List<ConnectionV1> connections = searchFor("TERMINATED");
 
     assertThat(connections, hasSize(1));
   }
@@ -69,7 +69,7 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
   @Ignore("Can not search from connection to reservation, results in circulair reference")
   public void findConnectionByItsReservationStatus() throws ParseException {
 
-    List<Connection> connections = searchFor("FAILED");
+    List<ConnectionV1> connections = searchFor("FAILED");
 
     assertThat(connections, hasSize(1));
   }

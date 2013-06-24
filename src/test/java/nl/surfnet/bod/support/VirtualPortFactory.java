@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -44,7 +44,9 @@ public class VirtualPortFactory {
   private VirtualResourceGroup virtualResourceGroup;
 
   private String physicalPortAdminGroup = null;
+  private String virtualGroupAdminGroup = null;
   private boolean noIds = false;
+
 
   public VirtualPort create() {
 
@@ -67,8 +69,12 @@ public class VirtualPortFactory {
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
     virtualPort.setPhysicalPort(physicalPort);
 
-    if (physicalPort != null && StringUtils.hasText(physicalPortAdminGroup)) {
+    if (StringUtils.hasText(physicalPortAdminGroup)) {
       physicalPort.getPhysicalResourceGroup().setAdminGroup(physicalPortAdminGroup);
+    }
+
+    if (StringUtils.hasText(virtualGroupAdminGroup)) {
+      virtualResourceGroup.setAdminGroup(virtualGroupAdminGroup);
     }
 
     return virtualPort;
@@ -129,6 +135,11 @@ public class VirtualPortFactory {
 
   public VirtualPortFactory setPhysicalPortAdminGroup(String group) {
     this.physicalPortAdminGroup = group;
+    return this;
+  }
+
+  public VirtualPortFactory setVirtualGroupAdminGroup(String group) {
+    this.virtualGroupAdminGroup = group;
     return this;
   }
 

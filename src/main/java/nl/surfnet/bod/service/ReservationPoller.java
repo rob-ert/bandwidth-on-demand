@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -142,16 +142,7 @@ public class ReservationPoller {
 
             reservationFresh = reservationService.updateStatus(reservationFresh, currentStatus);
 
-            Optional<NsiRequestDetails> requestDetails;
-            if (reservationFresh.getConnection().isPresent()) {
-              requestDetails = Optional.fromNullable(reservationFresh.getConnection().get().getProvisionRequestDetails());
-            }
-            else {
-              requestDetails = Optional.absent();
-            }
-
-            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh,
-                requestDetails));
+            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.<NsiRequestDetails>absent()));
 
             return;
           }

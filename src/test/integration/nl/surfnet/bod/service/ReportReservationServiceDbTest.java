@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -555,7 +555,7 @@ public class ReportReservationServiceDbTest {
   @Test
   public void shouldVerifyActiveReservationsNeverProvisioned() {
     reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
-        ReservationStatus.TIMED_OUT);
+        ReservationStatus.PASSED_END_TIME);
 
     ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
     reportingService.determineActiveRunningReservations(reservationReport, adminGroups);

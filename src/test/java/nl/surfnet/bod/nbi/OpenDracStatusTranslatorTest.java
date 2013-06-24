@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -68,7 +68,7 @@ public class OpenDracStatusTranslatorTest {
 
     ReservationStatus status = OpenDracStatusTranslator.translate(reservationSchedule);
 
-    assertThat(status, is(ReservationStatus.TIMED_OUT));
+    assertThat(status, is(ReservationStatus.PASSED_END_TIME));
   }
 
   @Test

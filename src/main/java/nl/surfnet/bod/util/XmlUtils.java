@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -33,44 +33,50 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
+import com.google.common.base.Function;
 
 public final class XmlUtils {
 
   private static DateTimeFormatterFactory dateTimeFormatterFactory = new DateTimeFormatterFactory(
       "yyyy-MM-dd'T'HH:mm:ssZ");
 
+  public static final Function<XMLGregorianCalendar, DateTime> xmlCalendarToDateTime = new Function<XMLGregorianCalendar, DateTime>() {
+    public DateTime apply(XMLGregorianCalendar calendar) {
+      return XmlUtils.toDateTime(calendar);
+    }
+  };
+
+  public static final Function<DateTime, XMLGregorianCalendar> dateTimeToXmlCalendar = new Function<DateTime, XMLGregorianCalendar>() {
+    public XMLGregorianCalendar apply(DateTime dateTime) {
+      return XmlUtils.toGregorianCalendar(dateTime);
+    }
+  };
+
   private XmlUtils() {
   }
 
-  public static Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
-    if (calendar == null) {
-      return Optional.absent();
-    }
-
+  public static DateTime toDateTime(XMLGregorianCalendar calendar) {
     GregorianCalendar gregorianCalendar = calendar.toGregorianCalendar();
     int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
-    // Create Timestamp while preserving the timezone, NO conversion
-    return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
+
+    return new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset));
   }
 
-  public static Optional<XMLGregorianCalendar> getXmlTimeStampFromDateTime(DateTime timeStamp) {
-    if (timeStamp == null) {
-      return Optional.absent();
-    }
-
-    XMLGregorianCalendar calendar = null;
+  public static XMLGregorianCalendar toGregorianCalendar(DateTime timeStamp) {
     try {
-      calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(BigInteger.valueOf(timeStamp.getYear()),
-          timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
-          timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
+      return DatatypeFactory.newInstance().newXMLGregorianCalendar(
+          BigInteger.valueOf(timeStamp.getYear()),
+          timeStamp.getMonthOfYear(),
+          timeStamp.getDayOfMonth(),
+          timeStamp.getHourOfDay(),
+          timeStamp.getMinuteOfHour(),
+          timeStamp.getSecondOfMinute(),
+          null,
+          (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
     }
     catch (DatatypeConfigurationException e) {
-      Throwables.propagate(e);
+      throw new AssertionError(e);
     }
-
-    return Optional.of(calendar);
   }
 
   public static DateTime getDateTimeFromXml(String xmlTimeStamp) {

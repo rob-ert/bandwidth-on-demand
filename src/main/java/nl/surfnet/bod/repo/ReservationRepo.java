@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -43,6 +43,6 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
 
   Reservation findByReservationId(final String reservationId);
 
-  Reservation findByConnectionConnectionId(final String connectionId);
+  Reservation findByConnectionV1ConnectionId(final String connectionId);
 
 }

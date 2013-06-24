@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -22,7 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
+import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -81,7 +82,7 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
 
     reservationTwo = reservationFactory.create();
 
@@ -101,17 +102,17 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationToString() {
-    Connection connection = new ConnectionFactory().create();
+    ConnectionV1 connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     logger.info(reservation.toString());
   }
 
   @Test
   public void shouldOnlyContainLabelsOfConnectionAndVirtualResourceGroupInReservation() {
-    Connection connection = new ConnectionFactory().create();
+    ConnectionV1 connection = new ConnectionV1Factory().create();
     connection.setReservation(reservation);
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     String reservationString = reservation.toString();
 
     assertThat(reservationString, not(containsString("Connection [")));
@@ -133,13 +134,13 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationEquals() {
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
     reservation.equals(reservationTwo);
   }
 
   @Test
   public void shouldNotOverflowInConnectionToString() {
-    Connection connection = new ConnectionFactory().create();
+    Connection connection = new ConnectionV1Factory().create();
     connection.toString();
   }
 
@@ -149,7 +150,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationHashCode() {
-    reservation.setConnection(new ConnectionFactory().create());
+    reservation.setConnectionV1(new ConnectionV1Factory().create());
     reservation.hashCode();
   }
 
@@ -281,37 +282,10 @@ public class DomainModelTest {
   }
 
   @Test
-  public void shouldOnlyConsiderIdAndVersionInConnectionEquals() {
-    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
-    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
-    connection.setId(3l);
-    connection.setVersion(3);
-    assertThat("Only on id and version", connection, not(con));
-
-    con.setId(connection.getId());
-    con.setVersion(connection.getVersion());
-    assertThat("Only on id and version", connection, is(con));
-  }
-
-  @Test
-  public void shouldOnlyConsiderIdAndVersionInConnectionHashcode() {
-    Connection connection = new ConnectionFactory().setRequesterNSA("SURFnet").setId(2l).create();
-    Connection con = new ConnectionFactory().setRequesterNSA("wesaidso").setId(3l).create();
-    connection.setId(3l);
-    connection.setVersion(3);
-
-    assertFalse("Only consider id and version", connection.hashCode() == con.hashCode());
-
-    con.setId(connection.getId());
-    con.setVersion(connection.getVersion());
-    assertTrue("Only consider id and version", connection.hashCode() == con.hashCode());
-  }
-
-  @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestHashcode() {
-    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetailsFactory().create();
     nsiReqDetails.setId(4l);
-    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
 
     assertFalse("Only consider id", nsiReqDetails.hashCode() == nsiRequestDetails.hashCode());
 
@@ -321,9 +295,9 @@ public class DomainModelTest {
 
   @Test
   public void shouldOnlyConsiderIdAndVersionInNsiRequestEquals() {
-    NsiRequestDetails nsiReqDetails = new NsiRequestDetails("SURFnet", "456");
+    NsiRequestDetails nsiReqDetails = new NsiRequestDetailsFactory().create();
     nsiReqDetails.setId(4l);
-    NsiRequestDetails nsiRequestDetails = new NsiRequestDetails("wesaidso", "123");
+    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
 
     assertThat("Only on id", nsiReqDetails, not(nsiRequestDetails));
 

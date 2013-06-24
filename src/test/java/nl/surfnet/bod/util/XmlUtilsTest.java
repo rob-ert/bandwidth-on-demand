@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -41,7 +41,7 @@ public class XmlUtilsTest {
     String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
     XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
 
-    DateTime timeStamp = XmlUtils.getDateFrom(calendar).get();
+    DateTime timeStamp = XmlUtils.toDateTime(calendar);
     assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
     assertThat(timeStamp.getMillis(), is(calendar.toGregorianCalendar().getTimeInMillis()));
   }
@@ -53,7 +53,7 @@ public class XmlUtilsTest {
     String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
     XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
 
-    DateTime timeStamp = XmlUtils.getDateFrom(calendar).get();
+    DateTime timeStamp = XmlUtils.toDateTime(calendar);
     assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
     assertThat(timeStamp.getMillis(), is(calendar.toGregorianCalendar().getTimeInMillis()));
   }
@@ -65,7 +65,7 @@ public class XmlUtilsTest {
     String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
     XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
 
-    DateTime timeStamp = XmlUtils.getDateFrom(calendar).get();
+    DateTime timeStamp = XmlUtils.toDateTime(calendar);
     assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
     assertThat(timeStamp.getMillis(), is(calendar.toGregorianCalendar().getTimeInMillis()));
   }
@@ -75,7 +75,7 @@ public class XmlUtilsTest {
     String xmlDate = "2012-09-26T11:05:10Z";
     XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
 
-    DateTime timeStamp = XmlUtils.getDateFrom(calendar).get();
+    DateTime timeStamp = XmlUtils.toDateTime(calendar);
     assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(0));
     assertThat(timeStamp.getMillis(), is(calendar.toGregorianCalendar().getTimeInMillis()));
   }
@@ -84,7 +84,7 @@ public class XmlUtilsTest {
   public void shouldPreserveTimeZoneWithPositieveOffsetToXml() throws DatatypeConfigurationException {
     int offSetInHours = 4;
     DateTime timeStamp = new DateTime(2012, 9, 26, 14, 40, 0, 0, DateTimeZone.forOffsetHours(offSetInHours));
-    XMLGregorianCalendar xmlDateTime = XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get();
+    XMLGregorianCalendar xmlDateTime = XmlUtils.toGregorianCalendar(timeStamp);
 
     assertThat(xmlDateTime.getTimezone(), is(offSetInHours * 60));
     assertThat(xmlDateTime.toGregorianCalendar().getTimeInMillis(), is(xmlDateTime.toGregorianCalendar()
@@ -95,7 +95,7 @@ public class XmlUtilsTest {
   public void shouldPreserveTimeZoneWithNegativeOffsetToXml() throws DatatypeConfigurationException {
     int offSetInHours = -12;
     DateTime timeStamp = new DateTime(2012, 9, 26, 14, 40, 0, 0, DateTimeZone.forOffsetHours(offSetInHours));
-    XMLGregorianCalendar xmlDateTime = XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get();
+    XMLGregorianCalendar xmlDateTime = XmlUtils.toGregorianCalendar(timeStamp);
 
     assertThat(xmlDateTime.getTimezone(), is(offSetInHours * 60));
     assertThat(xmlDateTime.toGregorianCalendar().getTimeInMillis(), is(xmlDateTime.toGregorianCalendar()
@@ -106,7 +106,7 @@ public class XmlUtilsTest {
   public void shouldPreserveTimeZoneWithZeroOffsetToXml() throws DatatypeConfigurationException {
     int offSetInHours = 0;
     DateTime timeStamp = new DateTime(2012, 9, 26, 14, 40, 0, 0, DateTimeZone.forOffsetHours(offSetInHours));
-    XMLGregorianCalendar xmlDateTime = XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get();
+    XMLGregorianCalendar xmlDateTime = XmlUtils.toGregorianCalendar(timeStamp);
 
     assertThat(xmlDateTime.getTimezone(), is(offSetInHours * 60));
     assertThat(xmlDateTime.toGregorianCalendar().getTimeInMillis(), is(xmlDateTime.toGregorianCalendar()
@@ -116,7 +116,7 @@ public class XmlUtilsTest {
   @Test
   public void shouldPreserveTimeZoneWithUTCToXml() throws DatatypeConfigurationException {
     DateTime timeStamp = new DateTime(2012, 9, 26, 14, 40, 0, 0, DateTimeZone.UTC);
-    XMLGregorianCalendar xmlDateTime = XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get();
+    XMLGregorianCalendar xmlDateTime = XmlUtils.toGregorianCalendar(timeStamp);
 
     assertThat(xmlDateTime.getTimezone(), is(0));
     assertThat(xmlDateTime.toGregorianCalendar().getTimeInMillis(), is(xmlDateTime.toGregorianCalendar()

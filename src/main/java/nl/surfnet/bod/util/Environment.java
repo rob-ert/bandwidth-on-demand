@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -101,6 +101,12 @@ public class Environment {
 
   @Value("${institute.cache.max.age.in.hours}")
   private int instituteCacheMaxAgeInHours;
+
+  @Value("${nsi.providerNsa}")
+  private String nsiProviderNsa;
+
+  @Value("${nsi.reserve.held.timeout.value.in.seconds}")
+  private int nsiReserveHeldTimeoutValueInSeconds;
 
   public Environment() {
   }
@@ -253,5 +259,17 @@ public class Environment {
 
   public Duration getInstituteCacheMaxAge() {
     return Duration.standardHours(instituteCacheMaxAgeInHours);
+  }
+
+  public String getNsiProviderNsa() {
+    return nsiProviderNsa;
+  }
+
+  public void setNsiReserveHeldTimeoutValueInSeconds(int nsiReserveHeldTimeoutValueInSeconds) {
+    this.nsiReserveHeldTimeoutValueInSeconds = nsiReserveHeldTimeoutValueInSeconds;
+  }
+
+  public int getNsiReserveHeldTimeoutValueInSeconds() {
+    return nsiReserveHeldTimeoutValueInSeconds;
   }
 }

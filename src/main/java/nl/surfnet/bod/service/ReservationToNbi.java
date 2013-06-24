@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -25,7 +25,6 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -43,35 +42,22 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Uninterruptibles;
 
 @Service
 public class ReservationToNbi {
 
   private final Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
 
-  @Resource
-  private NbiClient nbiClient;
-
-  @Resource
-  private ReservationRepo reservationRepo;
-
-  @Resource
-  private ReservationEventPublisher reservationEventPublisher;
-
-  @Resource
-  private LogEventService logEventService;
+  @Resource private NbiClient nbiClient;
+  @Resource private ReservationRepo reservationRepo;
+  @Resource private ReservationEventPublisher reservationEventPublisher;
+  @Resource private LogEventService logEventService;
 
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservationId);
 
     Reservation reservation = reservationRepo.findOne(reservationId);
-    while (reservation == null) {
-      logger.debug("Could not find reservation {} in the database, waiting..", reservationId);
-      Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
-      reservation = reservationRepo.findOne(reservationId);
-    }
 
     logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation, reservationId);
 
@@ -126,8 +112,7 @@ public class ReservationToNbi {
     }
   }
 
-  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus,
-      Optional<NsiRequestDetails> nsiRequestDetails) {
+  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus, Optional<NsiRequestDetails> nsiRequestDetails) {
 
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
@@ -136,10 +121,9 @@ public class ReservationToNbi {
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
 
-    ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation,
-        nsiRequestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails);
 
-    reservationEventPublisher.notifyListeners(createEvent);
+    reservationEventPublisher.notifyListeners(event);
   }
 
 }

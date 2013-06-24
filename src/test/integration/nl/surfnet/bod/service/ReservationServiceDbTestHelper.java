@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -31,7 +31,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -61,7 +61,7 @@ public class ReservationServiceDbTestHelper {
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
   @Resource
-  private ConnectionRepo connectionRepo;
+  private ConnectionV1Repo connectionRepo;
 
   Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status,
       PhysicalResourceGroup sourceGroup, PhysicalResourceGroup destinationGroup) {
@@ -99,10 +99,10 @@ public class ReservationServiceDbTestHelper {
   }
 
   Reservation addConnectionToReservation(Reservation reservation) {
-    Connection connection = new ConnectionFactory().setReservation(reservation).create();
+    ConnectionV1 connection = new ConnectionV1Factory().setReservation(reservation).create();
     connection = connectionRepo.saveAndFlush(connection);
 
-    reservation.setConnection(connection);
+    reservation.setConnectionV1(connection);
     return reservationRepo.saveAndFlush(reservation);
   }
 

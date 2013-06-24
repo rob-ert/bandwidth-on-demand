@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -28,6 +28,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+
+import java.util.List;
+
+import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
@@ -73,7 +77,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyAndWaitForReservationIsAutoStart(String label) {
-    ListReservationPage page = ListReservationPage.get(driver);
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.reservationShouldBe(label, ReservationStatus.AUTO_START);
   }
@@ -291,4 +295,33 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   protected DashboardPage getDashboardPage() {
     return DashboardPage.get(driver, URL_UNDER_TEST);
   }
+
+  public String requestOauthToken() {
+    DashboardPage dashboardPage = getDashboardPage();
+
+    AdvancedPage advancedPage = dashboardPage.clickAdvancedMenuLink();
+    advancedPage.clickTokenLink();
+
+    OauthTokenRequestFormPage oauthTokenRequestFormPage = OauthTokenRequestFormPage.get(driver);
+
+    OauthTokensPage tokensPage = oauthTokenRequestFormPage.fillAndSubmit(TestExternalSupport.SELENIUM_USER_URN, "my_irrelevant_password");
+
+    Optional<String> token = tokensPage.getToken();
+
+    if (token.isPresent()){
+      return token.get();
+    }
+
+    OauthAuthorizePage oauthAuthorizePage = tokensPage.clickRequestButton();
+    tokensPage = oauthAuthorizePage.clickGrantButton();
+
+    return tokensPage.getToken().get();
+  }
+
+  public List<String> getVirtualPortIds(){
+    DashboardPage dashboardPage = getDashboardPage();
+    ListVirtualPortPage listVirtualPortPage = dashboardPage.clickVirtualPortsLink();
+    return listVirtualPortPage.getAllVirtualPortIds();
+  }
+
 }

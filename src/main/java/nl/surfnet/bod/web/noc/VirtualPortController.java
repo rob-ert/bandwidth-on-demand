@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -82,7 +82,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     List<VirtualPort> entries = virtualPortService.findEntries(firstPage, maxItems, sort);
     return transformToView(entries, Security.getUserDetails());
   }
@@ -113,7 +113,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
+  protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
     return Lists.transform(entities, fromNocVirtualportToVirtualportView);
   }
 

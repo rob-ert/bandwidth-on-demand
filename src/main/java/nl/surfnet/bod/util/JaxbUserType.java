@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -47,20 +47,12 @@ public class JaxbUserType<T> implements UserType {
 
   private static final int[] SQL_TYPES = { Types.VARCHAR };
 
-  private static JAXBContext jaxbContext;
-
-  static {
-    try {
-      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2011._10.connection.types");
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
+  private final JAXBContext jaxbContext;
   private final QName xmlRootElementName;
   private final Class<T> type;
 
-  protected JaxbUserType(QName xmlRootElementName, Class<T> type) {
+  protected JaxbUserType(JAXBContext jaxbContext, QName xmlRootElementName, Class<T> type) {
+    this.jaxbContext = jaxbContext;
     this.xmlRootElementName = xmlRootElementName;
     this.type = type;
   }
@@ -97,7 +89,7 @@ public class JaxbUserType<T> implements UserType {
     return fromXmlString(string);
   }
 
-  T fromXmlString(String string) {
+  public T fromXmlString(String string) {
     if (string == null) {
       return null;
     }
@@ -115,7 +107,7 @@ public class JaxbUserType<T> implements UserType {
     st.setString(index, string);
   }
 
-  String toXmlString(Object value) {
+  public String toXmlString(Object value) {
     if (value == null) {
       return null;
     }

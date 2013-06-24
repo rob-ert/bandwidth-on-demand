@@ -18,11 +18,11 @@
                             <h3>You do not have an Access Token</h3>
                             <p>Request a token by pressing the button and giving your consent.</p>
                             <spring:url value="/oauth2/token" var="createUrl" />
-                            <a href="${createUrl}" class="btn btn-primary">Request an Access Token</a>
+                            <a href="${createUrl}" class="btn btn-primary requestLink">Request an Access Token</a>
                         </c:when>
                         <c:otherwise>
                             <h3>Your OAuth2 Access Token for NSI requests</h3>
-                            <input type="text" value="${accessToken.token}" class="input-copy"/>
+                            <input type="text" value="${accessToken.token}" class="input-copy nsiToken"/>
                             <spring:url var="revokeUrl" value="/oauth2/token/delete">
                                 <spring:param name="_method" value="DELETE" />
                                 <spring:param name="tokenId" value="${accessToken.id}" />

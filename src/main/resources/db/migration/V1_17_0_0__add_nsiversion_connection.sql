@@ -1,0 +1,1 @@
+ALTER TABLE connection ADD COLUMN nsi_version VARCHAR(20) NOT NULL DEFAULT 'ONE';

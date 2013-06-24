@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.Authentication;
@@ -148,6 +149,10 @@ public final class Security {
 
   public static boolean hasUserRole() {
     return getUserDetails().hasUserRole();
+  }
+
+  public static boolean hasOauthScope(NsiScope scope) {
+    return getUserDetails().getNsiScopes().contains(scope);
   }
 
   public static boolean isUserMemberOf(VirtualResourceGroup group) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -29,18 +29,41 @@ import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNA
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.Predicates;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -51,13 +74,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -294,8 +310,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   List<PhysicalPort> markRealignedPortsInNMS(Map<String, PhysicalPort> bodPorts, Set<String> nbiPortIds) {
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS_PRED)
-        .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
+    ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values())
+      .filter(Predicates.MISSING_PORTS_PRED)
+      .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
     logger.info("Found {} ports realigned in the NMS", reAlignedPortIds.size());
@@ -327,8 +344,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   List<PhysicalPort> markUnalignedWithNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(
-        Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
+    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values())
+        .filter(Predicates.NON_MISSING_PORTS_PRED)
+        .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
     logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());

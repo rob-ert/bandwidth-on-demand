@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -169,7 +169,7 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   @Override
-  protected List<ReservationView> transformToView(List<Reservation> reservationsToTransform, final RichUserDetails user) {
+  protected List<? extends ReservationView> transformToView(List<? extends Reservation> reservationsToTransform, final RichUserDetails user) {
 
     return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
       @Override

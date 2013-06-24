@@ -22,46 +22,9 @@
   <logger name="org.springframework">
     <level value="WARN" />
   </logger>
-
   <logger name="nl.surfnet.bod">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.nsi.ws.v1sc">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.nsi">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.service">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.sabng">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="com.googlecode.ehcache" additivity="false">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="com.googlecode.flyway">
-    <level value="WARN" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.mtosi">
-    <level value="WARN" />
-  </logger>
-
-  <!-- <logger name="org.hibernate.type">
-    <level value="TRACE" />
-   </logger>
-
-   <logger name="org.hibernate.SQL">
     <level value="DEBUG" />
-   </logger> -->
+  </logger>
 
   <root>
     <level value="WARN" />

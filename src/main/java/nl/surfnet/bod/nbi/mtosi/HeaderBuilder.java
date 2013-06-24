@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -42,7 +42,7 @@ public final class HeaderBuilder {
     header.setDestinationURI(endPoint);
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setTimestamp(XmlUtils.getXmlTimeStampFromDateTime(DateTime.now()).get());
+    header.setTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()));
     header.setActivityName(activityName);
     header.setMsgName(msgName);
     // TODO should change sender URI?

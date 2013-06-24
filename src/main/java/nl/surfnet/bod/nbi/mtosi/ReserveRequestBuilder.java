@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -110,7 +110,7 @@ public class ReserveRequestBuilder {
   private ReserveRequest createReserveRequest(DateTime endDateTime) {
     ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
 
-    reserveRequest.setExpiringTime(XmlUtils.getXmlTimeStampFromDateTime(endDateTime).get());
+    reserveRequest.setExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
 
     return reserveRequest;
   }
@@ -134,7 +134,7 @@ public class ReserveRequestBuilder {
   }
 
   public static String convertToXml(DateTime timeStamp) {
-    return XmlUtils.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
+    return XmlUtils.toGregorianCalendar(timeStamp).toXMLFormat();
   }
 
   @VisibleForTesting

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -22,17 +22,22 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.net.URI;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-
-import com.google.common.annotations.VisibleForTesting;
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 @Entity
 @Indexed
@@ -45,21 +50,42 @@ public class NsiRequestDetails {
   private Long id;
 
   @Field
-  private String replyTo;
+  @Column(nullable = false)
+  @Type(type = "nl.surfnet.bod.util.PersistentUri")
+  private URI replyTo;
 
   @Field
+  @Column(nullable = false)
   private String correlationId;
+
+  @Field private String requesterNsa;
+  @Field private String providerNsa;
 
   @SuppressWarnings("unused")
   private NsiRequestDetails() {
   }
 
-  public NsiRequestDetails(String replyTo, String correlationId) {
+  public NsiRequestDetails(URI replyTo, String correlationId) {
     this.replyTo = replyTo;
     this.correlationId = correlationId;
   }
 
-  public String getReplyTo() {
+  public NsiRequestDetails(URI replyTo, String correlationId, String requesterNsa, String providerNsa) {
+    this.replyTo = replyTo;
+    this.correlationId = correlationId;
+    this.requesterNsa = requesterNsa;
+    this.providerNsa = providerNsa;
+  }
+
+  public CommonHeaderType getCommonHeaderType(String protocolVersion) {
+    return new CommonHeaderType()
+      .withCorrelationId(getCorrelationId())
+      .withProtocolVersion(protocolVersion)
+      .withProviderNSA(getProviderNsa())
+      .withRequesterNSA(getRequesterNsa());
+  }
+
+  public URI getReplyTo() {
     return replyTo;
   }
 
@@ -75,6 +101,14 @@ public class NsiRequestDetails {
   @VisibleForTesting
   void setId(Long id) {
     this.id = id;
+  }
+
+  public String getRequesterNsa() {
+    return requesterNsa;
+  }
+
+  public String getProviderNsa() {
+    return providerNsa;
   }
 
   @Override

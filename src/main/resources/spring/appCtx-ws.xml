@@ -31,6 +31,12 @@
         </wss:service>
     </wss:binding>
 
+    <wss:binding url="/nsi/v2/provider">
+        <wss:service>
+            <ws:service bean="#connectionServiceProviderWs_v2" />
+        </wss:service>
+    </wss:binding>
+
     <!-- MTOSI WS -->
     <wss:binding url="/mtosi/fmw/NotificationConsumer">
         <wss:service>

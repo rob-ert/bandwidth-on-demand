@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -133,8 +133,8 @@ public class NbiOfflineClient implements NbiClient {
     else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
       reservation.setStatus(FAILED);
     }
-    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), TIMED_OUT.name())) {
-      reservation.setStatus(TIMED_OUT);
+    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
+      reservation.setStatus(PASSED_END_TIME);
     }
     else if (autoProvision) {
       reservation.setStatus(AUTO_START);
@@ -179,7 +179,7 @@ public class NbiOfflineClient implements NbiClient {
         status = SUCCEEDED;
       }
       else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
-        status = TIMED_OUT;
+        status = PASSED_END_TIME;
       }
 
       scheduleIds.put(scheduleId, reservation.withStatus(status));

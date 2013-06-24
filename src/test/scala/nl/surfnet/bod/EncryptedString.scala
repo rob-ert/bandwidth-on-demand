@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -36,8 +36,7 @@ object EncryptedString {
     enc
   }
 
-  implicit def stringToEncryptedString(str: String) = new {
-
+  implicit class stringToEncryptedString(str: String) {
     def encrypt(): String = encryptor.encrypt(str)
 
     def decrypt(): String = encryptor.decrypt(str)

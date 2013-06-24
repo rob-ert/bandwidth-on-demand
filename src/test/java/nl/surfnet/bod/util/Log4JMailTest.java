@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -22,13 +22,13 @@
  */
 package nl.surfnet.bod.util;
 
-import static nl.surfnet.bod.util.Log4JMail.MAIL_LOGER_NAME;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static nl.surfnet.bod.util.Log4JMail.*;
+import static org.junit.Assert.*;
 
 import java.net.UnknownHostException;
 
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,19 +41,24 @@ public class Log4JMailTest {
     subject = new Log4JMail();
   }
 
-  @Test
-  public void shouldUseMailAppenderInEveryOtherEnvironment() throws UnknownHostException {
-    subject.setEnabled("true");
-    subject.init();
-
-    assertNotNull(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME));
+  @After
+  public void tearDown() {
+    Logger.getRootLogger().removeAppender(MAIL_LOGGER_NAME);
   }
 
   @Test
-  public void shouldNotUseMailAppenderInDevelopmentMode() throws UnknownHostException {
-    subject.setEnabled("false");
+  public void shouldNotUseMailWhenDisabled() throws UnknownHostException {
+    subject.setEnabled(false);
     subject.init();
-    assertNull(Logger.getRootLogger().getAppender(MAIL_LOGER_NAME));
+
+    assertNull(Logger.getRootLogger().getAppender(MAIL_LOGGER_NAME));
   }
 
+  @Test
+  public void shouldUseMailAppenderWhenEnabled() throws UnknownHostException {
+    subject.setEnabled(true);
+    subject.init();
+
+    assertNotNull(Logger.getRootLogger().getAppender(MAIL_LOGGER_NAME));
+  }
 }

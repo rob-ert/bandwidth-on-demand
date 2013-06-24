@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -185,7 +185,7 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
     return transformToView(getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter,

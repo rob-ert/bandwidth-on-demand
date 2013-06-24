@@ -17,7 +17,7 @@
         <dl class="dl">
           <dt>
             <spring:url var="oauth_url" value="/oauth2/tokens" />
-            <a href="${oauth_url}"><spring:message code="menu_nsi_label"/></a></dt>
+            <a href="${oauth_url}" class="oAuthTokensLink"><spring:message code="menu_nsi_label"/></a></dt>
           <dd>
             When you make use of NSI to create reservations through Bandwidth on Demand you need an OAuth2 Access Token. The Access Token is used
             to authenticate and authorize your NSI request.

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -195,7 +195,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
+  protected List<? extends PhysicalPortView> transformToView(List<? extends PhysicalPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 }

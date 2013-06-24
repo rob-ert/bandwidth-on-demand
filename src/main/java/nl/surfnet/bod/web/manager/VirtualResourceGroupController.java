@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -81,7 +81,7 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<? extends VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
     List<VirtualResourceGroup> entriesForManager =
         virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
 
@@ -109,7 +109,7 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
+  protected List<? extends VirtualResourceGroupView> transformToView(List<? extends VirtualResourceGroup> entities, RichUserDetails user) {
       return Lists.transform(entities, VirtualResourceGroupService.TO_MANAGER_VIEW);
   }
 

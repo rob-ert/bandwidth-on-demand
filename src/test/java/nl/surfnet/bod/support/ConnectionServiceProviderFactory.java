@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012, SURFnet BV
+ * Copyright (c) 2012, 2013 SURFnet BV
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -123,8 +123,6 @@ public class ConnectionServiceProviderFactory {
   }
 
   private class MutableQueryFilterType extends QueryFilterType {
-    private static final long serialVersionUID = 1L;
-
     public void setConnectionId(String connectionId) {
       super.connectionId = Lists.newArrayList(connectionId);
     }
