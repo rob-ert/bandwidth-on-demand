@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -72,6 +73,11 @@ public class HealthCheckController {
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
+
+  @RequestMapping(value = "/healthcheck/alive")
+  public void alivePage(HttpServletResponse httpServletResponse) {
+    httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+  }
 
   @RequestMapping(value = "/healthcheck")
   public String index(Model model) {
