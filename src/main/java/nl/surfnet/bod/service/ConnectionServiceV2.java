@@ -189,19 +189,19 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     RangeSet<Integer> notificationRange = TreeRangeSet.create();
-    if (startNotificationId.isPresent() && endNotificationId.isPresent()){
+    if (startNotificationId.isPresent() && endNotificationId.isPresent()) {
       notificationRange.add(Range.closed(startNotificationId.get(), endNotificationId.get()));
-    }else if(startNotificationId.isPresent() && !endNotificationId.isPresent()){
+    } else if (startNotificationId.isPresent() && !endNotificationId.isPresent()) {
       notificationRange.add(Range.atLeast(startNotificationId.get()));
-    }else if (endNotificationId.isPresent() && ! startNotificationId.isPresent()){
+    } else if (endNotificationId.isPresent() && !startNotificationId.isPresent()) {
       notificationRange.add(Range.atMost(endNotificationId.get()));
-    }else{
+    } else {
       notificationRange.add(Range.<Integer>all());
     }
 
     List<NotificationBaseType> selectedNotifications = new ArrayList<>();
-    for (NotificationBaseType notification: connection.getNotifications()){
-      if (notificationRange.contains(notification.getNotificationId())){
+    for (NotificationBaseType notification : connection.getNotifications()) {
+      if (notificationRange.contains(notification.getNotificationId())) {
         selectedNotifications.add(notification);
       }
     }
@@ -215,18 +215,26 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   }
 
   private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
+    checkConnectionId(connection.getConnectionId());
+    checkGlobalReservationId(connection.getGlobalReservationId());
+
     try {
       checkProviderNsa(connection.getProviderNsa());
-      checkConnectionId(connection.getConnectionId());
       checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
       checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
-    }
-    catch (ValidationException e) {
-      // TODO should go to terminated in Life-cycle state machine?
-      //connection.setLifecycleState(TERMINATED);
+    } catch (ValidationException e) {
+      connection.setLifecycleState(LifecycleStateEnumType.FAILED);
       connection.setReservationState(ReservationStateEnumType.RESERVE_START);
       connectionRepo.save(connection);
+
       throw e;
+    }
+  }
+
+  private void checkGlobalReservationId(String globalReservationId) throws ValidationException {
+    if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
+      log.warn("GlobalReservationId {} was not unique", globalReservationId);
+      throw new ValidationException("globalReservationId", "0100", "GlobalReservationId already exists");
     }
   }
 

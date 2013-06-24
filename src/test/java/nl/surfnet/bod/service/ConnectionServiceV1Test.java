@@ -26,8 +26,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.PROVISIONED;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
@@ -68,13 +71,14 @@ public class ConnectionServiceV1Test {
 
   @InjectMocks private ConnectionServiceV1 subject;
 
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   private final String PROVIDER_NSA = "urn:ogf:network:surfnet";
 
   private RichUserDetails userDetails;
 
   @Before
   public void setup() {
-    //PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("admin").create();
     userDetails = new RichUserDetailsFactory().setUsername("me").addUserGroup("admin").create();
     Security.setUserDetails(userDetails);
 
@@ -119,9 +123,6 @@ public class ConnectionServiceV1Test {
     assertThat(subject.hasValidState(connectionInvalid), is(false));
   }
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void shouldThrowAValidationExceptionWenNotAuthorizedForPort() throws ValidationException {
     ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
@@ -140,10 +141,15 @@ public class ConnectionServiceV1Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
     when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new ConnectionV1());
-    thrown.expect(ValidationException.class);
-    thrown.expectMessage(containsString("already exists"));
 
-    subject.reserve(connection, requestDetails, false, userDetails);
+    try {
+      subject.reserve(connection, requestDetails, false, userDetails);
+      fail("Excpected a ValicationException");
+    } catch (ValidationException e) {
+      assertThat(e.getMessage(), containsString("already exists"));
+    }
+
+    verify(connectionRepoMock, never()).save(any(ConnectionV1.class));
   }
 
   @Test

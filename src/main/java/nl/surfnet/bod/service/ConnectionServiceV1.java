@@ -105,8 +105,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   @Resource private VirtualPortService virtualPortService;
   @Resource private ConnectionServiceRequesterV1 connectionServiceRequester;
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(ConnectionV1 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
@@ -155,9 +154,10 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   private void checkConnection(ConnectionV1 connection, RichUserDetails richUserDetails) throws ValidationException {
+    checkConnectionId(connection.getConnectionId()); // can not persist the connection due db constraint
+
     try {
       checkProviderNsa(connection.getProviderNsa());
-      checkConnectionId(connection.getConnectionId());
       checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
       checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
     }

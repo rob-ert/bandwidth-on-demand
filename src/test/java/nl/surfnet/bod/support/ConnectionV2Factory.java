@@ -45,7 +45,7 @@ public class ConnectionV2Factory {
   private String providerNsa = "nsa:surfnet.nl";
   private String connectionId = UUID.randomUUID().toString();
   private Reservation reservation = new ReservationFactory().create();
-  private final String globalReservationId = UUID.randomUUID().toString();
+  private String globalReservationId = UUID.randomUUID().toString();
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
@@ -172,6 +172,11 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setReserveHeldTimeoutValue(int reserveHeldTimeoutValue) {
     this.reserveHeldTimeoutValue = reserveHeldTimeoutValue;
+    return this;
+  }
+
+  public ConnectionV2Factory setGlobalReservationId(String globalReservationId) {
+    this.globalReservationId = globalReservationId;
     return this;
   }
 
