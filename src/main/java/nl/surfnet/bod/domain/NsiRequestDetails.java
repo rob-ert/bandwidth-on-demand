@@ -77,10 +77,10 @@ public class NsiRequestDetails {
     this.providerNsa = providerNsa;
   }
 
-  public CommonHeaderType getCommonHeaderType() {
+  public CommonHeaderType getCommonHeaderType(String protocolVersion) {
     return new CommonHeaderType()
       .withCorrelationId(getCorrelationId())
-      .withProtocolVersion("urn:2.0:FIXME")
+      .withProtocolVersion(protocolVersion)
       .withProviderNSA(getProviderNsa())
       .withRequesterNSA(getRequesterNsa());
   }
