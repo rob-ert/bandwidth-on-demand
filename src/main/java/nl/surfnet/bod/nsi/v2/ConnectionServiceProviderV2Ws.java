@@ -46,7 +46,6 @@ import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ConnectionServiceV2;
-import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -96,7 +95,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     log.info("Received a NSI v2 reserve request");
 
     if (!Strings.isNullOrEmpty(connectionId.value)) {
-      throw missingParameter("connection id");
+      // sending reservation message while supplying a connectionId indicates a 'modify' request, which we don't support
+      throw notImplemented();
     }
 
     if (criteria.getPath().getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
@@ -119,11 +119,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
       connectionService.reserve(connection, requestDetails, richUserDetails);
-    } catch (ValidationException e) {
-      ServiceExceptionType faultInfo = new ServiceExceptionType().withErrorId(e.getErrorCode()).withNsaId(bodEnvironment.getNsiProviderNsa())
-          .withText(e.getMessage());
+    } catch (ConnectionServiceV2.ReservationCreationException e) {
 
-      throw new ServiceException(e.getMessage(), faultInfo, e);
+      ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage()).
+          withErrorId(e.getErrorCode()).
+          withNsaId(bodEnvironment.getNsiProviderNsa());
+      throw new ServiceException(e.getMessage(), serviceException);
     }
   }
 

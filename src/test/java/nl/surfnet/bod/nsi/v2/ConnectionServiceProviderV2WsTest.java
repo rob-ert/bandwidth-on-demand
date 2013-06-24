@@ -58,7 +58,6 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -85,8 +84,6 @@ import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 public class ConnectionServiceProviderV2WsTest {
 
   private static final String UNAUTHORIZED = "Unauthorized";
-
-  private static final String NOT_APPLICABLE = "Not Applicable";
 
   @InjectMocks private ConnectionServiceProviderV2Ws subject;
 
@@ -160,10 +157,12 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_reject_reserve_with_connection_id_until_modify_is_supported() {
     try {
+      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).create());
       subject.reserve(new Holder<>("connectionId"), null, null, initialReservationCriteria(), headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is("Not Supported"));
+      assertThat(expected.getFaultInfo().getErrorId(), is("103"));
+      assertThat(expected.getFaultInfo().getText(), is("Not Implemented"));
     }
   }
 
@@ -176,7 +175,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
     }
   }
 
@@ -213,7 +212,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
     }
   }
 
@@ -250,7 +249,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
     }
   }
 
@@ -263,7 +262,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
     }
   }
 
@@ -292,14 +291,14 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
-  public void should_respond_not_applicalbe_when_already_terminated_when_sending_a_terminate() throws Exception {
+  public void should_respond_illegal_statechange_when_already_terminated_when_sending_a_terminate() throws Exception {
       when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setLifecycleState(TERMINATED).create());
 
       try {
         subject.terminate("connectionId", headerHolder);
         fail("ServiceException expected");
       } catch (ServiceException expected) {
-        assertThat(expected.getFaultInfo().getText(), is(NOT_APPLICABLE));
+        assertThat(expected.getFaultInfo().getErrorId(), is("201"));
       }
   }
 

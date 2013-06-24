@@ -44,7 +44,6 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
-import nl.surfnet.bod.service.ConnectionServiceV2.ValidationException;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -70,7 +69,7 @@ public class ConnectionServiceV2Test {
   @Mock private Environment bodEnvironmentMock;
 
   @Test
-  public void reserve_with_a_duplicate_global_reservation_id_should_give_validation_exception() throws ValidationException {
+  public void reserve_with_a_duplicate_global_reservation_id_should_give_validation_exception() throws ConnectionServiceV2.ReservationCreationException {
     String providerNsa = "nsa:surfnet.nl";
     ConnectionV2 connection = new ConnectionV2Factory().setGlobalReservationId("GlobalReservationId").setProviderNsa(providerNsa).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
@@ -82,7 +81,7 @@ public class ConnectionServiceV2Test {
     try {
       subject.reserve(connection, requestDetails, userDetails);
       fail("Expected a ValicationException");
-    } catch (ValidationException e) {
+    } catch (ConnectionServiceV2.ReservationCreationException e) {
       assertThat(e.getMessage(), containsString("GlobalReservationId"));
     }
 

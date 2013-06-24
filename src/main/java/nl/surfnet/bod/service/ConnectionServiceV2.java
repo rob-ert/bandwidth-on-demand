@@ -74,7 +74,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   @PersistenceContext private EntityManager entityManager;
 
-  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails userDetails) throws ValidationException {
+  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
     checkConnection(connection, userDetails);
 
     connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
@@ -121,10 +121,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   private void terminate(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
     reservationService.cancelWithReason(
-      connection.getReservation(),
-      "NSIv2 terminate by " + user.getNameId(),
-      user,
-      Optional.of(requestDetails));
+        connection.getReservation(),
+        "NSIv2 terminate by " + user.getNameId(),
+        user,
+        Optional.of(requestDetails));
   }
 
   @Async
@@ -214,7 +214,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
   }
 
-  private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ValidationException {
+  private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ReservationCreationException {
     checkConnectionId(connection.getConnectionId());
     checkGlobalReservationId(connection.getGlobalReservationId());
 
@@ -222,7 +222,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
       checkProviderNsa(connection.getProviderNsa());
       checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
       checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
-    } catch (ValidationException e) {
+    } catch (ReservationCreationException e) {
       connection.setLifecycleState(LifecycleStateEnumType.FAILED);
       connection.setReservationState(ReservationStateEnumType.RESERVE_START);
       connectionRepo.save(connection);
@@ -231,42 +231,42 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     }
   }
 
-  private void checkGlobalReservationId(String globalReservationId) throws ValidationException {
+  private void checkGlobalReservationId(String globalReservationId) throws ReservationCreationException {
     if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
-      log.warn("GlobalReservationId {} was not unique", globalReservationId);
-      throw new ValidationException("globalReservationId", "0100", "GlobalReservationId already exists");
+      log.debug("GlobalReservationId {} was not unique", globalReservationId);
+      throw new ReservationCreationException("600", "Resource unavailable: GlobalReservationId already exists");
     }
   }
 
-  private void checkProviderNsa(String providerNsa) throws ValidationException {
+  private void checkProviderNsa(String providerNsa) throws ReservationCreationException {
     if (!bodEnvironment.getNsiProviderNsa().equals(providerNsa)) {
-      log.warn("ProviderNsa '{}' is not accepted", providerNsa);
+      log.debug("ProviderNsa '{}' is not accepted", providerNsa);
 
-      throw new ValidationException("providerNSA", "0100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
+      throw new ReservationCreationException("100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
     }
   }
 
-  private void checkConnectionId(String connectionId) throws ValidationException {
+  private void checkConnectionId(String connectionId) throws ReservationCreationException {
     if (!StringUtils.hasText(connectionId)) {
       log.warn("ConnectionId was empty", connectionId);
-      throw new ValidationException("connectionId", "0100", "Connection id is empty");
+      throw new ReservationCreationException("101", "Missing parameter");
     }
 
     if (connectionRepo.findByConnectionId(connectionId) != null) {
       log.warn("ConnectionId {} was not unique", connectionId);
-      throw new ValidationException("connectionId", "0100", "Connection id already exists");
+      throw new ReservationCreationException("202", "Connection id already exists");
     }
   }
 
-  private void checkPort(String stpId, String attribute, RichUserDetails user) throws ValidationException {
+  private void checkPort(String stpId, String attribute, RichUserDetails user) throws ReservationCreationException {
     VirtualPort port = virtualPortService.findByNsiStpId(stpId);
 
     if (port == null) {
-      throw new ValidationException(attribute, "0100", String.format("Unknown STP '%s'", stpId));
+      throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpId));
     }
 
     if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
-      throw new ValidationException(attribute, "0100", String.format("Unauthorized for STP '%s'", stpId));
+      throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpId));
     }
   }
 
@@ -297,20 +297,18 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
 
   @SuppressWarnings("serial")
-  public static class ValidationException extends Exception {
-    private final String attributeName;
+  public static class ReservationCreationException extends Exception {
     private final String errorCode;
 
-    public ValidationException(String attributeName, String errorCode, String errorMessage) {
+    public ReservationCreationException(String errorCode, String errorMessage) {
       super(errorMessage);
-      this.attributeName = attributeName;
       this.errorCode = errorCode;
     }
 
-    public String getAttributeName() {
-      return attributeName;
-    }
-
+    /**
+     *
+     * @return the errorcode as specified in
+     */
     public String getErrorCode() {
       return errorCode;
     }
