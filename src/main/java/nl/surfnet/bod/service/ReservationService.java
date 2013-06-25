@@ -298,17 +298,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
 
-  public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
-      Collection<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
-        ReservationStatus.REQUESTED, adminGroups);
+  public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
+    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end, ReservationStatus.REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
     }
 
-    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications
-        .specReservationWithConnection(reservationIds));
+    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
 
     return reservationIds.size() - withConnection;
   }
@@ -323,8 +320,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return 0;
     }
 
-    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications
-        .specReservationWithConnection(reservationIds));
+    long withConnection = reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
 
     return reservationIds.size() - withConnection;
   }

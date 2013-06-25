@@ -189,8 +189,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       ReservationStatus state, Collection<String> adminGroups) {
 
     Specification<LogEvent> spec = LogEventPredicatesAndSpecifications
-        .specForReservationBetweenForAdminGroupsWithOldStateIn(Collections.<Long> emptyList(), start, end, adminGroups,
-            state);
+        .specForReservationBetweenForAdminGroupsWithOldStateIn(Collections.<Long> emptyList(), start, end, adminGroups, state);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }

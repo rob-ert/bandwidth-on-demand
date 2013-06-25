@@ -264,20 +264,16 @@ public final class ReservationPredicatesAndSpecifications {
   }
 
   static Specification<Reservation> specReservationWithConnection(final List<Long> reservationIds) {
-    final Specification<Reservation> spec = new Specification<Reservation>() {
-
+    return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate connectionPredicate = cb.or(
-            root.get(Reservation_.connectionV1).get(ConnectionV1_.id).isNotNull(),
-            root.get(Reservation_.connectionV2).get(ConnectionV2_.id).isNotNull());
-        final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
+        // FIXME [AvD] need to add Connection NSI V2
+        Predicate connectionV1Predicate = root.get(Reservation_.connectionV1).get(ConnectionV1_.id).isNotNull();
+        Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
 
-        return cb.and(connectionPredicate, reservationIdIn);
+        return cb.and(connectionV1Predicate, reservationIdIn);
       }
     };
-
-    return spec;
   }
 
 }

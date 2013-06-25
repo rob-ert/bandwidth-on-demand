@@ -103,6 +103,7 @@ public class ReservationServiceDbTestHelper {
     connection = connectionRepo.saveAndFlush(connection);
 
     reservation.setConnectionV1(connection);
+
     return reservationRepo.saveAndFlush(reservation);
   }
 

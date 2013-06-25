@@ -25,7 +25,6 @@ package nl.surfnet.bod.service;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.web.WebUtils.not;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -79,20 +78,11 @@ public class ReportReservationServiceDbTest {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Resource
-  private ReservationServiceDbTestHelper reservationHelper;
-
-  @Resource
-  private ReservationRepo reservationRepo;
-
-  @Resource
-  private NbiOfflineClient nbiClient;
-
-  @Resource
-  private ReservationService subject;
-
-  @Resource
-  private ReportingService reportingService;
+  @Resource private ReservationServiceDbTestHelper reservationHelper;
+  @Resource private ReservationRepo reservationRepo;
+  @Resource private NbiOfflineClient nbiClient;
+  @Resource private ReservationService subject;
+  @Resource private ReportingService reportingService;
 
   private DateTime periodStart;
   private DateTime periodEnd;
@@ -139,38 +129,30 @@ public class ReportReservationServiceDbTest {
     nbiClient.setShouldSleep(false);
 
     // Five (4) reservations in reporting period, 2 GUI and 2 NSI
-    reservationAfterStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd,
-        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
+    reservationAfterStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd, ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationAfterStartAndOnEndPeriodGUI.getId());
 
-    reservationInPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1),
-        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
+    reservationInPeriodGUI = createAndSaveReservation(periodStart.plusHours(1), periodEnd.minusHours(1), ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationInPeriodGUI.getId());
 
-    reservationOnStartPeriodNSI = createAndSaveReservation(periodStart, periodEnd.plusDays(1),
-        ReservationStatus.REQUESTED, false, prgSource, prgDestination);
+    reservationOnStartPeriodNSI = createAndSaveReservation(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationOnStartPeriodNSI.getId());
 
-    reservationAfterStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.plusHours(1), periodEnd
-        .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
+    reservationAfterStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.plusHours(1), periodEnd .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationAfterStartAndAfterEndPeriodNSI.getId());
 
     // Two (2) reservations related to reporting period, 1 GUI and 1 NSI
-    reservationBeforeStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.minusHours(1), periodEnd,
-        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
+    reservationBeforeStartAndOnEndPeriodGUI = createAndSaveReservation(periodStart.minusHours(1), periodEnd, ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationBeforeStartAndOnEndPeriodGUI.getId());
 
-    reservationBeforeStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.minusHours(1), periodEnd
-        .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
+    reservationBeforeStartAndAfterEndPeriodNSI = createAndSaveReservation(periodStart.minusHours(1), periodEnd .plusDays(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationBeforeStartAndAfterEndPeriodNSI.getId());
 
     // Two (2) reservations not related to reporting period, 1 GUI and 1 NSI
-    reservationAfterPeriodGUI = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1),
-        ReservationStatus.REQUESTED, true, prgSource, prgDestination);
+    reservationAfterPeriodGUI = createAndSaveReservation(periodEnd.plusHours(1), periodEnd.plusDays(1), ReservationStatus.REQUESTED, true, prgSource, prgDestination);
     reservationIds.add(reservationAfterPeriodGUI.getId());
 
-    reservationBeforePeriodNSI = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1),
-        ReservationStatus.REQUESTED, false, prgSource, prgDestination);
+    reservationBeforePeriodNSI = createAndSaveReservation(periodStart.minusDays(1), periodStart.minusHours(1), ReservationStatus.REQUESTED, false, prgSource, prgDestination);
     reservationIds.add(reservationBeforePeriodNSI.getId());
   }
 
@@ -189,150 +171,131 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateInPeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateInPeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.RESERVED);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateInPeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
-        ReservationStatus.RESERVED, AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(4L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(1), adminGroups, ReservationStatus.AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(1), adminGroups, ReservationStatus.RESERVED);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(1), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(3L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(2), adminGroups, ReservationStatus.AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(2), adminGroups, ReservationStatus.RESERVED);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
-        .minusHours(2), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd
-        .plusDays(3), adminGroups, ReservationStatus.AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd
-        .plusDays(3), adminGroups, ReservationStatus.RESERVED);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd
-        .plusDays(3), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExsitingTransitionInPeriodGUI() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd,
-        REQUESTED, AUTO_START, adminGroups);
+    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, AUTO_START, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExsitingTransitionInPeriodNSI() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd,
-        REQUESTED, RESERVED, adminGroups);
+    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, RESERVED, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountNonExsitingTransitionInPeriod() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd,
-        REQUESTED, ReservationStatus.NOT_ACCEPTED, adminGroups);
+    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, ReservationStatus.NOT_ACCEPTED, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldFindActiveReservationsWithState() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
+    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat(count, is(3L));
 
     subject.updateStatus(reservationInPeriodGUI, ReservationStatus.SUCCEEDED);
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START,
-        adminGroups);
+    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat("Should count one less because of state change", count, is(2L));
   }
 
   @Test
   public void shouldNotFindActiveReservationsBecauseOfState() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, REQUESTED,
-        adminGroups);
+    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, REQUESTED, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldNotFindActiveReservationsBecauseBeforePeriod() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart.minusDays(3), periodStart
-        .minusDays(2), AUTO_START, adminGroups);
+    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart.minusDays(3), periodStart.minusDays(2), AUTO_START, adminGroups);
 
     assertThat(count, is(0L));
   }
@@ -367,28 +330,23 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsBeforeInAdminGroupsWithState() {
-    List<Long> reservationIds = subject.findReservationIdsBeforeOrOnInAdminGroupsWithState(periodStart, adminGroups,
-        ReservationStatus.TRANSITION_STATES_AS_ARRAY);
+    List<Long> reservationIds = subject.findReservationIdsBeforeOrOnInAdminGroupsWithState(periodStart, adminGroups, ReservationStatus.TRANSITION_STATES_AS_ARRAY);
 
     assertThat(reservationIds, hasSize(4));
-    assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
-        .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId(), reservationBeforePeriodNSI.getId()));
+    assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId(), reservationBeforePeriodNSI.getId()));
   }
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd,
-        adminGroups, ReservationStatus.RESERVED);
+    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
 
     assertThat(reservationIds, hasSize(2));
-    assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI
-        .getId()));
+    assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI .getId()));
   }
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenGUI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd,
-        adminGroups, ReservationStatus.AUTO_START);
+    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(reservationIds, hasSize(2));
     assertThat(reservationIds, hasItems(reservationInPeriodGUI.getId(), reservationAfterStartAndOnEndPeriodGUI.getId()));
@@ -396,22 +354,18 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenGUIAndNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd,
-        adminGroups, ReservationStatus.AUTO_START, RESERVED);
+    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START, RESERVED);
 
     assertThat(reservationIds, hasSize(4));
-    assertThat(reservationIds, hasItems(reservationInPeriodGUI.getId(), reservationAfterStartAndOnEndPeriodGUI.getId(),
-        reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI.getId()));
+    assertThat(reservationIds, hasItems(reservationInPeriodGUI.getId(), reservationAfterStartAndOnEndPeriodGUI.getId(), reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI.getId()));
   }
 
   @Test
   public void shouldFindReservationidsWichHadStateBeforePeriodGUIAndNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart.minusDays(2),
-        periodStart.minusMinutes(1), adminGroups, ReservationStatus.AUTO_START, RESERVED);
+    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart.minusDays(2), periodStart.minusMinutes(1), adminGroups, ReservationStatus.AUTO_START, RESERVED);
 
     assertThat(reservationIds, hasSize(3));
-    assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId(), reservationBeforeStartAndAfterEndPeriodNSI
-        .getId(), reservationBeforeStartAndOnEndPeriodGUI.getId()));
+    assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId(), reservationBeforeStartAndAfterEndPeriodNSI .getId(), reservationBeforeStartAndOnEndPeriodGUI.getId()));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -437,8 +391,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindSuccesFullReservationRequests() {
-    List<Long> reservationIds = subject.findSuccessfullReservationRequestsInAdminGroups(periodStart, periodEnd,
-        adminGroups);
+    List<Long> reservationIds = subject.findSuccessfullReservationRequestsInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(reservationIds, hasSize(4));
     assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationInPeriodGUI.getId(),
@@ -456,8 +409,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationsIdsShiftPeriodEarlierCornerCase() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1),
-        periodStart.minusHours(1));
+    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1));
     assertThat(reservationIds, hasSize(3));
     assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
         .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId()));
@@ -465,8 +417,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationsIdsShiftPeriodEarlier() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1),
-        periodStart.minusHours(1).minusMinutes(1));
+    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1).minusMinutes(1));
     assertThat(reservationIds, hasSize(1));
     assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId()));
   }
@@ -535,10 +486,8 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldVerifyActiveReservationsFailed() {
-    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
-        ReservationStatus.SCHEDULED);
-    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart.plusSeconds(1),
-        reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.FAILED);
+    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.SCHEDULED);
+    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart.plusSeconds(1), reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.FAILED);
 
     ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
     reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
@@ -554,8 +503,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldVerifyActiveReservationsNeverProvisioned() {
-    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI,
-        ReservationStatus.PASSED_END_TIME);
+    reservationBeforeStartAndOnEndPeriodGUI = updateStatus(periodStart, reservationBeforeStartAndOnEndPeriodGUI, ReservationStatus.PASSED_END_TIME);
 
     ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);
     reportingService.determineActiveRunningReservations(reservationReport, adminGroups);
@@ -599,19 +547,17 @@ public class ReportReservationServiceDbTest {
     assertThat(reportView.getTotalActiveReservations(), is(0L));
   }
 
-  private Reservation createAndSaveReservation(final DateTime start, final DateTime end,
-      final ReservationStatus status, final boolean autoProvision, final PhysicalResourceGroup sourceGroup,
-      final PhysicalResourceGroup destinationGroup) {
+  private Reservation createAndSaveReservation(
+      final DateTime start, final DateTime end, final ReservationStatus status, final boolean autoProvision, final PhysicalResourceGroup sourceGroup, final PhysicalResourceGroup destinationGroup) {
 
     return TestHelper.<Reservation> runAtSpecificTime(start, new TimeTraveller<Reservation>() {
       @Override
       public Reservation apply() throws Exception {
-        Reservation reservation = reservationHelper
-            .createReservation(start, end, status, sourceGroup, destinationGroup);
+        Reservation reservation = reservationHelper.createReservation(start, end, status, sourceGroup, destinationGroup);
         reservation = reservationHelper.createThroughService(reservation, autoProvision);
 
-        // No autoprovision indicates NSI reservation, so add connection to it
-        if (not(autoProvision)) {
+        // No auto provision indicates NSI reservation, so add connection to it
+        if (!autoProvision) {
           reservation = reservationHelper.addConnectionToReservation(reservation);
         }
 
@@ -620,9 +566,7 @@ public class ReportReservationServiceDbTest {
     });
   }
 
-  private Reservation updateStatus(final DateTime dateTime, final Reservation reservation,
-      final ReservationStatus status) {
-
+  private Reservation updateStatus(final DateTime dateTime, final Reservation reservation, final ReservationStatus status) {
     return TestHelper.<Reservation> runAtSpecificTime(dateTime, new TimeTraveller<Reservation>() {
       @Override
       public Reservation apply() throws Exception {
@@ -630,4 +574,5 @@ public class ReportReservationServiceDbTest {
       }
     });
   }
+
 }
