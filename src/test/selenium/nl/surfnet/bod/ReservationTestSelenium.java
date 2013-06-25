@@ -53,6 +53,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
@@ -166,6 +167,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
+  @Ignore
   @SuppressWarnings("unchecked")
   public void soapReservationHappyFlow() throws Exception {
 
