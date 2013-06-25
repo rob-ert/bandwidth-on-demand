@@ -203,7 +203,7 @@ public class ConnectionServiceRequesterClient {
 
   private ConnectionRequesterPort createPort(URI endpoint) {
     ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toString());
+    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
 
     return port;
   }

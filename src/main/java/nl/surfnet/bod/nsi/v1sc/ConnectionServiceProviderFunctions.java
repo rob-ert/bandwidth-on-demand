@@ -26,19 +26,16 @@ import static com.google.common.base.Optional.fromNullable;
 import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.XmlUtils;
@@ -46,46 +43,12 @@ import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-
 public final class ConnectionServiceProviderFunctions {
-
-  private static final QName SERVICE_NAME =
-    new QName("http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester");
-
-  private static final String WSDL_LOCATION = "/wsdl/1.0_sc/ogf_nsi_connection_requester_v1_0.wsdl";
-
-  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT =
-    new Function<NsiRequestDetails, ConnectionRequesterPort>() {
-      @Override
-      public ConnectionRequesterPort apply(final NsiRequestDetails requestDetails) {
-          ConnectionRequesterPort port = new ConnectionServiceRequester(getWsdlUrl(), SERVICE_NAME)
-            .getConnectionServiceRequesterPort();
-
-          Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-          requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo().toASCIIString());
-
-          return port;
-      }
-
-      private URL getWsdlUrl() {
-        try {
-          return new ClassPathResource(WSDL_LOCATION).getURL();
-        }
-        catch (IOException e) {
-          throw new RuntimeException("Could not find the requester wsdl", e);
-        }
-      }
-    };
 
   public static final Function<ConnectionV1, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED =
     new Function<ConnectionV1, GenericConfirmedType>() {

@@ -23,18 +23,16 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 import javax.annotation.Resource;
-import javax.xml.ws.Holder;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
@@ -46,8 +44,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -56,8 +52,8 @@ public class ConnectionServiceRequesterV1 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1.class);
 
-  @Resource
-  private ConnectionV1Repo connectionRepo;
+  @Resource private ConnectionV1Repo connectionRepo;
+  @Resource private ConnectionServiceRequesterV1Client client;
 
   public void reserveConfirmed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
@@ -79,14 +75,7 @@ public class ConnectionServiceRequesterV1 {
     reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
     reserveConfirmedType.setReservation(reservationInfoType);
 
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
-    }
-    catch (ServiceException e) {
-      // The requesters end point is not healthy..
-      log.info("Error: ", e);
-    }
+    client.asyncSendReserveConfirmed(reserveConfirmedType, requestDetails);
   }
 
   public void reserveFailed(ConnectionV1 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
@@ -107,30 +96,15 @@ public class ConnectionServiceRequesterV1 {
     GenericFailedType reserveFailed = genericFailedForConnection(connection);
     reserveFailed.setServiceException(serviceException);
 
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reserveFailed);
-    }
-    catch (ServiceException e) {
-      // The requesters end point is not healthy..
-      log.info("Error: ", e);
-    }
+    client.asyncSendReserveFailed(reserveFailed, requestDetails);
   }
 
   public void provisionFailedDontUpdateState(ConnectionV1 connection, NsiRequestDetails requestDetails) {
-    log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getConnectionId());
+    log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getConnectionId());
 
     GenericFailedType genericFailed = genericFailedForConnection(connection);
 
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
-    }
-    catch (ServiceException e) {
-      // The requesters end point is not healthy..
-      log.info("Error: ", e);
-    }
+    client.asyncSendGenericFailed(genericFailed, requestDetails);
   }
 
   public void provisionFailed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
@@ -149,14 +123,7 @@ public class ConnectionServiceRequesterV1 {
 
     GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
-    }
-    catch (ServiceException e) {
-      // The requesters end point is not healthy..
-      log.info("Error: ", e);
-    }
+    client.asyncSendProvisionConfirmed(genericConfirm, requestDetails);
   }
 
   public void provisionSucceeded(ConnectionV1 connection) {
@@ -194,14 +161,8 @@ public class ConnectionServiceRequesterV1 {
     }
 
     GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
-      port.terminateConfirmed(new Holder<>(requestDetails.get().getCorrelationId()), genericConfirmed);
-    }
-    catch (ServiceException e) {
-      //
-      log.info("Error: ", e);
-    }
+
+    client.sendAsyncTerminateConfirmed(genericConfirmed, requestDetails.get());
   }
 
   public void terminateFailed(ConnectionV1 connection, Optional<NsiRequestDetails> requestDetails) {
@@ -211,13 +172,7 @@ public class ConnectionServiceRequesterV1 {
 
     GenericFailedType genericFailed = genericFailedForConnection(connection);
 
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
-      port.terminateFailed(new Holder<>(requestDetails.get().getCorrelationId()), genericFailed);
-    }
-    catch (ServiceException e) {
-      log.info("Error: ", e);
-    }
+    client.asyncSendTerminateFailed(genericFailed, requestDetails.get());
   }
 
   public void terminateReservationPassedEndTime(ConnectionV1 connection) {
@@ -227,13 +182,7 @@ public class ConnectionServiceRequesterV1 {
   }
 
   public void queryConfirmed(QueryConfirmedType queryResult, NsiRequestDetails requestDetails) {
-    ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-    try {
-      port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
-    }
-    catch (ServiceException e) {
-      log.info("Sending query confirmed failed", e);
-    }
+    client.asyncSendQueryConfirmed(queryResult, requestDetails);
   }
 
   private GenericFailedType genericFailedForConnection(ConnectionV1 connection) {

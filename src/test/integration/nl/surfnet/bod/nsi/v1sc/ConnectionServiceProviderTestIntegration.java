@@ -22,34 +22,53 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static com.jayway.awaitility.Awaitility.await;
 import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA;
 import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 
 import java.util.EnumSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nbi.NbiOfflineClient;
-import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.service.*;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.service.ReservationPoller;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.support.ConnectionServiceProviderFactory;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.ReserveRequestTypeFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.TimeTraveller;
 import nl.surfnet.bod.util.XmlUtils;
@@ -59,11 +78,17 @@ import nl.surfnet.bod.web.security.Security;
 import org.jadira.usertype.dateandtime.joda.PersistentDateTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -73,62 +98,26 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.AfterTransaction;
-import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Optional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-@Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
+public class ConnectionServiceProviderTestIntegration {
 
   private static MockHttpServer nsiRequester = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
 
-  @Resource
-  private ConnectionServiceProviderV1Ws nsiProvider;
-
-  @Resource
-  private VirtualPortRepo virtualPortRepo;
-
-  @Resource
-  private PhysicalPortRepo physicalPortRepo;
-
-  @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
-
-  @Resource
-  private InstituteRepo instituteRepo;
-
-  @Resource
-  private ConnectionV1Repo connectionRepo;
-
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private ReservationEventPublisher reservationEventPublisher;
-
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Resource
-  private EntityManagerFactory entityManagerFactory;
-
-  @Resource
-  private ReservationPoller reservationPoller;
-
-  @Resource
-  private NbiOfflineClient nbiOfflineClient;
+  @Resource private ConnectionServiceProviderV1Ws nsiProvider;
+  @Resource private VirtualPortRepo virtualPortRepo;
+  @Resource private PhysicalPortRepo physicalPortRepo;
+  @Resource private VirtualResourceGroupRepo virtualResourceGroupRepo;
+  @Resource private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Resource private InstituteRepo instituteRepo;
+  @Resource private ConnectionV1Repo connectionRepo;
+  @Resource private ReservationService reservationService;
+  @Resource private EntityManagerFactory entityManagerFactory;
+  @Resource private ReservationPoller reservationPoller;
+  @Resource private NbiOfflineClient nbiOfflineClient;
 
   private static final String URN_REQUESTER_NSA = "urn:requester";
   private final String virtualResourceGroupName = "nsi:group";
@@ -142,9 +131,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
-
-    nsiRequester.addResponse("/bod/nsi/requester", new ClassPathResource(
-        "web/services/nsi/mockNsiReservationFailedResponse.xml"));
+    nsiRequester.addResponse("/bod/nsi/requester", new ClassPathResource("web/services/nsi/mockNsiReservationFailedResponse.xml"));
     nsiRequester.startServer();
   }
 
@@ -153,7 +140,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     nsiRequester.stopServer();
   }
 
-  @BeforeTransaction
+  @Before
   public void setup() {
     setLoggedInUser(userDetails);
 
@@ -169,7 +156,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     this.destinationVirtualPort = createVirtualPort(virtualResourceGroup, destinationPp);
   }
 
-  @AfterTransaction
+  @After
   public void teardown() {
     nsiRequester.clearRequests();
     DatabaseTestHelper.clearIntegrationDatabaseSkipBaseData();
@@ -177,52 +164,62 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void shouldReserveProvisionTerminate() throws Exception {
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
-    ReserveRequestType reservationRequest = createReserveRequest(
-        Optional.of(DateTime.now().plusDays(1)), Optional.<DateTime> absent());
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(DateTime.now().plusDays(1)), Optional.<DateTime> absent());
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     // reserve
     GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
     assertThat(reserveAcknowledgment.getCorrelationId(), is(reservationRequest.getCorrelationId()));
 
-    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+    awaitReserveConfirmed();
 
-    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    Reservation reservation = reservationService.find(connection.getReservation().getId());
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
+    assertStates(connectionId, ReservationStatus.RESERVED, ConnectionStateType.RESERVED);
 
-    assertThat(reservation.getStatus(), is(ReservationStatus.RESERVED));
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
-
-    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
-
-    // provision
-    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
-    assertThat(provisionAck.getCorrelationId(), is(provisionRequest.getCorrelationId()));
-
-    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
-
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-    assertThat(reservation.getStatus(), is(ReservationStatus.AUTO_START));
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.AUTO_PROVISION));
-    assertThat(connection.getProvisionRequestDetails(), notNullValue());
+//    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
+//    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
+//    assertThat(provisionAck.getCorrelationId(), is(provisionRequest.getCorrelationId()));
+//
+//    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
+//
+//    assertStates(connectionId, ReservationStatus.AUTO_START, ConnectionStateType.AUTO_PROVISION);
 
     // terminate
     TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
     GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
     assertThat(terminateAck.getCorrelationId(), is(terminateRequest.getCorrelationId()));
 
-    listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
+    awaitTerminateConfirmed();
 
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
+    assertStates(connectionId, ReservationStatus.CANCELLED, ConnectionStateType.TERMINATED);
+  }
+
+  private void assertStates(String connectionId, ReservationStatus reservationStatus, ConnectionStateType connectionState) {
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+
+    assertThat(reservation.getStatus(), is(reservationStatus));
+    assertThat(connection.getCurrentState(), is(connectionState));
+  }
+
+  @Test
+  public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
+    DateTime start = DateTime.now().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+    String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
+    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
+    assertThat(reserveAcknowledgment.getCorrelationId(), is(reservationRequest.getCorrelationId()));
+
+    awaitReserveConfirmed();
+
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+
+    assertThat(reservation.getStartDateTime(), is(start));
+    assertThat(connection.getStartTime().get(), is(start));
+
+    assertThat(reservation.getEndDateTime(), nullValue());
+    assertFalse(connection.getEndTime().isPresent());
   }
 
   /**
@@ -234,68 +231,28 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   public void shouldReserveAndConvertTimeZoneToJVMDefault() throws Exception {
     int jvmOffesetInMillis = DateTimeZone.getDefault().getOffset(new DateTime().getMillis());
     int offsetInHours = -4;
-    DateTime start = new DateTime().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0)
+    DateTime startNowPlusHour = new DateTime().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0)
       .withZoneRetainFields(DateTimeZone.forOffsetHours(offsetInHours));
 
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
-    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(startNowPlusHour), Optional.<DateTime> absent());
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
     assertThat(reserveAcknowledgment.getCorrelationId(), is(reservationRequest.getCorrelationId()));
 
-    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+    awaitReserveConfirmed();
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     Reservation reservation = reservationService.find(connection.getReservation().getId());
 
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-
-    assertThat("Has reservation default JVM timezone?", reservation.getStartDateTime().getZone().getOffset(
-        reservation.getStartDateTime().getMillis()), is(jvmOffesetInMillis));
-
-    assertThat("Has connection default JVM timezone?", connection.getStartTime().get().getZone().getOffset(
-        connection.getStartTime().get().getMillis()), is(jvmOffesetInMillis));
-
-    assertThat("Is reservation timestamp converted, compare both in UTC", reservation.getStartDateTime().withZone(
-        DateTimeZone.UTC).getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
-
-    assertThat("Is connection timestamp converted, compare both in UTC", connection.getStartTime().get().withZone(
-        DateTimeZone.UTC).getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
+    assertThat(reservation.getStartDateTime().getZone().getOffset(reservation.getStartDateTime().getMillis()), is(jvmOffesetInMillis));
+    assertThat(connection.getStartTime().get().getZone().getOffset(connection.getStartTime().get().getMillis()), is(jvmOffesetInMillis));
+    assertThat(reservation.getStartDateTime().withZone(DateTimeZone.UTC).getMillis(), is(startNowPlusHour.withZone(DateTimeZone.UTC).getMillis()));
+    assertThat(connection.getStartTime().get().withZone(DateTimeZone.UTC).getMillis(), is(startNowPlusHour.withZone(DateTimeZone.UTC).getMillis()));
   }
 
   @Test
-  public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
-    DateTime start = DateTime.now().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
-    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
-    String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
-
-    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
-    assertThat(reserveAcknowledgment.getCorrelationId(), is(reservationRequest.getCorrelationId()));
-
-    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
-
-    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    Reservation reservation = reservationService.find(connection.getReservation().getId());
-
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-
-    assertThat("StartDate is unchanged on reservation", reservation.getStartDateTime(), is(start));
-    assertThat("StartDate is unchanged on connection", connection.getStartTime().get(), is(start));
-
-    assertThat("EndDate is still null, infinite on reservation", reservation.getEndDateTime(), nullValue());
-    assertFalse("EndDate is still null, infinite on connection", connection.getEndTime().isPresent());
-  }
-
-  @Test
-  public void queryShouldGiveAConfirm() throws ServiceException, DatatypeConfigurationException {
+  public void queryShouldGiveAConfirm() throws Exception {
     ReserveRequestType reserveRequest = createReserveRequest();
     String connectionId = reserveRequest.getReserve().getReservation().getConnectionId();
 
@@ -309,35 +266,31 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
-    assertThat(response, containsString("<connectionState>Reserved</connectionState"));
     assertThat(response, containsString("<connectionId>" + connectionId + "</connectionId"));
+    assertThat(response, containsString("<connectionState>Reserved</connectionState"));
     assertThat(response, containsString("<providerNSA>" + URN_PROVIDER_NSA + "</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>" + URN_REQUESTER_NSA + "</requesterNSA>"));
   }
 
   @Test
   public void shouldTerminateWhenCancelledByGUI() throws Exception {
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
     ReserveRequestType reservationRequest = createReserveRequest();
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     nsiProvider.reserve(reservationRequest);
 
-    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+    awaitReserveConfirmed();
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     reservationService.cancel(connection.getReservation(), new RichUserDetailsFactory().addNocRole().create());
 
-    listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
+    Thread.sleep(500);
+
+    connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
 
     Reservation reservation = connection.getReservation();
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
   }
 
   @Test
@@ -370,22 +323,17 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     awaitTerminateConfirmed();
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    entityManager.refresh(connection);
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
 
     nsiProvider.provision(createProvisionRequest(connectionId));
 
     awaitProvisionFailed();
 
-    entityManager.refresh(connection);
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
   }
 
   @Test
   public void provisionShouldSucceedWhenStateIsProvisioned() throws Exception {
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
     final ReserveRequestType reservationRequest = createReserveRequest();
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
@@ -402,9 +350,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
     nsiProvider.provision(provisionRequest);
 
-    // or RUNNING when poller just ran...
-    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
-
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
     awaitProvisionConfirmed();
@@ -415,9 +360,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void connectionWithNoProvisionShouldMoveToScheduledAfterStartTime() throws Exception {
-    DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
     final ReserveRequestType reservationRequest = createReserveRequest();
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
@@ -435,41 +377,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
-    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
+    Thread.sleep(500);
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    entityManager.refresh(connection);
 
     assertThat(connection.getCurrentState(), is(ConnectionStateType.SCHEDULED));
-  }
-
-
-  private class DummyReservationListener implements ReservationListener {
-    private Optional<ReservationStatusChangeEvent> event = Optional.absent();
-
-    @Override
-    public void onStatusChange(ReservationStatusChangeEvent event) {
-      this.event = Optional.of(event);
-    }
-
-    public Optional<ReservationStatusChangeEvent> getEvent() {
-      return event;
-    }
-
-    public void reset() {
-      event = Optional.absent();
-    }
-
-    public void waitForEventWithNewStatus(final ReservationStatus status) throws Exception {
-      await("Wait for status change to " + status).atMost(10, TimeUnit.SECONDS).until(new Callable<Boolean>() {
-        @Override
-        public Boolean call() throws Exception {
-          return getEvent().isPresent() && getEvent().get().getNewStatus().equals(status);
-        }
-      });
-
-      reset();
-    }
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
@@ -545,8 +457,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private VirtualPort createVirtualPort(VirtualResourceGroup virtualResourceGroup, PhysicalPort port) {
-    VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(port).setVirtualResourceGroup(
-        virtualResourceGroup).create();
+    VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(port).setVirtualResourceGroup(virtualResourceGroup).create();
     vPort = virtualPortRepo.save(vPort);
     virtualResourceGroup.addVirtualPort(vPort);
     virtualResourceGroupRepo.save(virtualResourceGroup);
