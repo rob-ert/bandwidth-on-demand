@@ -72,7 +72,7 @@ public class OAuthTokenController {
     final BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
 
     if (!account.getAuthorizationServerAccessToken().isPresent()) {
-      return retreiveAuthorizationServerAccessToken();
+      return retrieveAuthorizationServerAccessToken();
     }
 
     Collection<AccessToken> tokens = oAuthServerService.getAllAccessTokensForUser(account);
@@ -82,7 +82,7 @@ public class OAuthTokenController {
     return "oauthResult";
   }
 
-  private String retreiveAuthorizationServerAccessToken() throws URISyntaxException {
+  private String retrieveAuthorizationServerAccessToken() throws URISyntaxException {
     String uri = buildAuthorizeUri(
         env.getAdminClientId(),
         adminRedirectUri(),
@@ -101,7 +101,7 @@ public class OAuthTokenController {
   }
 
   @RequestMapping("/token")
-  public String retreiveToken(Model model) throws URISyntaxException {
+  public String retrieveToken(Model model) throws URISyntaxException {
     Collection<String> scopes = Collections2.transform(EnumSet.allOf(NsiScope.class), new Function<NsiScope, String>() {
       @Override
       public String apply(NsiScope scope) {
