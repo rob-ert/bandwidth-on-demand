@@ -22,18 +22,16 @@
  */
 package nl.surfnet.bod.db.migration;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.junit.Test;
-
-import static nl.surfnet.bod.web.WebUtils.not;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 public class V1_8_0_3__MigrateLogEventStateChangesTest {
 
@@ -56,11 +54,9 @@ public class V1_8_0_3__MigrateLogEventStateChangesTest {
 
   @Test
   public void shouldNotTranslateOtherStates() {
-
     String translatedState;
     for (ReservationStatus state : ReservationStatus.values()) {
-
-      if ((not("SCHEDULED".equals(state.name().toUpperCase())))) {
+      if (!"SCHEDULED".equals(state.name().toUpperCase())) {
         translatedState = subject.translate(state.name().toUpperCase());
 
         assertThat(translatedState, is(state.name().toUpperCase()));

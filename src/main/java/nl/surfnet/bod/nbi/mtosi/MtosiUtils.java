@@ -22,13 +22,18 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.web.WebUtils.not;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -47,12 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 public final class MtosiUtils {
 
   private static final String PTP_FORMAT = "/rack=%s/shelf=%s/slot=%s/port=%s";
@@ -62,8 +61,8 @@ public final class MtosiUtils {
   }
 
   public static String composeNmsPortId(String managedElement, String ptp) {
-    Preconditions.checkArgument(not(managedElement.contains("@")));
-    Preconditions.checkArgument(not(ptp.contains("@")));
+    checkArgument(!managedElement.contains("@"));
+    checkArgument(!ptp.contains("@"));
 
     return managedElement + "@" + convertToShortPtP(ptp);
   }

@@ -92,10 +92,6 @@ public final class WebUtils {
         .getSelectedRole().getPhysicalResourceGroupId();
   }
 
-  public static boolean not(boolean expression) {
-    return !expression;
-  }
-
   public static String shortenAdminGroup(String adminGroup) {
     int index = -1;
     if (hasText(adminGroup)) {

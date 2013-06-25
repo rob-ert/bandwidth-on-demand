@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.util;
 
-import static nl.surfnet.bod.web.WebUtils.not;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,8 +68,7 @@ public class FullTextSearchContext<T> {
     parser.setAllowLeadingWildcard(true);
 
     // Add wildcards when not already in search
-    if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }) || keyword.startsWith("\"")
-        && keyword.endsWith("\""))) {
+    if (!(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }) || keyword.startsWith("\"") && keyword.endsWith("\""))) {
       keyword = "*" + keyword + "*";
     }
 

@@ -24,7 +24,6 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static nl.surfnet.bod.web.WebUtils.not;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -83,7 +82,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   public long count() {
     return physicalResourceGroupRepo.count();
   }
-  
+
   public void delete(final long primaryKey) {
     physicalResourceGroupRepo.delete(primaryKey);
   }
@@ -113,7 +112,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
     Institute institute = instituteService.findByShortName(userGroup.getInstituteShortName().get());
 
-    if (not(hasInstituteRelatedPhysicalResourceGroup(institute.getId()))) {
+    if (!hasInstituteRelatedPhysicalResourceGroup(institute.getId())) {
       PhysicalResourceGroup prg = new PhysicalResourceGroup();
       prg.setAdminGroup(userGroup.getId());
 
@@ -122,6 +121,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
       return save(prg);
     }
+
     return null;
   }
 
