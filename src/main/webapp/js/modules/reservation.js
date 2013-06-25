@@ -45,21 +45,10 @@ app.reservation = function() {
 
         cell.css({ overflow: 'hidden' });
 
-        span.delay(500).animate(
-            {
-                opacity: 0,
-                marginLeft: -130
-            },
-            1000,
+        span.animate( { opacity: 0, marginLeft: -130 }, 200,
             function() {
                 span.text(newStatus);
-                span.animate(
-                    {
-                        opacity: 1,
-                        marginLeft: 0
-                    },
-                    1000
-                );
+                span.animate( { opacity: 1, marginLeft: 0 }, 200);
             }
         );
     };
