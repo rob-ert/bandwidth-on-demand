@@ -23,7 +23,7 @@
     <level value="WARN" />
   </logger>
   <logger name="nl.surfnet.bod">
-    <level value="DEBUG" />
+    <level value="WARN" />
   </logger>
 
   <root>
