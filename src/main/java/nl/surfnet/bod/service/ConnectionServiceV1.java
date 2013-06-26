@@ -80,6 +80,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Service
+@Transactional
 public class ConnectionServiceV1 extends AbstractFullTextSearchService<ConnectionV1> {
 
   protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
@@ -107,7 +108,6 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
 
   @PersistenceContext private EntityManager entityManager;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(ConnectionV1 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
@@ -200,7 +200,6 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void provision(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV1 connection = connectionRepo.findOne(connectionId);
     checkNotNull(connection);
@@ -224,7 +223,6 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     return ImmutableList.of(ConnectionStateType.RESERVED, ConnectionStateType.SCHEDULED).contains(connection.getCurrentState());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
   public void asyncTerminate(Long connectionId, String requesterNsa, NsiRequestDetails requestDetails, RichUserDetails user) {
     ConnectionV1 connection = connectionRepo.findOne(connectionId);

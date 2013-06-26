@@ -60,8 +60,10 @@ import com.google.common.base.*;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class OAuthServerService {
 
   private static final String URL_ADMIN_ACCESS_TOKEN = "/admin/accessToken/";

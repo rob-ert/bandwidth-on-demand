@@ -74,6 +74,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -87,6 +88,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
+@Transactional
 public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
 
   private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";

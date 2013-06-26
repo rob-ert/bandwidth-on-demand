@@ -42,8 +42,10 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ReservationToNbi {
 
   private final Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
