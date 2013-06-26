@@ -28,6 +28,8 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
@@ -77,8 +79,8 @@ public class InventoryRetrievalClientTestIntegration {
   @Test
 //  @Ignore("For dubugging..")
   public void getRfsInventory() {
-    RfsList inventory = subject.getCachedRfsInventory();
-    for (ResourceFacingServiceType rfs : inventory.getRfs()) {
+    Optional<RfsList> inventory = subject.getRfsInventory();
+    for (ResourceFacingServiceType rfs : inventory.get().getRfs()) {
 
       System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
       System.err.println("Service state: " + rfs.getServiceState());
@@ -93,12 +95,4 @@ public class InventoryRetrievalClientTestIntegration {
     }
   }
 
-  //00:03:18:58:ce:80-[5, 7]
-  // SAP-00:03:18:58:ce:80-5 00:03:18:58:ce:80@1-1-1-5
-  // SAP-00:03:18:58:ce:80-7 00:03:18:58:ce:80@1-1-1-7
-  //00:03:18:58:ce:20-[1, 4, 5, 8]
-  // SAP-00:03:18:58:ce:20-1 00:03:18:58:ce:20@1-1-1-1
-  // SAP-00:03:18:58:ce:20-4 00:03:18:58:ce:20@1-1-1-4
-  // SAP-00:03:18:58:ce:20-5 00:03:18:58:ce:20@1-1-1-5
-  // SAP-00:03:18:58:ce:20-8 00:03:18:58:ce:20@1-1-1-8
 }

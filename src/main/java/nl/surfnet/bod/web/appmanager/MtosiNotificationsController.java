@@ -44,14 +44,9 @@ import com.google.common.collect.FluentIterable;
 @RequestMapping("/appmanager/mtosi")
 public class MtosiNotificationsController {
 
-  @Resource
-  private NotificationConsumerHttp notificationConsumer;
-
-  @Resource
-  private MtosiNotificationLiveClient notificationClient;
-
-  @Resource
-  private MessageManager messageManager;
+  @Resource private NotificationConsumerHttp notificationConsumer;
+  @Resource private MtosiNotificationLiveClient notificationClient;
+  @Resource private MessageManager messageManager;
 
   @RequestMapping
   public String index() {

@@ -45,7 +45,6 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
-import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;

@@ -48,15 +48,13 @@ public class MtosiNotificationLiveClient {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final NotificationProducerHttp client;
-
   private final String endPoint;
 
   @Autowired
   public MtosiNotificationLiveClient(@Value("${nbi.mtosi.notification.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
     URL wsdlUrl = this.getClass().getResource(WSDL_LOCATION);
-    this.client = new NotificationProducerHttp(wsdlUrl,
-        new QName("http://www.tmforum.org/mtop/fmw/wsdl/notp/v1-0", "NotificationProducerHttp"));
+    this.client = new NotificationProducerHttp(wsdlUrl, new QName("http://www.tmforum.org/mtop/fmw/wsdl/notp/v1-0", "NotificationProducerHttp"));
   }
 
   public String subscribe(final NotificationTopic topic, final String consumerErp) throws SubscribeException {

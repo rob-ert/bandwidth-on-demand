@@ -42,8 +42,7 @@ public class ReservationEventPublisher {
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
-    logger.info("Notifying {} listeners of event {} -> {}",
-      listeners.size(), changeEvent.getOldStatus(), changeEvent.getNewStatus());
+    logger.info("Notifying {} listeners of event {} -> {}", listeners.size(), changeEvent.getOldStatus(), changeEvent.getNewStatus());
 
     synchronized (listeners) {
       for (ReservationListener listener : listeners) {

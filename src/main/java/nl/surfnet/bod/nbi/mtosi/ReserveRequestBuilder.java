@@ -55,7 +55,6 @@ public class ReserveRequestBuilder {
   private static final String CTP_PREFIX = "/eth=";
 
   public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
-
     ResourceFacingServiceType rfsData = createBasicRfsData(reservation, sequence);
 
     rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort(), sequence));

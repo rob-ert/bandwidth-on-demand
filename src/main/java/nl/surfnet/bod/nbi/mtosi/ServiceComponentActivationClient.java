@@ -25,9 +25,10 @@ package nl.surfnet.bod.nbi.mtosi;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRfs;
 
 import javax.annotation.Resource;
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -41,51 +42,44 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
-import org.tmforum.mtop.sa.wsdl.scai.v1_0.*;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterface;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.TerminateException;
-import org.tmforum.mtop.sa.xsd.scai.v1.*;
-
-import com.google.common.annotations.VisibleForTesting;
+import org.tmforum.mtop.sa.xsd.scai.v1.ActivateRequest;
+import org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory;
+import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
+import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
+import org.tmforum.mtop.sa.xsd.scai.v1.TerminateRequest;
 
 @Service
 public class ServiceComponentActivationClient {
 
   private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/ServiceActivation/IIS/wsdl/ServiceComponentActivationInterface/ServiceComponentActivationInterfaceHttp.wsdl";
-  private static final String NAMESPACE_URI = "http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0";
-  private static final String LOCAL_PART = "ServiceComponentActivationInterfaceHttp";
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-  private final ServiceComponentActivationInterface proxy;
   private final Holder<Header> header;
   private final String endPoint;
 
-  @Resource
-  private DataFieldMaxValueIncrementer valueIncrementer;
+  @Resource private DataFieldMaxValueIncrementer valueIncrementer;
 
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
-    ServiceComponentActivationInterfaceHttp client = new ServiceComponentActivationInterfaceHttp(
-      this.getClass().getResource(WSDL_LOCATION),
-      new QName(NAMESPACE_URI, LOCAL_PART));
-    this.proxy = client.getServiceComponentActivationInterfaceSoapHttp();
     this.header = HeaderBuilder.buildReserveHeader(endPoint);
   }
 
   public Reservation reserve(Reservation reservation, boolean autoProvision) {
-    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    ServiceComponentActivationInterface activationInterface = createPort();
 
     ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
-
     try {
-      ReserveResponse reserveResponse = proxy.reserve(header, reserveRequest);
+      ReserveResponse reserveResponse = activationInterface.reserve(header, reserveRequest);
 
       handleInitialReservationStatus(reservation, reserveResponse);
-    }
-    catch (ReserveException e) {
+    } catch (ReserveException e) {
       handleInitialReservationException(reservation, e);
     }
 
@@ -93,18 +87,17 @@ public class ServiceComponentActivationClient {
   }
 
   public boolean activate(Reservation reservation) {
-    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    ServiceComponentActivationInterface activationInterface = createPort();
 
     ActivateRequest activateRequest = new ObjectFactory().createActivateRequest();
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      proxy.activate(header, activateRequest);
+      activationInterface.activate(header, activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;
-    }
-    catch (ActivateException e) {
+    } catch (ActivateException e) {
       BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
       logger.warn("Could not activate reservation {} because {}", reservation, baseExceptionMessage.getReason());
       throw new AssertionError(baseExceptionMessage.getReason(), e);
@@ -112,15 +105,13 @@ public class ServiceComponentActivationClient {
   }
 
   public void terminate(Reservation reservation) {
-    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    ServiceComponentActivationInterface activationInterface = createPort();
 
     TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest();
     terminateRequest.setRfsName(createRfs(reservation.getReservationId()));
-
     try {
-      proxy.terminate(header, terminateRequest);
-    }
-    catch (TerminateException e) {
+      activationInterface.terminate(header, terminateRequest);
+    } catch (TerminateException e) {
       e.printStackTrace();
       throw new AssertionError(e);
     }
@@ -146,6 +137,13 @@ public class ServiceComponentActivationClient {
 
   protected void setValueIncrementer(DataFieldMaxValueIncrementer valueIncrementer) {
     this.valueIncrementer = valueIncrementer;
+  }
+
+  private ServiceComponentActivationInterface createPort() {
+    ServiceComponentActivationInterface port = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceComponentActivationInterfaceSoapHttp();
+    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+    return port;
   }
 
 }

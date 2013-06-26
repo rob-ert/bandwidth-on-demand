@@ -34,4 +34,9 @@
     <put-attribute name="active_menu" value="mtosi" cascade="true" />
   </definition>
 
+  <definition extends="appmanager" name="appmanager/mtosi/inventory">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/mtosi/inventory.jspx" />
+    <put-attribute name="active_menu" value="mtosi" cascade="true" />
+  </definition>
+
 </tiles-definitions>

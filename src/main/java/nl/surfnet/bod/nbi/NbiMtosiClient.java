@@ -35,6 +35,7 @@ import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
@@ -44,14 +45,9 @@ import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
 
-  @Resource
-  private InventoryRetrievalClient inventoryRetrievalClient;
-
-  @Resource
-  private ServiceComponentActivationClient serviceComponentActivationClient;
-
-  @Resource
-  private ReservationRepo reservationRepo;
+  @Resource private InventoryRetrievalClient inventoryRetrievalClient;
+  @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
+  @Resource private ReservationRepo reservationRepo;
 
   @Override
   public boolean activateReservation(String reservationId) {
@@ -70,9 +66,10 @@ public class NbiMtosiClient implements NbiClient {
   }
 
   @Override
+  @Transactional
   public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
     reservation.setReservationId(UUID.randomUUID().toString());
-    Reservation savedReservation = reservationRepo.saveAndFlush(reservation);
+    Reservation savedReservation = reservationRepo.save(reservation);
 
     return serviceComponentActivationClient.reserve(savedReservation, autoProvision);
   }
@@ -84,14 +81,14 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(String reservationId) {
-    // The status should ideally be determined by receiving events from 1C
-
-    RfsList rfsInventory = inventoryRetrievalClient.getCachedRfsInventory();
-    for (ResourceFacingServiceType rfsType : rfsInventory.getRfs()) {
-
-      if (MtosiUtils.findRdnValue("RFS", rfsType.getName().getValue()).get().equals(reservationId)) {
-        ReservationStatus status = MtosiUtils.mapToReservationState(rfsType.getServiceState());
-        return Optional.of(status);
+    // FIXME The status should ideally be determined by receiving events from 1C
+    Optional<RfsList> rfsInventory = inventoryRetrievalClient.getRfsInventory();
+    if (rfsInventory.isPresent()) {
+      for (ResourceFacingServiceType rfsType : rfsInventory.get().getRfs()) {
+        if (MtosiUtils.findRdnValue("RFS", rfsType.getName().getValue()).get().equals(reservationId)) {
+          ReservationStatus status = MtosiUtils.mapToReservationState(rfsType.getServiceState());
+          return Optional.of(status);
+        }
       }
     }
 
