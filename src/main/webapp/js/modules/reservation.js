@@ -19,9 +19,9 @@ app.reservation = function() {
         $.socket.defaults.transports = ["longpoll"];
 
         $.socket(url)
-            .message(function(data) {
-                processEvent(data);
-            });
+                .message(function(data) {
+                    processEvent(data);
+                });
     };
 
     var processEvent = function(event) {
@@ -31,9 +31,9 @@ app.reservation = function() {
 
     var updateReservationRow = function(id, newStatus, deletable, deleteTooltip) {
         var row = $('tr[data-reservationId="'+id+'"]'),
-            cell = row.find('td.status').wrapInner('<span></span>'),
-            span = cell.find('span'),
-            actionCell = row.find('.actions-column');
+                cell = row.find('td.status').wrapInner('<span></span>'),
+                span = cell.find('span'),
+                actionCell = row.find('.actions-column');
 
         if (!deletable) {
             actionCell.find('a .icon-remove').parent().hide();
@@ -45,11 +45,22 @@ app.reservation = function() {
 
         cell.css({ overflow: 'hidden' });
 
-        span.animate( { opacity: 0, marginLeft: -130 }, 200,
-            function() {
-                span.text(newStatus);
-                span.animate( { opacity: 1, marginLeft: 0 }, 200);
-            }
+        span.animate(
+                {
+                    opacity: 0,
+                    marginLeft: -130
+                },
+                1000,
+                function() {
+                    span.text(newStatus);
+                    span.animate(
+                            {
+                                opacity: 1,
+                                marginLeft: 0
+                            },
+                            1000
+                    );
+                }
         );
     };
 
