@@ -45,8 +45,10 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ReportingService {
 
   @Resource

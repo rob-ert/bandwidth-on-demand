@@ -27,6 +27,7 @@
     <definition extends="noc" name="physicalports/moveResult">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/moveResult.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
+        <put-attribute name="renderActions" value="false" cascade="true" />
     </definition>
     <definition extends="noc" name="physicalports/addPhysicalPort">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/addPhysicalPort.jspx" />

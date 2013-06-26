@@ -24,6 +24,8 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -107,7 +109,7 @@ public class NocServiceTest {
 
     when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(vPort));
     when(reservationServiceMock.findActiveByPhysicalPort(oldPort)).thenReturn(ImmutableList.of(reservation));
-    when(reservationServiceMock.cancelWithReason(reservation, "A physical port, which the reservation used was moved", user))
+    when(reservationServiceMock.cancelWithReason(any(Reservation.class), anyString(), any(RichUserDetails.class)))
       .thenReturn(Optional.<Future<Long>>of(new AsyncResult<>(reservation.getId())));
 
     subject.movePort(oldPort, newPort);

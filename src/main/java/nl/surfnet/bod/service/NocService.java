@@ -91,18 +91,20 @@ public class NocService {
 
         unallocateOldPort(oldPort);
 
-        Collection<Reservation> newReservations = makeNewReserations(reservations);
+        Collection<Reservation> newReservations = makeNewReservations(reservations);
+        Collection<Reservation> newReservationsWithId = new ArrayList<>();
 
-        for (Reservation reservation : newReservations) {
-          reservationService.create(reservation);
+        for (Reservation newReservation : newReservations) {
+          reservationService.create(newReservation);
+          newReservationsWithId.add(newReservation);
         }
 
-        return newReservations;
+        return newReservationsWithId;
       }
     });
   }
 
-  private Collection<Reservation> makeNewReserations(Collection<Reservation> reservations) {
+  private Collection<Reservation> makeNewReservations(Collection<Reservation> reservations) {
     return Collections2.transform(reservations, new Function<Reservation, Reservation>() {
       @Override
       public Reservation apply(Reservation oldRes) {
@@ -141,7 +143,7 @@ public class NocService {
     List<Optional<Future<Long>>> futures = new ArrayList<>();
 
     for (Reservation reservation : reservations) {
-      futures.add(reservationService.cancelWithReason(reservation, "A physical port, which the reservation used was moved",
+      futures.add(reservationService.cancelWithReason(reservation, "A physical port, which the newReservation used was moved",
           Security.getUserDetails()));
     }
 
@@ -152,7 +154,7 @@ public class NocService {
           future.get().get();
         }
         catch (InterruptedException | ExecutionException e) {
-          logger.error("Failed to wait for a reservation to terminate:", e);
+          logger.error("Failed to wait for a newReservation to terminate:", e);
         }
       }
     }

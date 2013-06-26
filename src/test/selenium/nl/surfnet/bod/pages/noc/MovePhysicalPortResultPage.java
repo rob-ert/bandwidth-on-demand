@@ -22,12 +22,13 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.AbstractReservationListPage;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-
-public class MovePhysicalPortResultPage extends AbstractListPage {
+public class MovePhysicalPortResultPage extends AbstractReservationListPage {
 
   public MovePhysicalPortResultPage(RemoteWebDriver driver) {
     super(driver);
@@ -43,5 +44,14 @@ public class MovePhysicalPortResultPage extends AbstractListPage {
 
   public int getNumberOfReservations() {
     return getRows().size();
+  }
+
+  public void reservationShouldBe(String label, ReservationStatus status) {
+    WebElement reservation = findRow(label);
+    waitForStatus(reservation, status);
+  }
+
+  private void waitForStatus(WebElement row, ReservationStatus status) {
+    getProbes().assertTextPresent(row, status.name());
   }
 }

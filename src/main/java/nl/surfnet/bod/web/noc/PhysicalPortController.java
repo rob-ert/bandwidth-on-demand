@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,8 +45,10 @@ import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
+import nl.surfnet.bod.web.view.ReservationView;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -197,7 +200,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
-
     model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.ALLOCATED);
     model.addAttribute(WebUtils.FILTER_LIST, getAvailableFilters());
 
@@ -397,8 +399,12 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     PhysicalPort oldPort = physicalPortService.find(command.getId());
 
     Collection<Reservation> reservations = nocService.movePort(oldPort, newPort);
-
-    model.addAttribute("reservations", reservations);
+    List<ReservationView> reservationViews = new ArrayList<>();
+    for (Reservation reservation : reservations) {
+      ReservationView reservationView = new ReservationView(reservation, new ElementActionView(false), new ElementActionView(false));
+      reservationViews.add(reservationView);
+    }
+    model.addAttribute("list", reservationViews);
 
     return "physicalports/moveResult";
   }
