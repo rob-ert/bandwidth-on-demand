@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttrib;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRdn;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createSscValue;
@@ -58,21 +57,17 @@ public class ReserveRequestBuilder {
   }
 
   public static ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
-    ResourceFacingServiceType rfsData = createBasicRfsData(reservation);
+    ResourceFacingServiceType rfsData = createBasicRfsData(reservation).withSapList(
+      getSap(reservation, reservation.getSourcePort()),
+      getSap(reservation, reservation.getDestinationPort()));
 
-    rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort()));
-    rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort()));
-
-    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
-
-    reserveRequest.setRfsCreateData(rfsData);
+    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime()).withRfsCreateData(rfsData);
 
     return reserveRequest;
   }
 
   @VisibleForTesting
   static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort) {
-
     ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
@@ -97,26 +92,23 @@ public class ReserveRequestBuilder {
   }
 
   private static ReserveRequest createReserveRequest(DateTime endDateTime) {
-    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
-
-    reserveRequest.setExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
+    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest()
+      .withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
 
     return reserveRequest;
   }
 
   @VisibleForTesting
   static ResourceFacingServiceType createBasicRfsData(Reservation reservation) {
-    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType();
-
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
-
-    rfsData.setIsMandatory(true);
-    rfsData.setIsStateful(true);
-    rfsData.setAdminState(AdminStateType.UNLOCKED);
-    rfsData.setServiceState(ServiceStateType.RESERVED);
-
-    rfsData.getDescribedByList().add(createSscValue("StartTime", convertToXml(reservation.getStartDateTime())));
-    rfsData.getDescribedByList().add(createSscValue("AdmissionControl", "Strict"));
+    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+      .withName(createNamingAttributeType("RFS", reservation.getReservationId()))
+      .withIsMandatory(true)
+      .withIsStateful(true)
+      .withAdminState(AdminStateType.UNLOCKED)
+      .withServiceState(ServiceStateType.RESERVED)
+      .withDescribedByList(
+        createSscValue("StartTime", convertToXml(reservation.getStartDateTime())),
+        createSscValue("AdmissionControl", "Strict"));
 
     return rfsData;
   }
@@ -127,17 +119,13 @@ public class ReserveRequestBuilder {
 
   @VisibleForTesting
   static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId) {
-    NamingAttributeType resourceRef = createNamingAttrib();
-
-    resourceRef.getRdn().add(createRdn("MD", MANAGING_DOMAIN));
-    resourceRef.getRdn().add(createRdn("ME", port.getNmsNeId()));
-    resourceRef.getRdn().add(createRdn("PTP", MtosiUtils.extractPtpFromNmsPortId(port.getNmsPortId())));
-    resourceRef.getRdn().add(createRdn("CTP", CTP_PREFIX + reservationId));
-
-    ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceAccessPointType();
-    sap.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
-    sap.setResourceRef(resourceRef);
+    ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceAccessPointType()
+      .withName(createNamingAttributeType("SAP", port.getNmsSapName()))
+      .withResourceRef(new NamingAttributeType().withRdn(
+        createRdn("MD", MANAGING_DOMAIN),
+        createRdn("ME", port.getNmsNeId()),
+        createRdn("PTP", MtosiUtils.extractPtpFromNmsPortId(port.getNmsPortId())),
+        createRdn("CTP", CTP_PREFIX + reservationId)));
 
     return sap;
   }

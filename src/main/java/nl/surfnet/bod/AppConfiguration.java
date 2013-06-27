@@ -82,6 +82,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
+//  static {
+//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+//  }
+
   private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
   @Value("${jdbc.jdbcUrl}")

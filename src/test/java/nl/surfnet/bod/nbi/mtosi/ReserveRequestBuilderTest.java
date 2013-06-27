@@ -63,10 +63,10 @@ public class ReserveRequestBuilderTest {
     Reservation reservation = new ReservationFactory().setReservationId("123").create();
     reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
     reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
-    reservation.getSourcePort().getPhysicalPort().setNmsPortId("1-1-1-1");
+    reservation.getSourcePort().getPhysicalPort().setNmsPortId("henk@1-1-1-1");
     reservation.getDestinationPort().getPhysicalPort().setNmsSapName("destinationNmsSapName");
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
-    reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
+    reservation.getDestinationPort().getPhysicalPort().setNmsPortId("joop@1-1-1-4");
 
     ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation, false);
 
@@ -97,7 +97,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void should_add_dynamic_characteristics_with_vlan_present() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().setVlanRequired(true).create();
+    PhysicalPort physicalPort = new PhysicalPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(true).create();
     Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create();
 
@@ -112,7 +112,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void should_add_dynamic_characteristics_with_vlan_absent() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().setVlanRequired(false).create();
+    PhysicalPort physicalPort = new PhysicalPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(false).create();
     Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create();
 

@@ -31,6 +31,7 @@ import javax.xml.ws.BindingProvider;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,8 @@ public class ServiceComponentActivationClient {
       }
     } catch (ReserveException e) {
       logger.info("Reserve request failed", e);
-      reservation.setFailedReason(e.getCause().getMessage());
+      // FIXME db should allow bigger failed reasons..
+      reservation.setFailedReason(StringUtils.abbreviate(e.getCause().getMessage(), 255));
       reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
     }
 
@@ -121,8 +123,4 @@ public class ServiceComponentActivationClient {
     return port;
   }
 
-//  static {
-//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//  }
 }

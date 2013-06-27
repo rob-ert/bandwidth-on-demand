@@ -38,16 +38,17 @@ public final class HeaderBuilder {
   }
 
   private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
-    Header header = new Header();
-    header.setDestinationURI(endPoint);
-    header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()));
-    header.setActivityName(activityName);
-    header.setMsgName(msgName);
     // TODO should change sender URI?
-    header.setSenderURI("http://localhost:9009");
-    header.setMsgType(MessageTypeType.REQUEST);
+
+    Header header = new Header()
+      .withDestinationURI(endPoint)
+      .withCommunicationStyle(CommunicationStyleType.RPC)
+      .withCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE)
+      .withTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()))
+      .withActivityName(activityName)
+      .withMsgName(msgName)
+      .withSenderURI("http://localhost:9009")
+      .withMsgType(MessageTypeType.REQUEST);
 
     return new Holder<Header>(header);
   }

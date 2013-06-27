@@ -202,11 +202,9 @@ public final class MtosiUtils {
     Object[] parts = shortPtP.split("-");
     if (parts.length == 4) {
       return String.format(PTP_FORMAT, parts);
-    }
-    else if (parts.length == 5) {
+    } else if (parts.length == 5) {
       return String.format(PTP_WITH_SUB_SLOT_FORMAT, parts);
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
     }
   }
@@ -216,10 +214,6 @@ public final class MtosiUtils {
     rel.setType(type);
     rel.setValue(value);
     return rel;
-  }
-
-  public static NamingAttributeType createNamingAttrib() {
-    return new NamingAttributeType();
   }
 
   public static NamingAttributeType createRfs(String name) {

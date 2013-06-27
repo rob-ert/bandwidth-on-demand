@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
+import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationClient.NotificationTopic.FAULT;
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -36,7 +36,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationClient.NotificationTopic;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
@@ -53,12 +53,12 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
 public class MtosiNotificationLiveClientTestIntegration {
 
-  private MtosiNotificationLiveClient mtosiNotificationLiveClient;
+  private MtosiNotificationClient mtosiNotificationLiveClient;
 
   @Before
   public void setup() throws IOException {
     PropertiesEnvironment testEnv = mtosiProperties();
-    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
+    mtosiNotificationLiveClient = new MtosiNotificationClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 

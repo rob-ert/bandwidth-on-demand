@@ -69,6 +69,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -85,6 +86,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 @Service
+@Transactional
 public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
   private static final ObjectMapper mapper = new ObjectMapper();
