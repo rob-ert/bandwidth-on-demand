@@ -38,7 +38,7 @@ public final class HeaderBuilder {
   }
 
   private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
-    final Header header = new Header();
+    Header header = new Header();
     header.setDestinationURI(endPoint);
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);

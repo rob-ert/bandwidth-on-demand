@@ -50,19 +50,13 @@ public class NbiMtosiClient implements NbiClient {
   @Resource private ReservationRepo reservationRepo;
 
   @Override
-  public boolean activateReservation(String reservationId) {
-    return serviceComponentActivationClient.activate(reservationRepo.findByReservationId(reservationId));
-  }
-
-  @Override
-  public ReservationStatus cancelReservation(String reservationId) {
-    serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
-    return ReservationStatus.CANCELLED;
-  }
-
-  @Override
   public long getPhysicalPortsCount() {
     return inventoryRetrievalClient.getPhysicalPortCount();
+  }
+
+  @Override
+  public List<PhysicalPort> findAllPhysicalPorts() {
+    return inventoryRetrievalClient.getPhysicalPorts();
   }
 
   @Override
@@ -75,29 +69,30 @@ public class NbiMtosiClient implements NbiClient {
   }
 
   @Override
-  public List<PhysicalPort> findAllPhysicalPorts() {
-    return inventoryRetrievalClient.getPhysicalPorts();
-  }
-
-  @Override
   public Optional<ReservationStatus> getReservationStatus(String reservationId) {
-    // FIXME The status should ideally be determined by receiving events from 1C
     Optional<RfsList> rfsInventory = inventoryRetrievalClient.getRfsInventory();
+
     if (rfsInventory.isPresent()) {
-      for (ResourceFacingServiceType rfsType : rfsInventory.get().getRfs()) {
-        if (MtosiUtils.findRdnValue("RFS", rfsType.getName().getValue()).get().equals(reservationId)) {
-          ReservationStatus status = MtosiUtils.mapToReservationState(rfsType.getServiceState());
-          return Optional.of(status);
-        }
-      }
+      ResourceFacingServiceType rfs = Iterables.getOnlyElement(rfsInventory.get().getRfs());
+      return Optional.of(MtosiUtils.mapToReservationState(rfs.getServiceState()));
     }
 
     return Optional.<ReservationStatus> absent();
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
+  public boolean activateReservation(String reservationId) {
+    return serviceComponentActivationClient.activate(reservationRepo.findByReservationId(reservationId));
+  }
 
+  @Override
+  public ReservationStatus cancelReservation(String reservationId) {
+    serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
+    return ReservationStatus.CANCELLED;
+  }
+
+  @Override
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     List<PhysicalPort> portList = inventoryRetrievalClient.getPhysicalPorts();
 
     Optional<PhysicalPort> port = Iterables.tryFind(portList, new Predicate<PhysicalPort>() {
@@ -113,4 +108,5 @@ public class NbiMtosiClient implements NbiClient {
 
     throw new PortNotAvailableException(nmsPortId);
   }
+
 }

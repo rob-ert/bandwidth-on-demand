@@ -22,32 +22,18 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceComponentActivationClientTest {
 
   @InjectMocks private ServiceComponentActivationClient subject;
-
-  @Test
-  public void shouldHandleInitialReservationException() {
-    Reservation reservation = getTestReservation();
-    subject.handleInitialReservationException(reservation, new ReserveException("SAP is in use", null));
-
-    assertThat(reservation.getFailedReason(), is("SAP is in use"));
-    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
-  }
 
   private Reservation getTestReservation() {
     Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(2))

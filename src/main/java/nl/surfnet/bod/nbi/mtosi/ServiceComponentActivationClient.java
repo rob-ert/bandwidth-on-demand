@@ -22,13 +22,13 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
+import static nl.surfnet.bod.nbi.mtosi.HeaderBuilder.buildReserveHeader;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRfs;
+import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.createReservationRequest;
 
 import javax.annotation.Resource;
+import javax.xml.bind.Marshaller;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
-
-import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -39,8 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
@@ -60,7 +58,6 @@ public class ServiceComponentActivationClient {
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-  private final Holder<Header> header;
   private final String endPoint;
 
   @Resource private DataFieldMaxValueIncrementer valueIncrementer;
@@ -68,32 +65,37 @@ public class ServiceComponentActivationClient {
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
-    this.header = HeaderBuilder.buildReserveHeader(endPoint);
   }
 
   public Reservation reserve(Reservation reservation, boolean autoProvision) {
-    ServiceComponentActivationInterface activationInterface = createPort();
+    ServiceComponentActivationInterface port = createPort();
 
-    ReserveRequest reserveRequest = new ReserveRequestBuilder().createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
+    ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
     try {
-      ReserveResponse reserveResponse = activationInterface.reserve(header, reserveRequest);
+      ReserveResponse reserveResponse = port.reserve(buildReserveHeader(endPoint), reserveRequest);
 
-      handleInitialReservationStatus(reservation, reserveResponse);
+      if (reserveResponse.getRfsNameOrRfsCreation().isEmpty()) {
+        reservation.setStatus(ReservationStatus.FAILED);
+      } else {
+        reservation.setStatus(ReservationStatus.RESERVED);
+      }
     } catch (ReserveException e) {
-      handleInitialReservationException(reservation, e);
+      logger.info("Reserve request failed", e);
+      reservation.setFailedReason(e.getCause().getMessage());
+      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
     }
 
     return reservation;
   }
 
   public boolean activate(Reservation reservation) {
-    ServiceComponentActivationInterface activationInterface = createPort();
+    ServiceComponentActivationInterface port = createPort();
 
     ActivateRequest activateRequest = new ObjectFactory().createActivateRequest();
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      activationInterface.activate(header, activateRequest);
+      port.activate(buildReserveHeader(endPoint), activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;
@@ -105,34 +107,16 @@ public class ServiceComponentActivationClient {
   }
 
   public void terminate(Reservation reservation) {
-    ServiceComponentActivationInterface activationInterface = createPort();
+    ServiceComponentActivationInterface port = createPort();
 
     TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest();
     terminateRequest.setRfsName(createRfs(reservation.getReservationId()));
     try {
-      activationInterface.terminate(header, terminateRequest);
+      port.terminate(buildReserveHeader(endPoint), terminateRequest);
     } catch (TerminateException e) {
+      logger.info("Terminate failed", e);
       e.printStackTrace();
-      throw new AssertionError(e);
     }
-  }
-
-  @VisibleForTesting
-  void handleInitialReservationException(Reservation reservation, ReserveException cause) {
-    reservation.setFailedReason(cause.getMessage());
-    reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-    logger.warn("Error creating reservation with id: " + reservation.getReservationId(), cause);
-  }
-
-  private void handleInitialReservationStatus(Reservation reservation, ReserveResponse reserveResponse) {
-    if (CollectionUtils.isEmpty(reserveResponse.getRfsNameOrRfsCreation())) {
-      reservation.setStatus(ReservationStatus.FAILED);
-      return;
-    }
-
-    //NamingAttributeType namingAttr = (NamingAttributeType) rfsNameOrRfsCreation.get(0);
-
-    reservation.setStatus(ReservationStatus.RESERVED);
   }
 
   protected void setValueIncrementer(DataFieldMaxValueIncrementer valueIncrementer) {
@@ -146,4 +130,8 @@ public class ServiceComponentActivationClient {
     return port;
   }
 
+//  static {
+//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+//  }
 }
