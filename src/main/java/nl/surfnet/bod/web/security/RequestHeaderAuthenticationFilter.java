@@ -111,10 +111,10 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
     String accessToken = authorizationHeader.split(" ")[1];
 
-    Optional<VerifiedToken> principal = oAuthServerService.getVerifiedToken(accessToken);
-    logger.debug("Found principal {}", principal);
+    Optional<VerifiedToken> verifiedToken = oAuthServerService.getVerifiedToken(accessToken);
+    logger.debug("Found verifiedToken {}", verifiedToken);
 
-    return principal.transform(new Function<VerifiedToken, RichPrincipal>() {
+    return verifiedToken.transform(new Function<VerifiedToken, RichPrincipal>() {
         @Override
         public RichPrincipal apply(VerifiedToken token) {
           return new RichPrincipal(
