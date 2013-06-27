@@ -87,7 +87,7 @@ public interface EndPoint {
         }
       }
       else {
-        logger.debug("Could not send message to {}, {}", id, data);
+        logger.info("Could not send message to {}, {}", id, data);
       }
     }
 
