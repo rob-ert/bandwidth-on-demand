@@ -212,13 +212,11 @@ public class NbiOpenDracWsClient implements NbiClient {
 
       reservation.setReservationId(reservationId);
       reservation.setStatus(status);
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault e) {
+    } catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.warn("Creating a reservation failed", e);
       reservation.setFailedReason(e.getMessage().trim());
       reservation.setStatus(NOT_ACCEPTED);
-    }
-    catch (RemoteException e) {
+    } catch (RemoteException e) {
       log.error("Unexpected exception while requesting reservation from OpenDRAC", e);
       reservation.setFailedReason(e.getMessage().trim());
       reservation.setStatus(FAILED);

@@ -46,12 +46,9 @@ import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
 
-  @Resource
-  private InventoryRetrievalClient inventoryRetrievalClient;
-  @Resource
-  private ServiceComponentActivationClient serviceComponentActivationClient;
-  @Resource
-  private ReservationRepo reservationRepo;
+  @Resource private InventoryRetrievalClient inventoryRetrievalClient;
+  @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
+  @Resource private ReservationRepo reservationRepo;
 
   @Override
   public long getPhysicalPortsCount() {
@@ -65,7 +62,7 @@ public class NbiMtosiClient implements NbiClient {
 
   @Override
   @Transactional
-  public Reservation createReservation(final Reservation reservation, boolean autoProvision) {
+  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.save(reservation);
 

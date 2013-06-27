@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -33,8 +32,6 @@ import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
-import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -157,24 +154,6 @@ public class MtosiUtilsTest {
     String sapName = MtosiUtils.getSapName(firstSap);
 
     assertThat(sapName, is("SAP-00:03:18:58:cf:b0-3"));
-  }
-
-  @Test
-  public void shouldFindVendorExtensionStartTime() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    Optional<String> startTime = MtosiUtils.findVendorExtension("startTime", firstRfs);
-
-    assertThat(startTime.get(), is("2012-11-24T12:32:52.000Z"));
-  }
-
-  @Test
-  public void shouldNotFindVendorExtensionFoo() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    Optional<String> secondaryState = MtosiUtils.findVendorExtension("foo", firstRfs);
-
-    assertThat(secondaryState, isAbsent());
   }
 
 }
