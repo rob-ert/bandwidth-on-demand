@@ -167,13 +167,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  @Ignore
   @SuppressWarnings("unchecked")
   public void soapReservationHappyFlow() throws Exception {
 
     DateTime startTime = DateTime.now().plusHours(1);
     DateTime endTime = DateTime.now();
-    String oauthToken = getUserDriver().requestOauthToken();
+    String oauthToken = "f00f";
 
     SoapReplyListener soapReplyListener = new SoapReplyListener();
     Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
