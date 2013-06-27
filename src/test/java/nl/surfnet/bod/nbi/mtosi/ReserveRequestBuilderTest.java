@@ -49,9 +49,6 @@ import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
@@ -59,10 +56,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ReserveRequestBuilderTest {
-
-  @InjectMocks private ReserveRequestBuilder subject;
 
   @Test
   public void should_create_a_full_reserve_request() throws Exception {
@@ -74,7 +68,7 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("1-1-1-4");
 
-    ReserveRequest reserveRequest = subject.createReservationRequest(reservation, false, Long.MIN_VALUE);
+    ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation, false);
 
     assertThat(reserveRequest.getExpiringTime(), is(toGregorianCalendar(reservation.getEndDateTime())));
 
@@ -107,7 +101,7 @@ public class ReserveRequestBuilderTest {
     Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create();
 
-    ServiceAccessPointType sap = subject.getSap(reservation, port, 2L);
+    ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
     assertThat(findSscValue("ServiceType", sap.getDescribedByList()), isPresent("EVPL"));
     assertThat(findSscValue("TrafficMappingFrom_Table_VID", sap.getDescribedByList()), isPresent("3"));
@@ -122,7 +116,7 @@ public class ReserveRequestBuilderTest {
     Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create();
 
-    ServiceAccessPointType sap = subject.getSap(reservation, port, 5L);
+    ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ServiceType", "EPL")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
@@ -139,7 +133,7 @@ public class ReserveRequestBuilderTest {
     VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
     Reservation reservation = new ReservationFactory().setReservationId("ReservationId").create();
 
-    ServiceAccessPointType sap = subject.getSap(reservation, port, 1L);
+    ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
     assertThat(findRdnValue("MD", sap.getResourceRef()), isPresent(ReserveRequestBuilder.MANAGING_DOMAIN));
     assertThat(findRdnValue("ME", sap.getResourceRef()), isPresent("NeId"));
@@ -153,7 +147,7 @@ public class ReserveRequestBuilderTest {
       .setNmsSapName("SAP-TEST").setNmsNeId("NeId")
       .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
 
-    ServiceAccessPointType sap = subject.createServiceAccessPoint(port, "ReservationId", 123);
+    ServiceAccessPointType sap = ReserveRequestBuilder.createServiceAccessPoint(port, "ReservationId");
 
     assertThat(findRdnValue("MD", sap.getResourceRef()), isPresent("CIENA/OneControl"));
     assertThat(findRdnValue("ME", sap.getResourceRef()), isPresent("NeId"));

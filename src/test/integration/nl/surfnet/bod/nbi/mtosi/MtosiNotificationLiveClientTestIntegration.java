@@ -23,7 +23,7 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
-import static nl.surfnet.bod.util.TestHelper.testProperties;
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -57,7 +57,7 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   @Before
   public void setup() throws IOException {
-    PropertiesEnvironment testEnv = testProperties();
+    PropertiesEnvironment testEnv = mtosiProperties();
     mtosiNotificationLiveClient = new MtosiNotificationLiveClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }

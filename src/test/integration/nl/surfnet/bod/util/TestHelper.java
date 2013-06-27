@@ -76,6 +76,10 @@ public class TestHelper {
     return loadProperties("prod");
   }
 
+  public static PropertiesEnvironment mtosiProperties() {
+    return loadProperties("mtosi");
+  }
+
   private static PropertiesEnvironment loadProperties(String env) {
     PropertiesEnvironment environment = new PropertiesEnvironment();
     try {

@@ -26,11 +26,8 @@ import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
@@ -70,41 +67,27 @@ public class NbiMtosiClientTest {
   }
 
   @Test
-  public void shouldGenerateUUID() {
-    when(reservationRepo.saveAndFlush(reservation)).thenReturn(reservation);
-    when(serviceComponentActivationClient.reserve(reservation, true)).thenReturn(reservation);
-
-    assertThat(reservation.getReservationId(), nullValue());
-    Reservation createdReservation = subject.createReservation(reservation, true);
-    assertThat(createdReservation.getReservationId(), notNullValue());
-
-    verify(serviceComponentActivationClient).reserve(createdReservation, true);
-  }
-
-  @Test
-  public void findNonExistingPortByNmsIdShouldThrowUp() {
-
+  public void should_throw_port_not_available_exception_for_invalid_nms_port_id() {
     String nmsPortId = "me@/rack=9/shelf=9/slot=9/sub_slot=9/port=9";
     try {
       subject.findPhysicalPortByNmsPortId(nmsPortId);
-      fail("Exception expected");
-    }
-    catch (PortNotAvailableException e) {
+      fail("PortNotAvailableException expected");
+    } catch (PortNotAvailableException e) {
       assertThat(e.getMessage(), containsString(nmsPortId));
     }
   }
 
   @Test
-  public void shouldGetStatus() {
+  public void should_get_status() {
     reservation.setReservationId("123");
 
-    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList();
 
     ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
       .withServiceState(ServiceStateType.RESERVED)
       .withName(createNamingAttributeType("RFS", reservation.getReservationId()));
 
-    rfsList.getRfs().add(rfs);
+    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
+      .withRfs(rfs);
 
     when(inventoryRetrievalClient.getRfsInventory()).thenReturn(Optional.of(rfsList));
 
@@ -114,16 +97,15 @@ public class NbiMtosiClientTest {
   }
 
   @Test
-  public void shouldGetAbsentStatusWhenReservationNotFound() {
+  public void should_get_absent_status_when_reservation_not_found() {
     reservation.setReservationId("123");
-
-    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList();
 
     ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
       .withServiceState(ServiceStateType.RESERVED)
       .withName(createNamingAttributeType("RFS", "no-match"));
 
-    rfsList.getRfs().add(rfs);
+    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
+        .withRfs(rfs);
 
     when(inventoryRetrievalClient.getRfsInventory()).thenReturn(Optional.of(rfsList));
 

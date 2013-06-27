@@ -52,16 +52,16 @@ public class ReserveRequestBuilder {
   static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
   static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
+  private static final String CTP_PREFIX = "/eth=";
+
   private ReserveRequestBuilder() {
   }
 
-  private static final String CTP_PREFIX = "/eth=";
-
-  public static ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
+  public static ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ResourceFacingServiceType rfsData = createBasicRfsData(reservation);
 
-    rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort(), sequence));
-    rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort(), sequence));
+    rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort()));
+    rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort()));
 
     ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
@@ -71,9 +71,9 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort, long sequence) {
+  static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort) {
 
-    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId(), sequence);
+    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -126,17 +126,17 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId, long sequence) {
+  static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId) {
     NamingAttributeType resourceRef = createNamingAttrib();
 
     resourceRef.getRdn().add(createRdn("MD", MANAGING_DOMAIN));
     resourceRef.getRdn().add(createRdn("ME", port.getNmsNeId()));
-    resourceRef.getRdn().add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
+    resourceRef.getRdn().add(createRdn("PTP", MtosiUtils.extractPtpFromNmsPortId(port.getNmsPortId())));
     resourceRef.getRdn().add(createRdn("CTP", CTP_PREFIX + reservationId));
 
     ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
-    sap.setName(createNamingAttributeType("SAP", port.getNmsSapName())); //+ "-" + sequence));
+    sap.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
     sap.setResourceRef(resourceRef);
 
     return sap;

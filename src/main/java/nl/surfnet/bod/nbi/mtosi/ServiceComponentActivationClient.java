@@ -26,8 +26,6 @@ import static nl.surfnet.bod.nbi.mtosi.HeaderBuilder.buildReserveHeader;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRfs;
 import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.createReservationRequest;
 
-import javax.annotation.Resource;
-import javax.xml.bind.Marshaller;
 import javax.xml.ws.BindingProvider;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -37,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
@@ -60,8 +57,6 @@ public class ServiceComponentActivationClient {
 
   private final String endPoint;
 
-  @Resource private DataFieldMaxValueIncrementer valueIncrementer;
-
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
@@ -70,7 +65,7 @@ public class ServiceComponentActivationClient {
   public Reservation reserve(Reservation reservation, boolean autoProvision) {
     ServiceComponentActivationInterface port = createPort();
 
-    ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision, valueIncrementer.nextLongValue());
+    ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision);
     try {
       ReserveResponse reserveResponse = port.reserve(buildReserveHeader(endPoint), reserveRequest);
 
@@ -117,10 +112,6 @@ public class ServiceComponentActivationClient {
       logger.info("Terminate failed", e);
       e.printStackTrace();
     }
-  }
-
-  protected void setValueIncrementer(DataFieldMaxValueIncrementer valueIncrementer) {
-    this.valueIncrementer = valueIncrementer;
   }
 
   private ServiceComponentActivationInterface createPort() {

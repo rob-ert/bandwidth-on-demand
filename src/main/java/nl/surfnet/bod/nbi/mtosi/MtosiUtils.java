@@ -22,7 +22,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.web.WebUtils.not;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,7 +33,6 @@ import javax.xml.bind.JAXBElement;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -61,21 +61,21 @@ public final class MtosiUtils {
   }
 
   public static String composeNmsPortId(String managedElement, String ptp) {
-    Preconditions.checkArgument(not(managedElement.contains("@")));
-    Preconditions.checkArgument(not(ptp.contains("@")));
+    checkArgument(!managedElement.contains("@"));
+    checkArgument(!ptp.contains("@"));
 
     return managedElement + "@" + convertToShortPtP(ptp);
   }
 
-  public static String extractPTPFromNmsPortId(String nmsPortId) {
-    String ptp = null;
-    String[] ids = nmsPortId.split("@");
+  public static String extractPtpFromNmsPortId(String nmsPortId) {
+    checkNotNull(nmsPortId);
 
-    if (ids.length > 1) {
-      ptp = convertToLongPtP(ids[1]);
+    String[] ids = nmsPortId.split("@");
+    if (ids.length != 2) {
+      throw new IllegalArgumentException("NMS Port Id does not confirm expected format");
     }
 
-    return ptp;
+    return convertToLongPtP(ids[1]);
   }
 
   public static BaseExceptionMessageType getBaseExceptionMessage(ActivateException exception) {

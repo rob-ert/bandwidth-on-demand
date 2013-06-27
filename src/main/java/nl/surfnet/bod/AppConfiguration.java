@@ -56,8 +56,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
-import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -135,8 +133,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
       Resource devProperties = new ClassPathResource(getPropertyEnvName("dev"));
 
       return devProperties.exists() ? ObjectArrays.concat(resources, devProperties) : resources;
-    }
-    else {
+    } else {
       return ObjectArrays.concat(resources, new ClassPathResource(getPropertyEnvName(env)));
     }
   }
@@ -196,8 +193,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
       return (IddClient) Class.forName(iddClientClass)
           .getConstructor(String.class, String.class, String.class)
           .newInstance(username, password, endPoint);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -244,17 +240,11 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     return new JpaTransactionManager();
   }
 
-  @Bean
-  public DataFieldMaxValueIncrementer sqlSequenceMaxValueIncrementer() throws PropertyVetoException {
-    return new PostgreSQLSequenceMaxValueIncrementer(dataSource(), "hibernate_sequence");
-  }
-
   @SuppressWarnings("unchecked")
   private <T> T quietlyInitiateClass(String clazz) {
     try {
       return (T) Class.forName(clazz).newInstance();
-    }
-    catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -314,8 +304,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
         public void run() {
           try {
             task.run();
-          }
-          catch (Exception e) {
+          } catch (Exception e) {
             handle(e);
             throw e;
           }

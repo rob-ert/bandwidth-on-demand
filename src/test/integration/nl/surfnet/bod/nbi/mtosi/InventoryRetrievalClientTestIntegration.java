@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.util.TestHelper.testProperties;
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -47,11 +47,12 @@ public class InventoryRetrievalClientTestIntegration {
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = testProperties();
+    PropertiesEnvironment testEnv = mtosiProperties();
     subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
   }
 
   @Test
+  @Ignore
   public void getPhysicalPorts() {
     List<PhysicalPort> physicalPorts = subject.getPhysicalPorts();
 
@@ -91,6 +92,7 @@ public class InventoryRetrievalClientTestIntegration {
         System.err.println("sap: " + MtosiUtils.getSapName(sap));
         System.err.println("PTP: " + MtosiUtils.findRdnValue("PTP", sap.getResourceRef()).get());
         System.err.println("ME: " + MtosiUtils.findRdnValue("ME", sap.getResourceRef()).get());
+        System.err.println("CTP: " + MtosiUtils.findRdnValue("CTP", sap.getResourceRef()).get());
       }
     }
   }

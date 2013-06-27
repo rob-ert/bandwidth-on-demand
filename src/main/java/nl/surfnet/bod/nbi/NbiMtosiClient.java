@@ -39,15 +39,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 public class NbiMtosiClient implements NbiClient {
 
-  @Resource private InventoryRetrievalClient inventoryRetrievalClient;
-  @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
-  @Resource private ReservationRepo reservationRepo;
+  @Resource
+  private InventoryRetrievalClient inventoryRetrievalClient;
+  @Resource
+  private ServiceComponentActivationClient serviceComponentActivationClient;
+  @Resource
+  private ReservationRepo reservationRepo;
 
   @Override
   public long getPhysicalPortsCount() {
@@ -69,12 +73,22 @@ public class NbiMtosiClient implements NbiClient {
   }
 
   @Override
-  public Optional<ReservationStatus> getReservationStatus(String reservationId) {
+  public Optional<ReservationStatus> getReservationStatus(final String reservationId) {
     Optional<RfsList> rfsInventory = inventoryRetrievalClient.getRfsInventory();
 
     if (rfsInventory.isPresent()) {
-      ResourceFacingServiceType rfs = Iterables.getOnlyElement(rfsInventory.get().getRfs());
-      return Optional.of(MtosiUtils.mapToReservationState(rfs.getServiceState()));
+      Optional<ResourceFacingServiceType> rfs = Iterables.tryFind(rfsInventory.get().getRfs(),
+          new Predicate<ResourceFacingServiceType>() {
+            public boolean apply(ResourceFacingServiceType rfs) {
+              return MtosiUtils.getRfsName(rfs).equals(reservationId);
+            }
+          });
+
+      return rfs.transform(new Function<ResourceFacingServiceType, ReservationStatus>() {
+        public ReservationStatus apply(ResourceFacingServiceType rfs) {
+          return MtosiUtils.mapToReservationState(rfs.getServiceState());
+        }
+      });
     }
 
     return Optional.<ReservationStatus> absent();

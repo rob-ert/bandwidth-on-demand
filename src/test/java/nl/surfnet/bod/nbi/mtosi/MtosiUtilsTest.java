@@ -58,58 +58,58 @@ public class MtosiUtilsTest {
       Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
       rfsServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/RfsInventory.xml"));
       sapServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/SapInventory.xml"));
-    }
-    catch (JAXBException e) {
+    } catch (JAXBException e) {
       throw new AssertionError(e);
     }
   }
 
   @Test
   public void convertPtp() {
-    assertThat(
-        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=1/port=48"),
-        is("1-1-1-48"));
+    assertThat(MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=1/port=48"), is("1-1-1-48"));
   }
 
   @Test
   public void convertPtpWithSubSlot() {
-    assertThat(
-        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"),
-        is("1-1-3-1-5"));
+    assertThat(MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"), is("1-1-3-1-5"));
   }
 
   @Test
   public void convertNmsPortId() {
-    assertThat(
-        MtosiUtils.convertToLongPtP("1-2-3-4"),
-        is("/rack=1/shelf=2/slot=3/port=4"));
+    assertThat(MtosiUtils.convertToLongPtP("1-2-3-4"), is("/rack=1/shelf=2/slot=3/port=4"));
   }
 
   @Test
   public void convertNmsPortIdWithSubSlot() {
-    assertThat(
-        MtosiUtils.convertToLongPtP("2-3-4-5-10"),
-        is("/rack=2/shelf=3/slot=4/sub_slot=5/port=10"));
+    assertThat(MtosiUtils.convertToLongPtP("2-3-4-5-10"), is("/rack=2/shelf=3/slot=4/sub_slot=5/port=10"));
   }
 
   @Test
-  public void shouldComposeNmsPortId() {
+  public void should_compose_nms_port_id() {
     assertThat(MtosiUtils.composeNmsPortId("me", "1-1-1-1"), is("me@1-1-1-1"));
   }
 
   @Test
-  public void shouldDecomposeNmsPortId() {
-    assertThat(MtosiUtils.extractPTPFromNmsPortId("me@1-1-1-1"),
-        is(MtosiUtils.convertToLongPtP("1-1-1-1")));
+  public void should_decompose_nms_port_id() {
+    assertThat(MtosiUtils.extractPtpFromNmsPortId("me@1-1-1-1"), is(MtosiUtils.convertToLongPtP("1-1-1-1")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void shouldNotComposeNmsPortIdWhenAtSignIsPresentInPtP() {
+  public void should_throw_illegal_argument_when_nms_port_id_is_wrong() {
+    MtosiUtils.extractPtpFromNmsPortId("1-1-1-1");
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void should_throw_null_pointer_when_nms_port_id_is_null() {
+    MtosiUtils.extractPtpFromNmsPortId(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_not_compose_nms_port_id_when_at_sign_is_present_in_ptp() {
     MtosiUtils.composeNmsPortId("p@p", "me");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void shouldNotComposeNmsPortIdWhenAtSignIsPresentInMe() {
+  public void should_not_compose_nms_port_id_when_at_sign_is_present_in_me() {
     MtosiUtils.composeNmsPortId("ptp", "m@e");
   }
 

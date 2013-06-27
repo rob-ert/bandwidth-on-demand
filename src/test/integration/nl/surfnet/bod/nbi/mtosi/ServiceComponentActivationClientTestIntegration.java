@@ -23,10 +23,7 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 
-import static nl.surfnet.bod.util.TestHelper.testProperties;
-
-import java.util.concurrent.atomic.AtomicLong;
-
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -37,8 +34,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 
 public class ServiceComponentActivationClientTestIntegration {
 
@@ -46,27 +41,8 @@ public class ServiceComponentActivationClientTestIntegration {
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = testProperties();
+    PropertiesEnvironment testEnv = mtosiProperties();
     subject = new ServiceComponentActivationClient(testEnv.getProperty("nbi.mtosi.service.reserve.endpoint"));
-    subject.setValueIncrementer(new DataFieldMaxValueIncrementer() {
-
-      private final AtomicLong atomicLong = new AtomicLong();
-
-      @Override
-      public String nextStringValue() throws DataAccessException {
-        return "" + atomicLong.getAndIncrement();
-      }
-
-      @Override
-      public long nextLongValue() throws DataAccessException {
-        return atomicLong.getAndIncrement();
-      }
-
-      @Override
-      public int nextIntValue() throws DataAccessException {
-        return (int) atomicLong.getAndIncrement();
-      }
-    });
   }
 
   @Test
