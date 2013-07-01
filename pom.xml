@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>1.17.0-NSIv2-SNAPSHOT</version>
+    <version>1.18.0-mtosi-SNAPSHOT</version>
     <name>bod</name>
 
     <parent>
