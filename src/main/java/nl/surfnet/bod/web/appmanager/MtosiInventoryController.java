@@ -22,47 +22,68 @@
  */
 package nl.surfnet.bod.web.appmanager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.collect.FluentIterable;
+import com.google.common.base.Optional;
 
-import nl.surfnet.bod.nbi.mtosi.NotificationConsumerHttp;
-import nl.surfnet.bod.web.base.MessageManager;
+import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
+import org.tmforum.mtop.sb.xsd.svc.v1.OperationalStateType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 @Controller
-@RequestMapping("/appmanager/mtosi")
-public class MtosiNotificationsController {
+@RequestMapping("/appmanager/mtosi/inventory")
+public class MtosiInventoryController {
 
-  @Resource private NotificationConsumerHttp notificationConsumer;
-  @Resource private MessageManager messageManager;
+  @Resource private InventoryRetrievalClient inventoryRetrievalClient;
 
   @RequestMapping
-  public String index() {
-    return "appmanager/mtosi/index";
-  }
+  public String index(Model model) {
+    Optional<RfsList> inventory = inventoryRetrievalClient.getRfsInventory();
 
-  @RequestMapping("/notifications")
-  public String listNotifications(Model model) {
-
-    model.addAttribute("heartbeats", last(notificationConsumer.getHeartbeats(), 20));
-    model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
-    model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
-    model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
-
-    return "appmanager/mtosi/notifications";
-  }
-
-  protected <T> List<T> last(List<T> collection, int size) {
-    if (collection.size() > size) {
-      return FluentIterable.from(collection).skip(collection.size() - size).toList();
+    List<RfsView> views = new ArrayList<>();
+    if (inventory.isPresent()) {
+      for (ResourceFacingServiceType rfs : inventory.get().getRfs()) {
+        views.add(new RfsView(rfs));
+      }
     }
 
-    return collection;
+    model.addAttribute("list", views);
+
+    return "appmanager/mtosi/inventory";
+  }
+
+  public static class RfsView {
+    private final String name;
+    private final ServiceStateType serviceState;
+    private final OperationalStateType operationalState;
+
+    public RfsView(ResourceFacingServiceType rfs) {
+      this.name = MtosiUtils.getRfsName(rfs);
+      this.serviceState = rfs.getServiceState();
+      this.operationalState = rfs.getOperationalState();
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public ServiceStateType getServiceState() {
+      return serviceState;
+    }
+
+    public OperationalStateType getOperationalState() {
+      return operationalState;
+    }
+
   }
 }

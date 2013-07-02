@@ -23,18 +23,18 @@
 package nl.surfnet.bod.nbi;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
 import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -49,22 +49,15 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
-import com.google.common.base.Optional;
-
 @RunWith(MockitoJUnitRunner.class)
 public class NbiMtosiClientTest {
 
   @InjectMocks
   private NbiMtosiClient subject;
 
-  @Mock
-  private ReservationRepo reservationRepo;
-
-  @Mock
-  private ServiceComponentActivationClient serviceComponentActivationClient;
-
-  @Mock
-  private InventoryRetrievalClient inventoryRetrievalClient;
+  @Mock private ReservationRepo reservationRepo;
+  @Mock private ServiceComponentActivationClient serviceComponentActivationClient;
+  @Mock private InventoryRetrievalClient inventoryRetrievalClient;
 
   private Reservation reservation;
 
@@ -74,44 +67,29 @@ public class NbiMtosiClientTest {
   }
 
   @Test
-  public void shouldGenerateUUID() {
-    when(reservationRepo.saveAndFlush(reservation)).thenReturn(reservation);
-    when(serviceComponentActivationClient.reserve(reservation, true)).thenReturn(reservation);
-
-    assertThat(reservation.getReservationId(), nullValue());
-    Reservation createdReservation = subject.createReservation(reservation, true);
-    assertThat(createdReservation.getReservationId(), notNullValue());
-
-    verify(serviceComponentActivationClient).reserve(createdReservation, true);
-  }
-
-  @Test
-  public void findNonExistingPortByNmsIdShouldThrowUp() {
-
+  public void should_throw_port_not_available_exception_for_invalid_nms_port_id() {
     String nmsPortId = "me@/rack=9/shelf=9/slot=9/sub_slot=9/port=9";
     try {
       subject.findPhysicalPortByNmsPortId(nmsPortId);
-      fail("Exception expected");
-    }
-    catch (PortNotAvailableException e) {
+      fail("PortNotAvailableException expected");
+    } catch (PortNotAvailableException e) {
       assertThat(e.getMessage(), containsString(nmsPortId));
     }
   }
 
   @Test
-  public void shouldGetStatus() {
+  public void should_get_status() {
     reservation.setReservationId("123");
 
-    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList();
 
-    ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createResourceFacingServiceType();
-    rfs.setServiceState(ServiceStateType.RESERVED);
-    rfs.setName(MtosiUtils.createNamingAttributeType("RFS", reservation.getReservationId()));
+    ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+      .withServiceState(ServiceStateType.RESERVED)
+      .withName(createNamingAttributeType("RFS", reservation.getReservationId()));
 
-    rfsList.getRfs().add(rfs);
+    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
+      .withRfs(rfs);
 
-    when(inventoryRetrievalClient.getCachedRfsInventory()).thenReturn(rfsList);
+    when(inventoryRetrievalClient.getRfsInventory()).thenReturn(Optional.of(rfsList));
 
     ReservationStatus status = subject.getReservationStatus(reservation.getReservationId()).get();
 
@@ -119,19 +97,17 @@ public class NbiMtosiClientTest {
   }
 
   @Test
-  public void shouldGetAbsentStatusWhenReservationNotFound() {
+  public void should_get_absent_status_when_reservation_not_found() {
     reservation.setReservationId("123");
 
-    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList();
+    ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+      .withServiceState(ServiceStateType.RESERVED)
+      .withName(createNamingAttributeType("RFS", "no-match"));
 
-    ResourceFacingServiceType rfs =
-      new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType();
-    rfs.setServiceState(ServiceStateType.RESERVED);
-    rfs.setName(MtosiUtils.createNamingAttributeType("RFS", "no-match"));
+    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
+        .withRfs(rfs);
 
-    rfsList.getRfs().add(rfs);
-
-    when(inventoryRetrievalClient.getCachedRfsInventory()).thenReturn(rfsList);
+    when(inventoryRetrievalClient.getRfsInventory()).thenReturn(Optional.of(rfsList));
 
     Optional<ReservationStatus> status = subject.getReservationStatus(reservation.getReservationId());
 

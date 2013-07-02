@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +38,6 @@ import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
@@ -48,9 +48,6 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public final class MtosiUtils {
 
@@ -67,15 +64,15 @@ public final class MtosiUtils {
     return managedElement + "@" + convertToShortPtP(ptp);
   }
 
-  public static String extractPTPFromNmsPortId(String nmsPortId) {
-    String ptp = null;
-    String[] ids = nmsPortId.split("@");
+  public static String extractPtpFromNmsPortId(String nmsPortId) {
+    checkNotNull(nmsPortId);
 
-    if (ids.length > 1) {
-      ptp = convertToLongPtP(ids[1]);
+    String[] ids = nmsPortId.split("@");
+    if (ids.length != 2) {
+      throw new IllegalArgumentException("NMS Port Id does not confirm expected format");
     }
 
-    return ptp;
+    return convertToLongPtP(ids[1]);
   }
 
   public static BaseExceptionMessageType getBaseExceptionMessage(ActivateException exception) {
@@ -94,58 +91,6 @@ public final class MtosiUtils {
     return findRdnValue("RFS", rfs.getName().getValue()).get();
   }
 
-  public static DateTime getStartTime(ResourceFacingServiceType rfs) {
-    return findVendorExtension("startTime", rfs).transform(new Function<String, DateTime>() {
-      @Override
-      public DateTime apply(String time) {
-        return DateTime.parse(time);
-      }
-    }).get();
-  }
-
-  public static String getSecondaryState(ResourceFacingServiceType rfs) {
-    return findVendorExtension("secondaryState", rfs).get();
-  }
-
-  public static Optional<String> findVendorExtension(final String name, ResourceFacingServiceType rfs) {
-    List<Object> anys = rfs.getVendorExtensions().getValue().getAny();
-
-    return Iterables.tryFind(anys, new Predicate<Object>() {
-      @Override
-      public boolean apply(Object any) {
-        NodeList childs = ((Element) any).getChildNodes();
-
-        return getNodeWithLocalName("name", childs).transform(new Function<Node, Boolean>() {
-          @Override
-          public Boolean apply(Node node) {
-            return node.getTextContent().equals(name);
-          }
-        }).or(false);
-      }
-    }).transform(new Function<Object, String>() {
-      @Override
-      public String apply(Object any) {
-        NodeList childs = ((Element) any).getChildNodes();
-
-        return getNodeWithLocalName("value", childs).transform(new Function<Node, String>() {
-          @Override
-          public String apply(Node node) {
-            return node.getTextContent();
-          }
-        }).get();
-      }
-    });
-  }
-
-  private static Optional<Node> getNodeWithLocalName(String name, NodeList nodeList) {
-    for (int i = 0; i < nodeList.getLength(); i++) {
-      if (nodeList.item(i).getLocalName().equals(name)) {
-        return Optional.of(nodeList.item(i));
-      }
-    }
-    return Optional.absent();
-  }
-
   public static Optional<String> findRdnValue(final String type, NamingAttributeType nat) {
     return Iterables.tryFind(nat.getRdn(), new Predicate<RelativeDistinguishNameType>() {
       @Override
@@ -160,7 +105,8 @@ public final class MtosiUtils {
     });
   }
 
-  public static Optional<String> findSscValue(final String sscValue, List<ServiceCharacteristicValueType> characteristics) {
+  public static Optional<String> findSscValue(final String sscValue,
+      List<ServiceCharacteristicValueType> characteristics) {
     return Iterables.tryFind(characteristics, new Predicate<ServiceCharacteristicValueType>() {
       @Override
       public boolean apply(ServiceCharacteristicValueType scv) {
@@ -202,11 +148,9 @@ public final class MtosiUtils {
     Object[] parts = shortPtP.split("-");
     if (parts.length == 4) {
       return String.format(PTP_FORMAT, parts);
-    }
-    else if (parts.length == 5) {
+    } else if (parts.length == 5) {
       return String.format(PTP_WITH_SUB_SLOT_FORMAT, parts);
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("The nmsPortId can not be converted to a ptp");
     }
   }
@@ -216,10 +160,6 @@ public final class MtosiUtils {
     rel.setType(type);
     rel.setValue(value);
     return rel;
-  }
-
-  public static NamingAttributeType createNamingAttrib() {
-    return new NamingAttributeType();
   }
 
   public static NamingAttributeType createRfs(String name) {
@@ -235,8 +175,8 @@ public final class MtosiUtils {
   }
 
   public static JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(
-        createNamingAttrib(type, value));
+    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
+        value));
   }
 
   public static ServiceCharacteristicValueType createSscValue(String name, String value) {
@@ -244,8 +184,8 @@ public final class MtosiUtils {
   }
 
   private static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType =
-      new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceCharacteristicValueType();
+    ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
+        .createServiceCharacteristicValueType();
 
     serviceCharacteristicValueType.setValue(value);
     serviceCharacteristicValueType.setSscRef(namingAttributeType);
@@ -254,8 +194,7 @@ public final class MtosiUtils {
   }
 
   /**
-   * Based on file:Dropbox/BOD/MTOSI/OneControl_R3
-   * .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
+   * Based on file:Dropbox/BOD/MTOSI/OneControl_R3 .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
    *
    * In tree 2 DataModel->UML->ServiceBasic-> TypeDefinitions->ServiceStateType
    */

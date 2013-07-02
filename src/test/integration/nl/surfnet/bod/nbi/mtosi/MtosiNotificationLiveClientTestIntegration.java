@@ -22,7 +22,8 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic.FAULT;
+import static nl.surfnet.bod.nbi.mtosi.MtosiNotificationClient.NotificationTopic.FAULT;
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -35,7 +36,8 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationLiveClient.NotificationTopic;
+import nl.surfnet.bod.nbi.mtosi.MtosiNotificationClient.NotificationTopic;
+import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -43,31 +45,39 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
+@Ignore
 public class MtosiNotificationLiveClientTestIntegration {
 
-  private MtosiNotificationLiveClient mtosiNotificationLiveClient;
+  private MtosiNotificationClient mtosiNotificationLiveClient;
 
   @Before
   public void setup() throws IOException {
-    Endpoint.publish("http://localhost:9999/ws/hello", new NotificationConsumerHttp());
+    PropertiesEnvironment testEnv = mtosiProperties();
+    mtosiNotificationLiveClient = new MtosiNotificationClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
+    Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 
   @Test
   @Ignore("not ready yet..")
   public void subscribeAndUnsubscribe() throws Exception {
-    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.FAULT,
-        "http://localhost:9999/ws/hello");
+    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.8:9999/ws/hello");
 
     assertThat(subscriberId, notNullValue());
 
-    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.FAULT,
-        subscriberId);
+    Thread.sleep(1000 * 60 * 50);
+  }
+
+  @Test
+  @Ignore
+  public void unsubscribe() throws UnsubscribeException {
+    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.SERVICE, "66");
 
     assertThat(unsubscribeResponse, notNullValue());
   }

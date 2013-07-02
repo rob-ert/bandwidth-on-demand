@@ -22,14 +22,13 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttrib;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRdn;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createSscValue;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
+import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -37,13 +36,13 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sb.xsd.svc.v1.*;
-
-import com.ciena.mtop.tmw.xsd.coi.v1.Nvs;
-import com.google.common.annotations.VisibleForTesting;
+import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 public class ReserveRequestBuilder {
 
@@ -52,38 +51,24 @@ public class ReserveRequestBuilder {
   static final String TRAFFIC_MAPPING_FROM_TABLE_PRIORITY = "all";
   static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
-  public ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision, long sequence) {
+  private static final String CTP_PREFIX = "/eth=";
 
-    ResourceFacingServiceType rfsData = createBasicRfsData(reservation, sequence);
+  private ReserveRequestBuilder() {
+  }
 
-    rfsData.getSapList().add(getSap(reservation, reservation.getSourcePort(), sequence));
+  public static ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
+    ResourceFacingServiceType rfsData = createBasicRfsData(reservation).withSapList(
+      getSap(reservation, reservation.getSourcePort()),
+      getSap(reservation, reservation.getDestinationPort()));
 
-    rfsData.getSapList().add(getSap(reservation, reservation.getDestinationPort(), sequence));
-
-    rfsData.setVendorExtensions(createVendorExtensions(reservation.getStartDateTime()));
-
-    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
-
-    reserveRequest.setRfsCreateData(rfsData);
+    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime()).withRfsCreateData(rfsData);
 
     return reserveRequest;
   }
 
-  private JAXBElement<AnyListType> createVendorExtensions(DateTime startDateTime) {
-    Nvs nvs = new Nvs();
-    nvs.setName("startTime");
-    nvs.setValue(convertToXml(startDateTime));
-
-    AnyListType anyListType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
-    anyListType.getAny().add(nvs);
-
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeVendorExtensions(anyListType);
-  }
-
   @VisibleForTesting
-  ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort, long sequence) {
-
-    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), sequence);
+  static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort) {
+    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -94,8 +79,7 @@ public class ReserveRequestBuilder {
     if (virtualPort.getVlanId() != null) {
       describedByList.add(createSscValue("ServiceType", "EVPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(virtualPort.getVlanId())));
-    }
-    else {
+    } else {
       describedByList.add(createSscValue("ServiceType", "EPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
     }
@@ -107,28 +91,24 @@ public class ReserveRequestBuilder {
     return sap;
   }
 
-  private ReserveRequest createReserveRequest(DateTime endDateTime) {
-    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
-
-    reserveRequest.setExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
+  private static ReserveRequest createReserveRequest(DateTime endDateTime) {
+    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest()
+      .withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
 
     return reserveRequest;
   }
 
   @VisibleForTesting
-  ResourceFacingServiceType createBasicRfsData(Reservation reservation, long sequence) {
-    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createResourceFacingServiceType();
-
-    rfsData.setName(createNamingAttributeType("RFS", reservation.getReservationId()));
-
-    rfsData.setIsMandatory(true);
-    rfsData.setIsStateful(true);
-    rfsData.setAdminState(AdminStateType.UNLOCKED);
-    rfsData.setServiceState(ServiceStateType.RESERVED);
-
-    rfsData.getDescribedByList().add(createSscValue("startTime", convertToXml(reservation.getStartDateTime())));
-    rfsData.getDescribedByList().add(createSscValue("AdmissionControl", "Strict"));
+  static ResourceFacingServiceType createBasicRfsData(Reservation reservation) {
+    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+      .withName(createNamingAttributeType("RFS", reservation.getReservationId()))
+      .withIsMandatory(true)
+      .withIsStateful(true)
+      .withAdminState(AdminStateType.UNLOCKED)
+      .withServiceState(ServiceStateType.RESERVED)
+      .withDescribedByList(
+        createSscValue("StartTime", convertToXml(reservation.getStartDateTime())),
+        createSscValue("AdmissionControl", "Strict"));
 
     return rfsData;
   }
@@ -138,17 +118,14 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, long sequence) {
-    NamingAttributeType resourceRef = createNamingAttrib();
-
-    resourceRef.getRdn().add(createRdn("MD", MANAGING_DOMAIN));
-    resourceRef.getRdn().add(createRdn("ME", port.getNmsNeId()));
-    resourceRef.getRdn().add(createRdn("PTP", MtosiUtils.extractPTPFromNmsPortId(port.getNmsPortId())));
-
-    ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceAccessPointType();
-    sap.setName(createNamingAttributeType("SAP", port.getNmsSapName() + "-" + sequence));
-    sap.setResourceRef(resourceRef);
+  static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId) {
+    ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceAccessPointType()
+      .withName(createNamingAttributeType("SAP", port.getNmsSapName()))
+      .withResourceRef(new NamingAttributeType().withRdn(
+        createRdn("MD", MANAGING_DOMAIN),
+        createRdn("ME", port.getNmsNeId()),
+        createRdn("PTP", MtosiUtils.extractPtpFromNmsPortId(port.getNmsPortId())),
+        createRdn("CTP", CTP_PREFIX + reservationId)));
 
     return sap;
   }

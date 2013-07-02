@@ -39,14 +39,9 @@ public class ReservationStatusChangeListener implements ReservationListener {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Resource
-  private ReservationEventPublisher reservationEventPublisher;
-
-  @Resource
-  private EndPoints connections;
-
-  @Resource
-  private MessageRetriever messageRetriever;
+  @Resource private ReservationEventPublisher reservationEventPublisher;
+  @Resource private EndPoints connections;
+  @Resource private MessageRetriever messageRetriever;
 
   @PostConstruct
   public void registerListener() {

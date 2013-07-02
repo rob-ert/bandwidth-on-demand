@@ -663,10 +663,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
-    Optional<ReservationStatus> optionalReservationStatus =
-      nbiClient.getReservationStatus(reservation.getReservationId());
+    Optional<ReservationStatus> status = nbiClient.getReservationStatus(reservation.getReservationId());
 
-    return optionalReservationStatus.or(reservation.getStatus());
+    return status.or(reservation.getStatus());
   }
 
   /**
@@ -696,16 +695,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, RichUserDetails user) {
     BodRole role = user.getSelectedRole();
+
     if (role.isNocRole()) {
       return new ElementActionView(true, "label_cancel");
-    }
-    else if (role.isManagerRole()
+    } else if (role.isManagerRole()
         && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
             role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
             .getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
-    }
-    else if (role.isUserRole() && user.isMemberOf(reservation.getVirtualResourceGroup().getAdminGroup())) {
+    } else if (role.isUserRole() && user.isMemberOf(reservation.getVirtualResourceGroup().getAdminGroup())) {
       return new ElementActionView(true, "label_cancel");
     }
 
@@ -715,11 +713,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public ElementActionView isEditAllowed(Reservation reservation, BodRole role) {
     if (role.isNocRole()) {
       return new ElementActionView(false, "reservation_edit_user_has_no_rights");
-    }
-    else if (role.isManagerRole()) {
+    } else if (role.isManagerRole()) {
       return new ElementActionView(false, "reservation_copy_user_has_no_rights");
-    }
-    else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+    } else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
       return new ElementActionView(true, "label_copy");
     }
 

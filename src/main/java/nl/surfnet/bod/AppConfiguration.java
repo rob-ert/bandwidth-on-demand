@@ -59,8 +59,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
-import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -85,7 +83,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
-  private static Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
+//  static {
+//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+//  }
+
+  private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
   @Value("${jdbc.jdbcUrl}")
   private String jdbcUrl;
@@ -244,11 +247,6 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean @Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
     return new TransactionTemplate(transactionManager);
-  }
-
-  @Bean
-  public DataFieldMaxValueIncrementer sqlSequenceMaxValueIncrementer() throws PropertyVetoException {
-    return new PostgreSQLSequenceMaxValueIncrementer(dataSource(), "hibernate_sequence");
   }
 
   @SuppressWarnings("unchecked")

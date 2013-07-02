@@ -28,8 +28,7 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 
 public class RdnValueTypeMatcher {
 
-  public static org.hamcrest.Matcher<RelativeDistinguishNameType> rdnValue(final String type,
-      final String value) {
+  public static org.hamcrest.Matcher<RelativeDistinguishNameType> rdnValue(final String type, final String value) {
 
     return new TypeSafeMatcher<RelativeDistinguishNameType>() {
       @Override

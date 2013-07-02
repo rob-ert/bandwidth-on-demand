@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <ns3:getServiceInventoryResponse 
+    <ns3:getServiceInventoryResponse
       xmlns:ns14="http://www.tmforum.org/mtop/rtm/xsd/ac/v1" xmlns:ns13="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" xmlns:ns12="http://www.tmforum.org/mtop/nra/xsd/asa/v1" xmlns:ns11="http://www.tmforum.org/mtop/nra/xsd/prc/v1" xmlns:ns10="http://www.tmforum.org/mtop/nra/xsd/asap/v1" xmlns:ns9="http://www.tmforum.org/mtop/nrb/xsd/itu/v1" xmlns:ns8="http://www.tmforum.org/mtop/nrb/xsd/cri/v1" xmlns:ns7="http://www.tmforum.org/mtop/sb/xsd/svc/v1" xmlns:ns6="http://www.tmforum.org/mtop/sb/xsd/csi/v1" xmlns:ns5="http://www.tmforum.org/mtop/fmw/xsd/coi/v1" xmlns:ns4="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:ns3="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:ns2="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" xmlns="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1">
          <ns3:inventoryData>
             <ns3:sapList>
@@ -81,7 +81,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -99,7 +99,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -191,7 +191,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -209,7 +209,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -301,7 +301,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -319,7 +319,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -411,7 +411,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -429,7 +429,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -521,7 +521,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -539,7 +539,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -631,7 +631,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -649,7 +649,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -741,7 +741,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -759,7 +759,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -851,7 +851,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -869,7 +869,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -961,7 +961,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -970,7 +970,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1071,7 +1071,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1080,7 +1080,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1181,7 +1181,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1199,7 +1199,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1291,7 +1291,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1309,7 +1309,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1401,7 +1401,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1410,7 +1410,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1511,7 +1511,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1529,7 +1529,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1621,7 +1621,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1639,7 +1639,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1731,7 +1731,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1749,7 +1749,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1841,7 +1841,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1859,7 +1859,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1951,7 +1951,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -1969,7 +1969,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2061,7 +2061,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2070,7 +2070,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2171,7 +2171,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2189,7 +2189,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2281,7 +2281,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2290,7 +2290,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2391,7 +2391,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Supportedservice</ns4:value>
+                           <ns4:value>SupportedServices</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>
@@ -2400,7 +2400,7 @@
                      <ns7:sscRef>
                         <ns4:rdn>
                            <ns4:type>SSC</ns4:type>
-                           <ns4:value>Administrativespeedrate</ns4:value>
+                           <ns4:value>AdministrativeSpeedRate</ns4:value>
                         </ns4:rdn>
                      </ns7:sscRef>
                   </ns7:describedByList>

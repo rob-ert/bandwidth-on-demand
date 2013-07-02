@@ -22,11 +22,13 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.util.TestHelper.devProperties;
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.util.List;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
@@ -38,50 +40,50 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
-@Ignore("London server gives different results, wait for local server")
+@Ignore
 public class InventoryRetrievalClientTestIntegration {
 
   private InventoryRetrievalClient subject;
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = devProperties();
+    PropertiesEnvironment testEnv = mtosiProperties();
     subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
   }
 
   @Test
+  @Ignore
   public void getPhysicalPorts() {
     List<PhysicalPort> physicalPorts = subject.getPhysicalPorts();
 
     assertThat(physicalPorts, hasSize(greaterThan(0)));
 
-    PhysicalPort firstPhysicalPort = physicalPorts.get(0);
-    assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
-    assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
-    assertThat(firstPhysicalPort.getNmsPortSpeed(), containsString("0"));
-    assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
-    assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
-    assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
+//    PhysicalPort firstPhysicalPort = physicalPorts.get(0);
+//    assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
+//    assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
+//    assertThat(firstPhysicalPort.getNmsPortSpeed(), containsString("0"));
+//    assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
+//    assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
+//    assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
 
-//    for (PhysicalPort physicalPort : physicalPorts) {
-//      System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
-//    }
+    for (PhysicalPort physicalPort : physicalPorts) {
+      System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
+    }
   }
 
   @Test
+  @Ignore
   public void getPhysicalPortCount() {
     assertThat(subject.getPhysicalPortCount(), greaterThan(0));
   }
 
   @Test
-  @Ignore("For dubugging..")
+//  @Ignore("For dubugging..")
   public void getRfsInventory() {
-    RfsList inventory = subject.getCachedRfsInventory();
-    for (ResourceFacingServiceType rfs : inventory.getRfs()) {
+    Optional<RfsList> inventory = subject.getRfsInventory();
+    for (ResourceFacingServiceType rfs : inventory.get().getRfs()) {
 
       System.err.println("RFS: " + MtosiUtils.getRfsName(rfs));
-      System.err.println("Starts: " + MtosiUtils.getStartTime(rfs));
-      System.err.println("Second state: " + MtosiUtils.getSecondaryState(rfs));
       System.err.println("Service state: " + rfs.getServiceState());
       System.err.println("Operational state: " + rfs.getOperationalState());
 
@@ -90,16 +92,9 @@ public class InventoryRetrievalClientTestIntegration {
         System.err.println("sap: " + MtosiUtils.getSapName(sap));
         System.err.println("PTP: " + MtosiUtils.findRdnValue("PTP", sap.getResourceRef()).get());
         System.err.println("ME: " + MtosiUtils.findRdnValue("ME", sap.getResourceRef()).get());
+        System.err.println("CTP: " + MtosiUtils.findRdnValue("CTP", sap.getResourceRef()).get());
       }
     }
   }
 
-  //00:03:18:58:ce:80-[5, 7]
-  // SAP-00:03:18:58:ce:80-5 00:03:18:58:ce:80@1-1-1-5
-  // SAP-00:03:18:58:ce:80-7 00:03:18:58:ce:80@1-1-1-7
-  //00:03:18:58:ce:20-[1, 4, 5, 8]
-  // SAP-00:03:18:58:ce:20-1 00:03:18:58:ce:20@1-1-1-1
-  // SAP-00:03:18:58:ce:20-4 00:03:18:58:ce:20@1-1-1-4
-  // SAP-00:03:18:58:ce:20-5 00:03:18:58:ce:20@1-1-1-5
-  // SAP-00:03:18:58:ce:20-8 00:03:18:58:ce:20@1-1-1-8
 }

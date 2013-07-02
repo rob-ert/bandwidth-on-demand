@@ -40,7 +40,7 @@
     <!-- MTOSI WS -->
     <wss:binding url="/mtosi/fmw/NotificationConsumer">
         <wss:service>
-            <ws:service bean="#NotificationConsumerHttp" />
+            <ws:service bean="#notificationConsumerHttp" />
         </wss:service>
     </wss:binding>
 

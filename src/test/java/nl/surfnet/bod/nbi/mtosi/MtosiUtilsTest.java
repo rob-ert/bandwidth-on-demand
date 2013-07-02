@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.mtosi;
 
-import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +35,6 @@ import javax.xml.bind.Unmarshaller;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
@@ -45,8 +43,6 @@ import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
-
-import com.google.common.base.Optional;
 
 public class MtosiUtilsTest {
 
@@ -59,66 +55,59 @@ public class MtosiUtilsTest {
       Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
       rfsServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/RfsInventory.xml"));
       sapServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/SapInventory.xml"));
-    }
-    catch (JAXBException e) {
+    } catch (JAXBException e) {
       throw new AssertionError(e);
     }
   }
 
   @Test
   public void convertPtp() {
-    assertThat(
-        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=1/port=48"),
-        is("1-1-1-48"));
+    assertThat(MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=1/port=48"), is("1-1-1-48"));
   }
 
   @Test
   public void convertPtpWithSubSlot() {
-    assertThat(
-        MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"),
-        is("1-1-3-1-5"));
+    assertThat(MtosiUtils.convertToShortPtP("/rack=1/shelf=1/slot=3/sub_slot=1/port=5"), is("1-1-3-1-5"));
   }
 
   @Test
   public void convertNmsPortId() {
-    assertThat(
-        MtosiUtils.convertToLongPtP("1-2-3-4"),
-        is("/rack=1/shelf=2/slot=3/port=4"));
+    assertThat(MtosiUtils.convertToLongPtP("1-2-3-4"), is("/rack=1/shelf=2/slot=3/port=4"));
   }
 
   @Test
   public void convertNmsPortIdWithSubSlot() {
-    assertThat(
-        MtosiUtils.convertToLongPtP("2-3-4-5-10"),
-        is("/rack=2/shelf=3/slot=4/sub_slot=5/port=10"));
+    assertThat(MtosiUtils.convertToLongPtP("2-3-4-5-10"), is("/rack=2/shelf=3/slot=4/sub_slot=5/port=10"));
   }
 
   @Test
-  public void shouldComposeNmsPortId() {
+  public void should_compose_nms_port_id() {
     assertThat(MtosiUtils.composeNmsPortId("me", "1-1-1-1"), is("me@1-1-1-1"));
   }
 
   @Test
-  public void shouldDecomposeNmsPortId() {
-    assertThat(MtosiUtils.extractPTPFromNmsPortId("me@1-1-1-1"),
-        is(MtosiUtils.convertToLongPtP("1-1-1-1")));
+  public void should_decompose_nms_port_id() {
+    assertThat(MtosiUtils.extractPtpFromNmsPortId("me@1-1-1-1"), is(MtosiUtils.convertToLongPtP("1-1-1-1")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void shouldNotComposeNmsPortIdWhenAtSignIsPresentInPtP() {
+  public void should_throw_illegal_argument_when_nms_port_id_is_wrong() {
+    MtosiUtils.extractPtpFromNmsPortId("1-1-1-1");
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void should_throw_null_pointer_when_nms_port_id_is_null() {
+    MtosiUtils.extractPtpFromNmsPortId(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_not_compose_nms_port_id_when_at_sign_is_present_in_ptp() {
     MtosiUtils.composeNmsPortId("p@p", "me");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void shouldNotComposeNmsPortIdWhenAtSignIsPresentInMe() {
+  public void should_not_compose_nms_port_id_when_at_sign_is_present_in_me() {
     MtosiUtils.composeNmsPortId("ptp", "m@e");
-  }
-
-  @Test
-  public void shouldCreateNamingAttrib() {
-    NamingAttributeType attrib = MtosiUtils.createNamingAttrib();
-
-    assertThat(attrib.getRdn(), hasSize(0));
   }
 
   @Test
@@ -165,46 +154,6 @@ public class MtosiUtilsTest {
     String sapName = MtosiUtils.getSapName(firstSap);
 
     assertThat(sapName, is("SAP-00:03:18:58:cf:b0-3"));
-  }
-
-  @Test
-  public void shouldGetSecondaryStateFromRfs() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    String secondaryState = MtosiUtils.getSecondaryState(firstRfs);
-
-    assertThat(secondaryState, is("INITIAL"));
-  }
-
-  @Test
-  public void shouldGetStartTimeFromRfs() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    DateTime startTime = MtosiUtils.getStartTime(firstRfs);
-
-    assertThat(startTime.getYear(), is(2012));
-    assertThat(startTime.getDayOfMonth(), is(24));
-    assertThat(startTime.getMonthOfYear(), is(11));
-    assertThat(startTime.getHourOfDay(), is(12));
-    assertThat(startTime.getMinuteOfHour(), is(32));
-  }
-
-  @Test
-  public void shouldFindVendorExtensionStartTime() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    Optional<String> startTime = MtosiUtils.findVendorExtension("startTime", firstRfs);
-
-    assertThat(startTime.get(), is("2012-11-24T12:32:52.000Z"));
-  }
-
-  @Test
-  public void shouldNotFindVendorExtensionFoo() {
-    ResourceFacingServiceType firstRfs = rfsServiceInventory.getInventoryData().getRfsList().getRfs().get(0);
-
-    Optional<String> secondaryState = MtosiUtils.findVendorExtension("foo", firstRfs);
-
-    assertThat(secondaryState, isAbsent());
   }
 
 }

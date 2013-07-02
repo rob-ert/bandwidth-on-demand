@@ -32,8 +32,16 @@ import java.net.URI;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebParam.Mode;
+import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.xml.ws.Holder;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -375,5 +383,4 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private void updateHeadersForReply(Holder<CommonHeaderType> header) {
     header.value.setReplyTo(null);
   }
-
 }

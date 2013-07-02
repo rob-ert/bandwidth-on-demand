@@ -29,8 +29,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 public class ServiceCharacteristicValueTypeMatcher {
 
-  public static org.hamcrest.Matcher<ServiceCharacteristicValueType> serviceCharacteristic(final String name,
-      final String value) {
+  public static org.hamcrest.Matcher<ServiceCharacteristicValueType> serviceCharacteristic(final String name, final String value) {
 
     return new TypeSafeMatcher<ServiceCharacteristicValueType>() {
 

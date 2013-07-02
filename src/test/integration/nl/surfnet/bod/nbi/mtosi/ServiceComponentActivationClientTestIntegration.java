@@ -23,10 +23,7 @@
 package nl.surfnet.bod.nbi.mtosi;
 
 
-import static nl.surfnet.bod.util.TestHelper.testProperties;
-
-import java.util.concurrent.atomic.AtomicLong;
-
+import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -37,49 +34,34 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 
+@Ignore
 public class ServiceComponentActivationClientTestIntegration {
 
   private ServiceComponentActivationClient subject;
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = testProperties();
+    PropertiesEnvironment testEnv = mtosiProperties();
     subject = new ServiceComponentActivationClient(testEnv.getProperty("nbi.mtosi.service.reserve.endpoint"));
-    subject.setValueIncrementer(new DataFieldMaxValueIncrementer() {
-
-      private final AtomicLong atomicLong = new AtomicLong();
-
-      @Override
-      public String nextStringValue() throws DataAccessException {
-        return "" + atomicLong.getAndIncrement();
-      }
-
-      @Override
-      public long nextLongValue() throws DataAccessException {
-        return atomicLong.getAndIncrement();
-      }
-
-      @Override
-      public int nextIntValue() throws DataAccessException {
-        return (int) atomicLong.getAndIncrement();
-      }
-    });
   }
 
   @Test
   @Ignore
   public void shouldCreateReservation() {
-    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
-    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
+//    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
+//    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
+    PhysicalPort sourcePort = createPort("00:03:18:f2:9a:30-3", "00:03:18:f2:9a:30", "1-1-1-3-1");
+    PhysicalPort destPort = createPort("00:03:18:f2:9a:30-2", "00:03:18:f2:9a:30", "1-1-1-2-1");
+//    PhysicalPort destPort = createPort("00:03:18:f2:9a:50-4", "00:03:18:f2:9a:50", "1-1-1-4");
 
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
-      .setStartDateTime(DateTime.now().plusMinutes(2))
-      .setEndDateTime(DateTime.now().plusMinutes(20))
-      .setName("mtosiSurfTest5")
+      .setReservationId("HansAlanTest7")
+      .setStartDateTime(DateTime.now().plusMinutes(25))
+      .setEndDateTime(DateTime.now().plusMinutes(45))
+      .setName("HansAlanTest7")
+      .setBandwidth(100)
+      .withoutProtection()
       .create();
 
     reservation.getSourcePort().setPhysicalPort(sourcePort);
@@ -91,10 +73,10 @@ public class ServiceComponentActivationClientTestIntegration {
   }
 
   @Test
-  @Ignore
+//  @Ignore
   public void shouldActivateReservation() {
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
+      .setReservationId("HansAlanTest6")
       .create();
 
     subject.activate(reservation);
@@ -104,7 +86,7 @@ public class ServiceComponentActivationClientTestIntegration {
   @Ignore
   public void shouldTerminateReservation() {
     Reservation reservation = new ReservationFactory()
-      .setReservationId("SURFnetTest3")
+      .setReservationId("HansAlanTest5")
       .create();
 
     subject.terminate(reservation);
@@ -117,14 +99,5 @@ public class ServiceComponentActivationClientTestIntegration {
       .setNmsNeId(me)
       .create();
   }
-
-  //00:03:18:58:ce:80-[5, 7]
-  // SAP-00:03:18:58:ce:80-5 00:03:18:58:ce:80@1-1-1-5
-  // SAP-00:03:18:58:ce:80-7 00:03:18:58:ce:80@1-1-1-7
-  //00:03:18:58:ce:20-[1, 4, 5, 8]
-  // SAP-00:03:18:58:ce:20-1 00:03:18:58:ce:20@1-1-1-1
-  // SAP-00:03:18:58:ce:20-4 00:03:18:58:ce:20@1-1-1-4
-  // SAP-00:03:18:58:ce:20-5 00:03:18:58:ce:20@1-1-1-5
-  // SAP-00:03:18:58:ce:20-8 00:03:18:58:ce:20@1-1-1-8
 
 }

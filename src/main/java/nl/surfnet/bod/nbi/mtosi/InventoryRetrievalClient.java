@@ -26,12 +26,15 @@ import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findRdnValue;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findSscValue;
 import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.getSapName;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
@@ -39,86 +42,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
-import org.tmforum.mtop.msi.xsd.sir.v1.*;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
+import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
+import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
+import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.FluentIterable;
-
 @Service
-@Lazy
 public class InventoryRetrievalClient {
 
-  private static final String SAP_CACHE = "sapCache";
-  private static final String RFS_CACHE = "rfsCache";
-
-  private static final String WSDL_LOCATION =
-      "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
+  private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final ServiceInventoryRetrievalHttp service;
-
   private final String endPoint;
-
-  private final LoadingCache<String, SapList> sapCache = CacheBuilder.newBuilder()
-      .expireAfterAccess(15, TimeUnit.MINUTES)
-      .build(
-          new CacheLoader<String, SapList>() {
-            @Override
-            public SapList load(String key) throws Exception {
-              if (key.equals(SAP_CACHE)) {
-                return getServiceInventoryWithSapFilter().getInventoryData().getSapList();
-              }
-              throw new AssertionError("Unsupported cache key " + key);
-            }
-          }
-      );
-
-  private final LoadingCache<String, RfsList> rfsCache = CacheBuilder.newBuilder()
-      .expireAfterAccess(15, TimeUnit.MINUTES)
-      .build(
-          new CacheLoader<String, RfsList>() {
-            @Override
-            public RfsList load(String key) throws Exception {
-              if (key.equals(RFS_CACHE)) {
-                return getServiceInventoryWithRfsFilter().getInventoryData().getRfsList();
-              }
-              throw new AssertionError("Unsupported cache key " + key);
-            }
-          }
-       );
 
   @Autowired
   public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
-    this.service = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION),
-        new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
   }
 
   public List<PhysicalPort> getPhysicalPorts() {
+    Optional<SapList> inventory = getSapInventory();
+    if (!inventory.isPresent()) {
+      return Collections.emptyList();
+    }
 
     return FluentIterable
-      .from(getCachedSapInventory().getSap())
-      .filter(new Predicate<ServiceAccessPointType>() {
-        @Override
-        public boolean apply(ServiceAccessPointType sap) {
-          //(AdminStateType.UNLOCKED != sap.getAdminState() && (OperationalStateType.ENABLED != sap.getOperationalState()))) {
-          return true;
-        }
-      })
+      .from(getSapInventory().get().getSap())
       .transform(new Function<ServiceAccessPointType, PhysicalPort>() {
         @Override
         public PhysicalPort apply(ServiceAccessPointType sap) {
@@ -129,7 +87,8 @@ public class InventoryRetrievalClient {
   }
 
   public int getPhysicalPortCount() {
-    return getCachedSapInventory().getSap().size();
+    Optional<SapList> inventory = getSapInventory();
+    return inventory.isPresent() ? inventory.get().getSap().size() : 0;
   }
 
   @VisibleForTesting
@@ -153,8 +112,8 @@ public class InventoryRetrievalClient {
     String nmsSapName = getSapName(sap);
     String managedElement = findRdnValue("ME", sap.getResourceRef()).get();
     String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
-    String nmsPortSpeed = findSscValue("Administrativespeedrate", sap.getDescribedByList()).get();
-    String supportedServiceType = findSscValue("Supportedservice", sap.getDescribedByList()).get();
+    String nmsPortSpeed = findSscValue("AdministrativeSpeedRate", sap.getDescribedByList()).get();
+    String supportedServiceType = findSscValue("SupportedServices", sap.getDescribedByList()).get();
     boolean isVlanRequired = determineVlanRequired(supportedServiceType);
 
     PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
@@ -175,13 +134,6 @@ public class InventoryRetrievalClient {
   @VisibleForTesting
   boolean determineVlanRequired(String supportedServiceType) {
     return "EVPL".equals(supportedServiceType) || "EVPLAN".equals(supportedServiceType);
-  }
-
-  private ServiceInventoryRetrievalRPC getServiceProxy() {
-    ServiceInventoryRetrievalRPC proxy = service.getServiceInventoryRetrievalSoapHttp();
-    ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-
-    return proxy;
   }
 
   private void addSapFilter(GetServiceInventoryRequest request) {
@@ -207,32 +159,35 @@ public class InventoryRetrievalClient {
     return simpleFilter;
   }
 
-  private SapList getCachedSapInventory() {
+  private Optional<SapList> getSapInventory() {
     try {
-      return sapCache.get(SAP_CACHE);
-    }
-    catch (ExecutionException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public RfsList getCachedRfsInventory() {
-     try {
-      return rfsCache.get(RFS_CACHE);
-    }
-    catch (ExecutionException e) {
-      throw new RuntimeException(e);
+      return Optional.fromNullable(getServiceInventoryWithSapFilter().getInventoryData().getSapList());
+    } catch (GetServiceInventoryException e) {
+      logger.warn("Could not load SAP inventory", e);
+      return Optional.absent();
     }
   }
 
-  private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest)
-      throws GetServiceInventoryException {
-    ServiceInventoryRetrievalRPC proxy = getServiceProxy();
+  public Optional<RfsList> getRfsInventory() {
+    try {
+      return Optional.fromNullable(getServiceInventoryWithRfsFilter().getInventoryData().getRfsList());
+    } catch (GetServiceInventoryException e) {
+      logger.warn("Could not load RFS inventory", e);
+      return Optional.absent();
+    }
+  }
 
-    GetServiceInventoryResponse serviceInventory =
-        proxy.getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+  private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest) throws GetServiceInventoryException {
+    GetServiceInventoryResponse serviceInventory = createPort().getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
 
     return serviceInventory;
+  }
+
+  private ServiceInventoryRetrievalRPC createPort() {
+    ServiceInventoryRetrievalRPC port = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceInventoryRetrievalSoapHttp();
+    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+
+    return port;
   }
 
 }

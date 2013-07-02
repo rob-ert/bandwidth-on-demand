@@ -50,7 +50,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
- *
  */
 @Component
 @Transactional
@@ -60,14 +59,9 @@ public class ReservationPoller {
 
   private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private ReservationEventPublisher reservationEventPublisher;
-
-  @Resource
-  private EmailSender emailSender;
+  @Resource private ReservationService reservationService;
+  @Resource private ReservationEventPublisher reservationEventPublisher;
+  @Resource private EmailSender emailSender;
 
   @Value("${reservation.poll.max.tries}")
   private int maxPollingTries;
@@ -150,8 +144,7 @@ public class ReservationPoller {
           numberOfTries++;
           Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         logger.error("The poller failed for reservation " + reservation.getId() + "/" + reservation.getReservationId(), e);
         emailSender.sendErrorMail(e);
       }

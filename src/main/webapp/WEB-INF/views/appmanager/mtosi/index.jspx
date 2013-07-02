@@ -14,10 +14,15 @@
                 </div>
                 <dl class="dl">
                     <dt>
-                        <spring:url var="oauth_url" value="/appmanager/mtosi/notifications" />
-                        <a href="${oauth_url}">Notifications</a>
+                        <spring:url var="notifications_url" value="/appmanager/mtosi/notifications" />
+                        <a href="${notifications_url}">Notifications</a>
                     </dt>
                     <dd>Displays the MTOSI notifications</dd>
+                    <dt>
+                        <spring:url var="inventory_url" value="/appmanager/mtosi/inventory" />
+                        <a href="${inventory_url}">RFS Inventory</a>
+                    </dt>
+                    <dd>Displays the RFS inventory</dd>
                 </dl>
             </div>
         </div>
