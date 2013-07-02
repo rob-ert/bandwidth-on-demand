@@ -45,12 +45,14 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
+@Ignore
 public class MtosiNotificationLiveClientTestIntegration {
 
   private MtosiNotificationClient mtosiNotificationLiveClient;
@@ -63,19 +65,19 @@ public class MtosiNotificationLiveClientTestIntegration {
   }
 
   @Test
-//  @Ignore("not ready yet..")
+  @Ignore("not ready yet..")
   public void subscribeAndUnsubscribe() throws Exception {
     String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.8:9999/ws/hello");
 
     assertThat(subscriberId, notNullValue());
 
     Thread.sleep(1000 * 60 * 50);
-//  }
-//
-//  @Test
-////  @Ignore
-//  public void unsubscribe() throws UnsubscribeException {
-    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.SERVICE, subscriberId);
+  }
+
+  @Test
+  @Ignore
+  public void unsubscribe() throws UnsubscribeException {
+    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.SERVICE, "66");
 
     assertThat(unsubscribeResponse, notNullValue());
   }
