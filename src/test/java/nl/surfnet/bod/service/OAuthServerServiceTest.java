@@ -108,7 +108,6 @@ public class OAuthServerServiceTest {
     assertThat(principal, isAbsent());
   }
 
-  @Ignore("Prints exception so ignore")
   @Test
   public void shouldBeAbsentForInvalidOAuthServerUrl() {
     String token = "1234-1234-abc";

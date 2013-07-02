@@ -68,7 +68,6 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
   @Test
   @Ignore("Can not search from connection to reservation, results in circulair reference")
   public void findConnectionByItsReservationStatus() throws ParseException {
-
     List<ConnectionV1> connections = searchFor("FAILED");
 
     assertThat(connections, hasSize(1));
