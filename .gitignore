@@ -19,3 +19,5 @@ logfile
 *.iml
 .idea/
 /src/test/cache/
+.gradle/
+build/
