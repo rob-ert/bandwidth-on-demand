@@ -65,7 +65,7 @@ public class InventoryRetrievalClient {
   private final String endPoint;
 
   @Autowired
-  public InventoryRetrievalClient(@Value("${nbi.mtosi.inventory.retrieval.endpoint}") String endPoint) {
+  public InventoryRetrievalClient(@Value("${nbi.onecontrol.inventory.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 

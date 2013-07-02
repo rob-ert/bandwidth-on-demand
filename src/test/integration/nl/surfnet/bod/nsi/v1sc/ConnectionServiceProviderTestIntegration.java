@@ -51,7 +51,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nbi.NbiOfflineClient;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -117,7 +117,7 @@ public class ConnectionServiceProviderTestIntegration {
   @Resource private ReservationService reservationService;
   @Resource private EntityManagerFactory entityManagerFactory;
   @Resource private ReservationPoller reservationPoller;
-  @Resource private NbiOfflineClient nbiOfflineClient;
+  @Resource private NbiOpenDracOfflineClient nbiOfflineClient;
 
   private static final String URN_REQUESTER_NSA = "urn:requester";
   private final String virtualResourceGroupName = "nsi:group";

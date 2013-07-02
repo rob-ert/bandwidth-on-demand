@@ -50,7 +50,7 @@ public class MtosiNotificationClient {
   private final String endPoint;
 
   @Autowired
-  public MtosiNotificationClient(@Value("${nbi.mtosi.notification.retrieval.endpoint}") String endPoint) {
+  public MtosiNotificationClient(@Value("${nbi.onecontrol.notification.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 

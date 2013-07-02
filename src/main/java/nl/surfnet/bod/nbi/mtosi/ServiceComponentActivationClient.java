@@ -59,7 +59,7 @@ public class ServiceComponentActivationClient {
   private final String endPoint;
 
   @Autowired
-  public ServiceComponentActivationClient(@Value("${nbi.mtosi.service.reserve.endpoint}") String endPoint) {
+  public ServiceComponentActivationClient(@Value("${nbi.onecontrol.service.reserve.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 

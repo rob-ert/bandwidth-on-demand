@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.opendrac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import java.util.Locale;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nbi.NbiOpenDracWsClient.OpenDracStatusTranslator;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient.OpenDracStatusTranslator;
 
 import org.joda.time.DateTime;
 import org.junit.Test;

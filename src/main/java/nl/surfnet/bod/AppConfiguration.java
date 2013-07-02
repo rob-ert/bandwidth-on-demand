@@ -36,6 +36,9 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.mtosi.NbiMtosiClient;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
 import nl.surfnet.bod.sabng.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
 
@@ -179,8 +182,17 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   }
 
   @Bean
-  public NbiClient nbiClient(@Value("${nbi.client.class}") String nbiClientClass) {
-    return quietlyInitiateClass(nbiClientClass);
+  public NbiClient nbiClient(@Value("${nbi.mode}") String nbiMode) {
+    switch (nbiMode) {
+    case "opendrac" :
+      return new NbiOpenDracWsClient();
+    case "opendrac-offline" :
+      return new NbiOpenDracOfflineClient();
+    case "onecontrol":
+      return new NbiMtosiClient();
+    default:
+      throw new AssertionError("Unknown NBI mode " + nbiMode);
+    }
   }
 
   @Bean

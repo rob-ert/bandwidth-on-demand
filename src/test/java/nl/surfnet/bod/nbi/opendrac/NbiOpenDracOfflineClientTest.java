@@ -20,70 +20,62 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.opendrac;
 
-import static nl.surfnet.bod.util.TestHelper.accProperties;
-import static nl.surfnet.bod.util.TestHelper.productionProperties;
-import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 
 import org.junit.Test;
 
-public class NbiOpenDracWsClientSmokeTestIntegration {
+public class NbiOpenDracOfflineClientTest {
 
-  private NbiOpenDracWsClient subject;
+  private final NbiOpenDracOfflineClient subject = new NbiOpenDracOfflineClient();
 
   @Test
-  public void smokeTestAcceptance() {
-    initAcceptance();
+  public void offlineClientShouldGivePorts() {
+    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
-
-    assertThat(allPorts, hasSize(greaterThan(0)));
+    assertThat(ports, hasSize(greaterThan(0)));
   }
 
   @Test
-  public void smokeTestProducation() {
-    initProduction();
+  public void countShouldMatchNumberOfPorts() {
+    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+    long count = subject.getPhysicalPortsCount();
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
-
-    assertThat(allPorts, hasSize(greaterThan(0)));
+    assertThat(count, is((long) ports.size()));
   }
 
   @Test
-  public void smokeTestTest() {
-    initTest();
+  public void findByNmsPortId() throws PortNotAvailableException {
+    PhysicalPort port = subject.findAllPhysicalPorts().get(0);
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());
 
-    assertThat(allPorts, hasSize(greaterThan(0)));
+    assertThat(foundPort.getNmsPortId(), is(port.getNmsPortId()));
   }
 
-  private void initAcceptance() {
-    init(accProperties());
+  @Test
+  public void testRequireVlanIdWhenPortIdContainsLabel() {
+    for (PhysicalPort port : subject.findAllPhysicalPorts()) {
+      assertThat(port.toString(), port.isVlanRequired(),
+          not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+    }
   }
 
-  private void initProduction() {
-    init(productionProperties());
-  }
-
-  private void initTest() {
-    init(testProperties());
-  }
-
-  private void init(PropertiesEnvironment env) {
-    subject = new NbiOpenDracWsClient();
-    subject.setInventoryServiceUrl(env.getProperty("nbi.drac.service.inventory"));
-    subject.setPassword(env.getDecryptedProperty("nbi.drac.password"));
-    subject.setUsername(env.getProperty("nbi.drac.user"));
+  @Test(expected = PortNotAvailableException.class)
+  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
+    subject.findPhysicalPortByNmsPortId("nonExisting");
   }
 
 }

@@ -60,7 +60,7 @@ public class MtosiNotificationLiveClientTestIntegration {
   @Before
   public void setup() throws IOException {
     PropertiesEnvironment testEnv = mtosiProperties();
-    mtosiNotificationLiveClient = new MtosiNotificationClient(testEnv.getProperty("nbi.mtosi.notification.retrieval.endpoint"));
+    mtosiNotificationLiveClient = new MtosiNotificationClient(testEnv.getProperty("nbi.onecontrol.notification.retrieval.endpoint"));
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 

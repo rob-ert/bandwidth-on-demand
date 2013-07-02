@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.opendrac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -30,36 +30,70 @@ import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
+import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
+import nl.surfnet.bod.util.TestHelper;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-public class NbiOfflineClientTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+public class NbiOpenDracWsClientTestIntegration {
 
-  private final NbiOfflineClient subject = new NbiOfflineClient();
+  @Resource
+  private NbiOpenDracWsClient subject;
 
-  @Test
-  public void offlineClientShouldGivePorts() {
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+  @BeforeClass
+  public static void testEnvironment() {
+    TestHelper.useAccEnv();
+  }
 
-    assertThat(ports, hasSize(greaterThan(0)));
+  @AfterClass
+  public static void clearEnvironment() {
+    TestHelper.clearEnv();
   }
 
   @Test
-  public void countShouldMatchNumberOfPorts() {
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+  public void testFindAllPhysicalPorts() throws PortNotAvailableException {
+    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+
+    assertThat(allPorts, hasSize(greaterThan(0)));
+  }
+
+  @Test
+  public void testFindPhysicalPortByNmsPortId() throws PortNotAvailableException {
+    PhysicalPort firstPort = subject.findAllPhysicalPorts().get(0);
+
+    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
+
+    assertThat(foundPort.getNmsPortId(), is(firstPort.getNmsPortId()));
+  }
+
+  @Test(expected = PortNotAvailableException.class)
+  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
+    subject.findPhysicalPortByNmsPortId("nonExisting");
+  }
+
+  @Test
+  public void portCountShouldMatchSizeOfAllPorts() {
     long count = subject.getPhysicalPortsCount();
+    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
 
     assertThat(count, is((long) ports.size()));
-  }
-
-  @Test
-  public void findByNmsPortId() throws PortNotAvailableException {
-    PhysicalPort port = subject.findAllPhysicalPorts().get(0);
-
-    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());
-
-    assertThat(foundPort.getNmsPortId(), is(port.getNmsPortId()));
   }
 
   @Test
@@ -68,11 +102,6 @@ public class NbiOfflineClientTest {
       assertThat(port.toString(), port.isVlanRequired(),
           not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
     }
-  }
-
-  @Test(expected = PortNotAvailableException.class)
-  public void findNonExistingPortByNmsIdShouldThrowUp() throws PortNotAvailableException {
-    subject.findPhysicalPortByNmsPortId("nonExisting");
   }
 
 }

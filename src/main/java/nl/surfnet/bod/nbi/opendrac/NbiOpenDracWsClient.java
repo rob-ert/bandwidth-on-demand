@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.opendrac;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
@@ -37,6 +37,8 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
@@ -95,25 +97,25 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   private final ConcurrentMap<String, String> idToTnaCache = Maps.newConcurrentMap();
 
-  @Value("${nbi.drac.billing.group.name}")
+  @Value("${nbi.opendrac.billing.group.name}")
   private String billingGroupName;
 
-  @Value("${nbi.drac.password}")
+  @Value("${nbi.opendrac.password}")
   private String password;
 
-  @Value("${nbi.drac.group.name}")
+  @Value("${nbi.opendrac.group.name}")
   private String groupName;
 
-  @Value("${nbi.drac.resource.group.name}")
+  @Value("${nbi.opendrac.resource.group.name}")
   private String resourceGroupName;
 
-  @Value("${nbi.drac.user}")
+  @Value("${nbi.opendrac.user}")
   private String username;
 
-  @Value("${nbi.drac.service.inventory}")
+  @Value("${nbi.opendrac.service.inventory}")
   private String inventoryServiceUrl;
 
-  @Value("${nbi.drac.service.scheduling}")
+  @Value("${nbi.opendrac.service.scheduling}")
   private String schedulingServiceUrl;
 
   public NbiOpenDracWsClient() {

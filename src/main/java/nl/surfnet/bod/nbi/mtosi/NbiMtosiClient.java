@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.mtosi;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,9 +30,8 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
-import nl.surfnet.bod.nbi.mtosi.ServiceComponentActivationClient;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.springframework.transaction.annotation.Transactional;

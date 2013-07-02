@@ -48,7 +48,7 @@ public class InventoryRetrievalClientTestIntegration {
   @Before
   public void setup() {
     PropertiesEnvironment testEnv = mtosiProperties();
-    subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.mtosi.inventory.retrieval.endpoint"));
+    subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.onecontrol.inventory.retrieval.endpoint"));
   }
 
   @Test

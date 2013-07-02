@@ -41,7 +41,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nbi.NbiOfflineClient;
+import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.TimeTraveller;
@@ -80,7 +80,7 @@ public class ReportReservationServiceDbTest {
 
   @Resource private ReservationServiceDbTestHelper reservationHelper;
   @Resource private ReservationRepo reservationRepo;
-  @Resource private NbiOfflineClient nbiClient;
+  @Resource private NbiOpenDracOfflineClient nbiClient;
   @Resource private ReservationService subject;
   @Resource private ReportingService reportingService;
 

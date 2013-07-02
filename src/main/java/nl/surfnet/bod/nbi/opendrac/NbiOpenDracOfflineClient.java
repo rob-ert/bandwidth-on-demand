@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi;
+package nl.surfnet.bod.nbi.opendrac;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 
@@ -33,6 +33,8 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +47,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
-public class NbiOfflineClient implements NbiClient {
+public class NbiOpenDracOfflineClient implements NbiClient {
 
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
     @Override
@@ -78,7 +80,7 @@ public class NbiOfflineClient implements NbiClient {
 
   private boolean shouldSleep = true;
 
-  public NbiOfflineClient() {
+  public NbiOpenDracOfflineClient() {
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
     ports.add(new NbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
