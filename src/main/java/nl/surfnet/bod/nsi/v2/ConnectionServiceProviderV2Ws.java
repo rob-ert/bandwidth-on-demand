@@ -32,16 +32,8 @@ import java.net.URI;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
-import javax.jws.WebResult;
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.xml.ws.Holder;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -64,8 +56,8 @@ import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFa
 import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;

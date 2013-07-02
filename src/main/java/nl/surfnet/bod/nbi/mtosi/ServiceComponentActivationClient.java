@@ -28,8 +28,6 @@ import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.createReservationRe
 
 import javax.xml.ws.BindingProvider;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -39,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
