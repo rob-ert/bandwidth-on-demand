@@ -56,12 +56,14 @@
                         <tr>
                             <table:column item="${serviceObjectCreation}" property="notificationId" />
                             <td>
-                                <spring:eval expression="heartbeat.sourceTime" htmlEscape="true" />
+                                <spring:eval expression="serviceObjectCreation.sourceTime" htmlEscape="true" />
                                 /
-                                <spring:eval expression="heartbeat.osTime" htmlEscape="true" />
+                                <spring:eval expression="serviceObjectCreation.osTime" htmlEscape="true" />
                             </td>
                             <table:column item="${serviceObjectCreation}" property="objectType" />
-                            <table:column item="${serviceObjectCreation}" property="objectName" />
+                            <td>
+                                <c:out value="${serviceObjectCreation.objectName}" />
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>
