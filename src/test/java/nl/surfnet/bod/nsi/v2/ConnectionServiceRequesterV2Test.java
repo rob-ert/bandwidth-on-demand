@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -52,14 +53,12 @@ import java.util.ArrayList;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
@@ -168,12 +167,11 @@ public class ConnectionServiceRequesterV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
-
     subject.dataPlaneActivated(1L, requestDetails);
 
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
     ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
-    verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
+    verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), anyInt(), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
     assertThat(connection.getDataPlaneActive(), is(true));
     assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
     assertThat(status.getValue().isActive(), is(true));

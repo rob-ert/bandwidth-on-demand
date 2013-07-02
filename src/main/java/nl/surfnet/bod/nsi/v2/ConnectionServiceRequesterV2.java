@@ -208,7 +208,7 @@ public class ConnectionServiceRequesterV2 {
     populateNotification(notification, connection, timeStamp);
     notification.setDataPlaneStatus(dataPlaneStatus);
 
-    client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
+    client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), notification.getNotificationId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
 
   public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
