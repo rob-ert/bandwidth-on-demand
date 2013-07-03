@@ -49,13 +49,13 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
 
     switch (nbiMode) {
     case "opendrac":
-      env.setActiveProfiles("opendrac");
+      env.addActiveProfile("opendrac");
       break;
     case "opendrac-offline":
-      env.setActiveProfiles("opendrac-offline");
+      env.addActiveProfile("opendrac-offline");
       break;
     case "onecontrol":
-      env.setActiveProfiles("onecontrol");
+      env.addActiveProfile("onecontrol");
       break;
     default:
       throw new AssertionError("Could not set the NBI active profile");
