@@ -67,7 +67,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
 
-
   private String serviceTopicSubscribeId;
   private String faultTopicSubscribeId;
 
@@ -76,10 +75,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   @PostConstruct
   public void subscribe() {
-    if (!isOneControlProfileActive()) {
-      return;
-    }
-
     // FIXME hard coded endpoint
     try {
       serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.17:8082/bod/onecontrol/fmw/NotificationConsumer");
@@ -97,10 +92,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
       unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
     }
-  }
-
-  private boolean isOneControlProfileActive() {
-    return environment.acceptsProfiles("onecontrol");
   }
 
   private void unsubscribe(NotificationTopic topic, String subscriptionId) {
