@@ -16,7 +16,7 @@
         http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd">
 
     <!-- WebService on which Onecontrol posts notifications  -->
-    <wss:binding url="/onecontrol/fmw/NotificationConsumer">
+    <wss:binding url="/mtosi/fmw/NotificationConsumer">
         <wss:service>
             <ws:service bean="#notificationConsumerHttp" />
         </wss:service>

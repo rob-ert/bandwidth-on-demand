@@ -52,7 +52,7 @@ public class NotificationProducerClient {
   private final String endPoint;
 
   @Autowired
-  public NotificationProducerClient(@Value("${nbi.onecontrol.notification.retrieval.endpoint}") String endPoint) {
+  public NotificationProducerClient(@Value("${nbi.onecontrol.notification.producer.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 

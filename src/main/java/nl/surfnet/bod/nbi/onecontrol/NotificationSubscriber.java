@@ -38,6 +38,7 @@ import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopi
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
@@ -53,24 +54,32 @@ public class NotificationSubscriber {
 
   @Resource private NotificationProducerClient notificationClient;
 
+  @Value("${nbi.onecontrol.notification.consumer.endpoint}") private String endPointAddress;
+
   @PostConstruct
   public void subscribe() {
     try {
-      Optional<InetAddress> address = getOneControlIntAddress();
+      String endPoint = getEndPoint();
 
-      if (!address.isPresent()) {
-        throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
-      }
+      logger.info("Using '{}' as our callback endpoint", endPoint);
 
-      String endpoint = getEndPoint(address.get());
-
-      logger.info("Using {} as our callback endpoint", endpoint);
-
-      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, endpoint);
-      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, endpoint);
+      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, endPoint);
+      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, endPoint);
     } catch (Exception e) {
       throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
     }
+  }
+
+  private String getEndPoint() {
+    if (Strings.isNullOrEmpty(endPointAddress)) {
+      Optional<InetAddress> address = getOneControlIntAddress();
+      if (!address.isPresent()) {
+        throw new AssertionError("Could not determine MTOSI/OneControl consumer end point");
+      }
+      return getEndPoint(address.get());
+    }
+
+    return endPointAddress;
   }
 
   @PreDestroy
@@ -84,7 +93,7 @@ public class NotificationSubscriber {
   }
 
   private String getEndPoint(InetAddress address) {
-    return String.format("http://%s:8082/bod/onecontrol/fmw/NotificationConsumer", address.getHostAddress());
+    return String.format("http://%s:8082/bod/mtosi/fmw/NotificationConsumer", address.getHostAddress());
   }
 
   private Optional<InetAddress> getOneControlIntAddress() {
@@ -101,11 +110,10 @@ public class NotificationSubscriber {
         }
       }
     } catch (IOException e) {
-      logger.info("Could not determine OneControl Inet Address", e);
+      logger.info("Could not determine OneControl InetAddress", e);
     }
 
     return Optional.absent();
-
   }
 
   private void unsubscribe(NotificationTopic topic, String subscriptionId) {

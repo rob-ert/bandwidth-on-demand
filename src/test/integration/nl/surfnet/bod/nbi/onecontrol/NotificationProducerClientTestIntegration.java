@@ -55,21 +55,21 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 
 @Ignore
-public class MtosiNotificationLiveClientTestIntegration {
+public class NotificationProducerClientTestIntegration {
 
-  private NotificationProducerClient mtosiNotificationLiveClient;
+  private NotificationProducerClient notificationClient;
 
   @Before
   public void setup() throws IOException {
     PropertiesEnvironment testEnv = mtosiProperties();
-    mtosiNotificationLiveClient = new NotificationProducerClient(testEnv.getProperty("nbi.onecontrol.notification.retrieval.endpoint"));
+    notificationClient = new NotificationProducerClient(testEnv.getProperty("nbi.onecontrol.notification.producer.endpoint"));
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 
   @Test
   @Ignore("not ready yet..")
   public void subscribeAndUnsubscribe() throws Exception {
-    String subscriberId = mtosiNotificationLiveClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.8:9999/ws/hello");
+    String subscriberId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.8:9999/ws/hello");
 
     assertThat(subscriberId, notNullValue());
 
@@ -79,7 +79,7 @@ public class MtosiNotificationLiveClientTestIntegration {
   @Test
   @Ignore
   public void unsubscribe() throws UnsubscribeException {
-    UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(NotificationTopic.SERVICE, "66");
+    UnsubscribeResponse unsubscribeResponse = notificationClient.unsubscribe(NotificationTopic.SERVICE, "66");
 
     assertThat(unsubscribeResponse, notNullValue());
   }
@@ -89,7 +89,7 @@ public class MtosiNotificationLiveClientTestIntegration {
   public void retreiveNotificationsHeartbeat() throws SubscribeException, InterruptedException {
     // String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT,
     // "https://bod.test.dlp.surfnet.nl/mtosi/fmw/NotificationConsumer");
-    String subscriberId = mtosiNotificationLiveClient.subscribe(FAULT, "http://localhost:9999/ws/hello");
+    String subscriberId = notificationClient.subscribe(FAULT, "http://localhost:9999/ws/hello");
     System.err.println("Got a " + subscriberId);
   }
 

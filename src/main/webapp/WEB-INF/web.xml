@@ -38,7 +38,7 @@
 
     <servlet-mapping>
         <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/onecontrol/*</url-pattern>
+        <url-pattern>/mtosi/*</url-pattern>
     </servlet-mapping>
 
     <filter>
