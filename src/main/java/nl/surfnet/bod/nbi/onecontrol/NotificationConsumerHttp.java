@@ -25,25 +25,16 @@ package nl.surfnet.bod.nbi.onecontrol;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.bind.JAXBElement;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.nbi.onecontrol.MtosiNotificationClient.NotificationTopic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
-import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
-import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
 import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -66,42 +57,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final List<CommonEventInformationType> events = new ArrayList<>();
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
-
-  private String serviceTopicSubscribeId;
-  private String faultTopicSubscribeId;
-
-  @Resource private MtosiNotificationClient notificationClient;
-  @Resource private Environment environment;
-
-  @PostConstruct
-  public void subscribe() {
-    // FIXME hard coded endpoint
-    try {
-      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.17:8082/bod/onecontrol/fmw/NotificationConsumer");
-      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, "http://145.145.73.17:8082/bod/onecontrol/fmw/NotificationConsumer");
-    } catch (SubscribeException e) {
-      throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
-    }
-  }
-
-  @PreDestroy
-  public void unsubscribe() {
-    if (!Strings.isNullOrEmpty(serviceTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.SERVICE, serviceTopicSubscribeId);
-    }
-    if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
-    }
-  }
-
-  private void unsubscribe(NotificationTopic topic, String subscriptionId) {
-    try {
-      notificationClient.unsubscribe(topic, subscriptionId);
-      log.info("Succesfully unsubscribed from {} topic with id {}", topic, subscriptionId);
-    } catch (UnsubscribeException e) {
-      log.warn("Unsubscribe to {} topic with id {} has failed: {}", topic, subscriptionId, e);
-    }
-  }
 
   @Override
   public void notify(Header header, Notify body) {
