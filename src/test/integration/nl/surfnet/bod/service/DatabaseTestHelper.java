@@ -74,11 +74,10 @@ public final class DatabaseTestHelper {
   private static Properties getSeleniumProperties() {
     Properties props = new Properties();
     try {
-      props.load(DatabaseTestHelper.class.getResourceAsStream("/bod-selenium.properties"));
+      props.load(DatabaseTestHelper.class.getResourceAsStream("/env-properties/bod-selenium.properties"));
       return props;
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (IOException e) {
+      throw new AssertionError(e);
     }
   }
 

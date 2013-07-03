@@ -946,11 +946,10 @@
                             <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                             <systemProperties>
                                 <systemProperty>
-                                    <name>bod.external.url</name>
-                                    <value>http://localhost:${jetty.port}/bod</value>
+                                    <name>bod.env</name>
+                                    <value>selenium</value>
                                 </systemProperty>
                             </systemProperties>
-                            <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <connectors>
                                 <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>${jetty.port}</port>
