@@ -59,13 +59,12 @@ public class SabEntitlementsHandlerTest {
   @InjectMocks
   private SabEntitlementsHandler subject;
 
-  @Mock
-  private Environment bodEnvironment;
+  @Mock private Environment bodEnvironment;
 
   @Before
   public void setUp() {
     responseStream = SabEntitlementsHandlerTest.class.getResourceAsStream("/sab/response-entitlement.xml");
-    subject.setSabEndPoint("http://localhost:7000/sap");
+    subject.setSabEndPoint("http://localhost:7000/sab");
     subject.setSabPassword("secret");
     subject.setSabUser("user");
   }
@@ -92,8 +91,7 @@ public class SabEntitlementsHandlerTest {
   public void shouldMatchEntitlement() throws IOException, XPathExpressionException {
     subject.setSabRole("Instellingsbevoegde");
 
-    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET",
-        "WESAIDSO"));
+    assertThat(subject.getInstitutesWhichHaveBoDAdminEntitlement(REQ_ID, responseStream), contains("SURFNET", "WESAIDSO"));
   }
 
   @Test
