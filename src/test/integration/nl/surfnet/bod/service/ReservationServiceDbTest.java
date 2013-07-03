@@ -48,6 +48,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -58,16 +59,12 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class ReservationServiceDbTest {
 
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private ReservationRepo reservationRepo;
-
-  @Resource
-  private ReservationServiceDbTestHelper reservationHelper;
+  @Resource private ReservationService reservationService;
+  @Resource private ReservationRepo reservationRepo;
+  @Resource private ReservationServiceDbTestHelper reservationHelper;
 
   private final DateTime nowMidnight = DateMidnight.now().toDateTime();
   private final DateTime anHourAgo = nowMidnight.minusHours(1);
