@@ -33,6 +33,6 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @Profile("onecontrol")
 @ImportResource({ "classpath:spring/appCtx-ws-onecontrol-consumer.xml" })
-public class OnecontrolConsumerConfiguration {
+public class OneControlConsumerConfiguration {
 
 }
