@@ -40,16 +40,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class SabNgEntitlementsHandlerTestIntegration {
 
-  @Resource
-  private EntitlementsHandler subject;
+  @Resource private EntitlementsHandler subject;
 
   @BeforeClass
   public static void testEnvironment() {

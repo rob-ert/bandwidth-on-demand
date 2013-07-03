@@ -25,7 +25,11 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 
@@ -34,7 +38,11 @@ import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -43,6 +51,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -53,23 +62,17 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class ReservationServiceTestIntegration {
 
-  @Resource
-  private ReservationService subject;
-  @Resource
-  private PhysicalPortRepo physicalPortRepo;
-  @Resource
-  private VirtualPortRepo virtualPortRepo;
-  @Resource
-  private InstituteRepo instituteRepo;
-  @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-  @Resource
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Resource private ReservationService subject;
+  @Resource private PhysicalPortRepo physicalPortRepo;
+  @Resource private VirtualPortRepo virtualPortRepo;
+  @Resource private InstituteRepo instituteRepo;
+  @Resource private VirtualResourceGroupRepo virtualResourceGroupRepo;
+  @Resource private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-  @Resource
-  private PlatformTransactionManager txManager;
+  @Resource private PlatformTransactionManager txManager;
 
   @BeforeClass
   public static void cleanup() {
@@ -106,8 +109,7 @@ public class ReservationServiceTestIntegration {
       T result = block.call();
       txManager.commit(status);
       return result;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new AssertionError(e);
     }
   }

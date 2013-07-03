@@ -47,6 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,16 +56,13 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class InstituteIddServiceTestIntegration {
 
-  @PersistenceContext
-  private EntityManager em;
+  @PersistenceContext private EntityManager em;
 
-  @Resource
-  private InstituteIddService instituteService;
-
-  @Resource
-  private InstituteRepo instituteRepo;
+  @Resource private InstituteIddService instituteService;
+  @Resource private InstituteRepo instituteRepo;
 
   @BeforeClass
   public static void testEnvironment() {

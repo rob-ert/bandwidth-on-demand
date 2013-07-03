@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,16 +54,15 @@ import com.google.common.collect.Lists;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class VirtualResourceGroupRepoDbTest {
 
-  @Resource
-  private VirtualResourceGroupRepo subject;
+  @Resource private VirtualResourceGroupRepo subject;
 
   @Test
   public void testSave() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setAdminGroup(nameOne)
-        .create();
+    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setAdminGroup(nameOne).create();
 
     subject.save(vrGroup);
   }
@@ -70,8 +70,7 @@ public class VirtualResourceGroupRepoDbTest {
   @Test
   public void testSaveNameNotUnique() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setAdminGroup(nameOne)
-        .create();
+    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setAdminGroup(nameOne).create();
 
     subject.save(vrGroupOne);
 
@@ -82,8 +81,7 @@ public class VirtualResourceGroupRepoDbTest {
       subject.flush();
 
       fail("ConstraintViolation excpected");
-    }
-    catch (JpaSystemException exc) {
+    } catch (JpaSystemException exc) {
       assertThat("", exc.getCause().getCause(), instanceOf(ConstraintViolationException.class));
     }
   }

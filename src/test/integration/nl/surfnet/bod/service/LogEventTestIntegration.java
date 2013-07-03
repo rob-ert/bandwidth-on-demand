@@ -48,6 +48,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
@@ -61,6 +62,7 @@ import com.google.common.collect.Lists;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class LogEventTestIntegration {
 
   private final static Long ONE = 1L;
@@ -68,11 +70,8 @@ public class LogEventTestIntegration {
   private static final Long THREE = 3L;
   private final static DateTime now = DateTime.now();
 
-  @Resource
-  private LogEventRepo logEventRepo;
-
-  @Resource
-  private LogEventService subject;
+  @Resource private LogEventRepo logEventRepo;
+  @Resource private LogEventService subject;
 
   private List<String> adminGroups;
 
@@ -83,8 +82,7 @@ public class LogEventTestIntegration {
 
     Reservation reservationOne = new ReservationFactory().setId(ONE).create();
     Reservation reservationTwo = new ReservationFactory().setId(TWO).create();
-    Reservation reservationInfinite = new ReservationFactory().setId(THREE).setEndDateTime(null).setStatus(REQUESTED)
-        .create();
+    Reservation reservationInfinite = new ReservationFactory().setId(THREE).setEndDateTime(null).setStatus(REQUESTED).create();
 
     adminGroups = new ArrayList<>();
     adminGroups.addAll(reservationOne.getAdminGroups());

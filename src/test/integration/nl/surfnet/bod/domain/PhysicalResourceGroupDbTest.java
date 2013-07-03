@@ -49,6 +49,7 @@ import org.junit.runner.RunWith;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,28 +58,16 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac-offline")
 public class PhysicalResourceGroupDbTest {
 
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
-
-  @Resource
-  private InstituteRepo instituteRepo;
-
-  @Resource
-  private PhysicalPortRepo physicalPortRepo;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Resource private InstituteRepo instituteRepo;
+  @Resource private PhysicalPortRepo physicalPortRepo;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
 
   @Test
   public void countAllPhysicalResourceGroups() {
