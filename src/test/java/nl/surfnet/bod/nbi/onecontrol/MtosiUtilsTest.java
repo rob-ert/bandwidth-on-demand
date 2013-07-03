@@ -51,7 +51,7 @@ public class MtosiUtilsTest {
   private static GetServiceInventoryResponse sapServiceInventory;
 
   @BeforeClass
-  public static void initInvetoryObjects() {
+  public static void initInventoryObjects() {
     try{
       Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
       rfsServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/RfsInventory.xml"));
