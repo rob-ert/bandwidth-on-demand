@@ -105,9 +105,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   private NbiClient nbiClient;
 
   @Resource
-  private InventoryRetrievalClient mtosiClient;
-
-  @Resource
   private LogEventService logEventService;
 
   @Resource
@@ -139,11 +136,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return limitPorts(findUnallocated(), firstResult, sizeNo);
   }
 
-  public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
-    final List<PhysicalPort> unallocatedPorts = mtosiClient.getPhysicalPorts();
-    return limitPorts(unallocatedPorts, firstResult, sizeNo);
-  }
-
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
@@ -169,10 +161,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   public long countUnallocated() {
     return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
-  }
-
-  public long countUnallocatedMTOSI() {
-    return mtosiClient.getPhysicalPortCount();
   }
 
   public long countUnalignedPhysicalPorts() {
