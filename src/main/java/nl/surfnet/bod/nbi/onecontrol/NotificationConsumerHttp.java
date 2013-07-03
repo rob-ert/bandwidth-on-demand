@@ -38,6 +38,7 @@ import nl.surfnet.bod.nbi.onecontrol.MtosiNotificationClient.NotificationTopic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
@@ -51,6 +52,7 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 
+@Profile("onecontrol")
 @Component
 @WebService(
     serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",
@@ -80,8 +82,8 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
     // FIXME hard coded endpoint
     try {
-      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.21:8082/bod/onecontrol/fmw/NotificationConsumer");
-      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, "http://145.145.73.21:8082/bod/onecontrol/fmw/NotificationConsumer");
+      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.17:8082/bod/onecontrol/fmw/NotificationConsumer");
+      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, "http://145.145.73.17:8082/bod/onecontrol/fmw/NotificationConsumer");
     } catch (SubscribeException e) {
       throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
     }
@@ -112,7 +114,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   @Override
   public void notify(Header header, Notify body) {
-    log.info("Recieved a notification: {}, {}", body.getTopic(), body.getMessage());
+    log.info("Received a notification: {}, {}", body.getTopic(), body.getMessage());
 
     List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 

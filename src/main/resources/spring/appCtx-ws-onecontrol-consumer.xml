@@ -15,16 +15,10 @@
         http://jax-ws.dev.java.net/spring/core http://jax-ws.dev.java.net/spring/core.xsd
         http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd">
 
-    <!-- NSI WS -->
-    <wss:binding url="/nsi/v1_sc/provider">
+    <!-- WebService on which Onecontrol posts notifications  -->
+    <wss:binding url="/onecontrol/fmw/NotificationConsumer">
         <wss:service>
-            <ws:service bean="#connectionServiceProviderWs_v1sc" />
-        </wss:service>
-    </wss:binding>
-
-    <wss:binding url="/nsi/v2/provider">
-        <wss:service>
-            <ws:service bean="#connectionServiceProviderWs_v2" />
+            <ws:service bean="#notificationConsumerHttp" />
         </wss:service>
     </wss:binding>
 
