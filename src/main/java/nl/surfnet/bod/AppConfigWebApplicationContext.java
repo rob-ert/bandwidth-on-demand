@@ -49,8 +49,9 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
 
     switch (nbiMode) {
     case "opendrac":
-    case "opendrac-offline":
       env.setActiveProfiles("opendrac");
+    case "opendrac-offline":
+      env.setActiveProfiles("opendrac-offline");
       break;
     case "onecontrol":
       env.setActiveProfiles("onecontrol");

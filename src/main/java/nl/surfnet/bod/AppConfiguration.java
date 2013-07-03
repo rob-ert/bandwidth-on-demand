@@ -36,10 +36,6 @@ import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.nbi.onecontrol.NbiMtosiClient;
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
 import nl.surfnet.bod.sabng.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
 
@@ -59,7 +55,6 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -116,9 +111,6 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   private int idleConnectionTestPeriod;
   @Value("${mail.sender.class}")
   private String emailSenderClass;
-
-  @javax.annotation.Resource
-  private Environment env;
 
   @Bean
   public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -178,20 +170,6 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public EmailSender emailSender() {
     return quietlyInitiateClass(emailSenderClass);
-  }
-
-  @Bean
-  public NbiClient nbiClient(@Value("${nbi.mode}") String nbiMode) {
-    switch (nbiMode) {
-    case "opendrac" :
-      return new NbiOpenDracWsClient();
-    case "opendrac-offline" :
-      return new NbiOpenDracOfflineClient();
-    case "onecontrol":
-      return new NbiMtosiClient();
-    default:
-      throw new AssertionError("Unknown NBI mode " + nbiMode);
-    }
   }
 
   @Bean

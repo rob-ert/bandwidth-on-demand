@@ -22,13 +22,36 @@
  */
 package nl.surfnet.bod.nbi.opendrac;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -41,12 +64,11 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-import com.google.common.base.*;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Uninterruptibles;
-
+@Profile("opendrac-offline")
+@Component
 public class NbiOpenDracOfflineClient implements NbiClient {
 
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {

@@ -23,7 +23,17 @@
 package nl.surfnet.bod.nbi.opendrac;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static org.joda.time.Minutes.minutes;
 import static org.joda.time.Minutes.minutesBetween;
 
@@ -32,6 +42,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
+import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
+import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -55,32 +76,44 @@ import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.UsernameToken;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.*;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.EndpointT;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument.QueryEndpointRequest;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument.QueryEndpointsRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.ValidEndpointsQueryTypeT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ActivateReservationOccurrenceRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ActivateReservationOccurrenceRequestDocument.ActivateReservationOccurrenceRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationOccurrenceInfoT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleRequestT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.UserInfoT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleCreationResultT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
-import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
-import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
  *
  */
+@Profile("opendrac")
+@Component
 public class NbiOpenDracWsClient implements NbiClient {
 
   private static final Minutes RAASS_TIMEOUT = minutes(10);
@@ -140,8 +173,7 @@ public class NbiOpenDracWsClient implements NbiClient {
             .activateReservationOccurrence(requestDocument, getSecurityDocument());
 
         return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
-      }
-      catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
+      } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
         log.error("Error activating reservation (" + reservationId + "): ", e);
       }
     }
@@ -170,8 +202,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
       // CompletionResponseDocument always signals that the operation executed successfully.
       return CANCELLED;
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
+    } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error canceling reservation (" + reservationId + "): ", e);
       return CANCEL_FAILED;
     }
@@ -306,8 +337,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       QueryReservationScheduleResponseDocument queryReservationSchedule = getResourceAllocationAndSchedulingService().queryReservationSchedule(requestDocument,
           getSecurityDocument());
       return Optional.of(queryReservationSchedule);
-    }
-    catch (AxisFault e) {
+    } catch (AxisFault e) {
       log.error("Error querying reservation (" + reservationId + "): ", e);
 
       String errorMessageToLowerCase = e.getMessage().toLowerCase();
@@ -315,16 +345,14 @@ public class NbiOpenDracWsClient implements NbiClient {
       // no connection to nms
       if (errorMessageToLowerCase.contains(CONNECTION_REFUSED_LOWER_CASE_MESSAGE)) {
         log.warn("Connection refused to {}", schedulingServiceUrl);
-      }
-      else {
+      } else {
         // invalid credentials
         if (errorMessageToLowerCase.contains(AUTHENTICATION_FAILED_LOWER_CASE_MESSAGE)) {
           log.warn("Authentication check failed for user {} and resource group {}", username, resourceGroupName);
         }
       }
 
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
+    } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error querying reservation (" + reservationId + "): ", e);
     }
 
@@ -478,8 +506,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     try {
       sourceTna = findTnaById(virtualSourcePort.getPhysicalPort().getNmsPortId());
       destinationTna = findTnaById(virtualDestinationPort.getPhysicalPort().getNmsPortId());
-    }
-    catch (PortNotAvailableException e) {
+    } catch (PortNotAvailableException e) {
       throw new IllegalStateException(e);
     }
 
@@ -546,15 +573,13 @@ public class NbiOpenDracWsClient implements NbiClient {
       for (String tna : response.getQueryEndpointsResponse().getTnaArray()) {
         try {
           endPoints.add(findEndpointByTna(tna));
-        }
-        catch (PortNotAvailableException e) {
+        } catch (PortNotAvailableException e) {
           log.error("Unable to find endpoint for TNA {}", tna);
         }
       }
 
       return endPoints;
-    }
-    catch (NetworkMonitoringServiceFault | RemoteException e) {
+    } catch (NetworkMonitoringServiceFault | RemoteException e) {
       log.warn("Could not query openDRAC for end points", e);
       throw new RuntimeException(e);
     }
@@ -585,8 +610,7 @@ public class NbiOpenDracWsClient implements NbiClient {
       idToTnaCache.put(endpointFound.getId(), endpointFound.getTna());
 
       return endpointFound;
-    }
-    catch (NetworkMonitoringServiceFault | RemoteException e) {
+    } catch (NetworkMonitoringServiceFault | RemoteException e) {
       log.warn("Can query openDrac for end point by tna", e);
       throw new RuntimeException(e);
     }
