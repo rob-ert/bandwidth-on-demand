@@ -153,17 +153,13 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
     if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
       reservation.setStatus(NOT_ACCEPTED);
-    }
-    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
+    } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
       reservation.setStatus(FAILED);
-    }
-    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
+    } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
       reservation.setStatus(PASSED_END_TIME);
-    }
-    else if (autoProvision) {
+    } else if (autoProvision) {
       reservation.setStatus(AUTO_START);
-    }
-    else {
+    } else {
       reservation.setStatus(RESERVED);
     }
 

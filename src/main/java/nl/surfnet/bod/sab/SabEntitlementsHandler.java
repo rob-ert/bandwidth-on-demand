@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.sabng;
+package nl.surfnet.bod.sab;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -65,12 +65,12 @@ import org.xml.sax.SAXException;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class SabNgEntitlementsHandler implements EntitlementsHandler {
+public class SabEntitlementsHandler implements EntitlementsHandler {
 
   private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
   private static final String STATUS_SUCCESS = "Success";
 
-  private static final String REQUEST_TEMPLATE_LOCATION = "/xmlsabng/request-entitlement-template.xml";
+  private static final String REQUEST_TEMPLATE_LOCATION = "/sab/request-entitlement-template.xml";
   private static final String XPATH_STATUS_CODE = "//samlp:Status/samlp:StatusCode/@Value";
   private static final String XPATH_IN_RESPONSE_TO = "//samlp:Response/@InResponseTo";
   private static final String XPATH_STATUS_MESSAGE = "//samlp:Status/samlp:StatusMessage";
@@ -123,8 +123,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
           response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode());
         return Collections.emptyList();
       }
-    }
-    catch (XPathExpressionException | IOException e) {
+    } catch (XPathExpressionException | IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -168,8 +167,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     String template;
     try {
       template = IOUtils.toString(this.getClass().getResourceAsStream(REQUEST_TEMPLATE_LOCATION), "UTF-8");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -233,10 +231,10 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
       DocumentBuilder builder = factory.newDocumentBuilder();
       InputStream response = new ByteArrayInputStream(responseString.getBytes("UTF-8"));
       document = builder.parse(response);
-    }
-    catch (ParserConfigurationException | SAXException | IOException e) {
+    } catch (ParserConfigurationException | SAXException | IOException e) {
       throw new RuntimeException("Response was: [" + responseString + "]", e);
     }
+
     return document;
   }
 
@@ -262,7 +260,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
 
   private XPath getXPath() {
     XPath xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
-    xPath.setNamespaceContext(new SabNgNamespaceResolver());
+    xPath.setNamespaceContext(new SabNamespaceResolver());
 
     return xPath;
   }
@@ -306,7 +304,7 @@ public class SabNgEntitlementsHandler implements EntitlementsHandler {
     this.sabPassword = sabPassword;
   }
 
-  private class SabNgNamespaceResolver implements NamespaceContext {
+  private class SabNamespaceResolver implements NamespaceContext {
 
     @Override
     public String getNamespaceURI(String prefix) {

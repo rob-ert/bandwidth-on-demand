@@ -29,7 +29,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.sabng.EntitlementsHandler;
+import nl.surfnet.bod.sab.EntitlementsHandler;
 
 import org.springframework.stereotype.Service;
 

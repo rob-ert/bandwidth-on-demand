@@ -374,7 +374,6 @@ public class ConnectionServiceProviderTestIntegration {
             awaitReserveConfirmed();
             return ack;
           }
-
         });
 
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();

@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.sabng;
+package nl.surfnet.bod.sab;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -36,6 +36,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import nl.surfnet.bod.sab.SabEntitlementsHandler;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.http.entity.StringEntity;
@@ -48,7 +49,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SabNgEntitlementsHandlerTest {
+public class SabEntitlementsHandlerTest {
 
   private static final String REQ_ID = "d6873bc2-809d-482c-a24c-ccc51d829cf8";
   private static final String NAME_ID = "urn:test:user";
@@ -56,14 +57,14 @@ public class SabNgEntitlementsHandlerTest {
   private InputStream responseStream;
 
   @InjectMocks
-  private SabNgEntitlementsHandler subject;
+  private SabEntitlementsHandler subject;
 
   @Mock
   private Environment bodEnvironment;
 
   @Before
   public void setUp() {
-    responseStream = SabNgEntitlementsHandlerTest.class.getResourceAsStream("/xmlsabng/response-entitlement.xml");
+    responseStream = SabEntitlementsHandlerTest.class.getResourceAsStream("/sab/response-entitlement.xml");
     subject.setSabEndPoint("http://localhost:7000/sap");
     subject.setSabPassword("secret");
     subject.setSabUser("user");

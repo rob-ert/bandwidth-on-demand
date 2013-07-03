@@ -20,20 +20,27 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.sabng;
+package nl.surfnet.bod.sab;
+
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-public interface EntitlementsHandler {
+import nl.surfnet.bod.sab.EntitlementsHandler;
+import nl.surfnet.bod.sab.OfflineEntitlementsHandler;
 
-  /**
-   * Checks for the given nameId for which institutes the user is entitled to
-   * act as a BoD Manager.
-   * 
-   * @param nameId
-   *          The nameId of the user to check
-   * @return List<String> of institute names for which the user is entitled.
-   */
-  public List<String> checkInstitutes(String nameId);
+import org.junit.Test;
+
+public class OfflineEntitlementsHandlerTest {
+
+  private final EntitlementsHandler offlineEntitlementsHandler = new OfflineEntitlementsHandler();
+
+  @Test
+  public void shouldReturnOnlySURFnet() {
+    List<String> instituteNames = offlineEntitlementsHandler.checkInstitutes(null);
+    assertThat(instituteNames, contains("UMC"));
+
+  }
 
 }

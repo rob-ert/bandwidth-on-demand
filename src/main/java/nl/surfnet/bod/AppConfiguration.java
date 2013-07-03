@@ -36,7 +36,7 @@ import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.sabng.EntitlementsHandler;
+import nl.surfnet.bod.sab.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;

@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.sabng.EntitlementsHandler;
+import nl.surfnet.bod.sab.EntitlementsHandler;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,13 +54,13 @@ public class SabGroupServiceTest {
   private SabGroupService subject;
 
   @Mock
-  private EntitlementsHandler sabNgEntitlementsHandlerMock;
+  private EntitlementsHandler sabEntitlementsHandlerMock;
 
   @Test
   public void shouldAddSabGroups() {
 
     List<String> institutes = Lists.newArrayList(SURFNET, WESAIDSO);
-    when(sabNgEntitlementsHandlerMock.checkInstitutes(eq(NAME_ID))).thenReturn(institutes);
+    when(sabEntitlementsHandlerMock.checkInstitutes(eq(NAME_ID))).thenReturn(institutes);
 
     Collection<UserGroup> groups = subject.getGroups(NAME_ID);
     assertThat(groups, hasSize(2));
