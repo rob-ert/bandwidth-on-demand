@@ -35,11 +35,16 @@ public class ReservationStatusChangeEvent {
   private final Reservation reservation;
   private final Optional<NsiRequestDetails> nsiRequestDetails;
 
-  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation,
-      Optional<NsiRequestDetails> nsiRequestDetails) {
+  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation, Optional<NsiRequestDetails> nsiRequestDetails) {
     this.oldStatus = oldStatus;
     this.reservation = reservation;
     this.nsiRequestDetails = nsiRequestDetails;
+  }
+
+  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation) {
+    this.oldStatus = oldStatus;
+    this.reservation = reservation;
+    this.nsiRequestDetails = Optional.absent();
   }
 
   public ReservationStatus getOldStatus() {

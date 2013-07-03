@@ -74,9 +74,6 @@ public class ServiceComponentActivationClient {
 
       if (reserveResponse.getRfsNameOrRfsCreation().isEmpty()) {
         reservation.setStatus(ReservationStatus.FAILED);
-      } else {
-        // TODO is this really true, should we not wait on a serviceObjectCreation notification
-        reservation.setStatus(ReservationStatus.RESERVED);
       }
     } catch (ReserveException e) {
       logger.info("Reserve request failed", e);

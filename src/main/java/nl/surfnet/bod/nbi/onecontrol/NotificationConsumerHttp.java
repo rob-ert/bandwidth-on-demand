@@ -25,10 +25,16 @@ package nl.surfnet.bod.nbi.onecontrol;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.bind.JAXBElement;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.ReservationService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +64,8 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
 
+  @Resource private ReservationService reservationService;
+
   @Override
   public void notify(Header header, Notify body) {
     log.info("Received a notification: {}, {}", body.getTopic(), body.getMessage());
@@ -72,6 +80,12 @@ public class NotificationConsumerHttp implements NotificationConsumer {
         alarms.add((AlarmType) jaxbElement.getValue());
       } else if (event instanceof ServiceObjectCreationType) {
         serviceObjectCreations.add((ServiceObjectCreationType) event);
+        ServiceObjectCreationType creation = (ServiceObjectCreationType) event;
+        Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", creation.getObjectName());
+        if (reservationId.isPresent()) {
+          Reservation reservation = reservationService.findByReservationId(reservationId.get());
+          reservationService.updateStatus(reservation, ReservationStatus.RESERVED);
+        }
       } else if (event instanceof ServiceObjectDeletionType) {
         serviceObjectDeletions.add((ServiceObjectDeletionType) event);
       } else {
