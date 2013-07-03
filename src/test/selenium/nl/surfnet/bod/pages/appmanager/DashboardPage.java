@@ -54,7 +54,7 @@ public class DashboardPage extends AbstractListPage {
    * but add new test cases for the new menu
    */
   public void verifyNumberOfMenuItems() {
-    assertThat(getCountMenuItems(), is(2));
+    assertThat(getCountMenuItems(), is(1));
   }
 
   public void verifyMenuOverview() {
@@ -67,12 +67,4 @@ public class DashboardPage extends AbstractListPage {
     super.verifyIsCurrentPage(PAGE);
   }
 
-  public void verifyIsMtosiPage() {
-    super.verifyIsCurrentPage(PAGE + "/mtosi");
-  }
-
-  public void verifyMenuMtosi() {
-    clickMenuLink("MTOSI");
-    verifyIsMtosiPage();
-  }
 }
