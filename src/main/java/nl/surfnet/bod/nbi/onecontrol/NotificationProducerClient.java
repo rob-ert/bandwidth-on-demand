@@ -44,7 +44,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 
 @Profile("onecontrol")
 @Service
-public class MtosiNotificationClient {
+public class NotificationProducerClient {
 
   private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
 
@@ -52,7 +52,7 @@ public class MtosiNotificationClient {
   private final String endPoint;
 
   @Autowired
-  public MtosiNotificationClient(@Value("${nbi.onecontrol.notification.retrieval.endpoint}") String endPoint) {
+  public NotificationProducerClient(@Value("${nbi.onecontrol.notification.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 

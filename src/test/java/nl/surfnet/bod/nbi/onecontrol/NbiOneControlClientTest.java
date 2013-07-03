@@ -36,7 +36,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.onecontrol.NbiMtosiClient;
+import nl.surfnet.bod.nbi.onecontrol.NbiOneControlClient;
 import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -52,10 +52,10 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NbiMtosiClientTest {
+public class NbiOneControlClientTest {
 
   @InjectMocks
-  private NbiMtosiClient subject;
+  private NbiOneControlClient subject;
 
   @Mock private ReservationRepo reservationRepo;
   @Mock private ServiceComponentActivationClient serviceComponentActivationClient;

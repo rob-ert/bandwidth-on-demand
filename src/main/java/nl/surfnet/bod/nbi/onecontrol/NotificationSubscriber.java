@@ -34,7 +34,7 @@ import javax.annotation.Resource;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-import nl.surfnet.bod.nbi.onecontrol.MtosiNotificationClient.NotificationTopic;
+import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +44,14 @@ import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 
 @Profile("onecontrol")
 @Component
-public class OneControlSubscriber {
+public class NotificationSubscriber {
 
-  private Logger logger = LoggerFactory.getLogger(OneControlSubscriber.class);
+  private Logger logger = LoggerFactory.getLogger(NotificationSubscriber.class);
 
   private String serviceTopicSubscribeId;
   private String faultTopicSubscribeId;
 
-  @Resource private MtosiNotificationClient notificationClient;
+  @Resource private NotificationProducerClient notificationClient;
 
   @PostConstruct
   public void subscribe() {
