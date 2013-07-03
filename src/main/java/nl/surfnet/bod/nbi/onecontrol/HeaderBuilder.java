@@ -20,49 +20,49 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web.appmanager;
+package nl.surfnet.bod.nbi.onecontrol;
 
-import java.util.List;
+import javax.xml.ws.Holder;
 
-import javax.annotation.Resource;
+import nl.surfnet.bod.util.XmlUtils;
 
-import com.google.common.collect.FluentIterable;
+import org.joda.time.DateTime;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 
-import nl.surfnet.bod.nbi.mtosi.NotificationConsumerHttp;
-import nl.surfnet.bod.web.base.MessageManager;
+public final class HeaderBuilder {
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-@RequestMapping("/appmanager/mtosi")
-public class MtosiNotificationsController {
-
-  @Resource private NotificationConsumerHttp notificationConsumer;
-  @Resource private MessageManager messageManager;
-
-  @RequestMapping
-  public String index() {
-    return "appmanager/mtosi/index";
+  private HeaderBuilder() {
   }
 
-  @RequestMapping("/notifications")
-  public String listNotifications(Model model) {
+  private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
+    // TODO should change sender URI?
 
-    model.addAttribute("heartbeats", last(notificationConsumer.getHeartbeats(), 20));
-    model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
-    model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
-    model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
+    Header header = new Header()
+      .withDestinationURI(endPoint)
+      .withCommunicationStyle(CommunicationStyleType.RPC)
+      .withCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE)
+      .withTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()))
+      .withActivityName(activityName)
+      .withMsgName(msgName)
+      .withSenderURI("http://localhost:9009")
+      .withMsgType(MessageTypeType.REQUEST);
 
-    return "appmanager/mtosi/notifications";
+    return new Holder<Header>(header);
   }
 
-  protected <T> List<T> last(List<T> collection, int size) {
-    if (collection.size() > size) {
-      return FluentIterable.from(collection).skip(collection.size() - size).toList();
-    }
-
-    return collection;
+  public static Holder<Header> buildReserveHeader(String endPoint) {
+    return buildHeader(endPoint, "reserve", "reserveRequest");
   }
+
+  public static Holder<Header> buildInventoryHeader(String endPoint) {
+    return buildHeader(endPoint, "getServiceInventory", "getServiceInventoryRequest");
+  }
+
+  public static Holder<Header> buildNotificationHeader(String endPoint) {
+    return buildHeader(endPoint, "subscribe", "subscribeRequest");
+  }
+
 }

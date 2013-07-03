@@ -65,4 +65,15 @@
             <required>true</required>
         </attribute>
     </tag>
+
+    <tag>
+        <name>isProfileActive</name>
+        <tag-class>nl.surfnet.bod.web.tag.ProfileActiveTag</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>profile</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+    </tag>
 </taglib>

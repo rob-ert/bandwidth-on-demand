@@ -22,9 +22,9 @@
  */
 package nl.surfnet.bod.web.tag;
 
-import org.springframework.util.StringUtils;
-
 import com.google.common.base.Optional;
+
+import org.springframework.util.StringUtils;
 
 public final class Functions {
 
@@ -42,4 +42,5 @@ public final class Functions {
   public static String get(Optional<?> optional) {
     return optional.get().toString();
   }
+
 }

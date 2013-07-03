@@ -10,16 +10,16 @@
         <div class="content">
             <div class="form">
                 <div class="message">
-                    <h3>MTOSI Pages</h3>
+                    <h3>OneControl Pages</h3>
                 </div>
                 <dl class="dl">
                     <dt>
-                        <spring:url var="notifications_url" value="/appmanager/mtosi/notifications" />
+                        <spring:url var="notifications_url" value="/appmanager/onecontrol/notifications" />
                         <a href="${notifications_url}">Notifications</a>
                     </dt>
                     <dd>Displays the MTOSI notifications</dd>
                     <dt>
-                        <spring:url var="inventory_url" value="/appmanager/mtosi/inventory" />
+                        <spring:url var="inventory_url" value="/appmanager/onecontrol/inventory" />
                         <a href="${inventory_url}">RFS Inventory</a>
                     </dt>
                     <dd>Displays the RFS inventory</dd>

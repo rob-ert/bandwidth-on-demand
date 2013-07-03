@@ -20,12 +20,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
 
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;

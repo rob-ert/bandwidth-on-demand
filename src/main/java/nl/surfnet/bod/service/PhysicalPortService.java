@@ -60,7 +60,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.util.Predicates;

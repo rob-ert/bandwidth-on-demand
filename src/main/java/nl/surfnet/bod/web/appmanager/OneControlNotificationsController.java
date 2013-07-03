@@ -20,30 +20,50 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.matchers;
+package nl.surfnet.bod.web.appmanager;
 
-import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.rdnValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
+import java.util.List;
 
-import org.junit.Test;
-import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import javax.annotation.Resource;
 
-public class RdnValueTypeMatcherTest {
+import com.google.common.collect.FluentIterable;
 
-  @Test
-  public void shouldMatch() {
-    RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "value");
+import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
+import nl.surfnet.bod.web.base.MessageManager;
 
-    assertThat(rdn, RdnValueTypeMatcher.rdnValue("type", "value"));
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Profile("onecontrol")
+@Controller
+@RequestMapping("/appmanager/onecontrol")
+public class OneControlNotificationsController {
+
+  @Resource private NotificationConsumerHttp notificationConsumer;
+  @Resource private MessageManager messageManager;
+
+  @RequestMapping
+  public String index() {
+    return "appmanager/onecontrol/index";
   }
 
-  @Test
-  public void shouldNotMatch() {
-    RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "bla");
+  @RequestMapping("/notifications")
+  public String listNotifications(Model model) {
+    model.addAttribute("heartbeats", last(notificationConsumer.getHeartbeats(), 20));
+    model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
+    model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
+    model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
 
-    assertThat(rdn, not(rdnValue("type", "value")));
+    return "appmanager/onecontrol/notifications";
   }
 
+  protected <T> List<T> last(List<T> collection, int size) {
+    if (collection.size() > size) {
+      return FluentIterable.from(collection).skip(collection.size() - size).toList();
+    }
+
+    return collection;
+  }
 }

@@ -20,49 +20,42 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.web.tag;
 
-import javax.xml.ws.Holder;
+import java.io.IOException;
 
-import nl.surfnet.bod.util.XmlUtils;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
-import org.joda.time.DateTime;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
+import org.springframework.core.env.Environment;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
-public final class HeaderBuilder {
+public class ProfileActiveTag extends BodTagSupport {
 
-  private HeaderBuilder() {
+  private String profile;
+
+  @Override
+  public void doTag() throws JspException, IOException {
+    PageContext context = getPageContext();
+
+    if (getEnvironment().acceptsProfiles(profile)) {
+      getJspBody().invoke(context.getOut());
+    }
   }
 
-  private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
-    // TODO should change sender URI?
-
-    Header header = new Header()
-      .withDestinationURI(endPoint)
-      .withCommunicationStyle(CommunicationStyleType.RPC)
-      .withCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE)
-      .withTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()))
-      .withActivityName(activityName)
-      .withMsgName(msgName)
-      .withSenderURI("http://localhost:9009")
-      .withMsgType(MessageTypeType.REQUEST);
-
-    return new Holder<Header>(header);
+  private Environment getEnvironment() {
+    WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getPageContext()
+        .getServletContext());
+    return applicationContext.getBean(Environment.class);
   }
 
-  public static Holder<Header> buildReserveHeader(String endPoint) {
-    return buildHeader(endPoint, "reserve", "reserveRequest");
+  public String getProfile() {
+    return profile;
   }
 
-  public static Holder<Header> buildInventoryHeader(String endPoint) {
-    return buildHeader(endPoint, "getServiceInventory", "getServiceInventoryRequest");
-  }
-
-  public static Holder<Header> buildNotificationHeader(String endPoint) {
-    return buildHeader(endPoint, "subscribe", "subscribeRequest");
+  public void setProfile(String profile) {
+    this.profile = profile;
   }
 
 }

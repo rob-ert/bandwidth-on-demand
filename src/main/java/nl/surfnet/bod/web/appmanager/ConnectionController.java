@@ -30,11 +30,15 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ConnectionServiceV1;
-import nl.surfnet.bod.service.ReservationPoller;
 import nl.surfnet.bod.web.appmanager.ConnectionController.ConnectionView;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -48,20 +52,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 @Controller
 @RequestMapping("/appmanager/connections")
 public class ConnectionController extends AbstractSearchableSortableListController<ConnectionView, ConnectionV1> {
 
-  @Resource
-  private ConnectionServiceV1 connectionService;
-
-  @Resource
-  private ReservationPoller reservationPoller;
+  @Resource private ConnectionServiceV1 connectionService;
 
   @RequestMapping("/illegal")
   public String listIllegal(
@@ -78,12 +73,6 @@ public class ConnectionController extends AbstractSearchableSortableListControll
     );
 
     return listUrl() + "/illegal";
-  }
-
-  @RequestMapping("/poll")
-  public String pollReservation(Long connectionId) {
-    reservationPoller.pollReservation(connectionService.find(connectionId).getReservation());
-    return "redirect:illegal";
   }
 
   @Override

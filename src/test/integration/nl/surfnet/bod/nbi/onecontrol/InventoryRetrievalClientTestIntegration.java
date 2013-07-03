@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +31,8 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;

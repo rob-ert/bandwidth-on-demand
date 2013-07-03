@@ -20,11 +20,11 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.nbi.mtosi.HeaderBuilder.buildReserveHeader;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRfs;
-import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.createReservationRequest;
+import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildReserveHeader;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRfs;
+import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservationRequest;
 
 import javax.xml.ws.BindingProvider;
 

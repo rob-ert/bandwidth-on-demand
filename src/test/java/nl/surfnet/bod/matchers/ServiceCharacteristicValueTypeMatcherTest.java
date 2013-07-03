@@ -25,7 +25,7 @@ package nl.surfnet.bod.matchers;
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.serviceCharacteristic;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
+import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 
 import org.junit.Test;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;

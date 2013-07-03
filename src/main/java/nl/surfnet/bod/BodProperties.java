@@ -20,30 +20,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.matchers;
+package nl.surfnet.bod;
 
-import static nl.surfnet.bod.matchers.RdnValueTypeMatcher.rdnValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
-import org.junit.Test;
-import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+public final class BodProperties {
 
-public class RdnValueTypeMatcherTest {
-
-  @Test
-  public void shouldMatch() {
-    RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "value");
-
-    assertThat(rdn, RdnValueTypeMatcher.rdnValue("type", "value"));
+  private BodProperties() {
   }
 
-  @Test
-  public void shouldNotMatch() {
-    RelativeDistinguishNameType rdn = MtosiUtils.createRdn("type", "bla");
+  public static Resource getEnvProperties() {
+    String env = System.getProperties().getProperty("bod.env", "dev");
 
-    assertThat(rdn, not(rdnValue("type", "value")));
+    return new ClassPathResource(getPropertyEnvName(env));
+  }
+
+  public static String getPropertyEnvName(String env) {
+    return String.format("env-properties/bod-%s.properties", env);
+  }
+
+  public static Resource getDefaultProperties() {
+    return new ClassPathResource("bod-default.properties");
   }
 
 }

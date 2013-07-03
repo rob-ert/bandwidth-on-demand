@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.List;
 
-import nl.surfnet.bod.nbi.mtosi.NotificationConsumerHttp;
+import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +48,10 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MtosiNotificationsControllerTest {
+public class OneControlNotificationsControllerTest {
 
   @InjectMocks
-  private MtosiNotificationsController subject;
+  private OneControlNotificationsController subject;
 
   @Mock
   private NotificationConsumerHttp notificationConsumerHttpMock;
@@ -68,7 +68,7 @@ public class MtosiNotificationsControllerTest {
     when(notificationConsumerHttpMock.getAlarms()).thenReturn(Lists.newArrayList(new AlarmType()));
     when(notificationConsumerHttpMock.getHeartbeats()).thenReturn(Lists.newArrayList(new HeartbeatType(), new HeartbeatType()));
 
-    mockMvc.perform(get("/appmanager/mtosi/notifications"))
+    mockMvc.perform(get("/appmanager/onecontrol/notifications"))
       .andExpect(status().isOk())
       .andExpect(model().attribute("alarms", hasSize(1)))
       .andExpect(model().attribute("heartbeats", hasSize(2)));
@@ -76,7 +76,7 @@ public class MtosiNotificationsControllerTest {
 
   @Test
   public void indexPageShouldBeOk() throws Exception {
-    mockMvc.perform(get("/appmanager/mtosi"))
+    mockMvc.perform(get("/appmanager/onecontrol"))
       .andExpect(status().isOk());
   }
 

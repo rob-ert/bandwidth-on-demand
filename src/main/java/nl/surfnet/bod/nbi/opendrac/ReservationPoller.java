@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi.opendrac;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -29,20 +29,25 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Uninterruptibles;
+
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.EmailSender;
+import nl.surfnet.bod.service.ReservationEventPublisher;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Uninterruptibles;
 
 /**
  * This class is responsible for monitoring changes of a
@@ -51,8 +56,9 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
  */
-@Component
+@Profile("opendrac")
 @Transactional
+@Component
 public class ReservationPoller {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());

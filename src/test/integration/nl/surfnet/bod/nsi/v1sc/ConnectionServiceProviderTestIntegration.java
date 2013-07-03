@@ -52,6 +52,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
+import nl.surfnet.bod.nbi.opendrac.ReservationPoller;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -59,7 +60,6 @@ import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.DatabaseTestHelper;
-import nl.surfnet.bod.service.ReservationPoller;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionServiceProviderFactory;
 import nl.surfnet.bod.support.MockHttpServer;
@@ -97,12 +97,14 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointTyp
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@ActiveProfiles("opendrac")
 public class ConnectionServiceProviderTestIntegration {
 
   private static MockHttpServer nsiRequester = new MockHttpServer(ConnectionServiceProviderFactory.PORT);

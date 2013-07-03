@@ -16,7 +16,7 @@
 
     <context-param>
         <param-name>contextClass</param-name>
-        <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+        <param-value>nl.surfnet.bod.AppConfigWebApplicationContext</param-value>
     </context-param>
 
     <context-param>
@@ -38,7 +38,7 @@
 
     <servlet-mapping>
         <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/mtosi/*</url-pattern>
+        <url-pattern>/onecontrol/*</url-pattern>
     </servlet-mapping>
 
     <filter>

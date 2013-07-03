@@ -24,19 +24,20 @@ package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import javax.sql.DataSource;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ObjectArrays;
+import com.google.common.collect.Lists;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.nbi.mtosi.NbiMtosiClient;
+import nl.surfnet.bod.nbi.onecontrol.NbiMtosiClient;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
 import nl.surfnet.bod.sabng.EntitlementsHandler;
@@ -58,7 +59,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -116,6 +117,9 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Value("${mail.sender.class}")
   private String emailSenderClass;
 
+  @javax.annotation.Resource
+  private Environment env;
+
   @Bean
   public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
     StrongTextEncryptor encryptor = new StrongTextEncryptor();
@@ -124,7 +128,7 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
     configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 
-    Resource[] resources = addEnvPropertyResource(new Resource[] { new ClassPathResource("bod-default.properties") });
+    Resource[] resources = getPropertyResources();
 
     logger.info("Using property files: {}", Joiner.on(",").join(resources));
 
@@ -133,20 +137,15 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
     return configurer;
   }
 
-  private static Resource[] addEnvPropertyResource(Resource[] resources) {
-    String env = System.getProperties().getProperty("bod.env");
+  private static Resource[] getPropertyResources() {
+    List<Resource> resources = Lists.newArrayList(BodProperties.getDefaultProperties());
 
-    if (env == null || env.isEmpty()) {
-      Resource devProperties = new ClassPathResource(getPropertyEnvName("dev"));
-
-      return devProperties.exists() ? ObjectArrays.concat(resources, devProperties) : resources;
-    } else {
-      return ObjectArrays.concat(resources, new ClassPathResource(getPropertyEnvName(env)));
+    Resource envResource = BodProperties.getEnvProperties();
+    if (envResource.exists()) {
+      resources.add(envResource);
     }
-  }
 
-  private static String getPropertyEnvName(String env) {
-    return String.format("env-properties/bod-%s.properties", env);
+    return resources.toArray(new Resource[resources.size()]);
   }
 
   @Bean

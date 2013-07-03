@@ -20,10 +20,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createNamingAttributeType;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,6 +35,9 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
+import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.onecontrol.NbiMtosiClient;
+import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 

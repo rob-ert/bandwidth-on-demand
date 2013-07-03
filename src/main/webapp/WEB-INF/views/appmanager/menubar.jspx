@@ -1,4 +1,6 @@
-<menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
+<menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:bod="BodTags">
     <item id="i_overview" url="/appmanager" messageCode="menu_overview_label" menu="overview" />
-    <item id="i_mtosi_list" url="/appmanager/mtosi" messageCode="menu_mtosi_label" menu="mtosi" />
+    <bod:isProfileActive profile="onecontrol">
+        <item id="i_mtosi_list" url="/appmanager/onecontrol" messageCode="menu_onecontrol_label" menu="onecontrol" />
+    </bod:isProfileActive>
 </menu>

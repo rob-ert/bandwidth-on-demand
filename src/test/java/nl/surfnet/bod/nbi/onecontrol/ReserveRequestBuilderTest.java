@@ -20,17 +20,17 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.domain.ProtectionType.PROTECTED;
 import static nl.surfnet.bod.domain.ProtectionType.UNPROTECTED;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.serviceCharacteristic;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findRdnValue;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.findSscValue;
-import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY;
-import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT;
-import static nl.surfnet.bod.nbi.mtosi.ReserveRequestBuilder.TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.findRdnValue;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.findSscValue;
+import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY;
+import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT;
+import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS;
 import static nl.surfnet.bod.util.XmlUtils.getDateTimeFromXml;
 import static nl.surfnet.bod.util.XmlUtils.toGregorianCalendar;
 import static org.hamcrest.Matchers.hasItem;
@@ -44,6 +44,8 @@ import java.util.List;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
+import nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;

@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +34,12 @@ import javax.xml.bind.JAXBElement;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.nbi.mtosi.MtosiNotificationClient.NotificationTopic;
+import nl.surfnet.bod.nbi.onecontrol.MtosiNotificationClient.NotificationTopic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
@@ -50,7 +51,7 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 
-@Service
+@Component
 @WebService(
     serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",
     portName = "NotificationConsumerSoapHttp", targetNamespace = "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0")
@@ -64,18 +65,23 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
 
+
   private String serviceTopicSubscribeId;
   private String faultTopicSubscribeId;
 
   @Resource private MtosiNotificationClient notificationClient;
-
+  @Resource private Environment environment;
 
   @PostConstruct
   public void subscribe() {
+    if (!isOneControlProfileActive()) {
+      return;
+    }
+
     // FIXME hard coded endpoint
     try {
-      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.23:8082/bod/mtosi/fmw/NotificationConsumer");
-      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, "http://145.145.73.23:8082/bod/mtosi/fmw/NotificationConsumer");
+      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, "http://145.145.73.21:8082/bod/onecontrol/fmw/NotificationConsumer");
+      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, "http://145.145.73.21:8082/bod/onecontrol/fmw/NotificationConsumer");
     } catch (SubscribeException e) {
       throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
     }
@@ -89,6 +95,10 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
       unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
     }
+  }
+
+  private boolean isOneControlProfileActive() {
+    return environment.acceptsProfiles("onecontrol");
   }
 
   private void unsubscribe(NotificationTopic topic, String subscriptionId) {

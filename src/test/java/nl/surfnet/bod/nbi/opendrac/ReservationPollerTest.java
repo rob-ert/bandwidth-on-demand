@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi.opendrac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -34,6 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.ReservationEventPublisher;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+import nl.surfnet.bod.nbi.opendrac.ReservationPoller;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;

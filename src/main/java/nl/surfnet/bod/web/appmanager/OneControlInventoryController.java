@@ -29,9 +29,10 @@ import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.nbi.mtosi.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.mtosi.MtosiUtils;
+import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,9 +41,10 @@ import org.tmforum.mtop.sb.xsd.svc.v1.OperationalStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
+@Profile("onecontrol")
 @Controller
-@RequestMapping("/appmanager/mtosi/inventory")
-public class MtosiInventoryController {
+@RequestMapping("/appmanager/onecontrol/inventory")
+public class OneControlInventoryController {
 
   @Resource private InventoryRetrievalClient inventoryRetrievalClient;
 
@@ -59,7 +61,7 @@ public class MtosiInventoryController {
 
     model.addAttribute("list", views);
 
-    return "appmanager/mtosi/inventory";
+    return "appmanager/onecontrol/inventory";
   }
 
   public static class RfsView {

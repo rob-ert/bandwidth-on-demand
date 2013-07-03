@@ -20,11 +20,11 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.mtosi;
+package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createNamingAttributeType;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createRdn;
-import static nl.surfnet.bod.nbi.mtosi.MtosiUtils.createSscValue;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createNamingAttributeType;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRdn;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createSscValue;
 
 import java.util.List;
 

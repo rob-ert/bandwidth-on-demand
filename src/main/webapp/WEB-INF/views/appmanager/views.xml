@@ -24,19 +24,19 @@
     <put-attribute name="search_enabled" value="false" cascade="true" />
   </definition>
 
-  <definition extends="appmanager" name="appmanager/mtosi/index">
-    <put-attribute name="body" value="/WEB-INF/views/appmanager/mtosi/index.jspx" />
-    <put-attribute name="active_menu" value="mtosi" cascade="true" />
+  <definition extends="appmanager" name="appmanager/onecontrol/index">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/onecontrol/index.jspx" />
+    <put-attribute name="active_menu" value="onecontrol" cascade="true" />
   </definition>
 
-  <definition extends="appmanager" name="appmanager/mtosi/notifications">
-    <put-attribute name="body" value="/WEB-INF/views/appmanager/mtosi/notifications.jspx" />
-    <put-attribute name="active_menu" value="mtosi" cascade="true" />
+  <definition extends="appmanager" name="appmanager/onecontrol/notifications">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/onecontrol/notifications.jspx" />
+    <put-attribute name="active_menu" value="onecontrol" cascade="true" />
   </definition>
 
-  <definition extends="appmanager" name="appmanager/mtosi/inventory">
-    <put-attribute name="body" value="/WEB-INF/views/appmanager/mtosi/inventory.jspx" />
-    <put-attribute name="active_menu" value="mtosi" cascade="true" />
+  <definition extends="appmanager" name="appmanager/onecontrol/inventory">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/onecontrol/inventory.jspx" />
+    <put-attribute name="active_menu" value="onecontrol" cascade="true" />
   </definition>
 
 </tiles-definitions>
