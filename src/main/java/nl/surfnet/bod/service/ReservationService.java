@@ -755,7 +755,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     freshRes.setStatus(newStatus);
 
-    log.info("Reservation ({}) status {} -> {}", reservation.getId(), reservation.getStatus(), newStatus);
+    log.info("Reservation ({}) status {} -> {}", reservation.getReservationId(), reservation.getStatus(), newStatus);
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), freshRes, oldStatus);
 
