@@ -63,13 +63,17 @@ public class NbiOneControlClient implements NbiClient {
     return inventoryRetrievalClient.getPhysicalPorts();
   }
 
+
+  /**
+   * @param autoProvision is ignored, One Control does not support this
+   */
   @Override
   @Transactional
   public Reservation createReservation(Reservation reservation, boolean autoProvision) {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.save(reservation);
 
-    return serviceComponentActivationClient.reserve(savedReservation, autoProvision);
+    return serviceComponentActivationClient.reserve(savedReservation);
   }
 
   @Override
