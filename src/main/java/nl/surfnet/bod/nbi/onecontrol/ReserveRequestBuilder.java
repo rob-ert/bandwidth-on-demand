@@ -37,7 +37,9 @@ import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
+import org.tmforum.mtop.sa.xsd.scai.v1.ProvisionRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
+import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
@@ -56,7 +58,7 @@ public class ReserveRequestBuilder {
   private ReserveRequestBuilder() {
   }
 
-  public static ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
+  public static ReserveRequest createReservationRequest(Reservation reservation) {
     ResourceFacingServiceType rfsData = createBasicRfsData(reservation).withSapList(
       getSap(reservation, reservation.getSourcePort()),
       getSap(reservation, reservation.getDestinationPort()));

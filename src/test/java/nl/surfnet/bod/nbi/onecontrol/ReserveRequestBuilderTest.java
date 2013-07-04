@@ -70,7 +70,7 @@ public class ReserveRequestBuilderTest {
     reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
     reservation.getDestinationPort().getPhysicalPort().setNmsPortId("joop@1-1-1-4");
 
-    ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation, false);
+    ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
 
     assertThat(reserveRequest.getExpiringTime(), is(toGregorianCalendar(reservation.getEndDateTime())));
 

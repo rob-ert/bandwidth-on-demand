@@ -65,10 +65,10 @@ public class ServiceComponentActivationClient {
     this.endPoint = endPoint;
   }
 
-  public Reservation reserve(Reservation reservation, boolean autoProvision) {
+  public Reservation reserve(Reservation reservation) {
     ServiceComponentActivationInterface port = createPort();
 
-    ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision);
+    ReserveRequest reserveRequest = createReservationRequest(reservation);
     try {
       ReserveResponse reserveResponse = port.reserve(buildReserveHeader(endPoint), reserveRequest);
 
