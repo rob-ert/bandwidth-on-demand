@@ -36,10 +36,13 @@ import javax.xml.bind.Unmarshaller;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType;
 import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
 import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
 public class NotificationParseTest {
@@ -50,7 +53,9 @@ public class NotificationParseTest {
     "org.tmforum.mtop.fmw.xsd.ei.v1",
     "org.tmforum.mtop.fmw.xsd.oc.v1",
     "org.tmforum.mtop.sb.xsd.soc.v1",
-    "org.tmforum.mtop.fmw.xsd.hbt.v1");
+    "org.tmforum.mtop.fmw.xsd.hbt.v1",
+    "org.tmforum.mtop.sb.xsd.savc.v1",
+     "org.tmforum.mtop.sb.xsd.svc.v1");
 
   @Test
   public void parse_service_object_creation_notification() throws Exception {
@@ -64,6 +69,26 @@ public class NotificationParseTest {
     CommonEventInformationType event = events.get(0).getValue();
 
     assertThat(event, instanceOf(ServiceObjectCreationType.class));
+  }
+
+  @Test
+  @Ignore("for development debuggin use")
+  public void parse_service_state_change_provisioned() throws Exception {
+    Unmarshaller unmarshaller = JAXBContext.newInstance(Joiner.on(":").join(packages)).createUnmarshaller();
+
+    Notify notify = (Notify) unmarshaller.unmarshal(new File("src/test/resources/mtosi/serviceAttributeValueChange-provisioned.xml"));
+
+    List<JAXBElement<? extends CommonEventInformationType>> events = notify.getMessage().getCommonEventInformation();
+
+    assertThat(events, hasSize(1));
+
+
+    CommonEventInformationType event = events.get(0).getValue();
+    ServiceAttributeValueChangeType serviceAttributeValueChangeType = (ServiceAttributeValueChangeType) event;
+
+    Object any = serviceAttributeValueChangeType.getAttributeList().getAny();
+    System.out.println("" + any.getClass());
+    //MtosiUtils.findSscValue("SecondaryState", )
   }
 
   @Test

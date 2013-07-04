@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBElement;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
@@ -46,6 +47,7 @@ import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
+import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 
@@ -85,10 +87,26 @@ public class NotificationConsumerHttp implements NotificationConsumer {
         if (reservationId.isPresent()) {
           Reservation reservation = reservationService.findByReservationId(reservationId.get());
           reservationService.updateStatus(reservation, ReservationStatus.RESERVED);
+
+          if (!reservation.isNSICreated()) {
+            reservationService.provision(reservation, Optional.<NsiRequestDetails>absent());
+          }
         }
+      }
+      else if (event instanceof ServiceAttributeValueChangeType) { // connection state changes: active/inactive
+        ServiceAttributeValueChangeType serviceAttributeValueChange = (ServiceAttributeValueChangeType) event;
+        Object any = serviceAttributeValueChange.getAttributeList().getAny();
+        log.info("Class of attrlist: {}", any.getClass());
       } else if (event instanceof ServiceObjectDeletionType) {
-        serviceObjectDeletions.add((ServiceObjectDeletionType) event);
-      } else {
+
+        ServiceObjectDeletionType deletionEvent = (ServiceObjectDeletionType) event;
+        Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
+        if (reservationId.isPresent()) {
+          Reservation reservation = reservationService.findByReservationId(reservationId.get());
+          reservationService.updateStatus(reservation, ReservationStatus.CANCELLED);
+        }
+      }
+      else {
         events.add(event);
         log.warn("Got an unsupported event type: " + event.getClass().getSimpleName());
       }
