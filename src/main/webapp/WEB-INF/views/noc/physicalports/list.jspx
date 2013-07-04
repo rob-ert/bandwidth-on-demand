@@ -31,9 +31,6 @@
         <c:if test="${show_unallocated}">
           <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
         </c:if>
-        <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
-        <table:sortableHeader labelCode="label_physicalport_nms_port_speed" property="nmsPortSpeed"  />
-
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>
@@ -52,6 +49,12 @@
                         <dd>
                             <c:out value="${item.alignedWithNMS}" />
                         </dd>
+                        
+                        <dt><spring:message code="label_physicalport_nms_ne_id"/></dt>
+                        <dd>
+                            <c:out value="${item.nmsNeId}" />
+                        </dd>
+                        
                     </dl>
                 </div>
                 <div class="span6">
@@ -63,6 +66,11 @@
                         <dt><spring:message code="label_physicalport_nms_port_id"/></dt>
                         <dd>
                             <c:out value="${item.nmsPortId}" />
+                        </dd>
+                        
+                        <dt><spring:message code="label_physicalport_nms_port_speed"/></dt>
+                        <dd>
+                          <c:out value="${item.nmsPortSpeed}" />
                         </dd>
                     </dl>
                 </div>
@@ -77,24 +85,6 @@
           </c:if>
 
           <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
-          
-          <c:choose>
-				<c:when test="${not empty item.nmsNeId}">
-               		<table:column item="${item}" property="nmsNeId" />                                         
-				</c:when>
-				<c:otherwise>
-					<td>N/A</td>
-				</c:otherwise>
-			</c:choose>
-          
-          <c:choose>
-				<c:when test="${not empty item.nmsPortSpeed}">
-               		<table:column item="${item}" property="nmsPortSpeed" />                                         
-				</c:when>
-				<c:otherwise>
-					<td>N/A</td>
-				</c:otherwise>
-			</c:choose>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="true"
