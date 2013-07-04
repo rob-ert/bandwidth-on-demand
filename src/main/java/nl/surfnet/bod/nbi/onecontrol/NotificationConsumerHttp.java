@@ -46,6 +46,7 @@ import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
+import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 
@@ -75,7 +76,8 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     for (JAXBElement<? extends CommonEventInformationType> jaxbElement : eventInformations) {
       CommonEventInformationType event = jaxbElement.getValue();
       if (event instanceof HeartbeatType) {
-        heartbeats.add((HeartbeatType) jaxbElement.getValue());
+        continue;
+
       } else if (event instanceof AlarmType) {
         alarms.add((AlarmType) jaxbElement.getValue());
       } else if (event instanceof ServiceObjectCreationType) {
@@ -86,8 +88,17 @@ public class NotificationConsumerHttp implements NotificationConsumer {
           Reservation reservation = reservationService.findByReservationId(reservationId.get());
           reservationService.updateStatus(reservation, ReservationStatus.RESERVED);
         }
+      } else if (event instanceof ServiceAttributeValueChangeType) { // provision state changes connection state changes: active/inactive
+        ServiceAttributeValueChangeType serviceAttributeValueChange = (ServiceAttributeValueChangeType) event;
       } else if (event instanceof ServiceObjectDeletionType) {
-        serviceObjectDeletions.add((ServiceObjectDeletionType) event);
+
+        ServiceObjectDeletionType deletionEvent = (ServiceObjectDeletionType) event;
+        Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
+        if (reservationId.isPresent()) {
+          Reservation reservation = reservationService.findByReservationId(reservationId.get());
+          reservationService.updateStatus(reservation, ReservationStatus.CANCELLED);
+        }
+
       } else {
         events.add(event);
         log.warn("Got an unsupported event type: " + event.getClass().getSimpleName());
