@@ -36,14 +36,13 @@ import javax.xml.bind.Unmarshaller;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType;
 import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
 import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 public class NotificationParseTest {
 
@@ -72,7 +71,6 @@ public class NotificationParseTest {
   }
 
   @Test
-  @Ignore("for development debuggin use")
   public void parse_service_state_change_provisioned() throws Exception {
     Unmarshaller unmarshaller = JAXBContext.newInstance(Joiner.on(":").join(packages)).createUnmarshaller();
 
@@ -87,8 +85,8 @@ public class NotificationParseTest {
     ServiceAttributeValueChangeType serviceAttributeValueChangeType = (ServiceAttributeValueChangeType) event;
 
     Object any = serviceAttributeValueChangeType.getAttributeList().getAny();
-    System.out.println("" + any.getClass());
-    //MtosiUtils.findSscValue("SecondaryState", )
+
+    assertThat(any, instanceOf(ResourceFacingServiceType.class));
   }
 
   @Test
