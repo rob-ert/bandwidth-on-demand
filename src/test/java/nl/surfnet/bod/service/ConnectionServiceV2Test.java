@@ -24,10 +24,9 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -130,7 +129,7 @@ public class ConnectionServiceV2Test {
   }
 
   @Test
-  public void queryNotification_should_not_return_dataplane_status_changes() {
+  public void queryNotification_should_return_diffent_type_of_notifications() {
     final String connectionId = "f00f";
     final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
@@ -142,8 +141,7 @@ public class ConnectionServiceV2Test {
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
 
-    assertTrue(notifications.size() == 1);
-    assertFalse(notifications.get(0) instanceof DataPlaneStateChangeRequestType);
+    assertThat(notifications, hasSize(2));
   }
 
   @Test
@@ -162,7 +160,7 @@ public class ConnectionServiceV2Test {
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
 
-    assertTrue(notifications.size() == 4);
+    assertThat(notifications, hasSize(4));
   }
 
   @Test
@@ -183,7 +181,7 @@ public class ConnectionServiceV2Test {
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, lowerBound, upperBound, requestDetails);
 
-    assertTrue(notifications.size() == 2);
+    assertThat(notifications, hasSize(2));
   }
 
   @Test
@@ -194,6 +192,7 @@ public class ConnectionServiceV2Test {
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(null);
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
 
-    assertTrue(notifications.size() == 0);
+    assertThat(notifications, empty());
   }
+
 }

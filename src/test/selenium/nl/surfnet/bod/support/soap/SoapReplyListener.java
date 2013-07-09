@@ -84,8 +84,7 @@ public class SoapReplyListener implements ConnectionRequesterPort {
   }
 
   @Override
-  public void reserveConfirmed(String connectionId, String globalReservationId, String description, List<ReservationConfirmCriteriaType> reservationConfirmCriteria, Holder<CommonHeaderType> header) throws ServiceException {
-
+  public void reserveConfirmed(String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType reservationConfirmCriteria, Holder<CommonHeaderType> header) throws ServiceException {
     LOG.debug("Received reserveConfirmed for globalResId: " + globalReservationId);
 
     Map<String, Object> result = new HashMap<>();

@@ -58,6 +58,7 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,9 +77,9 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteria
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
@@ -401,7 +402,7 @@ public class ConnectionServiceProviderV2WsTest {
         .withPath(
             new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(
                 new StpType().withNetworkId("networkId").withLocalId("dest"))).withSchedule(new ScheduleType())
-        .withServiceAttributes(new TypeValuePairListType())
+        .withServiceAttributes(new ServiceAttributesType())
         .withVersion(3);
   }
 }

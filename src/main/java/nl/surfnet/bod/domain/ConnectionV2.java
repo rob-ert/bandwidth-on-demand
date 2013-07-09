@@ -41,8 +41,10 @@ import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
@@ -62,8 +64,8 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteria
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @Entity
 @Indexed
@@ -103,7 +105,7 @@ public class ConnectionV2 extends AbstractConnection {
   @NotNull
   @Type(type = "nl.surfnet.bod.domain.ConnectionV2$ServiceAttributesUserType")
   @Column(nullable = true)
-  private TypeValuePairListType serviceAttributes;
+  private ServiceAttributesType serviceAttributes;
 
   @Field
   private boolean dataPlaneActive;
@@ -280,11 +282,11 @@ public class ConnectionV2 extends AbstractConnection {
     return path;
   }
 
-  public void setServiceAttributes(TypeValuePairListType serviceAttributes) {
+  public void setServiceAttributes(ServiceAttributesType serviceAttributes) {
     this.serviceAttributes = serviceAttributes;
   }
 
-  public TypeValuePairListType getServiceAttributes() {
+  public ServiceAttributesType getServiceAttributes() {
     return serviceAttributes;
   }
 
@@ -413,9 +415,9 @@ public class ConnectionV2 extends AbstractConnection {
       super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "path"), PathType.class);
     }
   }
-  public static class ServiceAttributesUserType extends NsiV2UserType<TypeValuePairListType> {
+  public static class ServiceAttributesUserType extends NsiV2UserType<ServiceAttributesType> {
     public ServiceAttributesUserType() {
-      super(new QName("http://schemas.ogf.org/nsi/2013/04/framework/types", "serviceAttributes"), TypeValuePairListType.class);
+      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "serviceAttributes"), ServiceAttributesType.class);
     }
   }
 }

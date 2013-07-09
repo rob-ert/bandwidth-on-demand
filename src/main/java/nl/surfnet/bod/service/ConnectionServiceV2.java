@@ -32,12 +32,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -48,7 +47,7 @@ import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
+
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -188,10 +187,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
 
   public List<NotificationBaseType> queryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
     if (connection == null) {
       return Collections.emptyList();
     }
-
 
     RangeSet<Integer> notificationRange = TreeRangeSet.create();
     if (startNotificationId.isPresent() && endNotificationId.isPresent()) {
@@ -210,8 +209,8 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
         selectedNotifications.add(notification);
       }
     }
-    Collection<NotificationBaseType> filtered = Collections2.filter(selectedNotifications, Predicates.not(Predicates.instanceOf(DataPlaneStateChangeRequestType.class)));
-    return Lists.newArrayList(filtered);
+
+    return Lists.newArrayList(selectedNotifications);
   }
 
   @Async

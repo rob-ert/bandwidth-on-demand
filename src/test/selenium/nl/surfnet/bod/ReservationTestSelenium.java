@@ -64,9 +64,9 @@ import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.springframework.core.io.ClassPathResource;
 
 public class ReservationTestSelenium extends SeleniumWithSingleSetup {
@@ -188,18 +188,16 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     String description = "NSI v2 Reservation";
     String globalReservationId = NsiHelper.generateGlobalReservationId();
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
-        .withSchedule(new ScheduleType()
-            .withStartTime(XmlUtils.toGregorianCalendar(startTime))
-            .withEndTime(XmlUtils.toGregorianCalendar(endTime))
-        )
+      .withSchedule(new ScheduleType()
+        .withStartTime(XmlUtils.toGregorianCalendar(startTime))
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
         .withBandwidth(100)
         .withPath(new PathType()
-            .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-            .withSourceSTP(sourceStp)
-            .withDestSTP(destStp)
-        )
-        .withServiceAttributes(new TypeValuePairListType()
-    );
+          .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+          .withSourceSTP(sourceStp)
+          .withDestSTP(destStp))
+        .withServiceAttributes(new ServiceAttributesType());
+
     String correlationId = "urn:uuid:" + UUID.randomUUID().toString();
 
     Holder<String> connectionId = new Holder<>(null);

@@ -32,13 +32,14 @@ import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
+
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
@@ -55,7 +56,6 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReserveTimeoutRequestType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +77,7 @@ public class ConnectionServiceRequesterV2 {
       .withBandwidth(connection.getDesiredBandwidth())
       .withPath(connection.getPath())
       .withSchedule(connection.getSchedule())
-      .withServiceAttributes(new TypeValuePairListType())
+      .withServiceAttributes(connection.getServiceAttributes())
       .withVersion(0);
 
     client.asyncSendReserveConfirmed(
@@ -85,7 +85,7 @@ public class ConnectionServiceRequesterV2 {
         connection.getConnectionId(),
         connection.getGlobalReservationId(),
         connection.getDescription(),
-        ImmutableList.of(criteria),
+        criteria,
         requestDetails.getReplyTo());
   }
 
@@ -224,7 +224,7 @@ public class ConnectionServiceRequesterV2 {
   }
 
   public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiRequestDetails requestDetails) {
-    QueryNotificationConfirmedType result = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
+    QueryNotificationConfirmedType result = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
 
     client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
   }

@@ -27,11 +27,19 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV2.PathTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV2.ServiceAttributesUserType;
 import nl.surfnet.bod.util.XmlUtils;
 
+import org.dom4j.dom.DOMElement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -40,9 +48,11 @@ import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class ConnectionV2Test {
 
@@ -78,24 +88,26 @@ public class ConnectionV2Test {
 
   private static final String SERVICE_ATTRIBUTES_TYPE_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-    + "<ns3:serviceAttributes xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" "
-    + "xmlns:ns3=\"http://schemas.ogf.org/nsi/2013/04/framework/types\">"
-    + "<attribute type=\"Type\"><value>Value</value></attribute></ns3:serviceAttributes>";
+    + "<ns2:serviceAttributes xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\">"
+    + "<surf:sNCP xmlns:surf=\"http://schemas.surfnet.nl/nsi/2013/04/services\">Protected</surf:sNCP>"
+    + "</ns2:serviceAttributes>";
 
   @Test
   public void should_deserialize_servcice_parameters_from_xml_string() {
-    TypeValuePairListType serviceAttributes = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
+    ServiceAttributesType serviceAttributes = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
 
     assertNotNull(serviceAttributes);
-    assertThat(serviceAttributes.getAttribute(), hasSize(1));
-    assertThat(serviceAttributes.getAttribute().get(0).getType(), is("Type"));
-    assertThat(serviceAttributes.getAttribute().get(0).getValue(), hasSize(1));
-    assertThat(serviceAttributes.getAttribute().get(0).getValue().get(0), is("Value"));
+    assertThat(serviceAttributes.getAny(), hasSize(1));
+    Element element = (Element) serviceAttributes.getAny().get(0);
+    assertThat(element.getLocalName(), is("sNCP"));
   }
 
   @Test
-  public void should_serialize_service_parameters_to_xml_string() {
-    TypeValuePairListType serviceParameters = new TypeValuePairListType().withAttribute(new TypeValuePairType().withValue("Value").withType("Type"));
+  public void should_serialize_service_parameters_to_xml_string() throws ParserConfigurationException {
+    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element element = document.createElementNS("http://schemas.surfnet.nl/nsi/2013/04/services", "surf:sNCP");
+    element.appendChild(document.createTextNode("Protected"));
+    ServiceAttributesType serviceParameters = new ServiceAttributesType().withAny(element);
 
     String xml = new ServiceAttributesUserType().toXmlString(serviceParameters);
 

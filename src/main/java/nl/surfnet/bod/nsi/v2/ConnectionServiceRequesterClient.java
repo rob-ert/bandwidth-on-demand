@@ -31,8 +31,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import com.google.common.collect.ImmutableList;
 import com.sun.xml.ws.client.ClientTransportException;
+
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
@@ -59,8 +59,7 @@ public class ConnectionServiceRequesterClient {
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterClient.class);
 
   @Async
-  public void asyncSendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId,
-      String description, ImmutableList<ReservationConfirmCriteriaType> criteria, URI replyTo) {
+  public void asyncSendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, URI replyTo) {
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.reserveConfirmed(connectionId, globalReservationId, description, criteria, new Holder<>(header));
@@ -154,13 +153,13 @@ public class ConnectionServiceRequesterClient {
   public void asyncSendDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
     sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
+
   @Async
   public void asyncSendDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
     sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
 
   private void sendErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-
     ConnectionRequesterPort port = createPort(replyTo);
     try {
       port.errorEvent(connectionId, notification.getNotificationId(), timeStamp, notification.getEvent(),
@@ -210,8 +209,7 @@ public class ConnectionServiceRequesterClient {
   private URL wsdlUrl() {
     try {
       return new ClassPathResource(WSDL_LOCATION).getURL();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("Could not find the requester wsdl", e);
     }
   }

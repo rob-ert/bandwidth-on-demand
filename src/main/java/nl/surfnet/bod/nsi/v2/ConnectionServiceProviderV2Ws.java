@@ -285,13 +285,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
-
     NsiRequestDetails requestDetails = createRequestDetails(header.value);
+
     List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
         Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
         Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
         requestDetails);
-    return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrMessageDeliveryTimeout(notifications);
+
+    return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
   }
 
   private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {
