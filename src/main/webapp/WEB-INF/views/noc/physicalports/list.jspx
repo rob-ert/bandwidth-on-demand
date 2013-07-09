@@ -49,12 +49,17 @@
                         <dd>
                             <c:out value="${item.alignedWithNMS}" />
                         </dd>
-                        
                         <dt><spring:message code="label_physicalport_nms_ne_id"/></dt>
                         <dd>
-                            <c:out value="${item.nmsNeId}" />
+                            <c:choose>
+                                <c:when test="${empty item.nmsNeId}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                  <c:out value="${item.nmsNeId}" />
+                                </c:otherwise>
+                            </c:choose>
                         </dd>
-                        
                     </dl>
                 </div>
                 <div class="span6">
@@ -67,10 +72,16 @@
                         <dd>
                             <c:out value="${item.nmsPortId}" />
                         </dd>
-                        
                         <dt><spring:message code="label_physicalport_nms_port_speed"/></dt>
                         <dd>
-                          <c:out value="${item.nmsPortSpeed}" />
+                            <c:choose>
+                                <c:when test="${empty item.nmsPortSpeed}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:out value="${item.nmsPortSpeed}" />
+                                </c:otherwise>
+                            </c:choose>
                         </dd>
                     </dl>
                 </div>
