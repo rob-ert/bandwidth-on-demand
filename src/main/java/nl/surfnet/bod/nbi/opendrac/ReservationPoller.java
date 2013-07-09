@@ -30,11 +30,13 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationService;
@@ -68,6 +70,7 @@ public class ReservationPoller {
   @Resource private ReservationService reservationService;
   @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private EmailSender emailSender;
+  @Resource private NbiClient nbiClient;
 
   @Value("${reservation.poll.max.tries}")
   private int maxPollingTries;
@@ -109,13 +112,13 @@ public class ReservationPoller {
   }
 
   private class ReservationStatusChecker implements Runnable {
-    private final Reservation reservation;
+    private final String reservationId;
     private final ReservationStatus startStatus;
     private final int maxPollingTries;
     private int numberOfTries;
 
     public ReservationStatusChecker(Reservation reservation, int maxPollingTries) {
-      this.reservation = reservation;
+      this.reservationId = Preconditions.checkNotNull(reservation.getReservationId(), "OpenDRAC reservation ID");
       this.maxPollingTries = maxPollingTries;
       this.startStatus = reservation.getStatus();
     }
@@ -123,24 +126,17 @@ public class ReservationPoller {
     @Override
     public void run() {
       try {
-        ReservationStatus currentStatus = null;
-
         // No need to retrieve status when there is no reservationId
-        while (numberOfTries < maxPollingTries && reservation.getReservationId() != null) {
+        while (numberOfTries < maxPollingTries) {
+          logger.debug("Checking status update for: '{}' (try {})", reservationId, numberOfTries);
 
-          // Get the latest version of the reservation..
-          Reservation reservationFresh = reservationService.find(reservation.getId());
-
-          logger.debug("Checking status update for: '{}' (try {})", reservation.getReservationId(), numberOfTries);
-
-          currentStatus = reservationService.getStatus(reservationFresh);
+          Optional<ReservationStatus> currentStatus = nbiClient.getReservationStatus(reservationId);
           logger.debug("Got back status {}", currentStatus);
 
-          if (!currentStatus.equals(startStatus)) {
-            logger.info("Status change detected {} -> {} for reservation {}", new Object[] { startStatus,
-                currentStatus, reservationFresh.getReservationId() });
+          if (currentStatus.isPresent() && !currentStatus.get().equals(startStatus)) {
+            logger.info("Status change detected {} -> {} for reservation {}", new Object[] { startStatus, currentStatus.get(), reservationId });
 
-            reservationFresh = reservationService.updateStatus(reservationFresh, currentStatus);
+            Reservation reservationFresh = reservationService.updateStatus(reservationId, currentStatus.get());
 
             reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.<NsiRequestDetails>absent()));
 
@@ -151,7 +147,7 @@ public class ReservationPoller {
           Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
         }
       } catch (Exception e) {
-        logger.error("The poller failed for reservation " + reservation.getId() + "/" + reservation.getReservationId(), e);
+        logger.error("The poller failed for reservation " + reservationId, e);
         emailSender.sendErrorMail(e);
       }
     }

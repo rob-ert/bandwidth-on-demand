@@ -43,6 +43,8 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
 
   Reservation findByReservationId(final String reservationId);
 
+  Reservation getByReservationIdWithPessimisticWriteLock(String reservationId);
+
   Reservation findByConnectionV1ConnectionId(final String connectionId);
 
 }

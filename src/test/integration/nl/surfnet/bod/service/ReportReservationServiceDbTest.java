@@ -282,7 +282,7 @@ public class ReportReservationServiceDbTest {
 
     assertThat(count, is(3L));
 
-    subject.updateStatus(reservationInPeriodGUI, ReservationStatus.SUCCEEDED);
+    subject.updateStatus(reservationInPeriodGUI.getReservationId(), ReservationStatus.SUCCEEDED);
     count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat("Should count one less because of state change", count, is(2L));

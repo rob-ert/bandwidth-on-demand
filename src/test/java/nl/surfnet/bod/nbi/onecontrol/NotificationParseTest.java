@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -43,6 +44,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
+import org.w3c.dom.Node;
 
 public class NotificationParseTest {
 
@@ -54,7 +56,7 @@ public class NotificationParseTest {
     "org.tmforum.mtop.sb.xsd.soc.v1",
     "org.tmforum.mtop.fmw.xsd.hbt.v1",
     "org.tmforum.mtop.sb.xsd.savc.v1",
-     "org.tmforum.mtop.sb.xsd.svc.v1");
+    "org.tmforum.mtop.sb.xsd.svc.v1");
 
   @Test
   public void parse_service_object_creation_notification() throws Exception {
@@ -73,7 +75,6 @@ public class NotificationParseTest {
   @Test
   public void parse_service_state_change_provisioned() throws Exception {
     Unmarshaller unmarshaller = JAXBContext.newInstance(Joiner.on(":").join(packages)).createUnmarshaller();
-
     Notify notify = (Notify) unmarshaller.unmarshal(new File("src/test/resources/mtosi/serviceAttributeValueChange-provisioned.xml"));
 
     List<JAXBElement<? extends CommonEventInformationType>> events = notify.getMessage().getCommonEventInformation();
@@ -83,10 +84,12 @@ public class NotificationParseTest {
 
     CommonEventInformationType event = events.get(0).getValue();
     ServiceAttributeValueChangeType serviceAttributeValueChangeType = (ServiceAttributeValueChangeType) event;
+    assertThat(serviceAttributeValueChangeType.getObjectType(), is("RFS"));
 
     Object any = serviceAttributeValueChangeType.getAttributeList().getAny();
 
-    assertThat(any, instanceOf(ResourceFacingServiceType.class));
+    JAXBElement<ResourceFacingServiceType> rfs = unmarshaller.unmarshal((Node) any, ResourceFacingServiceType.class);
+    assertThat(rfs.getValue(), instanceOf(ResourceFacingServiceType.class));
   }
 
   @Test

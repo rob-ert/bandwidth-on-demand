@@ -108,7 +108,7 @@ public class ReservationToNbi {
       ReservationStatus orgStatus = reservation.getStatus();
 
       reservation.setStatus(ReservationStatus.AUTO_START);
-      reservationRepo.save(reservation);
+      reservation = reservationRepo.save(reservation);
 
       publishStatusChanged(reservation, orgStatus, requestDetails);
     }
@@ -123,9 +123,7 @@ public class ReservationToNbi {
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails);
-
-    reservationEventPublisher.notifyListeners(event);
+    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails));
   }
 
 }

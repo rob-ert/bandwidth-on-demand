@@ -163,7 +163,7 @@ public class ReservationServiceTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void updatingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
+  public void updatingDifferentVirtualResourceGroupsShouldGiveAnIllegalStateException() {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
     VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
@@ -171,16 +171,16 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
-    subject.updateStatus(reservation, ReservationStatus.AUTO_START);
+    subject.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START);
   }
 
   @Test
   public void updateStatusShouldSaveNewStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).create();
 
-    when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
-    subject.updateStatus(reservation, ReservationStatus.AUTO_START);
+    subject.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START);
 
     reservation.setStatus(ReservationStatus.AUTO_START);
     verify(reservationRepoMock).saveAndFlush(reservation);

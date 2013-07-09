@@ -32,12 +32,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.nbi.opendrac.ReservationPoller;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
@@ -51,8 +54,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import com.google.common.collect.Lists;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
 
@@ -65,6 +66,9 @@ public class ReservationPollerTest {
   @Mock
   private ReservationService reservationServiceMock;
 
+  @Mock
+  private NbiClient nbiClientMock;
+
   @Before
   public void makeSureWeReallyPoll() {
     subject.setMaxPollingTries(1);
@@ -74,11 +78,11 @@ public class ReservationPollerTest {
   public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
     final Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
 
+    when(nbiClientMock.getReservationStatus(reservation.getReservationId())).thenReturn(Optional.of(ReservationStatus.AUTO_START));
     when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
-    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.AUTO_START);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
-    when(reservationServiceMock.updateStatus(reservation, ReservationStatus.AUTO_START)).thenAnswer(new Answer<Reservation>() {
+    when(reservationServiceMock.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START)).thenAnswer(new Answer<Reservation>() {
       @Override
       public Reservation answer(InvocationOnMock invocation) {
         reservation.setStatus(ReservationStatus.AUTO_START);
@@ -107,7 +111,7 @@ public class ReservationPollerTest {
 
     when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
-    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.AUTO_START);
+    when(nbiClientMock.getReservationStatus(reservation.getReservationId())).thenReturn(Optional.of(ReservationStatus.AUTO_START));
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
 
     subject.setMaxPollingTries(3);
@@ -116,7 +120,7 @@ public class ReservationPollerTest {
 
     awaitPollerReady();
 
-    verify(reservationServiceMock, times(maxTries)).getStatus(reservation);
+    verify(nbiClientMock, times(maxTries)).getReservationStatus(reservation.getReservationId());
   }
 
   @Test

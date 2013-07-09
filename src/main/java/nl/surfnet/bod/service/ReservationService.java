@@ -662,12 +662,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return entityManager;
   }
 
-  public ReservationStatus getStatus(Reservation reservation) {
-    Optional<ReservationStatus> status = nbiClient.getReservationStatus(reservation.getReservationId());
-
-    return status.or(reservation.getStatus());
-  }
-
   /**
    * A reservation is allowed to be delete for the following cases:
    * <ul>
@@ -749,17 +743,19 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Collections2.transform(reservations, toReservationArchive);
   }
 
-  public Reservation updateStatus(Reservation reservation, ReservationStatus newStatus) {
+  public Reservation updateStatus(String reservationId, ReservationStatus newStatus) {
+    // Avoid optimistic locking exceptions by pessimistically locking a reservation, so only a single
+    // thread can update the row at the same time.
+    Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
     ReservationStatus oldStatus = reservation.getStatus();
-    Reservation freshRes = find(reservation.getId());
 
-    freshRes.setStatus(newStatus);
+    reservation.setStatus(newStatus);
 
-    log.info("Reservation ({}) status {} -> {}", reservation.getReservationId(), reservation.getStatus(), newStatus);
+    log.info("Reservation ({}) status {} -> {}", reservationId, oldStatus, newStatus);
 
-    logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), freshRes, oldStatus);
+    logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, oldStatus);
 
-    return reservationRepo.saveAndFlush(freshRes);
+    return reservationRepo.saveAndFlush(reservation);
   }
 
 }

@@ -120,7 +120,7 @@ public class ReservationServiceDbTestHelper {
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Reservation updateStatusAndCommit(Reservation reservation, ReservationStatus status) {
-    return reservationService.updateStatus(reservation, status);
+    return reservationService.updateStatus(reservation.getReservationId(), status);
   }
 
 }

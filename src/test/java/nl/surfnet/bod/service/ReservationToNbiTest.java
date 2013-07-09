@@ -86,6 +86,7 @@ public class ReservationToNbiTest {
     Reservation reservation = new ReservationFactory().setStatus(RESERVED).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
+    when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(true);
 
     subject.asyncProvision(reservation.getId(), Optional.<NsiRequestDetails>absent());

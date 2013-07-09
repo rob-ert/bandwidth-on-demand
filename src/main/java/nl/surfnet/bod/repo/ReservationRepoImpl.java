@@ -25,6 +25,7 @@ package nl.surfnet.bod.repo;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -72,4 +73,12 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
     return entityManager.createQuery(criteriaQuery).getResultList().size();
   }
 
+  public Reservation getByReservationIdWithPessimisticWriteLock(String reservationId) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Reservation> query = builder.createQuery(Reservation.class);
+    Root<Reservation> root = query.from(Reservation.class);
+    query.where(builder.equal(root.get(Reservation_.reservationId), reservationId));
+
+    return entityManager.createQuery(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+  }
 }
