@@ -28,9 +28,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -39,7 +36,6 @@ import nl.surfnet.bod.domain.ConnectionV2.PathTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV2.ServiceAttributesUserType;
 import nl.surfnet.bod.util.XmlUtils;
 
-import org.dom4j.dom.DOMElement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -50,7 +46,6 @@ import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -112,6 +107,15 @@ public class ConnectionV2Test {
     String xml = new ServiceAttributesUserType().toXmlString(serviceParameters);
 
     assertThat(xml, is(SERVICE_ATTRIBUTES_TYPE_XML));
+  }
+
+  @Test
+  public void same_service_attributes_should_be_equal_by_user_type() {
+    ServiceAttributesType serviceAttributes1 = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
+    ServiceAttributesType serviceAttributes2 = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
+
+    assertThat(serviceAttributes1.equals(serviceAttributes2), is(false));
+    assertThat(new ServiceAttributesUserType().equals(serviceAttributes1, serviceAttributes2), is(true));
   }
 
   private static final String DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML =

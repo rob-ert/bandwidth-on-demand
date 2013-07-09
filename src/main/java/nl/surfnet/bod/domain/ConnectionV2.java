@@ -419,5 +419,16 @@ public class ConnectionV2 extends AbstractConnection {
     public ServiceAttributesUserType() {
       super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "serviceAttributes"), ServiceAttributesType.class);
     }
+
+    @Override
+    public boolean equals(Object x, Object y) {
+      if (x == y) {
+        return true;
+      }
+      if (x == null) {
+        return false;
+      }
+      return toXmlString(x).equals(toXmlString(y));
+    }
   }
 }
