@@ -31,14 +31,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +60,6 @@ public class NbiOneControlClient implements NbiClient {
   public List<PhysicalPort> findAllPhysicalPorts() {
     return inventoryRetrievalClient.getPhysicalPorts();
   }
-
 
   /**
    * @param autoProvision is ignored, One Control does not support this
@@ -95,7 +92,7 @@ public class NbiOneControlClient implements NbiClient {
       });
     }
 
-    return Optional.<ReservationStatus> absent();
+    return Optional.absent();
   }
 
   @Override
