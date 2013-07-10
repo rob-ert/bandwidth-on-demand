@@ -32,6 +32,9 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.ReservationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -63,6 +66,9 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   @Resource
   private ReservationsAligner reservationsAligner;
+
+  @Resource
+  private ReservationService reservationService;
 
   @Override
   public void notify(Header header, Notify body) {
@@ -96,6 +102,14 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
+
+    // auto-provision if the reservation was created in the gui
+    if (reservationId.isPresent()) {
+      Reservation reservation = reservationService.findByReservationId(reservationId.get());
+      if (!reservation.isNSICreated()) {
+        reservationService.provision(reservation, Optional.<NsiRequestDetails>absent());
+      }
+    }
     scheduleUpdate(reservationId);
   }
 
