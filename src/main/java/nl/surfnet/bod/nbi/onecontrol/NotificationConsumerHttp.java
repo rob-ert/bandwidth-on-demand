@@ -27,22 +27,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.service.ReservationService;
-
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -56,8 +45,6 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
-import org.w3c.dom.Node;
 
 @Profile("onecontrol")
 @Component
@@ -68,32 +55,14 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
-  private final static List<String> XSD_PACKAGES = Lists.newArrayList(
-      "org.tmforum.mtop.fmw.xsd.notmsg.v1",
-      "org.tmforum.mtop.fmw.xsd.cei.v1",
-      "org.tmforum.mtop.fmw.xsd.ei.v1",
-      "org.tmforum.mtop.fmw.xsd.oc.v1",
-      "org.tmforum.mtop.sb.xsd.soc.v1",
-      "org.tmforum.mtop.fmw.xsd.hbt.v1",
-      "org.tmforum.mtop.sb.xsd.savc.v1",
-      "org.tmforum.mtop.sb.xsd.svc.v1");
-
-  private final static JAXBContext jaxbContext;
-  static {
-    try {
-      jaxbContext = JAXBContext.newInstance(Joiner.on(":").join(XSD_PACKAGES));
-    } catch (JAXBException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   private final List<AlarmType> alarms = new ArrayList<>();
   private final List<HeartbeatType> heartbeats = new ArrayList<>();
   private final List<CommonEventInformationType> events = new ArrayList<>();
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
 
-  @Resource private ReservationService reservationService;
+  @Resource
+  private ReservationsAligner reservationsAligner;
 
   @Override
   public void notify(Header header, Notify body) {
@@ -127,50 +96,24 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
-    if (reservationId.isPresent()) {
-      Reservation reservation = reservationService.updateStatus(reservationId.get(), ReservationStatus.RESERVED);
-
-      if (!reservation.isNSICreated()) {
-        reservationService.provision(reservation, Optional.<NsiRequestDetails>absent());
-      }
-    }
+    scheduleUpdate(reservationId);
   }
 
   private void handleServiceAttributeValueChange(ServiceAttributeValueChangeType serviceAttributeValueChange) throws JAXBException {
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", serviceAttributeValueChange.getObjectName());
-    if (!reservationId.isPresent()) {
-      return;
-    }
+    scheduleUpdate(reservationId);
+  }
 
-    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-    Object any = serviceAttributeValueChange.getAttributeList().getAny();
-    ResourceFacingServiceType rfs = unmarshaller.unmarshal((Node) any, ResourceFacingServiceType.class).getValue();
-
-    Optional<String> secondaryState = MtosiUtils.findSscValue("SecondaryState", rfs.getDescribedByList());
-    if (secondaryState.isPresent()) {
-      log.info("Reservation is now {}: {}", secondaryState.get(), rfs);
-      switch (secondaryState.get()) {
-      case "SCHEDULED":
-        break;
-      case "PROVISIONING":
-        break;
-      case "ACTIVATING":
-        log.info("Reservation is now ACTIVATING: {}", rfs);
-        reservationService.updateStatus(reservationId.get(), ReservationStatus.RUNNING);
-        break;
-      default:
-//        throw new NotImplementedException("Unhandled state " + secondaryState.get());
-        log.info("Ignoring ServiceAttributeValueChangeType with secondary state: {}", secondaryState.get());
-      }
+  private void scheduleUpdate(Optional<String> reservationId) {
+    if (reservationId.isPresent()) {
+      reservationsAligner.add(reservationId.get());
     }
   }
 
   private void handleServiceObjectDeletion(ServiceObjectDeletionType deletionEvent) {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
-    if (reservationId.isPresent()) {
-      reservationService.updateStatus(reservationId.get(), ReservationStatus.CANCELLED);
-    }
+    scheduleUpdate(reservationId);
   }
 
   public List<AlarmType> getAlarms() {

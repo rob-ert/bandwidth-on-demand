@@ -743,12 +743,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Collections2.transform(reservations, toReservationArchive);
   }
 
+  /**
+   * Will update the status of the specified reservation if it is different than its current
+   * @param reservationId
+   * @param newStatus
+   * @throws javax.persistence.NoResultException when no Reservation with the specified reservationId exists
+   * @return the reservation containing the new status
+   */
   public Reservation updateStatus(String reservationId, ReservationStatus newStatus) {
     // Avoid optimistic locking exceptions by pessimistically locking a reservation, so only a single
     // thread can update the row at the same time.
     Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
     ReservationStatus oldStatus = reservation.getStatus();
-
+    if (oldStatus == newStatus) {
+      return reservation;
+    }
     reservation.setStatus(newStatus);
 
     log.info("Reservation ({}) status {} -> {}", reservationId, oldStatus, newStatus);
