@@ -20,7 +20,7 @@
         <tiles.version>2.2.2</tiles.version>
         <selenium.version>2.32.0</selenium.version>
         <flyway.version>2.1.1</flyway.version>
-        <gatling.version>2.0.0-M2</gatling.version>
+        <gatling.version>2.0.0-M3</gatling.version>
         <hibernate.version>4.2.0.Final</hibernate.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:${jetty.port}/bod</selenium.test.url>
