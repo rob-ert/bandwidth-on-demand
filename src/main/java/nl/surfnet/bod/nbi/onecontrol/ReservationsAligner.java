@@ -1,5 +1,6 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
+import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -7,8 +8,10 @@ import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 
 import com.google.common.base.Optional;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -66,6 +69,14 @@ public class ReservationsAligner implements SmartLifecycle {
   public void start() {
     started = true;
     log.info("Starting OneControl Reservations Aligner...");
+
+    // also, fill the queue so that we sync with onecontrol at startup
+
+    Collection<Reservation> reservationsToPoll = reservationService.findReservationsToPoll(new DateTime());
+    for (Reservation reservation: reservationsToPoll) {
+      add(reservation.getReservationId());
+    }
+
     Thread alignerThread = new Thread(){
       @Override
       public void run() {
@@ -105,7 +116,7 @@ public class ReservationsAligner implements SmartLifecycle {
   }
 
   @Override
-  public int getPhase() { // start late, destroy early
+  public int getPhase() { // start last, destroy first
     return Integer.MAX_VALUE;
   }
 
