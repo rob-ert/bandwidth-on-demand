@@ -26,9 +26,11 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,8 +66,46 @@ public class ConnectionServiceV2Test {
   @InjectMocks private ConnectionServiceV2 subject;
 
   @Mock private ConnectionV2Repo connectionRepoMock;
-  @Mock private ConnectionServiceRequesterV2 connectionServiceRequesterMock;
   @Mock private Environment bodEnvironmentMock;
+  @Mock private ReservationService reservationServiceMock;
+  @Mock private ConnectionServiceRequesterV2 connectionServiceRequesterMock;
+
+  @Test
+  public void provision_should_set_the_last_provision_request_details() {
+    NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
+
+    subject.asyncProvision("ConnectionId", provisionRequestDetails);
+
+    verify(reservationServiceMock).provision(connection.getReservation(), Optional.<NsiRequestDetails>absent());
+    assertThat(connection.getLastProvisionRequestDetails(), is(provisionRequestDetails));
+  }
+
+  @Test
+  public void terminate_should_set_the_last_lifecyle_request_details() {
+    NsiRequestDetails terminateRequestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
+
+    subject.asyncTerminate("ConnectionId", terminateRequestDetails, user);
+
+    verify(reservationServiceMock).cancelWithReason(eq(connection.getReservation()), any(String.class), eq(user));
+    assertThat(connection.getLastLifecycleRequestDetails(), is(terminateRequestDetails));
+  }
+
+  @Test
+  public void reserve_commit_should_set_the_last_reservation_request_details() {
+    NsiRequestDetails reserveCommitRequestDetails = new NsiRequestDetailsFactory().create();
+    ConnectionV2 connection = new ConnectionV2Factory().create();
+    when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
+
+    subject.asyncReserveCommit("ConnectionId", reserveCommitRequestDetails);
+
+    verify(connectionServiceRequesterMock).reserveCommitConfirmed(connection.getId(), reserveCommitRequestDetails);
+    assertThat(connection.getLastReservationRequestDetails(), is(reserveCommitRequestDetails));
+  }
 
   @Test
   public void reserve_with_a_duplicate_global_reservation_id_should_give_validation_exception() throws ConnectionServiceV2.ReservationCreationException {

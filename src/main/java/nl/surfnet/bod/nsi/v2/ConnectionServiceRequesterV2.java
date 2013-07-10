@@ -107,7 +107,7 @@ public class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
     final XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
-    NsiRequestDetails requestDetails = connection.getReserveRequestDetails();
+    NsiRequestDetails requestDetails = connection.getLastReservationRequestDetails();
     ReserveTimeoutRequestType notification = new ReserveTimeoutRequestType();
     notification.setTimeoutValue(connection.getReserveHeldTimeoutValue());
     populateNotification(notification, connection, timeStamp);

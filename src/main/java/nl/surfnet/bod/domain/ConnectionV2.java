@@ -120,7 +120,16 @@ public class ConnectionV2 extends AbstractConnection {
 
   @OneToOne(cascade = CascadeType.ALL)
   @IndexedEmbedded
-  private NsiRequestDetails reserveRequestDetails;
+  private NsiRequestDetails initialReserveRequestDetails;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  private NsiRequestDetails lastReservationRequestDetails;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  private NsiRequestDetails lastProvisionRequestDetails;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  private NsiRequestDetails lastLifecycleRequestDetails;
 
   @Field
   private int reserveHeldTimeoutValue;
@@ -305,12 +314,36 @@ public class ConnectionV2 extends AbstractConnection {
       .withVersion(committedVersion != null ? committedVersion : reserveVersion);
   }
 
-  public NsiRequestDetails getReserveRequestDetails() {
-    return reserveRequestDetails;
+  public NsiRequestDetails getInitialReserveRequestDetails() {
+    return initialReserveRequestDetails;
   }
 
-  public void setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
-    this.reserveRequestDetails = reserveRequestDetails;
+  public void setInitialReserveRequestDetails(NsiRequestDetails initialReserveRequestDetails) {
+    this.initialReserveRequestDetails = initialReserveRequestDetails;
+  }
+
+  public NsiRequestDetails getLastReservationRequestDetails() {
+    return lastReservationRequestDetails;
+  }
+
+  public void setLastReservationRequestDetails(NsiRequestDetails reserveRequestDetails) {
+    this.lastReservationRequestDetails = reserveRequestDetails;
+  }
+
+  public NsiRequestDetails getLastProvisionRequestDetails() {
+    return lastProvisionRequestDetails;
+  }
+
+  public void setLastProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.lastProvisionRequestDetails = provisionRequestDetails;
+  }
+
+  public NsiRequestDetails getLastLifecycleRequestDetails() {
+    return lastLifecycleRequestDetails;
+  }
+
+  public void setLastLifecycleRequestDetails(NsiRequestDetails terminateRequestDetails) {
+    this.lastLifecycleRequestDetails = terminateRequestDetails;
   }
 
   public List<NotificationBaseType> getNotifications() {
@@ -397,9 +430,9 @@ public class ConnectionV2 extends AbstractConnection {
       builder.append(reservation.getId()).append(" ").append(reservation.getName());
       builder.append(", ");
     }
-    if (reserveRequestDetails != null) {
-      builder.append("reserveRequestDetails=");
-      builder.append(reserveRequestDetails);
+    if (initialReserveRequestDetails != null) {
+      builder.append("initialReserveRequestDetails=");
+      builder.append(initialReserveRequestDetails);
     }
     builder.append("]");
     return builder.toString();
@@ -431,4 +464,5 @@ public class ConnectionV2 extends AbstractConnection {
       return toXmlString(x).equals(toXmlString(y));
     }
   }
+
 }

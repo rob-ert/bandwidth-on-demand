@@ -143,7 +143,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setProtectionType(ProtectionType.PROTECTED.name());
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
-    connection.setReserveRequestDetails(requestDetails);
+    connection.setInitialReserveRequestDetails(requestDetails);
+    connection.setLastReservationRequestDetails(requestDetails);
     connection.setReserveVersion(criteria.getVersion());
     connection.setPath(criteria.getPath());
     connection.setServiceAttributes(criteria.getServiceAttributes());

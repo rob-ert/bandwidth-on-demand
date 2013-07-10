@@ -56,7 +56,7 @@ public class ConnectionV2Factory {
   private boolean dataPlaneActive;
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
-  private NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();
+  private NsiRequestDetails initialReserveRequestDetails = new NsiRequestDetailsFactory().create();
   private int reserveHeldTimeoutValue = 1200;
   private Optional<DateTime> reserveHeldTimeout = Optional.absent();
 
@@ -82,10 +82,13 @@ public class ConnectionV2Factory {
     connection.setReserveVersion(reserveVersion);
     connection.setCommittedVersion(committedVersion);
 
-    connection.setReserveRequestDetails(provisionRequestDetails);
+    connection.setInitialReserveRequestDetails(initialReserveRequestDetails);
+    connection.setLastReservationRequestDetails(initialReserveRequestDetails);
 
     connection.setReserveHeldTimeoutValue(reserveHeldTimeoutValue);
     connection.setReserveHeldTimeout(reserveHeldTimeout);
+
+    reservation.setConnectionV2(connection);
 
     return connection;
   }

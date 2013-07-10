@@ -65,51 +65,51 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
     case REQUESTED:
       throw new AssertionError("Should not have got a change event going to initial state REQUESTED");
     case RESERVED:
-      requester.reserveConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      requester.reserveConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
       break;
     case AUTO_START:
-      requester.provisionConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+      requester.provisionConfirmed(connection.getId(), connection.getLastProvisionRequestDetails());
       break;
     case SCHEDULED:
       // start time passed but no provision.. nothing to do..
       break;
     case RUNNING:
-      requester.dataPlaneActivated(connection.getId(), connection.getReserveRequestDetails());
+      requester.dataPlaneActivated(connection.getId(), connection.getInitialReserveRequestDetails());
       break;
     case SUCCEEDED:
-      requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
+      requester.dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
       break;
     case CANCELLED:
       if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
         // if the connections dataplane status is active, notify that dataPlane was deactivated first
         if (connection.getDataPlaneActive()) {
-          requester.dataPlaneDeactivated(connection.getId(), connection.getReserveRequestDetails());
+          requester.dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
         }
-        requester.terminateConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+        requester.terminateConfirmed(connection.getId(), connection.getLastLifecycleRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_ABORTING){
-        requester.abortConfirmed(connection.getId(), event.getNsiRequestDetails().get());
+        requester.abortConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
       } else if (event.getNsiRequestDetails().isPresent()) {
         logger.warn("State transition to CANCELLED unhandled {}", event);
       }
       break;
     case FAILED:
       if (connection.getReservationState() == ReservationStateEnumType.RESERVE_CHECKING) {
-        requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
+        requester.reserveFailed(connection.getId(), connection.getLastReservationRequestDetails());
       } else if (connection.getDataPlaneActive()) {
-        requester.dataPlaneError(connection.getId(), connection.getReserveRequestDetails());
+        requester.dataPlaneError(connection.getId(), connection.getInitialReserveRequestDetails());
       } else {
         logger.warn("State transition to FAILED unhandled {}", event);
       }
       break;
     case NOT_ACCEPTED:
-      requester.reserveFailed(connection.getId(), event.getNsiRequestDetails().get());
+      requester.reserveFailed(connection.getId(), connection.getLastReservationRequestDetails());
       break;
     case PASSED_END_TIME:
       requester.reservePassedEndTime(connection.getId());
       break;
     case CANCEL_FAILED:
       if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
-        requester.deactivateFailed(connection.getId(), event.getNsiRequestDetails().get());
+        requester.deactivateFailed(connection.getId(), connection.getLastLifecycleRequestDetails());
       } else {
         logger.warn("State transition to CANCEL_FAILED unhandled {}", event);
       }

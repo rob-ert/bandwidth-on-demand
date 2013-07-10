@@ -59,9 +59,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
+@Transactional
 public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
@@ -103,6 +105,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   public void asyncReserveCommit(String connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
+    connection.setLastReservationRequestDetails(requestDetails);
     connection.setReservationState(ReservationStateEnumType.RESERVE_COMMITTING);
     connectionRepo.save(connection);
 
@@ -113,7 +116,19 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   public void asyncReserveAbort(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
+    connection.setLastReservationRequestDetails(requestDetails);
     connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
+    connectionRepo.save(connection);
+
+    terminate(connection, requestDetails, user);
+  }
+
+  @Async
+  public void asyncTerminate(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
+    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
+
+    connection.setLastLifecycleRequestDetails(requestDetails);
+    connection.setLifecycleState(LifecycleStateEnumType.TERMINATING);
     connectionRepo.save(connection);
 
     terminate(connection, requestDetails, user);
@@ -123,18 +138,18 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     reservationService.cancelWithReason(
         connection.getReservation(),
         "NSIv2 terminate by " + user.getNameId(),
-        user,
-        Optional.of(requestDetails));
+        user);
   }
 
   @Async
   public void asyncProvision(String connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
+    connection.setLastProvisionRequestDetails(requestDetails);
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONING);
     connectionRepo.save(connection);
 
-    reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
+    reservationService.provision(connection.getReservation(), Optional.<NsiRequestDetails>absent());
   }
 
   @Async
@@ -142,10 +157,10 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
   }
 
-  @Async
   /**
    * Implement this just like querySummary, because BoD has no downstream agents to delegate to.
    */
+  @Async
   public void asyncQueryRecursive(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails) {
     List<ConnectionV2> result = querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa());
     connectionServiceRequester.queryRecursiveConfirmed(result, requestDetails);
@@ -173,16 +188,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     }
 
     return connections;
-  }
-
-  @Async
-  public void asyncTerminate(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
-    ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
-
-    connection.setLifecycleState(LifecycleStateEnumType.TERMINATING);
-    connectionRepo.save(connection);
-
-    terminate(connection, requestDetails, user);
   }
 
   public List<NotificationBaseType> queryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiRequestDetails requestDetails) {
