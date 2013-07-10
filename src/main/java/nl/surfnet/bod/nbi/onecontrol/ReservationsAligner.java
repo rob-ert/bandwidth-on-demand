@@ -29,6 +29,7 @@ import java.util.concurrent.BlockingQueue;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -51,7 +52,7 @@ public class ReservationsAligner implements SmartLifecycle {
   private final Logger log = LoggerFactory.getLogger(ReservationsAligner.class);
   private volatile boolean started = false;
 
-  private static String POISON_PILL = "TOXIC";
+  public static String POISON_PILL = "TOXIC";
 
   @Resource
   private NbiOneControlClient nbiOneControlClient;
@@ -63,29 +64,32 @@ public class ReservationsAligner implements SmartLifecycle {
 
   public void align() throws InterruptedException{
     for (;;) {
-      try {
-        String reservationId = reservationIds.take();
-        if (POISON_PILL.equals(reservationId)) {
-          break;
-        }
-        log.info("Picking up reservation {}", reservationId);
-        Optional<ReservationStatus> reservationStatus = nbiOneControlClient.getReservationStatus(reservationId);
-        if (reservationStatus.isPresent()) {
+      if (!doAlign()) break;
+    }
+  }
 
-          log.info("Retrieved status of reservation {}, issuing update.", reservationId);
-
-          try {
-            reservationService.updateStatus(reservationId, reservationStatus.get());
-          } catch (NoResultException e) {
-            // apparently the reservation did not exist
-            log.debug("Ignoring unknown reservation with id {}", reservationId);
-          }
-        }
+  @VisibleForTesting
+  boolean doAlign() {
+    try {
+      String reservationId = reservationIds.take();
+      if (POISON_PILL.equals(reservationId)) {
+        return false;
       }
-      catch (Exception e) {
-        log.error("Exception occurred while updating a reservation", e);
+      log.info("Picking up reservation {}", reservationId);
+      Optional<ReservationStatus> reservationStatus = nbiOneControlClient.getReservationStatus(reservationId);
+      if (reservationStatus.isPresent()) {
+        log.info("Retrieved status of reservation {}, issuing update.", reservationId);
+        try {
+          reservationService.updateStatus(reservationId, reservationStatus.get());
+        } catch (NoResultException e) { // apparently the reservation did not exist
+          log.debug("Ignoring unknown reservation with id {}", reservationId);
+        }
       }
     }
+    catch (Exception e) {
+      log.error("Exception occurred while updating a reservation", e);
+    }
+    return true;
   }
 
   @Override
