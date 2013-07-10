@@ -60,7 +60,7 @@ public class ReservationsAlignerTest {
   }
 
   @Test
-  public void reservation_status_not_updated_when_onecontrol_does_not_know_about_it() {
+  public void reservation_is_set_to_lost_when_onecontrol_does_not_know_about_it() {
     final String unknownId = "unknown";
     subject.add(unknownId);
     when(nbiOneControlClient.getReservationStatus(unknownId)).thenReturn(Optional.<ReservationStatus>absent());
@@ -68,6 +68,7 @@ public class ReservationsAlignerTest {
     assertTrue(subject.doAlign());
 
     verify(nbiOneControlClient, times(1)).getReservationStatus(unknownId);
+    verify(reservationService, times(1)).updateStatus(unknownId, ReservationStatus.LOST);
     verifyNoMoreInteractions(reservationService);
   }
 
