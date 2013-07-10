@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
@@ -39,8 +39,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.base.Optional;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PushMessagesTest {
 
@@ -51,8 +49,7 @@ public class PushMessagesTest {
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.AUTO_START).create();
 
-    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
-        ReservationStatus.RUNNING, reservation, Optional.<NsiRequestDetails> absent());
+    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
 
     PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
 

@@ -26,8 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -59,7 +57,7 @@ public class ConnectionServiceProviderListenerV2Test {
   public void should_ignore_reservation_created_thourgh_gui() {
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(null).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation, Optional.<NsiRequestDetails>absent());
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
 
     subject.onStatusChange(event);
 
@@ -72,7 +70,7 @@ public class ConnectionServiceProviderListenerV2Test {
     ConnectionV1 connection = new ConnectionV1Factory().create();
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(connection).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation, Optional.<NsiRequestDetails>absent());
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
 
     subject.onStatusChange(event);
 
@@ -289,9 +287,8 @@ public class ConnectionServiceProviderListenerV2Test {
       .setDataPlaneActive(true).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.PASSED_END_TIME).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.SCHEDULED, reservation, Optional.of(requestDetails));
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.SCHEDULED, reservation);
 
     subject.onStatusChange(event);
 
@@ -307,9 +304,8 @@ public class ConnectionServiceProviderListenerV2Test {
       .setDataPlaneActive(true).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.SCHEDULED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, Optional.of(requestDetails));
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation);
 
     subject.onStatusChange(event);
 

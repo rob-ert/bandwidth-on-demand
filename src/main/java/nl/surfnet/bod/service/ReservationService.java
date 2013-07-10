@@ -167,14 +167,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-    return cancelWithReason(reservation, cancelReason, user, Optional.<NsiRequestDetails> absent());
-  }
-
-  public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user,
-      Optional<NsiRequestDetails> requestDetails) {
 
     if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
-      return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
+      return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason));
     }
 
     log.info("Not allowed to cancel reservation {} with state {}", reservation.getName(), reservation.getStatus());
@@ -182,8 +177,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Optional.absent();
   }
 
-  public void cancelDueToReserveTimeout(Reservation reservation, NsiRequestDetails requestDetails) {
-    reservationToNbi.asyncTerminate(reservation.getId(), "Canceled due to reserve held timeout", Optional.of(requestDetails));
+  public void cancelDueToReserveTimeout(Reservation reservation) {
+    reservationToNbi.asyncTerminate(reservation.getId(), "Canceled due to reserve held timeout");
   }
 
   private void correctStart(Reservation reservation) {
@@ -486,7 +481,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @See {@link #create(Reservation)}
    */
   public Future<Long> create(Reservation reservation) {
-    return create(reservation, true, Optional.<NsiRequestDetails> absent());
+    return create(reservation, true);
   }
 
   /**
@@ -499,7 +494,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return ReservationId, scheduleId from NMS
    *
    */
-  public Future<Long> create(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> create(Reservation reservation, boolean autoProvision) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -510,7 +505,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservation = reservationRepo.save(reservation);
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
-    return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, requestDetails);
+    return reservationToNbi.asyncReserve(reservation.getId(), autoProvision);
   }
 
   public Reservation find(Long id) {
@@ -727,10 +722,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
    */
-  public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
+  public void provision(Reservation reservation) {
     checkNotNull(reservation);
 
-    reservationToNbi.asyncProvision(reservation.getId(), requestDetails);
+    reservationToNbi.asyncProvision(reservation.getId());
   }
 
   private void stripSecondsAndMillis(Reservation reservation) {

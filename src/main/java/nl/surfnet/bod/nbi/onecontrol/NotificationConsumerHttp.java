@@ -32,9 +32,10 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -107,7 +108,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     if (reservationId.isPresent()) {
       Reservation reservation = reservationService.findByReservationId(reservationId.get());
       if (!reservation.isNSICreated()) {
-        reservationService.provision(reservation, Optional.<NsiRequestDetails>absent());
+        reservationService.provision(reservation);
       }
     }
     scheduleUpdate(reservationId);

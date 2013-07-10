@@ -73,9 +73,17 @@ public class ConnectionV1 extends AbstractConnection {
   @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @IndexedEmbedded
+  private NsiRequestDetails reserveRequestDetails;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @IndexedEmbedded
   private NsiRequestDetails provisionRequestDetails;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @IndexedEmbedded
+  private NsiRequestDetails terminateRequestDetails;
 
   public ConnectionV1() {
   }
@@ -132,12 +140,28 @@ public class ConnectionV1 extends AbstractConnection {
     return NsiVersion.ONE;
   }
 
+  public NsiRequestDetails getReserveRequestDetails() {
+    return reserveRequestDetails;
+  }
+
+  public void setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
+    this.reserveRequestDetails = reserveRequestDetails;
+  }
+
   public NsiRequestDetails getProvisionRequestDetails() {
     return provisionRequestDetails;
   }
 
   public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
     this.provisionRequestDetails = provisionRequestDetails;
+  }
+
+  public NsiRequestDetails getTerminateRequestDetails() {
+    return terminateRequestDetails;
+  }
+
+  public void setTerminateRequestDetails(NsiRequestDetails terminateRequestDetails) {
+    this.terminateRequestDetails = terminateRequestDetails;
   }
 
   @Override

@@ -33,7 +33,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Uninterruptibles;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -138,7 +137,7 @@ public class ReservationPoller {
 
             Reservation reservationFresh = reservationService.updateStatus(reservationId, currentStatus.get());
 
-            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.<NsiRequestDetails>absent()));
+            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));
 
             return;
           }

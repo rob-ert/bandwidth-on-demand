@@ -112,6 +112,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   public void reserve(ConnectionV1 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
+    connection.setReserveRequestDetails(requestDetails);
     connection.setCurrentState(ConnectionStateType.RESERVING);
     connection = connectionRepo.saveAndFlush(connection);
 
@@ -131,7 +132,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
     connection.setReservation(reservation);
 
-    reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+    reservationService.create(reservation, autoProvision);
   }
 
   @SuppressWarnings("serial")
@@ -212,7 +213,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     else if (isProvisionPossible(connection)) {
       connection.setProvisionRequestDetails(requestDetails);
       connection = connectionRepo.saveAndFlush(connection);
-      reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
+      reservationService.provision(connection.getReservation());
     }
     else {
       log.info("Provision is not possible for state '{}'", connection.getCurrentState());
@@ -229,14 +230,14 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     ConnectionV1 connection = connectionRepo.findOne(connectionId);
 
     if (isTerminatePossible(connection)) {
+      connection.setTerminateRequestDetails(requestDetails);
       connection.setCurrentState(ConnectionStateType.TERMINATING);
       connectionRepo.saveAndFlush(connection);
 
       reservationService.cancelWithReason(
           connection.getReservation(),
           "NSI terminate by " + user.getNameId(),
-          user,
-          Optional.of(requestDetails));
+          user);
     }
     else {
       log.info("Terminate is not possible for state '{}'", connection.getCurrentState());

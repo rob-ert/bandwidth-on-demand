@@ -29,8 +29,18 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.domain.ConnectionV1;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.ConnectionV1Repo;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -39,8 +49,6 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Optional;
 
 @Component
 @Transactional
@@ -87,7 +95,7 @@ public class ReservationServiceDbTestHelper {
   }
 
   Reservation createThroughService(Reservation reservation, boolean autoProvision) {
-    Future<Long> future = reservationService.create(reservation, autoProvision, Optional.<NsiRequestDetails> absent());
+    Future<Long> future = reservationService.create(reservation, autoProvision);
 
     try {
       Long reservationId = future.get(2L, TimeUnit.SECONDS);

@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ReservationService;
@@ -93,6 +92,6 @@ public class ConnectionV2ReserveTimeoutPollerTest {
 
     subject.timeOutUncommittedReservations();
 
-    verify(reservationService).cancelDueToReserveTimeout(any(Reservation.class), any(NsiRequestDetails.class));
+    verify(reservationService).cancelDueToReserveTimeout(any(Reservation.class));
   }
 }

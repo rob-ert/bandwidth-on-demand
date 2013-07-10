@@ -98,7 +98,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
     connection.setReservation(reservation);
 
-    reservationService.create(reservation, false, Optional.of(requestDetails));
+    reservationService.create(reservation, false);
   }
 
   @Async
@@ -149,7 +149,7 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONING);
     connectionRepo.save(connection);
 
-    reservationService.provision(connection.getReservation(), Optional.<NsiRequestDetails>absent());
+    reservationService.provision(connection.getReservation());
   }
 
   @Async

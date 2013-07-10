@@ -22,23 +22,20 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import com.google.common.util.concurrent.Uninterruptibles;
+
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Uninterruptibles;
-
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class ReservationEventPublisherTest {
 
@@ -70,8 +67,7 @@ public class ReservationEventPublisherTest {
       @Override
       public void run() {
         for (int i = 0; i < numberOfEvents; i++) {
-          subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(
-              AUTO_START).create(), Optional.<NsiRequestDetails> absent()));
+          subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(AUTO_START).create()));
         }
       }
     };

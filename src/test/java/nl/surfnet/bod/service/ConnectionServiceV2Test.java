@@ -78,7 +78,7 @@ public class ConnectionServiceV2Test {
 
     subject.asyncProvision("ConnectionId", provisionRequestDetails);
 
-    verify(reservationServiceMock).provision(connection.getReservation(), Optional.<NsiRequestDetails>absent());
+    verify(reservationServiceMock).provision(connection.getReservation());
     assertThat(connection.getLastProvisionRequestDetails(), is(provisionRequestDetails));
   }
 

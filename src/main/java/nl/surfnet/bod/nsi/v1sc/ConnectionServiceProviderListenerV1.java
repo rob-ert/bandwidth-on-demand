@@ -71,7 +71,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
 
       switch (event.getNewStatus()) {
       case RESERVED:
-        requester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+        requester.reserveConfirmed(connection, connection.getReserveRequestDetails());
         break;
       case AUTO_START:
         requester.provisionSucceeded(connection);
@@ -81,7 +81,7 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
         break;
       case NOT_ACCEPTED:
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
-        requester.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+        requester.reserveFailed(connection, connection.getReserveRequestDetails(), failedReason);
         break;
       case PASSED_END_TIME:
         requester.terminateReservationPassedEndTime(connection);
@@ -90,10 +90,10 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
         requester.provisionConfirmed(connection, connection.getProvisionRequestDetails());
         break;
       case CANCELLED:
-        requester.terminateConfirmed(connection, event.getNsiRequestDetails());
+        requester.terminateConfirmed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
         break;
       case CANCEL_FAILED:
-        requester.terminateFailed(connection, event.getNsiRequestDetails());
+        requester.terminateFailed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
         break;
       case SUCCEEDED:
         requester.executionSucceeded(connection);
@@ -119,17 +119,17 @@ public class ConnectionServiceProviderListenerV1 implements ReservationListener 
       break;
     case RESERVING:
       requester.reserveFailed(
-        connection, event.getNsiRequestDetails().get(), fromNullable(connection.getReservation().getFailedReason()));
+        connection, connection.getReserveRequestDetails(), fromNullable(connection.getReservation().getFailedReason()));
       break;
     case TERMINATING:
-      requester.terminateFailed(connection, event.getNsiRequestDetails());
+      requester.terminateFailed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
       break;
     case PROVISIONING:
     case AUTO_PROVISION:
     case SCHEDULED:
       // the connection is was ready to get started but the step to running/provisioned failed
       // so send a provisionFailed
-      requester.provisionFailed(connection, event.getNsiRequestDetails().get());
+      requester.provisionFailed(connection, connection.getProvisionRequestDetails());
       break;
     case UNKNOWN:
     case TERMINATED:

@@ -48,7 +48,9 @@ public class ConnectionV1Factory {
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
+  private NsiRequestDetails reserveRequestDetails;
   private NsiRequestDetails provisionRequestDetails;
+  private NsiRequestDetails terminateRequestDetails;
 
   public ConnectionV1 create() {
     ConnectionV1 connection = new ConnectionV1();
@@ -77,7 +79,9 @@ public class ConnectionV1Factory {
     pathType.setSourceSTP(sourceStp);
     connection.setPath(pathType);
 
+    connection.setReserveRequestDetails(reserveRequestDetails);
     connection.setProvisionRequestDetails(provisionRequestDetails);
+    connection.setTerminateRequestDetails(terminateRequestDetails);
 
     return connection;
   }
@@ -142,8 +146,18 @@ public class ConnectionV1Factory {
     return this;
   }
 
+  public ConnectionV1Factory setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
+    this.reserveRequestDetails = reserveRequestDetails;
+    return this;
+  }
+
   public ConnectionV1Factory setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
     this.provisionRequestDetails = provisionRequestDetails;
+    return this;
+  }
+
+  public ConnectionV1Factory setTerminateRequestDetails(NsiRequestDetails terminateRequestDetails) {
+    this.terminateRequestDetails = terminateRequestDetails;
     return this;
   }
 }

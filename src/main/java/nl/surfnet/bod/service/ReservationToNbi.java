@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -40,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -56,7 +53,7 @@ public class ReservationToNbi {
   @Resource private LogEventService logEventService;
 
   @Async
-  public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> asyncReserve(Long reservationId, boolean autoProvision) {
     checkNotNull(reservationId);
 
     Reservation reservation = reservationRepo.findOne(reservationId);
@@ -71,13 +68,13 @@ public class ReservationToNbi {
 
     reservation = reservationRepo.save(reservation);
 
-    publishStatusChanged(reservation, orgStatus, requestDetails);
+    publishStatusChanged(reservation, orgStatus);
 
     return new AsyncResult<Long>(reservation.getId());
   }
 
   @Async
-  public Future<Long> asyncTerminate(Long reservationId, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> asyncTerminate(Long reservationId, String cancelReason) {
     Reservation reservation = reservationRepo.findOne(reservationId);
     checkNotNull(reservation);
 
@@ -91,13 +88,13 @@ public class ReservationToNbi {
     reservation.setCancelReason(cancelReason);
     reservation = reservationRepo.save(reservation);
 
-    publishStatusChanged(reservation, orgStatus, requestDetails);
+    publishStatusChanged(reservation, orgStatus);
 
     return new AsyncResult<Long>(reservation.getId());
   }
 
   @Async
-  public void asyncProvision(Long reservationId, Optional<NsiRequestDetails> requestDetails) {
+  public void asyncProvision(Long reservationId) {
     Reservation reservation = reservationRepo.findOne(reservationId);
 
     logger.debug("Activating a reservation {}", reservation);
@@ -110,11 +107,11 @@ public class ReservationToNbi {
       reservation.setStatus(ReservationStatus.AUTO_START);
       reservation = reservationRepo.save(reservation);
 
-      publishStatusChanged(reservation, orgStatus, requestDetails);
+      publishStatusChanged(reservation, orgStatus);
     }
   }
 
-  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus, Optional<NsiRequestDetails> nsiRequestDetails) {
+  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus) {
 
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
@@ -123,7 +120,7 @@ public class ReservationToNbi {
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
 
-    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails));
+    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(originalStatus, reservation));
   }
 
 }

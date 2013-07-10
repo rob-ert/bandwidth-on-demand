@@ -22,8 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
-
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -42,8 +42,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.google.common.base.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationToNbiTest {
@@ -71,7 +69,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(CANCELLED);
 
-    subject.asyncTerminate(reservation.getId(), "Cancelled by Truus", Optional.<NsiRequestDetails>absent());
+    subject.asyncTerminate(reservation.getId(), "Cancelled by Truus");
 
     assertThat(reservation.getStatus(), is(CANCELLED));
     assertThat(reservation.getCancelReason(), is("Cancelled by Truus"));
@@ -89,7 +87,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(true);
 
-    subject.asyncProvision(reservation.getId(), Optional.<NsiRequestDetails>absent());
+    subject.asyncProvision(reservation.getId());
 
     verify(reservationRepoMock).save(reservation);
     verify(reservationEventPublisherMock).notifyListeners(any(ReservationStatusChangeEvent.class));
@@ -102,7 +100,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(false);
 
-    subject.asyncProvision(reservation.getId(), Optional.<NsiRequestDetails>absent());
+    subject.asyncProvision(reservation.getId());
 
     verifyZeroInteractions(reservationEventPublisherMock);
     verify(reservationRepoMock).findOne(reservation.getId());

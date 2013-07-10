@@ -22,29 +22,19 @@
  */
 package nl.surfnet.bod.service;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import com.google.common.base.Objects;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 
 public class ReservationStatusChangeEvent {
 
   private final ReservationStatus oldStatus;
   private final Reservation reservation;
-  private final Optional<NsiRequestDetails> nsiRequestDetails;
-
-  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation, Optional<NsiRequestDetails> nsiRequestDetails) {
-    this.oldStatus = oldStatus;
-    this.reservation = reservation;
-    this.nsiRequestDetails = nsiRequestDetails;
-  }
 
   public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation) {
     this.oldStatus = oldStatus;
     this.reservation = reservation;
-    this.nsiRequestDetails = Optional.absent();
   }
 
   public ReservationStatus getOldStatus() {
@@ -59,14 +49,10 @@ public class ReservationStatusChangeEvent {
     return reservation;
   }
 
-  public Optional<NsiRequestDetails> getNsiRequestDetails() {
-    return nsiRequestDetails;
-  }
-
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("reservationId", reservation.getId()).add("oldStatus", oldStatus).add(
-        "newStatus", getNewStatus()).add("nsiRequest", nsiRequestDetails).toString();
+        "newStatus", getNewStatus()).toString();
   }
 
 }
