@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -92,13 +93,6 @@ public class ReservationsAligner implements SmartLifecycle {
     started = true;
     log.info("Starting OneControl Reservations Aligner...");
 
-    // also, fill the queue so that we sync with onecontrol at startup
-
-    Collection<Reservation> reservationsToPoll = reservationService.findReservationsToPoll(new DateTime());
-    for (Reservation reservation: reservationsToPoll) {
-      add(reservation.getReservationId());
-    }
-
     Thread alignerThread = new Thread(){
       @Override
       public void run() {
@@ -114,6 +108,15 @@ public class ReservationsAligner implements SmartLifecycle {
     alignerThread.setName("Onecontrol Reservation Aligner");
     alignerThread.setDaemon(true);
     alignerThread.start();
+  }
+
+  @Scheduled(fixedRate = 60000l)
+  public void refreshReservationsToAlign() {
+    log.debug("Finding reservations to align");
+    Collection<Reservation> reservationsToPoll = reservationService.findReservationsToPoll(new DateTime());
+    for (Reservation reservation: reservationsToPoll) {
+      add(reservation.getReservationId());
+    }
   }
 
   @Override
@@ -133,6 +136,7 @@ public class ReservationsAligner implements SmartLifecycle {
 
   @Override
   public void stop(Runnable callback) {
+    log.debug("Shutting down OneControl ReservationsAligner");
     stop();
     callback.run();
   }
