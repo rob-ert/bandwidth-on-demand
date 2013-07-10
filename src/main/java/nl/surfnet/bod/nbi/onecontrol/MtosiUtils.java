@@ -156,17 +156,20 @@ public final class MtosiUtils {
   }
 
   public static RelativeDistinguishNameType createRdn(String type, String value) {
-    RelativeDistinguishNameType rel = new RelativeDistinguishNameType();
-    rel.setType(type);
-    rel.setValue(value);
-    return rel;
+     return new RelativeDistinguishNameType()
+      .withType(type)
+      .withValue(value);
   }
 
   public static NamingAttributeType createRfs(String name) {
-    return createNamingAttrib("RFS", name);
+    return createNamingAttributeType("RFS", name);
   }
 
-  public static NamingAttributeType createNamingAttrib(String type, String value) {
+  public static ServiceCharacteristicValueType createSscValue(String name, String value) {
+    return createSscValue(createNamingAttributeType("SSC", name), value);
+  }
+
+  public static NamingAttributeType createNamingAttributeType(String type, String value) {
     NamingAttributeType namingAttributeType = new NamingAttributeType();
 
     namingAttributeType.getRdn().add(createRdn(type, value));
@@ -174,13 +177,8 @@ public final class MtosiUtils {
     return namingAttributeType;
   }
 
-  public static JAXBElement<NamingAttributeType> createNamingAttributeType(String type, String value) {
-    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttrib(type,
-        value));
-  }
-
-  public static ServiceCharacteristicValueType createSscValue(String name, String value) {
-    return createSscValue(createNamingAttrib("SSC", name), value);
+  public static JAXBElement<NamingAttributeType> createComonObjectInfoTypeName(String type, String value) {
+    return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttributeType(type, value));
   }
 
   private static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {

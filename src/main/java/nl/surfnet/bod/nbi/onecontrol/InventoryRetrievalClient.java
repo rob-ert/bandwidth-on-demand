@@ -150,13 +150,13 @@ public class InventoryRetrievalClient {
     request.setFilter(getInventoryRequestSimpleFilter(filter));
   }
 
-  private SimpleServiceFilterType getInventoryRequestSimpleFilter(String filter) {
-    SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType();
-    simpleFilter.getScopeAndSelection().add(GranularityType.FULL);
+  private SimpleServiceFilterType getInventoryRequestSimpleFilter(String serviceObjectType) {
+    SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope()
+      .withServiceObjectType(serviceObjectType);
 
-    SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
-    scope.setServiceObjectType(filter);
-    simpleFilter.getScopeAndSelection().add(scope);
+    SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType()
+      .withScopeAndSelection(GranularityType.FULL)
+      .withScopeAndSelection(scope);
 
     return simpleFilter;
   }

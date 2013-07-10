@@ -23,7 +23,7 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
-import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createNamingAttributeType;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createComonObjectInfoTypeName;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -86,7 +86,7 @@ public class NbiOneControlClientTest {
 
     ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
       .withServiceState(ServiceStateType.RESERVED)
-      .withName(createNamingAttributeType("RFS", reservation.getReservationId()));
+      .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()));
 
     RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
       .withRfs(rfs);
@@ -104,7 +104,7 @@ public class NbiOneControlClientTest {
 
     ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
       .withServiceState(ServiceStateType.RESERVED)
-      .withName(createNamingAttributeType("RFS", "no-match"));
+      .withName(createComonObjectInfoTypeName("RFS", "no-match"));
 
     RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
         .withRfs(rfs);

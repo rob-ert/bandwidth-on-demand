@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createNamingAttributeType;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createComonObjectInfoTypeName;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRdn;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createSscValue;
 
@@ -103,7 +103,7 @@ public class ReserveRequestBuilder {
   @VisibleForTesting
   static ResourceFacingServiceType createBasicRfsData(Reservation reservation) {
     ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
-      .withName(createNamingAttributeType("RFS", reservation.getReservationId()))
+      .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()))
       .withIsMandatory(true)
       .withIsStateful(true)
       .withAdminState(AdminStateType.UNLOCKED)
@@ -122,7 +122,7 @@ public class ReserveRequestBuilder {
   @VisibleForTesting
   static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId) {
     ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceAccessPointType()
-      .withName(createNamingAttributeType("SAP", port.getNmsSapName()))
+      .withName(createComonObjectInfoTypeName("SAP", port.getNmsSapName()))
       .withResourceRef(new NamingAttributeType().withRdn(
         createRdn("MD", MANAGING_DOMAIN),
         createRdn("ME", port.getNmsNeId()),

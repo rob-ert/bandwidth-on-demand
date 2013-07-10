@@ -113,7 +113,7 @@ public class MtosiUtilsTest {
 
   @Test
   public void shouldCreateNamingAttribWithArgs() {
-    NamingAttributeType attrib = MtosiUtils.createNamingAttrib("type", "value");
+    NamingAttributeType attrib = MtosiUtils.createNamingAttributeType("type", "value");
 
     assertThat(attrib.getRdn(), hasSize(1));
     assertThat(attrib.getRdn().get(0).getType(), is("type"));
