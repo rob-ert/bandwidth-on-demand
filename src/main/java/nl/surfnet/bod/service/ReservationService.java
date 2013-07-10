@@ -634,6 +634,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservations;
   }
 
+  public Collection<Reservation> findTransitionableReservations() {
+    return reservationRepo.findAll(ReservationPredicatesAndSpecifications.specActiveReservations());
+  }
+
   private List<Reservation> findReservationWithStatus(ReservationStatus... states) {
     return reservationRepo.findByStatusIn(Arrays.asList(states));
   }

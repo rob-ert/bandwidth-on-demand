@@ -34,7 +34,6 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -121,8 +120,9 @@ public class ReservationsAligner implements SmartLifecycle {
   @Scheduled(fixedRate = 60000l)
   public void refreshReservationsToAlign() {
     log.debug("Finding reservations to align");
-    Collection<Reservation> reservationsToPoll = reservationService.findReservationsToPoll(new DateTime());
+    Collection<Reservation> reservationsToPoll = reservationService.findTransitionableReservations();
     for (Reservation reservation: reservationsToPoll) {
+      log.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
       add(reservation.getReservationId());
     }
   }
