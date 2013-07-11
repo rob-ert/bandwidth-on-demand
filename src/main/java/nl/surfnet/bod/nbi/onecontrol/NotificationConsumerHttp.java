@@ -107,7 +107,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     // auto-provision if the reservation was created in the gui
     if (reservationId.isPresent()) {
       Reservation reservation = reservationService.findByReservationId(reservationId.get());
-      if (!reservation.isNSICreated()) {
+      if (reservation != null && !reservation.isNSICreated()) {
         reservationService.provision(reservation);
       }
     }
