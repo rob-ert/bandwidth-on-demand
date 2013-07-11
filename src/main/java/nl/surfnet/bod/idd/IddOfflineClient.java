@@ -41,7 +41,7 @@ public class IddOfflineClient implements IddClient {
 
   private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
-  public IddOfflineClient(String username, String password, String endPoint) {
+  public IddOfflineClient(String username, String password, String endPoint, Integer timeout) {
     // arguments are ignored but gives the same constructor as the iddLiveClient
   }
 

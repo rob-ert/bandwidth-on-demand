@@ -35,6 +35,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.sun.xml.ws.developer.JAXWSProperties;
 import nl.surfnet.bod.domain.PhysicalPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,13 @@ public class InventoryRetrievalClient {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final String endPoint;
+
+  @Value("${onecontrol.inventory.client.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${onecontrol.inventory.client.request.timeout}")
+  private int requestTimeout;
+
 
   @Autowired
   public InventoryRetrievalClient(@Value("${nbi.onecontrol.inventory.retrieval.endpoint}") String endPoint) {
@@ -185,8 +193,10 @@ public class InventoryRetrievalClient {
 
   private ServiceInventoryRetrievalRPC createPort() {
     ServiceInventoryRetrievalRPC port = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceInventoryRetrievalSoapHttp();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-
+    BindingProvider bindingProvider = (BindingProvider) port;
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
   }
 

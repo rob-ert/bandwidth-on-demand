@@ -58,7 +58,7 @@ public class IddLiveClientTest {
 
   @Before
   public void setUp() {
-    subject = new IddLiveClient("Donald", "secret", "http://localhost:8088/getKlant.php");
+    subject = new IddLiveClient("Donald", "secret", "http://localhost:8088/getKlant.php", 10000);
 
     server.addResponse("/getKlant.php", new ClassPathResource("idd_response_with_5_klanten.xml"));
   }
@@ -72,7 +72,7 @@ public class IddLiveClientTest {
 
   @Test
   public void wrongPasswordShouldGiveException() {
-    subject = new IddLiveClient("Wrong", "secret", "http://localhost:8088/getKlant.php");
+    subject = new IddLiveClient("Wrong", "secret", "http://localhost:8088/getKlant.php", 10000);
     thrown.expect(RuntimeException.class);
     thrown.expectMessage(containsString("401"));
 

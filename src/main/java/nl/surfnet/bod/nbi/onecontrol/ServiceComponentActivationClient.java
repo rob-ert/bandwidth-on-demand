@@ -28,6 +28,7 @@ import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservat
 
 import javax.xml.ws.BindingProvider;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -59,6 +60,12 @@ public class ServiceComponentActivationClient {
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
   private final String endPoint;
+
+  @Value("${onecontrol.service.component.activation.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${onecontrol.service.component.activation.request.timeout}")
+  private int requestTimeout;
 
   @Autowired
   public ServiceComponentActivationClient(@Value("${nbi.onecontrol.service.reserve.endpoint}") String endPoint) {
@@ -118,8 +125,10 @@ public class ServiceComponentActivationClient {
 
   private ServiceComponentActivationInterface createPort() {
     ServiceComponentActivationInterface port = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceComponentActivationInterfaceSoapHttp();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-
+    BindingProvider bindingProvider = (BindingProvider) port;
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
   }
 

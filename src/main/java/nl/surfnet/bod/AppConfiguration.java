@@ -182,11 +182,11 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
   @Bean
   public IddClient iddclient(@Value("${idd.client.class}") String iddClientClass,
       @Value("${idd.user}") String username, @Value("${idd.password}") String password,
-      @Value("${idd.url}") String endPoint) {
+      @Value("${idd.url}") String endPoint, @Value("${idd.timeout}") Integer timeout) {
 
     try {
-      return (IddClient) Class.forName(iddClientClass).getConstructor(String.class, String.class, String.class)
-          .newInstance(username, password, endPoint);
+      return (IddClient) Class.forName(iddClientClass).getConstructor(String.class, String.class, String.class, Integer.class)
+          .newInstance(username, password, endPoint, timeout);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

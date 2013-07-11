@@ -26,6 +26,7 @@ import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildNotificationHeade
 
 import javax.xml.ws.BindingProvider;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,12 @@ public class NotificationProducerClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final String endPoint;
+
+  @Value("${onecontrol.notification.producer.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${onecontrol.notification.producer.request.timeout}")
+  private int requestTimeout;
 
   @Autowired
   public NotificationProducerClient(@Value("${nbi.onecontrol.notification.producer.endpoint}") String endPoint) {
@@ -93,8 +100,10 @@ public class NotificationProducerClient {
 
   private NotificationProducer createPort() {
     NotificationProducer port = new NotificationProducerHttp(this.getClass().getResource(WSDL_LOCATION)).getNotificationProducerSoapHttp();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
-
+    BindingProvider bindingProvider = (BindingProvider) port;
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
   }
 

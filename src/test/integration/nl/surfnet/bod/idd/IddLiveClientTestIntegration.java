@@ -46,7 +46,7 @@ public class IddLiveClientTestIntegration {
     subject = new IddLiveClient(
         testEnvironment.getProperty("idd.user"),
         testEnvironment.getDecryptedProperty("idd.password"),
-        testEnvironment.getProperty("idd.url"));
+        testEnvironment.getProperty("idd.url"), 120000);
   }
 
   @Test

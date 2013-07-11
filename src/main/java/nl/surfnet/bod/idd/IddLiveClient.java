@@ -43,11 +43,13 @@ public class IddLiveClient implements IddClient {
   private final String username;
   private final String password;
   private final String endPoint;
+  private final Integer timeout;
 
-  public IddLiveClient(String username, String password, String endPoint) {
+  public IddLiveClient(String username, String password, String endPoint, Integer timeout) {
     this.username = username;
     this.password = password;
     this.endPoint = endPoint;
+    this.timeout = timeout;
   }
 
   @Override
@@ -59,8 +61,10 @@ public class IddLiveClient implements IddClient {
       locator.setksrPortEndpointAddress(endPoint);
 
       KsrBindingStub port = (KsrBindingStub) locator.getksrPort();
+      port.setTimeout(timeout);
       port.setUsername(username);
       port.setPassword(password);
+
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
 

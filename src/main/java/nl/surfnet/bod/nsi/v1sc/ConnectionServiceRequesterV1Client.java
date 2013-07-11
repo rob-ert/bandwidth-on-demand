@@ -31,6 +31,7 @@ import javax.xml.ws.Holder;
 
 import com.sun.xml.ws.client.ClientTransportException;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
@@ -42,6 +43,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -52,6 +54,12 @@ public class ConnectionServiceRequesterV1Client {
   private static final String WSDL_LOCATION = "/wsdl/1.0_sc/ogf_nsi_connection_requester_v1_0.wsdl";
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterV1Client.class);
+
+  @Value("${connection.service.requester.v1.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${connection.service.requester.v1.request.timeout}")
+  private int requestTimeout;
 
   @Async
   public void asyncSendReserveConfirmed(ReserveConfirmedType reserveConfirmedType, NsiRequestDetails requestDetails) {
@@ -128,8 +136,10 @@ public class ConnectionServiceRequesterV1Client {
 
   private ConnectionRequesterPort createPort(URI endpoint) {
     ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
-
+    BindingProvider bindingProvider = (BindingProvider) port;
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
+    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
   }
 

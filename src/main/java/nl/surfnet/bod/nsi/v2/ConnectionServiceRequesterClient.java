@@ -33,6 +33,7 @@ import javax.xml.ws.Holder;
 
 import com.sun.xml.ws.client.ClientTransportException;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
@@ -47,6 +48,7 @@ import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -57,6 +59,12 @@ public class ConnectionServiceRequesterClient {
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterClient.class);
+
+  @Value("${connection.service.requester.v2.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${connection.service.requester.v2.request.timeout}")
+  private int requestTimeout;
 
   @Async
   public void asyncSendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, URI replyTo) {
@@ -201,8 +209,11 @@ public class ConnectionServiceRequesterClient {
 
   private ConnectionRequesterPort createPort(URI endpoint) {
     ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
 
+    BindingProvider bindingProvider = (BindingProvider) port;
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
+    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
   }
 
