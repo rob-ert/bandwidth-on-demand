@@ -85,6 +85,17 @@ public class ReservationsAlignerTest {
   }
 
   @Test
+  public void should_not_crash_when_onecontrol_client_causes_an_exception(){
+    final String knownId = "known";
+
+    subject.add(knownId);
+
+    when(nbiOneControlClient.getReservationStatus(knownId)).thenThrow(new RuntimeException("try to crash the aligner"));
+    assertTrue(subject.doAlign());
+
+  }
+
+  @Test
   public void happy_path(){
     final String knownId = "known";
     ReservationStatus reserved = ReservationStatus.RESERVED;
