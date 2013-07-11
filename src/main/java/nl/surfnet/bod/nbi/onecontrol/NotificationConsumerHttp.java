@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -56,11 +57,11 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
-  private final List<AlarmType> alarms = new ArrayList<>();
-  private final List<HeartbeatType> heartbeats = new ArrayList<>();
-  private final List<CommonEventInformationType> events = new ArrayList<>();
-  private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
-  private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
+  private final List<AlarmType> alarms = Collections.synchronizedList(new ArrayList<AlarmType>());
+  private final List<HeartbeatType> heartbeats = Collections.synchronizedList(new ArrayList<HeartbeatType>());
+  private final List<CommonEventInformationType> events = Collections.synchronizedList(new ArrayList<CommonEventInformationType>());
+  private final List<ServiceObjectCreationType> serviceObjectCreations = Collections.synchronizedList(new ArrayList<ServiceObjectCreationType>());
+  private final List<ServiceObjectDeletionType> serviceObjectDeletions = Collections.synchronizedList(new ArrayList<ServiceObjectDeletionType>());
 
   @Resource
   private ReservationsAligner reservationsAligner;
