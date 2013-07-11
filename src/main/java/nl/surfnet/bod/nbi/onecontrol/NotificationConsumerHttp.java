@@ -33,9 +33,6 @@ import javax.xml.bind.JAXBException;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.ReservationService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -67,9 +64,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   @Resource
   private ReservationsAligner reservationsAligner;
-
-  @Resource
-  private ReservationService reservationService;
 
   @Override
   public void notify(Header header, Notify body) {
@@ -103,14 +97,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
-
-    // auto-provision if the reservation was created in the gui
-    if (reservationId.isPresent()) {
-      Reservation reservation = reservationService.findByReservationId(reservationId.get());
-      if (reservation != null && !reservation.isNSICreated()) {
-        reservationService.provision(reservation);
-      }
-    }
     scheduleUpdate(reservationId);
   }
 
@@ -119,16 +105,16 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     scheduleUpdate(reservationId);
   }
 
-  private void scheduleUpdate(Optional<String> reservationId) {
-    if (reservationId.isPresent()) {
-      reservationsAligner.add(reservationId.get());
-    }
-  }
-
   private void handleServiceObjectDeletion(ServiceObjectDeletionType deletionEvent) {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
     scheduleUpdate(reservationId);
+  }
+
+  private void scheduleUpdate(Optional<String> reservationId) {
+    if (reservationId.isPresent()) {
+      reservationsAligner.add(reservationId.get());
+    }
   }
 
   public List<AlarmType> getAlarms() {
