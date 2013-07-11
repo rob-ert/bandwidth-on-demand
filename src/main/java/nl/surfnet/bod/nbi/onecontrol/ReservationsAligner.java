@@ -41,11 +41,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
-@Profile("onecontrol")
 /**
  * Continuously polls for reservations that need to be aligned
  */
+@Component
+@Profile("onecontrol")
 public class ReservationsAligner implements SmartLifecycle {
 
   private final Logger log = LoggerFactory.getLogger(ReservationsAligner.class);
@@ -61,9 +61,10 @@ public class ReservationsAligner implements SmartLifecycle {
 
   private BlockingQueue<String> reservationIds = new ArrayBlockingQueue<>(1000);
 
-  public void align() throws InterruptedException{
+  public void align() throws InterruptedException {
     for (;;) {
-      if (!doAlign()) break;
+      if (!doAlign())
+        break;
     }
   }
 
@@ -76,20 +77,13 @@ public class ReservationsAligner implements SmartLifecycle {
       }
       log.info("Picking up reservation {}", reservationId);
       Optional<ReservationStatus> reservationStatus = nbiOneControlClient.getReservationStatus(reservationId);
-
-      if (!reservationStatus.isPresent()){
-        // one control does not know about this reservation, we will consider it lost
-        reservationService.updateStatus(reservationId, ReservationStatus.LOST);
-        return true;
-      }
-      log.info("Retrieved status of reservation {}, issuing update.", reservationId);
       try {
-        reservationService.updateStatus(reservationId, reservationStatus.get());
-      } catch (NoResultException e) { // apparently the reservation did not exist
+        reservationService.updateStatus(reservationId, reservationStatus.or(ReservationStatus.LOST));
+      } catch (NoResultException e) {
+        // apparently the reservation did not exist
         log.debug("Ignoring unknown reservation with id {}", reservationId);
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error("Exception occurred while updating a reservation", e);
     }
     return true;
@@ -100,7 +94,7 @@ public class ReservationsAligner implements SmartLifecycle {
     started = true;
     log.info("Starting OneControl Reservations Aligner...");
 
-    Thread alignerThread = new Thread(){
+    Thread alignerThread = new Thread() {
       @Override
       public void run() {
         try {
@@ -121,7 +115,7 @@ public class ReservationsAligner implements SmartLifecycle {
   public void refreshReservationsToAlign() {
     log.debug("Finding reservations to align");
     Collection<Reservation> reservationsToPoll = reservationService.findTransitionableReservations();
-    for (Reservation reservation: reservationsToPoll) {
+    for (Reservation reservation : reservationsToPoll) {
       log.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
       add(reservation.getReservationId());
     }
@@ -156,9 +150,10 @@ public class ReservationsAligner implements SmartLifecycle {
 
   /**
    *
-   * @throws IllegalStateException when the backing queue is full
+   * @throws IllegalStateException
+   *           when the backing queue is full
    */
-  public void add(String reservationId){
+  public void add(String reservationId) {
     reservationIds.add(reservationId);
   }
 

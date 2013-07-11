@@ -83,6 +83,9 @@ public class ReservationServiceTest {
   @Mock
   private LogEventService logEventService;
 
+  @Mock
+  private ReservationEventPublisher reservationEventPublisher;
+
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
     Security.setUserDetails(new RichUserDetailsFactory().create());
@@ -184,6 +187,7 @@ public class ReservationServiceTest {
 
     reservation.setStatus(ReservationStatus.AUTO_START);
     verify(reservationRepoMock).saveAndFlush(reservation);
+    verify(reservationEventPublisher).notifyListeners(any(ReservationStatusChangeEvent.class));
   }
 
   @Test

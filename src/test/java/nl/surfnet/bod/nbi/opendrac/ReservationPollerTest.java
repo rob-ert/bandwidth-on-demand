@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.opendrac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -38,9 +37,7 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateTime;
@@ -50,18 +47,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
 
   @InjectMocks
   private ReservationPoller subject;
-
-  @Mock
-  private ReservationEventPublisher reservationEventPublisherMock;
 
   @Mock
   private ReservationService reservationServiceMock;
@@ -72,36 +64,6 @@ public class ReservationPollerTest {
   @Before
   public void makeSureWeReallyPoll() {
     subject.setMaxPollingTries(1);
-  }
-
-  @Test
-  public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
-    final Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
-
-    when(nbiClientMock.getReservationStatus(reservation.getReservationId())).thenReturn(Optional.of(ReservationStatus.AUTO_START));
-    when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
-        Lists.newArrayList(reservation));
-    when(reservationServiceMock.find(1L)).thenReturn(reservation);
-    when(reservationServiceMock.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START)).thenAnswer(new Answer<Reservation>() {
-      @Override
-      public Reservation answer(InvocationOnMock invocation) {
-        reservation.setStatus(ReservationStatus.AUTO_START);
-        return reservation;
-      }
-    });
-
-    subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
-
-    awaitPollerReady();
-
-    ArgumentCaptor<ReservationStatusChangeEvent> eventCaptor = ArgumentCaptor
-        .forClass(ReservationStatusChangeEvent.class);
-
-    verify(reservationEventPublisherMock).notifyListeners(eventCaptor.capture());
-
-    assertThat(eventCaptor.getAllValues(), hasSize(1));
-    assertThat(eventCaptor.getValue().getOldStatus(), is(ReservationStatus.REQUESTED));
-    assertThat(eventCaptor.getValue().getReservation().getStatus(), is(ReservationStatus.AUTO_START));
   }
 
   @Test
