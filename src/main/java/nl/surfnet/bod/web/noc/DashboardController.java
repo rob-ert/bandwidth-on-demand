@@ -77,8 +77,8 @@ public class DashboardController {
   }
 
   @RequestMapping(value = CHECK_PORTS, method = RequestMethod.GET)
-  public String forceCheckForPortInconsitencies(String callbackViewName) {
-    log.info("Manually forcing check for port inconsitencies");
+  public String forceCheckForPortInconsistencies(String callbackViewName) {
+    log.info("Manually forcing check for port inconsistencies");
     physicalPortService.forceCheckForPortInconsitencies();
     return "redirect:/noc";
   }
