@@ -183,7 +183,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   private Optional<PhysicalResourceGroup> getCurrentPhysicalResourceGroup() {
     Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
     if (!groupId.isPresent()) {
-      return Optional.<PhysicalResourceGroup> absent();
+      return Optional.absent();
     }
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
     return Optional.of(physicalResourceGroup);
