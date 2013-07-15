@@ -130,7 +130,7 @@ public class InventoryRetrievalClient {
     physicalPort.setNmsNeId(managedElement);
     physicalPort.setNmsPortSpeed(nmsPortSpeed);
     physicalPort.setBodPortId(nmsSapName);
-    physicalPort.setNocLabel(managedElement + "@" + ptp);
+    physicalPort.setNocLabel(managedElement + "@" +  MtosiUtils.convertToShortPtP(ptp));
     physicalPort.setSupportedServiceType(supportedServiceType);
     physicalPort.setSignalingType("NA");
 
