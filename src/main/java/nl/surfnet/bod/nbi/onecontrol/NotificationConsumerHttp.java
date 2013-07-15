@@ -60,7 +60,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
   private final List<AlarmType> alarms = new ArrayList<>();
-  private final List<HeartbeatType> heartbeats = new ArrayList<>();
   private final List<CommonEventInformationType> events = new ArrayList<>();
   private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
@@ -81,7 +80,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
       for (JAXBElement<? extends CommonEventInformationType> jaxbElement : eventInformations) {
         CommonEventInformationType event = jaxbElement.getValue();
         if (event instanceof HeartbeatType) {
-          heartbeats.add((HeartbeatType) jaxbElement.getValue());
+          log.debug("Received heartbeat");
         } else if (event instanceof AlarmType) {
           alarms.add((AlarmType) jaxbElement.getValue());
         } else if (event instanceof ServiceObjectCreationType) {
@@ -133,10 +132,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   public List<AlarmType> getAlarms() {
     return ImmutableList.copyOf(alarms);
-  }
-
-  public List<HeartbeatType> getHeartbeats() {
-    return ImmutableList.copyOf(heartbeats);
   }
 
   public List<CommonEventInformationType> getEvents() {

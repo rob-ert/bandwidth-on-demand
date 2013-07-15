@@ -8,38 +8,6 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <section>
-        <h2>Heartbeats</h2>
-        <div class="content">
-            <table:table items="${heartbeats}" labelPluralCode="heartbeats">
-                <thead>
-                    <tr>
-                        <th>NotificationId</th>
-                        <th>SourceTime / OsTime</th>
-                        <th>ObjectType</th>
-                        <th>ObjectName</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach items="${heartbeats}" var="heartbeat">
-                        <tr>
-                            <table:column item="${heartbeat}" property="notificationId" />
-                            <td>
-                                <spring:eval expression="heartbeat.sourceTime" htmlEscape="true" />
-                                /
-                                <spring:eval expression="heartbeat.osTime" htmlEscape="true" />
-                            </td>
-                            <table:column item="${heartbeat}" property="objectType" />
-                            <td>
-                                <c:out value="${heartbeat.objectName}" />
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table:table>
-        </div>
-    </section>
-
-    <section>
         <h2>ServiceObjectCreations</h2>
         <div class="content">
             <table:table items="${serviceObjectCreations}" labelPluralCode="serviceObjectCreations">

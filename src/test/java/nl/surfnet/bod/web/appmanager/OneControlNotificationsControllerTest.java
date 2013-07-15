@@ -33,8 +33,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,10 +42,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
-
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OneControlNotificationsControllerTest {
@@ -64,14 +61,12 @@ public class OneControlNotificationsControllerTest {
   }
 
   @Test
-  public void notificationsShouldAddAlamsAndHeartbeatsToModel() throws Exception {
+  public void notificationsShouldAddAlarmsToModel() throws Exception {
     when(notificationConsumerHttpMock.getAlarms()).thenReturn(Lists.newArrayList(new AlarmType()));
-    when(notificationConsumerHttpMock.getHeartbeats()).thenReturn(Lists.newArrayList(new HeartbeatType(), new HeartbeatType()));
 
     mockMvc.perform(get("/appmanager/onecontrol/notifications"))
       .andExpect(status().isOk())
-      .andExpect(model().attribute("alarms", hasSize(1)))
-      .andExpect(model().attribute("heartbeats", hasSize(2)));
+      .andExpect(model().attribute("alarms", hasSize(1)));
   }
 
   @Test

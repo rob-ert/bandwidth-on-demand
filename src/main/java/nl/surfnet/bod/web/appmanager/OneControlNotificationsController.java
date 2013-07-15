@@ -51,7 +51,6 @@ public class OneControlNotificationsController {
 
   @RequestMapping("/notifications")
   public String listNotifications(Model model) {
-    model.addAttribute("heartbeats", last(notificationConsumer.getHeartbeats(), 20));
     model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
     model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
     model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
