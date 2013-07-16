@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.onecontrol.NotificationSubscriber;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VersReportingService;
@@ -56,6 +57,7 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,11 +88,30 @@ public class HealthCheckController {
   @Resource(name = "bodEnvironment")
   private Environment environment;
 
+  @Autowired(required = false)
+  private NotificationSubscriber notificationSubscriber; // only when in onecontrol mode
+
   public interface ServiceCheck {
     ServiceState healty() throws Exception;
 
     String getName();
   }
+
+  private final ServiceCheck oneControlNotificationsCheck = new ServiceCheck() {
+    @Override
+    public ServiceState healty() throws Exception {
+      if (notificationSubscriber == null) {
+        return ServiceState.DISABLED;
+      }else{
+        return notificationSubscriber.isHealthy() ? ServiceState.SUCCEEDED : FAILED;
+      }
+    }
+
+    @Override
+    public String getName() {
+      return "OneControl Notification Consumer";
+    }
+  };
 
   private final ServiceCheck iddServiceCheck = new ServiceCheck() {
     @Override
@@ -182,6 +203,7 @@ public class HealthCheckController {
   private List<ServiceCheck> checks = Arrays.asList(
       iddServiceCheck,
       nbiServiceCheck,
+      oneControlNotificationsCheck,
       oAuthServerServiceCheck,
       apiServiceCheck,
       sabServiceCheck,

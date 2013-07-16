@@ -29,15 +29,14 @@ import java.util.Enumeration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
 import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
-
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -52,9 +51,23 @@ public class NotificationSubscriber {
   private String serviceTopicSubscribeId;
   private String faultTopicSubscribeId;
 
-  @Resource private NotificationProducerClient notificationClient;
+  private int flatlineTolerance; // in seconds
 
-  @Value("${nbi.onecontrol.notification.consumer.endpoint}") private String endPointAddress;
+  private NotificationProducerClient notificationClient;
+
+  private NotificationConsumerHttp notificationConsumerHttp;
+
+  private String endPointAddress;
+
+  @Autowired
+  public NotificationSubscriber(@Value("${nbi.onecontrol.notification.flatline.tolerance}") int flatlineTolerance,
+                                @Value("${nbi.onecontrol.notification.consumer.endpoint}") String endPointAddress,
+                                NotificationProducerClient notificationClient, NotificationConsumerHttp notificationConsumerHttp) {
+    this.flatlineTolerance = flatlineTolerance;
+    this.endPointAddress = endPointAddress;
+    this.notificationClient = notificationClient;
+    this.notificationConsumerHttp = notificationConsumerHttp;
+  }
 
   @PostConstruct
   public void subscribe() {
@@ -70,6 +83,21 @@ public class NotificationSubscriber {
     }
   }
 
+  @PreDestroy
+  public void unsubscribe() {
+    if (!Strings.isNullOrEmpty(serviceTopicSubscribeId)) {
+      unsubscribe(NotificationTopic.SERVICE, serviceTopicSubscribeId);
+    }
+    if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
+      unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
+    }
+  }
+
+  public boolean isHealthy() {
+    // the last time a notification was received may not be more than {tolerance} seconds ago
+    return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
+  }
+
   private String getEndPoint() {
     if (Strings.isNullOrEmpty(endPointAddress)) {
       Optional<InetAddress> address = getOneControlIntAddress();
@@ -80,16 +108,6 @@ public class NotificationSubscriber {
     }
 
     return endPointAddress;
-  }
-
-  @PreDestroy
-  public void unsubscribe() {
-    if (!Strings.isNullOrEmpty(serviceTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.SERVICE, serviceTopicSubscribeId);
-    }
-    if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
-    }
   }
 
   private String getEndPoint(InetAddress address) {
@@ -119,9 +137,9 @@ public class NotificationSubscriber {
   private void unsubscribe(NotificationTopic topic, String subscriptionId) {
     try {
       notificationClient.unsubscribe(topic, subscriptionId);
-      logger.info("Succesfully unsubscribed from {} topic with id {}", topic, subscriptionId);
+      logger.info("Successfully un-subscribed from {} topic with id {}", topic, subscriptionId);
     } catch (UnsubscribeException e) {
-      logger.warn("Unsubscribe to {} topic with id {} has failed: {}", topic, subscriptionId, e);
+      logger.warn("Un-subscribe to {} topic with id {} has failed: {}", topic, subscriptionId, e);
     }
   }
 

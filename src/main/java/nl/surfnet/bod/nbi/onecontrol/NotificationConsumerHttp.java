@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -36,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -70,6 +72,8 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   @Resource
   private ReservationService reservationService;
 
+  private DateTime lastHeartbeat = DateTime.now();
+
   @Override
   public void notify(Header header, Notify body) {
     try {
@@ -80,6 +84,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
       for (JAXBElement<? extends CommonEventInformationType> jaxbElement : eventInformations) {
         CommonEventInformationType event = jaxbElement.getValue();
         if (event instanceof HeartbeatType) {
+          lastHeartbeat = DateTime.now();
           log.debug("Received heartbeat");
         } else if (event instanceof AlarmType) {
           alarms.add((AlarmType) jaxbElement.getValue());
@@ -128,6 +133,10 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
     scheduleUpdate(reservationId);
+  }
+
+  public DateTime getTimeOfLastHeartbeat() {
+    return lastHeartbeat;
   }
 
   public List<AlarmType> getAlarms() {
