@@ -36,8 +36,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
-import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient;
-import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
 import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
@@ -62,7 +60,7 @@ public class NotificationProducerClientTestIntegration {
   @Before
   public void setup() throws IOException {
     PropertiesEnvironment testEnv = mtosiProperties();
-    notificationClient = new NotificationProducerClient(testEnv.getProperty("nbi.onecontrol.notification.producer.endpoint"));
+    notificationClient = new NotificationProducerClientImpl(testEnv.getProperty("nbi.onecontrol.notification.producer.endpoint"));
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 

@@ -34,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 
 import org.junit.Test;
 import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
@@ -43,7 +42,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTest {
 
-  private final InventoryRetrievalClient subject = new InventoryRetrievalClient("");
+  private final InventoryRetrievalClientImpl subject = new InventoryRetrievalClientImpl("");
 
   @Test
   public void shouldRequireVlanForEVPL() {

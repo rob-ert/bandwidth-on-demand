@@ -31,8 +31,6 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
@@ -50,7 +48,7 @@ public class InventoryRetrievalClientTestIntegration {
   @Before
   public void setup() {
     PropertiesEnvironment testEnv = mtosiProperties();
-    subject = new InventoryRetrievalClient(testEnv.getProperty("nbi.onecontrol.inventory.retrieval.endpoint"));
+    subject = new InventoryRetrievalClientImpl(testEnv.getProperty("nbi.onecontrol.inventory.retrieval.endpoint"));
   }
 
   @Test

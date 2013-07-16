@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
  * Continuously polls for reservations that need to be aligned
  */
 @Component
-@Profile("onecontrol")
+@Profile( {"onecontrol", "onecontrol-offline" })
 public class ReservationsAligner implements SmartLifecycle {
 
   private final Logger log = LoggerFactory.getLogger(ReservationsAligner.class);

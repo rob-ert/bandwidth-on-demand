@@ -53,7 +53,7 @@ import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 @WebService(
     serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",
     portName = "NotificationConsumerSoapHttp", targetNamespace = "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0")
-public class NotificationConsumerHttp implements NotificationConsumer {
+public class NotificationConsumerHttp implements MonitoredNotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
@@ -97,6 +97,12 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     }
   }
 
+  @Override
+  public DateTime getTimeOfLastHeartbeat() {
+    return lastHeartbeat;
+  }
+
+
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
@@ -112,10 +118,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
     scheduleUpdate(reservationId);
-  }
-
-  public DateTime getTimeOfLastHeartbeat() {
-    return lastHeartbeat;
   }
 
   private void scheduleUpdate(Optional<String> reservationId) {

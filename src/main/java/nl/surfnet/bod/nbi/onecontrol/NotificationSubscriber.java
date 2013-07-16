@@ -40,9 +40,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 
-@Profile("onecontrol")
+@Profile({"onecontrol", "onecontrol-offline"})
 @Component
 public class NotificationSubscriber {
 
@@ -55,18 +56,18 @@ public class NotificationSubscriber {
 
   private NotificationProducerClient notificationClient;
 
-  private NotificationConsumerHttp notificationConsumerHttp;
+  private MonitoredNotificationConsumer notificationConsumer;
 
   private String endPointAddress;
 
   @Autowired
   public NotificationSubscriber(@Value("${nbi.onecontrol.notification.flatline.tolerance}") int flatlineTolerance,
                                 @Value("${nbi.onecontrol.notification.consumer.endpoint}") String endPointAddress,
-                                NotificationProducerClient notificationClient, NotificationConsumerHttp notificationConsumerHttp) {
+                                NotificationProducerClient notificationClient, MonitoredNotificationConsumer notificationConsumer) {
     this.flatlineTolerance = flatlineTolerance;
     this.endPointAddress = endPointAddress;
     this.notificationClient = notificationClient;
-    this.notificationConsumerHttp = notificationConsumerHttp;
+    this.notificationConsumer = notificationConsumer;
   }
 
   @PostConstruct
@@ -95,7 +96,7 @@ public class NotificationSubscriber {
 
   public boolean isHealthy() {
     // the last time a notification was received may not be more than {tolerance} seconds ago
-    return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
+    return notificationConsumer.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
   }
 
   /**

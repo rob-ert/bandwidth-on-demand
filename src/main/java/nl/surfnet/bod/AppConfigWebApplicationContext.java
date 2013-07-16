@@ -57,6 +57,9 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
     case "onecontrol":
       env.addActiveProfile("onecontrol");
       break;
+    case "onecontrol-offline":
+      env.addActiveProfile("onecontrol-offline");
+      break;
     default:
       throw new AssertionError("Could not set the NBI active profile");
     }
