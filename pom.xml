@@ -895,12 +895,11 @@
                             <includes>
                                 <include>**/*TestSelenium.java</include>
                             </includes>
-                            <systemProperties>
-                                <property>
-                                    <name>selenium.test.url</name>
-                                    <value>${selenium.test.url}</value>
-                                </property>
-                            </systemProperties>
+                            <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
+                            <systemPropertyVariables>
+                                <selenium.test.url>${selenium.test.url}</selenium.test.url>
+                                <java.awt.headless>true</java.awt.headless>
+                            </systemPropertyVariables>
                         </configuration>
                         <executions>
                             <execution>
@@ -1000,6 +999,10 @@
                                 <include>**/*TestIntegration.java</include>
                                 <include>**/*DbTest.java</include>
                             </includes>
+                            <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
+                            <systemPropertyVariables>
+                                <java.awt.headless>true</java.awt.headless>
+                            </systemPropertyVariables>
                         </configuration>
                         <executions>
                             <execution>
