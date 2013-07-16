@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -32,7 +33,6 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -58,10 +58,10 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
-  private final List<AlarmType> alarms = new ArrayList<>();
-  private final List<CommonEventInformationType> events = new ArrayList<>();
-  private final List<ServiceObjectCreationType> serviceObjectCreations = new ArrayList<>();
-  private final List<ServiceObjectDeletionType> serviceObjectDeletions = new ArrayList<>();
+  private final List<AlarmType> alarms = Collections.synchronizedList(new ArrayList<AlarmType>());
+  private final List<CommonEventInformationType> events = Collections.synchronizedList(new ArrayList<CommonEventInformationType>());
+  private final List<ServiceObjectCreationType> serviceObjectCreations = Collections.synchronizedList(new ArrayList<ServiceObjectCreationType>());
+  private final List<ServiceObjectDeletionType> serviceObjectDeletions = Collections.synchronizedList(new ArrayList<ServiceObjectDeletionType>());
 
   @Resource
   private ReservationsAligner reservationsAligner;
@@ -74,7 +74,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   @Override
   public void notify(Header header, Notify body) {
     try {
-      log.info("Received a notification: {}, {}", body.getTopic(), body.getMessage());
+      log.debug("Received a notification: {}, {}", body.getTopic(), body.getMessage());
 
       List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 
@@ -104,26 +104,12 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
-
-    // auto-provision if the reservation was created in the gui
-    if (reservationId.isPresent()) {
-      Reservation reservation = reservationService.findByReservationId(reservationId.get());
-      if (reservation != null && !reservation.isNSICreated()) {
-        reservationService.provision(reservation);
-      }
-    }
     scheduleUpdate(reservationId);
   }
 
   private void handleServiceAttributeValueChange(ServiceAttributeValueChangeType serviceAttributeValueChange) throws JAXBException {
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", serviceAttributeValueChange.getObjectName());
     scheduleUpdate(reservationId);
-  }
-
-  private void scheduleUpdate(Optional<String> reservationId) {
-    if (reservationId.isPresent()) {
-      reservationsAligner.add(reservationId.get());
-    }
   }
 
   private void handleServiceObjectDeletion(ServiceObjectDeletionType deletionEvent) {
@@ -134,6 +120,12 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   public DateTime getTimeOfLastHeartbeat() {
     return lastHeartbeat;
+  }
+
+  private void scheduleUpdate(Optional<String> reservationId) {
+    if (reservationId.isPresent()) {
+      reservationsAligner.add(reservationId.get());
+    }
   }
 
   public List<AlarmType> getAlarms() {

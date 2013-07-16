@@ -78,7 +78,12 @@ public class ReservationsAligner implements SmartLifecycle {
       log.info("Picking up reservation {}", reservationId);
       Optional<ReservationStatus> reservationStatus = nbiOneControlClient.getReservationStatus(reservationId);
       try {
-        reservationService.updateStatus(reservationId, reservationStatus.or(ReservationStatus.LOST));
+        ReservationStatus newStatus = reservationStatus.or(ReservationStatus.LOST);
+        Reservation reservation = reservationService.updateStatus(reservationId, newStatus);
+        if (!reservation.isNSICreated() && newStatus == ReservationStatus.RESERVED) {
+          // Auto-provision if the reservation was created in the UI (not through NSI).
+          reservationService.provision(reservation);
+        }
       } catch (NoResultException e) {
         // apparently the reservation did not exist
         log.debug("Ignoring unknown reservation with id {}", reservationId);

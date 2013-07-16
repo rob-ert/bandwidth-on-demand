@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -35,6 +36,9 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.support.ConnectionV2Factory;
+import nl.surfnet.bod.support.ReservationFactory;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -54,7 +58,7 @@ public class ReservationsAlignerTest {
   private NbiOneControlClient nbiOneControlClient;
 
   @Test
-  public void poison_pill_returns_false(){
+  public void poison_pill_returns_false() {
     subject.add(ReservationsAligner.POISON_PILL);
     assertFalse(subject.doAlign());
   }
@@ -63,7 +67,7 @@ public class ReservationsAlignerTest {
   public void reservation_is_set_to_lost_when_onecontrol_does_not_know_about_it() {
     final String unknownId = "unknown";
     subject.add(unknownId);
-    when(nbiOneControlClient.getReservationStatus(unknownId)).thenReturn(Optional.<ReservationStatus>absent());
+    when(nbiOneControlClient.getReservationStatus(unknownId)).thenReturn(Optional.<ReservationStatus> absent());
 
     assertTrue(subject.doAlign());
 
@@ -73,7 +77,7 @@ public class ReservationsAlignerTest {
   }
 
   @Test
-  public void we_catch_NoResultException(){
+  public void should_ignore_unknown_reservation_ids() {
     final String knownId = "known";
     ReservationStatus reserved = ReservationStatus.RESERVED;
 
@@ -85,27 +89,56 @@ public class ReservationsAlignerTest {
   }
 
   @Test
-  public void should_not_crash_when_onecontrol_client_causes_an_exception(){
+  public void should_not_crash_when_onecontrol_client_causes_an_exception() {
     final String knownId = "known";
 
     subject.add(knownId);
 
     when(nbiOneControlClient.getReservationStatus(knownId)).thenThrow(new RuntimeException("try to crash the aligner"));
     assertTrue(subject.doAlign());
-
   }
 
   @Test
-  public void happy_path(){
+  public void should_align_reservation_status_with_status_from_one_control() {
     final String knownId = "known";
-    ReservationStatus reserved = ReservationStatus.RESERVED;
+    ReservationStatus oneControlStatus = ReservationStatus.SCHEDULED;
     subject.add(knownId);
+    Reservation reservation = new ReservationFactory().create();
 
-    when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(reserved));
-    when(reservationService.updateStatus(knownId, reserved)).thenReturn(new Reservation());
+    when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
+    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
 
     assertTrue(subject.doAlign());
-    verify(reservationService, times(1)).updateStatus(knownId, reserved);
+    verify(reservationService, times(1)).updateStatus(knownId, oneControlStatus);
+    verify(reservationService, never()).provision(reservation);
   }
 
+  @Test
+  public void should_automatically_provision_new_reservation_when_not_nsi_created() {
+    final String knownId = "known";
+    ReservationStatus oneControlStatus = ReservationStatus.RESERVED;
+    subject.add(knownId);
+    Reservation reservation = new ReservationFactory().create();
+    when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
+    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
+
+    assertTrue(subject.doAlign());
+
+    verify(reservationService, times(1)).provision(reservation);
+  }
+
+  @Test
+  public void should_not_provision_new_reservation_when_nsi_created() {
+    final String knownId = "known";
+    ReservationStatus oneControlStatus = ReservationStatus.RESERVED;
+    subject.add(knownId);
+    Reservation reservation = new ReservationFactory().setConnectionV2(new ConnectionV2Factory().create()).create();
+
+    when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
+    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
+
+    assertTrue(subject.doAlign());
+
+    verify(reservationService, never()).provision(reservation);
+  }
 }

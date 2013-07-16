@@ -165,7 +165,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void checkSetup() {
-    long amountOfReservations = subject.count();
+    long amountOfReservations = reservationRepo.count();
 
     assertThat(amountOfReservations, is(AMOUNT_OF_RESERVATIONS));
     assertThat(reservationIds, hasSize((int) AMOUNT_OF_RESERVATIONS));
@@ -173,166 +173,166 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateInPeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateInPeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateInPeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(4L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCornerGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(1), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(3L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateBeforePeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart.minusHours(2), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodGUI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountExistingStateAfterPeriodGUIAndNSI() {
-    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED, AUTO_START);
+    long count = reportingService.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusHours(1), periodEnd.plusDays(3), adminGroups, ReservationStatus.RESERVED, AUTO_START);
 
     assertThat(count, is(1L));
   }
 
   @Test
   public void shouldCountExsitingTransitionInPeriodGUI() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, AUTO_START, adminGroups);
+    long count = reportingService.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, AUTO_START, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountExsitingTransitionInPeriodNSI() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, RESERVED, adminGroups);
+    long count = reportingService.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, RESERVED, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountNonExsitingTransitionInPeriod() {
-    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, ReservationStatus.NOT_ACCEPTED, adminGroups);
+    long count = reportingService.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED, ReservationStatus.NOT_ACCEPTED, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldFindActiveReservationsWithState() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
+    long count = reportingService.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat(count, is(3L));
 
     subject.updateStatus(reservationInPeriodGUI.getReservationId(), ReservationStatus.SUCCEEDED);
-    count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
+    count = reportingService.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat("Should count one less because of state change", count, is(2L));
   }
 
   @Test
   public void shouldNotFindActiveReservationsBecauseOfState() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, REQUESTED, adminGroups);
+    long count = reportingService.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, REQUESTED, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldNotFindActiveReservationsBecauseBeforePeriod() {
-    long count = subject.countActiveReservationsBetweenWithState(reservationIds, periodStart.minusDays(3), periodStart.minusDays(2), AUTO_START, adminGroups);
+    long count = reportingService.countActiveReservationsBetweenWithState(reservationIds, periodStart.minusDays(3), periodStart.minusDays(2), AUTO_START, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountCreatesThroughNSI() {
-    long count = subject.countReservationsCreatedThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
+    long count = reportingService.countReservationsCreatedThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountCancelsThroughNSI() {
-    long count = subject.countReservationsCancelledThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
+    long count = reportingService.countReservationsCancelledThroughChannelNSIInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldCountCreatesThroughGUI() {
-    long count = subject.countReservationsCreatedThroughChannelGUIInAdminGroups(periodStart, periodEnd, adminGroups);
+    long count = reportingService.countReservationsCreatedThroughChannelGUIInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(count, is(2L));
   }
 
   @Test
   public void shouldCountCancelsThroughGUI() {
-    long count = subject.countReservationsCancelledThroughChannelGUInAdminGroups(periodStart, periodEnd, adminGroups);
+    long count = reportingService.countReservationsCancelledThroughChannelGUInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(count, is(0L));
   }
 
   @Test
   public void shouldFindReservationIdsBeforeInAdminGroupsWithState() {
-    List<Long> reservationIds = subject.findReservationIdsBeforeOrOnInAdminGroupsWithState(periodStart, adminGroups, ReservationStatus.TRANSITION_STATES_AS_ARRAY);
+    List<Long> reservationIds = reportingService.findReservationIdsBeforeOrOnInAdminGroupsWithState(periodStart, adminGroups, ReservationStatus.TRANSITION_STATES_AS_ARRAY);
 
     assertThat(reservationIds, hasSize(4));
     assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId(), reservationBeforePeriodNSI.getId()));
@@ -340,7 +340,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
+    List<Long> reservationIds = reportingService.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.RESERVED);
 
     assertThat(reservationIds, hasSize(2));
     assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI .getId()));
@@ -348,7 +348,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenGUI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
+    List<Long> reservationIds = reportingService.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(reservationIds, hasSize(2));
     assertThat(reservationIds, hasItems(reservationInPeriodGUI.getId(), reservationAfterStartAndOnEndPeriodGUI.getId()));
@@ -356,7 +356,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsWichHadStateBetweenGUIAndNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START, RESERVED);
+    List<Long> reservationIds = reportingService.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups, ReservationStatus.AUTO_START, RESERVED);
 
     assertThat(reservationIds, hasSize(4));
     assertThat(reservationIds, hasItems(reservationInPeriodGUI.getId(), reservationAfterStartAndOnEndPeriodGUI.getId(), reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI.getId()));
@@ -364,7 +364,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationidsWichHadStateBeforePeriodGUIAndNSI() {
-    List<Long> reservationIds = subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart.minusDays(2), periodStart.minusMinutes(1), adminGroups, ReservationStatus.AUTO_START, RESERVED);
+    List<Long> reservationIds = reportingService.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart.minusDays(2), periodStart.minusMinutes(1), adminGroups, ReservationStatus.AUTO_START, RESERVED);
 
     assertThat(reservationIds, hasSize(3));
     assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId(), reservationBeforeStartAndAfterEndPeriodNSI .getId(), reservationBeforeStartAndOnEndPeriodGUI.getId()));
@@ -372,7 +372,7 @@ public class ReportReservationServiceDbTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotSearchOnRequested() {
-    subject.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups,
+    reportingService.findReservationIdsInAdminGroupsWhichHadStateBetween(periodStart, periodEnd, adminGroups,
         ReservationStatus.REQUESTED);
   }
 
@@ -381,19 +381,19 @@ public class ReportReservationServiceDbTest {
     reservationAfterPeriodGUI.setProtectionType(ProtectionType.UNPROTECTED);
     reservationRepo.saveAndFlush(reservationAfterPeriodGUI);
 
-    long count = subject.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.PROTECTED);
+    long count = reportingService.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.PROTECTED);
     assertThat(count, is(7L));
 
-    count = subject.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.UNPROTECTED);
+    count = reportingService.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.UNPROTECTED);
     assertThat(count, is(1L));
 
-    count = subject.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.REDUNDANT);
+    count = reportingService.countReservationsForIdsWithProtectionType(reservationIds, ProtectionType.REDUNDANT);
     assertThat(count, is(0L));
   }
 
   @Test
-  public void shouldFindSuccesFullReservationRequests() {
-    List<Long> reservationIds = subject.findSuccessfullReservationRequestsInAdminGroups(periodStart, periodEnd, adminGroups);
+  public void shouldFindSuccesfulReservationRequests() {
+    List<Long> reservationIds = reportingService.findSuccessfulReservationRequestsInAdminGroups(periodStart, periodEnd, adminGroups);
 
     assertThat(reservationIds, hasSize(4));
     assertThat(reservationIds, hasItems(reservationOnStartPeriodNSI.getId(), reservationInPeriodGUI.getId(),
@@ -402,7 +402,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationIdsStartBeforeAndEndInOrAfter() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
+    List<Long> reservationIds = reportingService.findReservationIdsStartBeforeAndEndInOrAfter(periodStart, periodEnd);
     assertThat(reservationIds, hasSize(6));
     assertThat(reservationIds, hasItems(reservationAfterStartAndOnEndPeriodGUI.getId(), reservationInPeriodGUI.getId(),
         reservationOnStartPeriodNSI.getId(), reservationAfterStartAndAfterEndPeriodNSI.getId(),
@@ -411,7 +411,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationsIdsShiftPeriodEarlierCornerCase() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1));
+    List<Long> reservationIds = reportingService.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1));
     assertThat(reservationIds, hasSize(3));
     assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId(), reservationBeforeStartAndOnEndPeriodGUI
         .getId(), reservationBeforeStartAndAfterEndPeriodNSI.getId()));
@@ -419,7 +419,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationsIdsShiftPeriodEarlier() {
-    List<Long> reservationIds = subject.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1).minusMinutes(1));
+    List<Long> reservationIds = reportingService.findReservationIdsStartBeforeAndEndInOrAfter(periodStart.minusDays(1), periodStart.minusHours(1).minusMinutes(1));
     assertThat(reservationIds, hasSize(1));
     assertThat(reservationIds, hasItems(reservationBeforePeriodNSI.getId()));
   }
