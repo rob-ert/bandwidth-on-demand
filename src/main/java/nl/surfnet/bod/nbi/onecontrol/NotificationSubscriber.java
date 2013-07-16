@@ -33,12 +33,12 @@ import javax.annotation.PreDestroy;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 
@@ -96,6 +96,20 @@ public class NotificationSubscriber {
   public boolean isHealthy() {
     // the last time a notification was received may not be more than {tolerance} seconds ago
     return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
+  }
+
+  /**
+   * Reconnects when the heartbeat is lost
+   */
+  @Scheduled(initialDelay = 30000, fixedDelayString = "${nbi.onecontrol.notification.monitor.interval}")
+  public void monitor() {
+    if (isHealthy()) {
+      logger.debug("Notification subscription OK, nothing to do.");
+      return;
+    }
+    logger.info("Subscriptions lost, try to re-subscribe");
+    unsubscribe();
+    subscribe();
   }
 
   private String getEndPoint() {
