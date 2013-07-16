@@ -22,11 +22,53 @@
  */
 package nl.surfnet.bod.nbi.onecontrol.offline;
 
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
+import java.util.List;
+
+import com.google.common.base.Optional;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.nbi.PortNotAvailableException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("onecontrol-offline")
-public class NbiOneControlOfflineClient extends NbiOpenDracOfflineClient {
+public class NbiOneControlOfflineClient implements NbiClient {
+
+  @Override
+  public boolean activateReservation(String reservationId) {
+    return false;
+  }
+
+  @Override
+  public ReservationStatus cancelReservation(String scheduleId) {
+    return null;
+  }
+
+  @Override
+  public long getPhysicalPortsCount() {
+    return 0;
+  }
+
+  @Override
+  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
+    return null;
+  }
+
+  @Override
+  public List<PhysicalPort> findAllPhysicalPorts() {
+    return null;
+  }
+
+  @Override
+  public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
+    return null;
+  }
+
+  @Override
+  public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
+    return null;
+  }
 }
