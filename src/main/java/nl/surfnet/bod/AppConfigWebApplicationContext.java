@@ -42,20 +42,20 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
 
   private Logger logger = LoggerFactory.getLogger(AppConfigWebApplicationContext.class);
 
+  private String nbiMode = null;
+  private String iddMode = null;
+
   @Override
   protected ConfigurableEnvironment createEnvironment() {
+    loadProperties();
+
     StandardEnvironment env = new StandardEnvironment();
-    String nbiMode = getNbiMode();
 
     switch (nbiMode) {
     case "opendrac":
-      env.addActiveProfile("opendrac");
-      break;
     case "opendrac-offline":
-      env.addActiveProfile("opendrac-offline");
-      break;
     case "onecontrol":
-      env.addActiveProfile("onecontrol");
+      env.addActiveProfile(nbiMode);
       break;
     case "onecontrol-offline":
       env.addActiveProfile("onecontrol-offline");
@@ -64,20 +64,30 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
       throw new AssertionError("Could not set the NBI active profile");
     }
 
+    switch (iddMode) {
+    case "idd":
+    case "idd-offline":
+      env.addActiveProfile(iddMode);
+      break;
+    default:
+      throw new AssertionError("Could not set the IDD active profile. Configured IDD mode = " + iddMode);
+    }
+
     logger.info("Starting with active profiles: {}", Joiner.on(",").join(env.getActiveProfiles()));
 
     return env;
   }
 
-  private String getNbiMode() {
+  private void loadProperties() {
     Resource propertiesResource = getEnvOrDefaultProperties();
 
     try (InputStream is = propertiesResource.getInputStream()) {
       Properties props = new Properties();
       props.load(is);
-      return props.getProperty("nbi.mode");
+      nbiMode = props.getProperty("nbi.mode");
+      iddMode = props.getProperty("idd.mode");
     } catch (IOException e) {
-      throw new AssertionError("Could not determine the nbi.mode");
+      throw new AssertionError("could not load configuration properties");
     }
   }
 
@@ -86,5 +96,4 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
 
     return propertiesResource.exists() ? propertiesResource : getDefaultProperties();
   }
-
 }

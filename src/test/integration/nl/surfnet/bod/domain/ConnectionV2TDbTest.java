@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class ConnectionV2TDbTest {
 
   @Resource private ConnectionV2Repo connectionRepo;

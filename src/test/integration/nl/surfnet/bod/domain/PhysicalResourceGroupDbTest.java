@@ -58,7 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class PhysicalResourceGroupDbTest {
 
   @Resource private PhysicalResourceGroupService physicalResourceGroupService;

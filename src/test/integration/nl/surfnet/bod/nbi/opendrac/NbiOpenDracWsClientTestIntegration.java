@@ -53,7 +53,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac")
+@ActiveProfiles({"opendrac", "idd-offline"})
 public class NbiOpenDracWsClientTestIntegration {
 
   @Resource private NbiOpenDracWsClient subject;

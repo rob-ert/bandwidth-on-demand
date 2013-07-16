@@ -34,7 +34,11 @@ import nl.surfnet.bod.idd.generated.Klantnamen;
 import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
+@Component
+@Profile("idd-offline")
 public class IddOfflineClient implements IddClient {
 
   private static final String STATIC_RESPONSE_FILE = "/idd_response.xml";

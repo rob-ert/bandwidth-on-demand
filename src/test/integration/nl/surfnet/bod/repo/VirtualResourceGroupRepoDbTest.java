@@ -54,7 +54,7 @@ import com.google.common.collect.Lists;
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class VirtualResourceGroupRepoDbTest {
 
   @Resource private VirtualResourceGroupRepo subject;

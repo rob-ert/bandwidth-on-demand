@@ -62,7 +62,7 @@ import com.google.common.collect.Lists;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class LogEventTestIntegration {
 
   private final static Long ONE = 1L;

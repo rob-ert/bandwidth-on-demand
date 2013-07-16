@@ -33,7 +33,12 @@ import nl.surfnet.bod.idd.generated.KsrLocator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
+@Component
+@Profile("idd")
 public class IddLiveClient implements IddClient {
 
   private static final String IDD_VERSION = "1.09";
@@ -45,7 +50,8 @@ public class IddLiveClient implements IddClient {
   private final String endPoint;
   private final Integer timeout;
 
-  public IddLiveClient(String username, String password, String endPoint, Integer timeout) {
+  public IddLiveClient(@Value("${idd.user}") String username, @Value("${idd.password}") String password,
+      @Value("${idd.url}") String endPoint, @Value("${idd.timeout}") Integer timeout) {
     this.username = username;
     this.password = password;
     this.endPoint = endPoint;

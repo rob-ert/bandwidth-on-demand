@@ -62,7 +62,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class ReservationServiceTestIntegration {
 
   @Resource private ReservationService subject;

@@ -50,7 +50,7 @@ import com.googlecode.flyway.core.api.MigrationState;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class DatabaseMigrationTestIntegration {
 
   @Resource private Flyway flyway;

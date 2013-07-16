@@ -69,7 +69,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles("opendrac-offline")
+@ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class ReportReservationServiceDbTest {
   private final static long AMOUNT_OF_RESERVATIONS = 8;
 

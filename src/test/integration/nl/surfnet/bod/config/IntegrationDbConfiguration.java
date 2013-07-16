@@ -45,5 +45,4 @@ public class IntegrationDbConfiguration {
     dataSource.setPassword(DB_PASSWORD);
     return dataSource;
   }
-
 }
