@@ -33,7 +33,6 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import nl.surfnet.bod.service.ReservationService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
