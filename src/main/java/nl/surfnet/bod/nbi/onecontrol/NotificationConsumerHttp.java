@@ -66,9 +66,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   @Resource
   private ReservationsAligner reservationsAligner;
 
-  @Resource
-  private ReservationService reservationService;
-
   private DateTime lastHeartbeat = DateTime.now();
 
   @Override
