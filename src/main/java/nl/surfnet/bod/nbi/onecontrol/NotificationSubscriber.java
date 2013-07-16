@@ -42,7 +42,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 
-@Profile({"onecontrol", "onecontrol-offline"})
+@Profile("onecontrol")
 @Component
 public class NotificationSubscriber {
 
