@@ -22,232 +22,27 @@
  */
 package nl.surfnet.bod;
 
-import java.beans.PropertyVetoException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import javax.sql.DataSource;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.googlecode.flyway.core.Flyway;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.sab.EntitlementsHandler;
-import nl.surfnet.bod.service.EmailSender;
-
-import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
-import org.jasypt.util.text.StrongTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.support.MessageSourceSupport;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.io.Resource;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.task.support.TaskExecutorAdapter;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
-@ComponentScan(basePackages = "nl.surfnet.bod", excludeFilters = @Filter(Controller.class))
-@ImportResource({ "classpath:spring/appCtx-security.xml", "classpath:spring/appCtx-ws.xml" })
-@EnableTransactionManagement
-@EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableJpaRepositories(basePackages = "nl.surfnet.bod")
+@Import({ AppComponents.class })
 @EnableScheduling
 @EnableAsync
 public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
-
-//  static {
-//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//  }
-
   private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
-
-  @Value("${jdbc.jdbcUrl}")
-  private String jdbcUrl;
-  @Value("${jdbc.driverClass}")
-  private String driverClass;
-  @Value("${jdbc.user}")
-  private String jdbcUser;
-  @Value("${jdbc.password}")
-  private String jdbcPassword;
-  @Value("${jdbc.initialPoolSize}")
-  private int initialPoolSize;
-  @Value("${jdbc.maxPoolSize}")
-  private int maxPoolSize;
-  @Value("${jdbc.minPoolSize}")
-  private int minPoolSize;
-  @Value("${jdbc.acquireIncrement}")
-  private int acquireIncrement;
-  @Value("${jdbc.acquireRetryAttempts}")
-  private int acquireRetryAttempts;
-  @Value("${jdbc.idleConnectionTestPeriod}")
-  private int idleConnectionTestPeriod;
-  @Value("${mail.sender.class}")
-  private String emailSenderClass;
-
-  @Bean
-  public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
-    StrongTextEncryptor encryptor = new StrongTextEncryptor();
-    encryptor.setPassword(System.getenv("BOD_ENCRYPTION_PASSWORD"));
-
-    EncryptablePropertyPlaceholderConfigurer configurer = new EncryptablePropertyPlaceholderConfigurer(encryptor);
-    configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
-
-    Resource[] resources = getPropertyResources();
-
-    logger.info("Using property files: {}", Joiner.on(",").join(resources));
-
-    configurer.setLocations(resources);
-
-    return configurer;
-  }
-
-  private static Resource[] getPropertyResources() {
-    List<Resource> resources = Lists.newArrayList(BodProperties.getDefaultProperties());
-
-    Resource envResource = BodProperties.getEnvProperties();
-    if (envResource.exists()) {
-      resources.add(envResource);
-    }
-
-    return resources.toArray(new Resource[resources.size()]);
-  }
-
-  @Bean
-  public MessageSourceSupport messageSource() {
-    ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-    messageSource.setBasenames("WEB-INF/i18n/messages", "WEB-INF/i18n/application");
-    messageSource.setUseCodeAsDefaultMessage(true);
-    return messageSource;
-  }
-
-  @Bean
-  public JavaMailSender mailSender(
-      @Value("${mail.host}") String host,
-      @Value("${mail.port}") int port,
-      @Value("${mail.protocol}") String protocol,
-      @Value("${mail.debug}") boolean debug) {
-    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-    mailSender.setDefaultEncoding("UTF-8");
-    mailSender.setHost(host);
-    mailSender.setPort(port);
-    mailSender.setProtocol(protocol);
-
-    Properties properties = new Properties();
-    properties.put("mail.debug", debug);
-    mailSender.setJavaMailProperties(properties);
-
-    return mailSender;
-  }
-
-  @Bean
-  public EmailSender emailSender() {
-    return quietlyInitiateClass(emailSenderClass);
-  }
-
-  @Bean
-  public EntitlementsHandler entitlementsHandler(@Value("${sab.handler.class}") String sabHandlerClass) {
-    return quietlyInitiateClass(sabHandlerClass);
-  }
-
-  @Bean
-  public IddClient iddclient(@Value("${idd.client.class}") String iddClientClass,
-      @Value("${idd.user}") String username, @Value("${idd.password}") String password,
-      @Value("${idd.url}") String endPoint, @Value("${idd.timeout}") Integer timeout) {
-
-    try {
-      return (IddClient) Class.forName(iddClientClass).getConstructor(String.class, String.class, String.class, Integer.class)
-          .newInstance(username, password, endPoint, timeout);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Bean(initMethod = "migrate")
-  public Flyway flyway() throws PropertyVetoException {
-    Flyway flyway = new Flyway();
-    flyway.setDataSource(dataSource());
-    flyway.setLocations("db/migration", "nl.surfnet.bod.db.migration");
-    flyway.setInitVersion("0");
-
-    return flyway;
-  }
-
-  @Bean(destroyMethod = "close")
-  public DataSource dataSource() throws PropertyVetoException {
-    ComboPooledDataSource dataSource = new ComboPooledDataSource();
-    dataSource.setJdbcUrl(jdbcUrl);
-    dataSource.setDriverClass(driverClass);
-    dataSource.setUser(jdbcUser);
-    dataSource.setPassword(jdbcPassword);
-    dataSource.setInitialPoolSize(initialPoolSize);
-    dataSource.setMaxPoolSize(maxPoolSize);
-    dataSource.setMinPoolSize(minPoolSize);
-    dataSource.setAcquireIncrement(acquireIncrement);
-    dataSource.setAcquireRetryAttempts(acquireRetryAttempts);
-    dataSource.setIdleConnectionTestPeriod(idleConnectionTestPeriod);
-
-    return dataSource;
-  }
-
-  @Bean
-  @DependsOn("flyway")
-  public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws PropertyVetoException {
-    LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
-    emfBean.setPersistenceUnitName("bod");
-    emfBean.setDataSource(dataSource());
-
-    return emfBean;
-  }
-
-  @Bean
-  public PlatformTransactionManager transactionManager() {
-    return new JpaTransactionManager();
-  }
-
-  // TransactionTemplate is mutable, so provide a new instance to each user.
-  @Bean @Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
-    return new TransactionTemplate(transactionManager);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T quietlyInitiateClass(String clazz) {
-    try {
-      return (T) Class.forName(clazz).newInstance();
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
@@ -272,5 +67,4 @@ public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
 
     return new LoggingExecutor(new TaskExecutorAdapter(new TransactionAwareExecutor(executor)), logger);
   }
-
 }

@@ -27,4 +27,12 @@
         </wss:service>
     </wss:binding>
 
+    <beans profile="onecontrol">
+        <!-- WebService on which Onecontrol posts notifications  -->
+        <wss:binding url="/mtosi/fmw/NotificationConsumer">
+            <wss:service>
+                <ws:service bean="#notificationConsumerHttp" />
+            </wss:service>
+        </wss:binding>
+    </beans>
 </beans>
