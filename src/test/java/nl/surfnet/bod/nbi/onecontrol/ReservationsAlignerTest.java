@@ -55,7 +55,7 @@ public class ReservationsAlignerTest {
   private ReservationService reservationService;
 
   @Mock
-  private NbiOneControlClient nbiOneControlClient;
+  private NbiClientImpl nbiOneControlClient;
 
   @Test
   public void poison_pill_returns_false() {

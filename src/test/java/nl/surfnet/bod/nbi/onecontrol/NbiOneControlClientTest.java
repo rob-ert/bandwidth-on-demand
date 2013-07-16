@@ -35,9 +35,6 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.onecontrol.NbiOneControlClient;
-import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
@@ -55,7 +52,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 public class NbiOneControlClientTest {
 
   @InjectMocks
-  private NbiOneControlClient subject;
+  private NbiClientImpl subject;
 
   @Mock private ReservationRepo reservationRepo;
   @Mock private ServiceComponentActivationClient serviceComponentActivationClient;

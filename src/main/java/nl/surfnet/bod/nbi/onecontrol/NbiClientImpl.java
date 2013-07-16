@@ -45,7 +45,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 @Profile("onecontrol")
 @Component
-public class NbiOneControlClient implements NbiClient {
+public class NbiClientImpl implements NbiClient {
 
   @Resource private InventoryRetrievalClient inventoryRetrievalClient;
   @Resource private ServiceComponentActivationClient serviceComponentActivationClient;

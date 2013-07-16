@@ -33,6 +33,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Component;
  * Continuously polls for reservations that need to be aligned
  */
 @Component
-@Profile( {"onecontrol", "onecontrol-offline" })
+@Profile( {"onecontrol", "onecontrol-offline"})
 public class ReservationsAligner implements SmartLifecycle {
 
   private final Logger log = LoggerFactory.getLogger(ReservationsAligner.class);
@@ -54,7 +55,7 @@ public class ReservationsAligner implements SmartLifecycle {
   public static String POISON_PILL = "TOXIC";
 
   @Resource
-  private NbiOneControlClient nbiOneControlClient;
+  private NbiClient nbiClient;
 
   @Resource
   private ReservationService reservationService;
@@ -76,7 +77,7 @@ public class ReservationsAligner implements SmartLifecycle {
         return false;
       }
       log.info("Picking up reservation {}", reservationId);
-      Optional<ReservationStatus> reservationStatus = nbiOneControlClient.getReservationStatus(reservationId);
+      Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
       try {
         ReservationStatus newStatus = reservationStatus.or(ReservationStatus.LOST);
         Reservation reservation = reservationService.updateStatus(reservationId, newStatus);
