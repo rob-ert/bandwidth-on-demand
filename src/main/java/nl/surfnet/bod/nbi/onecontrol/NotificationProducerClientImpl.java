@@ -70,7 +70,7 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
     NotificationProducer port = createPort();
     SubscribeResponse response = port.subscribe(buildNotificationHeader(endPoint), subscribeRequest);
 
-    log.info("Succesfully subscribed to topic {} with id {}", topic, response.getSubscriptionID());
+    log.info("Successfully subscribed to topic {} with id {}", topic, response.getSubscriptionID());
 
     return response.getSubscriptionID();
   }
