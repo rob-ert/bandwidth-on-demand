@@ -22,8 +22,14 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+
+import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.util.Transition;
 
 import org.junit.Test;
 
@@ -31,41 +37,62 @@ public class ReservationStatusTest {
 
   @Test
   public void someStatesShouldBeTransitionStates() {
-    assertThat(ReservationStatus.RUNNING.isTransitionState(), is(true));
+    assertThat(RUNNING.isTransitionState(), is(true));
 
-    assertThat(ReservationStatus.FAILED.isTransitionState(), is(false));
-    assertThat(ReservationStatus.FAILED.isTransitionState(), is(false));
-    assertThat(ReservationStatus.CANCELLED.isTransitionState(), is(false));
+    assertThat(FAILED.isTransitionState(), is(false));
+    assertThat(FAILED.isTransitionState(), is(false));
+    assertThat(CANCELLED.isTransitionState(), is(false));
 
-    assertThat(ReservationStatus.NOT_ACCEPTED.isTransitionState(), is(false));
-    assertThat(ReservationStatus.PASSED_END_TIME.isTransitionState(), is(false));
+    assertThat(NOT_ACCEPTED.isTransitionState(), is(false));
+    assertThat(PASSED_END_TIME.isTransitionState(), is(false));
   }
 
   @Test
   public void someStatesShouldBeEndStates() {
-    assertThat(ReservationStatus.FAILED.isEndState(), is(true));
-    assertThat(ReservationStatus.NOT_ACCEPTED.isEndState(), is(true));
-    assertThat(ReservationStatus.PASSED_END_TIME.isEndState(), is(true));
-    assertThat(ReservationStatus.CANCELLED.isEndState(), is(true));
+    assertThat(FAILED.isEndState(), is(true));
+    assertThat(NOT_ACCEPTED.isEndState(), is(true));
+    assertThat(PASSED_END_TIME.isEndState(), is(true));
+    assertThat(CANCELLED.isEndState(), is(true));
 
-    assertThat(ReservationStatus.RUNNING.isEndState(), is(false));
+    assertThat(RUNNING.isEndState(), is(false));
   }
 
   @Test
   public void forTheseStatesShouldDeletionBeAllowed() {
-    assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.RESERVED.isDeleteAllowed(), is(true));
-    assertThat(ReservationStatus.RUNNING.isDeleteAllowed(), is(true));
-    assertThat(ReservationStatus.AUTO_START.isDeleteAllowed(), is(true));
+    assertThat(REQUESTED.isDeleteAllowed(), is(false));
+    assertThat(RESERVED.isDeleteAllowed(), is(true));
+    assertThat(RUNNING.isDeleteAllowed(), is(true));
+    assertThat(AUTO_START.isDeleteAllowed(), is(true));
   }
 
   @Test
   public void forTheseStateShouldDeletionNotBeAllowed() {
-    assertThat(ReservationStatus.CANCELLED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.FAILED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.NOT_ACCEPTED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.PASSED_END_TIME.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.SUCCEEDED.isDeleteAllowed(), is(false));
+    assertThat(CANCELLED.isDeleteAllowed(), is(false));
+    assertThat(FAILED.isDeleteAllowed(), is(false));
+    assertThat(NOT_ACCEPTED.isDeleteAllowed(), is(false));
+    assertThat(PASSED_END_TIME.isDeleteAllowed(), is(false));
+    assertThat(SUCCEEDED.isDeleteAllowed(), is(false));
   }
 
+  @Test
+  public void allowedDirectTransitions() {
+    assertThat(RESERVED.canDirectlyTransitionTo(AUTO_START), is(true));
+    assertThat(RESERVED.canDirectlyTransitionTo(CANCEL_FAILED), is(true));
+    assertThat(CANCEL_FAILED.canDirectlyTransitionTo(AUTO_START), is(false));
+  }
+
+  @Test
+  public void directTransitionPath() {
+    assertThat(RESERVED.transitionPath(AUTO_START), is(ImmutableList.of(new Transition<>(RESERVED, AUTO_START))));
+  }
+
+  @Test
+  public void multistepTransitionPath() {
+    assertThat(SCHEDULED.transitionPath(RUNNING), is(ImmutableList.of(new Transition<>(SCHEDULED, AUTO_START), new Transition<>(AUTO_START, RUNNING))));
+  }
+
+  @Test
+  public void impossibleTransitionPath() {
+    assertThat(RUNNING.transitionPath(AUTO_START), is(empty()));
+  }
 }

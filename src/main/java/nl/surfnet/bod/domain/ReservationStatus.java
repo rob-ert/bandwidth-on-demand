@@ -25,6 +25,12 @@ package nl.surfnet.bod.domain;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import nl.surfnet.bod.util.Transition;
+
 /**
  * Enum representing the status of a {@link Reservation}.
  */
@@ -35,7 +41,7 @@ public enum ReservationStatus {
   /**
    * All states which are considered as error states.
    */
-  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED, LOST);
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, CANCEL_FAILED, LOST);
 
   /**
    * All states that could transfer to a RUNNING state
@@ -82,4 +88,64 @@ public enum ReservationStatus {
     return ERROR_STATES.contains(this);
   }
 
+  private static Transition<ReservationStatus> t(ReservationStatus from, ReservationStatus to) {
+    return new Transition<>(from, to);
+  }
+
+  private static final Set<Transition<ReservationStatus>> VALID_TRANSITIONS
+    = ImmutableSet.<Transition<ReservationStatus>> builder()
+      .add(t(REQUESTED, RESERVED))
+      .add(t(RESERVED, AUTO_START))
+      .add(t(RESERVED, SCHEDULED))
+      .add(t(SCHEDULED, AUTO_START))
+      .add(t(AUTO_START, RUNNING))
+      .add(t(RUNNING, SUCCEEDED))
+      .add(t(RESERVED, CANCELLED))
+      .add(t(AUTO_START, CANCELLED))
+      .add(t(RUNNING, CANCELLED))
+      .add(t(SCHEDULED, PASSED_END_TIME))
+      .build();
+
+  private static final ImmutableMap<Transition<ReservationStatus>, ImmutableList<Transition<ReservationStatus>>> TRANSITION_PATHS
+    = ImmutableMap.<Transition<ReservationStatus>, ImmutableList<Transition<ReservationStatus>>> builder()
+      .put(t(REQUESTED, AUTO_START), path(REQUESTED, RESERVED, AUTO_START))
+      .put(t(REQUESTED, SCHEDULED), path(REQUESTED, RESERVED, SCHEDULED))
+      .put(t(REQUESTED, RUNNING), path(REQUESTED, RESERVED, AUTO_START, RUNNING))
+      .put(t(REQUESTED, SUCCEEDED), path(REQUESTED, RESERVED, AUTO_START, RUNNING, SUCCEEDED))
+      .put(t(REQUESTED, CANCELLED), path(REQUESTED, RESERVED, CANCELLED))
+      .put(t(REQUESTED, PASSED_END_TIME), path(REQUESTED, RESERVED, SCHEDULED, PASSED_END_TIME))
+      .put(t(RESERVED, RUNNING), path(RESERVED, AUTO_START, RUNNING))
+      .put(t(RESERVED, SUCCEEDED), path(RESERVED, AUTO_START, RUNNING, SUCCEEDED))
+      .put(t(RESERVED, PASSED_END_TIME), path(RESERVED, SCHEDULED, PASSED_END_TIME))
+      .put(t(SCHEDULED, RUNNING), path(SCHEDULED, AUTO_START, RUNNING))
+      .put(t(SCHEDULED, SUCCEEDED), path(SCHEDULED, AUTO_START, RUNNING, SUCCEEDED))
+      .put(t(AUTO_START, SUCCEEDED), path(AUTO_START, RUNNING, SUCCEEDED))
+      .build();
+
+  public boolean canDirectlyTransitionTo(ReservationStatus to) {
+    return VALID_TRANSITIONS.contains(new Transition<>(this, to)) || to.isErrorState();
+  }
+
+  /**
+   * @return the transition path to go from {@literal this} to {@literal to}
+   *         state. An empty list is returned if there is no valid transition
+   *         path.
+   */
+  public ImmutableList<Transition<ReservationStatus>> transitionPath(ReservationStatus to) {
+    if (this.canDirectlyTransitionTo(to)) {
+      return ImmutableList.of(new Transition<>(this, to));
+    } else {
+      ImmutableList<Transition<ReservationStatus>> path = TRANSITION_PATHS.get(new Transition<>(this, to));
+      return path == null ? ImmutableList.<Transition<ReservationStatus>>of() : path;
+    }
+  }
+
+  private static ImmutableList<Transition<ReservationStatus>> path(ReservationStatus... path) {
+    // Poor man's implementation of zipWith.
+    ImmutableList.Builder<Transition<ReservationStatus>> builder = ImmutableList.builder();
+    for (int i = 0; i < path.length - 1; ++i) {
+      builder.add(new Transition<>(path[i], path[i + 1]));
+    }
+    return builder.build();
+  }
 }
