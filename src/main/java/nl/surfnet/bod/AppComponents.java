@@ -33,7 +33,6 @@ import com.google.common.collect.Lists;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.sab.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
 

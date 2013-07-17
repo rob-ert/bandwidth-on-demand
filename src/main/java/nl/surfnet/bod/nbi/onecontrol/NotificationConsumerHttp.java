@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.xsd.cei.v1.CommonEventInformationType;
 import org.tmforum.mtop.fmw.xsd.hbt.v1.HeartbeatType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
