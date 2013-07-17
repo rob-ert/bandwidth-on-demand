@@ -49,7 +49,7 @@ public class PushMessagesTest {
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.AUTO_START).create();
 
-    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
+    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());
 
     PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
 

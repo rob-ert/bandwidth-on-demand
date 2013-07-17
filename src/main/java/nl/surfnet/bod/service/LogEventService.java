@@ -39,6 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.Loggable;
@@ -51,8 +52,10 @@ import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.util.Transition;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,11 +129,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   private LogEvent createReservationLogEvent(RichUserDetails user, LogEventType eventType, Reservation reservation,
-      ReservationStatus oldStatus) {
+      ReservationStatus oldStatus, ReservationStatus newStatus) {
 
-    String details = getStateChangeMessage(reservation, oldStatus);
-    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(reservation
-        .getStatus()));
+    String details = getStateChangeMessage(oldStatus, newStatus);
+    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(newStatus));
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
@@ -295,15 +297,19 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logUpdateEvent(user, details, toArray(domainObjects, Loggable.class));
   }
 
-  public LogEvent logReservationStatusChangeEvent(RichUserDetails user, Reservation reservation, ReservationStatus oldStatus) {
-    LogEvent logEvent = createReservationLogEvent(user, LogEventType.UPDATE, reservation, oldStatus);
-    handleEvent(logger, logEvent);
-    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(oldStatus, reservation));
-    return logEvent;
+  public void logReservationStatusChangeEvent(RichUserDetails user, Reservation reservation, ReservationStatus oldStatus) {
+    if (oldStatus != reservation.getStatus() && !oldStatus.canTransition(reservation.getStatus())) {
+      throw new IllegalArgumentException("Impossible status transition from " + oldStatus + " to " + reservation.getStatus());
+    }
+    for (Transition<ReservationStatus> transition: oldStatus.transitionPath(reservation.getStatus())) {
+      LogEvent logEvent = createReservationLogEvent(user, LogEventType.UPDATE, reservation, transition.getFrom(), transition.getTo());
+      handleEvent(logger, logEvent);
+      reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(reservation, transition.getFrom(), transition.getTo()));
+    }
   }
 
-  private static String getStateChangeMessage(final Reservation reservation, final ReservationStatus oldStatus) {
-    return String.format("Changed state from [%s] to [%s]", oldStatus, reservation.getStatus());
+  private static String getStateChangeMessage(final ReservationStatus oldStatus, final ReservationStatus newStatus) {
+    return String.format("Changed state from [%s] to [%s]", oldStatus, newStatus);
   }
 
   private boolean shouldLogEventBePersisted(LogEvent logEvent) {

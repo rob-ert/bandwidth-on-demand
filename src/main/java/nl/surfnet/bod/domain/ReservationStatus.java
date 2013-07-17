@@ -126,10 +126,13 @@ public enum ReservationStatus {
     return VALID_TRANSITIONS.contains(new Transition<>(this, to)) || to.isErrorState();
   }
 
+  public boolean canTransition(ReservationStatus to) {
+    return this.canDirectlyTransitionTo(to) || TRANSITION_PATHS.containsKey(new Transition<>(this, to));
+  }
+
   /**
    * @return the transition path to go from {@literal this} to {@literal to}
-   *         state. An empty list is returned if there is no valid transition
-   *         path.
+   *         state. An empty path indicates that there is no possible path.
    */
   public ImmutableList<Transition<ReservationStatus>> transitionPath(ReservationStatus to) {
     if (this.canDirectlyTransitionTo(to)) {

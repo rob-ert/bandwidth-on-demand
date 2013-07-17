@@ -23,7 +23,7 @@
 package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -67,7 +67,7 @@ public class ReservationEventPublisherTest {
       @Override
       public void run() {
         for (int i = 0; i < numberOfEvents; i++) {
-          subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(AUTO_START).create()));
+          subject.notifyListeners(new ReservationStatusChangeEvent(new ReservationFactory().setStatus(AUTO_START).create(), RESERVED, AUTO_START));
         }
       }
     };

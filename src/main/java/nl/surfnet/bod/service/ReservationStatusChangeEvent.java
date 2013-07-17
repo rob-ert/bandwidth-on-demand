@@ -29,12 +29,14 @@ import nl.surfnet.bod.domain.ReservationStatus;
 
 public class ReservationStatusChangeEvent {
 
-  private final ReservationStatus oldStatus;
   private final Reservation reservation;
+  private final ReservationStatus oldStatus;
+  private final ReservationStatus newStatus;
 
-  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation) {
-    this.oldStatus = oldStatus;
+  public ReservationStatusChangeEvent(Reservation reservation, ReservationStatus oldStatus, ReservationStatus newStatus) {
     this.reservation = reservation;
+    this.oldStatus = oldStatus;
+    this.newStatus = newStatus;
   }
 
   public ReservationStatus getOldStatus() {
@@ -42,7 +44,7 @@ public class ReservationStatusChangeEvent {
   }
 
   public ReservationStatus getNewStatus() {
-    return reservation.getStatus();
+    return newStatus;
   }
 
   public Reservation getReservation() {
@@ -52,7 +54,7 @@ public class ReservationStatusChangeEvent {
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("reservationId", reservation.getId()).add("oldStatus", oldStatus).add(
-        "newStatus", getNewStatus()).toString();
+        "newStatus", newStatus).toString();
   }
 
 }

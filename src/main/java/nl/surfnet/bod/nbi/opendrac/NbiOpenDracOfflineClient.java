@@ -167,7 +167,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
     scheduleIds.put(scheduleId, new OfflineReservation(reservation));
 
-    log.warn("NBI MOCK created reservation with id: {}", reservation.getReservationId());
+    log.warn("NBI MOCK created reservation {} with label {} and start time {}", scheduleId, reservation.getLabel(), reservation.getStartDateTime());
 
     // Imitate the online client..
     if (shouldSleep) {

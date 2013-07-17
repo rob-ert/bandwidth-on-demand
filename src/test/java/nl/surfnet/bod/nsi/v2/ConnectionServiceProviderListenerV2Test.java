@@ -57,7 +57,7 @@ public class ConnectionServiceProviderListenerV2Test {
   public void should_ignore_reservation_created_thourgh_gui() {
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(null).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -70,7 +70,7 @@ public class ConnectionServiceProviderListenerV2Test {
     ConnectionV1 connection = new ConnectionV1Factory().create();
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(connection).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -87,7 +87,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -104,7 +104,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -121,7 +121,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.REQUESTED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -141,7 +141,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RESERVED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -161,7 +161,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.SCHEDULED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.SCHEDULED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -177,7 +177,7 @@ public class ConnectionServiceProviderListenerV2Test {
     Reservation reservation = new ReservationFactory().setConnectionV2(connection).setStatus(ReservationStatus.AUTO_START).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastProvisionRequestDetails(requestDetails);
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RESERVED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -193,7 +193,7 @@ public class ConnectionServiceProviderListenerV2Test {
       .setDataPlaneActive(false).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection).setStatus(ReservationStatus.RUNNING).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.AUTO_START, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.AUTO_START, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -209,7 +209,7 @@ public class ConnectionServiceProviderListenerV2Test {
       .setDataPlaneActive(true).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection).setStatus(ReservationStatus.SUCCEEDED).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -227,7 +227,7 @@ public class ConnectionServiceProviderListenerV2Test {
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.FAILED).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -249,7 +249,7 @@ public class ConnectionServiceProviderListenerV2Test {
     connection.setInitialReserveRequestDetails(initialRequestDetails);
     connection.setLastLifecycleRequestDetails(terminateRequestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -270,7 +270,7 @@ public class ConnectionServiceProviderListenerV2Test {
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
     connection.setLastLifecycleRequestDetails(requestDetails);
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RUNNING, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -288,7 +288,7 @@ public class ConnectionServiceProviderListenerV2Test {
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.PASSED_END_TIME).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.SCHEDULED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.SCHEDULED, reservation.getStatus());
 
     subject.onStatusChange(event);
 
@@ -305,7 +305,7 @@ public class ConnectionServiceProviderListenerV2Test {
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.SCHEDULED).create();
 
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RESERVED, reservation.getStatus());
 
     subject.onStatusChange(event);
 

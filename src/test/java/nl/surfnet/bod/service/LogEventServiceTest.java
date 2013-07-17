@@ -49,6 +49,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -130,8 +131,12 @@ public class LogEventServiceTest {
 
       Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
-      LogEvent logEvent = subject.logReservationStatusChangeEvent(user, reservation, ReservationStatus.RESERVED);
+      subject.logReservationStatusChangeEvent(user, reservation, ReservationStatus.RESERVED);
 
+      ArgumentCaptor<LogEvent> logEventCaptor = ArgumentCaptor.forClass(LogEvent.class);
+      verify(logEventRepoMock, times(1)).save(logEventCaptor.capture());
+
+      LogEvent logEvent = logEventCaptor.getValue();
       assertThat(logEvent.getUserId(), is(user.getUsername()));
       assertThat(logEvent.getAdminGroups(), is(reservation.getAdminGroups()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Update"));
