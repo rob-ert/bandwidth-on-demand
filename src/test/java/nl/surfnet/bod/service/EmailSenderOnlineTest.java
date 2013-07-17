@@ -27,17 +27,17 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ActivationEmailLinkFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
@@ -138,30 +138,5 @@ public class EmailSenderOnlineTest {
     SimpleMailMessage message = messageCaptor.getValue();
 
     assertThat(message.getReplyTo(), isEmptyOrNullString());
-  }
-
-  @Test
-  public void errorMailMessage() {
-    RichUserDetails user = new RichUserDetailsFactory().setDisplayname("Truus Visscher").setEmail("truus@visscher.nl")
-        .create();
-    Throwable throwable = new RuntimeException("Something went terrible wrong");
-    HttpServletRequest request = mock(HttpServletRequest.class);
-
-    when(request.getRequestURL()).thenReturn(new StringBuffer("http://bod.dlp.surfnet.nl/error"));
-    when(request.getMethod()).thenReturn("get");
-
-    subject.setBodTeamMailAddress("bodteam@surfnet.nl");
-
-    subject.sendErrorMail(throwable, user, request);
-
-    verify(mailSenderMock).send(messageCaptor.capture());
-
-    SimpleMailMessage message = messageCaptor.getValue();
-
-    assertThat(message.getTo()[0], is("bodteam@surfnet.nl"));
-    assertThat(message.getText(), containsString("Truus Visscher (truus@visscher.nl)"));
-    assertThat(message.getText(), containsString("http://bod.dlp.surfnet.nl/error"));
-    assertThat(message.getText(), containsString("java.lang.RuntimeException"));
-    assertThat(message.getSubject(), containsString("Something went terrible wrong"));
   }
 }

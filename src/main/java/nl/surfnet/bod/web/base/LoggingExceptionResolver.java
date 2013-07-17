@@ -51,11 +51,7 @@ public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
       Object handler,
       Exception ex) {
 
-    logger.error("An exception occured during user request", ex);
-
-    if (!environment.isDevelopment()) {
-      emailSender.sendErrorMail(ex, Security.getUserDetails(), request);
-    }
+    logger.error("An exception occured during user {} request {} {}", request.getMethod(), request.getRequestURL(), Security.getUserDetails(), ex);
 
     return super.doResolveException(request, response, handler, ex);
   }

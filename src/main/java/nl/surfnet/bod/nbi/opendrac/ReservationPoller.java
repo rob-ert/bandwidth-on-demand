@@ -36,7 +36,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.ReservationService;
 
 import org.joda.time.DateTime;
@@ -65,7 +64,6 @@ public class ReservationPoller {
   private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Resource private ReservationService reservationService;
-  @Resource private EmailSender emailSender;
   @Resource private NbiClient nbiClient;
 
   @Value("${reservation.poll.max.tries}")
@@ -141,7 +139,6 @@ public class ReservationPoller {
         }
       } catch (Exception e) {
         logger.error("The poller failed for reservation " + reservationId, e);
-        emailSender.sendErrorMail(e);
       }
     }
   }

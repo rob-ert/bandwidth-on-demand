@@ -22,18 +22,12 @@
  */
 package nl.surfnet.bod.service;
 
-import javax.servlet.http.HttpServletRequest;
-
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 public interface EmailSender {
-
-  void sendErrorMail(Throwable exception, RichUserDetails user, HttpServletRequest request);
-
-  void sendErrorMail(Throwable exception);
 
   void sendActivationMail(ActivationEmailLink activationEmailLink);
 

@@ -27,13 +27,14 @@ import java.net.URL;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
-import nl.surfnet.bod.service.Emails.ErrorMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
@@ -47,10 +48,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.util.StringUtils;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 public class EmailSenderOnline implements EmailSender {
 
@@ -106,24 +103,6 @@ public class EmailSenderOnline implements EmailSender {
     else {
       log.warn("User {} has no email address that can be used as the reply-to!", from);
     }
-
-    send(mail);
-  }
-
-  @Override
-  public void sendErrorMail(Throwable throwable, RichUserDetails user, HttpServletRequest request) {
-    sendErrorMail(throwable, Optional.fromNullable(user), Optional.fromNullable(request));
-  }
-
-  @Override
-  public void sendErrorMail(Throwable throwable) {
-    sendErrorMail(throwable, Optional.<RichUserDetails>absent(), Optional.<HttpServletRequest>absent());
-  }
-
-  private void sendErrorMail(Throwable throwable, Optional<RichUserDetails> user, Optional<HttpServletRequest> request) {
-    SimpleMailMessage mail = new MailMessageBuilder().withTo(bodTeamMailAddress)
-        .withSubject(ErrorMail.subject(externalBodUrl, throwable))
-        .withBodyText(ErrorMail.body(throwable, user, request)).create();
 
     send(mail);
   }

@@ -22,20 +22,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
-import javax.servlet.http.HttpServletRequest;
-
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 
 public final class Emails {
 
@@ -118,76 +107,4 @@ public final class Emails {
           message);
     }
   }
-
-  public static class ErrorMail {
-    private static final String ERROR_MAIL_BODY =
-      "Dear BoD Team,\n\n"
-      + "An exception occured.\n\n"
-      + "User: %s (%s)\n"
-      + "Username: %s\n"
-      + "Request: %s (%s)\n"
-      + "Around: %s\n"
-      + "Stacktrace:\n%s" + FOOTER;
-
-    public static String subject(String envUrl, Throwable throwable) {
-      String exceptionMessage = isNullOrEmpty(throwable.getMessage()) ? throwable.getClass().getSimpleName() : throwable.getMessage();
-      return String.format("[Exception on %s] %s", envUrl, exceptionMessage);
-    }
-
-    public static String body(Throwable throwable, Optional<RichUserDetails> user, Optional<HttpServletRequest> request) {
-      String userDisplayName = getOrUserUnknown(new Function<RichUserDetails, String>() {
-        @Override
-        public String apply(RichUserDetails input) {
-          return input.getDisplayName();
-        }
-      }, user);
-
-      String userEmail = getOrUserUnknown(new Function<RichUserDetails, String>() {
-        @Override
-        public String apply(RichUserDetails input) {
-          return input.getEmail().or("Email not known");
-        }
-      }, user);
-
-      String username = getOrUserUnknown(new Function<RichUserDetails, String>() {
-        @Override
-        public String apply(RichUserDetails input) {
-          return input.getUsername();
-        }
-      }, user);
-
-      String requestUrl = getOrRequestUnknown(new Function<HttpServletRequest, String>() {
-        @Override
-        public String apply(HttpServletRequest request) {
-          return request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString();
-        }
-      }, request);
-
-      String requestMethod = getOrRequestUnknown(new Function<HttpServletRequest, String>() {
-        @Override
-        public String apply(HttpServletRequest request) {
-          return request.getMethod();
-        }
-      }, request);
-
-      return String.format(
-        ERROR_MAIL_BODY,
-        userDisplayName,
-        userEmail,
-        username,
-        requestUrl,
-        requestMethod,
-        DateTimeFormat.mediumDateTime().print(DateTime.now()),
-        Throwables.getStackTraceAsString(throwable));
-    }
-
-    private static String getOrUserUnknown(Function<RichUserDetails, String> function, Optional<RichUserDetails> user) {
-      return user.transform(function).or("Unknown");
-    }
-
-    private static String getOrRequestUnknown(Function<HttpServletRequest, String> function, Optional<HttpServletRequest> request) {
-      return request.transform(function).or("No request available");
-    }
-  }
-
 }
