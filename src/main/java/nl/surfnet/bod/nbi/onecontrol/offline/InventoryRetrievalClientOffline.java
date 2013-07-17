@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.onecontrol.offline;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -43,9 +42,7 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
 
   @Override
   public List<PhysicalPort> getPhysicalPorts() {
-    List<PhysicalPort> result = Collections.emptyList();
-    Collections.copy(result, ports);
-    return result;
+    return ports;
   }
 
   @Override
@@ -55,6 +52,6 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
 
   @Override
   public Optional<ServiceInventoryDataType.RfsList> getRfsInventory() {
-    return null;
+    return Optional.absent();
   }
 }

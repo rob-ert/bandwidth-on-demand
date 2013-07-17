@@ -31,6 +31,8 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+import nl.surfnet.bod.nbi.onecontrol.ReservationsAligner;
+import nl.surfnet.bod.repo.ReservationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -40,10 +42,14 @@ import org.springframework.stereotype.Component;
 public class NbiOneControlOfflineClient implements NbiClient {
 
   private InventoryRetrievalClient inventoryRetrievalClient;
+  private ReservationRepo reservationRepo;
+  private ReservationsAligner reservationsAligner;
 
   @Autowired
-  public NbiOneControlOfflineClient(final InventoryRetrievalClient inventoryRetrievalClient) {
+  public NbiOneControlOfflineClient(InventoryRetrievalClient inventoryRetrievalClient, ReservationRepo reservationRepo, ReservationsAligner reservationsAligner) {
     this.inventoryRetrievalClient = inventoryRetrievalClient;
+    this.reservationRepo = reservationRepo;
+    this.reservationsAligner = reservationsAligner;
   }
 
   @Override
@@ -58,7 +64,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
   @Override
   public long getPhysicalPortsCount() {
-    return 0;
+    return new Long(inventoryRetrievalClient.getPhysicalPortCount());
   }
 
   @Override
@@ -68,7 +74,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-    return null;
+    return inventoryRetrievalClient.getPhysicalPorts();
   }
 
   @Override

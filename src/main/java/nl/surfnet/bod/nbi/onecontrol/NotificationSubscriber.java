@@ -55,18 +55,18 @@ public class NotificationSubscriber {
 
   private NotificationProducerClient notificationClient;
 
-  private MonitoredNotificationConsumer notificationConsumer;
+  private NotificationConsumerHttp notificationConsumerHttp;
 
   private String endPointAddress;
 
   @Autowired
   public NotificationSubscriber(@Value("${nbi.onecontrol.notification.flatline.tolerance}") int flatlineTolerance,
                                 @Value("${nbi.onecontrol.notification.consumer.endpoint}") String endPointAddress,
-                                NotificationProducerClient notificationClient, MonitoredNotificationConsumer notificationConsumer) {
+                                NotificationProducerClient notificationClient, NotificationConsumerHttp notificationConsumerHttp) {
     this.flatlineTolerance = flatlineTolerance;
     this.endPointAddress = endPointAddress;
     this.notificationClient = notificationClient;
-    this.notificationConsumer = notificationConsumer;
+    this.notificationConsumerHttp = notificationConsumerHttp;
   }
 
   @PostConstruct
@@ -95,7 +95,7 @@ public class NotificationSubscriber {
 
   public boolean isHealthy() {
     // the last time a notification was received may not be more than {tolerance} seconds ago
-    return notificationConsumer.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
+    return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
   }
 
   /**
