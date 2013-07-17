@@ -200,7 +200,7 @@ public class ReservationReportView {
     this.amountRunningReservationsStillRunning = amountRunningReservationsStillRunning;
   }
 
-  public void setAmounRunningReservationsStillScheduled(long amountRunningReservationsStillScheduled) {
+  public void setAmountRunningReservationsStillScheduled(long amountRunningReservationsStillScheduled) {
     this.amountRunningReservationsStillScheduled = amountRunningReservationsStillScheduled;
   }
 
@@ -223,5 +223,4 @@ public class ReservationReportView {
   public DateTime getPeriodEnd() {
     return periodEnd;
   }
-
 }

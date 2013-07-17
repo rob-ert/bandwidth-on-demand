@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+import javax.persistence.NoResultException;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -130,7 +131,11 @@ public class ReservationPoller {
           if (currentStatus.isPresent() && !currentStatus.get().equals(startStatus)) {
             logger.info("Status change detected {} -> {} for reservation {}", new Object[] { startStatus, currentStatus.get(), reservationId });
 
-            reservationService.updateStatus(reservationId, currentStatus.get());
+            try {
+              reservationService.updateStatus(reservationId, currentStatus.get());
+            } catch (NoResultException e) {
+              // Reservation was already deleted, ignore.
+            }
             return;
           }
 

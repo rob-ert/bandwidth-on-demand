@@ -30,6 +30,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -73,9 +74,8 @@ public final class LogEventPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
         Predicate predicate = getPredicateForDomainObjectBeforeInAdminGroups(root, cb, reservationIds, before, domainObjectName, adminGroups);
-        Predicate predicateStateIn = getPredicateForStateIn(root, cb, states);
+        Predicate predicateStateIn = getPredicateForStateIn(root, LogEvent_.newReservationStatus, states);
 
         return predicateStateIn == null ? predicate : cb.and(predicate, predicateStateIn);
       }
@@ -89,7 +89,7 @@ public final class LogEventPredicatesAndSpecifications {
         .checkArgument(
             !ArrayUtils.contains(states, ReservationStatus.REQUESTED),
             "The given state %s can only occur in the old reservation status column, "
-            + "this query will only search the new reservation status column. Therefore the query will never be successfull",
+            + "this query will only search the new reservation status column. Therefore the query will never be successful",
             ReservationStatus.REQUESTED);
 
     return new Specification<LogEvent>() {
@@ -97,10 +97,8 @@ public final class LogEventPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
         Predicate predicate = getPredicateForDomainObjectInAdminGroupsBetween(root, cb, reservationIds, start, end, domainObjectName, adminGroups);
-
-        return cb.and(predicate, getPredicateForStateIn(root, cb, states));
+        return cb.and(predicate, getPredicateForStateIn(root, LogEvent_.newReservationStatus, states));
       }
     };
   }
@@ -115,7 +113,7 @@ public final class LogEventPredicatesAndSpecifications {
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         Predicate predicate = getPredicateForDomainObjectInAdminGroupsBetween(root, cb, reservationIds, start, end, domainObjectName, adminGroups);
 
-        return cb.and(predicate, getPredicateForOldStateIn(root, cb, states));
+        return cb.and(predicate, getPredicateForStateIn(root, LogEvent_.oldReservationStatus, states));
       }
     };
   }
@@ -188,24 +186,7 @@ public final class LogEventPredicatesAndSpecifications {
     return cb.and(cb.equal(root.get(LogEvent_.oldReservationStatus), oldStatus), cb.equal(root.get(LogEvent_.newReservationStatus), newStatus));
   }
 
-  private static Predicate getPredicateForStateIn(Root<LogEvent> root, CriteriaBuilder cb, final ReservationStatus... states) {
-    Predicate predicate = null;
-
-    if (!ArrayUtils.isEmpty(states)) {
-      predicate = cb.and(cb.isNotNull(root.get(LogEvent_.newReservationStatus)), (root.get(LogEvent_.newReservationStatus).in((Object[]) states)));
-    }
-
-    return predicate;
+  private static Predicate getPredicateForStateIn(Root<LogEvent> root, SingularAttribute<LogEvent,ReservationStatus> attribute, ReservationStatus... states) {
+    return ArrayUtils.isEmpty(states) ? null : root.get(attribute).in((Object[]) states);
   }
-
-  private static Predicate getPredicateForOldStateIn(Root<LogEvent> root, CriteriaBuilder cb, ReservationStatus... oldStates) {
-    Predicate predicate = null;
-
-    if (!ArrayUtils.isEmpty(oldStates)) {
-      predicate = cb.and(cb.isNotNull(root.get(LogEvent_.oldReservationStatus)), (root.get(LogEvent_.oldReservationStatus).in((Object[]) oldStates)));
-    }
-
-    return predicate;
-  }
-
 }

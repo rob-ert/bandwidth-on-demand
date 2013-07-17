@@ -26,16 +26,29 @@ import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -52,12 +65,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -109,9 +116,8 @@ public class ReportingService {
     reservationReport.setAmountRequestsModifiedSucceeded(0L);
     reservationReport.setAmountRequestsModifiedFailed(0L);
 
-    reservationReport.setAmountRequestsCancelSucceeded(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, ReservationStatus.CANCELLED));
-
-    reservationReport.setAmountRequestsCancelFailed(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, ReservationStatus.CANCEL_FAILED));
+    reservationReport.setAmountRequestsCancelSucceeded(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, CANCELLED));
+    reservationReport.setAmountRequestsCancelFailed(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, CANCEL_FAILED));
 
     // Actual Reservations by channel
     reservationReport.setAmountRequestsThroughNSI(
@@ -132,8 +138,7 @@ public class ReportingService {
     Set<Long> reservationIds = new HashSet<>();
 
     for (Long id : findReservationIdsBeforeOrOnInAdminGroupsWithState(start, adminGroups, TRANSITION_STATES_AS_ARRAY)) {
-      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeInAdminGroups(id, start,
-          adminGroups);
+      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeInAdminGroups(id, start, adminGroups);
       if (TRANSITION_STATES.contains(logEvent.getNewReservationStatus())) {
         reservationIds.add(id);
       }
@@ -143,9 +148,7 @@ public class ReportingService {
     List<Long> reservationIdList = Lists.newArrayList(reservationIds);
 
     reservationReport.setAmountReservationsProtected(countReservationsForIdsWithProtectionType(reservationIdList, ProtectionType.PROTECTED));
-
     reservationReport.setAmountReservationsUnprotected(countReservationsForIdsWithProtectionType(reservationIdList, ProtectionType.UNPROTECTED));
-
     reservationReport.setAmountReservationsRedundant(countReservationsForIdsWithProtectionType(reservationIdList, ProtectionType.REDUNDANT));
   }
 
@@ -157,14 +160,10 @@ public class ReportingService {
     List<Long> reservationIdsInPeriod = ImmutableList.copyOf(findReservationIdsStartBeforeAndEndInOrAfter(start, end));
 
     reservationReport.setAmountRunningReservationsSucceeded(countRunningReservationsInAdminGroupsSucceeded(reservationIdsInPeriod, start, end, adminGroups));
-
     reservationReport.setAmountRunningReservationsFailed(countRunningReservationsInAdminGroupsFailed(reservationIdsInPeriod, start, end, adminGroups));
-
     reservationReport.setAmountRunningReservationsStillRunning(countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, RUNNING, adminGroups));
-
-    reservationReport.setAmounRunningReservationsStillScheduled(countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, SCHEDULED, adminGroups));
-
-    reservationReport.setAmountRunningReservationsNeverProvisioned(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, ReservationStatus.PASSED_END_TIME));
+    reservationReport.setAmountRunningReservationsStillScheduled(countActiveReservationsBetweenWithState(reservationIdsInPeriod, start, end, SCHEDULED, adminGroups));
+    reservationReport.setAmountRunningReservationsNeverProvisioned(countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, PASSED_END_TIME));
   }
 
   @VisibleForTesting
@@ -182,8 +181,7 @@ public class ReportingService {
     Set<Long> reservationIds = new HashSet<>();
 
     // ReservationRequests
-    reservationIds.addAll(findReservationIdsInAdminGroupsWhichHadStateBetween(start, end, adminGroups,
-        ReservationStatus.RESERVED, AUTO_START));
+    reservationIds.addAll(findReservationIdsInAdminGroupsWhichHadStateBetween(start, end, adminGroups, RESERVED, AUTO_START));
 
     return Lists.newArrayList(reservationIds);
   }
@@ -206,11 +204,8 @@ public class ReportingService {
    */
   @VisibleForTesting
   long countFailedReservationRequestsInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
-    long failedRequests = countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups,
-        ReservationStatus.NOT_ACCEPTED);
-
-    return failedRequests + countReservationsWhichHadStateTransitionBetweenInAdminGroups(start, end, REQUESTED,
-        FAILED, adminGroups);
+    return (countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, NOT_ACCEPTED)
+        + countReservationsWhichHadStateTransitionBetweenInAdminGroups(start, end, REQUESTED, FAILED, adminGroups));
   }
 
   @VisibleForTesting
@@ -246,7 +241,7 @@ public class ReportingService {
         .specForReservationBetweenForAdminGroupsWithStateIn(reservationIdsInPeriod, start, end, adminGroups, SUCCEEDED);
 
     Specification<LogEvent> specScheduledToCancelled = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(ReservationStatus.SCHEDULED, CANCELLED,
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(SCHEDULED, CANCELLED,
             reservationIdsInPeriod, start, end, adminGroups);
 
     Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
@@ -291,7 +286,7 @@ public class ReportingService {
   @VisibleForTesting
   long countReservationsCreatedThroughChannelNSIInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
     List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end,
-        ReservationStatus.REQUESTED, adminGroups);
+        REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
@@ -314,7 +309,7 @@ public class ReportingService {
 
   @VisibleForTesting
   long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end, ReservationStatus.REQUESTED, adminGroups);
+    List<Long> reservationIds = logEventService.findReservationsIdsCreatedBetweenWithOldStateInAdminGroups(start, end, REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
