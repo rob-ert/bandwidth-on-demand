@@ -22,9 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class ReservationEventPublisher {
 
   private final Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
 
-  private final List<ReservationListener> listeners = Collections.synchronizedList(new ArrayList<ReservationListener>());
+  private final List<ReservationListener> listeners = new CopyOnWriteArrayList<ReservationListener>();
 
   public void addListener(ReservationListener reservationListener) {
     listeners.add(reservationListener);
@@ -44,11 +43,9 @@ public class ReservationEventPublisher {
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
     logger.info("Notifying {} listeners of event {} -> {}", listeners.size(), changeEvent.getOldStatus(), changeEvent.getNewStatus());
 
-    synchronized (listeners) {
-      for (ReservationListener listener : listeners) {
-        logger.trace("Listener {}", listener.getClass());
-        listener.onStatusChange(changeEvent);
-      }
+    for (ReservationListener listener : listeners) {
+      logger.trace("Listener {}", listener.getClass());
+      listener.onStatusChange(changeEvent);
     }
   }
 
