@@ -21,7 +21,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 import scala.concurrent.duration._
-import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import java.util.UUID
@@ -31,7 +30,7 @@ import org.joda.time.DateTime
 class NsiReserveRequestSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
+  val httpConf = http.baseURL(baseUrl)
 
   val reservationTimeFeeder =
     (0 to 20).flatMap(hours =>
@@ -49,15 +48,15 @@ class NsiReserveRequestSimulation extends Simulation {
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
-        .body(s => reserveRequest(s.get[DateTime]("startTime"), s.get[DateTime]("endTime")))
+        .body(StringBody(s => reserveRequest(s("startTime").as[DateTime], s("endTime").as[DateTime])))
         .header("Authorization", session => s"bearer $OauthToken")
         .check(status.is(200))
     )
 
-  setUp(scn.inject(ramp(50 users) over (10 seconds)).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(50 users) over (10 seconds))).protocols(httpConf)
 
 
-  private def reserveRequest(startTime: Option[DateTime], endTime: Option[DateTime]): String =
+  private def reserveRequest(startTime: DateTime, endTime: DateTime): String =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:type="http://schemas.ogf.org/nsi/2011/10/connection/types"
@@ -76,8 +75,8 @@ class NsiReserveRequestSimulation extends Simulation {
               <connectionId>{ UUID.randomUUID() }</connectionId>
               <serviceParameters>
                 <schedule>
-                  <startTime>{ startTime.map(printDateTime).orNull }</startTime>
-                  <endTime>{ endTime.map(printDateTime).orNull }</endTime>
+                  <startTime>{ printDateTime(startTime) }</startTime>
+                  <endTime>{ printDateTime(endTime) }</endTime>
                 </schedule>
                 <bandwidth>
                   <desired>100</desired>

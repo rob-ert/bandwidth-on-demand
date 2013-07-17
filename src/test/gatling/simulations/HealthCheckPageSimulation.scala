@@ -27,12 +27,12 @@ import bootstrap._
 class HealthCheckPageSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
+  val httpConf = http.baseURL(baseUrl)
 
   val scn = scenario("Health check page")
     .repeat(10) {
       exec(http("Healthcheck page").get("/healthcheck"))
     }
 
-  setUp(scn.inject(atOnce(5 users)).protocolConfig(httpConf))
+  setUp(scn.inject(atOnce(5 users))).protocols(httpConf)
 }

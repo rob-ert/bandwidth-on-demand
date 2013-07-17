@@ -27,7 +27,7 @@ import scala.concurrent.duration._
 class RequestAccessTokenSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
+  val httpConf = http.baseURL(baseUrl)
 
   val oauthServer = "http://localhost:8080"
 
@@ -86,5 +86,5 @@ class RequestAccessTokenSimulation extends Simulation {
         .param("csrf-token", "${csrf-token}")
     )
 
-  setUp(scn.inject(ramp( 10 users) over(2 seconds)).protocolConfig(httpConf))
+  setUp(scn.inject(ramp( 10 users) over(2 seconds))).protocols(httpConf)
 }

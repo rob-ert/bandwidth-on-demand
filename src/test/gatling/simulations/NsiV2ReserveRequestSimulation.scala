@@ -21,7 +21,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 import scala.concurrent.duration._
-import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import java.util.UUID
@@ -36,7 +35,7 @@ import io.gatling.core.action.builder.ActionBuilder
 class NsiV2ReserveRequestSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
+  val httpConf = http.baseURL(baseUrl)
 
   val reservationTimeFeeder =
     (0 to 20).flatMap(hours =>
@@ -55,7 +54,7 @@ class NsiV2ReserveRequestSimulation extends Simulation {
     .feed(reservationTimeFeeder)
     .exec(http("Reserve")
       .post(EndPoint)
-      .body(s => reserveRequest(s.get[DateTime]("startTime"), s.get[DateTime]("endTime")))
+      .body(StringBody(s => reserveRequest(s("startTime").as[DateTime], s("endTime").as[DateTime])))
       .oAuthHeader(OauthToken)
       .check(
         // xpath checker gave java.nio.BufferUnderflowException exception
@@ -63,24 +62,24 @@ class NsiV2ReserveRequestSimulation extends Simulation {
         status.is(200)))
     .exec(http("Commmit connection")
       .post(EndPoint)
-      .body(s => reserveCommitRequest(s.get("connectionId").get))
+      .body(StringBody(s => reserveCommitRequest(s("connectionId").as[String])))
       .oAuthHeader(OauthToken)
       .check(status.is(200)))
     .pause(2 seconds)
     .exec(http("Query connection")
       .post(EndPoint)
-      .body(s => querySummarySyncRequest(s.get("connectionId").get))
+      .body(StringBody(s => querySummarySyncRequest(s("connectionId").as[String])))
       .oAuthHeader(OauthToken)
       .check(
         bodyString.transform(_.map(xml => (XML.loadString(xml) \\ "reservationState" \ "state").text)).is("Reserved"),
         status.is(200)))
     .exec(http("Provision connection")
       .post(EndPoint)
-      .body(s => provisionRequest(s.get("connectionId").get))
+      .body(StringBody(s => provisionRequest(s("connectionId").as[String])))
       .oAuthHeader(OauthToken)
       .check(status.is(200)))
 
-  setUp(scn.inject(ramp(30 users) over (10 seconds)).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(30 users) over (10 seconds))).protocols(httpConf)
 
   implicit class NsiHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](builder: AbstractHttpRequestBuilder[B]) {
     def oAuthHeader(token: String): B = builder.header("Authorization", session => s"bearer $OauthToken")
@@ -101,13 +100,13 @@ class NsiV2ReserveRequestSimulation extends Simulation {
       <connectionId>{ connectionId }</connectionId>
     </type:provision>).toString
 
-  private def reserveRequest(startTime: Option[DateTime], endTime: Option[DateTime]): String = wrap(
+  private def reserveRequest(startTime: DateTime, endTime: DateTime): String = wrap(
     <type:reserve>
       <description>Gatling test</description>
       <criteria version="0">
         <schedule>
-          <startTime>{ printDateTime(startTime.get) }</startTime>
-          <endTime>{ printDateTime(endTime.get) }</endTime>
+          <startTime>{ printDateTime(startTime) }</startTime>
+          <endTime>{ printDateTime(endTime) }</endTime>
         </schedule>
         <bandwidth>1000</bandwidth>
         <serviceAttributes/>

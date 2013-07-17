@@ -21,15 +21,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 import scala.concurrent.duration._
-import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
 import java.util.UUID
+import io.gatling.http.request.StringBody
 
 class NsiTerminateRequestSimulation extends Simulation {
 
-  val httpConf = httpConfig.baseURL("http://localhost:8082/bod")
+  val httpConf = http.baseURL("http://localhost:8082/bod")
   val connectionIdFeeder = jdbcFeeder(
     url = "jdbc:postgresql://localhost/bod",
     username = "bod_user",
@@ -44,15 +44,15 @@ class NsiTerminateRequestSimulation extends Simulation {
     .exec(
       http("NSI Reserve request")
         .post("/nsi/v1_sc/provider")
-        .body(s => terminateRequest(s.get[String]("connection_id")))
+        .body(StringBody(s => terminateRequest(s("connection_id").as[String])))
         .header("Authorization", s => s"bearer $OauthToken")
         .check(status.is(200))
     )
 
-  setUp(scn.inject(ramp(50 users) over (5 seconds)).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(50 users) over (5 seconds))).protocols(httpConf)
 
 
-  private def terminateRequest(connectionId: Option[String]): String =
+  private def terminateRequest(connectionId: String): String =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
       xmlns:type="http://schemas.ogf.org/nsi/2011/10/connection/types"
@@ -65,7 +65,7 @@ class NsiTerminateRequestSimulation extends Simulation {
           <type:terminate>
             <requesterNSA>urn:ogf:network:nsa:surfnet-nsi-requester</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:surfnet.nl</providerNSA>
-            <connectionId>{ connectionId.orNull }</connectionId>
+            <connectionId>{ connectionId }</connectionId>
           </type:terminate>
         </int:terminateRequest>
       </soapenv:Body>

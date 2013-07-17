@@ -27,7 +27,7 @@ import scala.concurrent.duration._
 class CreateReservationSimulation extends Simulation {
 
   val baseUrl = "http://localhost:8082/bod"
-  val httpConf = httpConfig.baseURL(baseUrl)
+  val httpConf = http.baseURL(baseUrl)
 
   val timeFeeder = (0 to 23).flatMap(hour =>
       List(
@@ -66,5 +66,5 @@ class CreateReservationSimulation extends Simulation {
         .check(status.is(200))
     )
 
-  setUp(scn.inject(ramp(15 users) over (2 seconds)).protocolConfig(httpConf))
+  setUp(scn.inject(ramp(15 users) over (2 seconds))).protocols(httpConf)
 }
