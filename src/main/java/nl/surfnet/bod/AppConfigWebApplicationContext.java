@@ -61,7 +61,7 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
       env.addActiveProfile("onecontrol-offline");
       break;
     default:
-      throw new AssertionError("Could not set the NBI active profile");
+      throw new AssertionError("Could not set the NBI active profile. Configured NBI mode = '" + nbiMode + "'");
     }
 
     switch (iddMode) {
@@ -70,7 +70,7 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
       env.addActiveProfile(iddMode);
       break;
     default:
-      throw new AssertionError("Could not set the IDD active profile. Configured IDD mode = " + iddMode);
+      throw new AssertionError("Could not set the IDD active profile. Configured IDD mode = '" + iddMode + "'");
     }
 
     logger.info("Starting with active profiles: {}", Joiner.on(",").join(env.getActiveProfiles()));
@@ -84,8 +84,8 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
     try (InputStream is = propertiesResource.getInputStream()) {
       Properties props = new Properties();
       props.load(is);
-      nbiMode = props.getProperty("nbi.mode");
-      iddMode = props.getProperty("idd.mode");
+      nbiMode = props.getProperty("nbi.mode", "");
+      iddMode = props.getProperty("idd.mode", "");
     } catch (IOException e) {
       throw new AssertionError("could not load configuration properties");
     }
