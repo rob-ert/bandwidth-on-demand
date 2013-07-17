@@ -22,7 +22,19 @@
  */
 package nl.surfnet.bod.nbi.onecontrol.offline;
 
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -31,8 +43,11 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
-import nl.surfnet.bod.nbi.onecontrol.ReservationsAligner;
 import nl.surfnet.bod.repo.ReservationRepo;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -43,23 +58,24 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
   private InventoryRetrievalClient inventoryRetrievalClient;
   private ReservationRepo reservationRepo;
-  private ReservationsAligner reservationsAligner;
+  private Map<String, OfflineReservation> offlineReservations = new HashMap<>();
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Autowired
-  public NbiOneControlOfflineClient(InventoryRetrievalClient inventoryRetrievalClient, ReservationRepo reservationRepo, ReservationsAligner reservationsAligner) {
+  public NbiOneControlOfflineClient(InventoryRetrievalClient inventoryRetrievalClient, ReservationRepo reservationRepo) {
     this.inventoryRetrievalClient = inventoryRetrievalClient;
     this.reservationRepo = reservationRepo;
-    this.reservationsAligner = reservationsAligner;
   }
 
   @Override
   public boolean activateReservation(String reservationId) {
-    return false;
+    return true;
   }
 
   @Override
   public ReservationStatus cancelReservation(String scheduleId) {
-    return null;
+    return ReservationStatus.CANCELLED;
   }
 
   @Override
@@ -69,7 +85,28 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
   @Override
   public Reservation createReservation(Reservation reservation, boolean autoProvision) {
-    return null;
+    String reservationId = UUID.randomUUID().toString();
+    reservation.setReservationId(reservationId);
+
+    if (reservation.getStartDateTime() == null) {
+      reservation.setStartDateTime(DateTime.now());
+      log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
+    }
+
+    if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
+      reservation.setStatus(NOT_ACCEPTED);
+    } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
+      reservation.setStatus(FAILED);
+    } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
+      reservation.setStatus(PASSED_END_TIME);
+    } else if (autoProvision) {
+      reservation.setStatus(AUTO_START);
+    } else {
+      reservation.setStatus(RESERVED);
+    }
+
+    offlineReservations.put(reservation.getReservationId(), new OfflineReservation(reservation));
+    return reservation;
   }
 
   @Override
@@ -78,12 +115,71 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
-    return null;
+  public Optional<ReservationStatus> getReservationStatus(final String reservationId) {
+    OfflineReservation reservation = offlineReservations.get(reservationId);
+    ReservationStatus status = reservation.getStatus();
+    if (status.isTransitionState()) {
+      if (status == RESERVED && reservation.getStartDateTime().isBeforeNow()) {
+        status = ReservationStatus.SCHEDULED;
+      }
+      else if (status == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
+        status = RUNNING;
+      }
+      else if (status == REQUESTED) {
+        status = AUTO_START; // could be NOT_ACCEPTED as well..
+      }
+      else if (status == RUNNING && reservation.getEndDateTime().isPresent()
+          && reservation.getEndDateTime().get().isBeforeNow()) {
+        status = SUCCEEDED;
+      }
+      else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
+        status = PASSED_END_TIME;
+      }
+    }
+    return Optional.of(status);
   }
 
   @Override
   public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
-    return null;
+    List<PhysicalPort> physicalPorts = this.inventoryRetrievalClient.getPhysicalPorts();
+    for (PhysicalPort physicalPort: physicalPorts) {
+      if (physicalPort.getNmsPortId().equals(nmsPortId)) {
+        return physicalPort;
+      }
+    }
+    throw new PortNotAvailableException(nmsPortId);
+  }
+
+  private static class OfflineReservation {
+    private final ReservationStatus status;
+    private final DateTime startDateTime;
+    private final Optional<DateTime> endDateTime;
+
+    public OfflineReservation(Reservation reservation) {
+      this(reservation.getStatus(), reservation.getStartDateTime(), reservation.getEndDateTime());
+    }
+
+    private OfflineReservation(ReservationStatus status, DateTime startDateTime, DateTime endDateTime) {
+      this.status = status;
+      this.startDateTime = startDateTime;
+      this.endDateTime = Optional.fromNullable(endDateTime);
+    }
+
+    public ReservationStatus getStatus() {
+      return status;
+    }
+
+    public DateTime getStartDateTime() {
+      return startDateTime;
+    }
+
+    public Optional<DateTime> getEndDateTime() {
+      return endDateTime;
+    }
+
+    public OfflineReservation withStatus(ReservationStatus newStatus) {
+      return new OfflineReservation(newStatus, startDateTime, endDateTime.orNull());
+    }
+
   }
 }
