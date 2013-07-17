@@ -263,13 +263,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
         .byPhysicalResourceGroupSpec(physicalResourceGroup));
   }
 
-  public void forceCheckForPortInconsitencies() {
+  public void forceCheckForPortInconsistencies() {
     detectAndPersistPortInconsistencies();
   }
 
   @Scheduled(cron = "${" + PORT_DETECTION_CRON_KEY + "}")
   public void detectAndPersistPortInconsistencies() {
-    logger.info("Detecting port inconssistencies with the NMS, job based on configuration key: {}",
+    logger.info("Detecting port inconsistencies with the NMS, job based on configuration key: {}",
         PORT_DETECTION_CRON_KEY);
 
     Set<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
@@ -281,9 +281,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     physicalPortRepo.save(reappearedPortsInNMS);
     logEventService.logUpdateEvent(Security.getUserDetails(), "Reappeared ports in NMS", reappearedPortsInNMS);
 
-    List<PhysicalPort> dissapearedPortsFromNMS = markUnalignedWithNMS(dbPorts, nbiPortIds);
-    physicalPortRepo.save(dissapearedPortsFromNMS);
-    logEventService.logUpdateEvent(Security.getUserDetails(), "Dissapeared ports in NMS", dissapearedPortsFromNMS);
+    List<PhysicalPort> disapearedPortsFromNMS = markUnalignedWithNMS(dbPorts, nbiPortIds);
+    physicalPortRepo.save(disapearedPortsFromNMS);
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Disappeared ports in NMS", disapearedPortsFromNMS);
   }
 
   private ImmutableMap<String, PhysicalPort> buildPortIdMap() {
