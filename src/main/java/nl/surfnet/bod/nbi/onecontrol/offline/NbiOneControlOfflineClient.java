@@ -30,12 +30,21 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
+import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("onecontrol-offline")
 public class NbiOneControlOfflineClient implements NbiClient {
+
+  private InventoryRetrievalClient inventoryRetrievalClient;
+
+  @Autowired
+  public NbiOneControlOfflineClient(final InventoryRetrievalClient inventoryRetrievalClient) {
+    this.inventoryRetrievalClient = inventoryRetrievalClient;
+  }
 
   @Override
   public boolean activateReservation(String reservationId) {

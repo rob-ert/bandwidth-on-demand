@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi.onecontrol.offline;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -35,14 +37,20 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
 @Profile("onecontrol-offline")
 public class InventoryRetrievalClientOffline implements InventoryRetrievalClient {
 
+  private List<PhysicalPort> ports = Arrays.asList(
+      new PhysicalPort(), new PhysicalPort()
+  );
+
   @Override
   public List<PhysicalPort> getPhysicalPorts() {
-    return null;
+    List<PhysicalPort> result = Collections.emptyList();
+    Collections.copy(result, ports);
+    return result;
   }
 
   @Override
   public int getPhysicalPortCount() {
-    return 0;
+    return ports.size();
   }
 
   @Override
