@@ -26,10 +26,8 @@ import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -58,9 +56,6 @@ public class ReservationToNbiTest {
   @Mock
   private LogEventService logEeventServiceMock;
 
-  @Mock
-  private ReservationEventPublisher reservationEventPublisherMock;
-
   @Test
   public void terminateAReservation() {
     Reservation reservation = new ReservationFactory().setStatus(RESERVED).setCancelReason(null).create();
@@ -76,7 +71,6 @@ public class ReservationToNbiTest {
 
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());
     verify(reservationRepoMock).save(reservation);
-    verify(reservationEventPublisherMock).notifyListeners(any(ReservationStatusChangeEvent.class));
   }
 
   @Test
@@ -90,7 +84,6 @@ public class ReservationToNbiTest {
     subject.asyncProvision(reservation.getId());
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationEventPublisherMock).notifyListeners(any(ReservationStatusChangeEvent.class));
   }
 
   @Test
@@ -102,9 +95,8 @@ public class ReservationToNbiTest {
 
     subject.asyncProvision(reservation.getId());
 
-    verifyZeroInteractions(reservationEventPublisherMock);
     verify(reservationRepoMock).findOne(reservation.getId());
-    verifyNoMoreInteractions(reservationRepoMock);
+    verifyNoMoreInteractions(reservationRepoMock, logEeventServiceMock);
   }
 
 }

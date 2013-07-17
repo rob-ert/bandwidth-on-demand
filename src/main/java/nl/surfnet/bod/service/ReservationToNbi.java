@@ -49,7 +49,6 @@ public class ReservationToNbi {
 
   @Resource private NbiClient nbiClient;
   @Resource private ReservationRepo reservationRepo;
-  @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private LogEventService logEventService;
 
   @Async
@@ -112,15 +111,12 @@ public class ReservationToNbi {
   }
 
   private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus) {
-
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
       return;
     }
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
-
-    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(originalStatus, reservation));
   }
 
 }

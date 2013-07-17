@@ -79,6 +79,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
+  @Resource
+  private ReservationEventPublisher reservationEventPublisher;
+
   @PersistenceContext
   private EntityManager entityManager;
 
@@ -292,10 +295,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logUpdateEvent(user, details, toArray(domainObjects, Loggable.class));
   }
 
-  public LogEvent logReservationStatusChangeEvent(RichUserDetails user, Reservation reservation,
-      ReservationStatus oldStatus) {
+  public LogEvent logReservationStatusChangeEvent(RichUserDetails user, Reservation reservation, ReservationStatus oldStatus) {
     LogEvent logEvent = createReservationLogEvent(user, LogEventType.UPDATE, reservation, oldStatus);
     handleEvent(logger, logEvent);
+    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(oldStatus, reservation));
     return logEvent;
   }
 
@@ -319,5 +322,4 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return findByAdminGroups(virtualResourceGroupService.determineAdminGroupsForUser(userDetails), firstResult,
         maxResults, sort);
   }
-
 }

@@ -40,7 +40,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -62,9 +69,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.AsyncResult;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
 
@@ -82,9 +86,6 @@ public class ReservationServiceTest {
 
   @Mock
   private LogEventService logEventService;
-
-  @Mock
-  private ReservationEventPublisher reservationEventPublisher;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -187,7 +188,6 @@ public class ReservationServiceTest {
 
     reservation.setStatus(ReservationStatus.AUTO_START);
     verify(reservationRepoMock).saveAndFlush(reservation);
-    verify(reservationEventPublisher).notifyListeners(any(ReservationStatusChangeEvent.class));
   }
 
   @Test

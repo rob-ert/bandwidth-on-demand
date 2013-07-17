@@ -117,7 +117,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Resource private NbiClient nbiClient;
   @Resource private ReservationToNbi reservationToNbi;
   @Resource private LogEventService logEventService;
-  @Resource private ReservationEventPublisher reservationEventPublisher;
 
   @PersistenceContext private EntityManager entityManager;
 
@@ -516,7 +515,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     log.info("Reservation ({}) status {} -> {}", reservationId, oldStatus, newStatus);
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, oldStatus);
-    reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(oldStatus, reservation));
 
     return reservationRepo.saveAndFlush(reservation);
   }

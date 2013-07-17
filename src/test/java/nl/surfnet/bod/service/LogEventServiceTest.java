@@ -82,6 +82,9 @@ public class LogEventServiceTest {
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
+  @Mock
+  private ReservationEventPublisher reservationEventPublisherMock;
+
   @InjectMocks
   private LogEventService subject;
 
@@ -143,6 +146,8 @@ public class LogEventServiceTest {
 
       assertThat(logEvent.getOldReservationStatus(), is(ReservationStatus.RESERVED));
       assertThat(logEvent.getNewReservationStatus(), is(reservation.getStatus()));
+
+      verify(reservationEventPublisherMock).notifyListeners(any(ReservationStatusChangeEvent.class));
     }
     finally {
       DateTimeUtils.setCurrentMillisSystem();
