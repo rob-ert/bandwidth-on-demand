@@ -106,10 +106,11 @@ public class NotificationSubscriber {
     if (isHealthy()) {
       logger.debug("Notification subscription OK, nothing to do.");
       return;
+    } else {
+      logger.info("Subscriptions lost, try to re-subscribe");
+      unsubscribe();
+      subscribe();
     }
-    logger.info("Subscriptions lost, try to re-subscribe");
-    unsubscribe();
-    subscribe();
   }
 
   private String getEndPoint() {
