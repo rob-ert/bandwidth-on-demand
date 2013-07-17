@@ -105,7 +105,6 @@ public class NotificationSubscriber {
   public void monitor() {
     if (isHealthy()) {
       logger.debug("Notification subscription OK, nothing to do.");
-      return;
     } else {
       logger.info("Subscriptions lost, try to re-subscribe");
       unsubscribe();
