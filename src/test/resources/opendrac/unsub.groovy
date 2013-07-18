@@ -21,20 +21,22 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- *  usage: groovy unsub.groovy start end
- *  start and end are the subscription id's
- *  Example: "groovy unsub.groovy 20 30" will unsub from topic and service with those id's.
+ *  usage: groovy unsub.groovy [url] [start] [end]
+ *  start and end are the subscription id's, url is the url of the subscriptionservice
+ *  Example: "groovy unsub.groovy http://145.145.64.78:9006/mtosi/fmw/NotificationProducer 20 30" will unsub from topic and service with id's 20 until 30 (inclusive).
+ *  Note: first execution may be slow because groovy will be downloading the 'http-builder' dependency mentioned in the @Grab annotation below
+ *  Requires: Groovy 1.6+
+ *
  */
 @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.6')
 import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
-def url = "http://145.145.64.78:9006/mtosi/fmw/NotificationProducer";
 
-
-def start = args[0] as Integer
-def end = args[1] as Integer
+def url = args[0] as String
+def start = args[1] as Integer
+def end = args[2] as Integer
 def http = new HTTPBuilder(url)
 def topics = ["service", "fault"]
 for (i in start..end) {
