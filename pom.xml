@@ -679,7 +679,7 @@
                 </executions>
                 <configuration>
                     <strictCheck>true</strictCheck>
-                    <header>src/etc/header.txt</header>
+                    <header>LICENSE</header>
                     <excludes>
                         <exclude>.cache</exclude>
                         <exclude>.gitignore</exclude>
