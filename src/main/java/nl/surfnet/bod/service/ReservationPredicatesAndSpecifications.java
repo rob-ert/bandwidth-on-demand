@@ -28,6 +28,8 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -267,13 +269,12 @@ public final class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        // FIXME [AvD] need to add Connection NSI V2
-        Predicate connectionV1Predicate = root.get(Reservation_.connectionV1).get(ConnectionV1_.id).isNotNull();
         Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
 
-        return cb.and(connectionV1Predicate, reservationIdIn);
+        Path<?> v1id = root.join(Reservation_.connectionV1, JoinType.LEFT).get(ConnectionV1_.id);
+        Path<?> v2id = root.join(Reservation_.connectionV2, JoinType.LEFT).get(ConnectionV2_.id);
+        return cb.and(reservationIdIn, cb.or(v1id.isNotNull(), v2id.isNotNull()));
       }
     };
   }
-
 }
