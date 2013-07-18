@@ -70,7 +70,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   @Override
   public void notify(Header header, Notify body) {
     try {
-      log.debug("Received a notification: {}, {}", body.getTopic(), body.getMessage());
+      log.info("Received a notification: {}, {}", body.getTopic(), body.getMessage());
 
       List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 
