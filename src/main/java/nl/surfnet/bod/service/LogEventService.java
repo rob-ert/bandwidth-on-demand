@@ -151,19 +151,22 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       Loggable... domainObjects) {
 
     List<LogEvent> logEvents = new ArrayList<>();
-    int size = domainObjects.length;
-
     for (int i = 0; i < domainObjects.length; i++) {
       LogEvent logEvent = createLogEvent(user, logEventType, domainObjects[i], details);
-
-      if (size > 1) {
-        logEvent.setCorrelationId((i + 1) + "/" + size);
-      }
-
       logEvents.add(logEvent);
     }
 
+    correlateLogEvents(logEvents);
+
     return logEvents;
+  }
+
+  private void correlateLogEvents(List<LogEvent> logEvents) {
+    if (logEvents.size() > 1) {
+      for (int i = 0; i < logEvents.size(); ++i) {
+        logEvents.get(i).setCorrelationId((i + 1) + "/" + logEvents.size());
+      }
+    }
   }
 
   public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
@@ -301,10 +304,19 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     if (oldStatus != reservation.getStatus() && !oldStatus.canTransition(reservation.getStatus())) {
       throw new IllegalArgumentException("Impossible status transition from " + oldStatus + " to " + reservation.getStatus());
     }
+    List<LogEvent> logEvents = new ArrayList<>();
     for (Transition<ReservationStatus> transition: oldStatus.transitionPath(reservation.getStatus())) {
       LogEvent logEvent = createReservationLogEvent(user, LogEventType.UPDATE, reservation, transition.getFrom(), transition.getTo());
-      handleEvent(logger, logEvent);
-      reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(reservation, transition.getFrom(), transition.getTo()));
+      logEvents.add(logEvent);
+    }
+    correlateLogEvents(logEvents);
+    handleEvents(logEvents);
+    publishReservationStateChangeEvents(reservation, logEvents);
+  }
+
+  private void publishReservationStateChangeEvents(Reservation reservation, List<LogEvent> logEvents) {
+    for (LogEvent logEvent: logEvents) {
+      reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(reservation, logEvent.getOldReservationStatus(), logEvent.getNewReservationStatus()));
     }
   }
 
