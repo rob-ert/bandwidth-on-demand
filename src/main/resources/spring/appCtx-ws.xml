@@ -28,6 +28,11 @@
     </wss:binding>
 
     <beans profile="onecontrol">
+        <!--
+        One day, you might think "I will inline the contents of that file that idiot is importing
+        here, so I can eliminate the extra xml file". Don't. It will break the binding between jaxws and the spring-managed bean
+        that does the actual handling of messages (NotificationConsumerHttp).
+         -->
         <import resource="aapCtx-ws-onecontrol.xml"/>
     </beans>
 </beans>
