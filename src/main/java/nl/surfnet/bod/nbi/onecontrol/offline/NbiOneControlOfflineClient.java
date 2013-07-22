@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -107,6 +109,15 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
     offlineReservations.put(reservation.getReservationId(), new OfflineReservation(reservation));
     return reservation;
+  }
+
+  @PostConstruct
+  private void init() {
+    log.info("USING OFFLINE NBI CLIENT!");
+    List<Reservation> reservations = reservationRepo.findAll();
+    for (Reservation reservation : reservations) {
+      this.offlineReservations.put(reservation.getReservationId(), new OfflineReservation(reservation));
+    }
   }
 
   @Override
