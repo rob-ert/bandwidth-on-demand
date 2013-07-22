@@ -17,6 +17,7 @@
         <div class="alert alert-info">
             <spring:message code="label_physicalport_port_moved" />
         </div>
+        <div class="content">
             <c:choose>
                 <c:when test="${empty list}">
                     <spring:message code="info_physcialport_no_reservations_moved" />
@@ -178,5 +179,6 @@
                     </page:list>
                 </c:otherwise>
             </c:choose>
+        </div>
     </section>
 </jsp:root>
