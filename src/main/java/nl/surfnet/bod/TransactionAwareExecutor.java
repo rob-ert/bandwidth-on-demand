@@ -24,8 +24,7 @@ package nl.surfnet.bod;
 
 import java.util.concurrent.Executor;
 
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import nl.surfnet.bod.util.Transactions;
 
 /**
  * Executor that only submits tasks after the current transaction commits. If there is no current transaction, the task
@@ -41,15 +40,11 @@ public class TransactionAwareExecutor implements Executor {
 
   @Override
   public void execute(final Runnable task) {
-    if (TransactionSynchronizationManager.isActualTransactionActive()) {
-      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-        @Override
-        public void afterCommit() {
-          executor.execute(task);
-        }
-      });
-    } else {
-      executor.execute(task);
-    }
+    Transactions.afterCommit(new Runnable() {
+      @Override
+      public void run() {
+        executor.execute(task);
+      }
+    });
   }
 }

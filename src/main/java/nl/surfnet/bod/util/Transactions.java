@@ -20,44 +20,25 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web.push;
+package nl.surfnet.bod.util;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import nl.surfnet.bod.service.ReservationEventPublisher;
-import nl.surfnet.bod.service.ReservationListener;
-import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.util.Transactions;
-import nl.surfnet.bod.web.base.MessageRetriever;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-@Component
-public class ReservationStatusChangeListener implements ReservationListener {
-
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-  @Resource private ReservationEventPublisher reservationEventPublisher;
-  @Resource private EndPoints connections;
-  @Resource private MessageRetriever messageRetriever;
-
-  @PostConstruct
-  public void registerListener() {
-    reservationEventPublisher.addListener(this);
+public class Transactions {
+  private Transactions() {
   }
 
-  @Override
-  public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
-    final PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
-    Transactions.afterCommit(new Runnable() {
-      @Override
-      public void run() {
-        logger.info("Broadcasting event: {}", event.toJson());
-        connections.broadcast(event);
-      }
-    });
+  public static void afterCommit(final Runnable action) {
+    if (TransactionSynchronizationManager.isActualTransactionActive()) {
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+        @Override
+        public void afterCommit() {
+          action.run();
+        }
+      });
+    } else {
+      action.run();
+    }
   }
 }
