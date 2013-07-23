@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 
 import java.util.EnumSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
@@ -39,6 +40,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.google.common.base.Optional;
 
+import com.jayway.awaitility.Awaitility;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.BodRole;
@@ -177,13 +179,6 @@ public class ConnectionServiceProviderTestIntegration {
 
     assertStates(connectionId, ReservationStatus.RESERVED, ConnectionStateType.RESERVED);
 
-//    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
-//    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
-//    assertThat(provisionAck.getCorrelationId(), is(provisionRequest.getCorrelationId()));
-//
-//    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
-//
-//    assertStates(connectionId, ReservationStatus.AUTO_START, ConnectionStateType.AUTO_PROVISION);
 
     // terminate
     TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
@@ -195,13 +190,6 @@ public class ConnectionServiceProviderTestIntegration {
     assertStates(connectionId, ReservationStatus.CANCELLED, ConnectionStateType.TERMINATED);
   }
 
-  private void assertStates(String connectionId, ReservationStatus reservationStatus, ConnectionStateType connectionState) {
-    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    Reservation reservation = reservationService.find(connection.getReservation().getId());
-
-    assertThat(reservation.getStatus(), is(reservationStatus));
-    assertThat(connection.getCurrentState(), is(connectionState));
-  }
 
   @Test
   public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
@@ -277,7 +265,7 @@ public class ConnectionServiceProviderTestIntegration {
   @Test
   public void shouldTerminateWhenCancelledByGUI() throws Exception {
     ReserveRequestType reservationRequest = createReserveRequest();
-    String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     nsiProvider.reserve(reservationRequest);
 
@@ -286,14 +274,11 @@ public class ConnectionServiceProviderTestIntegration {
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
     reservationService.cancel(connection.getReservation(), new RichUserDetailsFactory().addNocRole().create());
 
-    Thread.sleep(500);
-
-    connection = connectionRepo.findByConnectionId(connectionId);
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
-
-    Reservation reservation = connection.getReservation();
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    Awaitility.await().until(internalConnectionStateIs(connectionId, ConnectionStateType.TERMINATED));
+    Awaitility.await().until(internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.CANCELLED));
   }
+
+
 
   @Test
   public void terminateShouldFailWhenStateIsTerminated() throws Exception {
@@ -488,4 +473,29 @@ public class ConnectionServiceProviderTestIntegration {
     Security.setUserDetails(userDetails);
   }
 
+  private Callable<Boolean> internalConnectionStateIs(final String connectionId, final ConnectionStateType connectionStateType) {
+    return new Callable<Boolean>() {
+      public Boolean call() throws Exception {
+        ConnectionV1 connection =  connectionRepo.findByConnectionId(connectionId);
+        return connectionStateType.equals(connection.getCurrentState());
+      }
+    };
+  }
+
+  private Callable<Boolean> internalReservationStateIs(final Long id, final ReservationStatus status) {
+    return new Callable<Boolean>() {
+      public Boolean call() throws Exception {
+        Reservation reservation = reservationService.find(id);
+        return status.equals(reservation.getStatus());
+      }
+    };
+  }
+
+  private void assertStates(String connectionId, ReservationStatus reservationStatus, ConnectionStateType connectionState) {
+    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+
+    assertThat(reservation.getStatus(), is(reservationStatus));
+    assertThat(connection.getCurrentState(), is(connectionState));
+  }
 }
