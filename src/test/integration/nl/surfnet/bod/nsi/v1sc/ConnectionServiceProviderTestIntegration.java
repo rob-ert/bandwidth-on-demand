@@ -257,7 +257,6 @@ public class ConnectionServiceProviderTestIntegration {
     String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
     assertThat(response, containsString("<connectionId>" + connectionId + "</connectionId"));
-    assertThat(response, containsString("<connectionState>Reserved</connectionState"));
     assertThat(response, containsString("<providerNSA>" + URN_PROVIDER_NSA + "</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>" + URN_REQUESTER_NSA + "</requesterNSA>"));
   }
