@@ -52,13 +52,13 @@ public class LongPollServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     String transport = request.getParameter("transport");
     if (transport == null) {
-      logger.error("No transport defined for the long polling call");
+      logger.debug("No transport defined for the long polling call");
     }
     else if (transport.equals("longpollajax") || transport.equals("longpollxdr") || transport.equals("longpolljsonp")) {
       doLongPollConnect(request, response, transport);
     }
     else {
-      logger.error("Do not understand the transport '{}'", transport);
+      logger.debug("Do not understand the transport '{}'", transport);
     }
   }
 
