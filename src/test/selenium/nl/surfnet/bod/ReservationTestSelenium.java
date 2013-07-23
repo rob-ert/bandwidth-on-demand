@@ -111,8 +111,6 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
-    getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
-    getUserDriver().verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyAndWaitForReservationIsAutoStart(reservationLabel);
     getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
