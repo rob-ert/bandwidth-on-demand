@@ -51,7 +51,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
-    logger.info("Broadcasting event: {}", event);
+    logger.info("Broadcasting event: {}", event.toJson());
     connections.broadcast(event);
   }
 }

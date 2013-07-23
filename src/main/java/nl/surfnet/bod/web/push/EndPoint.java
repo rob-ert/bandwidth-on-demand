@@ -24,7 +24,6 @@ package nl.surfnet.bod.web.push;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
 
@@ -34,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface EndPoint {
-  void sendMessage(String message);
+  void sendMessage(int eventId, String message);
 
-  void send(String type, String data);
+  void send(String type, int eventId, String data);
 
   RichUserDetails getUser();
 
@@ -48,7 +47,6 @@ public interface EndPoint {
     private AsyncContext asyncContext;
     private final String id;
     private final RichUserDetails user;
-    private final AtomicInteger eventId = new AtomicInteger(0);
 
     public LongPollEndPoint(String id, RichUserDetails user) {
       this.id = id;
@@ -66,19 +64,16 @@ public interface EndPoint {
     }
 
     @Override
-    public void sendMessage(String message) {
-      send("message", message);
+    public void sendMessage(int eventId, String message) {
+      send("message", eventId, message);
     }
 
     @Override
-    public void send(String type, String data) {
+    public void send(String type, int eventId, String data) {
       if (asyncContext.getRequest().isAsyncStarted()) {
-        eventId.incrementAndGet();
-        PrintWriter writer;
         try {
-          writer = asyncContext.getResponse().getWriter();
-          String template = "{\"type\": \"%s\", \"data\": %s, \"id\": %d}";
-          writer.write(String.format(template, type, data, eventId.get()));
+          PrintWriter writer = asyncContext.getResponse().getWriter();
+          writer.write(String.format("{\"type\": \"%s\", \"data\": %s, \"id\": %d}", type, data, eventId));
           writer.flush();
           asyncContext.complete();
         }

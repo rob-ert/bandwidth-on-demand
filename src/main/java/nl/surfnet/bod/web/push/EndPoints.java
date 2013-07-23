@@ -23,9 +23,20 @@
 package nl.surfnet.bod.web.push;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.AsyncContext;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
 
 import nl.surfnet.bod.web.push.EndPoint.LongPollEndPoint;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -34,55 +45,150 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-
 @Component
 public class EndPoints {
+
+  protected static final Object POISON_PILL = new Object();
 
   private final Logger logger = LoggerFactory.getLogger(EndPoints.class);
   private final Map<String, EndPoint> endPoints = Maps.newConcurrentMap();
 
+  private final AtomicInteger lastEventId = new AtomicInteger(0);
+  private final NavigableMap<Integer, PushMessage> recentEvents = new TreeMap<Integer, PushMessage>();
+  private final BlockingQueue<Object> eventsToPublish = new ArrayBlockingQueue<>(100);
+  private volatile boolean running = false;
+
+  public int getLastEventId() {
+    return lastEventId.get();
+  }
+
   public void broadcast(final PushMessage event) {
-    logger.debug("Got a event with message [{}] for groupId: {}", event.getMessage(), event.getGroupId());
-    Map<String, EndPoint> clients = Maps.filterValues(endPoints, new Predicate<EndPoint>() {
+    eventsToPublish.add(event);
+  }
+
+  public void shutdown() {
+    eventsToPublish.add(POISON_PILL);
+  }
+
+  public boolean isRunning() {
+    return running;
+  }
+
+  @PostConstruct
+  public synchronized void startMessageProcessor() {
+    if (running) throw new IllegalStateException("already running");
+
+    Thread processor = new Thread() {
+      @Override
+      public void run() {
+        logger.info("Web AJAX push started");
+        running = true;
+        while (true) {
+          try {
+            Object message = eventsToPublish.take();
+            if (message == POISON_PILL) {
+              running = false;
+              logger.info("Web AJAX push stopped");
+              return;
+            } else if (message instanceof PushMessage) {
+              handlePushMessage((PushMessage) message);
+            }
+          } catch (Exception e) {
+            logger.info("Exception ignored while processing event: {}", e, e);
+          }
+        }
+      }
+    };
+    processor.setName("AJAX push message processor");
+    processor.setDaemon(true);
+    processor.start();
+  }
+
+  private void handlePushMessage(final PushMessage event) {
+    logger.debug("Got a event with message [{}] for groupId: {}, sending", event.toJson(), event.getGroupId());
+
+    int eventId = registerEvent(event);
+    Collection<EndPoint> authorizedEndPoints = selectAuthorizedEndPoints(event);
+    sendEventToEndPoints(authorizedEndPoints, eventId, event);
+  }
+
+  private int registerEvent(final PushMessage event) {
+    synchronized (recentEvents) {
+      int eventId = lastEventId.incrementAndGet();
+      recentEvents.put(eventId, event);
+      for (Integer oldEventId : recentEvents.headMap(eventId - 100).keySet()) {
+        recentEvents.remove(oldEventId);
+      }
+      return eventId;
+    }
+  }
+
+  private void sendEventToEndPoints(Collection<EndPoint> endPoints, int eventId, final PushMessage event) {
+    String message = event.toJson();
+    logger.debug("Got a broadcast message [{}] for {} clients", message, endPoints.size());
+
+    for (EndPoint connection : endPoints) {
+      connection.sendMessage(eventId, message);
+    }
+  }
+
+  private Collection<EndPoint> selectAuthorizedEndPoints(final PushMessage event) {
+    Map<String, EndPoint> clients = new HashMap<String, EndPoint>(Maps.filterValues(endPoints, isAuthorized(event)));
+    for (String key: clients.keySet()) {
+      endPoints.remove(key);
+    }
+    return clients.values();
+  }
+
+  public void clientRequest(String id, int count, int lastEventId, AsyncContext asyncContext, RichUserDetails user) {
+    logger.debug("New request for client {} with count {} and lastEventId {}", id, count, lastEventId);
+
+    EndPoint endPoint = endPoints.remove(id);
+    if (endPoint == null) {
+      endPoint = new LongPollEndPoint(id, user);
+    }
+    endPoint.setAsyncContext(asyncContext);
+
+    enqueueClient(id, count, endPoint, lastEventId);
+  }
+
+  private Predicate<EndPoint> isAuthorized(final PushMessage event) {
+    return new Predicate<EndPoint>() {
       @Override
       public boolean apply(EndPoint connection) {
         return connection.getUser().getUserGroupIds().contains(event.getGroupId());
       }
-    });
-
-    broadcast(clients.values(), event.getMessage());
+    };
   }
 
-  private void broadcast(Collection<EndPoint> clients, String message) {
-    logger.debug("Got a broadcast message [{}] for {} clients", message, clients.size());
-    for (EndPoint connection : clients) {
-      connection.sendMessage(message);
+  private void enqueueClient(String id, int count, EndPoint endPoint, int lastEventId) {
+    Entry<Integer, PushMessage> event;
+    synchronized (recentEvents) {
+      event = recentEvents.higherEntry(lastEventId);
+      if (event != null && !isAuthorized(event.getValue()).apply(endPoint)) {
+        event = null;
+      }
+      if (event == null) {
+        // Add client while `recentEvents` is locked to avoid missing an event.
+        addClient(id, count, endPoint);
+      }
+    }
+    if (event != null) {
+      endPoint.sendMessage(lastEventId + 1, event.getValue().toJson());
     }
   }
 
-  public void clientRequest(String id, Integer count, AsyncContext asyncContext, RichUserDetails user) {
-    logger.debug("New request for client {} with count {}", id, count);
-
-    if (count == 1) {
-      addClient(id, new LongPollEndPoint(id, user));
-    }
-
-    endPoints.get(id).setAsyncContext(asyncContext);
+  public void removeClient(String id, int count) {
+    String key = clientKey(id, count);
+    logger.debug("Removing client {}", key);
+    endPoints.remove(key);
   }
 
-  public void removeClient(String id) {
-    logger.debug("Removing client {}", id);
-    endPoints.remove(id);
+  protected void addClient(String id, int count, EndPoint endPoint) {
+    endPoints.put(clientKey(id, count), endPoint);
   }
 
-  public void sendHeartbeat(String id) {
-    EndPoint connection = endPoints.get(id);
-    connection.send("heartbeat", null);
-  }
-
-  protected void addClient(String id, EndPoint endPoint) {
-    endPoints.put(id, endPoint);
+  private String clientKey(String id, int count) {
+    return id + "#" + count;
   }
 }

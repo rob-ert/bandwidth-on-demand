@@ -5,6 +5,7 @@
     <jsp:directive.attribute name="items" type="java.util.Collection" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="labelPluralCode" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="pushUrl" type="java.lang.String" required="true" rtexprvalue="true" />
+    <jsp:directive.attribute name="lastEventId" type="java.lang.Long" required="true" rtexprvalue="true" />
 
     <c:choose>
         <c:when test="${not empty items}">
@@ -13,7 +14,7 @@
                 <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
             </c:if>
 
-            <table class="${table_classes}" data-component="reservation" data-url="${pushUrl}">
+            <table class="${table_classes}" data-component="reservation" data-url="${pushUrl}" data-last-event-id="${lastEventId}">
                 <jsp:doBody />
             </table>
             <util:pagination maxPages="${maxPages}" page="${param.page}" />

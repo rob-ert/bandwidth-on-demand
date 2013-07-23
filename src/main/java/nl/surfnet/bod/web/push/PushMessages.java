@@ -41,13 +41,13 @@ public final class PushMessages {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
     String message = messageRetriever.getMessageWithBoldArguments("info_reservation_statuschanged", reservation
-        .getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
+        .getName(), reservationStatusChangeEvent.getOldStatus().name(), reservationStatusChangeEvent.getNewStatus().name());
 
-    if (reservation.getStatus().isErrorState() && reservation.getFailedReason() != null) {
+    if (reservationStatusChangeEvent.getNewStatus().isErrorState() && reservation.getFailedReason() != null) {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
     }
 
-    boolean deleteAllowed = reservation.getStatus().isDeleteAllowed();
+    boolean deleteAllowed = reservationStatusChangeEvent.getNewStatus().isDeleteAllowed();
     String deleteTooltip;
     if (!deleteAllowed) {
       deleteTooltip = messageRetriever.getMessage("reservation_state_transition_not_allowed", new String[] {});
@@ -56,19 +56,19 @@ public final class PushMessages {
     }
 
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getAdminGroup(), new JsonEvent(message,
-        reservation.getId(), reservation.getStatus().name(), deleteAllowed, deleteTooltip));
+        reservation.getId(), reservationStatusChangeEvent.getNewStatus().name(), deleteAllowed, deleteTooltip));
   }
 
   private static class JsonEvent {
     private final String message;
-    private final Long id;
+    private final Long reservationId;
     private final String status;
     private final Boolean deletable;
     private final String deleteTooltip;
 
-    public JsonEvent(String message, Long id, String status, boolean deletable, String deleteTooltip) {
+    public JsonEvent(String message, Long reservationId, String status, boolean deletable, String deleteTooltip) {
       this.message = message;
-      this.id = id;
+      this.reservationId = reservationId;
       this.status = status;
       this.deletable = deletable;
       this.deleteTooltip = deleteTooltip;
@@ -90,8 +90,8 @@ public final class PushMessages {
     }
 
     @SuppressWarnings("unused")
-    public Long getId() {
-      return id;
+    public Long getReservationId() {
+      return reservationId;
     }
 
     @SuppressWarnings("unused")
@@ -105,11 +105,11 @@ public final class PushMessages {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     private final String groupId;
-    private final Object toJsonObject;
+    private final Object payload;
 
     public JsonMessageEvent(String groupId, Object toJsonObject) {
       this.groupId = groupId;
-      this.toJsonObject = toJsonObject;
+      this.payload = toJsonObject;
     }
 
     @Override
@@ -118,9 +118,9 @@ public final class PushMessages {
     }
 
     @Override
-    public String getMessage() {
+    public String toJson() {
       try {
-        return JSON_MAPPER.writeValueAsString(toJsonObject);
+        return JSON_MAPPER.writeValueAsString(payload);
       }
       catch (IOException e) {
         return "{}";

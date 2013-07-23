@@ -81,29 +81,12 @@ public class LongPollServletTest {
     when(requestMock.getParameter("transport")).thenReturn("longpollajax");
     when(requestMock.getParameter("count")).thenReturn("1");
     when(requestMock.getParameter("id")).thenReturn("f8eed38c-c0d5-4b15-b9b9-e121a1741df6");
+    when(requestMock.getParameter("lastEventId")).thenReturn("442");
     when(requestMock.startAsync(requestMock, responseMock)).thenReturn(asyncContext);
 
     subject.doGet(requestMock, responseMock);
 
-    verify(endPointsMock).clientRequest("f8eed38c-c0d5-4b15-b9b9-e121a1741df6", 1, asyncContext, user);
-  }
-
-  @Test
-  public void extractSocketIdForAValidMessagE() {
-    String message = "data={\"id\":\"1\",\"socket\":\"f8eed38c-c0d5-4b15-b9b9-e121a1741df6\",\"type\":\"heartbeat\",\"reply\":false}";
-
-    String socketId = subject.extractSocketId(message);
-
-    assertThat(socketId, is("f8eed38c-c0d5-4b15-b9b9-e121a1741df6"));
-  }
-
-  @Test
-  public void extractSocketIdForInvalidMessageShouldGiveNull() {
-    String message = "data={\"id\":\"1\",\"type\":\"heartbeat\",\"data\":null,\"reply\":false}";
-
-    String socketId = subject.extractSocketId(message);
-
-    assertThat(socketId, nullValue());
+    verify(endPointsMock).clientRequest("f8eed38c-c0d5-4b15-b9b9-e121a1741df6", 1, 442, asyncContext, user);
   }
 
   private static class AsyncContextStub implements AsyncContext {

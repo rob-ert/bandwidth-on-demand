@@ -26,40 +26,51 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.servlet.AsyncContext;
+
+import com.google.common.collect.Lists;
+import com.jayway.awaitility.Awaitility;
 
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 public class EndPointsTest {
 
   private EndPoints subject = new EndPoints();
 
   @Test
-  public void broadcastMessageShouldFilterOn() {
+  public void broadcastMessageShouldFilterOnGroup() throws Exception {
     RichUserDetails user1 = new RichUserDetailsFactory().addUserGroup("urn:firstGroup").create();
     RichUserDetails user2 = new RichUserDetailsFactory().create();
 
-    DummyEndPoint connection1 = new DummyEndPoint(user1);
+    final DummyEndPoint connection1 = new DummyEndPoint(user1);
     DummyEndPoint connection2 = new DummyEndPoint(user2);
 
-    subject.addClient("1", connection1);
-    subject.addClient("2", connection2);
+    subject.addClient("1", 1, connection1);
+    subject.addClient("2", 5, connection2);
 
+    subject.startMessageProcessor();
     subject.broadcast(new PushMessage() {
       @Override
-      public String getMessage() {
-        return "First message";
+      public String toJson() {
+        return "{\"message\":\"First message\"}";
       }
 
       @Override
       public String getGroupId() {
         return "urn:firstGroup";
+      }
+    });
+    subject.shutdown();
+
+    Awaitility.await().until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return !subject.isRunning();
       }
     });
 
@@ -81,12 +92,12 @@ public class EndPointsTest {
     }
 
     @Override
-    public void sendMessage(String message) {
-      send("message", message);
+    public void sendMessage(int eventId, String message) {
+      send("message", eventId, message);
     }
 
     @Override
-    public void send(String type, String data) {
+    public void send(String type, int eventId, String data) {
       messages.add(data);
     }
 

@@ -29,5 +29,5 @@ public interface PushMessage {
 
   String getGroupId();
 
-  String getMessage();
+  String toJson();
 }

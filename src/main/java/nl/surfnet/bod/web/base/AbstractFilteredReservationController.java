@@ -35,6 +35,7 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.push.EndPoints;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
@@ -54,6 +55,8 @@ import com.google.common.collect.Lists;
  */
 public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
+  public static final String LAST_EVENT_ID = "lastEventId";
+
   public static final String FILTER_URL = "filter/";
 
   @Resource
@@ -61,6 +64,9 @@ public abstract class AbstractFilteredReservationController extends
 
   @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
+
+  @Resource
+  private EndPoints endPoints;
 
   @Override
   public String list(Integer page, String sort, String order, Model model) {
@@ -132,6 +138,7 @@ public abstract class AbstractFilteredReservationController extends
 
   @ModelAttribute
   protected void populateFilter(Model model) {
+    model.addAttribute(LAST_EVENT_ID, endPoints.getLastEventId());
     model.addAttribute(FILTER_LIST, determineFilters());
 
     // Remove the [list] part of the url
