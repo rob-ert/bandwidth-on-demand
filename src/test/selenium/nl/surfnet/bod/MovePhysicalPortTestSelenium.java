@@ -27,7 +27,6 @@ import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MovePhysicalPortTestSelenium extends TestExternalSupport {
@@ -68,7 +67,6 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
-  @Ignore
   public void moveAPhysicalPort() {
     getUserDriver().switchToNocRole();
 

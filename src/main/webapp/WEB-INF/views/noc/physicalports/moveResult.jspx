@@ -27,7 +27,8 @@
                         <table:table-reservation
                                 items="${list}"
                                 labelPluralCode="label_reservation_plural"
-                                pushUrl="${pushUrl}">
+                                pushUrl="${pushUrl}"
+                                lastEventId="${lastEventId}">
                             <thead>
                             <tr>
                                 <table:rowDetailsHeader />
