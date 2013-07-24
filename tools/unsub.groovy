@@ -44,7 +44,8 @@ for (i in start..end) {
 	topics.each { topic ->
 
         def message = """<?xml version='1.0' encoding='UTF-8'?>
-<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><header
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+<S:Header><header
 xmlns="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1"
 xmlns:ns2="http://www.tmforum.org/mtop/fmw/xsd/msg/v1"
 xmlns:ns3="http://www.tmforum.org/mtop/fmw/xsd/notmsg/v1"
@@ -56,7 +57,19 @@ xmlns:ns8="http://www.tmforum.org/mtop/fmw/xsd/nam/v1"
 xmlns:ns9="http://www.tmforum.org/mtop/nra/xsd/alm/v1"
 xmlns:ns10="http://www.tmforum.org/mtop/nra/xsd/prc/v1"
 xmlns:ns11="http://www.tmforum.org/mtop/nra/xsd/com/v1"
-xmlns:ns12="http://www.tmforum.org/mtop/fmw/xsd/cornot/v1"><activityName>subscribe</activityName><msgName>subscribeRequest</msgName><msgType>REQUEST</msgType><senderURI>http://localhost:9009</senderURI><destinationURI>http://145.145.64.78:9006/mtosi/fmw/NotificationProducer</destinationURI><communicationPattern>SimpleResponse</communicationPattern><communicationStyle>RPC</communicationStyle><timestamp>2013-07-09T14:23:00+02:00</timestamp></header></S:Header><S:Body><ns3:unsubscribeRequest
+xmlns:ns12="http://www.tmforum.org/mtop/fmw/xsd/cornot/v1">
+    <activityName>unsubscribe</activityName>
+    <msgName>unsubscribeRequest</msgName>
+    <msgType>REQUEST</msgType>
+    <senderURI>http://localhost:9009</senderURI>
+    <destinationURI>${url}</destinationURI>
+    <communicationPattern>SimpleResponse</communicationPattern>
+    <communicationStyle>RPC</communicationStyle>
+    <timestamp>${new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())}</timestamp>
+    </header>
+    </S:Header>
+    <S:Body>
+    <ns3:unsubscribeRequest
 xmlns="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1"
 xmlns:ns2="http://www.tmforum.org/mtop/fmw/xsd/msg/v1"
 xmlns:ns3="http://www.tmforum.org/mtop/fmw/xsd/notmsg/v1"
@@ -71,6 +84,8 @@ xmlns:ns11="http://www.tmforum.org/mtop/nra/xsd/com/v1"
 xmlns:ns12="http://www.tmforum.org/mtop/fmw/xsd/cornot/v1">
 <ns3:subscriptionID>${i}</ns3:subscriptionID><ns3:topic>${topic}</ns3:topic></ns3:unsubscribeRequest></S:Body></S:Envelope>
 """
+
+
         http.request(POST, XML) { req ->
             requestContentType = "text/xml"
             body = message
