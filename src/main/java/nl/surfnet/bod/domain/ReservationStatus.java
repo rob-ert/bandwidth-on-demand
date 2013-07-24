@@ -104,6 +104,7 @@ public enum ReservationStatus {
       .add(t(AUTO_START, CANCELLED))
       .add(t(RUNNING, CANCELLED))
       .add(t(SCHEDULED, PASSED_END_TIME))
+      .add(t(SCHEDULED, CANCELLED))
       .build();
 
   private static final ImmutableMap<Transition<ReservationStatus>, ImmutableList<Transition<ReservationStatus>>> TRANSITION_PATHS
