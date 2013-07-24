@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import com.google.common.base.Joiner;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.AbstractReservationListPage;
 import nl.surfnet.bod.support.BodWebDriver;
@@ -60,7 +62,7 @@ public class ListReservationPage extends AbstractReservationListPage {
     delete(start, end);
   }
 
-  public void reservationShouldBe(String label, ReservationStatus status) {
+  public void reservationShouldBe(String label, ReservationStatus... status) {
     WebElement reservation = findRow(label);
 
     waitForStatus(reservation, status);
@@ -76,8 +78,9 @@ public class ListReservationPage extends AbstractReservationListPage {
     waitForStatus(reservation, status);
   }
 
-  private void waitForStatus(WebElement row, ReservationStatus status) {
-    getProbes().assertTextPresent(row, status.name());
+  private void waitForStatus(WebElement row, ReservationStatus... status) {
+    String regex = Joiner.on("|").join(status);
+    getProbes().assertRegexPresent(row, regex);
   }
 
   public void verifyIsCurrentPage() {

@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.not;
 import java.util.List;
 
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
@@ -80,6 +81,13 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.reservationShouldBe(label, ReservationStatus.AUTO_START);
+  }
+
+
+  public void verifyAndWaitForReservationIsAutoStartOrRunning(String label) {
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.reservationShouldBe(label, ReservationStatus.AUTO_START, ReservationStatus.RUNNING);
   }
 
   public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth,

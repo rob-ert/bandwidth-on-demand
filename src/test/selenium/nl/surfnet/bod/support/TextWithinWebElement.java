@@ -22,23 +22,35 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.regex.Pattern;
+
 import org.openqa.selenium.WebElement;
 
 public class TextWithinWebElement implements Probe {
 
   private final WebElement element;
-  private final String text;
+  private final Pattern pattern;
 
   private boolean satisfied;
+  private String regex;
 
-  public TextWithinWebElement(WebElement element, String text) {
-     this.element = element;
-     this.text = text;
+  public static TextWithinWebElement forText(WebElement element, String text) {
+    return new TextWithinWebElement(element, Pattern.quote(text));
+  }
+
+  public static TextWithinWebElement forRegex(WebElement element, String regex) {
+    return new TextWithinWebElement(element, regex);
+  }
+
+  private TextWithinWebElement(WebElement element, String regex) {
+    this.element = element;
+    this.regex = regex;
+    this.pattern = Pattern.compile(regex);
   }
 
   @Override
   public void sample() {
-    satisfied = element.getText().contains(text);
+    satisfied = pattern.matcher(element.getText()).find();
   }
 
   @Override
@@ -48,7 +60,7 @@ public class TextWithinWebElement implements Probe {
 
   @Override
   public String message() {
-    return String.format("Expected to find '%s' in '%s', but could not", text, element.getText());
+    return String.format("Expected to find regex '%s' in '%s', but could not", regex, element.getText());
   }
 
 }

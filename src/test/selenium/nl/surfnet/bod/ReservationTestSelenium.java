@@ -129,7 +129,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  public void createReservationWithNowAndForever() {
+  public void createReservationWithStartTimeNowAndEndTimeForever() {
     String reservationLabel = "Starts now and forever";
 
     getManagerDriver().switchToUserRole();
@@ -138,7 +138,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     getUserDriver().verifyReservationWasCreated(reservationLabel);
 
-    getUserDriver().verifyAndWaitForReservationIsAutoStart(reservationLabel);
+    getUserDriver().verifyAndWaitForReservationIsAutoStartOrRunning(reservationLabel);
   }
 
   @Test

@@ -33,15 +33,15 @@ public class Probes {
     this.webDriver = webDriver;
   }
 
-  public void assertTextPresent(WebElement element, String textPresent) {
-    new Poller().check(new TextWithinWebElement(element, textPresent));
+  public void assertTextPresent(WebElement element, String text) {
+    new Poller().check(TextWithinWebElement.forText(element, text));
   }
 
   public void assertTextPresent(By locator, String textPresent) {
     new Poller().check(new TextOnPageProbe(webDriver, locator, textPresent));
   }
 
-  public void assertTextNotPresent(By locator, String textPresent) {
-    new Poller().check(new TextNotOnPageProbe(webDriver, locator, textPresent));
+  public void assertRegexPresent(WebElement element, String regex) {
+    new Poller().check(TextWithinWebElement.forRegex(element, regex));
   }
 }
