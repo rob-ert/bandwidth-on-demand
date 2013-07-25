@@ -218,7 +218,7 @@ public class ConnectionServiceRequesterV2Test {
 
     assertThat(connection.getReservationState(), is(RESERVE_TIMEOUT));
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
-    verify(requesterClientMock).notifyReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
+    verify(requesterClientMock).notifyReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(1), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
   }
 
   @Test

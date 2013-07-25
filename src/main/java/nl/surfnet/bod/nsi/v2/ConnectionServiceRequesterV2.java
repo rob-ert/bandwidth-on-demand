@@ -114,7 +114,7 @@ public class ConnectionServiceRequesterV2 {
     notification.setOriginatingNSA(requestDetails.getRequesterNsa());
     notification.setOriginatingConnectionId(connection.getConnectionId());
 
-    client.notifyReserveTimeout(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
+    client.notifyReserveTimeout(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), notification.getNotificationId(),  connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
   }
 
   public void reserveAbortConfirmed(Long id, NsiRequestDetails requestDetails) {

@@ -89,12 +89,12 @@ public class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER);
   }
 
-  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final int notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
     ReserveTimeoutRequestType body = new ReserveTimeoutRequestType()
       .withConnectionId(connectionId)
       .withTimeoutValue(timeoutValue)
       .withTimeStamp(timeStamp)
-      .withNotificationId(0) // FIXME
+      .withNotificationId(notificationId)
       .withOriginatingNSA(header.getProviderNSA())
       .withOriginatingConnectionId(connectionId);
     sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER);
