@@ -33,7 +33,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -43,7 +43,6 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.data.domain.Sort;
@@ -55,7 +54,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class } )
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class } )
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})

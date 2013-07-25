@@ -32,9 +32,11 @@ import java.sql.SQLException;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,12 +45,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class DatabaseMigrationTestIntegration {

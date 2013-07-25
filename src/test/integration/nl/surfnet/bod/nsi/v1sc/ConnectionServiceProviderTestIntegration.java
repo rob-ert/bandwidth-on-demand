@@ -39,9 +39,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.google.common.base.Optional;
-
 import com.jayway.awaitility.Awaitility;
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.ConnectionV1;
@@ -76,7 +75,6 @@ import nl.surfnet.bod.util.TestHelper.TimeTraveller;
 import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import org.jadira.usertype.dateandtime.joda.PersistentDateTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -104,7 +102,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class ConnectionServiceProviderTestIntegration {

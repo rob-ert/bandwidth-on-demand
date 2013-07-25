@@ -33,7 +33,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -45,7 +45,6 @@ import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +59,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class ReservationServiceTestIntegration {

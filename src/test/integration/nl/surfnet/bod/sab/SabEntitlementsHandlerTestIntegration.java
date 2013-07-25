@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.sab.EntitlementsHandler;
@@ -46,7 +47,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})
 public class SabEntitlementsHandlerTestIntegration {

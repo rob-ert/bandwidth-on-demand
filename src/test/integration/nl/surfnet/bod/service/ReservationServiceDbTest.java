@@ -31,13 +31,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -56,7 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(defaultRollback = true)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})

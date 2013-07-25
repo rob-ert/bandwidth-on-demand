@@ -22,7 +22,13 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -33,7 +39,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import com.google.common.collect.Lists;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -42,7 +49,6 @@ import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.support.LogEventFactory;
 import nl.surfnet.bod.support.ReservationFactory;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,10 +61,8 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)

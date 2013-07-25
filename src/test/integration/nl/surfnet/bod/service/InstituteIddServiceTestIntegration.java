@@ -33,13 +33,12 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.util.TestHelper;
-
 import org.hibernate.internal.SessionImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,7 +52,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})

@@ -32,11 +32,11 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import com.google.common.collect.Lists;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,10 +48,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac-offline", "idd-offline"})

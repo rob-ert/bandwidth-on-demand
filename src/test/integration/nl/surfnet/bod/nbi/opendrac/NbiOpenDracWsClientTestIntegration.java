@@ -32,14 +32,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.AppConfiguration;
+import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
 import nl.surfnet.bod.util.TestHelper;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,7 +49,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AppConfiguration.class, IntegrationDbConfiguration.class })
+@ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles({"opendrac", "idd-offline"})
 public class NbiOpenDracWsClientTestIntegration {
