@@ -31,7 +31,7 @@
     <http security="none" pattern="/healthcheck" />
     <http security="none" pattern="/mtosi/**" />
 
-    <http use-expressions="true" entry-point-ref="forbiddenEntryPoint">
+    <http use-expressions="true" entry-point-ref="forbiddenEntryPoint" create-session="never">
         <access-denied-handler error-page="/accessDenied"/>
         <anonymous enabled="false" />
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
