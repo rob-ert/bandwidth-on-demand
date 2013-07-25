@@ -25,12 +25,16 @@ package nl.surfnet.bod.web.base;
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-
 import org.joda.time.DateTime;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
@@ -54,15 +58,6 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   @Resource
   private VirtualPortService virtualPortService;
 
-  @Override
-  protected void installFormatters(FormatterRegistry registry) {
-    registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
-    new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
-        .setDatePattern("yyyy-MM-dd").registerFormatters(registry);
-
-    registry.addConverter(getXmlGregorianCalendarToStringConverter());
-  }
-
   public Converter<XMLGregorianCalendar, String> getXmlGregorianCalendarToStringConverter() {
     return new Converter<XMLGregorianCalendar, String>() {
       @Override
@@ -72,12 +67,11 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
     return new Converter<PhysicalPort, String>() {
       @Override
       public String convert(final PhysicalPort physicalPort) {
-        return new StringBuilder().append(physicalPort.getNocLabel()).toString();
+        return physicalPort.getNocLabel();
       }
     };
   }
@@ -185,7 +179,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<Long, VirtualPort>() {
       @Override
       public VirtualPort convert(Long id) {
-        return virtualPortService.find(Long.valueOf(id));
+        return virtualPortService.find(id);
       }
     };
   }
@@ -208,7 +202,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public void installLabelConverters(final FormatterRegistry registry) {
+  public void registerConverters(final FormatterRegistry registry) {
     // physical ports
     registry.addConverter(getIdToPhysicalPortConverter());
     registry.addConverter(getStringToPhysicalPortConverter());
@@ -235,11 +229,19 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
     // Institute
     registry.addConverter(getInstituteToStringConverter());
+
+    registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
+    registry.addConverter(getXmlGregorianCalendarToStringConverter());
+
+    JodaTimeFormattingPatternConfigurer jodaTimeFormattingPatternConfigurer = new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
+        .setDatePattern("yyyy-MM-dd");
+
+    jodaTimeFormattingPatternConfigurer.registerFormatters(registry);
   }
 
   @Override
   public void afterPropertiesSet() {
     super.afterPropertiesSet();
-    installLabelConverters(getObject());
+    registerConverters(getObject());
   }
 }
