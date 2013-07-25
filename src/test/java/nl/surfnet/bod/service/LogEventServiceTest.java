@@ -23,7 +23,11 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -35,16 +39,22 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.LogEventFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
@@ -54,14 +64,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -204,18 +211,19 @@ public class LogEventServiceTest {
         new InstituteFactory().create());
 
     assertThat(logEvents, hasSize(2));
-    assertThat(logEvents.get(0).getEventTypeWithCorrelationId().toString(), is("Update 1/2"));
-    assertThat(logEvents.get(1).getEventTypeWithCorrelationId().toString(), is("Update 2/2"));
+    assertThat(logEvents.get(0).getEventTypeWithCorrelationId(), is("Update 1/2"));
+    assertThat(logEvents.get(1).getEventTypeWithCorrelationId(), is("Update 2/2"));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void shouldFindLogEventsForAUser() {
         when(userMock.getUserGroupIds()).thenReturn(ImmutableList.of("urn:first", "urn:second", "urn:third"));
     when(virtualResourceGroupServiceMock.determineAdminGroupsForUser(userMock)).thenReturn(
         Lists.newArrayList("urn:first", "urn:second"));
 
     when(logEventRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(
-        new PageImpl<LogEvent>(Lists.newArrayList(new LogEventFactory().create())));
+        new PageImpl<>(Lists.newArrayList(new LogEventFactory().create())));
 
     List<LogEvent> logEvents = subject.findByUser(userMock, 1, 100, new Sort("userId"));
 
