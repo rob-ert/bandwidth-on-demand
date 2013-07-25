@@ -196,10 +196,14 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
           .withDestSTP(destStp))
         .withServiceAttributes(new ServiceAttributesType());
 
-    String correlationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String reserveCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String reserveCommitCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String querySummaryCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String provisionCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String querySummary2CorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
 
     Holder<String> connectionId = new Holder<>(null);
-    Holder<CommonHeaderType> header = createHeader(correlationId);
+    Holder<CommonHeaderType> header = createHeader(reserveCorrelationId);
 
     connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, header);
     assertThat(connectionId.value, is(notNullValue()));
@@ -212,13 +216,13 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     assertTrue("global reservation id must match", globalReservationId.equals(reply.get(SoapReplyListener.GLOBAL_RESERVATION_ID_KEY)));
 
     // do reserveCommit
-    connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(correlationId));
+    connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(reserveCommitCorrelationId));
     // expect a reserveCommitConfirmed
     reply = soapReplyListener.getLastReply();
     assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveCommitConfirmed"));
 
     // perform query, assert that reservation_state == reserve_start
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(correlationId));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(querySummaryCorrelationId));
     reply = soapReplyListener.getLastReply();
     assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
 
@@ -227,12 +231,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     assertTrue(result.get(0).getConnectionStates().getReservationState().equals(ReservationStateEnumType.RESERVE_START));
 
     // do a provision, assert that we receive a provisionConfirmed message
-    connectionServiceProviderPort.provision(connectionId.value, createHeader(correlationId));
+    connectionServiceProviderPort.provision(connectionId.value, createHeader(provisionCorrelationId));
     reply = soapReplyListener.getLastReply();
     assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("provisionConfirmed"));
 
     // query again, see that provisionState is now 'provisioned'
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(correlationId));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(querySummary2CorrelationId));
     reply = soapReplyListener.getLastReply();
     assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
     result = (List<QuerySummaryResultType>) reply.get(SoapReplyListener.QUERY_RESULT_KEY);

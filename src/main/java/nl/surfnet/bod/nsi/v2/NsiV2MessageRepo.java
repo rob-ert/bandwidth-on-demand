@@ -20,30 +20,12 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.util;
+package nl.surfnet.bod.nsi.v2;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class NsiV2UserType<T> extends JaxbUserType<T> {
-
-  private static JAXBContext jaxbContext;
-
-  static {
-    try {
-      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._04.connection.types:org.ogf.schemas.nsi._2013._04.framework.headers:org.ogf.schemas.nsi._2013._04.framework.types");
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public NsiV2UserType(QName xmlRootElementName, Class<T> type) {
-    super(jaxbContext, xmlRootElementName, type);
-  }
-
-  public NsiV2UserType(JAXBElement<T> nullJaxbElement) {
-    this(nullJaxbElement.getName(), nullJaxbElement.getDeclaredType());
-  }
-
+@Repository
+public interface NsiV2MessageRepo extends JpaRepository<NsiV2Message, Long> {
+  NsiV2Message findByRequesterNsaAndCorrelationIdAndType(String requesterNsa, String correlationId, NsiV2Message.Type type);
 }

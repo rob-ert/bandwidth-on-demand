@@ -145,7 +145,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verify(requesterMock).abortConfirmed(connection.getId(), requestDetails);
+    verify(requesterMock).reserveAbortConfirmed(connection.getId(), requestDetails);
     verifyNoMoreInteractions(requesterMock);
   }
 
@@ -165,7 +165,7 @@ public class ConnectionServiceProviderListenerV2Test {
 
     subject.onStatusChange(event);
 
-    verify(requesterMock).abortConfirmed(connection.getId(), requestDetails);
+    verify(requesterMock).reserveAbortConfirmed(connection.getId(), requestDetails);
     verifyNoMoreInteractions(requesterMock);
   }
 

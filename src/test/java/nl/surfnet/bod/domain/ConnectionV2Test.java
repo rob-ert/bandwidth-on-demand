@@ -52,11 +52,7 @@ import org.w3c.dom.Element;
 public class ConnectionV2Test {
 
   private static final String PATH_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-    + "<ns2:path xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\">"
-    + "<directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath>"
-    + "<sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP>"
-    + "<destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns2:path>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:path xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\"><directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath><sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP><destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns2:path>";
 
   @Test
   public void should_deserialize_path_type_from_xml_string() {
@@ -82,10 +78,7 @@ public class ConnectionV2Test {
   }
 
   private static final String SERVICE_ATTRIBUTES_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-    + "<ns2:serviceAttributes xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\">"
-    + "<surf:sNCP xmlns:surf=\"http://schemas.surfnet.nl/nsi/2013/04/services\">Protected</surf:sNCP>"
-    + "</ns2:serviceAttributes>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:serviceAttributes xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\"><surf:sNCP xmlns:surf=\"http://schemas.surfnet.nl/nsi/2013/04/services\">Protected</surf:sNCP></ns2:serviceAttributes>";
 
   @Test
   public void should_deserialize_servcice_parameters_from_xml_string() {
@@ -119,12 +112,7 @@ public class ConnectionV2Test {
   }
 
   private static final String DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-      + "<ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-      + "<connectionId>ConnectionId</connectionId>"
-      + "<notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp>"
-      + "<dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus>"
-      + "</ns2:notificationBaseType>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><connectionId>ConnectionId</connectionId><notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp><dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus></ns2:notificationBaseType>";
 
   @Test
   public void shoud_serialize_data_plane_state_change_request_type_to_xml_string() {

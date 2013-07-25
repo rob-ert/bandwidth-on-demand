@@ -171,7 +171,7 @@ public class ConnectionServiceRequesterV2Test {
 
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
     ArgumentCaptor<DataPlaneStatusType> status = ArgumentCaptor.forClass(DataPlaneStatusType.class);
-    verify(requesterClientMock).asyncSendDataPlaneStatus(header.capture(), eq(connection.getConnectionId()), anyInt(), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
+    verify(requesterClientMock).notifyDataPlaneStateChange(header.capture(), eq(connection.getConnectionId()), anyInt(), status.capture(), any(XMLGregorianCalendar.class), eq(requestDetails.getReplyTo()));
     assertThat(connection.getDataPlaneActive(), is(true));
     assertThat(header.getValue().getCorrelationId(), not(requestDetails.getCorrelationId()));
     assertThat(status.getValue().isActive(), is(true));
@@ -218,7 +218,7 @@ public class ConnectionServiceRequesterV2Test {
 
     assertThat(connection.getReservationState(), is(RESERVE_TIMEOUT));
     ArgumentCaptor<CommonHeaderType> header = ArgumentCaptor.forClass(CommonHeaderType.class);
-    verify(requesterClientMock).asyncSendReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
+    verify(requesterClientMock).notifyReserveTimeout(header.capture(), eq(connection.getConnectionId()), eq(100), eq(XmlUtils.toGregorianCalendar(now)), eq(requestDetails.getReplyTo()));
   }
 
   @Test

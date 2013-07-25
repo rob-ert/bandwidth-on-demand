@@ -36,12 +36,16 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class JaxbUserType<T> implements UserType {
 
@@ -117,6 +121,17 @@ public class JaxbUserType<T> implements UserType {
     } catch (RuntimeException | JAXBException | IOException e) {
       throw new HibernateException("failed to serialize: " + value, e);
     }
+  }
+
+  public T fromDomNode(Node node) throws JAXBException {
+    return jaxbContext.createUnmarshaller().unmarshal(node, type).getValue();
+  }
+
+  public Element toDomElement(T value) throws JAXBException {
+    JAXBElement<T> jaxb = new JAXBElement<>(xmlRootElementName, type, value);
+    DOMResult result = new DOMResult();
+    jaxbContext.createMarshaller().marshal(jaxb, result);
+    return ((Document) result.getNode()).getDocumentElement();
   }
 
   @Override

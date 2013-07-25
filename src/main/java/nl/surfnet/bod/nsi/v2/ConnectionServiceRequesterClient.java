@@ -22,207 +22,164 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 
+import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPMessage;
 
-import com.sun.xml.ws.client.ClientTransportException;
+import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
+import nl.surfnet.bod.util.JaxbUserType;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._04.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._04.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReserveTimeoutRequestType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.DOMException;
 
 @Component
 public class ConnectionServiceRequesterClient {
 
-  private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
-
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterClient.class);
 
-  @Value("${connection.service.requester.v2.connect.timeout}")
-  private int connectTimeout;
+  @Resource private NsiV2MessageRepo messageRepo;
 
-  @Value("${connection.service.requester.v2.request.timeout}")
-  private int requestTimeout;
+  @Resource private ConnectionServiceRequesterAsyncClient asyncClient;
 
-  @Async
-  public void asyncSendReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
+  private static String soapAction(String action) {
+    return "http://schemas.ogf.org/nsi/2013/04/connection/service/" + action;
+  }
+
+  public void replyReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, URI replyTo) {
+    ReserveConfirmedType body = new ReserveConfirmedType()
+      .withConnectionId(connectionId)
+      .withGlobalReservationId(globalReservationId)
+      .withDescription(description)
+      .withCriteria(criteria);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveConfirmed", header, body, Converters.RESERVE_CONFIRMED_CONVERTER);
+  }
+
+  public void replyReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
+    GenericFailedType body = new GenericFailedType()
+      .withConnectionId(connectionId)
+      .withConnectionStates(connectionStates)
+      .withServiceException(exception);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER);
+  }
+
+  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
+    ReserveTimeoutRequestType body = new ReserveTimeoutRequestType()
+      .withConnectionId(connectionId)
+      .withTimeoutValue(timeoutValue)
+      .withTimeStamp(timeStamp)
+      .withNotificationId(0) // FIXME
+      .withOriginatingNSA(header.getProviderNSA())
+      .withOriginatingConnectionId(connectionId);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER);
+  }
+
+  public void replyReserveCommitConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+    GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveCommitConfirmed", header, body, Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
+  }
+
+  public void replyReserveAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+    GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveAbortConfirmed", header, body, Converters.RESERVE_ABORT_CONFIRMED_CONVERTER);
+  }
+
+  public void replyTerminateConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+    GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "terminateConfirmed", header, body, Converters.TERMINATE_CONFIRMED_CONVERTER);
+  }
+
+  public void replyProvisionConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+    GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "provisionConfirmed", header, body, Converters.PROVISION_CONFIRMED_CONVERTER);
+  }
+
+  public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final int notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
+    DataPlaneStateChangeRequestType body = new DataPlaneStateChangeRequestType()
+      .withConnectionId(connectionId)
+      .withNotificationId(notificationId)
+      .withDataPlaneStatus(dataPlaneStatus)
+      .withTimeStamp(timeStamp);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER);
+  }
+
+  public void notifyDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
+  }
+
+  public void notifyDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
+  }
+
+  private void notifyErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+    ErrorEventType body = new ErrorEventType()
+      .withConnectionId(connectionId)
+      .withEvent(notification.getEvent())
+      .withNotificationId(notification.getNotificationId())
+      .withTimeStamp(timeStamp)
+      .withAdditionalInfo(notification.getAdditionalInfo())
+      .withServiceException(notification.getServiceException());
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER);
+  }
+
+  public void replyQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, URI replyTo) {
+    QuerySummaryConfirmedType body = new QuerySummaryConfirmedType().withReservation(results);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "querySummaryConfirmed", header, body, Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+  }
+
+  public void replyQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, URI replyTo) {
+    QueryRecursiveConfirmedType body = new QueryRecursiveConfirmedType().withReservation(result);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryRecursiveConfirmed", header, body, Converters.QUERY_RECURSIVE_CONFIRMED_CONVERTER);
+  }
+
+  public void replyQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, URI replyTo) {
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryNotificationConfirmed", header, queryNotificationConfirmed, Converters.QUERY_NOTIFICATION_CONFIRMED_CONVERTER);
+  }
+
+  private <T> void sendMessage(Type type, URI replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) {
+    log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
-      port.reserveConfirmed(connectionId, globalReservationId, description, criteria, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Confirmed failed", e);
+      SOAPMessage message = MessageFactory.newInstance().createMessage();
+      SOAPFactory factory = SOAPFactory.newInstance();
+      message.getSOAPHeader().addChildElement(factory.createElement(Converters.COMMON_HEADER_CONVERTER.toDomElement(header)));
+      message.getSOAPBody().addChildElement(factory.createElement(bodyConverter.toDomElement(body)));
+      saveMessage(type, soapAction(action), header, message);
+      asyncClient.asyncSend(replyTo, soapAction(action), message);
+    } catch (SOAPException | DOMException | JAXBException | IOException e) {
+      throw new RuntimeException("failed to send " + action + " message to " + header.getRequesterNSA() + " (" + replyTo + ")");
     }
   }
 
-  @Async
-  public void asyncSendReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.reserveFailed(connectionId, connectionStates, exception, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Reserve Failed", e);
+  private void saveMessage(Type type, String soapAction, CommonHeaderType header, SOAPMessage message) throws SOAPException, IOException {
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      message.writeTo(baos);
+      messageRepo.save(new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), type, soapAction, baos.toString("UTF-8")));
     }
   }
-
-  @Async
-  public void asyncSendReserveTimeout(CommonHeaderType header, String connectionId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.reserveTimeout(connectionId, 0, timeStamp, timeoutValue, connectionId, header.getProviderNSA(), new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Reserve Timeout", e);
-    }
-  }
-
-  @Async
-  public void asyncSendAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.reserveAbortConfirmed(connectionId, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Abort Confirmed failed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendTerminateConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.terminateConfirmed(connectionId, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Terminate Confirmed failed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendReserveAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.reserveAbortConfirmed(connectionId, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Abort Confirmed failed", e);
-    }
-
-  }
-
-  @Async
-  public void asyncSendReserveCommitConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.reserveCommitConfirmed(connectionId, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Reserve Commit Confirmed failed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendProvisionConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.provisionConfirmed(connectionId, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Sending Provision Confirmed failed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendDataPlaneStatus(CommonHeaderType header, String connectionId, final int notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.dataPlaneStateChange(connectionId, notificationId, timeStamp, dataPlaneStatus, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Data Plane State Change");
-    }
-  }
-
-  @Async
-  public void asyncSendDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
-  }
-
-  @Async
-  public void asyncSendDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    sendErrorEvent(notification, header, connectionId, timeStamp, replyTo);
-  }
-
-  private void sendErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.errorEvent(connectionId, notification.getNotificationId(), timeStamp, notification.getEvent(),
-          notification.getAdditionalInfo(), notification.getServiceException(), new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Data Plane Error ({})", notification.getEvent());
-    }
-  }
-
-  @Async
-  public void asyncSendQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.querySummaryConfirmed(results, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Query Summary Confirmed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.queryRecursiveConfirmed(result, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Query Recursive Confirmed", e);
-    }
-  }
-
-  @Async
-  public void asyncSendQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, URI replyTo) {
-    ConnectionRequesterPort port = createPort(replyTo);
-    try {
-      port.queryNotificationConfirmed(queryNotificationConfirmed, new Holder<>(header));
-    } catch (ClientTransportException | ServiceException e) {
-      log.info("Failed to send Query Notification Confirmed", e);
-    }
-  }
-
-  private ConnectionRequesterPort createPort(URI endpoint) {
-    ConnectionRequesterPort port = new ConnectionServiceRequester(wsdlUrl()).getConnectionServiceRequesterPort();
-
-    BindingProvider bindingProvider = (BindingProvider) port;
-    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.toASCIIString());
-    bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
-    bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
-    return port;
-  }
-
-  private URL wsdlUrl() {
-    try {
-      return new ClassPathResource(WSDL_LOCATION).getURL();
-    } catch (IOException e) {
-      throw new RuntimeException("Could not find the requester wsdl", e);
-    }
-  }
-
 }

@@ -87,7 +87,7 @@ public class ConnectionServiceProviderListenerV2 implements ReservationListener 
         }
         requester.terminateConfirmed(connection.getId(), connection.getLastLifecycleRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_ABORTING){
-        requester.abortConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
+        requester.reserveAbortConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_HELD) {
         // Notify handled by ConnectionV2ReserveTimeoutPoller.
       } else {

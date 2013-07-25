@@ -23,7 +23,11 @@
 
     <wss:binding url="/nsi/v2/provider">
         <wss:service>
-            <ws:service bean="#connectionServiceProviderWs_v2" />
+            <ws:service bean="#connectionServiceProviderWs_v2">
+                <ws:handlers>
+                    <ref bean="connectionServiceProviderIdempotentMessageHandler" />
+                </ws:handlers>
+            </ws:service>
         </wss:service>
     </wss:binding>
 

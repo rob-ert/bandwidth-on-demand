@@ -80,7 +80,7 @@ public class ConnectionServiceRequesterV2 {
       .withServiceAttributes(connection.getServiceAttributes())
       .withVersion(0);
 
-    client.asyncSendReserveConfirmed(
+    client.replyReserveConfirmed(
         requestDetails.getCommonHeaderType(PROTOCOL_VERSION),
         connection.getConnectionId(),
         connection.getGlobalReservationId(),
@@ -99,7 +99,7 @@ public class ConnectionServiceRequesterV2 {
       .withNsaId(requestDetails.getProviderNsa())
       .withText(connection.getReservation().getFailedReason());
 
-    client.asyncSendReserveFailed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
+    client.replyReserveFailed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
   }
 
   public void reserveTimeout(Long id, DateTime when) {
@@ -114,29 +114,21 @@ public class ConnectionServiceRequesterV2 {
     notification.setOriginatingNSA(requestDetails.getRequesterNsa());
     notification.setOriginatingConnectionId(connection.getConnectionId());
 
-    client.asyncSendReserveTimeout(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
+    client.notifyReserveTimeout(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
   }
 
-  public void abortConfirmed(Long id, NsiRequestDetails requestDetails) {
+  public void reserveAbortConfirmed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
 
-    client.asyncSendAbortConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
+    client.replyReserveAbortConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void terminateConfirmed(Long id, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
 
-    //client.asy
-    client.asyncSendTerminateConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
-  }
-
-  public void reserveAbortConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
-    ConnectionV2 connection = connectionRepo.findOne(connectionId);
-    connection.setReservationState(ReservationStateEnumType.RESERVE_START);
-
-    client.asyncSendReserveAbortConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
+    client.replyTerminateConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void reserveCommitConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
@@ -146,14 +138,14 @@ public class ConnectionServiceRequesterV2 {
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connection.setDataPlaneActive(false);
 
-    client.asyncSendReserveCommitConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
+    client.replyReserveCommitConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void provisionConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
 
-    client.asyncSendProvisionConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
+    client.replyProvisionConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
   public void reservePassedEndTime(Long connectionId) {
@@ -185,7 +177,7 @@ public class ConnectionServiceRequesterV2 {
     notification.setEvent(EventEnumType.DATAPLANE_ERROR);
     populateNotification(notification, connection, timeStamp);
 
-    client.asyncSendDataPlaneError(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+    client.notifyDataPlaneError(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
   public void deactivateFailed(Long id, NsiRequestDetails requestDetails) {
@@ -195,7 +187,7 @@ public class ConnectionServiceRequesterV2 {
     ErrorEventType notification = new ErrorEventType();
     notification.setEvent(EventEnumType.DEACTIVATE_FAILED);
     populateNotification(notification, connection, timeStamp);
-    client.asyncSendDeactivateFailed(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+    client.notifyDeactivateFailed(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
   private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
@@ -208,25 +200,25 @@ public class ConnectionServiceRequesterV2 {
     populateNotification(notification, connection, timeStamp);
     notification.setDataPlaneStatus(dataPlaneStatus);
 
-    client.asyncSendDataPlaneStatus(header, connection.getConnectionId(), notification.getNotificationId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
+    client.notifyDataPlaneStateChange(header, connection.getConnectionId(), notification.getNotificationId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
 
   public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
     List<QuerySummaryResultType> results = transform(connections, toQuerySummaryResultType);
 
-    client.asyncSendQuerySummaryConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), results, requestDetails.getReplyTo());
+    client.replyQuerySummaryConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), results, requestDetails.getReplyTo());
   }
 
   public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails){
     List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
 
-    client.asyncSendQueryRecursiveConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
+    client.replyQueryRecursiveConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
   }
 
   public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiRequestDetails requestDetails) {
     QueryNotificationConfirmedType result = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
 
-    client.asyncSendQueryNotificationConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
+    client.replyQueryNotificationConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
   }
 
   private void populateNotification(final NotificationBaseType notification, final ConnectionV2 connection, final XMLGregorianCalendar timeStamp){
