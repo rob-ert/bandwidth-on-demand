@@ -33,20 +33,16 @@ import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
 @Import({ AppComponents.class })
 @EnableScheduling
 @EnableAsync
-public class AppConfiguration implements SchedulingConfigurer, AsyncConfigurer {
+public class AppConfiguration implements AsyncConfigurer {
+
   private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 
-  @Override
-  public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-  }
 
   @Override
   public Executor getAsyncExecutor() {
