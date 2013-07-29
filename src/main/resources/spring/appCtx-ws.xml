@@ -26,6 +26,7 @@
             <ws:service bean="#connectionServiceProviderWs_v2">
                 <ws:handlers>
                     <ref bean="connectionServiceProviderIdempotentMessageHandler" />
+                    <ref bean="transactionSoapHandler" /> <!-- Must appear as last item to ensure transaction is started first! -->
                 </ws:handlers>
             </ws:service>
         </wss:service>

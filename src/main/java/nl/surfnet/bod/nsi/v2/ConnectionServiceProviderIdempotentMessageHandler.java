@@ -22,113 +22,117 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
-import org.apache.commons.io.IOUtils;
+import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Element;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @Component
 public class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<SOAPMessageContext> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceProviderIdempotentMessageHandler.class);
-
   @Resource private NsiV2MessageRepo messageRepo;
   @Resource private ConnectionServiceRequesterAsyncClient client;
-
+  @Resource private PlatformTransactionManager transactionManager;
 
   public Set<QName> getHeaders() {
     return Collections.emptySet();
   }
 
+  @Override
   public boolean handleMessage(SOAPMessageContext context) {
+    ensureMandatoryTransaction();
     try {
-      // Parse header
       SOAPMessage message = context.getMessage();
-      CommonHeaderType header = parseNsiHeader(message);
       boolean outbound = (boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
       if (outbound) {
-        storeMessage(NsiV2Message.Type.SYNC_ACK, header, message);
+        return handleAcknowledgment(message);
       } else {
-        NsiV2Message originalMessage = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.REQUEST);
-        if (originalMessage == null) {
-          storeMessage(NsiV2Message.Type.REQUEST, header, message);
+        SOAPMessage faultOrOriginalAcknowledgment = handleRequest(message);
+        if (faultOrOriginalAcknowledgment == null) {
+          // Proceed with new request.
           return true;
+        } else {
+          // Block further processing and just return the fault or acknowledgment of original request.
+          context.setMessage(faultOrOriginalAcknowledgment);
+          return false;
         }
-        NsiV2Message originalAck = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.SYNC_ACK);
-
-        NsiV2Message asyncReply = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.ASYNC_REPLY);
-        if (asyncReply != null) {
-          SOAPMessage asyncReplySoap = deserializeMessage(asyncReply.getMessage());
-          client.asyncSend(new URI(header.getReplyTo()), asyncReply.getSoapAction(), asyncReplySoap);
-        }
-
-        SOAPMessage originalAckSoap = deserializeMessage(originalAck.getMessage());
-        context.setMessage(originalAckSoap);
-        return false;
       }
-      return true;
     } catch (SOAPException | JAXBException | IOException | URISyntaxException e) {
-      // FIXME
-      LOGGER.info("Failed to parse incoming NSIv2 SOAP request", e);
-      return false;
+      throw new RuntimeException("NSIv2 message handler error: " + e, e);
     }
   }
 
-  private void storeMessage(Type messageType, CommonHeaderType header, SOAPMessage message) throws IOException, SOAPException {
-    String[] soapActionValues = message.getMimeHeaders().getHeader("SOAPAction");
-    String soapAction = (soapActionValues != null && soapActionValues.length > 0) ? soapActionValues[0] : null;
-    String serializedMessage = serializeMessage(message);
-    messageRepo.save(new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), messageType, soapAction, serializedMessage));
-  }
-
-  private SOAPMessage deserializeMessage(String message) throws IOException, SOAPException {
-    return MessageFactory.newInstance().createMessage(new MimeHeaders(), IOUtils.toInputStream(message, "UTF-8"));
-  }
-
-  private String serializeMessage(SOAPMessage message) throws IOException, SOAPException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    message.writeTo(baos);
-    return baos.toString("UTF-8");
-  }
-
-  private CommonHeaderType parseNsiHeader(SOAPMessage message) throws SOAPException, JAXBException {
-    Iterator<?> nsiHeaderIterator = message.getSOAPHeader().getChildElements(new ObjectFactory().createNsiHeader(null).getName());
-    if (!nsiHeaderIterator.hasNext()) {
-      throw new IllegalArgumentException("header not found");
-    }
-    Element nsiHeader = (Element) nsiHeaderIterator.next();
-    return Converters.COMMON_HEADER_CONVERTER.fromDomNode(nsiHeader);
-  }
-
+  @Override
   public boolean handleFault(SOAPMessageContext context) {
-//  ???   return handleMessage(context);
     return true;
   }
 
+  @Override
   public void close(MessageContext context) {
+  }
+
+  @VisibleForTesting
+  SOAPMessage handleRequest(SOAPMessage message) throws IOException, SOAPException, URISyntaxException, JAXBException {
+    CommonHeaderType header = Converters.parseNsiHeader(message);
+
+    NsiV2Message originalMessage = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.REQUEST);
+    if (originalMessage == null) {
+      storeMessage(NsiV2Message.Type.REQUEST, message);
+      return null;
+    } else {
+      String request = Converters.serializeMessage(message);
+      if (!request.equals(originalMessage.getMessage())) {
+        ServiceExceptionType detail = new ServiceExceptionType().withErrorId("100").withText("PAYLOAD_ERROR").withNsaId(header.getProviderNSA());
+        return Converters.createSoapFault(header.withReplyTo(null), "request with existing correlation id does not match the original request", detail);
+      }
+    }
+
+    if (header.getReplyTo() != null) {
+      NsiV2Message asyncReply = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.ASYNC_REPLY);
+      if (asyncReply != null) {
+        SOAPMessage asyncReplySoap = Converters.deserializeMessage(asyncReply.getMessage());
+        client.asyncSend(new URI(header.getReplyTo()), asyncReply.getSoapAction(), asyncReplySoap);
+      }
+    }
+
+    NsiV2Message originalAck = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.SYNC_ACK);
+    SOAPMessage originalAckSoap = Converters.deserializeMessage(originalAck.getMessage());
+    return originalAckSoap;
+  }
+
+  @VisibleForTesting
+  boolean handleAcknowledgment(SOAPMessage message) throws IOException, SOAPException, JAXBException {
+    storeMessage(NsiV2Message.Type.SYNC_ACK, message);
+    return true;
+  }
+
+  private void ensureMandatoryTransaction() {
+    transactionManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY));
+  }
+
+  private void storeMessage(Type messageType, SOAPMessage message) throws IOException, SOAPException, JAXBException {
+    messageRepo.save(NsiV2Message.fromSoapMessage(messageType, message));
   }
 }

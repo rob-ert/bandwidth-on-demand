@@ -30,9 +30,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
 
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
@@ -165,10 +163,7 @@ public class ConnectionServiceRequesterClient {
   private <T> void sendMessage(Type type, URI replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) {
     log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
-      SOAPMessage message = MessageFactory.newInstance().createMessage();
-      SOAPFactory factory = SOAPFactory.newInstance();
-      message.getSOAPHeader().addChildElement(factory.createElement(Converters.COMMON_HEADER_CONVERTER.toDomElement(header)));
-      message.getSOAPBody().addChildElement(factory.createElement(bodyConverter.toDomElement(body)));
+      SOAPMessage message = Converters.createSoapMessage(header, body, bodyConverter);
       saveMessage(type, soapAction(action), header, message);
       asyncClient.asyncSend(replyTo, soapAction(action), message);
     } catch (SOAPException | DOMException | JAXBException | IOException e) {

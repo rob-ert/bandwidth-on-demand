@@ -36,8 +36,6 @@ import javax.xml.ws.Service.Mode;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
@@ -47,8 +45,6 @@ import org.springframework.stereotype.Component;
 public class ConnectionServiceRequesterAsyncClient {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
-
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterAsyncClient.class);
 
   @Value("${connection.service.requester.v2.connect.timeout}")
   private int connectTimeout;

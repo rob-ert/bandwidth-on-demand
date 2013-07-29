@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import java.io.IOException;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,8 +33,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.bind.JAXBException;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 
 import nl.surfnet.bod.domain.PersistableDomain;
+
+import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 
 @Entity
 @Table(name = "nsi_v2_message")
@@ -77,6 +84,14 @@ public class NsiV2Message implements PersistableDomain {
     this.type = type;
     this.soapAction = soapAction;
     this.message = message;
+  }
+
+  public static NsiV2Message fromSoapMessage(Type messageType, SOAPMessage message) throws SOAPException, JAXBException, IOException {
+    CommonHeaderType header = Converters.parseNsiHeader(message);
+    String[] soapActionValues = message.getMimeHeaders().getHeader("SOAPAction");
+    String soapAction = (soapActionValues != null && soapActionValues.length > 0) ? soapActionValues[0] : null;
+    String serializedMessage = Converters.serializeMessage(message);
+    return new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), messageType, soapAction, serializedMessage);
   }
 
   @Override
