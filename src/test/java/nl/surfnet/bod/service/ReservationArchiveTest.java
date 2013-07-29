@@ -47,9 +47,6 @@ public class ReservationArchiveTest {
     final ConnectionV1 connection = new ConnectionV1Factory().create();
     final Reservation reservation = new ReservationFactory().setConnectionV1(connection).create();
 
-    ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-    System.out.println(writer.writeValueAsString(reservation));
-
     final String reservationAsJson = mapper.writeValueAsString(reservation);
 
     final Reservation reservationFromJson = mapper.readValue(reservationAsJson, Reservation.class);
@@ -59,8 +56,8 @@ public class ReservationArchiveTest {
     assertThat(reservation.getEndDate(), is(reservationFromJson.getEndDate()));
     assertThat(reservation.getDestinationPort().getAdminGroups(), is(reservationFromJson.getDestinationPort()
         .getAdminGroups()));
-    assertThat(reservation.getDestinationPort().getNsiStpId(), is(reservationFromJson.getDestinationPort()
-        .getNsiStpId()));
+    assertThat(reservation.getDestinationPort().getNsiStpIdV1(), is(reservationFromJson.getDestinationPort()
+        .getNsiStpIdV1()));
 
     assertThat(connection.getConnectionId(), is(connectionFromJson.getConnectionId()));
   }

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -227,14 +227,14 @@ public class VirtualPortServiceTest {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
 
-    VirtualPort foundPort = subject.findByNsiStpId(URN_STP + ":25");
+    VirtualPort foundPort = subject.findByNsiStpId(URN_STP_V1 + ":25");
 
     assertThat(foundPort, is(port));
   }
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNetworkId() {
-    VirtualPort foundPort = subject.findByNsiStpId(URN_STP + ":asdfasfasdf");
+    VirtualPort foundPort = subject.findByNsiStpId(URN_STP_V1 + ":asdfasfasdf");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);

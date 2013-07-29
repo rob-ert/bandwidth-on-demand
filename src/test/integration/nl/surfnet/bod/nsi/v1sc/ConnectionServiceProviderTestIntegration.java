@@ -23,7 +23,7 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -374,11 +374,11 @@ public class ConnectionServiceProviderTestIntegration {
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(URN_STP + ":" + sourceVirtualPort.getId());
+    dest.setStpId(URN_STP_V1 + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
     ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(URN_STP + ":" + destinationVirtualPort.getId());
+    source.setStpId(URN_STP_V1 + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA).setPath(

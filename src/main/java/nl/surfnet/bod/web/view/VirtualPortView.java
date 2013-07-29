@@ -37,7 +37,8 @@ public class VirtualPortView {
   private final String nmsPortId;
   private final String userLabel;
   private final Optional<Long> reservationCounter;
-  private final String nsiStpId;
+  private final String nsiStpIdV1;
+  private final String nsiStpIdV2;
 
   public VirtualPortView(VirtualPort port) {
     this(port, Optional.<Long> absent());
@@ -54,7 +55,8 @@ public class VirtualPortView {
     physicalPort = port.getPhysicalPort().getManagerLabel();
     nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
-    this.nsiStpId = port.getNsiStpId();
+    this.nsiStpIdV1 = port.getNsiStpIdV1();
+    this.nsiStpIdV2 = port.getNsiStpIdV2();
   }
 
   public String getManagerLabel() {
@@ -97,8 +99,12 @@ public class VirtualPortView {
     return reservationCounter.orNull();
   }
 
-  public String getNsiStpId() {
-    return nsiStpId;
+  public String getNsiStpIdV1() {
+    return nsiStpIdV1;
+  }
+
+  public String getNsiStpIdV2() {
+    return nsiStpIdV2;
   }
 
   @Override
@@ -155,9 +161,9 @@ public class VirtualPortView {
       builder.append(reservationCounter.orNull());
       builder.append(", ");
     }
-    if (nsiStpId != null) {
-      builder.append("nsiStpId=");
-      builder.append(nsiStpId);
+    if (nsiStpIdV1 != null) {
+      builder.append("nsiStpIdV1=");
+      builder.append(nsiStpIdV1);
     }
     builder.append("]");
     return builder.toString();
@@ -171,7 +177,7 @@ public class VirtualPortView {
     result = prime * result + ((managerLabel == null) ? 0 : managerLabel.hashCode());
     result = prime * result + ((maxBandwidth == null) ? 0 : maxBandwidth.hashCode());
     result = prime * result + ((nmsPortId == null) ? 0 : nmsPortId.hashCode());
-    result = prime * result + ((nsiStpId == null) ? 0 : nsiStpId.hashCode());
+    result = prime * result + ((nsiStpIdV1 == null) ? 0 : nsiStpIdV1.hashCode());
     result = prime * result + ((physicalPort == null) ? 0 : physicalPort.hashCode());
     result = prime * result + ((physicalResourceGroup == null) ? 0 : physicalResourceGroup.hashCode());
     result = prime * result + ((reservationCounter == null) ? 0 : reservationCounter.hashCode());
@@ -225,12 +231,12 @@ public class VirtualPortView {
     else if (!nmsPortId.equals(other.nmsPortId)) {
       return false;
     }
-    if (nsiStpId == null) {
-      if (other.nsiStpId != null) {
+    if (nsiStpIdV1 == null) {
+      if (other.nsiStpIdV1 != null) {
         return false;
       }
     }
-    else if (!nsiStpId.equals(other.nsiStpId)) {
+    else if (!nsiStpIdV1.equals(other.nsiStpIdV1)) {
       return false;
     }
     if (physicalPort == null) {

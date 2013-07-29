@@ -24,7 +24,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
@@ -277,7 +277,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public VirtualPort findByNsiStpId(String sourceStpId) {
-    Pattern pattern = Pattern.compile(URN_STP + ":([0-9]+)");
+    Pattern pattern = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
     Matcher matcher = pattern.matcher(sourceStpId);
 
     if (!matcher.matches()) {

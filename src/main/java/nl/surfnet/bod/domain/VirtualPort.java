@@ -22,19 +22,29 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V2;
 
 import java.util.Collection;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.search.annotations.*;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -151,8 +161,11 @@ public class VirtualPort implements Loggable, PersistableDomain {
     this.userLabel = userLabel;
   }
 
-  public String getNsiStpId() {
-    return URN_STP + ":" + getId();
+  public String getNsiStpIdV1() {
+    return URN_STP_V1 + ":" + getId();
+  }
+  public String getNsiStpIdV2() {
+    return URN_STP_V2 + ":" + getId();
   }
 
   @Override
