@@ -27,7 +27,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -39,12 +41,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.HealthCheckController.ServiceCheck;
 import nl.surfnet.bod.web.HealthCheckController.ServiceCheckResult;
 import nl.surfnet.bod.web.HealthCheckController.ServiceState;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -68,20 +74,41 @@ public class HealthCheckControllerTest {
   private NbiClient nbiClientMock;
 
   @Mock
+  private VersReportingService verseReportingService;
+
+  @Mock
+  private GroupService openSocialGroupService;
+
+  @Mock
+  private GroupService sabGroupService;
+
+  @Mock
+  private InstituteService instituteService;
+
+  @Mock
   private Environment bodEnvironment;
+
+  private org.springframework.core.env.Environment springEnvironment;
+
+  @Before
+  public void before() throws Exception {
+    springEnvironment = mock(org.springframework.core.env.Environment.class);
+    this.subject.setEnvironment(springEnvironment);
+    subject.afterPropertiesSet();
+  }
 
   private HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
   @SuppressWarnings("unchecked")
   @Test
   public void should_have_status_200_when_all_checks_pass() throws Exception {
-    supressErrorOutput();
+    suppressErrorOutput();
     ModelStub model = new ModelStub();
     ServiceCheck check = mock(ServiceCheck.class);
     subject.setChecks(Collections.singletonList(check));
 
     when(check.getName()).thenReturn("mock check");
-    when(check.healty()).thenReturn(ServiceState.SUCCEEDED);
+    when(check.healthy()).thenReturn(ServiceState.SUCCEEDED);
 
     subject.index(model, httpServletResponse);
 
@@ -92,13 +119,13 @@ public class HealthCheckControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void should_have_status_500_when_at_least_one_check_fails() throws Exception {
-    supressErrorOutput();
+    suppressErrorOutput();
     ModelStub model = new ModelStub();
     ServiceCheck check = mock(ServiceCheck.class);
     subject.setChecks(Collections.singletonList(check));
 
     when(check.getName()).thenReturn("mock check");
-    when(check.healty()).thenReturn(ServiceState.FAILED);
+    when(check.healthy()).thenReturn(ServiceState.FAILED);
 
     subject.index(model, httpServletResponse);
 
@@ -126,7 +153,13 @@ public class HealthCheckControllerTest {
         containsString("VERS")));
   }
 
-  private void supressErrorOutput() {
+  @Test
+  public void nagiosCheckShouldIgnoreVers(){
+    subject.alivePage(httpServletResponse);
+    verifyZeroInteractions(verseReportingService);
+  }
+
+  private void suppressErrorOutput() {
     subject.setLogger(new NOPLoggerFactory().getLogger(""));
   }
 

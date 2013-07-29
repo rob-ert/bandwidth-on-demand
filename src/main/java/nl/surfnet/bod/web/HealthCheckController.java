@@ -48,7 +48,6 @@ import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.util.Environment;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -57,13 +56,15 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class HealthCheckController {
+public class HealthCheckController implements InitializingBean, EnvironmentAware {
 
   private Logger logger = LoggerFactory.getLogger(HealthCheckController.class);
 
@@ -88,18 +89,16 @@ public class HealthCheckController {
   @Resource(name = "bodEnvironment")
   private Environment environment;
 
+  private org.springframework.core.env.Environment springEnvironment;
+
+  private List<ServiceCheck> checks;
+
   @Autowired(required = false)
   private NotificationSubscriber notificationSubscriber; // only when in onecontrol mode
 
-  public interface ServiceCheck {
-    ServiceState healty() throws Exception;
-
-    String getName();
-  }
-
   private final ServiceCheck oneControlNotificationsCheck = new ServiceCheck() {
     @Override
-    public ServiceState healty() throws Exception {
+    public ServiceState healthy() throws Exception {
       if (notificationSubscriber == null) {
         return ServiceState.DISABLED;
       }else{
@@ -115,7 +114,7 @@ public class HealthCheckController {
 
   private final ServiceCheck iddServiceCheck = new ServiceCheck() {
     @Override
-    public ServiceState healty() {
+    public ServiceState healthy() {
       Instant lastUpdatedAt = instituteService.instituteslastUpdatedAt();
       Duration timeout = environment.getInstituteCacheMaxAge();
       return (lastUpdatedAt != null && lastUpdatedAt.plus(timeout.getMillis()).isAfterNow()) ? SUCCEEDED : FAILED;
@@ -129,7 +128,7 @@ public class HealthCheckController {
 
   private final ServiceCheck nbiServiceCheck = new ServiceCheck() {
     @Override
-    public ServiceState healty() {
+    public ServiceState healthy() {
       return nbiClient.getPhysicalPortsCount() > 0 ? SUCCEEDED : FAILED;
     }
 
@@ -141,7 +140,7 @@ public class HealthCheckController {
 
   private final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
     @Override
-    public ServiceState healty() throws IOException {
+    public ServiceState healthy() throws IOException {
       DefaultHttpClient client = new DefaultHttpClient();
       HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
       HttpResponse response = client.execute(httpGet);
@@ -159,7 +158,7 @@ public class HealthCheckController {
     private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
     @Override
-    public ServiceState healty() throws IOException {
+    public ServiceState healthy() throws IOException {
       return openSocialGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
     }
 
@@ -173,7 +172,7 @@ public class HealthCheckController {
     private static final String PERSON_URI = "urn:collab:person:surfnet.nl:hanst";
 
     @Override
-    public ServiceState healty() throws IOException {
+    public ServiceState healthy() throws IOException {
       if (environment.isSabEnabled()) {
         return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
       }
@@ -190,7 +189,7 @@ public class HealthCheckController {
 
   private final ServiceCheck versCheck = new ServiceCheck() {
     @Override
-    public ServiceState healty() throws IOException {
+    public ServiceState healthy() throws IOException {
       return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
     };
 
@@ -200,22 +199,30 @@ public class HealthCheckController {
     }
   };
 
-  private List<ServiceCheck> checks = Arrays.asList(
-      iddServiceCheck,
-      nbiServiceCheck,
-      oneControlNotificationsCheck,
-      oAuthServerServiceCheck,
-      apiServiceCheck,
-      sabServiceCheck,
-      versCheck);
-
-  @RequestMapping(value = "/healthcheck")
-  public String index(Model model, HttpServletResponse response) {
+  /**
+   * Reports the healthstate of the application to a monitoring toolsuite (nagios), not intended for human eyeballs.
+   * Is aware of the current application profile (e.g. will not check for onecontrol-dependencies when running in opendrac mode)
+   * @param httpServletResponse will be set to "200 OK" when all is healthy, "417 Expectation Failed" otherwise
+   */
+  @RequestMapping(value = "/healthcheck/alive")
+  public void alivePage(HttpServletResponse httpServletResponse) {
+    // exclude the VERS- reportingservice check, which is not vital
     List<Callable<ServiceCheckResult>> tasks = new ArrayList<>();
     for (ServiceCheck check : checks) {
-      tasks.add(callable(check));
+      if (check.getName().contains("VERS") == false) {
+        tasks.add(callable(check));
+      }
     }
+    HealthCheckResult healthCheckResult = performTasks(tasks);
 
+    if (healthCheckResult.isAllOk()) {
+      httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+    }else{
+      httpServletResponse.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+    }
+  }
+
+  private HealthCheckResult performTasks(final List<Callable<ServiceCheckResult>> tasks) {
     boolean everythingOk = true;
     ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
     List<ServiceCheckResult> systems = new ArrayList<>();
@@ -224,18 +231,29 @@ public class HealthCheckController {
       for (int i = 0; i < futures.size(); ++i) {
         systems.add(toState(checks.get(i).getName(), futures.get(i)));
       }
-      model.addAttribute("systems", systems);
 
-      for (ServiceCheckResult result : systems) {
-        everythingOk &= result.state != ServiceState.FAILED;
-      }
     } catch (InterruptedException e) {
       everythingOk = false;
       logger.error("Error during calling healthchecks", e);
     } finally {
       threadPool.shutdown();
     }
-    response.setStatus(everythingOk ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    for (ServiceCheckResult result : systems) {
+      everythingOk &= result.state != ServiceState.FAILED;
+    }
+    return new HealthCheckResult(everythingOk, systems);
+  }
+
+  @RequestMapping(value = "/healthcheck")
+  public String index(Model model, HttpServletResponse response) {
+    List<Callable<ServiceCheckResult>> tasks = new ArrayList<>();
+    for (ServiceCheck check : checks) {
+      tasks.add(callable(check));
+    }
+
+    HealthCheckResult healthCheckResult = performTasks(tasks);
+    model.addAttribute("systems", healthCheckResult.getResults());
+    response.setStatus(healthCheckResult.allOk ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
     return "healthcheck";
   }
@@ -262,7 +280,7 @@ public class HealthCheckController {
   public ServiceState isServiceHealthy(ServiceCheck check) {
     ServiceState result;
     try {
-      result = check.healty();
+      result = check.healthy();
 
       if (result.failed()) {
         logger.error("HealthCheck for '{}' failed", check.getName());
@@ -282,6 +300,33 @@ public class HealthCheckController {
 
   public void setChecks(List<ServiceCheck> checks) {
     this.checks = checks;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    checks = Arrays.asList(
+        iddServiceCheck,
+        nbiServiceCheck,
+        oAuthServerServiceCheck,
+        apiServiceCheck,
+        sabServiceCheck,
+        versCheck);
+
+    if (springEnvironment.acceptsProfiles("onecontrol")){
+      checks.add(oneControlNotificationsCheck);
+    }
+
+  }
+
+  @Override
+  public void setEnvironment(org.springframework.core.env.Environment environment) {
+    this.springEnvironment = environment;
+  }
+
+  public interface ServiceCheck {
+    ServiceState healthy() throws Exception;
+
+    String getName();
   }
 
   public enum ServiceState {
@@ -335,6 +380,24 @@ public class HealthCheckController {
       if (state != other.state)
         return false;
       return true;
+    }
+  }
+
+  private static class HealthCheckResult {
+    private boolean allOk;
+    private List<ServiceCheckResult> results;
+
+    private HealthCheckResult(boolean allOk, List<ServiceCheckResult> results) {
+      this.allOk = allOk;
+      this.results = results;
+    }
+
+    private boolean isAllOk() {
+      return allOk;
+    }
+
+    private List<ServiceCheckResult> getResults() {
+      return results;
     }
   }
 }
