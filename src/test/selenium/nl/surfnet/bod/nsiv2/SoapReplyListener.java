@@ -35,6 +35,7 @@ import javax.xml.ws.Service.Mode;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
 
+import com.google.common.base.Objects;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.nsi.v2.Converters;
@@ -65,6 +66,26 @@ public class SoapReplyListener implements Provider<SOAPMessage> {
     public Message(CommonHeaderType header, T body) {
       this.header = header;
       this.body = body;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(header, body);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null || getClass() != obj.getClass())
+        return false;
+      Message<?> that = (Message<?>) obj;
+      return Objects.equal(this.body, that.body) && Objects.equal(this.header, that.header);
+    }
+
+    @Override
+    public String toString() {
+      return "Message [header=" + header + ", body=" + body + "]";
     }
   }
 

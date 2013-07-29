@@ -22,11 +22,15 @@
  */
 package nl.surfnet.bod.nsiv2;
 
+import static nl.surfnet.bod.nsi.NsiHelper.generateCorrelationId;
+import static nl.surfnet.bod.nsi.NsiHelper.generateGlobalReservationId;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
@@ -53,9 +56,11 @@ import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
+import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._04.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
@@ -79,6 +84,15 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private static final int REPLY_SERVER_PORT = 31337;
   private static final String REPLY_ADDRESS = "http://localhost:" + REPLY_SERVER_PORT + "/requester";
 
+  private SoapReplyListener soapReplyListener;
+  private Endpoint soapReplyListenerEndpoint;
+  private DateTime startTime;
+  private DateTime endTime;
+  private ConnectionProviderPort connectionServiceProviderPort;
+  private List<String> virtualPortIds;
+  private StpType sourceStp;
+  private StpType destStp;
+
   @Override
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
@@ -98,6 +112,29 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     getManagerDriver().createVirtualPort("Second port");
   }
 
+  @Before
+  public void setUp() {
+    soapReplyListener = new SoapReplyListener();
+    soapReplyListenerEndpoint = Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
+
+    startTime = DateTime.now().plusHours(1);
+    endTime = DateTime.now();
+    String oauthToken = "f00f";
+
+    connectionServiceProviderPort = createPort(oauthToken);
+    virtualPortIds = getUserDriver().getVirtualPortIds();
+
+    assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
+    sourceStp = ConnectionsV2.toStpType(virtualPortIds.get(0));
+    destStp = ConnectionsV2.toStpType(virtualPortIds.get(1));
+  }
+
+  @After
+  public void tearDown() {
+    soapReplyListenerEndpoint.stop();
+    soapReplyListener = null;
+  }
+
   @After
   public void dropReservations() {
     DatabaseTestHelper.deleteReservationsFromSeleniumDatabase();
@@ -105,22 +142,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void reserveAndProvision() throws Exception {
-
-    DateTime startTime = DateTime.now().plusHours(1);
-    DateTime endTime = DateTime.now();
-    String oauthToken = "f00f";
-
-    SoapReplyListener soapReplyListener = new SoapReplyListener();
-    Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
-
-    ConnectionProviderPort connectionServiceProviderPort = createPort(oauthToken);
-
-    List<String> virtualPortIds = getUserDriver().getVirtualPortIds();
-
-    assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
-    StpType sourceStp = ConnectionsV2.toStpType(virtualPortIds.get(0));
-    StpType destStp = ConnectionsV2.toStpType(virtualPortIds.get(1));
-
     String description = "NSI v2 Reservation";
     String globalReservationId = NsiHelper.generateGlobalReservationId();
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
@@ -136,7 +157,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
 
     // Initial reserve
-    String reserveCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String reserveCorrelationId = generateCorrelationId();
     Holder<String> connectionId = new Holder<>(null);
     connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
     assertThat(connectionId.value, is(notNullValue()));
@@ -148,7 +169,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
 
     // Reserve commit
-    String reserveCommitCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String reserveCommitCorrelationId = generateCorrelationId();
     connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(reserveCommitCorrelationId));
 
     Message<GenericConfirmedType> reserveCommitConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
@@ -156,7 +177,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
 
     // perform query, assert that reservation_state == reserve_start
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader("urn:uuid:" + UUID.randomUUID()));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(generateCorrelationId()));
     Message<QuerySummaryConfirmedType> querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
 
     List<QuerySummaryResultType> result = querySummaryConfirmed.body.getReservation();
@@ -165,18 +186,76 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
 
     // do a provision, assert that we receive a provisionConfirmed message
-    String provisionCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
+    String provisionCorrelationId = generateCorrelationId();
     connectionServiceProviderPort.provision(connectionId.value, createHeader(provisionCorrelationId));
     Message<GenericConfirmedType> provisionConfirmed = soapReplyListener.getLastReply(Converters.PROVISION_CONFIRMED_CONVERTER);
     assertThat("provision confirmed correlation id", provisionConfirmed.header.getCorrelationId(), is(provisionCorrelationId));
 
 
     // query again, see that provisionState is now 'provisioned'
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader("urn:uuid:" + UUID.randomUUID().toString()));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(generateCorrelationId()));
     querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
     result = querySummaryConfirmed.body.getReservation();
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getConnectionStates().getProvisionState(), is(ProvisionStateEnumType.PROVISIONED));
+  }
+
+  @Test
+  public void idempotency() throws Exception {
+    String globalReservationId = generateGlobalReservationId();
+    String description = "NSI v2 Reservation";
+    ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
+      .withSchedule(new ScheduleType()
+        .withStartTime(XmlUtils.toGregorianCalendar(startTime))
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
+        .withBandwidth(100)
+        .withPath(new PathType()
+          .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+          .withSourceSTP(sourceStp)
+          .withDestSTP(destStp))
+        .withServiceAttributes(new ServiceAttributesType());
+
+
+    // Initial reserve
+    String reserveCorrelationId = generateCorrelationId();
+    Holder<String> connectionId1 = new Holder<>(null);
+    connectionServiceProviderPort.reserve(connectionId1, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
+    assertThat(connectionId1.value, is(notNullValue()));
+
+    Message<ReserveConfirmedType> reserveConfirmed1 = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    assertThat("reserve confirmed correlation id", reserveConfirmed1.header.getCorrelationId(), is(reserveCorrelationId));
+
+    // Reserve with same content and correlation id.
+    Holder<String> connectionId2 = new Holder<>(null);
+    connectionServiceProviderPort.reserve(connectionId2, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
+    assertThat(connectionId2.value, is(notNullValue()));
+
+    Message<ReserveConfirmedType> reserveConfirmed2 = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    assertThat("reserve confirmed correlation id", reserveConfirmed2.header.getCorrelationId(), is(reserveCorrelationId));
+
+    assertThat(connectionId1.value, is(connectionId2.value));
+    assertThat(reserveConfirmed1, is(reserveConfirmed2));
+
+    // perform query, assert that there is only a single reservation
+    connectionServiceProviderPort.querySummary(null, Arrays.asList(globalReservationId), createHeader(generateCorrelationId()));
+    Message<QuerySummaryConfirmedType> querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+
+    List<QuerySummaryResultType> result = querySummaryConfirmed.body.getReservation();
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getConnectionId(), is(connectionId1.value));
+
+    // Reserve with same correlation id but different content should generate an error response!
+    criteria.setBandwidth(200);
+
+    Holder<String> connectionId3 = new Holder<>(null);
+    try {
+      connectionServiceProviderPort.reserve(connectionId3, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
+      fail("ServiceExceptione expected");
+    } catch (ServiceException expected) {
+      assertThat(connectionId3.value, is(nullValue()));
+      assertThat(expected.getFaultInfo().getErrorId(), is("100"));
+      assertThat(expected.getFaultInfo().getText(), is("PAYLOAD_ERROR"));
+    }
   }
 
   private Holder<CommonHeaderType> createHeader(final String correlationId){
