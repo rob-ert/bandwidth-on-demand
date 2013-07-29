@@ -25,24 +25,18 @@ package nl.surfnet.bod.nbi.opendrac;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Uninterruptibles;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -62,22 +56,14 @@ public class ReservationPoller {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
-
   @Resource private ReservationService reservationService;
   @Resource private NbiClient nbiClient;
-
-  @Value("${reservation.poll.max.tries}")
-  private int maxPollingTries;
-
-  @Value("${reservation.poll.interval.milliseconds}")
-  private long pollingIntervalInMillis;
 
   /**
    * The polling of reservations is scheduled every minute. This is because the
    * precision of reservations is in minutes.
    */
-  @Scheduled(cron = "0 * * * * *")
+  @Scheduled(fixedDelay = 10 * 1000)
   public void pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged() {
     DateTime dateTime = DateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
@@ -85,66 +71,32 @@ public class ReservationPoller {
     logger.info("Found {} reservations to poll", reservations.size());
     logger.debug("The reservations {}", reservations);
 
-    for (Reservation reservation : reservations) {
-      executorService.execute(new ReservationStatusChecker(reservation, maxPollingTries));
-    }
-  }
+    ExecutorService executor = Executors.newFixedThreadPool(5); // we are IO-bound
 
-  public void pollReservation(Reservation reservation) {
-    executorService.execute(new ReservationStatusChecker(reservation, maxPollingTries));
-  }
+    try {
+      for (final Reservation reservation : reservations) {
+        executor.submit( new Runnable() {
+          @Override
+          public void run() {
+            logger.debug("Checking status update for: '{}' (try {})", reservation.getId());
 
-  protected void setMaxPollingTries(int maxPollingTries) {
-    this.maxPollingTries = maxPollingTries;
-  }
+            Optional<ReservationStatus> currentStatus = nbiClient.getReservationStatus(reservation.getReservationId());
+            logger.debug("Got back status {}", currentStatus);
 
-  protected void setPollingInterval(long sleepFor, TimeUnit timeUnit) {
-    this.pollingIntervalInMillis = timeUnit.toMillis(sleepFor);
-  }
-
-  ExecutorService getExecutorService() {
-    return executorService;
-  }
-
-  private class ReservationStatusChecker implements Runnable {
-    private final String reservationId;
-    private final ReservationStatus startStatus;
-    private final int maxPollingTries;
-    private int numberOfTries;
-
-    public ReservationStatusChecker(Reservation reservation, int maxPollingTries) {
-      this.reservationId = Preconditions.checkNotNull(reservation.getReservationId(), "OpenDRAC reservation ID");
-      this.maxPollingTries = maxPollingTries;
-      this.startStatus = reservation.getStatus();
-    }
-
-    @Override
-    public void run() {
-      try {
-        // No need to retrieve status when there is no reservationId
-        while (numberOfTries < maxPollingTries) {
-          logger.debug("Checking status update for: '{}' (try {})", reservationId, numberOfTries);
-
-          Optional<ReservationStatus> currentStatus = nbiClient.getReservationStatus(reservationId);
-          logger.debug("Got back status {}", currentStatus);
-
-          if (currentStatus.isPresent() && !currentStatus.get().equals(startStatus)) {
-            logger.info("Status change detected {} -> {} for reservation {}", new Object[] { startStatus, currentStatus.get(), reservationId });
-
-            try {
-              reservationService.updateStatus(reservationId, currentStatus.get());
-            } catch (NoResultException e) {
-              // Reservation was already deleted, ignore.
+            if (currentStatus.isPresent() && !currentStatus.get().equals(reservation.getStatus())) {
+              logger.info("Status change detected {} -> {} for reservation {}", new Object[] { reservation.getStatus(), currentStatus.get(), reservation.getReservationId() });
+              try {
+                reservationService.updateStatus(reservation.getReservationId(), currentStatus.get());
+              } catch (NoResultException e) {
+                // Reservation was already deleted, ignore.
+              }
             }
-            return;
           }
-
-          numberOfTries++;
-          Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
-        }
-      } catch (Exception e) {
-        logger.error("The poller failed for reservation " + reservationId, e);
+        });
       }
+    } finally {
+      executor.shutdown();
     }
   }
+
 }

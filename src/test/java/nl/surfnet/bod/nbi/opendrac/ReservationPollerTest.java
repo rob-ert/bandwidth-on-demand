@@ -24,24 +24,11 @@ package nl.surfnet.bod.nbi.opendrac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.support.ReservationFactory;
-
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -61,30 +48,6 @@ public class ReservationPollerTest {
   @Mock
   private NbiClient nbiClientMock;
 
-  @Before
-  public void makeSureWeReallyPoll() {
-    subject.setMaxPollingTries(1);
-  }
-
-  @Test
-  public void pollerShouldPollMaxTimes() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.AUTO_START).create();
-    int maxTries = 3;
-
-    when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
-        Lists.newArrayList(reservation));
-    when(nbiClientMock.getReservationStatus(reservation.getReservationId())).thenReturn(Optional.of(ReservationStatus.AUTO_START));
-    when(reservationServiceMock.find(1L)).thenReturn(reservation);
-
-    subject.setMaxPollingTries(3);
-    subject.setPollingInterval(1, TimeUnit.MILLISECONDS);
-    subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
-
-    awaitPollerReady();
-
-    verify(nbiClientMock, times(maxTries)).getReservationStatus(reservation.getReservationId());
-  }
-
   @Test
   public void findReservationShouldBeForWholeMinutes() throws InterruptedException {
     ArgumentCaptor<DateTime> argument = ArgumentCaptor.forClass(DateTime.class);
@@ -92,15 +55,8 @@ public class ReservationPollerTest {
     subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
     verify(reservationServiceMock).findReservationsToPoll(argument.capture());
-
     assertThat(argument.getValue().getSecondOfMinute(), is(0));
     assertThat(argument.getValue().getMillisOfSecond(), is(0));
-  }
-
-  private void awaitPollerReady() throws InterruptedException {
-    subject.getExecutorService().shutdown();
-    boolean terminated = subject.getExecutorService().awaitTermination(1000, TimeUnit.MILLISECONDS);
-    assertThat(terminated, is(true));
   }
 
 }
