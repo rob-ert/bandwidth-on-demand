@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -43,11 +44,13 @@ import javax.xml.ws.handler.MessageContext;
 import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
+import nl.surfnet.bod.nsi.v2.Converters;
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.support.soap.SoapReplyListener;
+import nl.surfnet.bod.support.soap.SoapReplyListener.Message;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
@@ -58,11 +61,14 @@ import org.junit.Test;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
 import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._04.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._04.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
@@ -165,7 +171,6 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void soapReservationHappyFlow() throws Exception {
 
     DateTime startTime = DateTime.now().plusHours(1);
@@ -196,52 +201,49 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
           .withDestSTP(destStp))
         .withServiceAttributes(new ServiceAttributesType());
 
+
+    // Initial reserve
     String reserveCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
-    String reserveCommitCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
-    String querySummaryCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
-    String provisionCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
-    String querySummary2CorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
-
     Holder<String> connectionId = new Holder<>(null);
-    Holder<CommonHeaderType> header = createHeader(reserveCorrelationId);
-
-    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, header);
+    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
     assertThat(connectionId.value, is(notNullValue()));
 
-    Map<String, Object> reply = soapReplyListener.getLastReply();
+    Message<ReserveConfirmedType> reserveConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    assertThat("reserve confirmed correlation id", reserveConfirmed.header.getCorrelationId(), is(reserveCorrelationId));
+    assertThat("connection id must match", reserveConfirmed.body.getConnectionId(), is(connectionId.value));
+    assertThat("global reservation id must match", reserveConfirmed.body.getGlobalReservationId(), is(globalReservationId));
 
-    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveConfirmed"));
-    // assert that it was indeed created, use xpath to see that it was a reserveConfirmed message and that we have a connection id
-    assertTrue("connection id must match", connectionId.value.equals(reply.get(SoapReplyListener.CONNECTION_ID_KEY)));
-    assertTrue("global reservation id must match", globalReservationId.equals(reply.get(SoapReplyListener.GLOBAL_RESERVATION_ID_KEY)));
 
-    // do reserveCommit
+    // Reserve commit
+    String reserveCommitCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
     connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(reserveCommitCorrelationId));
-    // expect a reserveCommitConfirmed
-    reply = soapReplyListener.getLastReply();
-    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("reserveCommitConfirmed"));
+
+    Message<GenericConfirmedType> reserveCommitConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
+    assertThat("reserve commit confirmed correlation id", reserveCommitConfirmed.header.getCorrelationId(), is(reserveCommitCorrelationId));
+
 
     // perform query, assert that reservation_state == reserve_start
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(querySummaryCorrelationId));
-    reply = soapReplyListener.getLastReply();
-    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader("urn:uuid:" + UUID.randomUUID()));
+    Message<QuerySummaryConfirmedType> querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
 
-    List<QuerySummaryResultType> result = (List<QuerySummaryResultType>) reply.get(SoapReplyListener.QUERY_RESULT_KEY);
-    assertTrue(result.size() == 1);
-    assertTrue(result.get(0).getConnectionStates().getReservationState().equals(ReservationStateEnumType.RESERVE_START));
+    List<QuerySummaryResultType> result = querySummaryConfirmed.body.getReservation();
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getConnectionStates().getReservationState(), is(ReservationStateEnumType.RESERVE_START));
+
 
     // do a provision, assert that we receive a provisionConfirmed message
+    String provisionCorrelationId = "urn:uuid:" + UUID.randomUUID().toString();
     connectionServiceProviderPort.provision(connectionId.value, createHeader(provisionCorrelationId));
-    reply = soapReplyListener.getLastReply();
-    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("provisionConfirmed"));
+    Message<GenericConfirmedType> provisionConfirmed = soapReplyListener.getLastReply(Converters.PROVISION_CONFIRMED_CONVERTER);
+    assertThat("provision confirmed correlation id", provisionConfirmed.header.getCorrelationId(), is(provisionCorrelationId));
+
 
     // query again, see that provisionState is now 'provisioned'
-    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(querySummary2CorrelationId));
-    reply = soapReplyListener.getLastReply();
-    assertTrue(reply.get(SoapReplyListener.MESSAGE_TYPE_KEY).equals("querySummaryConfirmed"));
-    result = (List<QuerySummaryResultType>) reply.get(SoapReplyListener.QUERY_RESULT_KEY);
-    assertTrue(result.size() == 1);
-    assertTrue(result.get(0).getConnectionStates().getProvisionState().equals(ProvisionStateEnumType.PROVISIONED));
+    connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader("urn:uuid:" + UUID.randomUUID().toString()));
+    querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+    result = querySummaryConfirmed.body.getReservation();
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getConnectionStates().getProvisionState(), is(ProvisionStateEnumType.PROVISIONED));
   }
 
   private Holder<CommonHeaderType> createHeader(final String correlationId){

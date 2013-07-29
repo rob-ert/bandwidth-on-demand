@@ -61,6 +61,14 @@ public class JaxbUserType<T> implements UserType {
     this.type = type;
   }
 
+  public QName getXmlRootElementName() {
+    return xmlRootElementName;
+  }
+
+  public Class<T> getType() {
+    return type;
+  }
+
   @Override
   public int[] sqlTypes() {
     return SQL_TYPES;

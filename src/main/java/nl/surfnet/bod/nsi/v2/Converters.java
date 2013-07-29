@@ -54,7 +54,7 @@ import org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.w3c.dom.Element;
 
-class Converters {
+public class Converters {
   private static final org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory();
   private static final org.ogf.schemas.nsi._2013._04.connection.types.ObjectFactory BODY_OF = new org.ogf.schemas.nsi._2013._04.connection.types.ObjectFactory();
 
@@ -73,7 +73,7 @@ class Converters {
   public static final JaxbUserType<QueryNotificationConfirmedType> QUERY_NOTIFICATION_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQueryNotificationConfirmed(null));
   public static final JaxbUserType<ServiceExceptionType> SERVICE_EXCEPTION_CONVERTER = new NsiV2UserType<>(BODY_OF.createServiceException(null));
 
-  static CommonHeaderType parseNsiHeader(SOAPMessage message) throws SOAPException, JAXBException {
+  public static CommonHeaderType parseNsiHeader(SOAPMessage message) throws SOAPException, JAXBException {
     Iterator<?> nsiHeaderIterator = message.getSOAPHeader().getChildElements(new ObjectFactory().createNsiHeader(null).getName());
     if (!nsiHeaderIterator.hasNext()) {
       throw new IllegalArgumentException("header not found");
@@ -82,17 +82,26 @@ class Converters {
     return COMMON_HEADER_CONVERTER.fromDomNode(nsiHeader);
   }
 
-  static SOAPMessage deserializeMessage(String message) throws IOException, SOAPException {
+  public static <T> T parseBody(JaxbUserType<T> converter, SOAPMessage message) throws SOAPException, JAXBException {
+    Iterator<?> iterator = message.getSOAPBody().getChildElements(converter.getXmlRootElementName());
+    if (!iterator.hasNext()) {
+      throw new IllegalArgumentException("body element " + converter.getXmlRootElementName() + " not found");
+    }
+    Element bodyElement = (Element) iterator.next();
+    return converter.fromDomNode(bodyElement);
+  }
+
+  public static SOAPMessage deserializeMessage(String message) throws IOException, SOAPException {
     return MessageFactory.newInstance().createMessage(new MimeHeaders(), IOUtils.toInputStream(message, "UTF-8"));
   }
 
-  static String serializeMessage(SOAPMessage message) throws IOException, SOAPException {
+  public static String serializeMessage(SOAPMessage message) throws IOException, SOAPException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     message.writeTo(baos);
     return baos.toString("UTF-8");
   }
 
-  static <T> SOAPMessage createSoapMessage(CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) throws SOAPException, JAXBException {
+  public static <T> SOAPMessage createSoapMessage(CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) throws SOAPException, JAXBException {
     SOAPMessage message = MessageFactory.newInstance().createMessage();
     SOAPFactory factory = SOAPFactory.newInstance();
     message.getSOAPHeader().addChildElement(factory.createElement(COMMON_HEADER_CONVERTER.toDomElement(header)));
@@ -100,7 +109,7 @@ class Converters {
     return message;
   }
 
-  static <T> SOAPMessage createSoapFault(CommonHeaderType header, String faultString, ServiceExceptionType exception) throws SOAPException, JAXBException, IOException {
+  public static <T> SOAPMessage createSoapFault(CommonHeaderType header, String faultString, ServiceExceptionType exception) throws SOAPException, JAXBException, IOException {
     SOAPMessage message = MessageFactory.newInstance().createMessage();
     SOAPFactory factory = SOAPFactory.newInstance();
     message.getSOAPHeader().addChildElement(factory.createElement(COMMON_HEADER_CONVERTER.toDomElement(header)));
