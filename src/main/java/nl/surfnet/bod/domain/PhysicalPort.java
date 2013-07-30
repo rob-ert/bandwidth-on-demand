@@ -32,6 +32,7 @@ import org.apache.solr.analysis.WhitespaceTokenizerFactory;
 import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
@@ -45,6 +46,7 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   // The only supported porttype at this moment
   private static final String PORT_TYPE_UNI = "UNI-N";
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @DocumentId
@@ -77,9 +79,9 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Basic
   private final boolean vlanRequired;
 
-  @Basic
-  @Column(name = "aligned_nms")
-  private boolean alignedWithNMS;
+  @Basic(optional=false)
+  @Enumerated(EnumType.STRING)
+  private NmsAlignmentStatus nmsAlignmentStatus;
 
   @Field
   @Basic
@@ -107,7 +109,7 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   public PhysicalPort(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
-    this.alignedWithNMS = true;
+    this.nmsAlignmentStatus = NmsAlignmentStatus.ALIGNED;
   }
 
   @Override
@@ -179,12 +181,13 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     return vlanRequired;
   }
 
-  public void setAlignedWithNMS(boolean aligned) {
-    this.alignedWithNMS = aligned;
+  public void setNmsAlignmentStatus(NmsAlignmentStatus nmsAlignmentStatus) {
+    Preconditions.checkNotNull(nmsAlignmentStatus);
+    this.nmsAlignmentStatus = nmsAlignmentStatus;
   }
 
   public boolean isAlignedWithNMS() {
-    return alignedWithNMS;
+    return nmsAlignmentStatus == NmsAlignmentStatus.ALIGNED;
   }
 
   public String getNmsNeId() {
@@ -308,8 +311,8 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     }
     builder.append("vlanRequired=");
     builder.append(vlanRequired);
-    builder.append(", alignedWithNMS=");
-    builder.append(alignedWithNMS);
+    builder.append(", nmsAlignmentStatus=");
+    builder.append(nmsAlignmentStatus);
     builder.append("]");
 
     return builder.toString();

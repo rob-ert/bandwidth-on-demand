@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Predicate;
 
+import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -38,11 +39,10 @@ public final class PhysicalPortPredicatesAndSpecifications {
 
 
   static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
-
     @Override
     public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query,
         CriteriaBuilder cb) {
-      return cb.equal(physicalPort.get(PhysicalPort_.alignedWithNMS), false);
+      return cb.notEqual(physicalPort.get(PhysicalPort_.nmsAlignmentStatus), NmsAlignmentStatus.ALIGNED);
     }
   };
 
