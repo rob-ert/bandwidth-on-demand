@@ -40,7 +40,6 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -50,7 +49,6 @@ import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -119,7 +117,7 @@ public class ConnectionServiceV2Test {
 
     try {
       subject.reserve(connection, requestDetails, userDetails);
-      fail("Expected a ValicationException");
+      fail("Expected a ValidationException");
     } catch (ConnectionServiceV2.ReservationCreationException e) {
       assertThat(e.getMessage(), containsString("GlobalReservationId"));
     }

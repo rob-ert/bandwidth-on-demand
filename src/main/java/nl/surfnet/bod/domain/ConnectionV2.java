@@ -41,10 +41,8 @@ import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
-
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;

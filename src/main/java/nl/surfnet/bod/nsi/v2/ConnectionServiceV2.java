@@ -33,7 +33,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -44,7 +43,6 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -74,8 +72,8 @@ public class ConnectionServiceV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
     connectionRepo.save(connection);
 
-    VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
-    VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
+    VirtualPort sourcePort = virtualPortService.findByNsiV2StpId(connection.getSourceStpId());
+    VirtualPort destinationPort = virtualPortService.findByNsiV2StpId(connection.getDestinationStpId());
 
     Reservation reservation = new Reservation();
     reservation.setConnectionV2(connection);
@@ -260,7 +258,7 @@ public class ConnectionServiceV2 {
   }
 
   private void checkPort(String stpId, String attribute, RichUserDetails user) throws ReservationCreationException {
-    VirtualPort port = virtualPortService.findByNsiStpId(stpId);
+    VirtualPort port = virtualPortService.findByNsiV2StpId(stpId);
 
     if (port == null) {
       throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpId));

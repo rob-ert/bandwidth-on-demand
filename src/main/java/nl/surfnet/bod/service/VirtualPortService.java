@@ -25,6 +25,7 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V2;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
@@ -41,15 +42,25 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.Collections2;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.NsiVersion;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortView;
-
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -58,13 +69,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.Collections2;
-
 @Service
 @Transactional
 public class VirtualPortService extends AbstractFullTextSearchService<VirtualPort> {
+
+  private static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
+  private static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([0-9]+)");
 
   @Resource
   private VirtualPortRepo virtualPortRepo;
@@ -276,18 +286,33 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
   }
 
-  public VirtualPort findByNsiStpId(String sourceStpId) {
-    Pattern pattern = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
-    Matcher matcher = pattern.matcher(sourceStpId);
+  public VirtualPort findByNsiV1StpId(String sourceStpId) {
+    Long id = parseLocalNsiId(sourceStpId, NsiVersion.ONE);
+    if (id == null) {
+      return null;
+    }
+    return find(id);
+  }
+
+  public VirtualPort findByNsiV2StpId(String sourceStpId) {
+    Long id = parseLocalNsiId(sourceStpId, NsiVersion.TWO);
+    if (id == null) {
+      return null;
+    }
+    return find(id);
+  }
+
+  private Long parseLocalNsiId(String stpId, final NsiVersion nsiVersion) {
+
+    Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
+    Matcher matcher = pattern.matcher(stpId);
 
     if (!matcher.matches()) {
       return null;
     }
-
-    Long id = Long.valueOf(matcher.group(1));
-
-    return find(id);
+    return Long.valueOf(matcher.group(1));
   }
+
 
   @Override
   protected EntityManager getEntityManager() {

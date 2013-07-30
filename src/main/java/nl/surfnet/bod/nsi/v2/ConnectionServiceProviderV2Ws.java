@@ -38,7 +38,6 @@ import javax.xml.ws.Holder;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -48,7 +47,6 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
@@ -101,7 +99,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     if (criteria.getPath().getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
       throw unsupportedParameter("Directionality", criteria.getPath().getDirectionality());
     }
-    if (criteria.getPath().getSourceSTP().getLabels() != null) {
+
+    if (criteria.getPath().getSourceSTP().getLabels() != null ) {
       throw unsupportedParameter("SourceSTP::labels", criteria.getPath().getSourceSTP().getLabels());
     }
     if (criteria.getPath().getDestSTP().getLabels() != null) {
@@ -337,7 +336,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ServiceException unsupportedParameter(String attribute, Object value) {
-    return new ServiceException(String.format("This attribute '%s' with value '%s' is not supported by this provider", attribute, value),
+    return new ServiceException(String.format("The attribute '%s' with value '%s' is not supported by this provider", attribute, value),
         createServiceExceptionType("Parameter provided contains an unsupported value which MUST be processed.").withErrorId("102")
           .withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(attribute).withAny(value)))
     );

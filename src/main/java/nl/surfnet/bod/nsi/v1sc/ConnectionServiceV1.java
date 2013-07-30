@@ -50,7 +50,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -64,7 +63,6 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
@@ -118,8 +116,8 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     connection.setCurrentState(ConnectionStateType.RESERVING);
     connection = connectionRepo.saveAndFlush(connection);
 
-    VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
-    VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
+    VirtualPort sourcePort = virtualPortService.findByNsiV1StpId(connection.getSourceStpId());
+    VirtualPort destinationPort = virtualPortService.findByNsiV1StpId(connection.getDestinationStpId());
 
     Reservation reservation = new Reservation();
     reservation.setConnectionV1(connection);
@@ -193,7 +191,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   private void checkPort(String stpId, String attribute, RichUserDetails user) throws ValidationException {
-    VirtualPort port = virtualPortService.findByNsiStpId(stpId);
+    VirtualPort port = virtualPortService.findByNsiV1StpId(stpId);
 
     if (port == null) {
       throw new ValidationException(attribute, "0100", String.format("Unknown STP '%s'", stpId));

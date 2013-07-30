@@ -23,6 +23,7 @@
 package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -36,15 +37,24 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -55,9 +65,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortServiceTest {
@@ -223,18 +230,27 @@ public class VirtualPortServiceTest {
   }
 
   @Test
-  public void findByNsiStpId() {
+  public void findByNsiV1StpId() {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
 
-    VirtualPort foundPort = subject.findByNsiStpId(URN_STP_V1 + ":25");
+    VirtualPort foundPort = subject.findByNsiV1StpId(URN_STP_V1 + ":25");
+
+    assertThat(foundPort, is(port));
+  }
+  @Test
+  public void findByNsiV2StpId() {
+    VirtualPort port = new VirtualPortFactory().create();
+    when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
+
+    VirtualPort foundPort = subject.findByNsiV2StpId(URN_STP_V2 + ":25");
 
     assertThat(foundPort, is(port));
   }
 
   @Test
-  public void findByIllegalNsiStpIdWithWrongNetworkId() {
-    VirtualPort foundPort = subject.findByNsiStpId(URN_STP_V1 + ":asdfasfasdf");
+  public void findByIllegalNsiV1StpIdWithWrongNetworkId() {
+    VirtualPort foundPort = subject.findByNsiV1StpId(URN_STP_V1 + ":asdfasfasdf");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);
@@ -242,7 +258,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNsNetwork() {
-    VirtualPort foundPort = subject.findByNsiStpId("urn:ogf:network:stp:zilverline.nl" + ":25");
+    VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:stp:zilverline.nl" + ":25");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);

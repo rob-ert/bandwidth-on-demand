@@ -51,7 +51,6 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,7 +92,7 @@ public class ConnectionServiceV1Test {
 
     ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
 
-    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
+    when(virtualPortServiceMock.findByNsiV1StpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
     when(connectionRepoMock.saveAndFlush(any(ConnectionV1.class))).thenReturn(connection);
 
     subject.reserve(connection, nsiRequestDetails, true, userDetails);
@@ -130,7 +129,7 @@ public class ConnectionServiceV1Test {
     ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
-    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("wrong-admin").create());
+    when(virtualPortServiceMock.findByNsiV1StpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("wrong-admin").create());
     thrown.expect(ValidationException.class);
     thrown.expectMessage(containsString("Unauthorized"));
 
@@ -159,7 +158,7 @@ public class ConnectionServiceV1Test {
     ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa(PROVIDER_NSA).create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
-    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(null);
+    when(virtualPortServiceMock.findByNsiV1StpId(anyString())).thenReturn(null);
     thrown.expect(ValidationException.class);
     thrown.expectMessage(containsString("Unknown STP"));
 
@@ -171,7 +170,7 @@ public class ConnectionServiceV1Test {
     ConnectionV1 connection = new ConnectionV1Factory().setProviderNsa("urn:ogf:network:unknown").create();
     NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
 
-    when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
+    when(virtualPortServiceMock.findByNsiV1StpId(anyString())).thenReturn(new VirtualPortFactory().setVirtualGroupAdminGroup("admin").create());
     thrown.expect(ValidationException.class);
     thrown.expectMessage("ProviderNsa 'urn:ogf:network:unknown' is not accepted");
 
