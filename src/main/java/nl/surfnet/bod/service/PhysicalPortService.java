@@ -43,6 +43,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +63,6 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.util.Predicates;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -111,6 +111,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  private static final Predicate<PhysicalPort> ALIGNED_WITH_NMS = new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort physicalPort) {
+      return physicalPort.isAlignedWithNMS();
+    }
+  };
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -300,7 +307,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values())
-      .filter(Predicates.MISSING_PORTS_PRED)
+      .filter(Predicates.not(ALIGNED_WITH_NMS))
       .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
@@ -334,7 +341,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values())
-        .filter(Predicates.NON_MISSING_PORTS_PRED)
+        .filter(ALIGNED_WITH_NMS)
         .transform(Functions.TO_NMS_PORT_ID_FUNC).toSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
