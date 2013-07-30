@@ -63,7 +63,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PhysicalPortServiceImplTest {
+public class PhysicalPortServiceTest {
 
   @InjectMocks
   private PhysicalPortService subject;
