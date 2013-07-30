@@ -186,6 +186,10 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     this.nmsAlignmentStatus = nmsAlignmentStatus;
   }
 
+  public NmsAlignmentStatus getNmsAlignmentStatus() {
+    return nmsAlignmentStatus;
+  }
+
   public boolean isAlignedWithNMS() {
     return nmsAlignmentStatus == NmsAlignmentStatus.ALIGNED;
   }

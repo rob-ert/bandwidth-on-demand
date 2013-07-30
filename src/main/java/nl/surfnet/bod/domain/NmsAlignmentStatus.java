@@ -31,5 +31,15 @@ public enum NmsAlignmentStatus {
   /**
    * Port is defined in BoD but can no longer be found in the underlying NMS.
    */
-  DISAPPEARED
+  DISAPPEARED,
+
+  /**
+   * Port was changed to VLAN.
+   */
+  TYPE_CHANGED_TO_VLAN,
+
+  /**
+   * Port was changed to non-VLAN.
+   */
+  TYPE_CHANGED_TO_LAN
 }

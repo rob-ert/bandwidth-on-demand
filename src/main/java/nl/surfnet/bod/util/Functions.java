@@ -44,14 +44,6 @@ public final class Functions {
   private Functions() {
   }
 
-  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = new Function<PhysicalPort, String>() {
-    @Override
-    public String apply(PhysicalPort physicalPort) {
-      return physicalPort.getNmsPortId();
-    }
-  };
-
-
   public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW =
       new Function<UserGroup, UserGroupView>() {
         @Override
