@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -41,15 +42,24 @@ public class MessageRetriever {
   private MessageSource messageSource;
 
   public String getMessageWithBoldArguments(String key, String... args) {
-    return getMessage(key, makeArgsDisplayBold(args));
+    return messageSource.getMessage(key, makeArgsDisplayBold(htmlEscapeArgs(args)), getDefaultLocale());
   }
 
   public String getMessage(String key, String... args) {
-    return messageSource.getMessage(key, args, getDefaultLocale());
+    return messageSource.getMessage(key, htmlEscapeArgs(args), getDefaultLocale());
   }
 
-  private String[] makeArgsDisplayBold(String[] objects) {
-    return FluentIterable.from(Arrays.asList(objects)).transform(new Function<String, String>() {
+  private String[] htmlEscapeArgs(String[] args) {
+    return FluentIterable.from(Arrays.asList(args)).transform(new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return HtmlUtils.htmlEscape(input);
+      }
+    }).toArray(String.class);
+  }
+
+  private String[] makeArgsDisplayBold(String[] args) {
+    return FluentIterable.from(Arrays.asList(args)).transform(new Function<String, String>() {
       @Override
       public String apply(String input) {
         return String.format("<b>%s</b>", input);
@@ -60,5 +70,4 @@ public class MessageRetriever {
   private Locale getDefaultLocale() {
     return LocaleContextHolder.getLocale();
   }
-
 }

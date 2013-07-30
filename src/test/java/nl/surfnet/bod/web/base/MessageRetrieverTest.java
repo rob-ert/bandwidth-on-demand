@@ -69,4 +69,26 @@ public class MessageRetrieverTest {
 
     assertThat(message, is(TEST_MESSAGE));
   }
+
+  @Test
+  public void shouldHtmlEscapeArgumentsAndApplyBoldStyling() {
+    when(
+        messageSourceMock.getMessage(eq("info_message"), aryEq(new String[] { "<b>&lt;&gt;&quot;</b>" }),
+            eq(LocaleContextHolder.getLocale()))).thenReturn(TEST_MESSAGE);
+
+    String message = subject.getMessageWithBoldArguments("info_message", "<>\"");
+
+    assertThat(message, is(TEST_MESSAGE));
+  }
+
+  @Test
+  public void shouldHtmlEscapeArguments() {
+    when(
+        messageSourceMock.getMessage(eq("info_message"), aryEq(new String[] { "&lt;&gt;&quot;" }),
+            eq(LocaleContextHolder.getLocale()))).thenReturn(TEST_MESSAGE);
+
+    String message = subject.getMessage("info_message", "<>\"");
+
+    assertThat(message, is(TEST_MESSAGE));
+  }
 }
