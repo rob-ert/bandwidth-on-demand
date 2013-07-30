@@ -57,7 +57,6 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -79,6 +78,7 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
 import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
@@ -105,8 +105,36 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
+  public void reserve_should_not_support_labels_in_sourceStp(){
+    Holder<String> connectionIdHolder = new Holder<>();
+
+    ReservationRequestCriteriaType criteria = initialReservationCriteria();
+    criteria.getPath().getSourceSTP().setLabels(new TypeValuePairListType());
+    try {
+      subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
+      fail();
+    } catch (ServiceException e) {
+    }
+
+  }
+
+  @Test
+  public void reserve_should_not_support_labels_in_destStp(){
+    Holder<String> connectionIdHolder = new Holder<>();
+
+    ReservationRequestCriteriaType criteria = initialReservationCriteria();
+    criteria.getPath().getDestSTP().setLabels(new TypeValuePairListType());
+    try {
+      subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
+      fail();
+    } catch (ServiceException e) {
+    }
+  }
+
+
+  @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
-    Holder<String> connectionIdHolder = new Holder<String>();
+    Holder<String> connectionIdHolder = new Holder<>();
 
     subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
@@ -132,7 +160,7 @@ public class ConnectionServiceProviderV2WsTest {
 
   @Test
   public void should_reject_a_reserve_with_directionality_unidirectional() throws Exception {
-    Holder<String> connectionIdHolder = new Holder<String>();
+    Holder<String> connectionIdHolder = new Holder<>();
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
     criteria.getPath().setDirectionality(DirectionalityType.UNIDIRECTIONAL);
 
@@ -399,8 +427,12 @@ public class ConnectionServiceProviderV2WsTest {
     return new ReservationRequestCriteriaType()
         .withBandwidth(100)
         .withPath(
-            new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(
-                new StpType().withNetworkId("networkId").withLocalId("dest"))).withSchedule(new ScheduleType())
+            new PathType().
+              withSourceSTP(
+                  new StpType().withNetworkId("networkId").withLocalId("source")).
+              withDestSTP(
+                  new StpType().withNetworkId("networkId").withLocalId("dest")))
+        .withSchedule(new ScheduleType())
         .withServiceAttributes(new ServiceAttributesType())
         .withVersion(3);
   }

@@ -101,6 +101,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     if (criteria.getPath().getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
       throw unsupportedParameter("Directionality", criteria.getPath().getDirectionality());
     }
+    if (criteria.getPath().getSourceSTP().getLabels() != null) {
+      throw unsupportedParameter("SourceSTP::labels", criteria.getPath().getSourceSTP().getLabels());
+    }
+    if (criteria.getPath().getDestSTP().getLabels() != null) {
+      throw unsupportedParameter("DestSTP::labels", criteria.getPath().getDestSTP().getLabels());
+    }
 
     ConnectionV2 connection = createConnection(
         Optional.fromNullable(emptyToNull(globalReservationId)),
