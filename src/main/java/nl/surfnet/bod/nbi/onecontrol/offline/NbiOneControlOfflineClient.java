@@ -112,7 +112,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @PostConstruct
-  private void init() {
+  public void init() {
     log.info("USING OFFLINE NBI CLIENT!");
     List<Reservation> reservations = reservationRepo.findAll();
     for (Reservation reservation : reservations) {
@@ -187,10 +187,5 @@ public class NbiOneControlOfflineClient implements NbiClient {
     public Optional<DateTime> getEndDateTime() {
       return endDateTime;
     }
-
-    public OfflineReservation withStatus(ReservationStatus newStatus) {
-      return new OfflineReservation(newStatus, startDateTime, endDateTime.orNull());
-    }
-
   }
 }

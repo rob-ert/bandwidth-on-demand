@@ -53,7 +53,7 @@ public class IddOfflineClient implements IddClient {
   }
 
   @PostConstruct
-  private void init() {
+  public void init() {
     logger.info("USING OFFLINE IDD CLIENT!");
   }
 

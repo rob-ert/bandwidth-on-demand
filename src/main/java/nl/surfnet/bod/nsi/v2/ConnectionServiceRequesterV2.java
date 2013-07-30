@@ -61,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
-public class ConnectionServiceRequesterV2 {
+class ConnectionServiceRequesterV2 {
 
   private static final String PROTOCOL_VERSION = "application/vdn.ogf.nsi.cs.v2.requester+soap";
 

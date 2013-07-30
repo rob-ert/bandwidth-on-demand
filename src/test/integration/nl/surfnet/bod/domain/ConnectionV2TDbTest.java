@@ -22,10 +22,11 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.junit.Assert.assertTrue;
+
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppComponents;
-import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
@@ -39,8 +40,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class } )

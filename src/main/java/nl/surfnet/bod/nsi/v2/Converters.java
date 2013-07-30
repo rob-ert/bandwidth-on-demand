@@ -54,7 +54,7 @@ import org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.w3c.dom.Element;
 
-public class Converters {
+class Converters {
   private static final org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._04.framework.headers.ObjectFactory();
   private static final org.ogf.schemas.nsi._2013._04.connection.types.ObjectFactory BODY_OF = new org.ogf.schemas.nsi._2013._04.connection.types.ObjectFactory();
 

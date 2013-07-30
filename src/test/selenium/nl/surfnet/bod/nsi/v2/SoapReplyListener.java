@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsiv2;
+package nl.surfnet.bod.nsi.v2;
 
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -38,7 +38,6 @@ import javax.xml.ws.WebServiceProvider;
 import com.google.common.base.Objects;
 import com.sun.xml.ws.developer.SchemaValidation;
 
-import nl.surfnet.bod.nsi.v2.Converters;
 import nl.surfnet.bod.util.JaxbUserType;
 
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;

@@ -42,7 +42,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConnectionServiceRequesterAsyncClient {
+class ConnectionServiceRequesterAsyncClient {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 

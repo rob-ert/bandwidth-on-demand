@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nsi.v2;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -43,8 +43,8 @@ import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;

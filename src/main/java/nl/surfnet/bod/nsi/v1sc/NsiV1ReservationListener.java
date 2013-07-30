@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConnectionServiceProviderListenerV1 implements ReservationListener {
+class NsiV1ReservationListener implements ReservationListener {
 
-  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListenerV1.class);
+  private final Logger logger = LoggerFactory.getLogger(NsiV1ReservationListener.class);
 
   @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private ConnectionServiceRequesterV1 requester;

@@ -41,7 +41,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
-import org.ogf.schemas.nsi._2013._04.connection.requester.ServiceException;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
@@ -50,7 +49,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @Component
-public class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<SOAPMessageContext> {
+class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<SOAPMessageContext> {
 
   @Resource private NsiV2MessageRepo messageRepo;
   @Resource private ConnectionServiceRequesterAsyncClient client;

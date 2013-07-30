@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nsiv2;
+package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.nsi.NsiHelper.generateCorrelationId;
 import static nl.surfnet.bod.nsi.NsiHelper.generateGlobalReservationId;
@@ -46,9 +46,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.nsi.v2.ConnectionsV2;
-import nl.surfnet.bod.nsi.v2.Converters;
-import nl.surfnet.bod.nsiv2.SoapReplyListener.Message;
+import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;

@@ -31,9 +31,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppComponents;
-import nl.surfnet.bod.AppConfiguration;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
-import nl.surfnet.bod.sab.EntitlementsHandler;
 import nl.surfnet.bod.util.TestHelper;
 
 import org.junit.AfterClass;

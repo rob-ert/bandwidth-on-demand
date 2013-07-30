@@ -53,7 +53,6 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
-import nl.surfnet.bod.service.ConnectionServiceV2;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;

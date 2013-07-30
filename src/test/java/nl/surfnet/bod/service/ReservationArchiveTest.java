@@ -28,12 +28,10 @@ import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 
 public class ReservationArchiveTest {

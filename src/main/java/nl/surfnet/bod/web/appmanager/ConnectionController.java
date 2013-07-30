@@ -37,8 +37,8 @@ import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.ConnectionServiceV1;
 import nl.surfnet.bod.web.appmanager.ConnectionController.ConnectionView;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;

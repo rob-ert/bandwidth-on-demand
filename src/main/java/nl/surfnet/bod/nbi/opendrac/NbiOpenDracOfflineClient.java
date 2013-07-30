@@ -124,7 +124,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @PostConstruct
-  private void init() {
+  public void init() {
     log.info("USING OFFLINE NBI CLIENT!");
     List<Reservation> reservations = reservationRepo.findAll();
     for (Reservation reservation : reservations) {

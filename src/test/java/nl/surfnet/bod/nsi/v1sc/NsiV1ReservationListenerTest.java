@@ -46,9 +46,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderListenerV1Test {
+public class NsiV1ReservationListenerTest {
 
-  @InjectMocks private ConnectionServiceProviderListenerV1 subject;
+  @InjectMocks private NsiV1ReservationListener subject;
 
   @Mock private ConnectionServiceRequesterV1 connectionServiceRequesterMock;
   @Mock private ReservationService reservationServiceMock;

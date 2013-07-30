@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 
@@ -35,26 +34,21 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
+
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
-import nl.surfnet.bod.service.ConnectionServiceV1;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.NsiRequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.hamcrest.text.IsEmptyString;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -71,9 +65,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV1WsTest {
 
@@ -84,34 +75,16 @@ public class ConnectionServiceProviderV1WsTest {
   private ConnectionV1Repo connectionRepoMock;
 
   @Mock
-  private VirtualPortService virtualPortServiceMock;
-
-  @Mock
-  private ReservationService reservationServiceMock;
-
-  @Mock
   private ConnectionServiceV1 connectionServiceProviderComponent;
 
   private final String nsaProvider = "nsa:surfnet.nl";
 
   private final RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup("test").create();
 
-  private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("test").create();
-
-  private final VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
-
-  private final VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
-
   private final ConnectionV1 connection = new ConnectionV1Factory().setSourceStpId("Source Port").setDestinationStpId(
       "Destination Port").setProviderNsa(nsaProvider).create();
 
   private final NsiRequestDetails request = new NsiRequestDetailsFactory().create();
-
-  @Before
-  public void setup() throws Exception {
-    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
-    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
-  }
 
   @Test
   public void shouldCreateReservation() throws ServiceException {

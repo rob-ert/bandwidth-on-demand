@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.service.ConnectionServiceV1;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.Security;

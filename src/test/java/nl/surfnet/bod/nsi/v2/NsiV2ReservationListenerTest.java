@@ -47,9 +47,9 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderListenerV2Test {
+public class NsiV2ReservationListenerTest {
 
-  @InjectMocks private ConnectionServiceProviderListenerV2 subject;
+  @InjectMocks private NsiV2ReservationListener subject;
 
   @Mock private ConnectionServiceRequesterV2 requesterMock;
 

@@ -20,16 +20,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nsi.v2;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -37,14 +34,14 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.v2.ConnectionServiceRequesterV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -54,9 +51,6 @@ import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +58,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
-public class ConnectionServiceV2 extends AbstractFullTextSearchService<ConnectionV2> {
+public class ConnectionServiceV2 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
 
@@ -73,8 +67,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
   @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
-
-  @PersistenceContext private EntityManager entityManager;
 
   public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
     checkConnection(connection, userDetails);
@@ -278,32 +270,6 @@ public class ConnectionServiceV2 extends AbstractFullTextSearchService<Connectio
       throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpId));
     }
   }
-
-  public Connection find(Long id) {
-    return connectionRepo.findOne(id);
-  }
-
-  public Collection<ConnectionV2> findAll() {
-    return connectionRepo.findAll();
-  }
-
-  public List<Long> findIds(Optional<Sort> sort) {
-    return connectionRepo.findIdsWithWhereClause(Optional.<Specification<ConnectionV2>>absent(), sort);
-  }
-
-  public List<ConnectionV2> findEntries(int firstResult, int maxResults, Sort sort) {
-    return connectionRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-  }
-
-  public long count() {
-    return connectionRepo.count();
-  }
-
-  @Override
-  protected EntityManager getEntityManager() {
-    return entityManager;
-  }
-
 
   @SuppressWarnings("serial")
   public static class ReservationCreationException extends Exception {

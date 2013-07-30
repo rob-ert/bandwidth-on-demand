@@ -32,17 +32,18 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
+import com.sun.xml.ws.developer.SchemaValidation;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
-import nl.surfnet.bod.service.ConnectionServiceV1;
-import nl.surfnet.bod.service.ConnectionServiceV1.ValidationException;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -62,8 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.sun.xml.ws.developer.SchemaValidation;
-
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider",
   portName = "ConnectionServiceProviderPort",
@@ -75,7 +74,6 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV1Ws.class);
 
   @Resource private ConnectionV1Repo connectionRepo;
-  @Resource private VirtualPortService virtualPortService;
   @Resource private ConnectionServiceV1 connectionService;
 
   @Override
