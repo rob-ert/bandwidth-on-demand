@@ -75,15 +75,15 @@ public class ConnectionV1 extends AbstractConnection {
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @IndexedEmbedded
-  private NsiRequestDetails reserveRequestDetails;
+  private NsiV1RequestDetails reserveRequestDetails;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @IndexedEmbedded
-  private NsiRequestDetails provisionRequestDetails;
+  private NsiV1RequestDetails provisionRequestDetails;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @IndexedEmbedded
-  private NsiRequestDetails terminateRequestDetails;
+  private NsiV1RequestDetails terminateRequestDetails;
 
   public ConnectionV1() {
   }
@@ -140,27 +140,27 @@ public class ConnectionV1 extends AbstractConnection {
     return NsiVersion.ONE;
   }
 
-  public NsiRequestDetails getReserveRequestDetails() {
+  public NsiV1RequestDetails getReserveRequestDetails() {
     return reserveRequestDetails;
   }
 
-  public void setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
+  public void setReserveRequestDetails(NsiV1RequestDetails reserveRequestDetails) {
     this.reserveRequestDetails = reserveRequestDetails;
   }
 
-  public NsiRequestDetails getProvisionRequestDetails() {
+  public NsiV1RequestDetails getProvisionRequestDetails() {
     return provisionRequestDetails;
   }
 
-  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+  public void setProvisionRequestDetails(NsiV1RequestDetails provisionRequestDetails) {
     this.provisionRequestDetails = provisionRequestDetails;
   }
 
-  public NsiRequestDetails getTerminateRequestDetails() {
+  public NsiV1RequestDetails getTerminateRequestDetails() {
     return terminateRequestDetails;
   }
 
-  public void setTerminateRequestDetails(NsiRequestDetails terminateRequestDetails) {
+  public void setTerminateRequestDetails(NsiV1RequestDetails terminateRequestDetails) {
     this.terminateRequestDetails = terminateRequestDetails;
   }
 

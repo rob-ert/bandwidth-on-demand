@@ -118,16 +118,16 @@ public class ConnectionV2 extends AbstractConnection {
 
   @OneToOne(cascade = CascadeType.ALL)
   @IndexedEmbedded
-  private NsiRequestDetails initialReserveRequestDetails;
+  private NsiV2RequestDetails initialReserveRequestDetails;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  private NsiRequestDetails lastReservationRequestDetails;
+  private NsiV2RequestDetails lastReservationRequestDetails;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  private NsiRequestDetails lastProvisionRequestDetails;
+  private NsiV2RequestDetails lastProvisionRequestDetails;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  private NsiRequestDetails lastLifecycleRequestDetails;
+  private NsiV2RequestDetails lastLifecycleRequestDetails;
 
   @Field
   private int reserveHeldTimeoutValue;
@@ -312,35 +312,35 @@ public class ConnectionV2 extends AbstractConnection {
       .withVersion(committedVersion != null ? committedVersion : reserveVersion);
   }
 
-  public NsiRequestDetails getInitialReserveRequestDetails() {
+  public NsiV2RequestDetails getInitialReserveRequestDetails() {
     return initialReserveRequestDetails;
   }
 
-  public void setInitialReserveRequestDetails(NsiRequestDetails initialReserveRequestDetails) {
+  public void setInitialReserveRequestDetails(NsiV2RequestDetails initialReserveRequestDetails) {
     this.initialReserveRequestDetails = initialReserveRequestDetails;
   }
 
-  public NsiRequestDetails getLastReservationRequestDetails() {
+  public NsiV2RequestDetails getLastReservationRequestDetails() {
     return lastReservationRequestDetails;
   }
 
-  public void setLastReservationRequestDetails(NsiRequestDetails reserveRequestDetails) {
+  public void setLastReservationRequestDetails(NsiV2RequestDetails reserveRequestDetails) {
     this.lastReservationRequestDetails = reserveRequestDetails;
   }
 
-  public NsiRequestDetails getLastProvisionRequestDetails() {
+  public NsiV2RequestDetails getLastProvisionRequestDetails() {
     return lastProvisionRequestDetails;
   }
 
-  public void setLastProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+  public void setLastProvisionRequestDetails(NsiV2RequestDetails provisionRequestDetails) {
     this.lastProvisionRequestDetails = provisionRequestDetails;
   }
 
-  public NsiRequestDetails getLastLifecycleRequestDetails() {
+  public NsiV2RequestDetails getLastLifecycleRequestDetails() {
     return lastLifecycleRequestDetails;
   }
 
-  public void setLastLifecycleRequestDetails(NsiRequestDetails terminateRequestDetails) {
+  public void setLastLifecycleRequestDetails(NsiV2RequestDetails terminateRequestDetails) {
     this.lastLifecycleRequestDetails = terminateRequestDetails;
   }
 

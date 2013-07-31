@@ -40,6 +40,8 @@ import java.net.URI;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
 import org.apache.commons.io.IOUtils;
@@ -48,6 +50,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
@@ -114,7 +117,7 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
     assertThat(originalAcknowledgment, is(notNullValue()));
     verify(messageRepo, never()).save(any(NsiV2Message.class));
-    verify(client, never()).asyncSend(any(URI.class), any(String.class), any(SOAPMessage.class));
+    verify(client, never()).asyncSend(Matchers.<Optional<URI>>any(), any(String.class), any(SOAPMessage.class));
   }
 
   @Test
@@ -128,7 +131,7 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
     assertThat(originalAcknowledgment, is(notNullValue()));
     verify(messageRepo, never()).save(any(NsiV2Message.class));
-    verify(client, times(1)).asyncSend(eq(URI.create(header.getReplyTo())), eq(reserveConfirmedEntity.getSoapAction()), any(SOAPMessage.class));
+    verify(client, times(1)).asyncSend(eq(Optional.of(URI.create(header.getReplyTo()))), eq(reserveConfirmedEntity.getSoapAction()), any(SOAPMessage.class));
   }
 
   @Test

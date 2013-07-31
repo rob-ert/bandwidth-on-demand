@@ -54,10 +54,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
-import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.util.XmlUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -92,7 +92,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.reserveConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_HELD));
   }
@@ -106,7 +106,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.reserveConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.reserveConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReserveHeldTimeout(), is(Optional.of(now.plusSeconds(100))));
   }
@@ -117,7 +117,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.reserveFailed(1L, new NsiRequestDetailsFactory().create());
+    subject.reserveFailed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_FAILED));
     assertThat(connection.getProvisionState(), isAbsent());
@@ -129,7 +129,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.reserveAbortConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.reserveAbortConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getProvisionState(), isAbsent());
@@ -142,7 +142,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.reserveCommitConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.reserveCommitConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getLifecycleState(), is(CREATED));
@@ -156,7 +156,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.provisionConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.provisionConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getProvisionState(), isPresent(PROVISIONED));
   }
@@ -164,7 +164,7 @@ public class ConnectionServiceRequesterV2Test {
   @Test
   public void should_activate_the_data_plane_status() {
     ConnectionV2 connection = new ConnectionV2Factory().setDataPlaneActive(false).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
     subject.dataPlaneActivated(1L, requestDetails);
@@ -183,7 +183,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.dataPlaneDeactivated(1L, new NsiRequestDetailsFactory().create());
+    subject.dataPlaneDeactivated(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getDataPlaneActive(), is(false));
   }
@@ -194,7 +194,7 @@ public class ConnectionServiceRequesterV2Test {
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
-    subject.terminateConfirmed(1L, new NsiRequestDetailsFactory().create());
+    subject.terminateConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getLifecycleState(), is(TERMINATED));
   }
@@ -202,7 +202,7 @@ public class ConnectionServiceRequesterV2Test {
   @Test
   public void should_send_queryResultConfirmed_even_if_no_connection_was_found() {
 
-    NsiRequestDetails nsiRequestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails nsiRequestDetails = new NsiV2RequestDetailsFactory().create();
 
     subject.querySummaryConfirmed(new ArrayList<ConnectionV2>(), nsiRequestDetails);
   }
@@ -212,7 +212,7 @@ public class ConnectionServiceRequesterV2Test {
     DateTime now = DateTime.now();
     ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_HELD).setReserveHeldTimeoutValue(100).create();
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
 
     subject.reserveTimeout(1L, now);
 

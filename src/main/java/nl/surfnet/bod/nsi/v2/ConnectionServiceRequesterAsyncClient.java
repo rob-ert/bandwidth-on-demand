@@ -33,6 +33,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 
+import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
@@ -53,17 +54,25 @@ class ConnectionServiceRequesterAsyncClient {
   private int requestTimeout;
 
   @Async
-  public void asyncSend(URI replyTo, String soapAction, SOAPMessage message) {
-    Dispatch<SOAPMessage> dispatch = new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/04/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
+  public void asyncSend(Optional<URI> replyTo, String soapAction, SOAPMessage message) {
+    if (!replyTo.isPresent()) {
+      return;
+    }
+
+    Dispatch<SOAPMessage> dispatch = createDispatcher();
 
     Map<String, Object> requestContext = dispatch.getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyTo.toASCIIString());
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyTo.get().toASCIIString());
     requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
     requestContext.put(Dispatch.SOAPACTION_URI_PROPERTY, soapAction);
 
     dispatch.invokeOneWay(message);
+  }
+
+  private Dispatch<SOAPMessage> createDispatcher() {
+    return new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/04/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
   }
 
   private URL wsdlUrl() {

@@ -29,7 +29,7 @@ import javax.annotation.Resource;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 
@@ -55,7 +55,7 @@ public class ConnectionServiceRequesterV1 {
   @Resource private ConnectionV1Repo connectionRepo;
   @Resource private ConnectionServiceRequesterV1Client client;
 
-  public void reserveConfirmed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
+  public void reserveConfirmed(ConnectionV1 connection, NsiV1RequestDetails requestDetails) {
     log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 
@@ -78,7 +78,7 @@ public class ConnectionServiceRequesterV1 {
     client.asyncSendReserveConfirmed(reserveConfirmedType, requestDetails);
   }
 
-  public void reserveFailed(ConnectionV1 connection, NsiRequestDetails requestDetails, Optional<String> failedReason) {
+  public void reserveFailed(ConnectionV1 connection, NsiV1RequestDetails requestDetails, Optional<String> failedReason) {
     log.info("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 
@@ -99,7 +99,7 @@ public class ConnectionServiceRequesterV1 {
     client.asyncSendReserveFailed(reserveFailed, requestDetails);
   }
 
-  public void provisionFailedDontUpdateState(ConnectionV1 connection, NsiRequestDetails requestDetails) {
+  public void provisionFailedDontUpdateState(ConnectionV1 connection, NsiV1RequestDetails requestDetails) {
     log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection.getConnectionId());
 
     GenericFailedType genericFailed = genericFailedForConnection(connection);
@@ -107,14 +107,14 @@ public class ConnectionServiceRequesterV1 {
     client.asyncSendGenericFailed(genericFailed, requestDetails);
   }
 
-  public void provisionFailed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
+  public void provisionFailed(ConnectionV1 connection, NsiV1RequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
     provisionFailedDontUpdateState(connection, requestDetails);
   }
 
-  public void provisionConfirmed(ConnectionV1 connection, NsiRequestDetails requestDetails) {
+  public void provisionConfirmed(ConnectionV1 connection, NsiV1RequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
@@ -152,7 +152,7 @@ public class ConnectionServiceRequesterV1 {
     connectionRepo.save(connection);
   }
 
-  public void terminateConfirmed(ConnectionV1 connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateConfirmed(ConnectionV1 connection, Optional<NsiV1RequestDetails> requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
@@ -165,7 +165,7 @@ public class ConnectionServiceRequesterV1 {
     client.sendAsyncTerminateConfirmed(genericConfirmed, requestDetails.get());
   }
 
-  public void terminateFailed(ConnectionV1 connection, Optional<NsiRequestDetails> requestDetails) {
+  public void terminateFailed(ConnectionV1 connection, Optional<NsiV1RequestDetails> requestDetails) {
     if (!requestDetails.isPresent()) {
       return;
     }
@@ -181,7 +181,7 @@ public class ConnectionServiceRequesterV1 {
     connectionRepo.save(connection);
   }
 
-  public void queryConfirmed(QueryConfirmedType queryResult, NsiRequestDetails requestDetails) {
+  public void queryConfirmed(QueryConfirmedType queryResult, NsiV1RequestDetails requestDetails) {
     client.asyncSendQueryConfirmed(queryResult, requestDetails);
   }
 

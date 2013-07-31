@@ -32,7 +32,7 @@ import javax.xml.ws.Holder;
 import com.sun.xml.ws.client.ClientTransportException;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
@@ -62,7 +62,7 @@ public class ConnectionServiceRequesterV1Client {
   private int requestTimeout;
 
   @Async
-  public void asyncSendReserveConfirmed(ReserveConfirmedType reserveConfirmedType, NsiRequestDetails requestDetails) {
+  public void asyncSendReserveConfirmed(ReserveConfirmedType reserveConfirmedType, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
@@ -72,7 +72,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void asyncSendReserveFailed(GenericFailedType reserveFailed, NsiRequestDetails requestDetails) {
+  public void asyncSendReserveFailed(GenericFailedType reserveFailed, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reserveFailed);
@@ -82,7 +82,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void asyncSendGenericFailed(GenericFailedType genericFailed, NsiRequestDetails requestDetails) {
+  public void asyncSendGenericFailed(GenericFailedType genericFailed, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
@@ -92,7 +92,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void asyncSendProvisionConfirmed(GenericConfirmedType genericConfirm, NsiRequestDetails requestDetails) {
+  public void asyncSendProvisionConfirmed(GenericConfirmedType genericConfirm, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
@@ -102,7 +102,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void sendAsyncTerminateConfirmed(GenericConfirmedType genericConfirmed, NsiRequestDetails requestDetails) {
+  public void sendAsyncTerminateConfirmed(GenericConfirmedType genericConfirmed, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.terminateConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirmed);
@@ -112,7 +112,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void asyncSendTerminateFailed(GenericFailedType genericFailed, NsiRequestDetails requestDetails) {
+  public void asyncSendTerminateFailed(GenericFailedType genericFailed, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.terminateFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
@@ -122,7 +122,7 @@ public class ConnectionServiceRequesterV1Client {
   }
 
   @Async
-  public void asyncSendQueryConfirmed(QueryConfirmedType queryResult, NsiRequestDetails requestDetails) {
+  public void asyncSendQueryConfirmed(QueryConfirmedType queryResult, NsiV1RequestDetails requestDetails) {
     ConnectionRequesterPort port = createPort(requestDetails.getReplyTo());
     try {
       port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);

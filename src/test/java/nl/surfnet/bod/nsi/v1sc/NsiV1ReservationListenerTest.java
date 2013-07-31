@@ -29,13 +29,13 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionV1Factory;
-import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.support.NsiV1RequestDetailsFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class NsiV1ReservationListenerTest {
   @Test
   public void reserveFailedWithReason() {
     String failedReason = "No available bandwidth";
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV1RequestDetails requestDetails = new NsiV1RequestDetailsFactory().create();
 
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.RESERVING).setReserveRequestDetails(requestDetails).create();
     Reservation reservation = new ReservationFactory()
@@ -87,7 +87,7 @@ public class NsiV1ReservationListenerTest {
 
   @Test
   public void terminateFailed() {
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV1RequestDetails requestDetails = new NsiV1RequestDetailsFactory().create();
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).setTerminateRequestDetails(requestDetails).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.AUTO_START, reservation.getStatus());
@@ -101,7 +101,7 @@ public class NsiV1ReservationListenerTest {
 
   @Test
   public void terminateSucceed() {
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV1RequestDetails requestDetails = new NsiV1RequestDetailsFactory().create();
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.TERMINATING).setTerminateRequestDetails(requestDetails).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.CANCELLED).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.AUTO_START, reservation.getStatus());
@@ -128,7 +128,7 @@ public class NsiV1ReservationListenerTest {
 
   @Test
   public void reservationStarts() {
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV1RequestDetails requestDetails = new NsiV1RequestDetailsFactory().create();
     ConnectionV1 connection = new ConnectionV1Factory().setCurrentState(ConnectionStateType.AUTO_PROVISION).setProvisionRequestDetails(requestDetails).create();
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setConnectionV1(connection).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.AUTO_START, reservation.getStatus());

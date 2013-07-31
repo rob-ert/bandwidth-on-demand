@@ -52,7 +52,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -109,7 +109,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
 
   @PersistenceContext private EntityManager entityManager;
 
-  public void reserve(ConnectionV1 connection, NsiRequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
+  public void reserve(ConnectionV1 connection, NsiV1RequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
 
     connection.setReserveRequestDetails(requestDetails);
@@ -202,7 +202,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     }
   }
 
-  public void provision(Long connectionId, NsiRequestDetails requestDetails) {
+  public void provision(Long connectionId, NsiV1RequestDetails requestDetails) {
     ConnectionV1 connection = connectionRepo.findOne(connectionId);
     checkNotNull(connection);
 
@@ -226,7 +226,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncTerminate(Long connectionId, String requesterNsa, NsiRequestDetails requestDetails, RichUserDetails user) {
+  public void asyncTerminate(Long connectionId, String requesterNsa, NsiV1RequestDetails requestDetails, RichUserDetails user) {
     ConnectionV1 connection = connectionRepo.findOne(connectionId);
 
     if (isTerminatePossible(connection)) {
@@ -254,7 +254,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncQueryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
+  public void asyncQueryConnections(NsiV1RequestDetails requestDetails, Collection<String> connectionIds,
       Collection<String> globalReservationIds, QueryOperationType operation, String requesterNsa, String providerNsa) {
     Preconditions.checkArgument(!connectionIds.isEmpty());
 
@@ -280,7 +280,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   @Async
-  public void asyncQueryAllForRequesterNsa(NsiRequestDetails requestDetails,
+  public void asyncQueryAllForRequesterNsa(NsiV1RequestDetails requestDetails,
       QueryOperationType operation, String requesterNsa, String providerNsa) {
 
     QueryConfirmedType confirmedType = queryAllForRequesterNsa(operation, requesterNsa, providerNsa);

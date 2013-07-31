@@ -33,6 +33,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 import nl.surfnet.bod.util.JaxbUserType;
 
@@ -70,7 +72,7 @@ class ConnectionServiceRequesterClient {
     return "http://schemas.ogf.org/nsi/2013/04/connection/service/" + action;
   }
 
-  public void replyReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, URI replyTo) {
+  public void replyReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, Optional<URI> replyTo) {
     ReserveConfirmedType body = new ReserveConfirmedType()
       .withConnectionId(connectionId)
       .withGlobalReservationId(globalReservationId)
@@ -79,7 +81,7 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveConfirmed", header, body, Converters.RESERVE_CONFIRMED_CONVERTER);
   }
 
-  public void replyReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, URI replyTo) {
+  public void replyReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, Optional<URI> replyTo) {
     GenericFailedType body = new GenericFailedType()
       .withConnectionId(connectionId)
       .withConnectionStates(connectionStates)
@@ -87,7 +89,7 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER);
   }
 
-  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final int notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final int notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     ReserveTimeoutRequestType body = new ReserveTimeoutRequestType()
       .withConnectionId(connectionId)
       .withTimeoutValue(timeoutValue)
@@ -98,27 +100,27 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER);
   }
 
-  public void replyReserveCommitConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  public void replyReserveCommitConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveCommitConfirmed", header, body, Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
   }
 
-  public void replyReserveAbortConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  public void replyReserveAbortConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveAbortConfirmed", header, body, Converters.RESERVE_ABORT_CONFIRMED_CONVERTER);
   }
 
-  public void replyTerminateConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  public void replyTerminateConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "terminateConfirmed", header, body, Converters.TERMINATE_CONFIRMED_CONVERTER);
   }
 
-  public void replyProvisionConfirmed(CommonHeaderType header, String connectionId, URI replyTo) {
+  public void replyProvisionConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "provisionConfirmed", header, body, Converters.PROVISION_CONFIRMED_CONVERTER);
   }
 
-  public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final int notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final int notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     DataPlaneStateChangeRequestType body = new DataPlaneStateChangeRequestType()
       .withConnectionId(connectionId)
       .withNotificationId(notificationId)
@@ -127,15 +129,15 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER);
   }
 
-  public void notifyDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void notifyDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
 
-  public void notifyDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+  public void notifyDeactivateFailed(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
 
-  private void notifyErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, URI replyTo) {
+  private void notifyErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     ErrorEventType body = new ErrorEventType()
       .withConnectionId(connectionId)
       .withEvent(notification.getEvent())
@@ -146,21 +148,21 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER);
   }
 
-  public void replyQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, URI replyTo) {
+  public void replyQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, Optional<URI> replyTo) {
     QuerySummaryConfirmedType body = new QuerySummaryConfirmedType().withReservation(results);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "querySummaryConfirmed", header, body, Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
   }
 
-  public void replyQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, URI replyTo) {
+  public void replyQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, Optional<URI> replyTo) {
     QueryRecursiveConfirmedType body = new QueryRecursiveConfirmedType().withReservation(result);
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryRecursiveConfirmed", header, body, Converters.QUERY_RECURSIVE_CONFIRMED_CONVERTER);
   }
 
-  public void replyQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, URI replyTo) {
+  public void replyQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, Optional<URI> replyTo) {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryNotificationConfirmed", header, queryNotificationConfirmed, Converters.QUERY_NOTIFICATION_CONFIRMED_CONVERTER);
   }
 
-  private <T> void sendMessage(Type type, URI replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) {
+  private <T> void sendMessage(Type type, Optional<URI> replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) {
     log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
       SOAPMessage message = Converters.createSoapMessage(header, body, bodyConverter);

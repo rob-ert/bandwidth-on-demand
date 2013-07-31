@@ -41,11 +41,11 @@ import java.util.List;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV2Factory;
-import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -70,7 +70,7 @@ public class ConnectionServiceV2Test {
 
   @Test
   public void provision_should_set_the_last_provision_request_details() {
-    NsiRequestDetails provisionRequestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails provisionRequestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
 
@@ -82,7 +82,7 @@ public class ConnectionServiceV2Test {
 
   @Test
   public void terminate_should_set_the_last_lifecyle_request_details() {
-    NsiRequestDetails terminateRequestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails terminateRequestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     RichUserDetails user = new RichUserDetailsFactory().create();
     when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
@@ -95,7 +95,7 @@ public class ConnectionServiceV2Test {
 
   @Test
   public void reserve_commit_should_set_the_last_reservation_request_details() {
-    NsiRequestDetails reserveCommitRequestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails reserveCommitRequestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     when(connectionRepoMock.findByConnectionId("ConnectionId")).thenReturn(connection);
 
@@ -109,7 +109,7 @@ public class ConnectionServiceV2Test {
   public void reserve_with_a_duplicate_global_reservation_id_should_give_validation_exception() throws ConnectionServiceV2.ReservationCreationException {
     String providerNsa = "nsa:surfnet.nl";
     ConnectionV2 connection = new ConnectionV2Factory().setGlobalReservationId("GlobalReservationId").setProviderNsa(providerNsa).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
 
     when(bodEnvironmentMock.getNsiProviderNsa()).thenReturn(providerNsa);
@@ -169,7 +169,7 @@ public class ConnectionServiceV2Test {
   @Test
   public void queryNotification_should_return_diffent_type_of_notifications() {
     final String connectionId = "f00f";
-    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     connection.setConnectionId(connectionId);
 
@@ -185,7 +185,7 @@ public class ConnectionServiceV2Test {
   @Test
   public void queryNotification_ranges_are_optional() {
     final String connectionId = "f00f";
-    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     connection.setConnectionId(connectionId);
 
@@ -206,7 +206,7 @@ public class ConnectionServiceV2Test {
     final Optional<Integer> lowerBound = Optional.of(2);
     final Optional<Integer> upperBound = Optional.of(3);
     final String connectionId = "f00f";
-    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     connection.setConnectionId(connectionId);
 
@@ -225,7 +225,7 @@ public class ConnectionServiceV2Test {
   @Test
   public void queryNotification_should_return_empty_list_when_connection_not_found(){
     final String connectionId = "f00f";
-    final NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(null);
     List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);

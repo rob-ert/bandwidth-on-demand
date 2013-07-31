@@ -28,13 +28,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ConnectionV2Factory;
-import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class NsiV2ReservationListenerTest {
       .setReservationState(ReservationStateEnumType.RESERVE_CHECKING).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
       .setStatus(ReservationStatus.RESERVED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
@@ -101,7 +101,7 @@ public class NsiV2ReservationListenerTest {
       .setReservationState(ReservationStateEnumType.RESERVE_CHECKING).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
       .setStatus(ReservationStatus.NOT_ACCEPTED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
@@ -118,7 +118,7 @@ public class NsiV2ReservationListenerTest {
       .setReservationState(ReservationStateEnumType.RESERVE_CHECKING).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
       .setStatus(ReservationStatus.FAILED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
@@ -138,7 +138,7 @@ public class NsiV2ReservationListenerTest {
       .setDataPlaneActive(false).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.CANCELLED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RESERVED, reservation.getStatus());
@@ -158,7 +158,7 @@ public class NsiV2ReservationListenerTest {
       .setDataPlaneActive(false).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.CANCELLED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastReservationRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.SCHEDULED, reservation.getStatus());
@@ -175,7 +175,7 @@ public class NsiV2ReservationListenerTest {
       .setReservationState(ReservationStateEnumType.RESERVE_START)
       .setProvisionState(ProvisionStateEnumType.RELEASED).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection).setStatus(ReservationStatus.AUTO_START).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastProvisionRequestDetails(requestDetails);
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RESERVED, reservation.getStatus());
 
@@ -244,8 +244,8 @@ public class NsiV2ReservationListenerTest {
       .setDataPlaneActive(true).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.CANCELLED).create();
-    NsiRequestDetails initialRequestDetails = new NsiRequestDetailsFactory().create();
-    NsiRequestDetails terminateRequestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails initialRequestDetails = new NsiV2RequestDetailsFactory().create();
+    NsiV2RequestDetails terminateRequestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setInitialReserveRequestDetails(initialRequestDetails);
     connection.setLastLifecycleRequestDetails(terminateRequestDetails);
 
@@ -267,7 +267,7 @@ public class NsiV2ReservationListenerTest {
         .setDataPlaneActive(false).create();
     Reservation reservation = new ReservationFactory().setConnectionV2(connection)
         .setStatus(ReservationStatus.CANCELLED).create();
-    NsiRequestDetails requestDetails = new NsiRequestDetailsFactory().create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     connection.setLastLifecycleRequestDetails(requestDetails);
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.RUNNING, reservation.getStatus());

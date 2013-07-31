@@ -24,7 +24,6 @@ package nl.surfnet.bod.nsi.v2;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -38,6 +37,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
@@ -78,7 +78,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
           return false;
         }
       }
-    } catch (SOAPException | JAXBException | IOException | URISyntaxException e) {
+    } catch (SOAPException | JAXBException | IOException e) {
       throw new RuntimeException("NSIv2 message handler error: " + e, e);
     }
   }
@@ -93,7 +93,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
   }
 
   @VisibleForTesting
-  SOAPMessage handleRequest(SOAPMessage message) throws IOException, SOAPException, URISyntaxException, JAXBException {
+  SOAPMessage handleRequest(SOAPMessage message) throws IOException, SOAPException, JAXBException {
     CommonHeaderType header = Converters.parseNsiHeader(message);
 
     NsiV2Message originalMessage = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.REQUEST);
@@ -112,7 +112,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
       NsiV2Message asyncReply = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.ASYNC_REPLY);
       if (asyncReply != null) {
         SOAPMessage asyncReplySoap = Converters.deserializeMessage(asyncReply.getMessage());
-        client.asyncSend(new URI(header.getReplyTo()), asyncReply.getSoapAction(), asyncReplySoap);
+        client.asyncSend(Optional.of(URI.create(header.getReplyTo())), asyncReply.getSoapAction(), asyncReplySoap);
       }
     }
 

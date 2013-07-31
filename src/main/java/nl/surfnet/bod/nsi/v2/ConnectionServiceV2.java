@@ -33,8 +33,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -43,6 +44,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
@@ -66,7 +68,7 @@ public class ConnectionServiceV2 {
   @Resource private VirtualPortService virtualPortService;
   @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
 
-  public void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
+  public void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
     checkConnection(connection, userDetails);
 
     connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
@@ -92,7 +94,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncReserveCommit(String connectionId, NsiRequestDetails requestDetails) {
+  public void asyncReserveCommit(String connectionId, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     connection.setLastReservationRequestDetails(requestDetails);
@@ -103,7 +105,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncReserveAbort(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
+  public void asyncReserveAbort(String connectionId, NsiV2RequestDetails requestDetails, RichUserDetails user) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     connection.setLastReservationRequestDetails(requestDetails);
@@ -114,7 +116,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncTerminate(String connectionId, NsiRequestDetails requestDetails, RichUserDetails user) {
+  public void asyncTerminate(String connectionId, NsiV2RequestDetails requestDetails, RichUserDetails user) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     connection.setLastLifecycleRequestDetails(requestDetails);
@@ -124,7 +126,7 @@ public class ConnectionServiceV2 {
     terminate(connection, requestDetails, user);
   }
 
-  private void terminate(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails user) {
+  private void terminate(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails user) {
     reservationService.cancelWithReason(
         connection.getReservation(),
         "NSIv2 terminate by " + user.getNameId(),
@@ -132,7 +134,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncProvision(String connectionId, NsiRequestDetails requestDetails) {
+  public void asyncProvision(String connectionId, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     connection.setLastProvisionRequestDetails(requestDetails);
@@ -143,7 +145,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails) {
+  public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiV2RequestDetails requestDetails) {
     connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
   }
 
@@ -151,7 +153,7 @@ public class ConnectionServiceV2 {
    * Implement this just like querySummary, because BoD has no downstream agents to delegate to.
    */
   @Async
-  public void asyncQueryRecursive(List<String> connectionIds, List<String> globalReservationIds, NsiRequestDetails requestDetails) {
+  public void asyncQueryRecursive(List<String> connectionIds, List<String> globalReservationIds, NsiV2RequestDetails requestDetails) {
     List<ConnectionV2> result = querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa());
     connectionServiceRequester.queryRecursiveConfirmed(result, requestDetails);
   }
@@ -180,7 +182,7 @@ public class ConnectionServiceV2 {
     return connections;
   }
 
-  public List<NotificationBaseType> queryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiRequestDetails requestDetails) {
+  public List<NotificationBaseType> queryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     if (connection == null) {
@@ -209,7 +211,7 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncQueryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiRequestDetails requestDetails) {
+  public void asyncQueryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiV2RequestDetails requestDetails) {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
   }
 

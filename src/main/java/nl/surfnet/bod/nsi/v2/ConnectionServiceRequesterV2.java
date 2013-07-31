@@ -34,7 +34,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -68,7 +68,7 @@ class ConnectionServiceRequesterV2 {
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private ConnectionServiceRequesterClient client;
 
-  public void reserveConfirmed(Long id, NsiRequestDetails requestDetails) {
+  public void reserveConfirmed(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connection.setReserveHeldTimeout(Optional.of(new DateTime().plusSeconds(connection.getReserveHeldTimeoutValue())));
@@ -89,7 +89,7 @@ class ConnectionServiceRequesterV2 {
         requestDetails.getReplyTo());
   }
 
-  public void reserveFailed(Long id, NsiRequestDetails requestDetails) {
+  public void reserveFailed(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_FAILED);
 
@@ -107,7 +107,7 @@ class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
     final XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
-    NsiRequestDetails requestDetails = connection.getLastReservationRequestDetails();
+    NsiV2RequestDetails requestDetails = connection.getLastReservationRequestDetails();
     ReserveTimeoutRequestType notification = new ReserveTimeoutRequestType();
     notification.setTimeoutValue(connection.getReserveHeldTimeoutValue());
     populateNotification(notification, connection, timeStamp);
@@ -117,21 +117,21 @@ class ConnectionServiceRequesterV2 {
     client.notifyReserveTimeout(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), notification.getNotificationId(),  connection.getReserveHeldTimeoutValue(), timeStamp, requestDetails.getReplyTo());
   }
 
-  public void reserveAbortConfirmed(Long id, NsiRequestDetails requestDetails) {
+  public void reserveAbortConfirmed(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
 
     client.replyReserveAbortConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
-  public void terminateConfirmed(Long id, NsiRequestDetails requestDetails) {
+  public void terminateConfirmed(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setLifecycleState(LifecycleStateEnumType.TERMINATED);
 
     client.replyTerminateConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
-  public void reserveCommitConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
+  public void reserveCommitConfirmed(Long connectionId, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setReservationState(ReservationStateEnumType.RESERVE_START);
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
@@ -141,7 +141,7 @@ class ConnectionServiceRequesterV2 {
     client.replyReserveCommitConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), requestDetails.getReplyTo());
   }
 
-  public void provisionConfirmed(Long connectionId, NsiRequestDetails requestDetails) {
+  public void provisionConfirmed(Long connectionId, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
 
@@ -153,20 +153,20 @@ class ConnectionServiceRequesterV2 {
     connection.setLifecycleState(LifecycleStateEnumType.PASSED_END_TIME);
   }
 
-  public void dataPlaneActivated(Long id, NsiRequestDetails requestDetails) {
+  public void dataPlaneActivated(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(true);
     sendDataPlaneStatus(requestDetails, connection, DateTime.now());
   }
 
-  public void dataPlaneDeactivated(Long id, NsiRequestDetails requestDetails) {
+  public void dataPlaneDeactivated(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(false);
 
     sendDataPlaneStatus(requestDetails, connection, DateTime.now());
   }
 
-  public void dataPlaneError(Long id, NsiRequestDetails requestDetails) {
+  public void dataPlaneError(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(false);
     connection.setLifecycleState(LifecycleStateEnumType.FAILED);
@@ -180,7 +180,7 @@ class ConnectionServiceRequesterV2 {
     client.notifyDataPlaneError(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
-  public void deactivateFailed(Long id, NsiRequestDetails requestDetails) {
+  public void deactivateFailed(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
 
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
@@ -190,7 +190,7 @@ class ConnectionServiceRequesterV2 {
     client.notifyDeactivateFailed(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
   }
 
-  private void sendDataPlaneStatus(NsiRequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
+  private void sendDataPlaneStatus(NsiV2RequestDetails requestDetails, ConnectionV2 connection, DateTime when) {
     DataPlaneStatusType dataPlaneStatus = new DataPlaneStatusType().withActive(connection.getDataPlaneActive()).withVersion(0).withVersionConsistent(true);
     XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
 
@@ -203,19 +203,19 @@ class ConnectionServiceRequesterV2 {
     client.notifyDataPlaneStateChange(header, connection.getConnectionId(), notification.getNotificationId(), dataPlaneStatus, timeStamp, requestDetails.getReplyTo());
   }
 
-  public void querySummaryConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails) {
+  public void querySummaryConfirmed(List<ConnectionV2> connections, NsiV2RequestDetails requestDetails) {
     List<QuerySummaryResultType> results = transform(connections, toQuerySummaryResultType);
 
     client.replyQuerySummaryConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), results, requestDetails.getReplyTo());
   }
 
-  public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiRequestDetails requestDetails){
+  public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiV2RequestDetails requestDetails){
     List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
 
     client.replyQueryRecursiveConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());
   }
 
-  public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiRequestDetails requestDetails) {
+  public void queryNotificationConfirmed(List<NotificationBaseType> notifications, NsiV2RequestDetails requestDetails) {
     QueryNotificationConfirmedType result = new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
 
     client.replyQueryNotificationConfirmed(requestDetails.getCommonHeaderType(PROTOCOL_VERSION), result, requestDetails.getReplyTo());

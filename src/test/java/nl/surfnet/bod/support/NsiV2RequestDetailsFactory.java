@@ -24,23 +24,27 @@ package nl.surfnet.bod.support;
 
 import java.net.URI;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import com.google.common.base.Optional;
 
-public class NsiRequestDetailsFactory {
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 
-  private URI replyTo = URI.create("http://localhost/reply");
+public class NsiV2RequestDetailsFactory {
+
+  private Optional<URI> replyTo = Optional.of(URI.create("http://localhost/reply"));
   private String correlationId = "correlationId";
+  private String requesterNsa = "requesterNsa";
+  private String providerNsa = "providerNsa";
 
-  public NsiRequestDetails create() {
-    return new NsiRequestDetails(replyTo, correlationId);
+  public NsiV2RequestDetails create() {
+    return new NsiV2RequestDetails(replyTo, correlationId, requesterNsa, providerNsa);
   }
 
-  public NsiRequestDetailsFactory setReplyTo(URI replyTo) {
-    this.replyTo = replyTo;
+  public NsiV2RequestDetailsFactory setReplyTo(URI replyTo) {
+    this.replyTo = Optional.of(replyTo);
     return this;
   }
 
-  public NsiRequestDetailsFactory setCorrelationId(String correlationId) {
+  public NsiV2RequestDetailsFactory setCorrelationId(String correlationId) {
     this.correlationId = correlationId;
     return this;
   }

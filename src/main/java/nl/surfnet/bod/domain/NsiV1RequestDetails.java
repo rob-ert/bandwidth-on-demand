@@ -29,6 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -42,7 +43,8 @@ import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
 @Entity
 @Indexed
 @Analyzer(definition = "customanalyzer")
-public class NsiRequestDetails {
+@Table(name = "nsi_v1_request_details")
+public class NsiV1RequestDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -58,31 +60,19 @@ public class NsiRequestDetails {
   @Column(nullable = false)
   private String correlationId;
 
-  @Field private String requesterNsa;
-  @Field private String providerNsa;
-
   @SuppressWarnings("unused")
-  private NsiRequestDetails() {
+  private NsiV1RequestDetails() {
   }
 
-  public NsiRequestDetails(URI replyTo, String correlationId) {
+  public NsiV1RequestDetails(URI replyTo, String correlationId) {
     this.replyTo = replyTo;
     this.correlationId = correlationId;
-  }
-
-  public NsiRequestDetails(URI replyTo, String correlationId, String requesterNsa, String providerNsa) {
-    this.replyTo = replyTo;
-    this.correlationId = correlationId;
-    this.requesterNsa = requesterNsa;
-    this.providerNsa = providerNsa;
   }
 
   public CommonHeaderType getCommonHeaderType(String protocolVersion) {
     return new CommonHeaderType()
       .withCorrelationId(getCorrelationId())
-      .withProtocolVersion(protocolVersion)
-      .withProviderNSA(getProviderNsa())
-      .withRequesterNSA(getRequesterNsa());
+      .withProtocolVersion(protocolVersion);
   }
 
   public URI getReplyTo() {
@@ -103,48 +93,8 @@ public class NsiRequestDetails {
     this.id = id;
   }
 
-  public String getRequesterNsa() {
-    return requesterNsa;
-  }
-
-  public String getProviderNsa() {
-    return providerNsa;
-  }
-
   @Override
   public String toString() {
     return "NsiRequestDetails [replyTo=" + replyTo + ", correlationId=" + correlationId + "]";
   }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    NsiRequestDetails other = (NsiRequestDetails) obj;
-    if (id == null) {
-      if (other.id != null) {
-        return false;
-      }
-    }
-    else if (!id.equals(other.id)) {
-      return false;
-    }
-    return true;
-  }
-
 }

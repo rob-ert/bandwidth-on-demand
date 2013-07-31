@@ -25,7 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.UUID;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -48,9 +48,9 @@ public class ConnectionV1Factory {
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
-  private NsiRequestDetails reserveRequestDetails;
-  private NsiRequestDetails provisionRequestDetails;
-  private NsiRequestDetails terminateRequestDetails;
+  private NsiV1RequestDetails reserveRequestDetails;
+  private NsiV1RequestDetails provisionRequestDetails;
+  private NsiV1RequestDetails terminateRequestDetails;
 
   public ConnectionV1 create() {
     ConnectionV1 connection = new ConnectionV1();
@@ -146,17 +146,17 @@ public class ConnectionV1Factory {
     return this;
   }
 
-  public ConnectionV1Factory setReserveRequestDetails(NsiRequestDetails reserveRequestDetails) {
+  public ConnectionV1Factory setReserveRequestDetails(NsiV1RequestDetails reserveRequestDetails) {
     this.reserveRequestDetails = reserveRequestDetails;
     return this;
   }
 
-  public ConnectionV1Factory setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+  public ConnectionV1Factory setProvisionRequestDetails(NsiV1RequestDetails provisionRequestDetails) {
     this.provisionRequestDetails = provisionRequestDetails;
     return this;
   }
 
-  public ConnectionV1Factory setTerminateRequestDetails(NsiRequestDetails terminateRequestDetails) {
+  public ConnectionV1Factory setTerminateRequestDetails(NsiV1RequestDetails terminateRequestDetails) {
     this.terminateRequestDetails = terminateRequestDetails;
     return this;
   }

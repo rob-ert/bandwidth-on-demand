@@ -38,12 +38,12 @@ import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 
 import nl.surfnet.bod.domain.ConnectionV1;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.support.ConnectionV1Factory;
-import nl.surfnet.bod.support.NsiRequestDetailsFactory;
+import nl.surfnet.bod.support.NsiV1RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -84,7 +84,7 @@ public class ConnectionServiceProviderV1WsTest {
   private final ConnectionV1 connection = new ConnectionV1Factory().setSourceStpId("Source Port").setDestinationStpId(
       "Destination Port").setProviderNsa(nsaProvider).create();
 
-  private final NsiRequestDetails request = new NsiRequestDetailsFactory().create();
+  private final NsiV1RequestDetails request = new NsiV1RequestDetailsFactory().create();
 
   @Test
   public void shouldCreateReservation() throws ServiceException {

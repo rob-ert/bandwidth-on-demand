@@ -29,6 +29,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.common.base.Objects;
+
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.type.StandardBasicTypes;
@@ -36,7 +38,7 @@ import org.hibernate.usertype.UserType;
 
 public class PersistentUri implements UserType {
 
-  private static int[] SQL_TYPES = new int[] { StandardBasicTypes.STRING.sqlType() };
+  private static int[] SQL_TYPES = { StandardBasicTypes.STRING.sqlType() };
 
   @Override
   public Object assemble(Serializable cached, Object value) throws HibernateException {
@@ -55,12 +57,12 @@ public class PersistentUri implements UserType {
 
   @Override
   public boolean equals(Object x, Object y) throws HibernateException {
-    return x.equals(y);
+    return Objects.equal(x, y);
   }
 
   @Override
   public int hashCode(Object obj) throws HibernateException {
-    return obj.hashCode();
+    return obj == null ? 0 : obj.hashCode();
   }
 
   @Override
@@ -85,7 +87,11 @@ public class PersistentUri implements UserType {
   @Override
   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
       throws HibernateException, SQLException {
-    StandardBasicTypes.STRING.nullSafeSet(st, ((URI) value).toString(), index, session);
+    if (value == null) {
+      st.setNull(index, SQL_TYPES[0]);
+    } else {
+      st.setString(index, ((URI) value).toString());
+    }
   }
 
   @Override

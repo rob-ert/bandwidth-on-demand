@@ -37,7 +37,8 @@
         <class>nl.surfnet.bod.domain.ConnectionV1</class>
         <class>nl.surfnet.bod.domain.ConnectionV2</class>
         <class>nl.surfnet.bod.domain.Institute</class>
-        <class>nl.surfnet.bod.domain.NsiRequestDetails</class>
+        <class>nl.surfnet.bod.domain.NsiV1RequestDetails</class>
+        <class>nl.surfnet.bod.domain.NsiV2RequestDetails</class>
         <class>nl.surfnet.bod.event.LogEvent</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />

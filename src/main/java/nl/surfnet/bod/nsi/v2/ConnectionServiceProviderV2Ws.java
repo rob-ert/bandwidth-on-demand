@@ -38,8 +38,9 @@ import javax.xml.ws.Holder;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
+
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -47,6 +48,7 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
@@ -85,7 +87,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
       Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -120,7 +122,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     reserve(connection, requestDetails, Security.getUserDetails());
   }
 
-  private void reserve(ConnectionV2 connection, NsiRequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
+  private void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails richUserDetails) throws ServiceException {
     try {
       connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ConnectionServiceV2.ReservationCreationException e) {
@@ -132,7 +134,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
-  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiRequestDetails requestDetails,
+  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiV2RequestDetails requestDetails,
       String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(xmlCalendarToDateTime);
@@ -160,7 +162,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -175,7 +177,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -191,7 +193,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.PROVISION);
 
@@ -217,7 +219,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.TERMINATE);
 
@@ -237,7 +239,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
@@ -248,7 +250,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void queryRecursive(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
@@ -277,7 +279,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void queryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
@@ -290,7 +292,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
-    NsiRequestDetails requestDetails = createRequestDetails(header.value);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
     List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
         Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
@@ -319,8 +321,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
-  private NsiRequestDetails createRequestDetails(CommonHeaderType header) {
-    return new NsiRequestDetails(URI.create(header.getReplyTo()), header.getCorrelationId(), header.getRequesterNSA(), header.getProviderNSA());
+  private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) {
+    Optional<URI> replyTo;
+    if (header.getReplyTo() == null) {
+      replyTo = Optional.absent();
+    } else {
+      replyTo = Optional.of(URI.create(header.getReplyTo()));
+    }
+    return new NsiV2RequestDetails(replyTo, header.getCorrelationId(), header.getRequesterNSA(), header.getProviderNSA());
   }
 
   private ServiceException missingParameter(String parameter) throws ServiceException {

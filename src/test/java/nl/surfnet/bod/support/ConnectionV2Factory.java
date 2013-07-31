@@ -27,7 +27,7 @@ import java.util.UUID;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.joda.time.DateTime;
@@ -56,7 +56,7 @@ public class ConnectionV2Factory {
   private boolean dataPlaneActive;
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
-  private NsiRequestDetails initialReserveRequestDetails = new NsiRequestDetailsFactory().create();
+  private NsiV2RequestDetails initialReserveRequestDetails = new NsiV2RequestDetailsFactory().create();
   private int reserveHeldTimeoutValue = 1200;
   private Optional<DateTime> reserveHeldTimeout = Optional.absent();
 
