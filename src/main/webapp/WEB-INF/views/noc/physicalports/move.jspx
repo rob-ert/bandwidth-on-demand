@@ -23,6 +23,7 @@
             <field:display labelCode="label_physicalport_bod_port_id" object="${physicalPort}" field="bodPortId" />
             <field:display labelCode="label_physicalresourcegroup" object="${physicalPort}" field="physicalResourceGroup" id="institute_id"/>
             <field:display labelCode="label_physicalport_nms_port_id" object="${physicalPort}" field="nmsPortId" id="nms_port_id" />
+            <field:display labelCode="label_physicalport_vlan" object="${physicalPort}" field="vlanRequired" id="vlanRequired" />
 
             <div class="message">
                 <h3><spring:message code="label_physicalport_move_related_details" /></h3>

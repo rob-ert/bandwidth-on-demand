@@ -385,7 +385,7 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<PhysicalPort> emptyList());
-    when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated")).thenReturn("expectedMessage");
+    when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated", "EPL")).thenReturn("expectedMessage");
 
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
         .andExpect(status().isMovedTemporarily())

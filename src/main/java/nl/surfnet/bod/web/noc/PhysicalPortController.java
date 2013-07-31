@@ -47,7 +47,9 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -351,16 +353,21 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
   public String moveForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttrs) {
-    PhysicalPort port = physicalPortService.find(id);
+    final PhysicalPort port = physicalPortService.find(id);
 
     if (port == null) {
       redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
       return "redirect:/noc/physicalports";
     }
 
-    Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
+    Collection<PhysicalPort> unallocatedPorts = Collections2.filter(physicalPortService.findUnallocated(), new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort input) {
+        return input.isVlanRequired() == port.isVlanRequired();
+      }
+    });
     if (unallocatedPorts.isEmpty()) {
-      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated");
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL");
       return "redirect:/noc/physicalports";
     }
 
