@@ -47,7 +47,7 @@
                         </dd>
                         <dt><spring:message code="label_phsyicalport_aligned"/></dt>
                         <dd>
-                            <c:out value="${item.alignedWithNMS}" />
+                            <c:out value="${item.nmsAlignmentStatus}" />
                         </dd>
                         <dt><spring:message code="label_physicalport_nms_ne_id"/></dt>
                         <dd>
@@ -118,7 +118,7 @@
             </c:if>
 
             <c:if test="${not item.alignedWithNMS}">
-                <spring:message code="label_physicalport_not_aligned" var="alarm_title"/>
+                <spring:message code="label_physicalport_not_aligned.${item.nmsAlignmentStatus}" var="alarm_title"/>
                 <span class="status-icon" rel="tooltip" data-type="info" title="${alarm_title}"><i class="icon-exclamation-sign"><!--  --></i></span>
             </c:if>
 

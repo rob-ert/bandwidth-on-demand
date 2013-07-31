@@ -42,7 +42,7 @@
                         <table:searchColumn value="${item.numberOfVirtualPorts}" searchField="physicalPort" searchValue="${item.nmsPortId}" viewName="/manager/virtualports" tooltipTitleCode="label_virtualport_link"/>
                         <table:actionsColumn item="${item}" path="/manager/physicalports" labelCode="label_physicalport" delete="false" update="${item.alignedWithNMS}">
                           <c:if test="${not item.alignedWithNMS}">
-                            <spring:message code="label_physicalport_not_aligned" var="alarm_title"/>
+                            <spring:message code="label_physicalport_not_aligned.${item.nmsAlignmentStatus}" var="alarm_title"/>
                             <span class="status-icon" rel="tooltip" data-type="info" title="${alarm_title}"><i class="icon-exclamation-sign"><!--  --></i></span>
                           </c:if>
                         </table:actionsColumn>

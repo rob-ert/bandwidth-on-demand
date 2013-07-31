@@ -104,12 +104,12 @@ public class DashboardController {
         countComingReservations, countMissingPhysicalPorts);
   }
 
-  private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unaliagnedPhysicalPorts) {
+  private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unalignedPorts) {
 
     final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
-    for (PhysicalPort port : unaliagnedPhysicalPorts) {
-      messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms", port
+    for (PhysicalPort port : unalignedPorts) {
+      messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms." + port.getNmsAlignmentStatus().name(), port
           .getNmsPortId(), port.getNocLabel());
     }
   }
