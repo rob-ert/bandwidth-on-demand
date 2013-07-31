@@ -91,9 +91,6 @@ public class PhysicalPortControllerTest {
   private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  private InstituteService instituteServiceMock;
-
-  @Mock
   private MessageRetriever messageRetriever;
 
   @Mock

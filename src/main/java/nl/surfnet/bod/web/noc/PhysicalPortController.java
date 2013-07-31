@@ -55,7 +55,6 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.NocService;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -114,9 +113,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Resource
   private MessageManager messageManager;
-
-  @Resource
-  private ConnectionServiceV1 connectionService;
 
   @Resource
   private EndPoints endPoints;
