@@ -27,6 +27,7 @@
             <bod:script value="/resources/js/modules/table.js" />
             <bod:script value="/resources/js/modules/reservation.js" />
             <bod:script value="/resources/js/modules/graph.js" />
+            <bod:script value="/resources/js/modules/splash.js" />
         </c:when>
         <c:otherwise>
             <bod:script value="/resources/js/script.min.js" />

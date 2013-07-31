@@ -1,0 +1,22 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+          xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+          xmlns:bod="BodTags" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <div class="modal modal-relative splash">
+        <div class="modal-header">
+            <h3>Welcome to Bandwidth on Demand</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                <spring:url value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}" context="" var="current" htmlEscape="true"/>
+                <a href="/Shibboleth.sso/Login?target=${current}" class="login btn btn-primary btn-large">Login through SURFConext</a>
+            </p>
+            <p>
+                <label class="checkbox"><input class="noMore" type="checkbox" name="noMore"/>Next time, skip this page.</label>
+            </p>
+        </div>
+    </div>
+</jsp:root>

@@ -26,12 +26,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
-
+    <http security="none" pattern="/Shibboleth.sso/*" />
+    <http security="none" pattern="/splash" />
     <http security="none" pattern="/resources/**" />
     <http security="none" pattern="/healthcheck" />
     <http security="none" pattern="/mtosi/**" />
 
-    <http use-expressions="true" entry-point-ref="forbiddenEntryPoint" create-session="never">
+    <http use-expressions="true" create-session="never" >
         <access-denied-handler error-page="/accessDenied"/>
         <anonymous enabled="false" />
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
@@ -39,9 +40,8 @@
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
         <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
+        <form-login login-page="/splash"/><!-- not the actual login page, but the page that sends the user to SURFConext-->
     </http>
-
-    <beans:bean id="forbiddenEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
     <beans:bean id="preAuthenticatedProcessingFilter" class="nl.surfnet.bod.web.security.RequestHeaderAuthenticationFilter">
         <beans:property name="authenticationManager" ref="authenticationManager" />

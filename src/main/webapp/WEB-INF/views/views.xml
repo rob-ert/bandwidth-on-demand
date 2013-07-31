@@ -29,5 +29,8 @@
     <definition extends="emptyMenu" name="healthcheck">
         <put-attribute name="body" value="/WEB-INF/views/healthcheck.jspx" />
     </definition>
+    <definition extends="emptyMenu" name="splash">
+        <put-attribute name="body" value="/WEB-INF/views/splash.jspx" />
+    </definition>
 
 </tiles-definitions>
