@@ -107,24 +107,6 @@ public class MessageManagerTest {
     verifyModel(model.asMap(), MessageManager.ERROR_MESSAGES_KEY, TEST_MESSAGE_WITH_HTML);
   }
 
-  @Test
-  public void shouldGetFirstInfoMessage() {
-    Model model = new ModelStub();
-
-    messageManager.addInfoMessage(model, TEST_MESSAGE_KEY, TEST_ARG);
-
-    assertThat(messageManager.getFirstInfoMessage(model), is(TEST_MESSAGE));
-  }
-
-  @Test
-  public void shouldGetFirstFlashInfoMessage() {
-    RedirectAttributes redirectModel = new ModelStub();
-
-    messageManager.addInfoFlashMessage(redirectModel, TEST_MESSAGE_KEY, TEST_ARG);
-
-    assertThat(messageManager.getFirstInfoMessage(redirectModel), is(TEST_MESSAGE));
-  }
-
   private void verifyModel(Map<String, ?> modelMap, String key, String expectedMessage) {
     @SuppressWarnings("unchecked")
     List<String> infoMessages = (List<String>) modelMap.get(key);

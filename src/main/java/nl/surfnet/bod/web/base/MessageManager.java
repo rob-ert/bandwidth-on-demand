@@ -73,26 +73,6 @@ public class MessageManager {
     addMessage(model, messageRetriever.getMessageWithBoldArguments(key, args) + " " + extraHtml, ERROR_MESSAGES_KEY);
   }
 
-  public String getFirstInfoMessage(Model model) {
-    String message = null;
-    @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
-    if (messages != null) {
-      message = messages.get(0);
-    }
-    return message;
-  }
-
-  public String getFirstInfoMessage(RedirectAttributes model) {
-    String message = null;
-    @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.getFlashAttributes().get(INFO_MESSAGES_KEY);
-    if (messages != null) {
-      message = messages.get(0);
-    }
-    return message;
-  }
-
   private void addMessage(Model model, String message, String messageType) {
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.asMap().get(messageType);
