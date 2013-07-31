@@ -35,9 +35,9 @@
                                 <div class="span6">
                                     <dl class="dl-horizontal">
                                         <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
-                                        <dd class="nsiStpId"><c:out value="${item.nsiStpIdV1}"/></dd>
+                                        <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
                                         <dt><spring:message code="label_virtualport_nsi2stpid"/></dt>
-                                        <dd><c:out value="${item.nsiStpIdV2}"/></dd>
+                                        <dd class="nsiV2StpId"><c:out value="${item.nsiStpIdV2}"/></dd>
                                     </dl>
                                 </div>
                                 <div class="span6">

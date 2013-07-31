@@ -44,6 +44,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
@@ -120,7 +121,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     String oauthToken = "f00f";
 
     connectionServiceProviderPort = createPort(oauthToken);
-    virtualPortIds = getUserDriver().getVirtualPortIds();
+    virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
     sourceStp = ConnectionsV2.toStpType(virtualPortIds.get(0));

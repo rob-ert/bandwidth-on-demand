@@ -33,6 +33,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
@@ -326,10 +327,10 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     return tokensPage.getToken().get();
   }
 
-  public List<String> getVirtualPortIds(){
+  public List<String> getVirtualPortIds(final NsiVersion nsiVersion){
     DashboardPage dashboardPage = getDashboardPage();
     ListVirtualPortPage listVirtualPortPage = dashboardPage.clickVirtualPortsLink();
-    return listVirtualPortPage.getAllVirtualPortIds();
+    return listVirtualPortPage.getAllNsiStpIds(nsiVersion);
   }
 
 }

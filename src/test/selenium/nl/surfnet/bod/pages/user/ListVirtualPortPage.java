@@ -25,6 +25,7 @@ package nl.surfnet.bod.pages.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.openqa.selenium.WebElement;
@@ -70,12 +71,19 @@ public class ListVirtualPortPage extends AbstractListPage {
     super.verifyIsCurrentPage(PAGE);
   }
 
-  public List<String> getAllVirtualPortIds() {
+  public List<String> getAllNsiStpIds(final NsiVersion nsiVersion) {
+
+    String cssClassName = "nsiV2StpId";
+    if (nsiVersion == NsiVersion.ONE){
+      cssClassName = "nsiV1StpId";
+    }
+
     // their details which we are after actually have to be visible
     for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
       moreLink.click();
     }
-    List<WebElement> ddElements = getDriver().findElementsByClassName("nsiStpId");
+
+    List<WebElement> ddElements = getDriver().findElementsByClassName(cssClassName);
     List<String> virtualPortIds = new ArrayList<>();
     for(WebElement webElement: ddElements) {
       virtualPortIds.add(webElement.getText());
