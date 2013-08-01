@@ -32,15 +32,13 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.Collection;
 
+import com.google.common.collect.Iterables;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
-
 import org.hamcrest.Matcher;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.google.common.collect.Iterables;
 
 public class GroupOpenSocialServiceTestIntegration {
 
@@ -49,22 +47,22 @@ public class GroupOpenSocialServiceTestIntegration {
   private GroupOpenSocialService subject = new GroupOpenSocialService();
 
   @Test
-  @Ignore("Test is to unsable so the test fails often")
-  public void retreiveGroupsFromApiForTest() {
-    verifyRetreiveGroups(testEnvironment(), containsString("urn:collab:group:test.surfteams"));
+  @Ignore("Underlying service too unstable")
+  public void retrieveGroupsFromApiForTest() {
+    verifyRetrieveGroups(testEnvironment(), containsString("urn:collab:group:test.surfteams"));
   }
 
   @Test
-  public void retreiveGroupsFromApiForAcc() {
-    verifyRetreiveGroups(accEnvironment(), containsString("urn:collab:group:surfteams"));
+  public void retrieveGroupsFromApiForAcc() {
+    verifyRetrieveGroups(accEnvironment(), containsString("urn:collab:group:surfteams"));
   }
 
   @Test
-  public void retreiveGroupsFromApiForProd() {
-    verifyRetreiveGroups(prodEnvironment(), containsString("urn:collab:group:surfteams"));
+  public void retrieveGroupsFromApiForProd() {
+    verifyRetrieveGroups(prodEnvironment(), containsString("urn:collab:group:surfteams"));
   }
 
-  private void verifyRetreiveGroups(Environment env, Matcher<String> matcher) {
+  private void verifyRetrieveGroups(Environment env, Matcher<String> matcher) {
     subject.setEnvironment(env);
 
     Collection<UserGroup> groups = subject.getGroups(NAME_ID);
