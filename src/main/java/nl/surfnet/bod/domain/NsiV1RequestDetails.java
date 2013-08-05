@@ -31,8 +31,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
@@ -81,16 +79,6 @@ public class NsiV1RequestDetails {
 
   public String getCorrelationId() {
     return correlationId;
-  }
-
-  @VisibleForTesting
-  Long getId() {
-    return id;
-  }
-
-  @VisibleForTesting
-  void setId(Long id) {
-    this.id = id;
   }
 
   @Override

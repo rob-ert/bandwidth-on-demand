@@ -23,7 +23,6 @@
 package nl.surfnet.bod.domain;
 
 import nl.surfnet.bod.support.ConnectionV1Factory;
-import nl.surfnet.bod.support.NsiV1RequestDetailsFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
