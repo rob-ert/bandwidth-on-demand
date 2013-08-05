@@ -35,7 +35,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManagerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.google.common.base.Optional;
@@ -117,7 +116,6 @@ public class ConnectionServiceProviderTestIntegration {
   @Resource private InstituteRepo instituteRepo;
   @Resource private ConnectionV1Repo connectionRepo;
   @Resource private ReservationService reservationService;
-  @Resource private EntityManagerFactory entityManagerFactory;
   @Resource private ReservationPoller reservationPoller;
   @Resource private NbiOpenDracOfflineClient nbiOfflineClient;
 
@@ -199,7 +197,7 @@ public class ConnectionServiceProviderTestIntegration {
 
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.RESERVED);
+    Awaitility.await().until(internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.RESERVED));
     Reservation reservation = reservationService.find(connection.getReservation().getId());
 
     assertThat(reservation.getStartDateTime(), is(start));
@@ -230,7 +228,7 @@ public class ConnectionServiceProviderTestIntegration {
     awaitReserveConfirmed();
 
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.RESERVED);
+    Awaitility.await().until(internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.RESERVED));
     Reservation reservation = reservationService.find(connection.getReservation().getId());
 
     assertThat(reservation.getStartDateTime().getZone().getOffset(reservation.getStartDateTime().getMillis()), is(jvmOffesetInMillis));
@@ -334,7 +332,7 @@ public class ConnectionServiceProviderTestIntegration {
     nsiProvider.provision(provisionRequest);
 
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
-
+    Awaitility.await().until(internalConnectionStateIs(connectionId, ConnectionStateType.PROVISIONED));
     awaitProvisionConfirmed();
 
     nsiProvider.provision(provisionRequest);
@@ -358,12 +356,8 @@ public class ConnectionServiceProviderTestIntegration {
         });
 
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
+    Awaitility.await().until(internalConnectionStateIs(connectionId, ConnectionStateType.SCHEDULED));
 
-    Thread.sleep(500);
-    ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.SCHEDULED));
-
-    //internalConnectionStateIs(connectionId, ConnectionStateType.SCHEDULED); // doing this causes postgres deadlocks
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
@@ -469,10 +463,10 @@ public class ConnectionServiceProviderTestIntegration {
     Security.setUserDetails(userDetails);
   }
 
-  private void assertStates(final String connectionId, final ReservationStatus reservationStatus, final ConnectionStateType connectionState) {
+  private void assertStates(final String connectionId, final ReservationStatus reservationStatus, final ConnectionStateType connectionState) throws Exception {
     ConnectionV1 connection = connectionRepo.findByConnectionId(connectionId);
-    internalConnectionStateIs(connectionId, connectionState);
-    internalReservationStateIs(connection.getReservation().getId(), reservationStatus);
+    Awaitility.await().until(internalConnectionStateIs(connectionId, connectionState));
+    Awaitility.await().until(internalReservationStateIs(connection.getReservation().getId(), reservationStatus));
   }
 
   private Callable<Boolean> internalConnectionStateIs(final String connectionId, final ConnectionStateType connectionStateType) {
