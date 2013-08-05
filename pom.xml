@@ -826,7 +826,7 @@
                                     <value>true</value>
                                 </systemProperty>
                             </systemProperties>
-                            <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
+                            <systemPropertiesFile>src/main/resources/env-properties/bod-selenium.properties</systemPropertiesFile>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <connectors>
                                 <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
