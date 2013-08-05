@@ -68,7 +68,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
     FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
         entityClass);
 
-    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText).getResultList();
+    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotatedFields(searchText).getResultList();
   }
 
   /**

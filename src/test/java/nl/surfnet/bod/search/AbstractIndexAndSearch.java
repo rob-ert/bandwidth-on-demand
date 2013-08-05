@@ -76,7 +76,7 @@ public abstract class AbstractIndexAndSearch<T> {
 
   @SuppressWarnings("unchecked")
   protected List<T> searchFor(String query) throws ParseException {
-    return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query)
+    return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotatedFields(query)
         .getResultList();
   }
 

@@ -60,7 +60,7 @@ public class FullTextSearchContext<T> {
     this.analyzer = getAnalyzer("customanalyzer");
   }
 
-  public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword) throws ParseException {
+  public FullTextQuery getFullTextQueryForKeywordOnAllAnnotatedFields(String keyword) throws ParseException {
 
     String[] indexedFields = findAllIndexedFields(entity);
 
