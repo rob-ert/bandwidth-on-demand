@@ -516,7 +516,7 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>1.2.0.Final</version>
-            <scope>provided</scope> <!-- Make sure this jar does not end up on the classpath at runtime -->
+            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
 
