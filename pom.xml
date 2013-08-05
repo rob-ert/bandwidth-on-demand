@@ -430,7 +430,7 @@
             <artifactId>c3p0</artifactId>
             <version>0.9.1.2</version>
         </dependency>
-        <!-- End Databse dependencies -->
+        <!-- End Database dependencies -->
 
         <!-- JAX-WS -->
         <dependency>
