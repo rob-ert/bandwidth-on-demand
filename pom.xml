@@ -634,6 +634,8 @@
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
                     </connectors>
+                    <stopKey/>
+                    <stopPort/>
                 </configuration>
             </plugin>
             <plugin>
@@ -712,8 +714,10 @@
                     <password />
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost/bod</url>
-                    <basePackage>nl.surfnet.bod.db.migration</basePackage>
                     <initOnMigrate>true</initOnMigrate>
+                    <locations>
+                        <location>nl.surfnet.bod.db.migration</location>
+                    </locations>
                 </configuration>
             </plugin>
             <plugin>
@@ -764,7 +768,7 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>${gatling.version}</version>
                 <configuration>
-                    <configFile>src/test/gatling/gatling.conf</configFile>
+                    <configDir>src/test/gatling/gatling.conf</configDir>
                     <dataFolder>src/test/gatling/data</dataFolder>
                     <resultsFolder>target/gatling</resultsFolder>
                     <simulationsFolder>src/test/gatling/simulations</simulationsFolder>
@@ -834,6 +838,8 @@
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
                             </connectors>
+                            <stopKey/>
+                            <stopPort/>
                         </configuration>
                     </plugin>
                 </plugins>
