@@ -127,8 +127,8 @@ class NsiV2ReserveRequestSimulation extends Simulation {
   private def wrap(body: Elem) =
     <soapenv:Envelope
       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-      xmlns:head="http://schemas.ogf.org/nsi/2013/04/framework/headers"
-      xmlns:type="http://schemas.ogf.org/nsi/2013/04/connection/types">
+      xmlns:head="http://schemas.ogf.org/nsi/2013/07/framework/headers"
+      xmlns:type="http://schemas.ogf.org/nsi/2013/07/connection/types">
       <soapenv:Header>
         <head:nsiHeader>
           <protocolVersion>2.0</protocolVersion>

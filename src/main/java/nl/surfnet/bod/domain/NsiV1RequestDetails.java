@@ -38,7 +38,7 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 
 @Entity
 @Indexed

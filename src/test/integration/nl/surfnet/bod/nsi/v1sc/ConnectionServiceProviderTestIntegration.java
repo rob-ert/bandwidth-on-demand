@@ -439,7 +439,7 @@ public class ConnectionServiceProviderTestIntegration {
   }
 
   private VirtualPort createVirtualPort(VirtualResourceGroup virtualResourceGroup, PhysicalPort port) {
-    VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(port).setVirtualResourceGroup(virtualResourceGroup).create();
+    VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100L).setPhysicalPort(port).setVirtualResourceGroup(virtualResourceGroup).create();
     vPort = virtualPortRepo.save(vPort);
     virtualResourceGroup.addVirtualPort(vPort);
     virtualResourceGroupRepo.save(virtualResourceGroup);

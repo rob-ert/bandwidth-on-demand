@@ -302,7 +302,7 @@ public class VirtualPortControllerTest {
   public void createShouldAddCreateCommandToModel() throws Exception {
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory()
       .setPhysicalResourceGroup(prg)
-      .setMinBandwidth(1024).create();
+      .setMinBandwidth(1024L).create();
 
     when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
 

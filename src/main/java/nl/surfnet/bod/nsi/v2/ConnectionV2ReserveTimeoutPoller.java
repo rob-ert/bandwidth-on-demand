@@ -31,7 +31,7 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ReservationService;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

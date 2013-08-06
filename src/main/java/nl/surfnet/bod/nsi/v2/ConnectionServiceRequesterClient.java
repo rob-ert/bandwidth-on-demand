@@ -38,22 +38,22 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 import nl.surfnet.bod.util.JaxbUserType;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._04.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReserveTimeoutRequestType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._07.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -69,7 +69,7 @@ class ConnectionServiceRequesterClient {
   @Resource private ConnectionServiceRequesterAsyncClient asyncClient;
 
   private static String soapAction(String action) {
-    return "http://schemas.ogf.org/nsi/2013/04/connection/service/" + action;
+    return "http://schemas.ogf.org/nsi/2013/07/connection/service/" + action;
   }
 
   public void replyReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, Optional<URI> replyTo) {

@@ -35,12 +35,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.CREATED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.TERMINATED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.PROVISIONED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.RELEASED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_HELD;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_START;
 
 import java.net.URI;
 import java.util.Collections;
@@ -52,7 +52,6 @@ import javax.xml.ws.Holder;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -71,18 +70,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairListType;
+import org.ogf.schemas.nsi._2013._07.connection.provider.QuerySummarySyncFailed;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.types.TypeValuePairListType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
@@ -113,11 +111,14 @@ public class ConnectionServiceProviderV2WsTest {
     Holder<String> connectionIdHolder = new Holder<>();
 
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
-    criteria.getPath().getSourceSTP().setLabels(new TypeValuePairListType());
+    P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
+    service.getSourceSTP().setLabels(new TypeValuePairListType());
+    criteria.getAny().clear();
+    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
     try {
       subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
-      fail();
-    } catch (ServiceException e) {
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
     }
 
   }
@@ -127,11 +128,14 @@ public class ConnectionServiceProviderV2WsTest {
     Holder<String> connectionIdHolder = new Holder<>();
 
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
-    criteria.getPath().getDestSTP().setLabels(new TypeValuePairListType());
+    P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
+    service.getDestSTP().setLabels(new TypeValuePairListType());
+    criteria.getAny().clear();
+    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
     try {
       subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
-      fail();
-    } catch (ServiceException e) {
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
     }
   }
 
@@ -147,7 +151,7 @@ public class ConnectionServiceProviderV2WsTest {
     ArgumentCaptor<ConnectionV2> connection = ArgumentCaptor.forClass(ConnectionV2.class);
     ArgumentCaptor<NsiV2RequestDetails> nsiRequestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
     verify(connectionService).reserve(connection.capture(), nsiRequestDetails.capture(), eq(Security.getUserDetails()));
-    assertThat(connection.getValue().getDesiredBandwidth(), is(100));
+    assertThat(connection.getValue().getDesiredBandwidth(), is(100L));
     assertThat(connection.getValue().getGlobalReservationId(), is("globalReservationId"));
     assertThat(connection.getValue().getReservationState(), is(nullValue()));
     assertThat(connection.getValue().getReserveVersion(), is(3));
@@ -166,7 +170,10 @@ public class ConnectionServiceProviderV2WsTest {
   public void should_reject_a_reserve_with_directionality_unidirectional() throws Exception {
     Holder<String> connectionIdHolder = new Holder<>();
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
-    criteria.getPath().setDirectionality(DirectionalityType.UNIDIRECTIONAL);
+    P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
+    service.setDirectionality(DirectionalityType.UNIDIRECTIONAL);
+    criteria.getAny().clear();
+    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
 
     thrown.expect(ServiceException.class);
     thrown.expectMessage(allOf(containsString("Directionality"), containsString("not supported")));
@@ -407,7 +414,7 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(result.getCriteria(), hasSize(1));
     QuerySummaryResultCriteriaType criteria = result.getCriteria().get(0);
     assertThat(criteria.getVersion(), is(3));
-    assertThat(criteria.getBandwidth(), is(100));
+    assertThat(ConnectionsV2.findPointToPointService(criteria.getAny()).get().getCapacity(), is(100L));
   }
 
   @Test
@@ -428,16 +435,13 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   private ReservationRequestCriteriaType initialReservationCriteria() {
-    return new ReservationRequestCriteriaType()
-        .withBandwidth(100)
-        .withPath(
-            new PathType().
-              withSourceSTP(
-                  new StpType().withNetworkId("networkId").withLocalId("source")).
-              withDestSTP(
-                  new StpType().withNetworkId("networkId").withLocalId("dest")))
+    ReservationRequestCriteriaType result = new ReservationRequestCriteriaType()
         .withSchedule(new ScheduleType())
-        .withServiceAttributes(new ServiceAttributesType())
         .withVersion(3);
+    ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
+        .withCapacity(100)
+        .withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source"))
+        .withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest")));
+    return result;
   }
 }

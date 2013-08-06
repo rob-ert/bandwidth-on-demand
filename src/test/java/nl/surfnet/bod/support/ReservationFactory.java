@@ -45,7 +45,7 @@ public class ReservationFactory {
   private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
   private DateTime endDateTime = startDateTime.plusDays(1).plus(WebUtils.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
-  private Integer bandwidth = 10000;
+  private Long bandwidth = 10000L;
   private String reservationId = "9" + String.valueOf(id);
   private String failedReason;
   private String cancelReason;
@@ -177,7 +177,7 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setBandwidth(Integer bandwidth) {
+  public ReservationFactory setBandwidth(Long bandwidth) {
     this.bandwidth = bandwidth;
     return this;
   }

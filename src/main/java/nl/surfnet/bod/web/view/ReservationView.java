@@ -33,7 +33,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
 
 public class ReservationView {
   private final Long id;
@@ -48,7 +48,7 @@ public class ReservationView {
   private final DateTime startDateTime;
   @JsonSerialize(using = JsonDateTimeSerializer.class)
   private final DateTime endDateTime;
-  private final Integer bandwidth;
+  private final Long bandwidth;
   private final String userCreated;
   private final String reservationId;
   private final String connectionId;
@@ -145,7 +145,7 @@ public class ReservationView {
     return endDateTime;
   }
 
-  public Integer getBandwidth() {
+  public Long getBandwidth() {
     return bandwidth;
   }
 

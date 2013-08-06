@@ -189,7 +189,7 @@ public class VirtualPortServiceTest {
 
     ArgumentCaptor<VirtualPortRequestLink> request = ArgumentCaptor.forClass(VirtualPortRequestLink.class);
 
-    subject.requestNewVirtualPort(user, vrg, prg, "new port", 1000, "I would like to have this port, now");
+    subject.requestNewVirtualPort(user, vrg, prg, "new port", 1000L, "I would like to have this port, now");
 
     verify(virtualPortRequestLinkRepoMock).save(request.capture());
     VirtualPortRequestLink link = request.getValue();
@@ -197,7 +197,7 @@ public class VirtualPortServiceTest {
     verify(emailSenderMock).sendVirtualPortRequestMail(user, link);
 
     assertThat(link.getMessage(), is("I would like to have this port, now"));
-    assertThat(link.getMinBandwidth(), is(1000));
+    assertThat(link.getMinBandwidth(), is(1000L));
     assertThat(link.getRequestorEmail(), is(user.getEmail().get()));
     assertThat(link.getRequestorName(), is(user.getDisplayName()));
     assertThat(link.getPhysicalResourceGroup(), is(prg));

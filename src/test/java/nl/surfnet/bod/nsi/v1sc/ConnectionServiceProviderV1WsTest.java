@@ -98,7 +98,7 @@ public class ConnectionServiceProviderV1WsTest {
     ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
-    assertThat(connection.getDesiredBandwidth(), is(1000));
+    assertThat(connection.getDesiredBandwidth(), is(1000L));
   }
 
   @Test

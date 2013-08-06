@@ -36,7 +36,7 @@ import javax.xml.ws.Service.Mode;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
-import org.ogf.schemas.nsi._2013._04.connection.requester.ConnectionServiceRequester;
+import org.ogf.schemas.nsi._2013._07.connection.requester.ConnectionServiceRequester;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
@@ -72,7 +72,7 @@ class ConnectionServiceRequesterAsyncClient {
   }
 
   private Dispatch<SOAPMessage> createDispatcher() {
-    return new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/04/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
+    return new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/07/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
   }
 
   private URL wsdlUrl() {

@@ -86,7 +86,7 @@ public class VirtualPort implements Loggable, PersistableDomain {
   @Field
   @NotNull
   @Column(nullable = false)
-  private Integer maxBandwidth;
+  private Long maxBandwidth;
 
   @Field
   @Range(min = 1, max = 4095)
@@ -137,11 +137,11 @@ public class VirtualPort implements Loggable, PersistableDomain {
     return physicalPort == null ? null : physicalPort.getPhysicalResourceGroup();
   }
 
-  public Integer getMaxBandwidth() {
+  public Long getMaxBandwidth() {
     return maxBandwidth;
   }
 
-  public void setMaxBandwidth(Integer maxBandwidth) {
+  public void setMaxBandwidth(Long maxBandwidth) {
     this.maxBandwidth = maxBandwidth;
   }
 

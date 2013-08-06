@@ -26,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -215,7 +216,7 @@ public class VirtualPortRequestControllerTest {
     command.setUserLabel("new port");
     command.setPhysicalResourceGroupId(2L);
     command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1000);
+    command.setBandwidth(1000L);
     command.setMessage("message");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(vGroup);
@@ -225,7 +226,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/user"));
 
-    verify(virtualPortServiceMock).requestNewVirtualPort(user, vGroup, pGroup, "new port", 1000, "message");
+    verify(virtualPortServiceMock).requestNewVirtualPort(user, vGroup, pGroup, "new port", 1000L, "message");
   }
 
   @Test
@@ -236,7 +237,7 @@ public class VirtualPortRequestControllerTest {
     RequestCommand command = new RequestCommand(pGroup);
     command.setPhysicalResourceGroupId(2L);
     command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111);
+    command.setBandwidth(1111L);
     command.setUserLabel("new port");
     command.setMessage("I want!");
 
@@ -249,7 +250,7 @@ public class VirtualPortRequestControllerTest {
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
-        eq("new port"), eq(1111), eq("I want!"));
+        eq("new port"), eq(1111L), eq("I want!"));
   }
 
   @Test
@@ -262,7 +263,7 @@ public class VirtualPortRequestControllerTest {
     command.setUserLabel("new port");
     command.setPhysicalResourceGroupId(2L);
     command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111);
+    command.setBandwidth(1111L);
     command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
@@ -274,7 +275,7 @@ public class VirtualPortRequestControllerTest {
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
-        eq("new port"), eq(1111), eq("I want!"));
+        eq("new port"), eq(1111L), eq("I want!"));
   }
 
   @Test
@@ -290,7 +291,7 @@ public class VirtualPortRequestControllerTest {
     command.setPhysicalResourceGroupId(2L);
     command.setUserLabel("port");
     command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111);
+    command.setBandwidth(1111L);
     command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
@@ -302,7 +303,7 @@ public class VirtualPortRequestControllerTest {
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
-        eq("port"), eq(1111), eq("I want!"));
+        eq("port"), eq(1111L), eq("I want!"));
   }
 
   @Test
@@ -321,7 +322,7 @@ public class VirtualPortRequestControllerTest {
 
   private void verifyNeverRequestNewVirtualPort() {
     verify(virtualPortServiceMock, never()).requestNewVirtualPort(any(RichUserDetails.class),
-        any(VirtualResourceGroup.class), any(PhysicalResourceGroup.class), anyString(), anyInt(), anyString());
+        any(VirtualResourceGroup.class), any(PhysicalResourceGroup.class), anyString(), anyLong(), anyString());
   }
 
 }

@@ -39,7 +39,7 @@ public class VirtualPortFactory {
   private String managerLabel = "A virtual port " + id;
   private String userLabel = "A user virtual port " + id;;
   private PhysicalPort physicalPort;
-  private Integer maxBandwidth = 10000;
+  private Long maxBandwidth = 10000L;
   private Integer vlanId = null;
   private VirtualResourceGroup virtualResourceGroup;
 
@@ -113,7 +113,7 @@ public class VirtualPortFactory {
     return this;
   }
 
-  public VirtualPortFactory setMaxBandwidth(Integer maxBandwidth) {
+  public VirtualPortFactory setMaxBandwidth(Long maxBandwidth) {
     this.maxBandwidth = maxBandwidth;
     return this;
   }

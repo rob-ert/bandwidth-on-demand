@@ -36,9 +36,9 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 
 public class ReservationViewTest {
 

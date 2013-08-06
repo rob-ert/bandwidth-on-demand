@@ -99,7 +99,7 @@ public class EmailSenderOnlineTest {
     RichUserDetails user = new RichUserDetailsFactory().create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
-    Integer bandwidth = 1000;
+    Long bandwidth = 1000L;
     String requestMessage = "I would like to have a port.";
 
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)
@@ -125,7 +125,7 @@ public class EmailSenderOnlineTest {
     RichUserDetails user = new RichUserDetailsFactory().setEmail(null).create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
-    Integer bandwidth = 1000;
+    Long bandwidth = 1000L;
     String requestMessage = "I would like to have a port.";
 
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)

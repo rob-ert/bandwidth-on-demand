@@ -39,7 +39,7 @@ public class VirtualPortRequestLinkFactory {
   private final String requestorEmail = "truus@visscher.nl";
   private String uuid;
   private String message = "I would like to have a new virtual port to do my work.";
-  private Integer minBandwidth = 1000;
+  private Long minBandwidth = 1000L;
   private RequestStatus status = RequestStatus.PENDING;
 
   public VirtualPortRequestLink create() {
@@ -67,7 +67,7 @@ public class VirtualPortRequestLinkFactory {
     return this;
   }
 
-  public VirtualPortRequestLinkFactory setMinBandwidth(Integer minBandwidth) {
+  public VirtualPortRequestLinkFactory setMinBandwidth(Long minBandwidth) {
     this.minBandwidth = minBandwidth;
     return this;
   }

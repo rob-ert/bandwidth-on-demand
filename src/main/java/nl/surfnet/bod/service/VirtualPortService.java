@@ -225,7 +225,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
-      String userLabel, Integer minBandwidth, String message) {
+      String userLabel, Long minBandwidth, String message) {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
     link.setVirtualResourceGroup(vGroup);
     link.setPhysicalResourceGroup(pGroup);

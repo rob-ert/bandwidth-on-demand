@@ -79,7 +79,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void negativeBandwidth() {
-    virtualPort.setMaxBandwidth(-1);
+    virtualPort.setMaxBandwidth(-1L);
     Errors errors = createErrorObject(virtualPort);
 
     subject.validate(virtualPort, errors);
@@ -90,7 +90,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void zeroBandwidth() {
-    virtualPort.setMaxBandwidth(0);
+    virtualPort.setMaxBandwidth(0L);
     Errors errors = createErrorObject(virtualPort);
 
     subject.validate(virtualPort, errors);
@@ -101,7 +101,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void minimalBandwidth() {
-    virtualPort.setMaxBandwidth(1);
+    virtualPort.setMaxBandwidth(1L);
     Errors errors = createErrorObject(virtualPort);
 
     subject.validate(virtualPort, errors);

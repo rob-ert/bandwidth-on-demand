@@ -100,7 +100,7 @@ public class Reservation implements Loggable, PersistableDomain {
   @NotNull
   @Column(nullable = false)
   @Field
-  private Integer bandwidth;
+  private Long bandwidth;
 
   @Basic
   @Field
@@ -346,11 +346,11 @@ public class Reservation implements Loggable, PersistableDomain {
     this.startDateTime = startDateTime;
   }
 
-  public Integer getBandwidth() {
+  public Long getBandwidth() {
     return bandwidth;
   }
 
-  public void setBandwidth(Integer bandwidth) {
+  public void setBandwidth(Long bandwidth) {
     this.bandwidth = bandwidth;
   }
 

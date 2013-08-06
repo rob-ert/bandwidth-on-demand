@@ -79,7 +79,7 @@ public class VirtualPortRequestLink implements Loggable {
 
   private String message;
 
-  private Integer minBandwidth;
+  private Long minBandwidth;
 
   @Override
   public Long getId() {
@@ -138,11 +138,11 @@ public class VirtualPortRequestLink implements Loggable {
     this.message = message;
   }
 
-  public Integer getMinBandwidth() {
+  public Long getMinBandwidth() {
     return minBandwidth;
   }
 
-  public void setMinBandwidth(Integer minBandwidth) {
+  public void setMinBandwidth(Long minBandwidth) {
     this.minBandwidth = minBandwidth;
   }
 

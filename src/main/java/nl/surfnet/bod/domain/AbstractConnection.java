@@ -89,7 +89,7 @@ public abstract class AbstractConnection implements Connection {
 
   @Column(nullable = false)
   @Field
-  protected int desiredBandwidth;
+  protected long desiredBandwidth;
 
   @Column(nullable = false)
   @Field
@@ -173,11 +173,11 @@ public abstract class AbstractConnection implements Connection {
     this.endTime = endTime;
   }
 
-  public int getDesiredBandwidth() {
+  public long getDesiredBandwidth() {
     return desiredBandwidth;
   }
 
-  public void setDesiredBandwidth(int desiredBandwidth) {
+  public void setDesiredBandwidth(long desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
   }
 

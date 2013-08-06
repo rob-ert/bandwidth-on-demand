@@ -33,20 +33,20 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.CREATED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.PASSED_END_TIME;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType.TERMINATING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.PROVISIONING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType.RELEASED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_ABORTING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_CHECKING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_FAILED;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_HELD;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_START;
-import static org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.CREATED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.PASSED_END_TIME;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.TERMINATED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.TERMINATING;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.PROVISIONED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.PROVISIONING;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.RELEASED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_ABORTING;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_CHECKING;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_COMMITTING;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_FAILED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_HELD;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_START;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
 
 import java.util.ArrayList;
 
@@ -68,9 +68,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 
 
 @RunWith(MockitoJUnitRunner.class)

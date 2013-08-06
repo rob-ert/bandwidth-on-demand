@@ -3,8 +3,8 @@
     <S:Header>
         <ns6:nsiHeader xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="http://www.w3.org/2001/04/xmlenc#"
                        xmlns:ns4="urn:oasis:names:tc:SAML:2.0:assertion"
-                       xmlns:ns5="http://schemas.ogf.org/nsi/2013/04/connection/types"
-                       xmlns:ns6="http://schemas.ogf.org/nsi/2013/04/framework/headers">
+                       xmlns:ns5="http://schemas.ogf.org/nsi/2013/07/connection/types"
+                       xmlns:ns6="http://schemas.ogf.org/nsi/2013/07/framework/headers">
             <protocolVersion>urn:2.0:FIXME</protocolVersion>
             <correlationId>urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6</correlationId>
             <requesterNSA>urn:ogf:network:nsa:foo</requesterNSA>
@@ -15,8 +15,8 @@
         <ns5:reserveConfirmed xmlns:ns2="http://www.w3.org/2000/09/xmldsig#"
                               xmlns:ns3="http://www.w3.org/2001/04/xmlenc#"
                               xmlns:ns4="urn:oasis:names:tc:SAML:2.0:assertion"
-                              xmlns:ns5="http://schemas.ogf.org/nsi/2013/04/connection/types"
-                              xmlns:ns6="http://schemas.ogf.org/nsi/2013/04/framework/headers">
+                              xmlns:ns5="http://schemas.ogf.org/nsi/2013/07/connection/types"
+                              xmlns:ns6="http://schemas.ogf.org/nsi/2013/07/framework/headers">
             <connectionId>2c1f448b-757f-4b4b-a4c6-8fba5e788dea</connectionId>
             <globalReservationId>urn:nl:surfnet:diensten:bod:9c03b5e1-b86c-44ce-83ac-a164541dbda2</globalReservationId>
             <description>NSI v2 Reservation</description>
