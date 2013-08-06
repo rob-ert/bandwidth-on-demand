@@ -470,9 +470,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Activates an existing reservation;
    *
-   * @param reservation
-   *          {@link Reservation} to activate
-   * @return true if the reservation was successfully activated, false otherwise
+   * @param reservation {@link Reservation} to activate
    */
   public void provision(Reservation reservation) {
     checkNotNull(reservation);
