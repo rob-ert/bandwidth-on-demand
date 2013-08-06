@@ -169,7 +169,6 @@ public class InstituteIddServiceTest {
 
     verify(instituteRepoMock).save(eq(Collections.<Institute> emptyList()));
 
-    // TODO setAlignedWithIDD Attribute is not matched
     verify(instituteRepoMock).save(
         argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z")
             .setAlignedWithIDD(true).create())));

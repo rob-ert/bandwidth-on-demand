@@ -66,7 +66,6 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<Reservation> root = criteriaQuery.from(Reservation.class);
-    // TODO get count
     criteriaQuery.distinct(true).select(root.get(Reservation_.id)).where(
         whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
 

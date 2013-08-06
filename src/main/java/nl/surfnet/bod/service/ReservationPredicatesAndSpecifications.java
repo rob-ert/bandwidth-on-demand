@@ -237,7 +237,6 @@ public final class ReservationPredicatesAndSpecifications {
     return spec;
   }
 
-  // TODO: Verify
   static Specification<Reservation> specReservationsThatAreTimedOutAndTransitionally(final DateTime startDateTime) {
     return new Specification<Reservation>() {
       @Override

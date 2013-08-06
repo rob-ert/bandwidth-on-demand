@@ -289,8 +289,8 @@ public class NbiOpenDracWsClient implements NbiClient {
    * Find by id is a little more complex, because the webservice only supports a
    * lookup by tna and not by NMS port id. In BoD the tna is locally stored as the
    * nocLabel field. This field can be edited. The tna can also be edited in
-   * OpenDRAC. So the only save thing todo is use the id. The service keeps a
-   * chache of id to tna.
+   * OpenDRAC. So the only save thing to do is use the id. The service keeps a
+   * cache of id to tna.
    */
   private EndpointT findEndPointById(String id) throws PortNotAvailableException {
     String tna = idToTnaCache.get(id);
