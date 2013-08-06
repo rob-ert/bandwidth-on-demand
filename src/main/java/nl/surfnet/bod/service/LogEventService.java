@@ -302,7 +302,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   public void logReservationStatusChangeEvent(RichUserDetails user, Reservation reservation, ReservationStatus oldStatus) {
     if (oldStatus != reservation.getStatus() && !oldStatus.canTransition(reservation.getStatus())) {
-      throw new IllegalArgumentException("Impossible status transition from " + oldStatus + " to " + reservation.getStatus());
+      throw new IllegalArgumentException("Illegal status-transition attempt for reservation " + reservation.getReservationId() + ": " + oldStatus + " => " + reservation.getStatus());
     }
     List<LogEvent> logEvents = new ArrayList<>();
     for (Transition<ReservationStatus> transition: oldStatus.transitionPath(reservation.getStatus())) {
