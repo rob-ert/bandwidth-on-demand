@@ -513,7 +513,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     PathRequestT pathRequest = PathRequestT.Factory.newInstance();
     pathRequest.setSourceTna(sourceTna);
     pathRequest.setTargetTna(destinationTna);
-    pathRequest.setRate(reservation.getBandwidth());
+    pathRequest.setRate(reservation.getBandwidth().intValue());
     pathRequest.setSourceVlanId(translateVlanId(virtualSourcePort));
     pathRequest.setTargetVlanId(translateVlanId(virtualDestinationPort));
     pathRequest.setRoutingAlgorithm(ROUTING_ALGORITHM);

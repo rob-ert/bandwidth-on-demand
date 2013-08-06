@@ -41,21 +41,21 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._04.connection.types.EventEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReserveTimeoutRequestType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._07.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,12 +73,7 @@ class ConnectionServiceRequesterV2 {
     connection.setReservationState(ReservationStateEnumType.RESERVE_HELD);
     connection.setReserveHeldTimeout(Optional.of(new DateTime().plusSeconds(connection.getReserveHeldTimeoutValue())));
 
-    ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
-      .withBandwidth(connection.getDesiredBandwidth())
-      .withPath(connection.getPath())
-      .withSchedule(connection.getSchedule())
-      .withServiceAttributes(connection.getServiceAttributes())
-      .withVersion(0);
+    ReservationConfirmCriteriaType criteria = connection.getCriteria();
 
     client.replyReserveConfirmed(
         requestDetails.getCommonHeaderType(PROTOCOL_VERSION),

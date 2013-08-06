@@ -45,10 +45,10 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;

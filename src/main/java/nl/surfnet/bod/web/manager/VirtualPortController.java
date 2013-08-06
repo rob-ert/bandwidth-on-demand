@@ -266,7 +266,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     private String managerLabel;
     @NotNull
     @Min(value = 1)
-    private Integer maxBandwidth;
+    private Long maxBandwidth;
     @Range(min = 1, max = 4095)
     private Integer vlanId;
     @NotNull
@@ -279,7 +279,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     public VirtualPortCommand() {
     }
 
-    public VirtualPortCommand(String managerLabel, Integer maxBandwidth, Integer vlanId,
+    public VirtualPortCommand(String managerLabel, Long maxBandwidth, Integer vlanId,
         PhysicalResourceGroup physicalResourceGroup, PhysicalPort physicalPort,
         VirtualResourceGroup virtualResourceGroup) {
       this.managerLabel = managerLabel;
@@ -298,11 +298,11 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       this.managerLabel = managerLabel;
     }
 
-    public Integer getMaxBandwidth() {
+    public Long getMaxBandwidth() {
       return maxBandwidth;
     }
 
-    public void setMaxBandwidth(Integer maxBandwidth) {
+    public void setMaxBandwidth(Long maxBandwidth) {
       this.maxBandwidth = maxBandwidth;
     }
 

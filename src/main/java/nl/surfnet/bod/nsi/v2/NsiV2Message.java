@@ -39,7 +39,7 @@ import javax.xml.soap.SOAPMessage;
 
 import nl.surfnet.bod.domain.PersistableDomain;
 
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 
 @Entity
 @Table(name = "nsi_v2_message")

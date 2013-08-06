@@ -27,7 +27,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 public final class VirtualPortJsonView {
   private final String managerLabel;
   private final String userLabel;
-  private final Integer maxBandwidth;
+  private final Long maxBandwidth;
   private final Integer vlanId;
   private final String virtualResourceGroupName;
   private Long id;
@@ -41,7 +41,7 @@ public final class VirtualPortJsonView {
     this.virtualResourceGroupName = port.getVirtualResourceGroup().getName();
   }
 
-  public Integer getMaxBandwidth() {
+  public Long getMaxBandwidth() {
     return maxBandwidth;
   }
 

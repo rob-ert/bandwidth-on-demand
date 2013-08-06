@@ -29,7 +29,7 @@ import com.google.common.base.Optional;
 public class VirtualPortView {
   private final Long id;
   private final String managerLabel;
-  private final Integer maxBandwidth;
+  private final Long maxBandwidth;
   private final Integer vlanId;
   private final String virtualResourceGroup;
   private final String physicalResourceGroup;
@@ -63,7 +63,7 @@ public class VirtualPortView {
     return managerLabel;
   }
 
-  public Integer getMaxBandwidth() {
+  public Long getMaxBandwidth() {
     return maxBandwidth;
   }
 

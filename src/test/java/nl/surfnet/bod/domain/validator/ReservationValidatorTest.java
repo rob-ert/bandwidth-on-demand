@@ -252,11 +252,11 @@ public class ReservationValidatorTest {
   @Test
   public void bandwidthShouldNotExceedMax() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
-    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(2000).create();
-    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(3000).create();
+    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(2000L).create();
+    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(3000L).create();
 
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
-        .setBandwidth(2500).create();
+        .setBandwidth(2500L).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
@@ -269,11 +269,11 @@ public class ReservationValidatorTest {
   @Test
   public void bandwidthShouldBeGreaterThanZero() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
-    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(2000).create();
-    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(3000).create();
+    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(2000L).create();
+    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).setMaxBandwidth(3000L).create();
 
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
-        .setBandwidth(0).create();
+        .setBandwidth(0L).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);

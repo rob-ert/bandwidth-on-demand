@@ -102,7 +102,7 @@ public class NocServiceTest {
     PhysicalPort newPort = new PhysicalPortFactory().create();
     VirtualPort vPort = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory()
-      .setBandwidth(150)
+      .setBandwidth(150L)
       .setName("My first reservation")
       .setStartDateTime(start)
       .setEndDateTime(end).create();
@@ -118,7 +118,7 @@ public class NocServiceTest {
     verify(reservationServiceMock).create(reservationCaptor.capture());
 
     Reservation newReservation = reservationCaptor.getValue();
-    assertThat(newReservation.getBandwidth(), is(150));
+    assertThat(newReservation.getBandwidth(), is(150L));
     assertThat(newReservation.getName(), is("My first reservation"));
     assertThat(newReservation.getStartDateTime(), is(start));
     assertThat(newReservation.getEndDateTime(), is(end));

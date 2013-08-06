@@ -50,31 +50,32 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
-import org.ogf.schemas.nsi._2013._04.connection.provider.QueryNotificationSyncFailed;
-import org.ogf.schemas.nsi._2013._04.connection.provider.QuerySummarySyncFailed;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryNotificationType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._04.framework.types.ServiceExceptionType;
-import org.ogf.schemas.nsi._2013._04.framework.types.TypeValuePairType;
-import org.ogf.schemas.nsi._2013._04.framework.types.VariablesType;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
+import org.ogf.schemas.nsi._2013._07.connection.provider.QueryNotificationSyncFailed;
+import org.ogf.schemas.nsi._2013._07.connection.provider.QuerySummarySyncFailed;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._07.framework.types.TypeValuePairType;
+import org.ogf.schemas.nsi._2013._07.framework.types.VariablesType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("connectionServiceProviderWs_v2")
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/provider")
 @SchemaValidation
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
@@ -96,17 +97,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     if (!Strings.isNullOrEmpty(connectionId.value)) {
       // sending reservation message while supplying a connectionId indicates a 'modify' request, which we don't support
       throw notImplemented();
-    }
-
-    if (criteria.getPath().getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
-      throw unsupportedParameter("Directionality", criteria.getPath().getDirectionality());
-    }
-
-    if (criteria.getPath().getSourceSTP().getLabels() != null ) {
-      throw unsupportedParameter("SourceSTP::labels", criteria.getPath().getSourceSTP().getLabels());
-    }
-    if (criteria.getPath().getDestSTP().getLabels() != null) {
-      throw unsupportedParameter("DestSTP::labels", criteria.getPath().getDestSTP().getLabels());
     }
 
     ConnectionV2 connection = createConnection(
@@ -135,9 +125,21 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiV2RequestDetails requestDetails,
-      String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) {
+      String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) throws ServiceException {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(xmlCalendarToDateTime);
+
+    P2PServiceBaseType service = extractService(criteria);
+    if (service.getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
+      throw unsupportedParameter("Directionality", service.getDirectionality());
+    }
+
+    if (service.getSourceSTP().getLabels() != null ) {
+      throw unsupportedParameter("SourceSTP::labels", service.getSourceSTP().getLabels());
+    }
+    if (service.getDestSTP().getLabels() != null) {
+      throw unsupportedParameter("DestSTP::labels", service.getDestSTP().getLabels());
+    }
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());
@@ -145,19 +147,27 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setDescription(description.orNull());
     connection.setStartTime(startTime.orNull());
     connection.setEndTime(endTime.orNull());
-    connection.setDesiredBandwidth(criteria.getBandwidth());
+    connection.setDesiredBandwidth(service.getCapacity());
     connection.setProtectionType(ProtectionType.PROTECTED.name());
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
     connection.setInitialReserveRequestDetails(requestDetails);
     connection.setLastReservationRequestDetails(requestDetails);
     connection.setReserveVersion(criteria.getVersion());
-    connection.setPath(criteria.getPath());
-    connection.setServiceAttributes(criteria.getServiceAttributes());
+    connection.setCriteria(criteria);
     connection.setReserveHeldTimeoutValue(bodEnvironment.getNsiReserveHeldTimeoutValueInSeconds());
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
 
     return connection;
+  }
+
+  private P2PServiceBaseType extractService(ReservationConfirmCriteriaType criteria) throws ServiceException {
+    Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(criteria);
+    if (service.isPresent()) {
+      return service.get();
+    } else {
+      throw unsupportedParameter("Unsupported service type", criteria.getAny());
+    }
   }
 
   @Override
@@ -368,22 +378,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {
-    if (criteria.getBandwidth() == null) {
-      throw missingParameter("bandwidth");
-    }
-    if (criteria.getPath() == null) {
-      throw missingParameter("path");
-    }
     if (criteria.getSchedule() == null) {
       throw missingParameter("schedule");
     }
-    if (criteria.getServiceAttributes() == null) {
-      throw missingParameter("serviceAttributes");
-    }
 
-    return new ReservationConfirmCriteriaType().withBandwidth(criteria.getBandwidth()).withPath(criteria.getPath())
-        .withSchedule(criteria.getSchedule()).withServiceAttributes(criteria.getServiceAttributes())
-        .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
+    return new ReservationConfirmCriteriaType()
+      .withAny(criteria.getAny())
+      .withSchedule(criteria.getSchedule())
+      .withServiceType(criteria.getServiceType())
+      .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
   }
 
   private void updateHeadersForReply(Holder<CommonHeaderType> header) {

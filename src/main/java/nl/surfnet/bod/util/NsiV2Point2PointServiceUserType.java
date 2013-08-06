@@ -26,23 +26,23 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-public class NsiV2UserType<T> extends JaxbUserType<T> {
+public class NsiV2Point2PointServiceUserType<T> extends JaxbUserType<T> {
 
   private static JAXBContext jaxbContext;
 
   static {
     try {
-      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._07.connection.types:org.ogf.schemas.nsi._2013._07.framework.headers:org.ogf.schemas.nsi._2013._07.framework.types");
+      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._07.services.point2point");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public NsiV2UserType(QName xmlRootElementName, Class<T> type) {
+  public NsiV2Point2PointServiceUserType(QName xmlRootElementName, Class<T> type) {
     super(jaxbContext, xmlRootElementName, type);
   }
 
-  public NsiV2UserType(JAXBElement<T> nullJaxbElement) {
+  public NsiV2Point2PointServiceUserType(JAXBElement<T> nullJaxbElement) {
     this(nullJaxbElement.getName(), nullJaxbElement.getDeclaredType());
   }
 

@@ -30,7 +30,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -45,7 +44,6 @@ import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class JaxbUserType<T> implements UserType {
 
@@ -69,6 +67,48 @@ public class JaxbUserType<T> implements UserType {
     return type;
   }
 
+  public T fromXmlString(String string) {
+    if (string == null) {
+      return null;
+    }
+    try (InputStream input = IOUtils.toInputStream(string, "UTF-8")) {
+      return jaxbContext.createUnmarshaller().unmarshal(new StreamSource(input), type).getValue();
+    } catch (JAXBException | IOException e) {
+      throw new IllegalArgumentException("failed to deserialize: " + string, e);
+    }
+  }
+
+  public String toXmlString(T value) {
+    if (value == null) {
+      return null;
+    }
+    try (StringWriter writer = new StringWriter()) {
+      jaxbContext.createMarshaller().marshal(new JAXBElement<>(xmlRootElementName, type, value), writer);
+      return writer.toString();
+    } catch (JAXBException | IOException e) {
+      throw new IllegalArgumentException("failed to serialize: " + value, e);
+    }
+  }
+
+  public T fromDomElement(Element element) {
+    try {
+      return jaxbContext.createUnmarshaller().unmarshal(element, type).getValue();
+    } catch (JAXBException e) {
+      throw new IllegalArgumentException("failed to deserialize: " + element, e);
+    }
+  }
+
+  public Element toDomElement(T value) {
+    try {
+    JAXBElement<T> jaxb = new JAXBElement<>(xmlRootElementName, type, value);
+    DOMResult result = new DOMResult();
+    jaxbContext.createMarshaller().marshal(jaxb, result);
+    return ((Document) result.getNode()).getDocumentElement();
+    } catch (JAXBException e) {
+      throw new IllegalArgumentException("failed to serialize: " + value, e);
+    }
+  }
+
   @Override
   public int[] sqlTypes() {
     return SQL_TYPES;
@@ -82,12 +122,20 @@ public class JaxbUserType<T> implements UserType {
 
   @Override
   public boolean equals(Object x, Object y) throws HibernateException {
-    return Objects.equals(x, y);
+    if (x == y) {
+      return true;
+    }
+    if (!type.isInstance(x) || !type.isInstance(y)) {
+      return false;
+    }
+    Element left = toDomElement(type.cast(x));
+    Element right = toDomElement(type.cast(y));
+    return left.isEqualNode(right);
   }
 
   @Override
   public int hashCode(Object x) throws HibernateException {
-    return Objects.hashCode(x);
+    return x == null ? 0 : toXmlString(type.cast(x)).hashCode();
   }
 
   @Override
@@ -101,50 +149,16 @@ public class JaxbUserType<T> implements UserType {
     return fromXmlString(string);
   }
 
-  public T fromXmlString(String string) {
-    if (string == null) {
-      return null;
-    }
-    try (InputStream input = IOUtils.toInputStream(string, "UTF-8")) {
-      return jaxbContext.createUnmarshaller().unmarshal(new StreamSource(input), type).getValue();
-    } catch (RuntimeException | JAXBException | IOException e) {
-      throw new HibernateException("failed to deserialize: " + string, e);
-    }
-  }
-
   @Override
   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
       throws HibernateException, SQLException {
-    String string = toXmlString(value);
+    String string = toXmlString(type.cast(value));
     st.setString(index, string);
-  }
-
-  public String toXmlString(Object value) {
-    if (value == null) {
-      return null;
-    }
-    try (StringWriter writer = new StringWriter()) {
-      jaxbContext.createMarshaller().marshal(new JAXBElement<>(xmlRootElementName, type, type.cast(value)), writer);
-      return writer.toString();
-    } catch (RuntimeException | JAXBException | IOException e) {
-      throw new HibernateException("failed to serialize: " + value, e);
-    }
-  }
-
-  public T fromDomNode(Node node) throws JAXBException {
-    return jaxbContext.createUnmarshaller().unmarshal(node, type).getValue();
-  }
-
-  public Element toDomElement(T value) throws JAXBException {
-    JAXBElement<T> jaxb = new JAXBElement<>(xmlRootElementName, type, value);
-    DOMResult result = new DOMResult();
-    jaxbContext.createMarshaller().marshal(jaxb, result);
-    return ((Document) result.getNode()).getDocumentElement();
   }
 
   @Override
   public Object deepCopy(Object value) throws HibernateException {
-    return fromXmlString(toXmlString(value));
+    return fromDomElement(toDomElement(type.cast(value)));
   }
 
   @Override
@@ -154,12 +168,12 @@ public class JaxbUserType<T> implements UserType {
 
   @Override
   public Serializable disassemble(Object value) throws HibernateException {
-    return toXmlString(value);
+    return toXmlString(type.cast(value));
   }
 
   @Override
   public Object assemble(Serializable cached, Object owner) throws HibernateException {
-    return cached;
+    return fromXmlString((String) cached);
   }
 
   @Override

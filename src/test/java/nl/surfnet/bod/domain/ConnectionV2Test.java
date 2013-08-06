@@ -22,108 +22,77 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
-import nl.surfnet.bod.domain.ConnectionV2.PathTypeUserType;
-import nl.surfnet.bod.domain.ConnectionV2.ServiceAttributesUserType;
+import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 
 public class ConnectionV2Test {
 
-  private static final String PATH_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:path xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\"><directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath><sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP><destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns2:path>";
+  private static final String CRITERIA_XML =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><criteria version=\"0\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/07/framework/headers\"><schedule/><ns3:p2ps xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns3=\"http://schemas.ogf.org/nsi/2013/07/services/point2point\"><capacity>0</capacity><directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath><sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP><destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns3:p2ps></criteria>";
 
   @Test
-  public void should_deserialize_path_type_from_xml_string() {
-    PathType result = new PathTypeUserType().fromXmlString(PATH_TYPE_XML);
+  public void should_deserialize_criteria_type_from_xml_string() {
+    ReservationConfirmCriteriaType result = new ConnectionV2.ReservationConfirmCriteriaTypeUserType().fromXmlString(CRITERIA_XML);
 
     assertNotNull(result);
-    assertThat(result.getDestSTP().getNetworkId(), is("surfnet.nl"));
-    assertThat(result.getDestSTP().getLocalId(), is("2"));
-    assertThat(result.getDirectionality(), is(DirectionalityType.BIDIRECTIONAL));
+    Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(result);
+    assertThat(service.isPresent(), is(true));
+    assertThat(service.get().getDestSTP().getNetworkId(), is("surfnet.nl"));
+    assertThat(service.get().getDestSTP().getLocalId(), is("2"));
+    assertThat(service.get().getDirectionality(), is(DirectionalityType.BIDIRECTIONAL));
   }
 
   @Test
-  public void should_serialize_path_type_to_xml_string() {
-    PathType path = new PathType()
-      .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
-      .withDestSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("2"))
-      .withSymmetricPath(true)
-      .withDirectionality(DirectionalityType.BIDIRECTIONAL);
+  public void should_serialize_criteria_type_to_xml_string() {
+    P2PServiceBaseType service = new P2PServiceBaseType()
+        .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
+        .withDestSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("2"))
+        .withSymmetricPath(true)
+        .withDirectionality(DirectionalityType.BIDIRECTIONAL);
+    ReservationConfirmCriteriaType criteria =
+        new ReservationConfirmCriteriaType().withSchedule(new ScheduleType());
+    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
 
-    String xml = new PathTypeUserType().toXmlString(path);
+    String xml = new ConnectionV2.ReservationConfirmCriteriaTypeUserType().toXmlString(criteria);
 
-    assertThat(xml, is(PATH_TYPE_XML));
-  }
-
-  private static final String SERVICE_ATTRIBUTES_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:serviceAttributes xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\"><surf:sNCP xmlns:surf=\"http://schemas.surfnet.nl/nsi/2013/04/services\">Protected</surf:sNCP></ns2:serviceAttributes>";
-
-  @Test
-  public void should_deserialize_servcice_parameters_from_xml_string() {
-    ServiceAttributesType serviceAttributes = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
-
-    assertNotNull(serviceAttributes);
-    assertThat(serviceAttributes.getAny(), hasSize(1));
-    Element element = (Element) serviceAttributes.getAny().get(0);
-    assertThat(element.getLocalName(), is("sNCP"));
-  }
-
-  @Test
-  public void should_serialize_service_parameters_to_xml_string() throws ParserConfigurationException {
-    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-    Element element = document.createElementNS("http://schemas.surfnet.nl/nsi/2013/04/services", "surf:sNCP");
-    element.appendChild(document.createTextNode("Protected"));
-    ServiceAttributesType serviceParameters = new ServiceAttributesType().withAny(element);
-
-    String xml = new ServiceAttributesUserType().toXmlString(serviceParameters);
-
-    assertThat(xml, is(SERVICE_ATTRIBUTES_TYPE_XML));
-  }
-
-  @Test
-  public void same_service_attributes_should_be_equal_by_user_type() {
-    ServiceAttributesType serviceAttributes1 = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
-    ServiceAttributesType serviceAttributes2 = new ServiceAttributesUserType().fromXmlString(SERVICE_ATTRIBUTES_TYPE_XML);
-
-    assertThat(serviceAttributes1.equals(serviceAttributes2), is(false));
-    assertThat(new ServiceAttributesUserType().equals(serviceAttributes1, serviceAttributes2), is(true));
+    assertEquals(CRITERIA_XML, xml);
   }
 
   private static final String DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/04/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/04/framework/headers\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><connectionId>ConnectionId</connectionId><notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp><dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus></ns2:notificationBaseType>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/07/framework/headers\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><connectionId>ConnectionId</connectionId><notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp><dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus></ns2:notificationBaseType>";
 
   @Test
   public void shoud_serialize_data_plane_state_change_request_type_to_xml_string() {
     DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType()
-      .withConnectionId("ConnectionId")
-      .withDataPlaneStatus(new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true))
-      .withNotificationId(22)
-      .withTimeStamp(XmlUtils.toGregorianCalendar(new DateTime(2013, 6, 17, 13, 10, 14, DateTimeZone.UTC)));
+        .withConnectionId("ConnectionId")
+        .withDataPlaneStatus(new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true))
+        .withNotificationId(22)
+        .withTimeStamp(XmlUtils.toGregorianCalendar(new DateTime(2013, 6, 17, 13, 10, 14, DateTimeZone.UTC)));
 
     String xml = new NotificationBaseTypeUserType().toXmlString(notification);
 
+    assertEquals(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML, xml);
     assertThat(xml, is(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML));
   }
 

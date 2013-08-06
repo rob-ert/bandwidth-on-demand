@@ -57,22 +57,21 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionProviderPort;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ConnectionServiceProvider;
-import org.ogf.schemas.nsi._2013._04.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._04.connection.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._04.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionServiceProvider;
+import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._07.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.springframework.core.io.ClassPathResource;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
@@ -146,14 +145,12 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
-        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
-        .withBandwidth(100)
-        .withPath(new PathType()
-          .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-          .withSourceSTP(sourceStp)
-          .withDestSTP(destStp))
-        .withServiceAttributes(new ServiceAttributesType());
-
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
+        .withCapacity(100)
+        .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+        .withSourceSTP(sourceStp)
+        .withDestSTP(destStp));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -204,16 +201,15 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     String globalReservationId = generateGlobalReservationId();
     String description = "NSI v2 Reservation";
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
+      .withServiceType("serviceType")
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
-        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
-        .withBandwidth(100)
-        .withPath(new PathType()
-          .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-          .withSourceSTP(sourceStp)
-          .withDestSTP(destStp))
-        .withServiceAttributes(new ServiceAttributesType());
-
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
+        .withCapacity(100)
+        .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+        .withSourceSTP(sourceStp)
+        .withDestSTP(destStp));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -233,7 +229,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     assertThat("reserve confirmed correlation id", reserveConfirmed2.header.getCorrelationId(), is(reserveCorrelationId));
 
     assertThat(connectionId1.value, is(connectionId2.value));
-    assertThat(reserveConfirmed1, is(reserveConfirmed2));
+    assertThat(Converters.RESERVE_CONFIRMED_CONVERTER.toXmlString(reserveConfirmed1.body), is(Converters.RESERVE_CONFIRMED_CONVERTER.toXmlString(reserveConfirmed2.body)));
 
     // perform query, assert that there is only a single reservation
     connectionServiceProviderPort.querySummary(null, Arrays.asList(globalReservationId), createHeader(generateCorrelationId()));
@@ -244,7 +240,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     assertThat(result.get(0).getConnectionId(), is(connectionId1.value));
 
     // Reserve with same correlation id but different content should generate an error response!
-    criteria.setBandwidth(200);
+    criteria.setServiceType("changedServiceType");
 
     Holder<String> connectionId3 = new Holder<>(null);
     try {

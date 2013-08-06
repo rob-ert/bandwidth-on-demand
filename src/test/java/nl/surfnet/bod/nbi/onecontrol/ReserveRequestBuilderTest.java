@@ -100,7 +100,7 @@ public class ReserveRequestBuilderTest {
   @Test
   public void should_add_dynamic_characteristics_with_vlan_present() {
     PhysicalPort physicalPort = new PhysicalPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(true).create();
-    Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024).create();
+    Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024L).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create();
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
@@ -115,7 +115,7 @@ public class ReserveRequestBuilderTest {
   @Test
   public void should_add_dynamic_characteristics_with_vlan_absent() {
     PhysicalPort physicalPort = new PhysicalPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(false).create();
-    Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024).create();
+    Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024L).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create();
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);

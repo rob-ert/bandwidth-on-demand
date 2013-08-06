@@ -29,18 +29,21 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nsi.v2.ConnectionsV2;
+import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 
 
 public class ConnectionV2Factory {
 
-  private int desiredBandwidth;
   private String requesterNsa = "nsa:requester:surfnet.nl";
   private String providerNsa = "nsa:surfnet.nl";
   private String connectionId = UUID.randomUUID().toString();
@@ -49,7 +52,7 @@ public class ConnectionV2Factory {
   private String protectionType = "PROTECTED";
   private Long id = 0L;
   private String description = "";
-  private PathType path = new PathType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
+  private P2PServiceBaseType path = new P2PServiceBaseType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
   private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
   private ProvisionStateEnumType provisionState;
   private LifecycleStateEnumType lifecycleState;
@@ -64,7 +67,7 @@ public class ConnectionV2Factory {
     ConnectionV2 connection = new ConnectionV2();
 
     connection.setId(id);
-    connection.setDesiredBandwidth(desiredBandwidth);
+    connection.setDesiredBandwidth(path.getCapacity());
     connection.setRequesterNsa(requesterNsa);
     connection.setProviderNsa(providerNsa);
     connection.setConnectionId(connectionId);
@@ -72,7 +75,13 @@ public class ConnectionV2Factory {
     connection.setGlobalReservationId(globalReservationId);
     connection.setProtectionType(protectionType);
     connection.setDescription(description);
-    connection.setPath(path);
+    ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
+        .withVersion(reserveVersion)
+        .withSchedule(new ScheduleType()
+            .withStartTime(XmlUtils.toGregorianCalendar(reservation.getStartDateTime()))
+            .withEndTime(XmlUtils.toGregorianCalendar(reservation.getEndDateTime())));
+    ConnectionsV2.addPointToPointService(criteria.getAny(), path);
+    connection.setCriteria(criteria);
 
     connection.setReservationState(reservationState);
     connection.setProvisionState(provisionState);
@@ -129,7 +138,7 @@ public class ConnectionV2Factory {
   }
 
   public ConnectionV2Factory setDesiredBandwidth(int desiredBandwidth) {
-    this.desiredBandwidth = desiredBandwidth;
+    this.path.setCapacity(desiredBandwidth);
     return this;
   }
 

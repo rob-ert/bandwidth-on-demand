@@ -40,7 +40,7 @@ import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.util.JaxbUserType;
 
-import org.ogf.schemas.nsi._2013._04.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * which you obviously should only use poll() on.
  *
  */
-@WebServiceProvider(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/04/connection/request")
+@WebServiceProvider(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/request")
 @ServiceMode(Mode.MESSAGE)
 @SchemaValidation
 public class SoapReplyListener implements Provider<SOAPMessage> {

@@ -61,7 +61,7 @@ public class ServiceComponentActivationClientTestIntegration {
       .setStartDateTime(DateTime.now().plusMinutes(25))
       .setEndDateTime(DateTime.now().plusMinutes(45))
       .setName("HansAlanTest7")
-      .setBandwidth(100)
+      .setBandwidth(100L)
       .withoutProtection()
       .create();
 

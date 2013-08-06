@@ -54,9 +54,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceV2Test {

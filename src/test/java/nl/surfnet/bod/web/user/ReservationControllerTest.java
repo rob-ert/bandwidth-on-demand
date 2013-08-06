@@ -93,8 +93,8 @@ public class ReservationControllerTest {
   @Test
   public void newReservationShouldHaveDefaults() {
     VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
-    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).setVirtualResourceGroup(group).create();
-    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).setVirtualResourceGroup(group).create();
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000L).setVirtualResourceGroup(group).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000L).setVirtualResourceGroup(group).create();
 
     // Make sure source and destination have some
     group.setVirtualPorts(Lists.newArrayList(sourcePort, destPort));
@@ -112,7 +112,7 @@ public class ReservationControllerTest {
     assertThat(reservation.getEndDateTime(), not(nullValue()));
     assertThat(reservation.getSourcePort(), is(sourcePort));
     assertThat(reservation.getDestinationPort(), is(destPort));
-    assertThat(reservation.getBandwidth(), is(2000));
+    assertThat(reservation.getBandwidth(), is(2000L));
   }
 
   @Test

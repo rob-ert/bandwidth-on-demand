@@ -41,6 +41,8 @@ import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
 import com.google.common.base.Optional;
+
+import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
 import org.hibernate.annotations.Type;
@@ -50,20 +52,19 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._04.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._04.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._04.connection.types.PathType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultCriteriaType;
-import org.ogf.schemas.nsi._2013._04.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._04.connection.types.ServiceAttributesType;
-import org.ogf.schemas.nsi._2013._04.connection.types.StpType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
 
 @Entity
 @Indexed
@@ -96,14 +97,9 @@ public class ConnectionV2 extends AbstractConnection {
   private String destinationStpId;
 
   @NotNull
-  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$PathTypeUserType")
+  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$ReservationConfirmCriteriaTypeUserType")
   @Column(nullable = false)
-  private PathType path;
-
-  @NotNull
-  @Type(type = "nl.surfnet.bod.domain.ConnectionV2$ServiceAttributesUserType")
-  @Column(nullable = true)
-  private ServiceAttributesType serviceAttributes;
+  private ReservationConfirmCriteriaType criteria;
 
   @Field
   private boolean dataPlaneActive;
@@ -247,26 +243,26 @@ public class ConnectionV2 extends AbstractConnection {
         .withConnectionStates(getConnectionStates());
     if (committedVersion != null) {
       result.withCriteria(new QuerySummaryResultCriteriaType()
-          .withSchedule(getSchedule())
-          .withBandwidth(getDesiredBandwidth())
-          .withServiceAttributes(getServiceAttributes())
-          .withPath(getPath())
+          .withAny(criteria.getAny())
+          .withSchedule(criteria.getSchedule())
+          .withServiceType(criteria.getServiceType())
           .withVersion(committedVersion));
     }
     return result;
   }
+
   public QueryRecursiveResultType getQueryRecursiveResult() {
     return new QueryRecursiveResultType()
         .withConnectionId(getConnectionId())
         .withGlobalReservationId(getGlobalReservationId())
         .withDescription(getDescription())
         .withCriteria(new QueryRecursiveResultCriteriaType()
-            .withSchedule(getSchedule())
-            .withBandwidth(getDesiredBandwidth())
-            .withServiceAttributes(getServiceAttributes())
-            .withPath(getPath())
+            .withAny(criteria.getAny())
+            .withSchedule(criteria.getSchedule())
+            .withServiceType(criteria.getServiceType())
             .withVersion(0)) // FIXME: committed version?
-        .withRequesterNSA(getRequesterNsa()).withConnectionStates(getConnectionStates());
+        .withRequesterNSA(getRequesterNsa())
+        .withConnectionStates(getConnectionStates());
   }
 
   public ScheduleType getSchedule() {
@@ -275,26 +271,17 @@ public class ConnectionV2 extends AbstractConnection {
         .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
   }
 
-  public void setPath(PathType path) {
-    this.path = path;
-    this.sourceStpId = stpTypeToStpId(path.getSourceSTP());
-    this.destinationStpId = stpTypeToStpId(path.getDestSTP());
+  public void setCriteria(ReservationConfirmCriteriaType criteria) {
+    this.criteria = criteria;
+    Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(criteria);
+    if (service.isPresent()) {
+      this.sourceStpId = ConnectionsV2.stpTypeToStpId(service.get().getSourceSTP());
+      this.destinationStpId = ConnectionsV2.stpTypeToStpId(service.get().getDestSTP());
+    }
   }
 
-  private String stpTypeToStpId(StpType type) {
-    return type.getNetworkId() + ":" + type.getLocalId();
-  }
-
-  public PathType getPath() {
-    return path;
-  }
-
-  public void setServiceAttributes(ServiceAttributesType serviceAttributes) {
-    this.serviceAttributes = serviceAttributes;
-  }
-
-  public ServiceAttributesType getServiceAttributes() {
-    return serviceAttributes;
+  public ReservationConfirmCriteriaType getCriteria() {
+    return criteria;
   }
 
   public ConnectionStatesType getConnectionStates() {
@@ -438,29 +425,12 @@ public class ConnectionV2 extends AbstractConnection {
 
   public static class NotificationBaseTypeUserType extends NsiV2UserType<NotificationBaseType> {
     public NotificationBaseTypeUserType() {
-      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "notificationBaseType"), NotificationBaseType.class);
+      super(new QName("http://schemas.ogf.org/nsi/2013/07/connection/types", "notificationBaseType"), NotificationBaseType.class);
     }
   }
-  public static class PathTypeUserType extends NsiV2UserType<PathType> {
-    public PathTypeUserType() {
-      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "path"), PathType.class);
+  public static class ReservationConfirmCriteriaTypeUserType extends NsiV2UserType<ReservationConfirmCriteriaType> {
+    public ReservationConfirmCriteriaTypeUserType() {
+      super(new QName("criteria"), ReservationConfirmCriteriaType.class);
     }
   }
-  public static class ServiceAttributesUserType extends NsiV2UserType<ServiceAttributesType> {
-    public ServiceAttributesUserType() {
-      super(new QName("http://schemas.ogf.org/nsi/2013/04/connection/types", "serviceAttributes"), ServiceAttributesType.class);
-    }
-
-    @Override
-    public boolean equals(Object x, Object y) {
-      if (x == y) {
-        return true;
-      }
-      if (x == null) {
-        return false;
-      }
-      return toXmlString(x).equals(toXmlString(y));
-    }
-  }
-
 }

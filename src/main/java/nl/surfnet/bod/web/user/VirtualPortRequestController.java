@@ -80,7 +80,7 @@ public class VirtualPortRequestController {
 
   /**
    * In case no team is selected yet, present the team selection.
-   * 
+   *
    * @param model
    * @return SelectTeam view
    */
@@ -251,7 +251,7 @@ public class VirtualPortRequestController {
     private String userGroupId;
 
     @Range(min = 1, max = 1000000, message = "Must be between 1 and 1000000 mb/s")
-    private Integer bandwidth;
+    private Long bandwidth;
 
     public RequestCommand() {
     }
@@ -284,11 +284,11 @@ public class VirtualPortRequestController {
       this.userGroupId = userGroupId;
     }
 
-    public Integer getBandwidth() {
+    public Long getBandwidth() {
       return bandwidth;
     }
 
-    public void setBandwidth(Integer bandwidth) {
+    public void setBandwidth(Long bandwidth) {
       this.bandwidth = bandwidth;
     }
 
