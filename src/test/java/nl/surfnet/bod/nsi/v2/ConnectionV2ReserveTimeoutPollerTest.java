@@ -32,7 +32,6 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ReservationService;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
@@ -55,10 +54,18 @@ public class ConnectionV2ReserveTimeoutPollerTest {
   @InjectMocks private ConnectionV2ReserveTimeoutPoller subject = new ConnectionV2ReserveTimeoutPoller();
 
   private DateTime now = DateTime.now();
+  private ConnectionV2 connectionV2;
 
   @Before
   public void setUp() {
     DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+
+    connectionV2 = new ConnectionV2();
+    Reservation reservation = new Reservation();
+
+    reservation.setId(1l);
+    connectionV2.setReservation(reservation);
+    connectionV2.setId(42L);
   }
 
   @After
@@ -75,23 +82,21 @@ public class ConnectionV2ReserveTimeoutPollerTest {
 
   @Test
   public void should_notify_requester_of_reserve_timeout() {
-    ConnectionV2 connection = new ConnectionV2();
-    connection.setId(42L);
-    when(connectionV2Repo.findByReservationStateAndReserveHeldTimeoutBefore(any(ReservationStateEnumType.class), any(DateTime.class))).thenReturn(Collections.singletonList(connection));
+
+    when(connectionV2Repo.findByReservationStateAndReserveHeldTimeoutBefore(any(ReservationStateEnumType.class), any(DateTime.class))).thenReturn(Collections.singletonList(connectionV2));
 
     subject.timeOutUncommittedReservations();
 
-    verify(connectionServiceRequesterV2).reserveTimeout(42L, now);
+    verify(connectionServiceRequesterV2).reserveTimeout(connectionV2.getId(), now);
   }
 
   @Test
   public void should_cancel_reservation() {
-    ConnectionV2 connection = new ConnectionV2();
-    connection.setId(42L);
-    when(connectionV2Repo.findByReservationStateAndReserveHeldTimeoutBefore(any(ReservationStateEnumType.class), any(DateTime.class))).thenReturn(Collections.singletonList(connection));
+
+    when(connectionV2Repo.findByReservationStateAndReserveHeldTimeoutBefore(any(ReservationStateEnumType.class), any(DateTime.class))).thenReturn(Collections.singletonList(connectionV2));
 
     subject.timeOutUncommittedReservations();
 
-    verify(reservationService).cancelDueToReserveTimeout(any(Reservation.class));
+    verify(reservationService).cancelDueToReserveTimeout(connectionV2.getReservation().getId());
   }
 }
