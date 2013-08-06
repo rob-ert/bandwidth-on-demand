@@ -21,29 +21,18 @@
                     <startTime>2013-07-29T10:51:00+02:00</startTime>
                     <endTime>2013-07-29T11:01:00+02:00</endTime>
                 </schedule>
-                <bandwidth>100</bandwidth>
-                <serviceAttributes />
-                <path>
+                <p2p:p2ps xmlns:p2p="http://schemas.ogf.org/nsi/2013/07/services/point2point">
+                    <capacity>100</capacity>
                     <directionality>Bidirectional</directionality>
                     <sourceSTP>
                         <networkId>urn:ogf:network:stp:surfnet.nl</networkId>
                         <localId>21</localId>
-                        <labels>
-                            <attribute type="">
-                                <value />
-                            </attribute>
-                        </labels>
                     </sourceSTP>
                     <destSTP>
                         <networkId>urn:ogf:network:stp:surfnet.nl</networkId>
                         <localId>24</localId>
-                        <labels>
-                            <attribute type="">
-                                <value />
-                            </attribute>
-                        </labels>
                     </destSTP>
-                </path>
+                </p2p:p2ps>
             </criteria>
         </ns2:reserveConfirmed>
     </SOAP-ENV:Body>
