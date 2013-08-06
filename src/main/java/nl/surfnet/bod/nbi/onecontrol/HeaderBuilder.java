@@ -50,7 +50,7 @@ public final class HeaderBuilder {
       .withSenderURI("http://localhost:9009")
       .withMsgType(MessageTypeType.REQUEST);
 
-    return new Holder<Header>(header);
+    return new Holder<>(header);
   }
 
   public static Holder<Header> buildReserveHeader(String endPoint) {
