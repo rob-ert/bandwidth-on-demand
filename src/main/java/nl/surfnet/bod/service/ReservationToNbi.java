@@ -69,7 +69,7 @@ public class ReservationToNbi {
 
     publishStatusChanged(reservation, orgStatus);
 
-    return new AsyncResult<Long>(reservation.getId());
+    return new AsyncResult<>(reservation.getId());
   }
 
   @Async
@@ -89,7 +89,7 @@ public class ReservationToNbi {
 
     publishStatusChanged(reservation, orgStatus);
 
-    return new AsyncResult<Long>(reservation.getId());
+    return new AsyncResult<>(reservation.getId());
   }
 
   @Async
