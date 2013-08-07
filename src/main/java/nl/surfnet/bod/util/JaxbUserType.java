@@ -100,10 +100,10 @@ public class JaxbUserType<T> implements UserType {
 
   public Element toDomElement(T value) {
     try {
-    JAXBElement<T> jaxb = new JAXBElement<>(xmlRootElementName, type, value);
-    DOMResult result = new DOMResult();
-    jaxbContext.createMarshaller().marshal(jaxb, result);
-    return ((Document) result.getNode()).getDocumentElement();
+      JAXBElement<T> jaxb = new JAXBElement<>(xmlRootElementName, type, value);
+      DOMResult result = new DOMResult();
+      jaxbContext.createMarshaller().marshal(jaxb, result);
+      return ((Document) result.getNode()).getDocumentElement();
     } catch (JAXBException e) {
       throw new IllegalArgumentException("failed to serialize: " + value, e);
     }
