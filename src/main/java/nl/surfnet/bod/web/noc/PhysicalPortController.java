@@ -606,7 +606,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   public static final class PhysicalPortFilter {
     public static final PhysicalPortFilter ALLOCATED = new PhysicalPortFilter("Allocated", "/");
-    public static final PhysicalPortFilter UN_ALLOCATED = new PhysicalPortFilter("Unllocated", "/free");
+    public static final PhysicalPortFilter UN_ALLOCATED = new PhysicalPortFilter("Unallocated", "/free");
     public static final PhysicalPortFilter UN_ALIGNED = new PhysicalPortFilter("Unaligned", "/unaligned");
 
     private final String path;
