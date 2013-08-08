@@ -148,6 +148,19 @@ class ConnectionServiceRequesterV2 {
     connection.setLifecycleState(LifecycleStateEnumType.PASSED_END_TIME);
   }
 
+  public void forcedEnd(final Long connectionId, final NsiV2RequestDetails requestDetails) {
+    ConnectionV2 connection = connectionRepo.findOne(connectionId);
+    connection.setLifecycleState(LifecycleStateEnumType.FAILED);
+
+    XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(DateTime.now());
+    ErrorEventType notification = new ErrorEventType();
+    notification.setEvent(EventEnumType.FORCED_END);
+    populateNotification(notification, connection, timeStamp);
+
+    client.notifyForcedEnd(notification, requestDetails.getCommonHeaderType(PROTOCOL_VERSION), connection.getConnectionId(), timeStamp, requestDetails.getReplyTo());
+
+  }
+
   public void dataPlaneActivated(Long id, NsiV2RequestDetails requestDetails) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setDataPlaneActive(true);
@@ -222,4 +235,6 @@ class ConnectionServiceRequesterV2 {
     notification.setNotificationId(connection.nextNotificationId());
     connection.addNotification(notification);
   }
+
+
 }

@@ -86,11 +86,14 @@ class NsiV2ReservationListener implements ReservationListener {
           requester.dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
         }
         requester.terminateConfirmed(connection.getId(), connection.getLastLifecycleRequestDetails());
+      } else if (connection.getLifecycleState() == LifecycleStateEnumType.CREATED) {
+        requester.forcedEnd(connection.getId(), connection.getInitialReserveRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_ABORTING){
         requester.reserveAbortConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_HELD) {
         // Notify handled by ConnectionV2ReserveTimeoutPoller.
-      } else {
+      }
+      else {
         logger.warn("State transition to CANCELLED unhandled {}", event);
       }
       break;

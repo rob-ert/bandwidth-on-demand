@@ -137,6 +137,9 @@ class ConnectionServiceRequesterClient {
     notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
   }
 
+  public void notifyForcedEnd(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
+    notifyErrorEvent(notification, header, connectionId, timeStamp, replyTo);
+  }
   private void notifyErrorEvent(ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     ErrorEventType body = new ErrorEventType()
       .withConnectionId(connectionId)
