@@ -36,7 +36,6 @@ import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.ReservationFactory;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -54,7 +53,7 @@ public class NsiV2ReservationListenerTest {
   @Mock private ConnectionServiceRequesterV2 requesterMock;
 
   @Test
-  public void should_ignore_reservation_created_thourgh_gui() {
+  public void should_ignore_reservation_created_through_gui() {
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(null).create();
 
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.REQUESTED, reservation.getStatus());
@@ -66,7 +65,7 @@ public class NsiV2ReservationListenerTest {
   }
 
   @Test
-  public void should_ignore_reservation_created_thourgh_by_nsiv1() {
+  public void should_ignore_reservation_created_through_by_nsiv1() {
     ConnectionV1 connection = new ConnectionV1Factory().create();
     Reservation reservation = new ReservationFactory().setConnectionV2(null).setConnectionV1(connection).create();
 
@@ -310,6 +309,27 @@ public class NsiV2ReservationListenerTest {
     subject.onStatusChange(event);
 
     verifyZeroInteractions(requesterMock);
+  }
+
+  @Test
+  public void should_send_forcedEnd_notification_when_nonRunning_reservation_is_cancelled() {
+    final ConnectionV2 connection = new ConnectionV2Factory()
+        .setReservationState(ReservationStateEnumType.RESERVE_START)
+        .setProvisionState(ProvisionStateEnumType.RELEASED)
+        .setLifecycleState(LifecycleStateEnumType.CREATED)
+        .setDataPlaneActive(true).create();
+    final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
+    connection.setInitialReserveRequestDetails(requestDetails);
+
+    Reservation reservation = new ReservationFactory().setConnectionV2(connection)
+        .setStatus(ReservationStatus.RESERVED
+        ).create();
+
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, reservation.getStatus(), ReservationStatus.CANCELLED);
+
+    subject.onStatusChange(event);
+    verify(requesterMock).forcedEnd(connection.getId(), requestDetails);
+    verifyNoMoreInteractions(requesterMock);
   }
 
 }
