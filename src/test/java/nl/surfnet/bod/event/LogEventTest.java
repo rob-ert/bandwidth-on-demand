@@ -49,7 +49,7 @@ public class LogEventTest {
 
       assertThat(logEvent.getUserId(), is(USER_ID));
       assertThat(logEvent.getAdminGroups(), hasItem(GROUP_ID));
-      assertThat(logEvent.getCreated(), is(now));
+      assertThat(logEvent.getCreatedAt(), is(now));
       assertThat(logEvent.getDomainObjectClass(), is(virtualPort.getClass().getSimpleName()));
       assertThat(logEvent.getDescription(), is(virtualPort.getLabel()));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));

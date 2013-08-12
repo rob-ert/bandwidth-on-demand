@@ -121,7 +121,7 @@ public class LogEventServiceTest {
       assertThat(logEvent.getDetails(), is(""));
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));
-      assertThat(logEvent.getCreated(), is(now));
+      assertThat(logEvent.getCreatedAt(), is(now));
 
       assertThat(logEvent.getOldReservationStatus(), nullValue());
       assertThat(logEvent.getNewReservationStatus(), nullValue());
@@ -155,7 +155,7 @@ public class LogEventServiceTest {
       assertThat(logEvent.getDetails(), containsString("[RESERVED] to [AUTO_START]"));
 
       assertThat(logEvent.getSerializedObject(), is(reservation.toString()));
-      assertThat(logEvent.getCreated(), is(now));
+      assertThat(logEvent.getCreatedAt(), is(now));
 
       assertThat(logEvent.getOldReservationStatus(), is(ReservationStatus.RESERVED));
       assertThat(logEvent.getNewReservationStatus(), is(reservation.getStatus()));

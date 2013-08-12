@@ -60,7 +60,7 @@ public class LogEventFactory {
             .<ReservationStatus> fromNullable(newReservationStatus));
 
     // Set immutable createdField
-    Field createdField = ReflectionUtils.findField(LogEvent.class, "created");
+    Field createdField = ReflectionUtils.findField(LogEvent.class, "createdAt");
     createdField.setAccessible(true);
     ReflectionUtils.setField(createdField, logEvent, created);
 

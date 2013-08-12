@@ -56,7 +56,7 @@ public class LogEvent implements PersistableDomain {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field
   @FieldBridge(impl = TimeStampBridge.class)
-  private final DateTime created;
+  private final DateTime createdAt;
 
   @Field
   @Basic
@@ -123,7 +123,7 @@ public class LogEvent implements PersistableDomain {
     this.eventType = type;
     this.details = details;
 
-    this.created = DateTime.now();
+    this.createdAt = DateTime.now();
 
     if (domainObject.isPresent()) {
       this.domainObjectId = domainObject.get().getId();
@@ -146,18 +146,8 @@ public class LogEvent implements PersistableDomain {
     return domainClass.getSimpleName();
   }
 
-  public DateTime getCreated() {
-    return created;
-  }
-
-  /**
-   * Includes seconds in the string since the default conversion does not.
-   * 
-   * @return Time stamp formatted like
-   *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
-   */
-  public String getCreatedAsText() {
-    return created != null ? created.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER) : "";
+  public DateTime getCreatedAt() {
+    return createdAt;
   }
 
   public Collection<String> getAdminGroups() {
@@ -194,7 +184,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   * 
+   *
    * @return String CorreleationId
    */
   public String getCorrelationId() {
@@ -208,7 +198,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   * 
+   *
    * @param correlationId
    */
   public void setCorrelationId(String correlationId) {
@@ -237,9 +227,9 @@ public class LogEvent implements PersistableDomain {
       builder.append(id);
       builder.append(", ");
     }
-    if (created != null) {
-      builder.append("created=");
-      builder.append(created);
+    if (createdAt != null) {
+      builder.append("createdAt=");
+      builder.append(createdAt);
       builder.append(", ");
     }
     if (userId != null) {

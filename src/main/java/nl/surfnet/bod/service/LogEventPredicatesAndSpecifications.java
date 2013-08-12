@@ -141,7 +141,7 @@ public final class LogEventPredicatesAndSpecifications {
 
     Predicate predicate = getDomainObjectWithIdsInAdminGroups(root, cb, reservationIds, domainObjectName, adminGroups);
 
-    return cb.and(predicate, cb.between(root.get(LogEvent_.created), start, end));
+    return cb.and(predicate, cb.between(root.get(LogEvent_.createdAt), start, end));
   }
 
   private static Predicate getPredicateForDomainObjectBeforeInAdminGroups(Root<LogEvent> root, CriteriaBuilder cb,
@@ -149,7 +149,7 @@ public final class LogEventPredicatesAndSpecifications {
 
     Predicate predicate = getDomainObjectWithIdsInAdminGroups(root, cb, reservationIds, domainObjectName, adminGroups);
 
-    return cb.and(predicate, cb.lessThanOrEqualTo(root.get(LogEvent_.created), before));
+    return cb.and(predicate, cb.lessThanOrEqualTo(root.get(LogEvent_.createdAt), before));
   }
 
   private static Predicate getDomainObjectWithIdsInAdminGroups(final Root<LogEvent> root, final CriteriaBuilder cb,

@@ -39,6 +39,7 @@ import javax.xml.soap.SOAPMessage;
 
 import nl.surfnet.bod.domain.PersistableDomain;
 
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 
 @Entity
@@ -55,6 +56,9 @@ public class NsiV2Message implements PersistableDomain {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
+
+  @org.hibernate.annotations.Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private final DateTime createdAt;
 
   @Basic(optional = false)
   private String requesterNsa;
@@ -75,10 +79,11 @@ public class NsiV2Message implements PersistableDomain {
   private String message;
 
   protected NsiV2Message() {
+    createdAt = DateTime.now();
   }
 
   public NsiV2Message(String requesterNsa, String correlationId, Type type, String soapAction, String message) {
-    super();
+    this();
     this.requesterNsa = requesterNsa;
     this.correlationId = correlationId;
     this.type = type;
