@@ -45,7 +45,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
 
   @Override
   protected String getDefaultSortProperty() {
-    return "created";
+    return "createdAt";
   }
 
   @Override

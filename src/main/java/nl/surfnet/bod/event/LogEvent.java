@@ -150,6 +150,16 @@ public class LogEvent implements PersistableDomain {
     return createdAt;
   }
 
+  /**
+   * Includes seconds in the string since the default conversion does not.
+   *
+   * @return Time stamp formatted like
+   *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
+   */
+  public String getCreatedAtAsText() {
+    return createdAt != null ? createdAt.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER) : "";
+  }
+
   public Collection<String> getAdminGroups() {
     return adminGroups;
   }

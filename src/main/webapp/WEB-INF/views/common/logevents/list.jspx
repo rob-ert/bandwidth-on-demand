@@ -20,7 +20,7 @@
       <tr>
         <table:rowDetailsHeader />
         <table:sortableHeader labelCode="label_logevent_created"
-          property="created" />
+          property="createdAt" />
         <table:sortableHeader labelCode="label_logevent_eventtype"
           property="eventType" />
         <table:sortableHeader labelCode="label_logevent_object"
@@ -64,7 +64,7 @@
               </dd>
             </dl>
           </table:rowDetailsColumn>
-          <table:column item="${item}" property="createdAsText"
+          <table:column item="${item}" property="createdAtAsText"
             styleClass="cw80" />
           <table:column item="${item}" property="eventTypeWithCorrelationId"
             styleClass="cw80" />
