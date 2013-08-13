@@ -23,8 +23,10 @@
 package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 import javax.sql.DataSource;
 
@@ -54,11 +56,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -70,7 +76,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableJpaRepositories(basePackages = "nl.surfnet.bod")
-public class AppComponents {
+@EnableAsync
+public class AppComponents implements AsyncConfigurer {
 
 //  static {
 //    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
@@ -222,5 +229,25 @@ public class AppComponents {
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public Executor getAsyncExecutor() {
+    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        logger.error("Uncaught exception in thread " + t + ": " + e, e);
+      }
+    });
+
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(7);
+    executor.setMaxPoolSize(42);
+    executor.setQueueCapacity(11);
+    executor.setThreadNamePrefix("BoDExecutor-");
+    executor.initialize();
+
+
+    return new LoggingExecutor(new TaskExecutorAdapter(new TransactionAwareExecutor(executor)), logger);
   }
 }

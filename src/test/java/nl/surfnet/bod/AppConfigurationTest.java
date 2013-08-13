@@ -105,7 +105,7 @@ public class AppConfigurationTest {
   public static class TestConfiguration implements AsyncConfigurer {
     @Override
     public Executor getAsyncExecutor() {
-      LoggingExecutor executor = (LoggingExecutor) new AppConfiguration().getAsyncExecutor();
+      LoggingExecutor executor = (LoggingExecutor) new AppComponents().getAsyncExecutor();
       executor.setLogger(errorLatchLogger);
       return executor;
     }

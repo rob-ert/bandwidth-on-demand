@@ -36,6 +36,7 @@ import javax.persistence.EntityManager;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import nl.surfnet.bod.FakeTransactionOperations;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -55,9 +56,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.support.SimpleTransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,12 +76,7 @@ public class NocServiceTest {
   @Mock
   private EntityManager entityManagerMock;
 
-  private TransactionOperations transactionOperations = new TransactionOperations() {
-    @Override
-    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-      return action.doInTransaction(new SimpleTransactionStatus(true));
-    }
-  };
+  private TransactionOperations transactionOperations = new FakeTransactionOperations();
 
   private final RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 

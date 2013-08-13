@@ -39,6 +39,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.FakeTransactionOperations;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
@@ -53,9 +54,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.support.SimpleTransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -76,12 +74,7 @@ public class InstituteIddServiceTest {
   @Mock
   private SnmpAgentService snmpAgentService;
 
-  private TransactionOperations transactionOperations = new TransactionOperations() {
-    @Override
-    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-      return action.doInTransaction(new SimpleTransactionStatus(true));
-    }
-  };
+  private TransactionOperations transactionOperations = new FakeTransactionOperations();
 
   @Before
   public void setUp() {

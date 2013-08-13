@@ -22,12 +22,14 @@
  */
 package nl.surfnet.bod;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
-@Configuration
-@Import({ AppComponents.class })
-@EnableScheduling
-public class AppConfiguration {
+public class FakeTransactionOperations implements TransactionOperations {
+  @Override
+  public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+    return action.doInTransaction(new SimpleTransactionStatus(true));
+  }
 }

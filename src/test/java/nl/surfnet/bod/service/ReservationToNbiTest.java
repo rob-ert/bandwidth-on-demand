@@ -30,16 +30,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import nl.surfnet.bod.FakeTransactionOperations;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationToNbiTest {
@@ -55,6 +58,13 @@ public class ReservationToNbiTest {
 
   @Mock
   private LogEventService logEeventServiceMock;
+
+  private TransactionOperations transactionOperations = new FakeTransactionOperations();
+
+  @Before
+  public void setUp() {
+    subject.setTransactionOperations(transactionOperations);
+  }
 
   @Test
   public void terminateAReservation() {

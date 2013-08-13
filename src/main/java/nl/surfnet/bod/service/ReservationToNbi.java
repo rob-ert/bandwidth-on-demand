@@ -28,6 +28,8 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -39,10 +41,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionOperations;
 
 @Service
-@Transactional
+@Transactional(propagation=Propagation.NEVER)
 public class ReservationToNbi {
 
   private final Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
@@ -50,6 +56,7 @@ public class ReservationToNbi {
   @Resource private NbiClient nbiClient;
   @Resource private ReservationRepo reservationRepo;
   @Resource private LogEventService logEventService;
+  @Resource private TransactionOperations transactionTemplate;
 
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision) {
@@ -64,8 +71,6 @@ public class ReservationToNbi {
     ReservationStatus orgStatus = reservation.getStatus();
 
     reservation = nbiClient.createReservation(reservation, autoProvision);
-
-    reservation = reservationRepo.save(reservation);
 
     publishStatusChanged(reservation, orgStatus);
 
@@ -85,7 +90,6 @@ public class ReservationToNbi {
 
     reservation.setStatus(reservationState);
     reservation.setCancelReason(cancelReason);
-    reservation = reservationRepo.save(reservation);
 
     publishStatusChanged(reservation, orgStatus);
 
@@ -104,19 +108,29 @@ public class ReservationToNbi {
       ReservationStatus orgStatus = reservation.getStatus();
 
       reservation.setStatus(ReservationStatus.AUTO_START);
-      reservation = reservationRepo.save(reservation);
 
       publishStatusChanged(reservation, orgStatus);
     }
   }
 
-  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus) {
-    if (originalStatus == reservation.getStatus()) {
-      logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
-      return;
-    }
+  private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        Reservation updated = reservationRepo.save(reservation);
 
-    logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
+        if (originalStatus == updated.getStatus()) {
+          logger.debug("No status change detected from {} to {}", originalStatus, updated.getStatus());
+          return;
+        }
+
+        logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), updated, originalStatus);
+      }
+    });
   }
 
+  @VisibleForTesting
+  void setTransactionOperations(TransactionOperations transactionOperations) {
+    transactionTemplate = transactionOperations;
+  }
 }
