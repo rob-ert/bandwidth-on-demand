@@ -66,26 +66,13 @@ public class HealthCheckControllerTest {
   @InjectMocks
   private HealthCheckController subject;
 
-  @Mock
-  private IddClient iddClientMock;
-
-  @Mock
-  private NbiClient nbiClientMock;
-
-  @Mock
-  private VersReportingService verseReportingService;
-
-  @Mock
-  private GroupService openSocialGroupService;
-
-  @Mock
-  private GroupService sabGroupService;
-
-  @Mock
-  private InstituteService instituteService;
-
-  @Mock
-  private Environment bodEnvironment;
+  @Mock private IddClient iddClientMock;
+  @Mock private NbiClient nbiClientMock;
+  @Mock private VersReportingService verseReportingService;
+  @Mock private GroupService openSocialGroupService;
+  @Mock private GroupService sabGroupService;
+  @Mock private InstituteService instituteService;
+  @Mock private Environment bodEnvironment;
 
   private org.springframework.core.env.Environment springEnvironment;
 

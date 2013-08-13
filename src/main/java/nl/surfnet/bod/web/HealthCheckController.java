@@ -28,7 +28,6 @@ import static nl.surfnet.bod.web.HealthCheckController.ServiceState.SUCCEEDED;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -41,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.onecontrol.NotificationSubscriber;
@@ -48,6 +49,7 @@ import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.util.Environment;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -68,40 +70,26 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
 
   private Logger logger = LoggerFactory.getLogger(HealthCheckController.class);
 
-  @Resource
-  private IddClient iddClient;
-
-  @Resource
-  private InstituteService instituteService;
-
-  @Resource
-  private NbiClient nbiClient;
-
-  @Resource
-  private GroupService openSocialGroupService;
-
-  @Resource
-  private GroupService sabGroupService;
-
-  @Resource
-  private VersReportingService verseReportingService;
-
-  @Resource(name = "bodEnvironment")
-  private Environment environment;
-
-  private org.springframework.core.env.Environment springEnvironment;
-
-  private List<ServiceCheck> checks;
+  @Resource private IddClient iddClient;
+  @Resource private InstituteService instituteService;
+  @Resource private NbiClient nbiClient;
+  @Resource private GroupService openSocialGroupService;
+  @Resource private GroupService sabGroupService;
+  @Resource private VersReportingService verseReportingService;
+  @Resource(name = "bodEnvironment") private Environment environment;
 
   @Autowired(required = false)
   private NotificationSubscriber notificationSubscriber; // only when in onecontrol mode
+
+  private org.springframework.core.env.Environment springEnvironment;
+  private List<ServiceCheck> checks;
 
   private final ServiceCheck oneControlNotificationsCheck = new ServiceCheck() {
     @Override
     public ServiceState healthy() throws Exception {
       if (notificationSubscriber == null) {
         return ServiceState.DISABLED;
-      }else{
+      } else{
         return notificationSubscriber.isHealthy() ? ServiceState.SUCCEEDED : FAILED;
       }
     }
@@ -304,7 +292,7 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    checks = Arrays.asList(
+    checks = Lists.newArrayList(
         iddServiceCheck,
         nbiServiceCheck,
         oAuthServerServiceCheck,
@@ -312,10 +300,9 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
         sabServiceCheck,
         versCheck);
 
-    if (springEnvironment.acceptsProfiles("onecontrol")){
+    if (springEnvironment.acceptsProfiles("onecontrol")) {
       checks.add(oneControlNotificationsCheck);
     }
-
   }
 
   @Override
