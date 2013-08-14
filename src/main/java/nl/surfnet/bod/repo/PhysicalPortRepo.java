@@ -29,9 +29,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PhysicalPortRepo extends
-    JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long>, CustomRepo<PhysicalPort> {
+public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long>, CustomRepo<PhysicalPort> {
 
-  PhysicalPort findByNmsPortId(String nmsPortId);
+  PhysicalPort findByNbiPortNmsPortId(String nmsPortId);
 
 }

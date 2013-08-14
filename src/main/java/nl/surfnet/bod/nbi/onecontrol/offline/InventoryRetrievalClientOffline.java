@@ -28,9 +28,11 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import nl.surfnet.bod.domain.PhysicalPort;
+
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
@@ -39,13 +41,14 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
 @Profile("onecontrol-offline")
 public class InventoryRetrievalClientOffline implements InventoryRetrievalClient {
 
-  private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
+  private static final Function<MockNbiPort, NbiPort> TRANSFORM_FUNCTION = new Function<MockNbiPort, NbiPort>() {
     @Override
-    public PhysicalPort apply(NbiPort nbiPort) {
-      PhysicalPort physicalPort = new PhysicalPort(isVlanRequired(nbiPort.getName()));
+    public NbiPort apply(MockNbiPort nbiPort) {
+      NbiPort physicalPort = new NbiPort();
       physicalPort.setNmsPortId(nbiPort.getId());
-      physicalPort.setBodPortId("Mock_" + nbiPort.getName());
-      physicalPort.setNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+      physicalPort.setSuggestedBodPortId("Mock_" + nbiPort.getName());
+      physicalPort.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+      physicalPort.setVlanRequired(isVlanRequired(nbiPort.getName()));
 
       return physicalPort;
     }
@@ -60,31 +63,31 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
     }
   };
 
-  private List<NbiPort> ports = new ArrayList<>();
+  private List<MockNbiPort> ports = new ArrayList<>();
 
   public InventoryRetrievalClientOffline() {
-    ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
-    ports.add(new NbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
-    ports.add(new NbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
-    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
-    ports.add(new NbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
-    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
-    ports.add(new NbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
-    ports.add(new NbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
-    ports.add(new NbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
-    ports.add(new NbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
-    ports.add(new NbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
-    ports.add(new NbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
-    ports.add(new NbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
-    ports.add(new NbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
-    ports.add(new NbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
-    ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
+    ports.add(new MockNbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
+    ports.add(new MockNbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
+    ports.add(new MockNbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
+    ports.add(new MockNbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
+    ports.add(new MockNbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
+    ports.add(new MockNbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
+    ports.add(new MockNbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
   @Override
-  public List<PhysicalPort> getPhysicalPorts() {
+  public List<NbiPort> getPhysicalPorts() {
     return Lists.newArrayList(Lists.transform(ports, TRANSFORM_FUNCTION));
   }
 
@@ -98,16 +101,16 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
     return Optional.absent();
   }
 
-  private static final class NbiPort {
+  private static final class MockNbiPort {
     private final String name;
     private final Optional<String> userLabel;
     private final String id;
 
-    public NbiPort(String name, String id) {
+    public MockNbiPort(String name, String id) {
       this(name, id, null);
     }
 
-    public NbiPort(String name, String id, String userLabel) {
+    public MockNbiPort(String name, String id, String userLabel) {
       this.name = name;
       this.id = id;
       this.userLabel = Optional.fromNullable(userLabel);

@@ -26,7 +26,6 @@ import static com.google.common.collect.Iterables.limit;
 import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
 import java.util.ArrayList;
@@ -40,12 +39,14 @@ import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -103,26 +104,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   @PersistenceContext
   private EntityManager entityManager;
 
-  /**
-   * Finds all ports using the North Bound Interface and enhances these ports
-   * with data found in our own database.
-   */
-  protected List<PhysicalPort> findAll() {
-    List<PhysicalPort> nbiPorts = nbiClient.findAllPhysicalPorts();
-    List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
-
-    logger.debug("Got '{}' ports from nbi and '{}' ports from the repo", nbiPorts.size(), repoPorts.size());
-
-    enrichPorts(nbiPorts, repoPorts);
-
-    return nbiPorts;
-  }
-
   public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
     return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public Collection<PhysicalPort> findUnallocatedEntries(int firstResult, int sizeNo) {
+  public Collection<NbiPort> findUnallocatedEntries(int firstResult, int sizeNo) {
     return limitPorts(findUnallocated(), firstResult, sizeNo);
   }
 
@@ -131,18 +117,25 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public List<PhysicalPort> findUnalignedPhysicalPorts(int firstResult, int maxResults, Sort sort) {
-    return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC, new PageRequest(firstResult / maxResults, maxResults, sort))
-        .getContent();
+    return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC, new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
+  private List<NbiPort> limitPorts(Collection<NbiPort> ports, int firstResult, int sizeNo) {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
   }
 
-  public Collection<PhysicalPort> findUnallocated() {
-    List<PhysicalPort> allPorts = findAll();
+  public Collection<NbiPort> findUnallocated() {
+    List<NbiPort> nbiPorts = nbiClient.findAllPorts();
+    List<PhysicalPort> physicalPorts = physicalPortRepo.findAll();
 
-    return Collections2.filter(allPorts, UNALLOCATED_PORTS_PRED);
+    final ImmutableMap<String, PhysicalPort> repoPortMap = buildPhysicalPortIdMap(physicalPorts);
+
+    return Collections2.filter(nbiPorts, new Predicate<NbiPort>() {
+      @Override
+      public boolean apply(NbiPort input) {
+        return !repoPortMap.containsKey(input.getNmsPortId());
+      }
+    });
   }
 
   public long countAllocated() {
@@ -157,20 +150,16 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPortRepo.count(UNALIGNED_PORT_SPEC);
   }
 
-  /**
-   * @return could return null if port does not exist in db nor in NBI
-   */
-  public PhysicalPort findByNmsPortId(final String nmsPortId) {
-    PhysicalPort repoPort = physicalPortRepo.findByNmsPortId(nmsPortId);
-
+  public Optional<NbiPort> findNbiPort(final String nmsPortId) {
     try {
-      PhysicalPort nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
-      return repoPort == null ? nbiPort : enrichPortWithPort(nbiPort, repoPort);
+      return Optional.of(nbiClient.findPhysicalPortByNmsPortId(nmsPortId));
+    } catch (PortNotAvailableException e) {
+      return Optional.absent();
     }
-    catch (PortNotAvailableException e) {
-      logger.warn(e.getMessage());
-      return repoPort;
-    }
+  }
+
+  public PhysicalPort findByNmsPortId(final String nmsPortId) {
+    return physicalPortRepo.findByNbiPortNmsPortId(nmsPortId);
   }
 
   /**
@@ -187,7 +176,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
     virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
 
-    delete(physicalPortRepo.findByNmsPortId(nmsPortId));
+    delete(physicalPortRepo.findByNbiPortNmsPortId(nmsPortId));
   }
 
   public PhysicalPort find(final Long id) {
@@ -215,24 +204,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     physicalPortRepo.delete(physicalPort);
   }
 
-  /**
-   * Adds data found in given ports to the specified ports, enriches them.
-   *
-   * @param nbiPorts
-   *          {@link PhysicalPort}s to add the data to
-   * @param repoPorts
-   *          {@link PhysicalPort}s containing additional data
-   */
-  private void enrichPorts(List<PhysicalPort> nbiPorts, List<PhysicalPort> repoPorts) {
-    ImmutableMap<String, PhysicalPort> repoPortMap = buildPortIdMap(repoPorts);
-    for (PhysicalPort nbiPort : nbiPorts) {
-      PhysicalPort matchingPort = repoPortMap.get(nbiPort.getNmsPortId());
-      if (matchingPort != null) {
-        enrichPortWithPort(nbiPort, matchingPort);
-      }
-    }
-  }
-
   public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
@@ -241,9 +212,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
-
-    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications
-        .byPhysicalResourceGroupSpec(physicalResourceGroup));
+    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup));
   }
 
   public void forceCheckForPortInconsistencies() {
@@ -252,11 +221,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   @Scheduled(cron = "${" + PORT_DETECTION_CRON_KEY + "}")
   public void detectAndPersistPortInconsistencies() {
-    logger.info("Detecting port inconsistencies with the NMS, job based on configuration key: {}",
-        PORT_DETECTION_CRON_KEY);
+    logger.info("Detecting port inconsistencies with the NMS, job based on configuration key: {}", PORT_DETECTION_CRON_KEY);
 
     List<PhysicalPort> bodPorts = physicalPortRepo.findAll();
-    List<PhysicalPort> nbiPorts = nbiClient.findAllPhysicalPorts();
+    List<NbiPort> nbiPorts = nbiClient.findAllPorts();
 
     List<PhysicalPort> realignedPorts = markRealignedPortsInNMS(bodPorts, nbiPorts);
     physicalPortRepo.save(realignedPorts);
@@ -267,7 +235,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     logEventService.logUpdateEvent(Security.getUserDetails(), "Disappeared ports in NMS", unalignedPorts);
   }
 
-  static ImmutableMap<String, PhysicalPort> buildPortIdMap(List<PhysicalPort> ports) {
+  static ImmutableMap<String, PhysicalPort> buildPhysicalPortIdMap(List<PhysicalPort> ports) {
     Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
     for (PhysicalPort port : ports) {
       physicalPorts.put(port.getNmsPortId(), port);
@@ -275,14 +243,22 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return ImmutableMap.copyOf(physicalPorts);
   }
 
+  static ImmutableMap<String, NbiPort> buildNbiPortIdMap(List<NbiPort> ports) {
+    Map<String, NbiPort> physicalPorts = Maps.newHashMap();
+    for (NbiPort port : ports) {
+      physicalPorts.put(port.getNmsPortId(), port);
+    }
+    return ImmutableMap.copyOf(physicalPorts);
+  }
+
   @VisibleForTesting
-  List<PhysicalPort> markRealignedPortsInNMS(List<PhysicalPort> bodPorts, List<PhysicalPort> nbiPorts) {
-    ImmutableMap<String, PhysicalPort> nbiPortsMap = buildPortIdMap(nbiPorts);
+  List<PhysicalPort> markRealignedPortsInNMS(List<PhysicalPort> bodPorts, List<NbiPort> nbiPorts) {
+    ImmutableMap<String, NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
 
     List<PhysicalPort> realigned = Lists.newArrayList();
     for (PhysicalPort bodPort: bodPorts) {
       if (!bodPort.isAlignedWithNMS()) {
-        PhysicalPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
+        NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
         if (nbiPort != null) {
           if (bodPort.isVlanRequired() == nbiPort.isVlanRequired()) {
             bodPort.setNmsAlignmentStatus(NmsAlignmentStatus.ALIGNED);
@@ -314,13 +290,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * @return {@link List<PhysicalPort>} were aligned but are now unaligned.
    */
   @VisibleForTesting
-  List<PhysicalPort> markUnalignedWithNMS(final List<PhysicalPort> bodPorts, final List<PhysicalPort> nbiPorts) {
-    ImmutableMap<String, PhysicalPort> nbiPortsMap = buildPortIdMap(nbiPorts);
+  List<PhysicalPort> markUnalignedWithNMS(final List<PhysicalPort> bodPorts, final List<NbiPort> nbiPorts) {
+    ImmutableMap<String,NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
 
     List<PhysicalPort> unaligned = Lists.newArrayList();
     for (PhysicalPort bodPort : bodPorts) {
       if (bodPort.isAlignedWithNMS()) {
-        PhysicalPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
+        NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
         if (nbiPort == null) {
           bodPort.setNmsAlignmentStatus(NmsAlignmentStatus.DISAPPEARED);
           unaligned.add(bodPort);
@@ -339,28 +315,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
     logger.info("Found {} ports unaligned in the NMS", unaligned.size());
     return unaligned;
-  }
-
-  /**
-   * Enriches the port with additional data.
-   *
-   * Clones JPA attributes (id and version), so a find will return these
-   * preventing a additional save instead of an update.
-   *
-   * @param portToEnrich
-   *          The port to enrich
-   * @param dataPort
-   *          The data to enrich with.
-   */
-  private PhysicalPort enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
-    portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
-    portToEnrich.setId(dataPort.getId());
-    portToEnrich.setVersion(dataPort.getVersion());
-    portToEnrich.setNocLabel(dataPort.getNocLabel());
-    portToEnrich.setManagerLabel(dataPort.getManagerLabel());
-    portToEnrich.setBodPortId(dataPort.getBodPortId());
-
-    return portToEnrich;
   }
 
   @Override
@@ -388,16 +342,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
       Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
 
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
-
       return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
           .byPhysicalResourceGroupSpec(physicalResourceGroup.get())), sort);
-    }
-    else if (bodRole.isNocRole()) {
+    } else if (bodRole.isNocRole()) {
       if (physicalResourceGroup.isPresent()) {
         return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
             .byPhysicalResourceGroupSpec(physicalResourceGroup.get())), sort);
-      }
-      else {
+      } else {
         return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent(), sort);
       }
     }

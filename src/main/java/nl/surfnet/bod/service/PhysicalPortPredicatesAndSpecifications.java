@@ -28,7 +28,6 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Predicate;
 
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -43,13 +42,6 @@ public final class PhysicalPortPredicatesAndSpecifications {
     public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query,
         CriteriaBuilder cb) {
       return cb.notEqual(physicalPort.get(PhysicalPort_.nmsAlignmentStatus), NmsAlignmentStatus.ALIGNED);
-    }
-  };
-
-  static final Predicate<PhysicalPort> UNALLOCATED_PORTS_PRED = new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort input) {
-      return input.getId() == null;
     }
   };
 

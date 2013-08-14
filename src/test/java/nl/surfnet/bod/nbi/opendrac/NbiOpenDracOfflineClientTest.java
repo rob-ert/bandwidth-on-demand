@@ -30,10 +30,9 @@ import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 
 import org.junit.Test;
 
@@ -43,14 +42,14 @@ public class NbiOpenDracOfflineClientTest {
 
   @Test
   public void offlineClientShouldGivePorts() {
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+    List<NbiPort> ports = subject.findAllPorts();
 
     assertThat(ports, hasSize(greaterThan(0)));
   }
 
   @Test
   public void countShouldMatchNumberOfPorts() {
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+    List<NbiPort> ports = subject.findAllPorts();
     long count = subject.getPhysicalPortsCount();
 
     assertThat(count, is((long) ports.size()));
@@ -58,18 +57,17 @@ public class NbiOpenDracOfflineClientTest {
 
   @Test
   public void findByNmsPortId() throws PortNotAvailableException {
-    PhysicalPort port = subject.findAllPhysicalPorts().get(0);
+    NbiPort port = subject.findAllPorts().get(0);
 
-    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());
+    NbiPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());
 
     assertThat(foundPort.getNmsPortId(), is(port.getNmsPortId()));
   }
 
   @Test
   public void testRequireVlanIdWhenPortIdContainsLabel() {
-    for (PhysicalPort port : subject.findAllPhysicalPorts()) {
-      assertThat(port.toString(), port.isVlanRequired(),
-          not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+    for (NbiPort port : subject.findAllPorts()) {
+      assertThat(port.toString(), port.isVlanRequired(), not(port.getSuggestedBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
     }
   }
 

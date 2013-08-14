@@ -108,8 +108,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     try {
       page.findRow(name);
       fail(String.format("Virtual port with name %s was not deleted", name));
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // fine
     }
   }
@@ -130,8 +129,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     try {
       page.findRow(vrgName);
       fail(String.format("Virtual Resource group with vrgName %s was not deleted", vrgName));
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // fine
     }
   }
@@ -249,8 +247,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyPhysicalPortToVirtualPortsLink(String physicalPortBodAdminLabel, String virtualPortBodAdminLabel) {
     ListPhysicalPortsPage ppListPage = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = ppListPage.getNumberFromRowWithLinkAndClick(physicalPortBodAdminLabel, "manager/virtualports",
-        "Show");
+    int numberOfItems = ppListPage.getNumberFromRowWithLinkAndClick(physicalPortBodAdminLabel, "manager/virtualports", "Show");
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
     vpListPage.verifyIsCurrentPage();
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, virtualPortBodAdminLabel);
@@ -269,8 +266,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyDashboardToElapsedReservationsLink() {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("past", "manager/reservations/filter/elapsed",
-        "Show");
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("past", "manager/reservations/filter/elapsed", "Show");
 
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationsPage.verifyIsCurrentPage();
@@ -281,8 +277,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyDashboardToComingReservationsLink() {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "manager/reservations/filter/coming",
-        "Show");
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "manager/reservations/filter/coming", "Show");
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);

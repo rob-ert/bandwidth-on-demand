@@ -31,8 +31,7 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
   public void smokeTestAcceptance() {
     initAcceptance();
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+    List<NbiPort> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
@@ -54,7 +53,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
   public void smokeTestProducation() {
     initProduction();
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+    List<NbiPort> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
@@ -63,7 +62,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
   public void smokeTestTest() {
     initTest();
 
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+    List<NbiPort> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }

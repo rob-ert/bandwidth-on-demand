@@ -25,6 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
@@ -47,16 +48,18 @@ public class PhysicalPortFactory {
   private String nmsNeId;
 
   public PhysicalPort create() {
-    PhysicalPort port = new PhysicalPort(vlanRequired);
+    NbiPort nbiPort = new NbiPort();
+    nbiPort.setVlanRequired(vlanRequired);
+    nbiPort.setNmsPortId(nmsPortId);
+    nbiPort.setNmsSapName(nmsSapName);
+    nbiPort.setNmsNeId(nmsNeId);
+
+    PhysicalPort port = new PhysicalPort(nbiPort);
     port.setId(id);
     port.setVersion(version);
     port.setBodPortId(bodPortId);
-
     port.setNocLabel(nocLabel);
     port.setManagerLabel(managerLabel);
-    port.setNmsPortId(nmsPortId);
-    port.setNmsSapName(nmsSapName);
-    port.setNmsNeId(nmsNeId);
 
     if (physicalResourceGroup == null) {
       physicalResourceGroup = createPhysicalResourceGroup();

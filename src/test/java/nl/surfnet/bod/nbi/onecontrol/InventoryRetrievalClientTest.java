@@ -33,7 +33,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 
 import org.junit.Test;
 import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
@@ -76,16 +76,15 @@ public class InventoryRetrievalClientTest {
     SapList sapList = inventoryResponse.getInventoryData().getSapList();
 
     for (ServiceAccessPointType sap : sapList.getSap()) {
-      PhysicalPort physicalPort = subject.translateToPhysicalPort(sap);
+      NbiPort physicalPort = subject.translateToNbiPort(sap);
       assertThat(physicalPort.getNmsPortId(), containsString("1-1"));
       assertThat(physicalPort.getNmsNeId(), containsString("0"));
-      assertThat(physicalPort.getBodPortId(), startsWith("SAP-"));
+      assertThat(physicalPort.getSuggestedBodPortId(), startsWith("SAP-"));
       assertThat(physicalPort.getNmsPortSpeed(), containsString("0"));
       assertThat(physicalPort.getNmsSapName(), startsWith("SAP-"));
-      assertThat(physicalPort.getNocLabel(), containsString("@"));
+      assertThat(physicalPort.getSuggestedNocLabel(), containsString("@"));
       assertThat(physicalPort.getSupportedServiceType(), is("EPL"));
       assertThat(physicalPort.getSignalingType(), is("NA"));
-      assertThat(physicalPort.isAlignedWithNMS(), is(true));
     }
   }
 

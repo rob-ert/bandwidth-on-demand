@@ -41,9 +41,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().switchToUserRole();
 
-    getUserDriver().createNewReservation(
-        "Res Coming", startDate.plusDays(1), endDate.plusDays(1), startTime.plusHours(1), endTime.plusHours(1));
-
+    getUserDriver().createNewReservation("Res Coming", startDate.plusDays(1), endDate.plusDays(1), startTime.plusHours(1), endTime.plusHours(1));
     getUserDriver().createNewReservation("Res Active, which will not become active");
   }
 

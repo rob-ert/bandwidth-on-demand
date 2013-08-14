@@ -42,6 +42,8 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import com.google.common.base.Optional;
+
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -139,7 +141,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public List<PhysicalPort> findAllPhysicalPorts() {
+  public List<NbiPort> findAllPorts() {
     return inventoryRetrievalClient.getPhysicalPorts();
   }
 
@@ -172,11 +174,11 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
-    List<PhysicalPort> physicalPorts = this.inventoryRetrievalClient.getPhysicalPorts();
-    for (PhysicalPort physicalPort: physicalPorts) {
-      if (physicalPort.getNmsPortId().equals(nmsPortId)) {
-        return physicalPort;
+  public NbiPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException {
+    List<NbiPort> nbiPorts = this.inventoryRetrievalClient.getPhysicalPorts();
+    for (NbiPort nbiPort: nbiPorts) {
+      if (nbiPort.getNmsPortId().equals(nmsPortId)) {
+        return nbiPort;
       }
     }
     throw new PortNotAvailableException(nmsPortId);

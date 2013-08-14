@@ -24,13 +24,14 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
@@ -54,7 +55,7 @@ public class InventoryRetrievalClientTestIntegration {
   @Test
   @Ignore
   public void getPhysicalPorts() {
-    List<PhysicalPort> physicalPorts = subject.getPhysicalPorts();
+    List<NbiPort> physicalPorts = subject.getPhysicalPorts();
 
     assertThat(physicalPorts, hasSize(greaterThan(0)));
 
@@ -66,7 +67,7 @@ public class InventoryRetrievalClientTestIntegration {
 //    assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
 //    assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
 
-    for (PhysicalPort physicalPort : physicalPorts) {
+    for (NbiPort physicalPort : physicalPorts) {
       System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
     }
   }

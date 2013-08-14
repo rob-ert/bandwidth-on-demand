@@ -63,12 +63,12 @@ public class ReserveRequestBuilderTest {
   @Test
   public void should_create_a_full_reserve_request() throws Exception {
     Reservation reservation = new ReservationFactory().setReservationId("123").create();
-    reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
-    reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
-    reservation.getSourcePort().getPhysicalPort().setNmsPortId("henk@1-1-1-1");
-    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("destinationNmsSapName");
-    reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
-    reservation.getDestinationPort().getPhysicalPort().setNmsPortId("joop@1-1-1-4");
+    reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsSapName("sourceNmsSapName");
+    reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsNeId("sourceNmsNeId");
+    reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsPortId("henk@1-1-1-1");
+    reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsSapName("destinationNmsSapName");
+    reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsNeId("sourceNmsNeId");
+    reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsPortId("joop@1-1-1-4");
 
     ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
 
@@ -149,7 +149,7 @@ public class ReserveRequestBuilderTest {
       .setNmsSapName("SAP-TEST").setNmsNeId("NeId")
       .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create();
 
-    ServiceAccessPointType sap = ReserveRequestBuilder.createServiceAccessPoint(port, "ReservationId");
+    ServiceAccessPointType sap = ReserveRequestBuilder.createServiceAccessPoint(port.getNbiPort(), "ReservationId");
 
     assertThat(findRdnValue("MD", sap.getResourceRef()), isPresent("CIENA/OneControl"));
     assertThat(findRdnValue("ME", sap.getResourceRef()), isPresent("NeId"));

@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 
@@ -46,13 +47,33 @@ public class PhysicalPortView {
 
   private int reservationsAmount;
 
+  public PhysicalPortView(NbiPort nbiPort) {
+    this.id = null;
+    this.managerLabel = nbiPort.getSuggestedNocLabel();
+    this.instituteName = null;
+    this.vlanRequired = nbiPort.isVlanRequired();
+    this.alignedWithNMS = true;
+    this.nmsAlignmentStatus = null;
+
+    this.numberOfVirtualPorts = 0L;
+    this.deleteActionView = null;
+    this.deleteRender = deleteActionView == null ? false : true;
+
+    this.nmsNeId = nbiPort.getNmsNeId();
+    this.nmsPortSpeed = nbiPort.getNmsPortSpeed();
+    this.nmsSapName = nbiPort.getNmsSapName();
+
+    this.nmsPortId = nbiPort.getNmsPortId();
+    this.nocLabel = nbiPort.getSuggestedNocLabel();
+    this.bodPortId = nbiPort.getSuggestedBodPortId();
+  }
+
   public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
     this.id = physicalPort.getId();
     this.managerLabel = physicalPort.getManagerLabel();
     this.nocLabel = physicalPort.getNocLabel();
     this.bodPortId = physicalPort.getBodPortId();
-    this.instituteName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort
-        .getPhysicalResourceGroup().getName();
+    this.instituteName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort.getPhysicalResourceGroup().getName();
     this.nmsPortId = physicalPort.getNmsPortId();
     this.vlanRequired = physicalPort.isVlanRequired();
     this.alignedWithNMS = physicalPort.isAlignedWithNMS();
@@ -62,9 +83,9 @@ public class PhysicalPortView {
     this.deleteActionView = deleteActionView;
     this.deleteRender = deleteActionView == null ? false : true;
 
-    this.nmsNeId = physicalPort.getNmsNeId();
-    this.nmsPortSpeed = physicalPort.getNmsPortSpeed();
-    this.nmsSapName = physicalPort.getNmsSapName();
+    this.nmsNeId = physicalPort.getNbiPort().getNmsNeId();
+    this.nmsPortSpeed = physicalPort.getNbiPort().getNmsPortSpeed();
+    this.nmsSapName = physicalPort.getNbiPort().getNmsSapName();
   }
 
   public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView) {

@@ -32,7 +32,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -60,7 +60,7 @@ public class NbiClientImpl implements NbiClient {
   }
 
   @Override
-  public List<PhysicalPort> findAllPhysicalPorts() {
+  public List<NbiPort> findAllPorts() {
     return inventoryRetrievalClient.getPhysicalPorts();
   }
 
@@ -110,12 +110,12 @@ public class NbiClientImpl implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
-    List<PhysicalPort> portList = inventoryRetrievalClient.getPhysicalPorts();
+  public NbiPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
+    List<NbiPort> portList = inventoryRetrievalClient.getPhysicalPorts();
 
-    Optional<PhysicalPort> port = Iterables.tryFind(portList, new Predicate<PhysicalPort>() {
+    Optional<NbiPort> port = Iterables.tryFind(portList, new Predicate<NbiPort>() {
       @Override
-      public boolean apply(PhysicalPort physicalPort) {
+      public boolean apply(NbiPort physicalPort) {
         return nmsPortId.equals(physicalPort.getNmsPortId());
       }
     });

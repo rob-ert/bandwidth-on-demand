@@ -34,10 +34,11 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.util.TestHelper;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -68,16 +69,16 @@ public class NbiOpenDracWsClientTestIntegration {
 
   @Test
   public void testFindAllPhysicalPorts() throws PortNotAvailableException {
-    List<PhysicalPort> allPorts = subject.findAllPhysicalPorts();
+    List<NbiPort> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
 
   @Test
   public void testFindPhysicalPortByNmsPortId() throws PortNotAvailableException {
-    PhysicalPort firstPort = subject.findAllPhysicalPorts().get(0);
+    NbiPort firstPort = subject.findAllPorts().get(0);
 
-    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
+    NbiPort foundPort = subject.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
 
     assertThat(foundPort.getNmsPortId(), is(firstPort.getNmsPortId()));
   }
@@ -90,16 +91,15 @@ public class NbiOpenDracWsClientTestIntegration {
   @Test
   public void portCountShouldMatchSizeOfAllPorts() {
     long count = subject.getPhysicalPortsCount();
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+    List<NbiPort> ports = subject.findAllPorts();
 
     assertThat(count, is((long) ports.size()));
   }
 
   @Test
   public void testRequireVlanIdWhenPortIdContainsLabel() {
-    for (PhysicalPort port : subject.findAllPhysicalPorts()) {
-      assertThat(port.toString(), port.isVlanRequired(),
-          not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+    for (NbiPort port : subject.findAllPorts()) {
+      assertThat(port.toString(), port.isVlanRequired(), not(port.getSuggestedBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
     }
   }
 

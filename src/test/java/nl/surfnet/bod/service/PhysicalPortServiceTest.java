@@ -40,8 +40,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -68,26 +70,18 @@ public class PhysicalPortServiceTest {
   @InjectMocks
   private PhysicalPortService subject;
 
-  @Mock
-  private NbiClient nbiClientMock;
-
-  @Mock
-  private PhysicalPortRepo physicalPortRepoMock;
-
-  @Mock
-  private Environment environmentMock;
-
-  @Mock
-  private LogEventService logEventService;
-
-  @Mock
-  private SnmpAgentService snmpAgentService;
+  @Mock private NbiClient nbiClientMock;
+  @Mock private PhysicalPortRepo physicalPortRepoMock;
+  @Mock private Environment environmentMock;
+  @Mock private LogEventService logEventService;
+  @Mock private SnmpAgentService snmpAgentService;
 
   private Map<String, PhysicalPort> physicalPortMap;
 
+  private Map<String, NbiPort> nbiPortMap;
+
   @Before
   public void setUp() {
-
     Security.setUserDetails(
       new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group").create());
 
@@ -96,47 +90,22 @@ public class PhysicalPortServiceTest {
         new PhysicalPortFactory().setId(2L).setNmsPortId("2").create(),
         new PhysicalPortFactory().setId(3L).setNmsPortId("3").create());
 
-    physicalPortMap = PhysicalPortService.buildPortIdMap(physicalPorts);
+    physicalPortMap = PhysicalPortService.buildPhysicalPortIdMap(physicalPorts);
+    nbiPortMap = ImmutableMap.of("1", physicalPorts.get(0).getNbiPort(), "2", physicalPorts.get(1).getNbiPort(), "3", physicalPorts.get(2).getNbiPort());
   }
 
   @Test
-  public void findAllShouldMergePorts() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
-      new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("first").withNoIds().create(),
-      new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("second").withNoIds().create());
+  public void allUnallocatedPortsShouldNotContainAllocatedPorts() {
+    List<NbiPort> nbiPorts = Lists.newArrayList(
+      new PhysicalPortFactory().setNmsPortId("first").withNoIds().create().getNbiPort(),
+      new PhysicalPortFactory().setNmsPortId("second").withNoIds().create().getNbiPort());
 
-    List<PhysicalPort> repoPorts = Lists.newArrayList(
-      new PhysicalPortFactory().setNocLabel("overwrite").setNmsPortId("first").setId(1L).setVersion(2).create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").setId(1L).create());
 
-    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
+    when(nbiClientMock.findAllPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
-    List<PhysicalPort> allPorts = subject.findAll();
-
-    assertThat(allPorts, hasSize(2));
-    assertThat(allPorts.get(0).getId(), is(1L));
-    assertThat(allPorts.get(0).getVersion(), is(2));
-    assertThat(allPorts.get(0).getNmsPortId(), is("first"));
-    assertThat(allPorts.get(0).getNocLabel(), is("overwrite"));
-
-    assertThat(allPorts.get(1).getId(), nullValue());
-    assertThat(allPorts.get(1).getNmsPortId(), is("second"));
-    assertThat(allPorts.get(1).getNocLabel(), is("noc label"));
-  }
-
-  @Test
-  public void allUnallocatedPortsShouldNotContainOnesWithId() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
-      new PhysicalPortFactory().setNmsPortId("first").withNoIds().create(),
-      new PhysicalPortFactory().setNmsPortId("second").withNoIds().create());
-
-    List<PhysicalPort> repoPorts = Lists.newArrayList(
-      new PhysicalPortFactory().setNmsPortId("first").setId(1L).create());
-
-    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
-
-    Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
+    Collection<NbiPort> unallocatedPorts = subject.findUnallocated();
 
     assertThat(unallocatedPorts, hasSize(1));
     assertThat(unallocatedPorts.iterator().next().getNmsPortId(), is("second"));
@@ -145,7 +114,7 @@ public class PhysicalPortServiceTest {
   @Test
   public void findByNmsPortIdShouldGiveNullIfNotFound() throws PortNotAvailableException {
     when(nbiClientMock.findPhysicalPortByNmsPortId("first")).thenReturn(null);
-    when(physicalPortRepoMock.findByNmsPortId("first")).thenReturn(null);
+    when(physicalPortRepoMock.findByNbiPortNmsPortId("first")).thenReturn(null);
 
     PhysicalPort port = subject.findByNmsPortId("first");
 
@@ -154,11 +123,11 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void findByNmsPortIdhouldGiveAMergedPortIfFound() throws PortNotAvailableException {
-    PhysicalPort nbiPort = new PhysicalPortFactory().setNmsPortId("first").create();
+    NbiPort nbiPort = new PhysicalPortFactory().setNmsPortId("first").create().getNbiPort();
     PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setNmsPortId("first").create();
 
     when(nbiClientMock.findPhysicalPortByNmsPortId("first")).thenReturn(nbiPort);
-    when(physicalPortRepoMock.findByNmsPortId("first")).thenReturn(repoPort);
+    when(physicalPortRepoMock.findByNbiPortNmsPortId("first")).thenReturn(repoPort);
 
     PhysicalPort port = subject.findByNmsPortId("first");
 
@@ -232,7 +201,7 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void shouldFindTwoDissapearedPorts() {
-    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(ports("1", "2", "3"), ports("3"));
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(allocatedPorts("1", "2", "3"), nbiPorts("3"));
 
     assertThat(dissapearedPorts, hasSize(2));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1"), physicalPortMap.get("2")));
@@ -245,8 +214,8 @@ public class PhysicalPortServiceTest {
             new PhysicalPortFactory().setNmsPortId("1").setVlanRequired(false).create(),
             new PhysicalPortFactory().setNmsPortId("2").setVlanRequired(true).create()),
         Arrays.asList(
-            new PhysicalPortFactory().setNmsPortId("1").setVlanRequired(true).create(),
-            new PhysicalPortFactory().setNmsPortId("2").setVlanRequired(false).create()));
+            new PhysicalPortFactory().setNmsPortId("1").setVlanRequired(true).create().getNbiPort(),
+            new PhysicalPortFactory().setNmsPortId("2").setVlanRequired(false).create().getNbiPort()));
 
     assertThat(unalignedPorts, hasSize(2));
     assertThat(unalignedPorts.get(0).getNmsAlignmentStatus(), is(NmsAlignmentStatus.TYPE_CHANGED_TO_VLAN));
@@ -256,7 +225,7 @@ public class PhysicalPortServiceTest {
   @Test
   public void shouldOnlyFindNonMissingDisappearedPorts() {
     physicalPortMap.get("2").setNmsAlignmentStatus(NmsAlignmentStatus.DISAPPEARED);
-    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(ports("1", "2", "3"), ports("3"));
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(allocatedPorts("1", "2", "3"), nbiPorts("3"));
 
     assertThat(dissapearedPorts, hasSize(1));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1")));
@@ -264,14 +233,14 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void shouldFindNoDissapearedPorts() {
-    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(ports("1", "2", "3"), ports("1", "2", "3"));
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(allocatedPorts("1", "2", "3"), nbiPorts("1", "2", "3"));
 
     assertThat(dissapearedPorts, hasSize(0));
   }
 
   @Test
   public void shouldFindOneDissapearedPorts() {
-    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(ports("1", "2", "3"), ports("1", "3"));
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(allocatedPorts("1", "2", "3"), nbiPorts("1", "3"));
 
     assertThat(dissapearedPorts, hasSize(1));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("2")));
@@ -281,7 +250,7 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void shouldFindNoDissapearedPortsWhenWithNewPort() {
-    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(ports("1", "2", "3"), Arrays.asList(new PhysicalPortFactory().setNmsPortId("4").create()));
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(allocatedPorts("1", "2", "3"), Arrays.asList(new PhysicalPortFactory().setNmsPortId("4").create().getNbiPort()));
 
     assertThat(dissapearedPorts, hasSize(3));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1"), physicalPortMap.get("2"), physicalPortMap.get("3")));
@@ -291,7 +260,7 @@ public class PhysicalPortServiceTest {
   public void shouldFindNoReappearedPorts() {
     physicalPortMap.get("1").setNmsAlignmentStatus(NmsAlignmentStatus.ALIGNED);
 
-    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(ports("1", "2", "3"), ports());
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(allocatedPorts("1", "2", "3"), nbiPorts());
 
     assertThat(reappearedPorts, hasSize(0));
   }
@@ -302,7 +271,7 @@ public class PhysicalPortServiceTest {
     PhysicalPort portOne = physicalPortMap.get("1");
     portOne.setNmsAlignmentStatus(NmsAlignmentStatus.DISAPPEARED);
 
-    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(ports("1", "2", "3"), ports("1", "2"));
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(allocatedPorts("1", "2", "3"), nbiPorts("1", "2"));
 
     assertThat(reappearedPorts, hasSize(1));
     assertThat(reappearedPorts, hasItems(portOne));
@@ -319,8 +288,8 @@ public class PhysicalPortServiceTest {
     List<PhysicalPort> realignedPorts = subject.markRealignedPortsInNMS(
         Arrays.asList(portOne, portTwo),
         Arrays.asList(
-            new PhysicalPortFactory().setNmsPortId("1").setVlanRequired(false).create(),
-            new PhysicalPortFactory().setNmsPortId("2").setVlanRequired(true).create()));
+            new PhysicalPortFactory().setNmsPortId("1").setVlanRequired(false).create().getNbiPort(),
+            new PhysicalPortFactory().setNmsPortId("2").setVlanRequired(true).create().getNbiPort()));
 
     assertThat(realignedPorts, hasSize(1));
     assertThat(realignedPorts, hasItems(portOne));
@@ -335,14 +304,14 @@ public class PhysicalPortServiceTest {
     PhysicalPort portOne = physicalPortMap.get("1");
     portOne.setNmsAlignmentStatus(NmsAlignmentStatus.ALIGNED);
 
-    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(ports("1", "2", "3"), ports("1"));
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(allocatedPorts("1", "2", "3"), nbiPorts("1"));
 
     assertThat(reappearedPorts, hasSize(0));
   }
 
   @Test
   public void shouldChangeNoPorts() {
-    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
+    when(nbiClientMock.findAllPorts()).thenReturn(Lists.newArrayList(nbiPortMap.values()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
 
     subject.detectAndPersistPortInconsistencies();
@@ -357,7 +326,7 @@ public class PhysicalPortServiceTest {
   @Test
   public void shouldFindOneReappearingPort() {
     physicalPortMap.get("1").setNmsAlignmentStatus(NmsAlignmentStatus.DISAPPEARED);
-    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
+    when(nbiClientMock.findAllPorts()).thenReturn(Lists.newArrayList(nbiPortMap.values()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
 
     subject.detectAndPersistPortInconsistencies();
@@ -371,8 +340,8 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void shouldFindOneDisappearingPort() {
-    when(nbiClientMock.findAllPhysicalPorts())
-      .thenReturn(Lists.newArrayList(physicalPortMap.get("1"), physicalPortMap.get("2")));
+    when(nbiClientMock.findAllPorts())
+      .thenReturn(Lists.newArrayList(physicalPortMap.get("1").getNbiPort(), physicalPortMap.get("2").getNbiPort()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
 
     subject.detectAndPersistPortInconsistencies();
@@ -384,11 +353,20 @@ public class PhysicalPortServiceTest {
     verify(physicalPortRepoMock, times(2)).save(anyListOf(PhysicalPort.class));
   }
 
-  private List<PhysicalPort> ports(String... portIds) {
+  private List<PhysicalPort> allocatedPorts(String... portIds) {
     List<PhysicalPort> result = Lists.newArrayList();
     for (String portId: portIds) {
       assertThat("port not found", physicalPortMap, hasKey(portId));
       result.add(physicalPortMap.get(portId));
+    }
+    return result;
+  }
+
+  private List<NbiPort> nbiPorts(String... portIds) {
+    List<NbiPort> result = Lists.newArrayList();
+    for (String portId: portIds) {
+      assertThat("port not found", physicalPortMap, hasKey(portId));
+      result.add(physicalPortMap.get(portId).getNbiPort());
     }
     return result;
   }

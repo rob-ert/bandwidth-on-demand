@@ -21,13 +21,12 @@
             <div class="controls">
                 <select name="nmsPortId" data-component="physicalport-selector">
                     <c:forEach var="port" items="${unallocatedPhysicalPorts}">
-                        <c:set var="managerLabel" value="${port.hasManagerLabel() ? port.managerLabel : ''}" />
                         <c:choose>
                             <c:when test="${addPhysicalPortCommand.nmsPortId eq port.nmsPortId}">
-                                <option value="${port.nmsPortId}" data-noclabel="${port.nocLabel}" data-portid="${port.bodPortId}" selected="true">${port.nocLabel}</option>
+                                <option value="${port.nmsPortId}" data-noclabel="${port.suggestedNocLabel}" data-portid="${port.suggestedBodPortId}" selected="true">${port.suggestedNocLabel}</option>
                             </c:when>
                             <c:otherwise>
-                                <option value="${port.nmsPortId}" data-noclabel="${port.nocLabel}" data-portid="${port.bodPortId}">${port.nocLabel}</option>
+                                <option value="${port.nmsPortId}" data-noclabel="${port.suggestedNocLabel}" data-portid="${port.suggestedBodPortId}">${port.suggestedNocLabel}</option>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>

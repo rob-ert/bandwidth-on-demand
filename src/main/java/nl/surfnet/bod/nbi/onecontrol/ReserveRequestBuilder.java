@@ -30,7 +30,7 @@ import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.util.XmlUtils;
@@ -68,7 +68,7 @@ public class ReserveRequestBuilder {
 
   @VisibleForTesting
   static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort) {
-    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort(), reservation.getReservationId());
+    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort().getNbiPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -118,7 +118,7 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  static ServiceAccessPointType createServiceAccessPoint(PhysicalPort port, String reservationId) {
+  static ServiceAccessPointType createServiceAccessPoint(NbiPort port, String reservationId) {
     ServiceAccessPointType sap = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createServiceAccessPointType()
       .withName(createComonObjectInfoTypeName("SAP", port.getNmsSapName()))
       .withResourceRef(new NamingAttributeType().withRdn(

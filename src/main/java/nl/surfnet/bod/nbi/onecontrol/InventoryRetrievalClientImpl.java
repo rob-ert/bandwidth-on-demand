@@ -36,7 +36,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.sun.xml.ws.developer.JAXWSProperties;
-import nl.surfnet.bod.domain.PhysicalPort;
+
+import nl.surfnet.bod.domain.NbiPort;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,14 +73,13 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   @Value("${onecontrol.inventory.client.request.timeout}")
   private int requestTimeout;
 
-
   @Autowired
   public InventoryRetrievalClientImpl(@Value("${nbi.onecontrol.inventory.retrieval.endpoint}") String endPoint) {
     this.endPoint = endPoint;
   }
 
   @Override
-  public List<PhysicalPort> getPhysicalPorts() {
+  public List<NbiPort> getPhysicalPorts() {
     Optional<SapList> inventory = getSapInventory();
     if (!inventory.isPresent()) {
       return Collections.emptyList();
@@ -86,10 +87,10 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
 
     return FluentIterable
       .from(getSapInventory().get().getSap())
-      .transform(new Function<ServiceAccessPointType, PhysicalPort>() {
+      .transform(new Function<ServiceAccessPointType, NbiPort>() {
         @Override
-        public PhysicalPort apply(ServiceAccessPointType sap) {
-          return translateToPhysicalPort(sap);
+        public NbiPort apply(ServiceAccessPointType sap) {
+          return translateToNbiPort(sap);
         }
       })
       .toList();
@@ -118,7 +119,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   }
 
   @VisibleForTesting
-  PhysicalPort translateToPhysicalPort(ServiceAccessPointType sap) {
+  NbiPort translateToNbiPort(ServiceAccessPointType sap) {
     String nmsSapName = getSapName(sap);
     String managedElement = findRdnValue("ME", sap.getResourceRef()).get();
     String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
@@ -126,19 +127,20 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     String supportedServiceType = findSscValue("SupportedServices", sap.getDescribedByList()).get();
     boolean isVlanRequired = determineVlanRequired(supportedServiceType);
 
-    PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
-    physicalPort.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToShortPtP(ptp)));
-    physicalPort.setNmsSapName(nmsSapName);
-    physicalPort.setNmsNeId(managedElement);
-    physicalPort.setNmsPortSpeed(nmsPortSpeed);
-    physicalPort.setBodPortId(nmsSapName);
-    physicalPort.setNocLabel(managedElement + "@" +  MtosiUtils.convertToShortPtP(ptp));
-    physicalPort.setSupportedServiceType(supportedServiceType);
-    physicalPort.setSignalingType("NA");
+    NbiPort port = new NbiPort();
+    port.setNmsPortId(MtosiUtils.composeNmsPortId(managedElement, MtosiUtils.convertToShortPtP(ptp)));
+    port.setNmsSapName(nmsSapName);
+    port.setNmsNeId(managedElement);
+    port.setNmsPortSpeed(nmsPortSpeed);
+    port.setSupportedServiceType(supportedServiceType);
+    port.setSignalingType("NA");
+    port.setVlanRequired(isVlanRequired);
+    port.setSuggestedBodPortId(nmsSapName);
+    port.setSuggestedNocLabel(managedElement + "@" +  MtosiUtils.convertToShortPtP(ptp));
 
-    logger.debug("Retrieved physicalport: {}", physicalPort);
+    logger.debug("Retrieved physicalport: {}", port);
 
-    return physicalPort;
+    return port;
   }
 
   @VisibleForTesting

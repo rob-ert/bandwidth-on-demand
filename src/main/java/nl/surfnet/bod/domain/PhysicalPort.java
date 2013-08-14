@@ -55,6 +55,10 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Version
   private Integer version;
 
+  @IndexedEmbedded
+  @Embedded
+  private NbiPort nbiPort;
+
   @Field
   @NotEmpty
   private String nocLabel;
@@ -66,50 +70,22 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @NotEmpty
   private String bodPortId;
 
-  @Field
-  @NotEmpty
-  @Column(unique = true)
-  private String nmsPortId;
-
   @IndexedEmbedded
   @NotNull
   @ManyToOne(optional = false)
   private PhysicalResourceGroup physicalResourceGroup;
 
-  @Basic
-  private final boolean vlanRequired;
-
-  @Basic(optional=false)
+  @Basic(optional = false)
   @Enumerated(EnumType.STRING)
-  private NmsAlignmentStatus nmsAlignmentStatus;
-
-  @Field
-  @Basic
-  private String nmsNeId;
-
-  @Field
-  @Basic
-  private String nmsPortSpeed;
-
-  @Field
-  @Basic
-  private String nmsSapName;
-
-  @Field
-  @Basic
-  private String signalingType;
-
-  @Field
-  @Basic
-  private String supportedServiceType;
+  private NmsAlignmentStatus nmsAlignmentStatus = NmsAlignmentStatus.ALIGNED;;
 
   public PhysicalPort() {
-    this(false);
   }
 
-  public PhysicalPort(boolean vlanRequired) {
-    this.vlanRequired = vlanRequired;
-    this.nmsAlignmentStatus = NmsAlignmentStatus.ALIGNED;
+  public PhysicalPort(NbiPort nbiPort) {
+    this.nbiPort = nbiPort;
+    this.setNocLabel(nbiPort.getSuggestedNocLabel());
+    this.setBodPortId(nbiPort.getSuggestedBodPortId());
   }
 
   @Override
@@ -145,20 +121,12 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     this.physicalResourceGroup = physicalResourceGroup;
   }
 
-  public String getNmsPortId() {
-    return nmsPortId;
-  }
-
-  public void setNmsPortId(String nmsPortId) {
-    this.nmsPortId = nmsPortId;
-  }
-
   public String getManagerLabel() {
-    return Strings.emptyToNull(managerLabel) == null ? nocLabel : managerLabel;
+    return hasManagerLabel() ? managerLabel : nocLabel;
   }
 
   public boolean hasManagerLabel() {
-    return Strings.emptyToNull(managerLabel) != null;
+    return !Strings.isNullOrEmpty(managerLabel);
   }
 
   public void setManagerLabel(String managerLabel) {
@@ -177,10 +145,6 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     this.bodPortId = portId;
   }
 
-  public boolean isVlanRequired() {
-    return vlanRequired;
-  }
-
   public void setNmsAlignmentStatus(NmsAlignmentStatus nmsAlignmentStatus) {
     Preconditions.checkNotNull(nmsAlignmentStatus);
     this.nmsAlignmentStatus = nmsAlignmentStatus;
@@ -194,48 +158,12 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     return nmsAlignmentStatus == NmsAlignmentStatus.ALIGNED;
   }
 
-  public String getNmsNeId() {
-    return nmsNeId;
-  }
-
-  public void setNmsNeId(String nmsNeId) {
-    this.nmsNeId = nmsNeId;
-  }
-
-  public String getNmsPortSpeed() {
-    return nmsPortSpeed;
-  }
-
-  public void setNmsPortSpeed(String nmsPortSpeed) {
-    this.nmsPortSpeed = nmsPortSpeed;
-  }
-
-  public String getNmsSapName() {
-    return nmsSapName;
-  }
-
-  public void setNmsSapName(String nmsSapName) {
-    this.nmsSapName = nmsSapName;
-  }
-
-  public final String getSignalingType() {
-    return signalingType;
-  }
-
-  public final void setSignalingType(String signalingType) {
-    this.signalingType = signalingType;
-  }
-
-  public final String getSupportedServiceType() {
-    return supportedServiceType;
-  }
-
-  public final void setSupportedServiceType(String supportedServiceType) {
-    this.supportedServiceType = supportedServiceType;
-  }
-
   public final String getPortType() {
     return PORT_TYPE_UNI;
+  }
+
+  public NbiPort getNbiPort() {
+    return nbiPort;
   }
 
   @Override
@@ -246,6 +174,14 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   @Override
   public String getLabel() {
     return getNocLabel();
+  }
+
+  public String getNmsPortId() {
+    return this.nbiPort.getNmsPortId();
+  }
+
+  public boolean isVlanRequired() {
+    return nbiPort.isVlanRequired();
   }
 
   @Override
@@ -277,44 +213,11 @@ public class PhysicalPort implements Loggable, PersistableDomain {
       builder.append(bodPortId);
       builder.append(", ");
     }
-    if (nmsPortId != null) {
-      builder.append("nmsPortId=");
-      builder.append(nmsPortId);
-      builder.append(", ");
-    }
     if (physicalResourceGroup != null) {
       builder.append("physicalResourceGroup=");
       builder.append(physicalResourceGroup.getId());
       builder.append(", ");
     }
-    if (nmsNeId != null) {
-      builder.append("nmsNeId=");
-      builder.append(nmsNeId);
-      builder.append(", ");
-    }
-    if (nmsPortSpeed != null) {
-      builder.append("nmsPortSpeed=");
-      builder.append(nmsPortSpeed);
-      builder.append(", ");
-    }
-    if (nmsSapName != null) {
-      builder.append("nmsSapName=");
-      builder.append(nmsSapName);
-      builder.append(", ");
-    }
-
-    if (signalingType != null) {
-      builder.append("signalingType=");
-      builder.append(signalingType);
-      builder.append(", ");
-    }
-    if (supportedServiceType != null) {
-      builder.append("supportedServiceType=");
-      builder.append(supportedServiceType);
-      builder.append(", ");
-    }
-    builder.append("vlanRequired=");
-    builder.append(vlanRequired);
     builder.append(", nmsAlignmentStatus=");
     builder.append(nmsAlignmentStatus);
     builder.append("]");

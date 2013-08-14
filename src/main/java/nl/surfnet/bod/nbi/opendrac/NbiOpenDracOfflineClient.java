@@ -53,7 +53,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -71,15 +71,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class NbiOpenDracOfflineClient implements NbiClient {
 
-  private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
+  private static final Function<MockNbiPort, NbiPort> TRANSFORM_FUNCTION = new Function<MockNbiPort, NbiPort>() {
     @Override
-    public PhysicalPort apply(NbiPort nbiPort) {
-      PhysicalPort physicalPort = new PhysicalPort(isVlanRequired(nbiPort.getName()));
-      physicalPort.setNmsPortId(nbiPort.getId());
-      physicalPort.setBodPortId("Mock_" + nbiPort.getName());
-      physicalPort.setNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+    public NbiPort apply(MockNbiPort nbiPort) {
+      NbiPort port = new NbiPort();
+      port.setNmsPortId(nbiPort.getId());
+      port.setSuggestedBodPortId("Mock_" + nbiPort.getName());
+      port.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+      port.setVlanRequired(isVlanRequired(nbiPort.getName()));
 
-      return physicalPort;
+      return port;
     }
 
     /**
@@ -97,30 +98,30 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   @Resource
   private ReservationRepo reservationRepo;
 
-  private final List<NbiPort> ports = new ArrayList<>();
+  private final List<MockNbiPort> ports = new ArrayList<>();
   private final Map<String, OfflineReservation> scheduleIds = new HashMap<>();
 
   private boolean shouldSleep = true;
 
   public NbiOpenDracOfflineClient() {
-    ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
-    ports.add(new NbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
-    ports.add(new NbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
-    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
-    ports.add(new NbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
-    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
-    ports.add(new NbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
-    ports.add(new NbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
-    ports.add(new NbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
-    ports.add(new NbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
-    ports.add(new NbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
-    ports.add(new NbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
-    ports.add(new NbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
-    ports.add(new NbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
-    ports.add(new NbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
-    ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
+    ports.add(new MockNbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
+    ports.add(new MockNbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
+    ports.add(new MockNbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
+    ports.add(new MockNbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
+    ports.add(new MockNbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
+    ports.add(new MockNbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
+    ports.add(new MockNbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
   @PostConstruct
@@ -133,7 +134,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public List<PhysicalPort> findAllPhysicalPorts() {
+  public List<NbiPort> findAllPorts() {
     return Lists.newArrayList(Lists.transform(ports, TRANSFORM_FUNCTION));
   }
 
@@ -238,18 +239,17 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
+  public NbiPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     Preconditions.checkNotNull(Strings.emptyToNull(nmsPortId));
 
     try {
-      return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<NbiPort>() {
+      return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<MockNbiPort>() {
         @Override
-        public boolean apply(NbiPort nbiPort) {
+        public boolean apply(MockNbiPort nbiPort) {
           return nbiPort.getId().equals(nmsPortId);
         }
       }), TRANSFORM_FUNCTION));
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       throw new PortNotAvailableException(nmsPortId);
     }
   }
@@ -258,16 +258,16 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     this.shouldSleep = sleep;
   }
 
-  private static final class NbiPort {
+  private static final class MockNbiPort {
     private final String name;
     private final Optional<String> userLabel;
     private final String id;
 
-    public NbiPort(String name, String id) {
+    public MockNbiPort(String name, String id) {
       this(name, id, null);
     }
 
-    public NbiPort(String name, String id, String userLabel) {
+    public MockNbiPort(String name, String id, String userLabel) {
       this.name = name;
       this.id = id;
       this.userLabel = Optional.fromNullable(userLabel);

@@ -28,6 +28,7 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -86,8 +87,7 @@ public final class Functions {
     ElementActionView allocateActionView;
     if (vpCount == 0) {
       allocateActionView = new ElementActionView(true, "label_unallocate");
-    }
-    else {
+    } else {
       allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
     }
 
@@ -107,13 +107,13 @@ public final class Functions {
     return transformers;
   }
 
-  public static PhysicalPortView transformUnallocatedPhysicalPort(PhysicalPort unallocatedPort) {
-    return new PhysicalPortView(unallocatedPort, null);
+  public static PhysicalPortView transformUnallocatedPhysicalPort(NbiPort unallocatedPort) {
+    return new PhysicalPortView(unallocatedPort);
   }
 
-  public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(Collection<PhysicalPort> unallocatedPorts) {
+  public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(Collection<NbiPort> unallocatedPorts) {
     List<PhysicalPortView> transformers = Lists.newArrayList();
-    for (PhysicalPort port : unallocatedPorts) {
+    for (NbiPort port : unallocatedPorts) {
       transformers.add(transformUnallocatedPhysicalPort(port));
     }
 

@@ -54,7 +54,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionRespons
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -106,6 +106,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
@@ -269,20 +270,20 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public List<PhysicalPort> findAllPhysicalPorts() {
-    List<PhysicalPort> ports = Lists.newArrayList();
+  public List<NbiPort> findAllPorts() {
+    List<NbiPort> ports = Lists.newArrayList();
 
     for (EndpointT endpoint : findAllEndPoints()) {
-      ports.add(getPhysicalPort(endpoint));
+      ports.add(convertToNbiPort(endpoint));
     }
 
     return ports;
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
+  public NbiPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     EndpointT endpoint = findEndPointById(nmsPortId);
-    return getPhysicalPort(endpoint);
+    return convertToNbiPort(endpoint);
   }
 
   /**
@@ -303,14 +304,12 @@ public class NbiOpenDracWsClient implements NbiClient {
         }
       }
       throw new PortNotAvailableException(id);
-    }
-    else {
+    } else {
       EndpointT endPoint = findEndpointByTna(tna);
 
       if (endPoint.getId().equals(id)) {
         return endPoint;
-      }
-      else {
+      } else {
         idToTnaCache.remove(id);
         return findEndPointById(id);
       }
@@ -328,7 +327,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public long getPhysicalPortsCount() {
-    return findAllPhysicalPorts().size();
+    return findAllPorts().size();
   }
 
   private Optional<QueryReservationScheduleResponseDocument> queryReservation(String reservationId) {
@@ -369,8 +368,7 @@ public class NbiOpenDracWsClient implements NbiClient {
         if (response.getQueryReservationScheduleResponse().getIsFound()) {
           ReservationScheduleT schedule = response.getQueryReservationScheduleResponse().getReservationSchedule();
           return OpenDracStatusTranslator.translate(schedule);
-        }
-        else {
+        } else {
           log.warn("No reservation found for reservationId: {}, returning FAILED", reservationId);
           return FAILED;
         }
@@ -430,8 +428,7 @@ public class NbiOpenDracWsClient implements NbiClient {
         boolean isActivated = reservationSchedule.getActivated();
         return isActivated ? AUTO_START
             : new DateTime(reservationSchedule.getStartTime()).isAfterNow() ? RESERVED : SCHEDULED;
-      }
-      else {
+      } else {
         return scheduleStatusTranslations.get(status);
       }
     }
@@ -532,17 +529,17 @@ public class NbiOpenDracWsClient implements NbiClient {
     return pathRequest;
   }
 
-  private PhysicalPort getPhysicalPort(EndpointT endpoint) {
-    PhysicalPort port = new PhysicalPort(isVlanRequired(endpoint.getTna()));
+  private NbiPort convertToNbiPort(EndpointT endpoint) {
+    NbiPort port = new NbiPort();
 
-    if (endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()) {
-      port.setNocLabel(endpoint.getTna());
-    }
-    else {
-      port.setNocLabel(endpoint.getUserLabel());
+    if (StringUtils.hasText(endpoint.getUserLabel())) {
+      port.setSuggestedNocLabel(endpoint.getUserLabel());
+    } else {
+      port.setSuggestedNocLabel(endpoint.getTna());
     }
     port.setNmsPortId(endpoint.getId());
-    port.setBodPortId(endpoint.getTna());
+    port.setSuggestedBodPortId(endpoint.getTna());
+    port.setVlanRequired(isVlanRequired(endpoint.getTna()));
 
     return port;
   }

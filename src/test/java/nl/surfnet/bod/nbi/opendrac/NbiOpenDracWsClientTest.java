@@ -108,7 +108,7 @@ public class NbiOpenDracWsClientTest {
     when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
         .thenReturn(endpointResponse);
 
-    List<PhysicalPort> ports = subject.findAllPhysicalPorts();
+    List<NbiPort> ports = subject.findAllPorts();
 
     assertThat(ports, hasSize(1));
   }
