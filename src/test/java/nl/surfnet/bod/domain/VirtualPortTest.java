@@ -39,7 +39,7 @@ public class VirtualPortTest {
   @Test
   public void getPhysicalResourceGroup() {
     PhysicalResourceGroup physicalGroup = new PhysicalResourceGroupFactory().create();
-    PhysicalPort physicalPort = new PhysicalPortFactory().setPhysicalResourceGroup(physicalGroup).create();
+    UniPort physicalPort = new PhysicalPortFactory().setPhysicalResourceGroup(physicalGroup).create();
     VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
 
     PhysicalResourceGroup group = port.getPhysicalResourceGroup();

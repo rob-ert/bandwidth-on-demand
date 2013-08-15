@@ -24,7 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.support.NbiPortFactory;
@@ -53,8 +53,8 @@ public class ServiceComponentActivationClientTestIntegration {
   public void shouldCreateReservation() {
 //    PhysicalPort sourcePort = createPort("SAP-00:03:18:58:ce:20-8", "00:03:18:58:ce:20", "1-1-1-8");
 //    PhysicalPort destPort = createPort("SAP-00:03:18:58:ce:20-4", "00:03:18:58:ce:20", "1-1-1-8");
-    PhysicalPort sourcePort = createPort("00:03:18:f2:9a:30-3", "00:03:18:f2:9a:30", "1-1-1-3-1");
-    PhysicalPort destPort = createPort("00:03:18:f2:9a:30-2", "00:03:18:f2:9a:30", "1-1-1-2-1");
+    UniPort sourcePort = createPort("00:03:18:f2:9a:30-3", "00:03:18:f2:9a:30", "1-1-1-3-1");
+    UniPort destPort = createPort("00:03:18:f2:9a:30-2", "00:03:18:f2:9a:30", "1-1-1-2-1");
 //    PhysicalPort destPort = createPort("00:03:18:f2:9a:50-4", "00:03:18:f2:9a:50", "1-1-1-4");
 
     Reservation reservation = new ReservationFactory()
@@ -94,7 +94,7 @@ public class ServiceComponentActivationClientTestIntegration {
     subject.terminate(reservation);
   }
 
-  private PhysicalPort createPort(String name, String me, String ptp) {
+  private UniPort createPort(String name, String me, String ptp) {
     return new PhysicalPortFactory()
       .setNbiPort(new NbiPortFactory()
       .setNmsSapName(name)

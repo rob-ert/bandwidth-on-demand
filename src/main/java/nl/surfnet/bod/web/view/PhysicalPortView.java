@@ -24,7 +24,7 @@ package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 
 public class PhysicalPortView {
 
@@ -68,7 +68,7 @@ public class PhysicalPortView {
     this.bodPortId = nbiPort.getSuggestedBodPortId();
   }
 
-  public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
+  public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
     this.id = physicalPort.getId();
     this.managerLabel = physicalPort.getManagerLabel();
     this.nocLabel = physicalPort.getNocLabel();
@@ -88,11 +88,11 @@ public class PhysicalPortView {
     this.nmsSapName = physicalPort.getNbiPort().getNmsSapName();
   }
 
-  public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView) {
+  public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView) {
     this(physicalPort, deleteActionView, 0);
   }
 
-  public PhysicalPortView(PhysicalPort physicalPort) {
+  public PhysicalPortView(UniPort physicalPort) {
     this(physicalPort, new ElementActionView(false, ""), 0L);
   }
 

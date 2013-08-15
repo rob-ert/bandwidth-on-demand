@@ -44,10 +44,9 @@ public final class VirtualPortPredicatesAndSpecifications {
   static Specification<VirtualPort> forUserSpec(final RichUserDetails user) {
     return new Specification<VirtualPort>() {
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup)
-            .in(user.getUserGroupIds()));
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(
+            root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(user.getUserGroupIds()));
       }
     };
   }
@@ -56,24 +55,21 @@ public final class VirtualPortPredicatesAndSpecifications {
     return new Specification<VirtualPort>() {
 
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb
-            .equal(
-                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                    .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get());
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.equal(
+            root.get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id),
+            managerRole.getPhysicalResourceGroupId().get());
       }
     };
   }
 
-  static Specification<VirtualPort> byPhysicalPortSpec(final PhysicalPort physicalPort) {
+  static Specification<VirtualPort> byPhysicalPortSpec(final UniPort physicalPort) {
     return new Specification<VirtualPort>() {
 
       private final Long physicalPortId = physicalPort.getId();
 
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.and(cb.equal(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.id), physicalPortId));
       }
     };
@@ -86,11 +82,9 @@ public final class VirtualPortPredicatesAndSpecifications {
       public Predicate toPredicate(Root<VirtualPortRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
 
-        return cb
-            .and(
-                cb.between(root.get(VirtualPortRequestLink_.requestDateTime), start.minusDays(31), start),
-                root.get(VirtualPortRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup)
-                    .in(vrgUrns));
+        return cb.and(
+            cb.between(root.get(VirtualPortRequestLink_.requestDateTime), start.minusDays(31), start),
+            root.get(VirtualPortRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
       }
     };
   }

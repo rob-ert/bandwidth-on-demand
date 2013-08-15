@@ -149,7 +149,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<VirtualPort> subRoot = subquery.from(VirtualPort.class);
         subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
-        subquery.where(cb.equal(subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+        subquery.where(cb.equal(subRoot.get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
             PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
 
         return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);

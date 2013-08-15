@@ -47,7 +47,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NsiVersion;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UserGroup;
@@ -114,7 +114,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.count(forManagerSpec(managerRole));
   }
 
-  public long countForPhysicalPort(PhysicalPort physicalPort) {
+  public long countForPhysicalPort(UniPort physicalPort) {
     return virtualPortRepo.count(byPhysicalPortSpec(physicalPort));
   }
 
@@ -218,7 +218,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.save(virtualPort);
   }
 
-  public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort physicalPort) {
+  public Collection<VirtualPort> findAllForPhysicalPort(UniPort physicalPort) {
     checkNotNull(physicalPort);
 
     return virtualPortRepo.findAll(byPhysicalPortSpec(physicalPort));

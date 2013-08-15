@@ -53,7 +53,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.NbiPortFactory;
@@ -178,7 +178,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateShouldGoToFreePortsAndShowMessage() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
+    UniPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
 
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
     when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.of(port.getNbiPort()));
@@ -206,7 +206,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateWithoutManagerLabelShouldClearManagerLabel() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
+    UniPort port = new PhysicalPortFactory().setNocLabel("wrong").setManagerLabel("wrong").create();
 
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
     when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.of(port.getNbiPort()));
@@ -228,7 +228,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateWithErrorsShouldGoBackToForm() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().create();
+    UniPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
 
@@ -264,7 +264,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void deleteShouldStayOnSamePageButReload() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().create();
+    UniPort port = new PhysicalPortFactory().create();
     String nmsPortId = "port_name";
 
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
@@ -321,7 +321,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void addPhysicalPort() throws Exception {
     String nmsPortId = "00-BB_ETH0";
-    PhysicalPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("").create();
+    UniPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("").create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
@@ -346,7 +346,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void addPhysicalPortWithoutManagerLabel() throws Exception {
     String nmsPortId = "00-BB_ETH0";
-    PhysicalPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("Manager label").create();
+    UniPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("Manager label").create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
@@ -380,7 +380,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void movePhysicalPortWithNoAvailableUnallocatedPorts() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().create();
+    UniPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<NbiPort> emptyList());
@@ -394,7 +394,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void movePhysicalPort() throws Exception {
-    PhysicalPort port = new PhysicalPortFactory().create();
+    UniPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Lists.newArrayList(new NbiPortFactory().create()));

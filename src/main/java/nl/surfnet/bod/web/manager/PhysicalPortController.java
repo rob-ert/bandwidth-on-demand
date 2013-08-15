@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.util.Functions;
@@ -49,7 +49,7 @@ import com.google.common.base.Optional;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, PhysicalPort> {
+public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, UniPort> {
 
   public static final String PAGE_URL = "/manager/physicalports";
 
@@ -67,7 +67,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
-    PhysicalPort port = physicalPortService.find(id);
+    UniPort port = physicalPortService.find(id);
 
     if (port == null || Security.managerMayNotEdit(port)) {
       return "manager/physicalports";
@@ -81,7 +81,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(method = RequestMethod.PUT)
   public String update(final UpdateManagerLabelCommand command, final BindingResult result, final Model model) {
-    PhysicalPort port = physicalPortService.find(command.getId());
+    UniPort port = physicalPortService.find(command.getId());
 
     if (port == null || Security.managerMayNotEdit(port)) {
       return "redirect:physicalports";
@@ -119,7 +119,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public UpdateManagerLabelCommand() {
     }
 
-    public UpdateManagerLabelCommand(PhysicalPort port) {
+    public UpdateManagerLabelCommand(UniPort port) {
       version = port.getVersion();
       id = port.getId();
       managerLabel = port.getManagerLabel();
@@ -190,12 +190,12 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
     return physicalPortService;
   }
 
   @Override
-  protected List<? extends PhysicalPortView> transformToView(List<? extends PhysicalPort> entities, RichUserDetails user) {
+  protected List<? extends PhysicalPortView> transformToView(List<? extends UniPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 }

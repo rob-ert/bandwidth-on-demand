@@ -24,7 +24,7 @@ package nl.surfnet.bod.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class LuceneSortFieldTypeTest {
 
   @Test
   public void testLuceneTypeNonExisting() {
-    assertThat(LuceneSortFieldType.getLuceneTypeFor(PhysicalPort.class), is(SortField.STRING_VAL));
+    assertThat(LuceneSortFieldType.getLuceneTypeFor(UniPort.class), is(SortField.STRING_VAL));
   }
 
   @Test

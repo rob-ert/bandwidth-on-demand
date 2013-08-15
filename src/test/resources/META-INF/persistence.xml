@@ -39,6 +39,8 @@
         <class>nl.surfnet.bod.domain.Institute</class>
         <class>nl.surfnet.bod.domain.NsiV1RequestDetails</class>
         <class>nl.surfnet.bod.domain.NsiV2RequestDetails</class>
+        <class>nl.surfnet.bod.domain.UniPort</class>
+        <class>nl.surfnet.bod.domain.EnniPort</class>
         <class>nl.surfnet.bod.event.LogEvent</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />

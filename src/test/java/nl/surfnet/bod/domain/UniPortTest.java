@@ -24,7 +24,6 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -32,18 +31,11 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
 
-public class PhysicalPortTest {
-
-  @Test
-  public void toStringShouldContainName() {
-    PhysicalPort port = new PhysicalPortFactory().setNocLabel("pooooort").create();
-
-    assertThat(port.toString(), containsString("pooooort"));
-  }
+public class UniPortTest {
 
   @Test
   public void whenManagerLabelIsEmptyShouldReturnNocLabel() {
-    PhysicalPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel(null).create();
+    UniPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel(null).create();
 
     assertThat(port.getManagerLabel(), is("Noc label"));
     assertThat(port.hasManagerLabel(), is(false));
@@ -51,7 +43,7 @@ public class PhysicalPortTest {
 
   @Test
   public void whenManagerLabelIsSet() {
-    PhysicalPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel("Manager label").create();
+    UniPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel("Manager label").create();
 
     assertThat(port.getManagerLabel(), is("Manager label"));
     assertThat(port.hasManagerLabel(), is(true));
@@ -60,9 +52,10 @@ public class PhysicalPortTest {
   @Test
   public void getAdminGroupsShouldReturnAdminGroup(){
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:ict-baas").create();
-    PhysicalPort subject = new PhysicalPortFactory().setPhysicalResourceGroup(prg).create();
+    UniPort subject = new PhysicalPortFactory().setPhysicalResourceGroup(prg).create();
 
     assertThat(subject.getAdminGroups(), hasSize(1));
     assertThat(subject.getAdminGroups(), contains("urn:ict-baas"));
   }
+
 }

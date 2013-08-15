@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -104,11 +104,11 @@ public class DashboardController {
         countComingReservations, countMissingPhysicalPorts);
   }
 
-  private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unalignedPorts) {
+  private void generateErrorMessagesForUnalignedPorts(Model model, List<UniPort> unalignedPorts) {
 
     final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
-    for (PhysicalPort port : unalignedPorts) {
+    for (UniPort port : unalignedPorts) {
       messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms." + port.getNmsAlignmentStatus().name(), port
           .getNmsPortId(), port.getNocLabel());
     }

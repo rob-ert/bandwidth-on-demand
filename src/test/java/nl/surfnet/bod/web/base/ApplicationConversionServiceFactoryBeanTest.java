@@ -33,7 +33,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.support.InstituteFactory;
@@ -57,11 +57,11 @@ public class ApplicationConversionServiceFactoryBeanTest {
 
   @Test
   public void convetIdToPhysicalPort() {
-    PhysicalPort port = new PhysicalPortFactory().create();
+    UniPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.find(1L)).thenReturn(port);
 
-    PhysicalPort convertedPort = subject.getIdToPhysicalPortConverter().convert(1L);
+    UniPort convertedPort = subject.getIdToPhysicalPortConverter().convert(1L);
 
     assertThat(convertedPort, is(port));
   }

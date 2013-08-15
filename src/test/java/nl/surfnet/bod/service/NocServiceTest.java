@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.FakeTransactionOperations;
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -92,7 +92,7 @@ public class NocServiceTest {
     DateTime start = DateTime.now().plusDays(2);
     DateTime end = DateTime.now().plusDays(5);
 
-    PhysicalPort oldPort = new PhysicalPortFactory().create();
+    UniPort oldPort = new PhysicalPortFactory().create();
     NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
     VirtualPort vPort = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory()
@@ -120,7 +120,7 @@ public class NocServiceTest {
 
   @Test
   public void oldPortShouldBeUnallocated() {
-    PhysicalPort oldPort = new PhysicalPortFactory().create();
+    UniPort oldPort = new PhysicalPortFactory().create();
     NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
 
     subject.movePort(oldPort, newPort);
@@ -130,7 +130,7 @@ public class NocServiceTest {
 
   @Test
   public void virtualPortsShouldHaveNewPhysicalPort() {
-    PhysicalPort oldPort = new PhysicalPortFactory().create();
+    UniPort oldPort = new PhysicalPortFactory().create();
     NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
     VirtualPort port1 = new VirtualPortFactory().create();
     VirtualPort port2 = new VirtualPortFactory().create();

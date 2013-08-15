@@ -24,7 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
@@ -38,7 +38,7 @@ public class VirtualPortFactory {
   private Integer version;
   private String managerLabel = "A virtual port " + id;
   private String userLabel = "A user virtual port " + id;;
-  private PhysicalPort physicalPort;
+  private UniPort physicalPort;
   private Long maxBandwidth = 10000L;
   private Integer vlanId = null;
   private VirtualResourceGroup virtualResourceGroup;
@@ -88,7 +88,7 @@ public class VirtualPortFactory {
     return factory.create();
   }
 
-  private PhysicalPort createPhysicalPort() {
+  private UniPort createPhysicalPort() {
     PhysicalPortFactory factory = new PhysicalPortFactory();
 
     if (noIds) {
@@ -123,7 +123,7 @@ public class VirtualPortFactory {
     return this;
   }
 
-  public VirtualPortFactory setPhysicalPort(PhysicalPort physicalPort) {
+  public VirtualPortFactory setPhysicalPort(UniPort physicalPort) {
     this.physicalPort = physicalPort;
     return this;
   }

@@ -25,7 +25,7 @@ package nl.surfnet.bod.nbi;
 import java.util.List;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -41,7 +41,7 @@ public interface NbiClient {
 
   /**
    *
-   * @return the amount of all available {@link PhysicalPort}'s
+   * @return the amount of all available {@link UniPort}'s
    */
   long getPhysicalPortsCount();
 
@@ -55,7 +55,7 @@ public interface NbiClient {
 
   /**
    *
-   * @return all available {@link PhysicalPort}'s
+   * @return all available {@link UniPort}'s
    */
   List<NbiPort> findAllPorts();
 
@@ -71,7 +71,7 @@ public interface NbiClient {
   /**
    *
    * @param name
-   * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's
+   * @return a {@link UniPort} identified by a certain name, in OpenDRAC's
    *         case the network elements pk
    */
   NbiPort findPhysicalPortByNmsPortId(String nmsPortId) throws PortNotAvailableException;

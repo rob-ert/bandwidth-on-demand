@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain.validator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.NbiPortFactory;
@@ -44,8 +44,8 @@ public class VirtualPortValidatorTest {
   private VirtualPortValidator subject;
 
   private VirtualPort virtualPort;
-  private PhysicalPort physicalPort;
-  private PhysicalPort physicalPortVlanRequired;
+  private UniPort physicalPort;
+  private UniPort physicalPortVlanRequired;
 
   @Before
   public void initSecurity() {

@@ -48,7 +48,7 @@ import com.google.common.collect.Maps;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -68,19 +68,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service implementation which combines {@link PhysicalPort}s.
+ * Service implementation which combines {@link UniPort}s.
  *
- * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
+ * The {@link UniPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
  *
- * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
+ * Since {@link UniPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
  *
  */
 @Service
 @Transactional
-public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
+public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> {
 
   private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";
 
@@ -104,7 +104,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
+  public List<UniPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
     return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -112,11 +112,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return limitPorts(findUnallocated(), firstResult, sizeNo);
   }
 
-  public List<PhysicalPort> findUnalignedPhysicalPorts() {
+  public List<UniPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
 
-  public List<PhysicalPort> findUnalignedPhysicalPorts(int firstResult, int maxResults, Sort sort) {
+  public List<UniPort> findUnalignedPhysicalPorts(int firstResult, int maxResults, Sort sort) {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC, new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -126,9 +126,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   public Collection<NbiPort> findUnallocated() {
     List<NbiPort> nbiPorts = nbiClient.findAllPorts();
-    List<PhysicalPort> physicalPorts = physicalPortRepo.findAll();
+    List<UniPort> physicalPorts = physicalPortRepo.findAll();
 
-    final ImmutableMap<String, PhysicalPort> repoPortMap = buildPhysicalPortIdMap(physicalPorts);
+    final ImmutableMap<String, UniPort> repoPortMap = buildPhysicalPortIdMap(physicalPorts);
 
     return Collections2.filter(nbiPorts, new Predicate<NbiPort>() {
       @Override
@@ -158,7 +158,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     }
   }
 
-  public PhysicalPort findByNmsPortId(final String nmsPortId) {
+  public UniPort findByNmsPortId(final String nmsPortId) {
     return physicalPortRepo.findByNbiPortNmsPortId(nmsPortId);
   }
 
@@ -170,7 +170,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    *          NmsPort of the port
    */
   public void deleteByNmsPortId(final String nmsPortId) {
-    PhysicalPort physicalPort = findByNmsPortId(nmsPortId);
+    UniPort physicalPort = findByNmsPortId(nmsPortId);
 
     final RichUserDetails userDetails = Security.getUserDetails();
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
@@ -179,18 +179,18 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     delete(physicalPortRepo.findByNbiPortNmsPortId(nmsPortId));
   }
 
-  public PhysicalPort find(final Long id) {
+  public UniPort find(final Long id) {
     return physicalPortRepo.findOne(id);
   }
 
-  public void save(final PhysicalPort physicalPort) {
+  public void save(final UniPort physicalPort) {
     physicalPortRepo.save(physicalPort);
 
     // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), physicalPort);
   }
 
-  public PhysicalPort update(final PhysicalPort physicalPort) {
+  public UniPort update(final UniPort physicalPort) {
     logEventService.logUpdateEvent(Security.getUserDetails(), "Allocated port "
         + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
 
@@ -198,13 +198,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   @VisibleForTesting
-  void delete(final PhysicalPort physicalPort) {
+  void delete(final UniPort physicalPort) {
     logEventService.logDeleteEvent(Security.getUserDetails(), "Port "
         + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
     physicalPortRepo.delete(physicalPort);
   }
 
-  public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
+  public List<UniPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
     return physicalPortRepo.findAll(byPhysicalResourceGroupSpec(physicalResourceGroup),
@@ -223,21 +223,21 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public void detectAndPersistPortInconsistencies() {
     logger.info("Detecting port inconsistencies with the NMS, job based on configuration key: {}", PORT_DETECTION_CRON_KEY);
 
-    List<PhysicalPort> bodPorts = physicalPortRepo.findAll();
+    List<UniPort> bodPorts = physicalPortRepo.findAll();
     List<NbiPort> nbiPorts = nbiClient.findAllPorts();
 
-    List<PhysicalPort> realignedPorts = markRealignedPortsInNMS(bodPorts, nbiPorts);
+    List<UniPort> realignedPorts = markRealignedPortsInNMS(bodPorts, nbiPorts);
     physicalPortRepo.save(realignedPorts);
     logEventService.logUpdateEvent(Security.getUserDetails(), "Reappeared ports in NMS", realignedPorts);
 
-    List<PhysicalPort> unalignedPorts = markUnalignedWithNMS(bodPorts, nbiPorts);
+    List<UniPort> unalignedPorts = markUnalignedWithNMS(bodPorts, nbiPorts);
     physicalPortRepo.save(unalignedPorts);
     logEventService.logUpdateEvent(Security.getUserDetails(), "Disappeared ports in NMS", unalignedPorts);
   }
 
-  static ImmutableMap<String, PhysicalPort> buildPhysicalPortIdMap(List<PhysicalPort> ports) {
-    Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
-    for (PhysicalPort port : ports) {
+  static ImmutableMap<String, UniPort> buildPhysicalPortIdMap(List<UniPort> ports) {
+    Map<String, UniPort> physicalPorts = Maps.newHashMap();
+    for (UniPort port : ports) {
       physicalPorts.put(port.getNmsPortId(), port);
     }
     return ImmutableMap.copyOf(physicalPorts);
@@ -252,11 +252,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   @VisibleForTesting
-  List<PhysicalPort> markRealignedPortsInNMS(List<PhysicalPort> bodPorts, List<NbiPort> nbiPorts) {
+  List<UniPort> markRealignedPortsInNMS(List<UniPort> bodPorts, List<NbiPort> nbiPorts) {
     ImmutableMap<String, NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
 
-    List<PhysicalPort> realigned = Lists.newArrayList();
-    for (PhysicalPort bodPort: bodPorts) {
+    List<UniPort> realigned = Lists.newArrayList();
+    for (UniPort bodPort: bodPorts) {
       if (!bodPort.isAlignedWithNMS()) {
         NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
         if (nbiPort != null) {
@@ -277,11 +277,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   /**
-   * Checks the {@link PhysicalPort}s in the given Map which are aligned are now
+   * Checks the {@link UniPort}s in the given Map which are aligned are now
    * unaligned by finding the differences between the ports in the given list
    * and the ports returned by the NMS based on the
-   * {@link PhysicalPort#getNmsPortId()} and
-   * {@link PhysicalPort#isVlanRequired()}.
+   * {@link UniPort#getNmsPortId()} and
+   * {@link UniPort#isVlanRequired()}.
    *
    * @param bodPorts
    *          List with ports from BoD
@@ -290,11 +290,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * @return {@link List<PhysicalPort>} were aligned but are now unaligned.
    */
   @VisibleForTesting
-  List<PhysicalPort> markUnalignedWithNMS(final List<PhysicalPort> bodPorts, final List<NbiPort> nbiPorts) {
+  List<UniPort> markUnalignedWithNMS(final List<UniPort> bodPorts, final List<NbiPort> nbiPorts) {
     ImmutableMap<String,NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
 
-    List<PhysicalPort> unaligned = Lists.newArrayList();
-    for (PhysicalPort bodPort : bodPorts) {
+    List<UniPort> unaligned = Lists.newArrayList();
+    for (UniPort bodPort : bodPorts) {
       if (bodPort.isAlignedWithNMS()) {
         NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
         if (nbiPort == null) {
@@ -309,7 +309,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
       }
     }
 
-    for (PhysicalPort port: unaligned) {
+    for (UniPort port: unaligned) {
       snmpAgentService.sendMissingPortEvent(port.getId().toString());
     }
 
@@ -329,9 +329,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    *          Role
    * @param physicalPort
    *          Port
-   * @return Label to log for the given {@link PhysicalPort}
+   * @return Label to log for the given {@link UniPort}
    */
-  private String getLogLabel(BodRole bodRole, PhysicalPort physicalPort) {
+  private String getLogLabel(BodRole bodRole, UniPort physicalPort) {
     if (bodRole.isManagerRole() && (physicalPort.hasManagerLabel())) {
       return physicalPort.getManagerLabel();
     }
@@ -349,7 +349,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
         return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
             .byPhysicalResourceGroupSpec(physicalResourceGroup.get())), sort);
       } else {
-        return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent(), sort);
+        return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<UniPort>> absent(), sort);
       }
     }
 

@@ -71,7 +71,7 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
   @ContainedIn
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   @JsonIgnore
-  private Collection<PhysicalPort> physicalPorts;
+  private Collection<UniPort> physicalPorts;
 
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   @JsonIgnore
@@ -122,11 +122,11 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
     this.adminGroup = adminGroup;
   }
 
-  public Collection<PhysicalPort> getPhysicalPorts() {
+  public Collection<UniPort> getPhysicalPorts() {
     return physicalPorts;
   }
 
-  public void setPhysicalPorts(List<PhysicalPort> physicalPorts) {
+  public void setPhysicalPorts(List<UniPort> physicalPorts) {
     this.physicalPorts = physicalPorts;
   }
 

@@ -84,7 +84,8 @@ public class ReserveRequestBuilder {
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
     }
 
-    describedByList.add(createSscValue("InterfaceType", virtualPort.getPhysicalPort().getPortType()));
+    // TODO could be an I-NNI
+    describedByList.add(createSscValue("InterfaceType", "UNI-N"));
     describedByList.add(createSscValue("TrafficMappingTo_Table_IngressCIR", reservation.getBandwidth().toString()));
     describedByList.add(createSscValue("ProtectionLevel", reservation.getProtectionType().getMtosiName()));
 

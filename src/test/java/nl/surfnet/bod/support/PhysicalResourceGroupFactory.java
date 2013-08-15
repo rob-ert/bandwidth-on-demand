@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 import com.google.common.collect.Lists;
@@ -38,7 +38,7 @@ public class PhysicalResourceGroupFactory {
   private Long id = COUNTER.incrementAndGet();
   private Integer version = 0;
   private String adminGroup = "urn:my-group-"+id;
-  private final List<PhysicalPort> physicalPorts = Lists.newArrayList();
+  private final List<UniPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
   private String managerEmail = "email@example.com";
   private boolean active;
@@ -51,7 +51,7 @@ public class PhysicalResourceGroupFactory {
     group.setInstitute(institute);
     group.setAdminGroup(adminGroup);
     group.setPhysicalPorts(physicalPorts);
-    for (PhysicalPort port : physicalPorts) {
+    for (UniPort port : physicalPorts) {
       port.setPhysicalResourceGroup(group);
     }
     group.setManagerEmail(managerEmail);
@@ -60,7 +60,7 @@ public class PhysicalResourceGroupFactory {
     return group;
   }
 
-  public PhysicalResourceGroupFactory addPhysicalPort(PhysicalPort... ports) {
+  public PhysicalResourceGroupFactory addPhysicalPort(UniPort... ports) {
     this.physicalPorts.addAll(Arrays.asList(ports));
     return this;
   }

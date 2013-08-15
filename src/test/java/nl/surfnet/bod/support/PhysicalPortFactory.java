@@ -25,7 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public class PhysicalPortFactory {
@@ -41,8 +41,8 @@ public class PhysicalPortFactory {
   private boolean noIds;
   private NbiPort nbiPort = new NbiPortFactory().create();
 
-  public PhysicalPort create() {
-    PhysicalPort port = new PhysicalPort(nbiPort);
+  public UniPort create() {
+    UniPort port = new UniPort(nbiPort);
     port.setId(id);
     port.setVersion(version);
     port.setBodPortId(bodPortId);

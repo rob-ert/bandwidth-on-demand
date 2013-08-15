@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -147,15 +147,15 @@ public class PhysicalResourceGroupControllerTest {
       new PhysicalResourceGroupFactory().create());
     List<PhysicalResourceGroupView> groupViews = Lists.newArrayList(
       new PhysicalResourceGroupView(physicalResourceGroup));
-    List<PhysicalPort> physicalPorts = Lists.newArrayList(physicalResourceGroup.getPhysicalPorts());
+    List<UniPort> physicalPorts = Lists.newArrayList(physicalResourceGroup.getPhysicalPorts());
     List<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
     List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create());
 
     when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(
         any(PhysicalResourceGroup.class), anyInt(), anyInt(), any(Sort.class))
       ).thenReturn(physicalPorts);
-    when(virtualPortServiceMock.findAllForPhysicalPort(any(PhysicalPort.class))).thenReturn(virtualPorts);
-    when(reservationServiceMock.findActiveByPhysicalPort(any(PhysicalPort.class))).thenReturn(reservations);
+    when(virtualPortServiceMock.findAllForPhysicalPort(any(UniPort.class))).thenReturn(virtualPorts);
+    when(reservationServiceMock.findActiveByPhysicalPort(any(UniPort.class))).thenReturn(reservations);
     when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(groups);
 
     subject.list(1, null, null, model);

@@ -29,7 +29,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -74,13 +74,13 @@ public final class Functions {
    * a {@link PhysicalPortView}
    *
    * @param port
-   *          {@link PhysicalPort} to enrich
+   *          {@link UniPort} to enrich
    * @param virtualPortService
    *          {@link VirtualPortService} to retrieve the amount of related
    *          {@link VirtualPort}s
-   * @return PhysicalPortView Transformed {@link PhysicalPort}
+   * @return PhysicalPortView Transformed {@link UniPort}
    */
-  public static PhysicalPortView transformAllocatedPhysicalPort(PhysicalPort port,
+  public static PhysicalPortView transformAllocatedPhysicalPort(UniPort port,
       final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
     long vpCount = virtualPortService.countForPhysicalPort(port);
@@ -96,11 +96,11 @@ public final class Functions {
     return physicalPortView;
   }
 
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends PhysicalPort> ports,
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends UniPort> ports,
       final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
     List<PhysicalPortView> transformers = Lists.newArrayList();
-    for (PhysicalPort port : ports) {
+    for (UniPort port : ports) {
       transformers.add(transformAllocatedPhysicalPort(port, virtualPortService, reservationService));
     }
 

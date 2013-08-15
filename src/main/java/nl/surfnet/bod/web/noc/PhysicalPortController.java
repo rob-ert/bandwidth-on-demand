@@ -55,7 +55,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
@@ -93,7 +93,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, PhysicalPort> {
+public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, UniPort> {
 
   public static final String PAGE_URL = "physicalports";
   public static final String PAGE_UNALIGNED_URL = "/noc/" + PAGE_URL + "/unaligned";
@@ -143,14 +143,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       return "physicalports/addPhysicalPort";
     }
 
-    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(addCommand.getNmsPortId());
+    UniPort physicalPort = physicalPortService.findByNmsPortId(addCommand.getNmsPortId());
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(addCommand.getNmsPortId());
 
     if (!nbiPort.isPresent()) {
       return "redirect:";
     }
     if (physicalPort == null) {
-      physicalPort = new PhysicalPort(nbiPort.get());
+      physicalPort = new UniPort(nbiPort.get());
     }
 
     if (Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
@@ -177,7 +177,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       return PAGE_URL + UPDATE;
     }
 
-    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(command.getNmsPortId());
+    UniPort physicalPort = physicalPortService.findByNmsPortId(command.getNmsPortId());
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(command.getNmsPortId());
 
     if (!nbiPort.isPresent()) {
@@ -185,7 +185,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     }
 
     if (physicalPort == null) {
-      physicalPort = new PhysicalPort(nbiPort.get());
+      physicalPort = new UniPort(nbiPort.get());
     }
     physicalPort.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     physicalPort.setNocLabel(command.getNocLabel());
@@ -295,8 +295,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
 
     try {
-      FullTextSearchResult<PhysicalPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
-          PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
+      FullTextSearchResult<UniPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
+          UniPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
           unalignedPorts);
 
       model.addAttribute(PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
@@ -314,14 +314,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
-    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
+    UniPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
 
     if (!nbiPort.isPresent()) {
       return "redirect:";
     }
     if (physicalPort == null) {
-      physicalPort = new PhysicalPort(nbiPort.get());
+      physicalPort = new UniPort(nbiPort.get());
     }
 
     model.addAttribute(MODEL_KEY, new CreatePhysicalPortCommand(physicalPort));
@@ -341,7 +341,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
   public String moveForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttrs) {
-    final PhysicalPort port = physicalPortService.find(id);
+    final UniPort port = physicalPortService.find(id);
 
     if (port == null) {
       redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
@@ -412,7 +412,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     if (!newPort.isPresent()) {
       return "redirect:";
     }
-    PhysicalPort oldPort = physicalPortService.find(command.getId());
+    UniPort oldPort = physicalPortService.find(command.getId());
 
     model.addAttribute("lastEventId", endPoints.getLastEventId());
     Collection<Reservation> reservations = nocService.movePort(oldPort, newPort.get());
@@ -429,7 +429,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
-   * group to a {@link PhysicalPort}.
+   * group to a {@link UniPort}.
    *
    * @return Collection<PhysicalResourceGroup>
    */
@@ -465,7 +465,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public MovePhysicalPortCommand() {
     }
 
-    public MovePhysicalPortCommand(PhysicalPort port) {
+    public MovePhysicalPortCommand(UniPort port) {
       this.id = port.getId();
     }
 
@@ -559,7 +559,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public CreatePhysicalPortCommand() {
     }
 
-    public CreatePhysicalPortCommand(PhysicalPort port) {
+    public CreatePhysicalPortCommand(UniPort port) {
       setNmsPortId(port.getNmsPortId());
       setPhysicalResourceGroup(port.getPhysicalResourceGroup());
       setNocLabel(port.getNocLabel());
@@ -578,7 +578,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
     return physicalPortService;
   }
 
@@ -615,7 +615,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected List<? extends PhysicalPortView> transformToView(List<? extends PhysicalPort> entities, RichUserDetails user) {
+  protected List<? extends PhysicalPortView> transformToView(List<? extends UniPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 

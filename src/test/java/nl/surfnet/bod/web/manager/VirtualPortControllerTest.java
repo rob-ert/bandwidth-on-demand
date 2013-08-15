@@ -93,7 +93,7 @@ public class VirtualPortControllerTest {
   private MessageRetriever messageRetrieverMock;
 
   private RichUserDetails user;
-  private PhysicalPort physicalPort;
+  private UniPort physicalPort;
   private PhysicalResourceGroup prg;
 
   private MockMvc mockMvc;
@@ -101,9 +101,9 @@ public class VirtualPortControllerTest {
   @Before
   public void setup() {
     FormattingConversionService conversionService = new FormattingConversionService();
-    conversionService.addConverter(new Converter<String, PhysicalPort>() {
+    conversionService.addConverter(new Converter<String, UniPort>() {
       @Override
-      public PhysicalPort convert(String id) {
+      public UniPort convert(String id) {
         return physicalPortServiceMock.find(Long.valueOf(id));
       }
     });

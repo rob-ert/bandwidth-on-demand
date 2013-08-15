@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -127,7 +127,7 @@ public class PhysicalPortControllerTest {
   public void listPortsWithFilter() {
     Model model = new ModelStub();
 
-    PhysicalPort portOne = new PhysicalPortFactory().setId(1L).create();
+    UniPort portOne = new PhysicalPortFactory().setId(1L).create();
 
     when(
         physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(eq(physicalResourceGroup), anyInt(),
@@ -156,15 +156,15 @@ public class PhysicalPortControllerTest {
 
     subject.update(command, new BeanPropertyBindingResult(command, "updateCommand"), new ModelStub());
 
-    verify(physicalPortServiceMock, never()).update(any(PhysicalPort.class));
+    verify(physicalPortServiceMock, never()).update(any(UniPort.class));
   }
 
   @Test
   public void updateForIllegalPort() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
-    PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
+    UniPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
     PhysicalResourceGroup illegalGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group").create();
-    PhysicalPort illegalPort = new PhysicalPortFactory().setPhysicalResourceGroup(illegalGroup).create();
+    UniPort illegalPort = new PhysicalPortFactory().setPhysicalResourceGroup(illegalGroup).create();
 
     UpdateManagerLabelCommand command = new PhysicalPortController.UpdateManagerLabelCommand(port);
     command.setId(234L);
@@ -173,13 +173,13 @@ public class PhysicalPortControllerTest {
 
     subject.update(command, new BeanPropertyBindingResult(command, "updateCommand"), new ModelStub());
 
-    verify(physicalPortServiceMock, never()).update(any(PhysicalPort.class));
+    verify(physicalPortServiceMock, never()).update(any(UniPort.class));
   }
 
   @Test
   public void updateForPort() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
-    PhysicalPort port = new PhysicalPortFactory().setId(1L).setPhysicalResourceGroup(group).create();
+    UniPort port = new PhysicalPortFactory().setId(1L).setPhysicalResourceGroup(group).create();
 
     UpdateManagerLabelCommand command = new PhysicalPortController.UpdateManagerLabelCommand(port);
 
@@ -202,7 +202,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void updateFormForIllegalPort() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group").create();
-    PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
+    UniPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
     when(physicalPortServiceMock.find(101L)).thenReturn(port);
 
@@ -214,7 +214,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void updateFormForPort() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
-    PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
+    UniPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
     when(physicalPortServiceMock.find(101L)).thenReturn(port);
 

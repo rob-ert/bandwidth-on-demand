@@ -39,7 +39,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
@@ -71,12 +71,12 @@ public class NocService {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public Collection<Reservation> movePort(final PhysicalPort oldPort, final NbiPort nbiPort) {
+  public Collection<Reservation> movePort(final UniPort oldPort, final NbiPort nbiPort) {
     Preconditions.checkState(
         !TransactionSynchronizationManager.isActualTransactionActive(),
         "transaction cannot be active");
 
-    final PhysicalPort newPort = new PhysicalPort(nbiPort);
+    final UniPort newPort = new UniPort(nbiPort);
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
     final Collection<Reservation> reservations = getActiveReservations(oldPort);
 
@@ -125,18 +125,18 @@ public class NocService {
     });
   }
 
-  private void unallocateOldPort(PhysicalPort oldPort) {
+  private void unallocateOldPort(UniPort oldPort) {
     physicalPortService.delete(oldPort);
   }
 
-  private void switchVirtualPortsToNewPort(PhysicalPort newPort, Collection<VirtualPort> virtualPorts) {
+  private void switchVirtualPortsToNewPort(UniPort newPort, Collection<VirtualPort> virtualPorts) {
     for (VirtualPort vPort : virtualPorts) {
       vPort.setPhysicalPort(newPort);
       virtualPortService.save(vPort);
     }
   }
 
-  private void saveNewPort(PhysicalPort oldPort, PhysicalPort newPort) {
+  private void saveNewPort(UniPort oldPort, UniPort newPort) {
     newPort.setPhysicalResourceGroup(oldPort.getPhysicalResourceGroup());
     physicalPortService.save(newPort);
   }
@@ -167,7 +167,7 @@ public class NocService {
     }
   }
 
-  private Collection<Reservation> getActiveReservations(PhysicalPort port) {
+  private Collection<Reservation> getActiveReservations(UniPort port) {
     return reservationService.findActiveByPhysicalPort(port);
   }
 

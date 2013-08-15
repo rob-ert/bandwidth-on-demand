@@ -22,30 +22,32 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Collection;
+import javax.persistence.Basic;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Version;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import com.google.common.base.Preconditions;
 
 import org.apache.solr.analysis.LowerCaseFilterFactory;
 import org.apache.solr.analysis.WhitespaceTokenizerFactory;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-
-@Indexed
-@AnalyzerDef(name = "customanalyzer",
-  tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
-  filters = { @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
-@Analyzer(definition = "customanalyzer")
 @Entity
-public class PhysicalPort implements Loggable, PersistableDomain {
-
-  // The only supported porttype at this moment
-  private static final String PORT_TYPE_UNI = "UNI-N";
+public abstract class PhysicalPort implements PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -64,16 +66,8 @@ public class PhysicalPort implements Loggable, PersistableDomain {
   private String nocLabel;
 
   @Field
-  private String managerLabel;
-
-  @Field
   @NotEmpty
   private String bodPortId;
-
-  @IndexedEmbedded
-  @NotNull
-  @ManyToOne(optional = false)
-  private PhysicalResourceGroup physicalResourceGroup;
 
   @Basic(optional = false)
   @Enumerated(EnumType.STRING)
@@ -84,8 +78,8 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   public PhysicalPort(NbiPort nbiPort) {
     this.nbiPort = nbiPort;
-    this.setNocLabel(nbiPort.getSuggestedNocLabel());
-    this.setBodPortId(nbiPort.getSuggestedBodPortId());
+    this.nocLabel = nbiPort.getSuggestedNocLabel();
+    this.bodPortId = nbiPort.getSuggestedBodPortId();
   }
 
   @Override
@@ -113,30 +107,6 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     this.nocLabel = name;
   }
 
-  public PhysicalResourceGroup getPhysicalResourceGroup() {
-    return this.physicalResourceGroup;
-  }
-
-  public void setPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
-    this.physicalResourceGroup = physicalResourceGroup;
-  }
-
-  public String getManagerLabel() {
-    return hasManagerLabel() ? managerLabel : nocLabel;
-  }
-
-  public boolean hasManagerLabel() {
-    return !Strings.isNullOrEmpty(managerLabel);
-  }
-
-  public void setManagerLabel(String managerLabel) {
-    this.managerLabel = managerLabel;
-  }
-
-  public boolean isAllocated() {
-    return getPhysicalResourceGroup() != null;
-  }
-
   public String getBodPortId() {
     return bodPortId;
   }
@@ -158,22 +128,8 @@ public class PhysicalPort implements Loggable, PersistableDomain {
     return nmsAlignmentStatus == NmsAlignmentStatus.ALIGNED;
   }
 
-  public final String getPortType() {
-    return PORT_TYPE_UNI;
-  }
-
   public NbiPort getNbiPort() {
     return nbiPort;
-  }
-
-  @Override
-  public Collection<String> getAdminGroups() {
-    return ImmutableList.of(physicalResourceGroup.getAdminGroup());
-  }
-
-  @Override
-  public String getLabel() {
-    return getNocLabel();
   }
 
   public String getNmsPortId() {
@@ -182,87 +138,6 @@ public class PhysicalPort implements Loggable, PersistableDomain {
 
   public boolean isVlanRequired() {
     return nbiPort.isVlanRequired();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("PhysicalPort [");
-    if (id != null) {
-      builder.append("id=");
-      builder.append(id);
-      builder.append(", ");
-    }
-    if (version != null) {
-      builder.append("version=");
-      builder.append(version);
-      builder.append(", ");
-    }
-    if (nocLabel != null) {
-      builder.append("nocLabel=");
-      builder.append(nocLabel);
-      builder.append(", ");
-    }
-    if (managerLabel != null) {
-      builder.append("managerLabel=");
-      builder.append(managerLabel);
-      builder.append(", ");
-    }
-    if (bodPortId != null) {
-      builder.append("bodPortId=");
-      builder.append(bodPortId);
-      builder.append(", ");
-    }
-    if (physicalResourceGroup != null) {
-      builder.append("physicalResourceGroup=");
-      builder.append(physicalResourceGroup.getId());
-      builder.append(", ");
-    }
-    builder.append(", nmsAlignmentStatus=");
-    builder.append(nmsAlignmentStatus);
-    builder.append("]");
-
-    return builder.toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    PhysicalPort other = (PhysicalPort) obj;
-    if (id == null) {
-      if (other.id != null) {
-        return false;
-      }
-    }
-    else if (!id.equals(other.id)) {
-      return false;
-    }
-    if (version == null) {
-      if (other.version != null) {
-        return false;
-      }
-    }
-    else if (!version.equals(other.version)) {
-      return false;
-    }
-    return true;
   }
 
 }

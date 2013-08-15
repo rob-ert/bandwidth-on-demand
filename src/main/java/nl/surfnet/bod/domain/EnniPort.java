@@ -20,49 +20,11 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.search;
+package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import javax.persistence.Entity;
 
-import java.util.List;
-
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.support.*;
-
-import org.apache.lucene.queryParser.ParseException;
-import org.junit.Before;
-import org.junit.Test;
-
-public class VirtualPortIndexAndSearchTest extends AbstractIndexAndSearch<VirtualPort> {
-
-  public VirtualPortIndexAndSearchTest() {
-    super(VirtualPort.class);
-  }
-
-  @Before
-  public void insertTestData() {
-    Institute institute = new InstituteFactory().create();
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).withNoIds().create();
-    UniPort pp = new PhysicalPortFactory().setPhysicalResourceGroup(prg).withNoIds().create();
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setName("unit-test-vrg").withNoIds().create();
-    VirtualPort virtualPort = new VirtualPortFactory().setUserLabel("unit-test-label").setVirtualResourceGroup(vrg).setPhysicalPort(pp).withNodIds().create();
-
-    persist(institute, prg, pp, vrg, virtualPort);
-  }
-
-  @Test
-  public void searchVirtualPortByName() throws ParseException {
-    List<VirtualPort> result = searchFor("userLabel:\"unit-test-label\"");
-
-    assertThat(result, hasSize(1));
-  }
-
-  @Test
-  public void searchVirtualPortByNameOfVirtualResourceGroup() throws ParseException {
-    List<VirtualPort> result = searchFor("virtualResourceGroup.name:\"unit-test-vrg\"");
-
-    assertThat(result, hasSize(1));
-  }
+@Entity
+public class EnniPort extends PhysicalPort {
 
 }

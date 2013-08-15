@@ -48,7 +48,7 @@ import org.hibernate.validator.constraints.Range;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
- * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
+ * {@link UniPort} and is related to a {@link VirtualResourceGroup}
  *
  */
 @Entity
@@ -81,7 +81,7 @@ public class VirtualPort implements Loggable, PersistableDomain {
   @IndexedEmbedded
   @NotNull
   @ManyToOne(optional = false)
-  private PhysicalPort physicalPort;
+  private UniPort physicalPort;
 
   @Field
   @NotNull
@@ -125,11 +125,11 @@ public class VirtualPort implements Loggable, PersistableDomain {
     this.virtualResourceGroup = virtualResourceGroup;
   }
 
-  public PhysicalPort getPhysicalPort() {
+  public UniPort getPhysicalPort() {
     return physicalPort;
   }
 
-  public void setPhysicalPort(PhysicalPort physicalPort) {
+  public void setPhysicalPort(UniPort physicalPort) {
     this.physicalPort = physicalPort;
   }
 

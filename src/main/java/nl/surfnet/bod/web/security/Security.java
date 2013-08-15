@@ -171,11 +171,11 @@ public final class Security {
     return !userMayEdit(virtualPort);
   }
 
-  public static boolean managerMayEdit(PhysicalPort port) {
+  public static boolean managerMayEdit(UniPort port) {
     return port == null ? false : isManagerMemberOf(port.getPhysicalResourceGroup());
   }
 
-  public static boolean managerMayNotEdit(PhysicalPort port) {
+  public static boolean managerMayNotEdit(UniPort port) {
     return !managerMayEdit(port);
   }
 

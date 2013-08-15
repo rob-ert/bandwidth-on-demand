@@ -63,12 +63,12 @@ public class DomainModelTest {
 
   private PhysicalResourceGroup prg;
 
-  private PhysicalPort pp1;
+  private UniPort pp1;
 
   @Before
   public void onSetup() {
     pp1 = ppFactory.create();
-    PhysicalPort pp2 = ppFactory.create();
+    UniPort pp2 = ppFactory.create();
     prg = prgFactory.addPhysicalPort(pp1, pp2).create();
     pp1.setPhysicalResourceGroup(prg);
     pp2.setPhysicalResourceGroup(prg);
@@ -256,28 +256,6 @@ public class DomainModelTest {
     prgTwo.setId(prg.getId());
     prgTwo.setVersion(prg.getVersion());
     assertTrue("Only on id and version", prg.hashCode() == prgTwo.hashCode());
-  }
-
-  @Test
-  public void shouldOnlyConsiderIdAndVersionInPhysicalPortEquals() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().create();
-
-    assertThat("Only on id and version", physicalPort, not(pp1));
-
-    physicalPort.setId(pp1.getId());
-    physicalPort.setVersion(pp1.getVersion());
-    assertThat("Only on id and version", physicalPort, is(pp1));
-  }
-
-  @Test
-  public void shouldOnlyConsiderIdAndVersionInPhysicalPortHashcode() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().create();
-
-    assertFalse("Only consider id and version", physicalPort.hashCode() == pp1.hashCode());
-
-    physicalPort.setId(pp1.getId());
-    physicalPort.setVersion(pp1.getVersion());
-    assertTrue("Only consider id and version", physicalPort.hashCode() == pp1.hashCode());
   }
 
 }

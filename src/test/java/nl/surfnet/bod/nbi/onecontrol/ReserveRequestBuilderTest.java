@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
@@ -101,7 +101,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void should_add_dynamic_characteristics_with_vlan_present() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(true).create()).create();
+    UniPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(true).create()).create();
     Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024L).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create();
 
@@ -116,7 +116,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void should_add_dynamic_characteristics_with_vlan_absent() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(false).create()).create();
+    UniPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(false).create()).create();
     Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024L).create();
     VirtualPort port = new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create();
 
@@ -131,7 +131,7 @@ public class ReserveRequestBuilderTest {
 
   @Test
   public void should_add_static_characteristics() {
-    PhysicalPort physicalPort = new PhysicalPortFactory().setNbiPort(
+    UniPort physicalPort = new PhysicalPortFactory().setNbiPort(
         new NbiPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
             .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create()).create();
     VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();

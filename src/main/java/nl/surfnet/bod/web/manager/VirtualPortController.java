@@ -270,7 +270,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     @Range(min = 1, max = 4095)
     private Integer vlanId;
     @NotNull
-    private PhysicalPort physicalPort;
+    private UniPort physicalPort;
     @NotNull
     private VirtualResourceGroup virtualResourceGroup;
     @NotNull
@@ -280,7 +280,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     }
 
     public VirtualPortCommand(String managerLabel, Long maxBandwidth, Integer vlanId,
-        PhysicalResourceGroup physicalResourceGroup, PhysicalPort physicalPort,
+        PhysicalResourceGroup physicalResourceGroup, UniPort physicalPort,
         VirtualResourceGroup virtualResourceGroup) {
       this.managerLabel = managerLabel;
       this.maxBandwidth = maxBandwidth;
@@ -314,11 +314,11 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       this.vlanId = vlanId;
     }
 
-    public PhysicalPort getPhysicalPort() {
+    public UniPort getPhysicalPort() {
       return physicalPort;
     }
 
-    public void setPhysicalPort(PhysicalPort physicalPort) {
+    public void setPhysicalPort(UniPort physicalPort) {
       this.physicalPort = physicalPort;
     }
 

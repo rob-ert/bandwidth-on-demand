@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
@@ -67,19 +67,19 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
-    return new Converter<PhysicalPort, String>() {
+  public Converter<UniPort, String> getPhysicalPortToStringConverter() {
+    return new Converter<UniPort, String>() {
       @Override
-      public String convert(final PhysicalPort physicalPort) {
+      public String convert(final UniPort physicalPort) {
         return physicalPort.getNocLabel();
       }
     };
   }
 
-  public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
-    return new Converter<Long, PhysicalPort>() {
+  public Converter<Long, UniPort> getIdToPhysicalPortConverter() {
+    return new Converter<Long, UniPort>() {
       @Override
-      public PhysicalPort convert(final Long id) {
+      public UniPort convert(final Long id) {
         return physicalPortService.find(id);
       }
     };
@@ -94,11 +94,11 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public Converter<String, PhysicalPort> getStringToPhysicalPortConverter() {
-    return new Converter<String, PhysicalPort>() {
+  public Converter<String, UniPort> getStringToPhysicalPortConverter() {
+    return new Converter<String, UniPort>() {
       @Override
-      public PhysicalPort convert(final String id) {
-        return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
+      public UniPort convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), UniPort.class);
       }
     };
   }

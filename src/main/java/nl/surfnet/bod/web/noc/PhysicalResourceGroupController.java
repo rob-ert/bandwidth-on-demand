@@ -189,7 +189,7 @@ public class PhysicalResourceGroupController extends
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
 
-    for (PhysicalPort physicalPort : physicalResourceGroup.getPhysicalPorts()) {
+    for (UniPort physicalPort : physicalResourceGroup.getPhysicalPorts()) {
       Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
 
       virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
@@ -239,12 +239,12 @@ public class PhysicalResourceGroupController extends
 
     final List<VirtualPort> virtualPorts = new ArrayList<>();
     final List<Reservation> reservations = new ArrayList<>();
-    List<PhysicalPort> physicalPorts = new ArrayList<>();
+    List<UniPort> physicalPorts = new ArrayList<>();
 
     for (final PhysicalResourceGroup physycalResourceGroup : physycalResourceGroups) {
       physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup,
           MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
-      for (final PhysicalPort physicalPort : physicalPorts) {
+      for (final UniPort physicalPort : physicalPorts) {
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
         reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));
       }
@@ -398,7 +398,7 @@ public class PhysicalResourceGroupController extends
       final List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(BodRole
           .createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
       for (final long id : physicalPortIds) {
-        final PhysicalPort physicalPort = physicalPortService.find(id);
+        final UniPort physicalPort = physicalPortService.find(id);
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
         final long countActiveReservationsByVirtualPorts = reservationService
             .countActiveReservationsByVirtualPorts(virtualPorts);

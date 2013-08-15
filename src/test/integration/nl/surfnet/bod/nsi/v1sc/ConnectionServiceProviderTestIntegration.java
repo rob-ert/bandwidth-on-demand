@@ -44,7 +44,7 @@ import nl.surfnet.bod.config.IntegrationDbConfiguration;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -149,8 +149,8 @@ public class ConnectionServiceProviderTestIntegration {
     PhysicalResourceGroup physicalResourceGroup = createPhysicalResourceGroup();
     VirtualResourceGroup virtualResourceGroup = createVirtualResourceGroup();
 
-    PhysicalPort sourcePp = createPhysicalPort(physicalResourceGroup);
-    PhysicalPort destinationPp = createPhysicalPort(physicalResourceGroup);
+    UniPort sourcePp = createPhysicalPort(physicalResourceGroup);
+    UniPort destinationPp = createPhysicalPort(physicalResourceGroup);
 
     this.sourceVirtualPort = createVirtualPort(virtualResourceGroup, sourcePp);
     this.destinationVirtualPort = createVirtualPort(virtualResourceGroup, destinationPp);
@@ -432,7 +432,7 @@ public class ConnectionServiceProviderTestIntegration {
     return response;
   }
 
-  private VirtualPort createVirtualPort(VirtualResourceGroup virtualResourceGroup, PhysicalPort port) {
+  private VirtualPort createVirtualPort(VirtualResourceGroup virtualResourceGroup, UniPort port) {
     VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100L).setPhysicalPort(port).setVirtualResourceGroup(virtualResourceGroup).create();
     vPort = virtualPortRepo.save(vPort);
     virtualResourceGroup.addVirtualPort(vPort);
@@ -441,7 +441,7 @@ public class ConnectionServiceProviderTestIntegration {
     return vPort;
   }
 
-  private PhysicalPort createPhysicalPort(PhysicalResourceGroup physicalResourceGroup) {
+  private UniPort createPhysicalPort(PhysicalResourceGroup physicalResourceGroup) {
     return physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(physicalResourceGroup).create());
   }
 

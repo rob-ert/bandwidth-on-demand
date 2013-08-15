@@ -63,8 +63,8 @@ public final class ReservationPredicatesAndSpecifications {
 
         Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
         return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            UniPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
             PhysicalResourceGroup_.id), prgId)));
       }
     };
@@ -110,7 +110,7 @@ public final class ReservationPredicatesAndSpecifications {
     };
   }
 
-  static Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
+  static Specification<Reservation> specByPhysicalPort(final UniPort port) {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -136,8 +136,8 @@ public final class ReservationPredicatesAndSpecifications {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
         return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            UniPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
             PhysicalResourceGroup_.id), prgId)));
       }
     };

@@ -28,21 +28,20 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.UniPort;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.junit.Test;
 
-public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<PhysicalPort> {
+public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<UniPort> {
 
   public PhysicalPortIndexAndSearchTest() {
-    super(PhysicalPort.class);
+    super(UniPort.class);
   }
 
   @Test
   public void testIndexAndSearch() throws Exception {
-
-    List<PhysicalPort> physicalPorts = searchFor("gamma");
+    List<UniPort> physicalPorts = searchFor("gamma");
     // (N.A.)
     assertThat(physicalPorts, hasSize(0));
 
@@ -98,7 +97,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
 
   @Test
   public void shouldNotCrashOnColon() throws ParseException {
-    List<PhysicalPort> physicalPorts = searchFor("nocLabel:\"Noc 3 label\"");
+    List<UniPort> physicalPorts = searchFor("nocLabel:\"Noc 3 label\"");
 
     assertThat(physicalPorts, hasSize(1));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 3 label"));
