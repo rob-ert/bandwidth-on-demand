@@ -21,7 +21,7 @@
         </wss:service>
     </wss:binding>
 
-    <wss:binding url="/nsi/v2/provider">
+    <wss:binding url="${nsi.v2.service.url}">
         <wss:service>
             <ws:service bean="#connectionServiceProviderWs_v2">
                 <ws:handlers>

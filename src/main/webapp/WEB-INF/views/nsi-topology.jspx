@@ -1,0 +1,52 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:bod="BodTags" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    <jsp:directive.page contentType="application/xml;charset=UTF-8" />
+
+    <bod:env property="nsiTopologyCoordsLat" var="nsiTopologyCoordsLat"/>
+    <bod:env property="nsiTopologyCoordsLng" var="nsiTopologyCoordsLng"/>
+    <bod:env property="nsiTopologyContact" var="nsiTopologyContact" />
+
+    <nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
+             xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" id="${nsiId}"
+             version="${version}">
+        <nml:Location id="${nsiId}:location">
+
+            <nml:lat>${nsiTopologyCoordsLat}</nml:lat>
+            <nml:long>${nsiTopologyCoordsLng}</nml:long>
+        </nml:Location>
+        <nsi:Service id="{nsiId}:nsa-connection-service">
+            <nsi:link>${nsi2ConnectionProviderUrl}</nsi:link>
+            <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
+            <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#providedBy">
+                <nsi:NSA id="${nsiId}:nsa"/>
+            </nsi:Relation>
+        </nsi:Service>
+        <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#adminContact">
+            <vc:text>
+                <c:out escapeXml="true" value="${nsiTopologyContact}"/>
+            </vc:text>
+        </nsi:Relation>
+        <nml:Topology id="${nsiId}:topology">
+            <nml:name>${networkName}</nml:name>
+            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-out"><!--
+            ps-out, in geval ENNI vervangen door ${bod_port_id} + ":out"
+            voor UNNI: ${bod_port_id} + {numeriek gedeelte van STP ID} + ":out"
+            -->
+                    <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                </nml:PortGroup>
+            </nml:Relation>
+            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-in"><!-- ps-in vervangen door ${bod_port_id} + ":in" (bij ENNI) -->
+                    <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                </nml:PortGroup>
+            </nml:Relation>
+            <nml:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:bi-ps">
+                <!-- ps-in vervangen door ${bod_port_id} (geen toevoeging) -->
+                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-in"/>
+                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-out"/>
+            </nml:BidirectionalPort>
+
+        </nml:Topology>
+
+    </nsi:NSA>
+</jsp:root>

@@ -108,6 +108,18 @@ public class Environment {
   @Value("${nsi.reserve.held.timeout.value.in.seconds}")
   private int nsiReserveHeldTimeoutValueInSeconds;
 
+  @Value("${nsi.topology.lat}")
+  private String nsiTopologyCoordsLat;
+
+  @Value("${nsi.topology.lng}")
+  private String nsiTopologyCoordsLng;
+
+  @Value("${nsi.v2.service.url}")
+  private String nsiV2ServiceUrl;
+
+  @Value("${nsi.topology.contact.info}")
+  private String nsiTopologyContact;
+
   public Environment() {
   }
 
@@ -265,11 +277,23 @@ public class Environment {
     return nsiProviderNsa;
   }
 
-  public void setNsiReserveHeldTimeoutValueInSeconds(int nsiReserveHeldTimeoutValueInSeconds) {
-    this.nsiReserveHeldTimeoutValueInSeconds = nsiReserveHeldTimeoutValueInSeconds;
-  }
-
   public int getNsiReserveHeldTimeoutValueInSeconds() {
     return nsiReserveHeldTimeoutValueInSeconds;
+  }
+
+  public String getNsiTopologyCoordsLat() {
+    return nsiTopologyCoordsLat;
+  }
+
+  public String getNsiTopologyCoordsLng() {
+    return nsiTopologyCoordsLng;
+  }
+
+  public String getNsiV2ServiceUrl() {
+    return nsiV2ServiceUrl;
+  }
+
+  public String getNsiTopologyContact() {
+    return nsiTopologyContact;
   }
 }

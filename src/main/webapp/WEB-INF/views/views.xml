@@ -33,4 +33,5 @@
         <put-attribute name="body" value="/WEB-INF/views/splash.jspx" />
     </definition>
 
+    <definition name="nsi-topology" template="/WEB-INF/views/nsi-topology.jspx" />
 </tiles-definitions>
