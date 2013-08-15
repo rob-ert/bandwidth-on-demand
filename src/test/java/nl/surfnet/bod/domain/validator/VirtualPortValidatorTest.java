@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -48,15 +49,13 @@ public class VirtualPortValidatorTest {
 
   @Before
   public void initSecurity() {
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
-        .create());
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group").create());
 
     subject = new VirtualPortValidator();
     physicalPort = new PhysicalPortFactory().create();
-    virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).setPhysicalPortAdminGroup("urn:my-group")
-        .create();
+    virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).setPhysicalPortAdminGroup("urn:my-group").create();
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:my-group").create();
-    physicalPortVlanRequired = new PhysicalPortFactory().setVlanRequired(true).setPhysicalResourceGroup(prg).create();
+    physicalPortVlanRequired = new PhysicalPortFactory().setPhysicalResourceGroup(prg).setNbiPort(new NbiPortFactory().setVlanRequired(true).create()).create();
   }
 
   @Test

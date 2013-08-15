@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.support;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.NbiPort;
@@ -38,22 +37,11 @@ public class PhysicalPortFactory {
   private String managerLabel = "managedLabel " + id;
   private PhysicalResourceGroup physicalResourceGroup;
   private Integer version = 0;
-  private String nmsPortId = UUID.randomUUID().toString();
   private String bodPortId = "Asd001A_OME3T_ETH-1-1-4";
-  private boolean vlanRequired = false;
   private boolean noIds;
-
-  private String nmsSapName;
-
-  private String nmsNeId;
+  private NbiPort nbiPort = new NbiPortFactory().create();
 
   public PhysicalPort create() {
-    NbiPort nbiPort = new NbiPort();
-    nbiPort.setVlanRequired(vlanRequired);
-    nbiPort.setNmsPortId(nmsPortId);
-    nbiPort.setNmsSapName(nmsSapName);
-    nbiPort.setNmsNeId(nmsNeId);
-
     PhysicalPort port = new PhysicalPort(nbiPort);
     port.setId(id);
     port.setVersion(version);
@@ -67,6 +55,11 @@ public class PhysicalPortFactory {
     port.setPhysicalResourceGroup(physicalResourceGroup);
 
     return port;
+  }
+
+  public PhysicalPortFactory setNbiPort(NbiPort nbiPort) {
+    this.nbiPort = nbiPort;
+    return this;
   }
 
   private PhysicalResourceGroup createPhysicalResourceGroup() {
@@ -102,23 +95,8 @@ public class PhysicalPortFactory {
     return this;
   }
 
-  public PhysicalPortFactory setNmsPortId(String nmsPortId) {
-    this.nmsPortId = nmsPortId;
-    return this;
-  }
-
-  public PhysicalPortFactory setVlanRequired(boolean vlanRequired) {
-    this.vlanRequired = vlanRequired;
-    return this;
-  }
-
   public void setBodPortId(String portId) {
     this.bodPortId = portId;
-  }
-
-  public PhysicalPortFactory setNmsSapName(String nmsSapName) {
-    this.nmsSapName = nmsSapName;
-    return this;
   }
 
   public PhysicalPortFactory withNoIds() {
@@ -129,8 +107,4 @@ public class PhysicalPortFactory {
     return this;
   }
 
-  public PhysicalPortFactory setNmsNeId(String nsmNeId) {
-    this.nmsNeId = nsmNeId;
-    return this;
-  }
 }

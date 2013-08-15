@@ -39,6 +39,7 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracWsClient;
+import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -65,10 +66,8 @@ public class NbiOpenDracWsClientTest {
 
   private NbiOpenDracWsClient subject;
 
-  @Mock
-  private NetworkMonitoringService_v30Stub networkingServiceMock;
-  @Mock
-  private ResourceAllocationAndSchedulingService_v30Stub schedulingServiceMock;
+  @Mock private NetworkMonitoringService_v30Stub networkingServiceMock;
+  @Mock private ResourceAllocationAndSchedulingService_v30Stub schedulingServiceMock;
 
   private QueryEndpointsResponseDocument endpointsResponse;
   private QueryEndpointResponseDocument endpointResponse;
@@ -81,17 +80,15 @@ public class NbiOpenDracWsClientTest {
     when(subject.getNetworkMonitoringService()).thenReturn(networkingServiceMock);
     when(subject.getResourceAllocationAndSchedulingService()).thenReturn(schedulingServiceMock);
 
-    endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
-        "src/test/resources/opendrac/queryEndpointsResponse.xml"));
-    endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
-        "src/test/resources/opendrac/queryEndpointResponse.xml"));
+    endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File("src/test/resources/opendrac/queryEndpointsResponse.xml"));
+    endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File("src/test/resources/opendrac/queryEndpointResponse.xml"));
 
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
     sourcePort = new VirtualPortFactory()
-        .setPhysicalPort(new PhysicalPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setPhysicalPort(new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create()).create())
         .setVirtualResourceGroup(vrg).create();
     destPort = new VirtualPortFactory()
-        .setPhysicalPort(new PhysicalPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setPhysicalPort(new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create()).create())
         .setVirtualResourceGroup(vrg).create();
 
     when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))

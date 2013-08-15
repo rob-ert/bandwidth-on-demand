@@ -27,6 +27,7 @@ import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
+import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
@@ -95,9 +96,10 @@ public class ServiceComponentActivationClientTestIntegration {
 
   private PhysicalPort createPort(String name, String me, String ptp) {
     return new PhysicalPortFactory()
+      .setNbiPort(new NbiPortFactory()
       .setNmsSapName(name)
       .setNmsPortId(me+"@"+ptp)
-      .setNmsNeId(me)
+      .setNmsNeId(me).create())
       .create();
   }
 

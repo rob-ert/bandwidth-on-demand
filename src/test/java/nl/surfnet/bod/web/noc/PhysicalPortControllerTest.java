@@ -56,6 +56,7 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.base.MessageManager;
@@ -135,7 +136,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void listAllUnallocatedPortsShouldSetPorts() throws Exception {
-    when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(ImmutableList.of(new PhysicalPortFactory().create().getNbiPort()));
+    when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(ImmutableList.of(new NbiPortFactory().create()));
 
     mockMvc.perform(get("/noc/physicalports/free"))
         .andExpect(status().isOk())
@@ -156,7 +157,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateForm() throws Exception {
-    NbiPort port = new PhysicalPortFactory().setNmsPortId("00:00/port2").create().getNbiPort();
+    NbiPort port = new NbiPortFactory().setNmsPortId("00:00/port2").create();
 
     when(physicalPortServiceMock.findNbiPort("00:00/port2")).thenReturn(Optional.of(port));
 
@@ -302,7 +303,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void addPhysicalPortFormWithUnallocatedPorts() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
-    when(physicalPortServiceMock.findUnallocated()).thenReturn(ImmutableList.of(new PhysicalPortFactory().create().getNbiPort()));
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(ImmutableList.of(new NbiPortFactory().create()));
 
     mockMvc.perform(get("/noc/physicalports/add").param("prg", "1"))
         .andExpect(status().isOk())
@@ -396,7 +397,7 @@ public class PhysicalPortControllerTest {
     PhysicalPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.find(8L)).thenReturn(port);
-    when(physicalPortServiceMock.findUnallocated()).thenReturn(Lists.newArrayList(new PhysicalPortFactory().create().getNbiPort()));
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(Lists.newArrayList(new NbiPortFactory().create()));
 
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
         .andExpect(status().isOk())
