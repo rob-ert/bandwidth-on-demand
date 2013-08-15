@@ -103,11 +103,9 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
       model.addAttribute(WebUtils.DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getTotalCount()));
 
-    }
-    catch (ParseException e) {
+    } catch (ParseException e) {
       // Do not search, but show default list
-      model.addAttribute(WARN_MESSAGES_KEY,
-          Lists.newArrayList("Sorry, we could not process your search query."));
+      model.addAttribute(WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
     }
 
     return listUrl();
@@ -160,8 +158,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
       ParameterizedType type;
       if (getClass().getGenericSuperclass() instanceof ParameterizedType) {
         type = (ParameterizedType) getClass().getGenericSuperclass();
-      }
-      else {
+      } else {
         type = (ParameterizedType) getClass().getSuperclass().getGenericSuperclass();
       }
 
@@ -172,8 +169,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
           return true;
         }
       }
-    }
-    catch (IntrospectionException e) {
+    } catch (IntrospectionException e) {
       return false;
     }
 
@@ -187,8 +183,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
 
     try {
       return Direction.fromString(order);
-    }
-    catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       return getDefaultSortOrder();
     }
   }
@@ -212,7 +207,8 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   protected String mapLabelToTechnicalName(String search) {
     search = WebUtils.replaceSearchWith(search, "team:", "virtualResourceGroup.name:");
     search = WebUtils.replaceSearchWith(search, "institute:", "physicalResourceGroup.institute.name:");
-    search = WebUtils.replaceSearchWith(search, "physicalPort:", "physicalPort.nmsPortId:");
+    search = WebUtils.replaceSearchWith(search, "physicalPort:", "physicalPort.nbiPort.nmsPortId:");
+
     return search;
   }
 
