@@ -33,7 +33,20 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.ConnectionV1_;
+import nl.surfnet.bod.domain.ConnectionV2_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint_;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.UniPort_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
@@ -62,9 +75,9 @@ public final class ReservationPredicatesAndSpecifications {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort).get(
             UniPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
+            Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
             PhysicalResourceGroup_.id), prgId)));
       }
     };
@@ -94,9 +107,11 @@ public final class ReservationPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        return cb.and((cb.or(root.get(Reservation_.sourcePort).in(virtualPorts), root.get(Reservation_.destinationPort)
-            .in(virtualPorts))), (root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
+        return cb.and(
+            cb.or(
+                root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).in(virtualPorts),
+                root.get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).in(virtualPorts)),
+            root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
       }
     };
   }
@@ -114,8 +129,8 @@ public final class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port), cb.equal(root
-            .get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port), cb.equal(root
+            .get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
       }
     };
   }
@@ -124,8 +139,8 @@ public final class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port), cb.equal(
-            root.get(Reservation_.destinationPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort), port), cb.equal(
+            root.get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort), port));
       }
     };
   }
@@ -135,9 +150,9 @@ public final class ReservationPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort).get(
             UniPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
+            Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort).get(UniPort_.physicalResourceGroup).get(
             PhysicalResourceGroup_.id), prgId)));
       }
     };
@@ -160,17 +175,17 @@ public final class ReservationPredicatesAndSpecifications {
     };
 
     // Filter on states in filter
-    Specification<Reservation> specficiation = forStatus(filter.getStates());
+    Specification<Reservation> specification = forStatus(filter.getStates());
     if (filter.isFilterOnReservationEndOnly()) {
-      specficiation = where(specficiation).and(filterSpecOnEnd);
+      specification = where(specification).and(filterSpecOnEnd);
     }
     else if (!filter.isFilterOnStatusOnly()) {
-      specficiation =
-        where(specficiation)
+      specification =
+        where(specification)
         .and(where(filterSpecOnStart).or(filterSpecOnEnd));
     }
 
-    return specficiation;
+    return specification;
   }
 
   static Specification<Reservation> specFilteredReservationsForManager(final ReservationFilterView filter,

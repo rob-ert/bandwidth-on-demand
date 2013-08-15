@@ -52,7 +52,7 @@ public class ReservationArchiveTest {
 
     assertThat(reservation.getStartDate(), is(reservationFromJson.getStartDate()));
     assertThat(reservation.getEndDate(), is(reservationFromJson.getEndDate()));
-    assertThat(reservation.getDestinationPort().getAdminGroups(), is(reservationFromJson.getDestinationPort()
+    assertThat(reservation.getDestinationPort().getVirtualPort().getAdminGroups(), is(reservationFromJson.getDestinationPort().getVirtualPort()
         .getAdminGroups()));
     assertThat(reservation.getDestinationPort().getNsiStpIdV1(), is(reservationFromJson.getDestinationPort()
         .getNsiStpIdV1()));

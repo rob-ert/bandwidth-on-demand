@@ -28,6 +28,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -35,6 +36,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+
 import org.joda.time.DateTime;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
@@ -184,6 +186,25 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
+  public Converter<String, ReservationEndPoint> getVirtualPortIdAsStringToReservationEndPointConverter() {
+    return new Converter<String, ReservationEndPoint>() {
+      @Override
+      public ReservationEndPoint convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), ReservationEndPoint.class);
+      }
+    };
+  }
+
+  public Converter<Long, ReservationEndPoint> getVirtualPortIdToReservationEndPointConverter() {
+    return new Converter<Long, ReservationEndPoint>() {
+      @Override
+      public ReservationEndPoint convert(Long id) {
+        VirtualPort virtualPort = virtualPortService.find(id);
+        return virtualPort == null ? null : new ReservationEndPoint(virtualPort);
+      }
+    };
+  }
+
   public Converter<VirtualPort, String> getVirtualPortToStringConverter() {
     return new Converter<VirtualPort, String>() {
       @Override
@@ -222,6 +243,10 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getIdToVirtualPortConverter());
     registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getVirtualPortToStringConverter());
+
+    // reservation end points
+    registry.addConverter(getVirtualPortIdToReservationEndPointConverter());
+    registry.addConverter(getVirtualPortIdAsStringToReservationEndPointConverter());
 
     // virtual port request links
     registry.addConverter(getIdToVirtualPortRequestLinkConverter());

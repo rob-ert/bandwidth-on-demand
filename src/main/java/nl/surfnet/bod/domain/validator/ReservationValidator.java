@@ -23,6 +23,7 @@
 package nl.surfnet.bod.domain.validator;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
 
@@ -54,8 +55,8 @@ public class ReservationValidator implements Validator {
   }
 
   private void validateBandwidth(Errors errors, Reservation reservation) {
-    VirtualPort sourcePort = reservation.getSourcePort();
-    VirtualPort destinationPort = reservation.getDestinationPort();
+    ReservationEndPoint sourcePort = reservation.getSourcePort();
+    ReservationEndPoint destinationPort = reservation.getDestinationPort();
 
     if (sourcePort == null || destinationPort == null || reservation.getBandwidth() == null) {
       return;
@@ -74,8 +75,8 @@ public class ReservationValidator implements Validator {
   }
 
   private void validatePorts(Errors errors, Reservation reservation) {
-    VirtualPort sourcePort = reservation.getSourcePort();
-    VirtualPort destinationPort = reservation.getDestinationPort();
+    ReservationEndPoint sourcePort = reservation.getSourcePort();
+    ReservationEndPoint destinationPort = reservation.getDestinationPort();
 
     if (sourcePort == null || destinationPort == null) {
       return;

@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
@@ -168,18 +169,18 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setEndDateTime(originalReservation.getEndDateTime());
     reservation.setName(originalReservation.getName());
     reservation.setProtectionType(originalReservation.getProtectionType());
-    reservation.setSourcePort(originalReservation.getSourcePort());
+    reservation.setSourcePort(originalReservation.getSourcePort().copy());
     reservation.setStartDate(originalReservation.getStartDate());
     reservation.setStartDateTime(originalReservation.getStartDateTime());
-    reservation.setDestinationPort(originalReservation.getDestinationPort());
+    reservation.setDestinationPort(originalReservation.getDestinationPort().copy());
     reservation.setVirtualResourceGroup(originalReservation.getVirtualResourceGroup());
 
     model.addAttribute(MODEL_KEY, reservation);
     model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
         reservation.getVirtualResourceGroup().getVirtualPorts()));
     model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
-    model.addAttribute("destinationPort", originalReservation.getDestinationPort());
-    model.addAttribute("sourcePort", originalReservation.getSourcePort());
+    model.addAttribute("destinationPort", reservation.getDestinationPort());
+    model.addAttribute("sourcePort", reservation.getSourcePort());
 
     return PAGE_URL + CREATE;
   }
@@ -228,8 +229,8 @@ public class ReservationController extends AbstractFilteredReservationController
     VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
     VirtualPort destPort = Iterables.get(vrg.getVirtualPorts(), 1, null);
 
-    reservation.setSourcePort(sourcePort);
-    reservation.setDestinationPort(destPort);
+    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
+    reservation.setDestinationPort(new ReservationEndPoint(destPort));
 
     if (destPort != null && sourcePort != null) {
       reservation.setBandwidth(Math.min(sourcePort.getMaxBandwidth(), destPort.getMaxBandwidth()) / 2);

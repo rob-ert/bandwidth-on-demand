@@ -51,7 +51,7 @@
                         <select id="_sourcePort" name="sourcePort" class="input-xlarge" data-component="bandwidth-selector-source">
                             <c:forEach var="vp" items="${virtualPorts}">
                                 <c:choose>
-                                    <c:when test="${reservation.sourcePort.id eq vp.id}">
+                                    <c:when test="${reservation.sourcePort.virtualPort.id eq vp.id}">
                                         <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}" selected="selected"><c:out value="${vp.userLabel}" /></option>
                                     </c:when>
                                     <c:otherwise>
@@ -74,7 +74,7 @@
                         <select id="_destinationPort" name="destinationPort" class="input-xlarge" data-component="bandwidth-selector-source">
                             <c:forEach var="vp" items="${virtualPorts}">
                                 <c:choose>
-                                    <c:when test="${reservation.destinationPort.id eq vp.id}">
+                                    <c:when test="${reservation.destinationPort.virtualPort.id eq vp.id}">
                                         <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}" selected="selected"><c:out value="${vp.userLabel}" /></option>
                                     </c:when>
                                     <c:otherwise>

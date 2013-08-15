@@ -26,6 +26,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -66,8 +67,8 @@ public class ServiceComponentActivationClientTestIntegration {
       .withoutProtection()
       .create();
 
-    reservation.getSourcePort().setPhysicalPort(sourcePort);
-    reservation.getDestinationPort().setPhysicalPort(destPort);
+    reservation.getSourcePort().getVirtualPort().setPhysicalPort(sourcePort);
+    reservation.getDestinationPort().getVirtualPort().setPhysicalPort(destPort);
 
     Reservation savedReservation = subject.reserve(reservation);
 

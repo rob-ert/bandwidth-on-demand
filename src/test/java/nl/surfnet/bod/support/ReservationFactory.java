@@ -65,8 +65,8 @@ public class ReservationFactory {
     reservation.setVersion(version);
     reservation.setName(name);
     reservation.setStatus(status);
-    reservation.setSourcePort(sourcePort);
-    reservation.setDestinationPort(destinationPort);
+    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
+    reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
     reservation.setStartDateTime(startDateTime);
     reservation.setEndDateTime(endDateTime);
     reservation.setUserCreated(userCreated);

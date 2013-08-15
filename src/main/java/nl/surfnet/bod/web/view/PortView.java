@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 
 public class PortView {
@@ -32,13 +33,13 @@ public class PortView {
   private final String bodPortId;
   private final String institute;
 
-  public PortView(VirtualPort port) {
-    this.userLabel = port.getUserLabel();
-    this.managerLabel = port.getManagerLabel();
-    this.physicalPortManagerLabel = port.getPhysicalPort().getManagerLabel();
-    this.physicalPortNocLabel = port.getPhysicalPort().getNocLabel();
-    this.bodPortId = port.getPhysicalPort().getBodPortId();
-    this.institute = port.getPhysicalPort().getPhysicalResourceGroup().getInstitute().getName();
+  public PortView(ReservationEndPoint reservationEndPoint) {
+    this.userLabel = reservationEndPoint.getUserLabel();
+    this.managerLabel = reservationEndPoint.getManagerLabel();
+    this.physicalPortManagerLabel = reservationEndPoint.getPhysicalPort().getManagerLabel();
+    this.physicalPortNocLabel = reservationEndPoint.getPhysicalPort().getNocLabel();
+    this.bodPortId = reservationEndPoint.getPhysicalPort().getBodPortId();
+    this.institute = reservationEndPoint.getPhysicalPort().getPhysicalResourceGroup().getInstitute().getName();
   }
 
   public String getUserLabel() {

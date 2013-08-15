@@ -56,6 +56,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -495,8 +496,8 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @VisibleForTesting
   protected PathRequestT createPath(Reservation reservation) {
-    VirtualPort virtualSourcePort = reservation.getSourcePort();
-    VirtualPort virtualDestinationPort = reservation.getDestinationPort();
+    ReservationEndPoint virtualSourcePort = reservation.getSourcePort();
+    ReservationEndPoint virtualDestinationPort = reservation.getDestinationPort();
 
     String sourceTna;
     String destinationTna;
@@ -554,8 +555,8 @@ public class NbiOpenDracWsClient implements NbiClient {
     return tna == null ? false : !tna.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
   }
 
-  private String translateVlanId(VirtualPort virtualPort) {
-    return virtualPort.getVlanId() == null ? DEFAULT_VID : virtualPort.getVlanId().toString();
+  private String translateVlanId(ReservationEndPoint virtualSourcePort) {
+    return virtualSourcePort.getVlanId() == null ? DEFAULT_VID : virtualSourcePort.getVlanId().toString();
   }
 
   private List<EndpointT> findAllEndPoints() {

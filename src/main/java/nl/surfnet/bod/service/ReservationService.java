@@ -310,11 +310,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {
-    return reservationRepo.findBySourcePortOrDestinationPort(virtualPortA, virtualPortB);
+    return reservationRepo.findBySourcePortVirtualPortOrDestinationPortVirtualPort(virtualPortA, virtualPortB);
   }
 
   public Collection<Reservation> findByVirtualPort(VirtualPort port) {
-    return reservationRepo.findBySourcePortOrDestinationPort(port, port);
+    return reservationRepo.findBySourcePortVirtualPortOrDestinationPortVirtualPort(port, port);
   }
 
   public List<Reservation> findEntries(int firstResult, int maxResults, Sort sort) {

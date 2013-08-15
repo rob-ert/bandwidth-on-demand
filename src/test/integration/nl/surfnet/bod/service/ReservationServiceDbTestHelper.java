@@ -85,11 +85,11 @@ public class ReservationServiceDbTestHelper {
 
     physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
     virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
-    virtualPortRepo.save(reservation.getSourcePort());
+    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort());
 
     physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
     virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
-    virtualPortRepo.save(reservation.getDestinationPort());
+    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort());
 
     return reservation;
   }

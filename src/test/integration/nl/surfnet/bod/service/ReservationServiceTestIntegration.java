@@ -129,8 +129,8 @@ public class ReservationServiceTestIntegration {
     virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
     virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
 
-    virtualPortRepo.save(reservation.getSourcePort());
-    virtualPortRepo.save(reservation.getDestinationPort());
+    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort());
+    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort());
 
     return reservation;
   }

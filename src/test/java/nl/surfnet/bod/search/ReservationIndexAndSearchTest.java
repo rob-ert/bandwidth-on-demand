@@ -59,11 +59,11 @@ public class ReservationIndexAndSearchTest extends AbstractIndexAndSearch<Reserv
       reservation.getSourcePort().getPhysicalResourceGroup(),
       reservation.getSourcePort().getPhysicalPort(),
       reservation.getSourcePort().getVirtualResourceGroup(),
-      reservation.getSourcePort(),
+      reservation.getSourcePort().getVirtualPort(),
       reservation.getDestinationPort().getPhysicalResourceGroup().getInstitute(),
       reservation.getDestinationPort().getPhysicalResourceGroup(),
       reservation.getDestinationPort().getPhysicalPort(),
-      reservation.getDestinationPort(),
+      reservation.getDestinationPort().getVirtualPort(),
       reservation);
   }
 

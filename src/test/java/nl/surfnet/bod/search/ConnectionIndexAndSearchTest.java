@@ -79,11 +79,11 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
       connection.getReservation().getSourcePort().getPhysicalResourceGroup(),
       connection.getReservation().getSourcePort().getPhysicalPort(),
       connection.getReservation().getSourcePort().getVirtualResourceGroup(),
-      connection.getReservation().getSourcePort(),
+      connection.getReservation().getSourcePort().getVirtualPort(),
       connection.getReservation().getDestinationPort().getPhysicalResourceGroup().getInstitute(),
       connection.getReservation().getDestinationPort().getPhysicalResourceGroup(),
       connection.getReservation().getDestinationPort().getPhysicalPort(),
-      connection.getReservation().getDestinationPort(),
+      connection.getReservation().getDestinationPort().getVirtualPort(),
       connection.getReservation(),
       connection);
   }

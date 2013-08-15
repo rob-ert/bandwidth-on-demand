@@ -44,7 +44,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 import nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder;
 import nl.surfnet.bod.support.NbiPortFactory;
@@ -103,7 +103,7 @@ public class ReserveRequestBuilderTest {
   public void should_add_dynamic_characteristics_with_vlan_present() {
     UniPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(true).create()).create();
     Reservation reservation = new ReservationFactory().withProtection().setBandwidth(1024L).create();
-    VirtualPort port = new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create();
+    ReservationEndPoint port = new ReservationEndPoint(new VirtualPortFactory().setVlanId(3).setPhysicalPort(physicalPort).create());
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
@@ -118,7 +118,7 @@ public class ReserveRequestBuilderTest {
   public void should_add_dynamic_characteristics_with_vlan_absent() {
     UniPort physicalPort = new PhysicalPortFactory().setNbiPort(new NbiPortFactory().setNmsPortId("test@1-1-1-2").setVlanRequired(false).create()).create();
     Reservation reservation = new ReservationFactory().withoutProtection().setBandwidth(1024L).create();
-    VirtualPort port = new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create();
+    ReservationEndPoint port = new ReservationEndPoint(new VirtualPortFactory().setVlanId(null).setPhysicalPort(physicalPort).create());
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
@@ -134,7 +134,7 @@ public class ReserveRequestBuilderTest {
     UniPort physicalPort = new PhysicalPortFactory().setNbiPort(
         new NbiPortFactory().setNmsSapName("SAP-TEST").setNmsNeId("NeId")
             .setNmsPortId(MtosiUtils.composeNmsPortId("Me", "1-1-1-1")).create()).create();
-    VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
+    ReservationEndPoint port = new ReservationEndPoint(new VirtualPortFactory().setPhysicalPort(physicalPort).create());
     Reservation reservation = new ReservationFactory().setReservationId("ReservationId").create();
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);

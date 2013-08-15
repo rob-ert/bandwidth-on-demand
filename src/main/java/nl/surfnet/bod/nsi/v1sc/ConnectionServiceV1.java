@@ -55,6 +55,7 @@ import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
@@ -124,8 +125,8 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     reservation.setName(connection.getDescription());
     reservation.setStartDateTime(connection.getStartTime().orNull());
     reservation.setEndDateTime(connection.getEndTime().orNull());
-    reservation.setSourcePort(sourcePort);
-    reservation.setDestinationPort(destinationPort);
+    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
+    reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(userDetails.getNameId());

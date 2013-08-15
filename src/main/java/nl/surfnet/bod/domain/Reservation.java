@@ -74,14 +74,14 @@ public class Reservation implements Loggable, PersistableDomain {
   private String cancelReason;
 
   @NotNull
-  @ManyToOne(optional = false)
+  @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   @IndexedEmbedded
-  private VirtualPort sourcePort;
+  private ReservationEndPoint sourcePort;
 
   @NotNull
-  @ManyToOne(optional = false)
+  @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   @IndexedEmbedded
-  private VirtualPort destinationPort;
+  private ReservationEndPoint destinationPort;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field
@@ -156,7 +156,7 @@ public class Reservation implements Loggable, PersistableDomain {
     this.status = reservationStatus;
   }
 
-  public VirtualPort getSourcePort() {
+  public ReservationEndPoint getSourcePort() {
     return sourcePort;
   }
 
@@ -170,7 +170,7 @@ public class Reservation implements Loggable, PersistableDomain {
    *           When the {@link #virtualResourceGroup} is already set and is not
    *           equal to the one reference by the given port
    */
-  public void setSourcePort(VirtualPort sourcePort) {
+  public void setSourcePort(ReservationEndPoint sourcePort) {
     this.sourcePort = sourcePort;
 
     if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(sourcePort.getVirtualResourceGroup()))) {
@@ -182,7 +182,7 @@ public class Reservation implements Loggable, PersistableDomain {
     }
   }
 
-  public VirtualPort getDestinationPort() {
+  public ReservationEndPoint getDestinationPort() {
     return destinationPort;
   }
 
@@ -196,7 +196,7 @@ public class Reservation implements Loggable, PersistableDomain {
    *           When the {@link #virtualResourceGroup} is already set and is not
    *           equal to the one reference by the given port
    */
-  public void setDestinationPort(VirtualPort destinationPort) {
+  public void setDestinationPort(ReservationEndPoint destinationPort) {
     this.destinationPort = destinationPort;
 
     if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(destinationPort.getVirtualResourceGroup()))) {

@@ -32,6 +32,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -67,8 +68,8 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  static ServiceAccessPointType getSap(Reservation reservation, VirtualPort virtualPort) {
-    ServiceAccessPointType sap = createServiceAccessPoint(virtualPort.getPhysicalPort().getNbiPort(), reservation.getReservationId());
+  static ServiceAccessPointType getSap(Reservation reservation, ReservationEndPoint reservationEndPoint) {
+    ServiceAccessPointType sap = createServiceAccessPoint(reservationEndPoint.getPhysicalPort().getNbiPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -76,9 +77,9 @@ public class ReserveRequestBuilder {
     describedByList.add(createSscValue("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
     describedByList.add(createSscValue("TrafficMappingTo_Table_TrafficClass", TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
 
-    if (virtualPort.getVlanId() != null) {
+    if (reservationEndPoint.getVlanId() != null) {
       describedByList.add(createSscValue("ServiceType", "EVPL"));
-      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(virtualPort.getVlanId())));
+      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(reservationEndPoint.getVlanId())));
     } else {
       describedByList.add(createSscValue("ServiceType", "EPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));

@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.ReservationService;
@@ -82,8 +83,8 @@ public class ConnectionServiceV2 {
     reservation.setName(connection.getDescription());
     reservation.setStartDateTime(connection.getStartTime().orNull());
     reservation.setEndDateTime(connection.getEndTime().orNull());
-    reservation.setSourcePort(sourcePort);
-    reservation.setDestinationPort(destinationPort);
+    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
+    reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(userDetails.getNameId());

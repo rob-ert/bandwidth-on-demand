@@ -164,6 +164,7 @@ public class VirtualPort implements Loggable, PersistableDomain {
   public String getNsiStpIdV1() {
     return URN_STP_V1 + ":" + getId();
   }
+
   public String getNsiStpIdV2() {
     return URN_STP_V2 + ":" + getId();
   }
