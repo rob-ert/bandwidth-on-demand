@@ -408,11 +408,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   @RequestMapping(value = "move", method = RequestMethod.PUT)
   public String move(MovePhysicalPortCommand command, BindingResult result, Model model) {
 
-    PhysicalPort newPort = physicalPortService.findByNmsPortId(command.getNewPhysicalPort());
+    Optional<NbiPort> newPort = physicalPortService.findNbiPort(command.getNewPhysicalPort());
+    if (!newPort.isPresent()) {
+      return "redirect:";
+    }
     PhysicalPort oldPort = physicalPortService.find(command.getId());
 
     model.addAttribute("lastEventId", endPoints.getLastEventId());
-    Collection<Reservation> reservations = nocService.movePort(oldPort, newPort);
+    Collection<Reservation> reservations = nocService.movePort(oldPort, newPort.get());
 
     List<ReservationView> reservationViews = new ArrayList<>();
     for (Reservation reservation : reservations) {

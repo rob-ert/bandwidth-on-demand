@@ -38,6 +38,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -70,11 +71,12 @@ public class NocService {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public Collection<Reservation> movePort(final PhysicalPort oldPort, final PhysicalPort newPort) {
+  public Collection<Reservation> movePort(final PhysicalPort oldPort, final NbiPort nbiPort) {
     Preconditions.checkState(
         !TransactionSynchronizationManager.isActualTransactionActive(),
         "transaction cannot be active");
 
+    final PhysicalPort newPort = new PhysicalPort(nbiPort);
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
     final Collection<Reservation> reservations = getActiveReservations(oldPort);
 

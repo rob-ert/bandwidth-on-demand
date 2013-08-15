@@ -37,6 +37,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.FakeTransactionOperations;
+import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -92,7 +93,7 @@ public class NocServiceTest {
     DateTime end = DateTime.now().plusDays(5);
 
     PhysicalPort oldPort = new PhysicalPortFactory().create();
-    PhysicalPort newPort = new PhysicalPortFactory().create();
+    NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
     VirtualPort vPort = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory()
       .setBandwidth(150L)
@@ -120,7 +121,7 @@ public class NocServiceTest {
   @Test
   public void oldPortShouldBeUnallocated() {
     PhysicalPort oldPort = new PhysicalPortFactory().create();
-    PhysicalPort newPort = new PhysicalPortFactory().create();
+    NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
 
     subject.movePort(oldPort, newPort);
 
@@ -130,7 +131,7 @@ public class NocServiceTest {
   @Test
   public void virtualPortsShouldHaveNewPhysicalPort() {
     PhysicalPort oldPort = new PhysicalPortFactory().create();
-    PhysicalPort newPort = new PhysicalPortFactory().create();
+    NbiPort newPort = new PhysicalPortFactory().create().getNbiPort();
     VirtualPort port1 = new VirtualPortFactory().create();
     VirtualPort port2 = new VirtualPortFactory().create();
 
@@ -138,8 +139,8 @@ public class NocServiceTest {
 
     subject.movePort(oldPort, newPort);
 
-    assertThat(port1.getPhysicalPort(), is(newPort));
-    assertThat(port2.getPhysicalPort(), is(newPort));
+    assertThat(port1.getPhysicalPort().getNbiPort(), is(newPort));
+    assertThat(port2.getPhysicalPort().getNbiPort(), is(newPort));
   }
 
 }
