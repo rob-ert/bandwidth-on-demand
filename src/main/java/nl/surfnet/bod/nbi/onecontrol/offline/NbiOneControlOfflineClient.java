@@ -44,13 +44,13 @@ import javax.annotation.PostConstruct;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.ReservationRepo;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

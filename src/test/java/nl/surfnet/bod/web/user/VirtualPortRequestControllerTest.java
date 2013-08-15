@@ -23,9 +23,12 @@
 package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -35,6 +38,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
@@ -42,7 +47,12 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.base.MessageView;
@@ -58,8 +68,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
-
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortRequestControllerTest {
