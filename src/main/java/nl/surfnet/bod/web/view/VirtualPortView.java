@@ -58,6 +58,16 @@ public class VirtualPortView {
     this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = port.getNsiStpIdV1();
     this.nsiStpIdV2 = port.getNsiStpIdV2();
+    
+    if (reservationCounter == Optional.<Long> absent()) {
+      requestDeleteAllowed = true;
+    }
+    else if (reservationCounter.isPresent() && reservationCounter.get() == 0L) {
+      requestDeleteAllowed = true;
+    }
+    else {
+      requestDeleteAllowed = false;
+    }
   }
 
   public boolean isRequestDeleteAllowed() {
