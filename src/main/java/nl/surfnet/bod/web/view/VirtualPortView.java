@@ -39,7 +39,7 @@ public class VirtualPortView {
   private final Optional<Long> reservationCounter;
   private final String nsiStpIdV1;
   private final String nsiStpIdV2;
-  private boolean requestDeleteAllowed = true; // indicates if the 'request deletion' icon+link should be greyed out or active
+  private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
 
   public VirtualPortView(VirtualPort port) {
     this(port, Optional.<Long> absent());
