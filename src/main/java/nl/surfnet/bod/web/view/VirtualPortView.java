@@ -180,6 +180,8 @@ public class VirtualPortView {
       builder.append("nsiStpIdV1=");
       builder.append(nsiStpIdV1);
     }
+    builder.append("requestDeleteAllowed=");
+    builder.append(requestDeleteAllowed);
     builder.append("]");
     return builder.toString();
   }
