@@ -11,8 +11,11 @@
         </div>
         <div class="modal-body">
             <p>
+                Bandwidth on Demand uses SURFconext for authentication. This allows SURFnet connected organizations to login directly using their institute account, otherwise access is provided through <a href="https://www.surfguest.nl/">SURFguest</a> accounts.
+            </p>
+            <p>
                 <spring:url value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}" context="" var="current" htmlEscape="true"/>
-                <a href="/Shibboleth.sso/Login?target=${current}" class="login btn btn-primary btn-large">Login through SURFConext</a>
+                <a href="/Shibboleth.sso/Login?target=${current}" class="login btn btn-primary btn-large">Log in through SURFConext</a>
             </p>
             <p>
                 <label class="checkbox"><input class="noMore" type="checkbox" name="noMore"/>Next time, skip this page.</label>
