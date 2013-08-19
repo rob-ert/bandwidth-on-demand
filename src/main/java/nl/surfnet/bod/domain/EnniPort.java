@@ -76,4 +76,9 @@ public class EnniPort extends PhysicalPort {
   public Collection<String> getAdminGroups() {
     return Collections.emptyList();
   }
+
+  public String getNsiStpIdV2() {
+    // TODO Auto-generated method stub
+    return "TODO-" + getBodPortId();
+  }
 }

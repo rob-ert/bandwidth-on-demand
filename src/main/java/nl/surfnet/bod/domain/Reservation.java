@@ -37,6 +37,7 @@ import org.joda.time.LocalTime;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 
 /**
  * Entity which represents a Reservation for a specific connection between a
@@ -171,15 +172,8 @@ public class Reservation implements Loggable, PersistableDomain {
    *           equal to the one reference by the given port
    */
   public void setSourcePort(ReservationEndPoint sourcePort) {
+    deriveVirtualResourceGroup(sourcePort);
     this.sourcePort = sourcePort;
-
-    if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(sourcePort.getVirtualResourceGroup()))) {
-      throw new IllegalStateException(
-          "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
-    }
-    else {
-      this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
-    }
   }
 
   public ReservationEndPoint getDestinationPort() {
@@ -197,15 +191,32 @@ public class Reservation implements Loggable, PersistableDomain {
    *           equal to the one reference by the given port
    */
   public void setDestinationPort(ReservationEndPoint destinationPort) {
+    deriveVirtualResourceGroup(destinationPort);
     this.destinationPort = destinationPort;
+  }
 
-    if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(destinationPort.getVirtualResourceGroup()))) {
-      throw new IllegalStateException(
-          "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
+  private void deriveVirtualResourceGroup(ReservationEndPoint endPoint) {
+    Optional<VirtualPort> virtualPort = endPoint.getVirtualPort();
+    if (virtualPort.isPresent()) {
+      VirtualResourceGroup group = virtualPort.get().getVirtualResourceGroup();
+      if (virtualResourceGroup != null && !virtualResourceGroup.equals(group)) {
+        throw new IllegalStateException(
+            "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
+      }
+      this.virtualResourceGroup = group;
     }
-    else {
-      this.virtualResourceGroup = destinationPort.getVirtualResourceGroup();
+  }
+
+  public boolean hasConsistentVirtualResourceGroups() {
+    if (sourcePort.getVirtualPort().isPresent()
+        && !sourcePort.getVirtualPort().get().getVirtualResourceGroup().getAdminGroup().equals(virtualResourceGroup.getAdminGroup())) {
+      return false;
     }
+    if (destinationPort.getVirtualPort().isPresent()
+        && !destinationPort.getVirtualPort().get().getVirtualResourceGroup().getAdminGroup().equals(virtualResourceGroup.getAdminGroup())) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -368,8 +379,15 @@ public class Reservation implements Loggable, PersistableDomain {
 
   @Override
   public Collection<String> getAdminGroups() {
-    return ImmutableSet.of(virtualResourceGroup.getAdminGroup(), sourcePort.getPhysicalResourceGroup().getAdminGroup(),
-        destinationPort.getPhysicalResourceGroup().getAdminGroup());
+    Builder<String> builder = ImmutableSet.builder();
+    builder.add(virtualResourceGroup.getAdminGroup());
+    if (sourcePort.getUniPort().isPresent()) {
+      builder.add(sourcePort.getUniPort().get().getPhysicalResourceGroup().getAdminGroup());
+    }
+    if (destinationPort.getUniPort().isPresent()) {
+      builder.add(destinationPort.getUniPort().get().getPhysicalResourceGroup().getAdminGroup());
+    }
+    return builder.build();
   }
 
   @Override

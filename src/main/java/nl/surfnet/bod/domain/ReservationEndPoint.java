@@ -27,14 +27,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * Value object to represent the end-point of a Reservation (either a UNI or ENNI port).
@@ -51,88 +54,97 @@ public class ReservationEndPoint {
   @DocumentId
   private Long id;
 
-  @NotNull
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = true)
   @IndexedEmbedded
   private VirtualPort virtualPort;
+
+  @ManyToOne(optional = true)
+  @IndexedEmbedded
+  private EnniPort enniPort;
+
+  @Field
+  @Range(min = 1, max = 4095)
+  private Integer enniVlanId;
 
   protected ReservationEndPoint() {
   }
 
   public ReservationEndPoint(VirtualPort virtualPort) {
     this.virtualPort = Preconditions.checkNotNull(virtualPort, "virtualPort is required");
+    this.enniPort = null;
+    this.enniVlanId = null;
   }
 
-  public VirtualResourceGroup getVirtualResourceGroup() {
-    return virtualPort.getVirtualResourceGroup();
+  public ReservationEndPoint(EnniPort enniPort, Optional<Integer> vlanId) {
+    this.virtualPort = null;
+    this.enniPort = Preconditions.checkNotNull(enniPort, "enniPort is required");
+    Preconditions.checkArgument(enniPort.isVlanRequired() == vlanId.isPresent(), "E-NNI port {} and VLAN ID {} configuration must match", enniPort, vlanId);
+    this.enniVlanId = vlanId.orNull();
   }
 
-  public VirtualPort getVirtualPort() {
-    return virtualPort;
+  public Optional<VirtualPort> getVirtualPort() {
+    return Optional.fromNullable(virtualPort);
   }
 
-  public UniPort getPhysicalPort() {
-    return virtualPort.getPhysicalPort();
+  public Optional<EnniPort> getEnniPort() {
+    return Optional.fromNullable(enniPort);
   }
 
-  public PhysicalResourceGroup getPhysicalResourceGroup() {
-    return virtualPort.getPhysicalResourceGroup();
+  public Optional<UniPort> getUniPort() {
+    return virtualPort != null ? Optional.of(virtualPort.getPhysicalPort()) : Optional.<UniPort>absent();
   }
 
-  public Long getMaxBandwidth() {
-    return virtualPort.getMaxBandwidth();
+  public PhysicalPort getPhysicalPort() {
+    return virtualPort != null ? virtualPort.getPhysicalPort() : enniPort;
   }
 
-  public Integer getVlanId() {
-    return virtualPort.getVlanId();
+  public Optional<Integer> getEnniVlanId() {
+    return Optional.fromNullable(enniVlanId);
   }
 
   public String getNsiStpIdV1() {
-    return virtualPort.getNsiStpIdV1();
+    return virtualPort != null ? virtualPort.getNsiStpIdV1() : null;
   }
 
   public String getNsiStpIdV2() {
-    return virtualPort.getNsiStpIdV2();
+    return virtualPort != null ? virtualPort.getNsiStpIdV2() : enniPort.getNsiStpIdV2();
   }
 
   public String getLabel() {
-    return virtualPort.getLabel();
-  }
-
-  public String getUserLabel() {
-    return virtualPort.getUserLabel();
-  }
-
-  public String getManagerLabel() {
-    return virtualPort.getManagerLabel();
+    return virtualPort != null ? virtualPort.getLabel() : enniPort.getNocLabel();
   }
 
   @Override
   public String toString() {
-    return "ReservationEndPoint [virtualPort=" + virtualPort + "]";
+    if (virtualPort != null) {
+      return "ReservationEndPoint [virtualPort=" + virtualPort + "]";
+    } else {
+      return "ReservationEndPoint [enniPort=" + enniPort + ", vlanId=" + enniVlanId + "]";
+    }
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((virtualPort == null) ? 0 : virtualPort.hashCode());
-    return result;
+    return Objects.hashCode(virtualPort, enniPort, enniVlanId);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
-      return false;
     if (!(obj instanceof ReservationEndPoint))
       return false;
     ReservationEndPoint that = (ReservationEndPoint) obj;
-    return this.getVirtualPort().equals(that.getVirtualPort());
+    return Objects.equal(this.getVirtualPort(), that.getVirtualPort())
+        && Objects.equal(this.getEnniPort(), that.getEnniPort())
+        && Objects.equal(this.getEnniVlanId(), that.getEnniVlanId());
   }
 
   public ReservationEndPoint copy() {
-    return new ReservationEndPoint(virtualPort);
+    if (virtualPort != null) {
+      return new ReservationEndPoint(virtualPort);
+    } else {
+      return new ReservationEndPoint(enniPort, Optional.fromNullable(enniVlanId));
+    }
   }
 }

@@ -67,8 +67,8 @@ public class ServiceComponentActivationClientTestIntegration {
       .withoutProtection()
       .create();
 
-    reservation.getSourcePort().getVirtualPort().setPhysicalPort(sourcePort);
-    reservation.getDestinationPort().getVirtualPort().setPhysicalPort(destPort);
+    reservation.getSourcePort().getVirtualPort().get().setPhysicalPort(sourcePort);
+    reservation.getDestinationPort().getVirtualPort().get().setPhysicalPort(destPort);
 
     Reservation savedReservation = subject.reserve(reservation);
 

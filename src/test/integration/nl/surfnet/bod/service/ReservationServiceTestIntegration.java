@@ -120,17 +120,17 @@ public class ReservationServiceTestIntegration {
 
     Reservation reservation = new ReservationFactory().withNoIds().create();
 
-    reservation.getSourcePort().getPhysicalPort().setPhysicalResourceGroup(prg);
-    reservation.getDestinationPort().getPhysicalPort().setPhysicalResourceGroup(prg);
+    reservation.getSourcePort().getUniPort().get().setPhysicalResourceGroup(prg);
+    reservation.getDestinationPort().getUniPort().get().setPhysicalResourceGroup(prg);
 
-    physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
-    physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
+    physicalPortRepo.save(reservation.getSourcePort().getUniPort().get());
+    physicalPortRepo.save(reservation.getDestinationPort().getUniPort().get());
 
-    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
-    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
+    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualPort().get().getVirtualResourceGroup());
+    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualPort().get().getVirtualResourceGroup());
 
-    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort());
-    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort());
+    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort().get());
+    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort().get());
 
     return reservation;
   }

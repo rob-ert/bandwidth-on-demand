@@ -47,6 +47,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -58,6 +59,7 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
@@ -554,8 +556,10 @@ public class NbiOpenDracWsClient implements NbiClient {
     return tna == null ? false : !tna.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
   }
 
-  private String translateVlanId(ReservationEndPoint virtualSourcePort) {
-    return virtualSourcePort.getVlanId() == null ? DEFAULT_VID : virtualSourcePort.getVlanId().toString();
+  private String translateVlanId(ReservationEndPoint endPoint) {
+    Preconditions.checkArgument(endPoint.getVirtualPort().isPresent(), "OpenDRAC requires UNI ports");
+    VirtualPort virtualPort = endPoint.getVirtualPort().get();
+    return virtualPort.getVlanId() == null ? DEFAULT_VID : virtualPort.getVlanId().toString();
   }
 
   private List<EndpointT> findAllEndPoints() {

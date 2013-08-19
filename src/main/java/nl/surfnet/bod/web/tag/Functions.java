@@ -43,4 +43,7 @@ public final class Functions {
     return optional.get().toString();
   }
 
+  public static <T> T orNull(Optional<T> optional) {
+    return optional.orNull();
+  }
 }

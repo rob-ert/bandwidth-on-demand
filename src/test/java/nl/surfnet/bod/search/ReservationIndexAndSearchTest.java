@@ -46,25 +46,11 @@ public class ReservationIndexAndSearchTest extends AbstractIndexAndSearch<Reserv
     ConnectionV1 connection = new ConnectionV1Factory().setConnectionId("123-abc-456-def").withNoIds().create();
     Reservation reservation = new ReservationFactory().setConnectionV1(connection).withNoIds().create();
 
-    persist(reservation);
+    persistReservation(reservation);
 
     List<Reservation> reservations = searchFor("123-abc-456-def");
 
     assertThat(reservations, hasSize(1));
-  }
-
-  private void persist(Reservation reservation) {
-    persist(
-      reservation.getSourcePort().getPhysicalResourceGroup().getInstitute(),
-      reservation.getSourcePort().getPhysicalResourceGroup(),
-      reservation.getSourcePort().getPhysicalPort(),
-      reservation.getSourcePort().getVirtualResourceGroup(),
-      reservation.getSourcePort().getVirtualPort(),
-      reservation.getDestinationPort().getPhysicalResourceGroup().getInstitute(),
-      reservation.getDestinationPort().getPhysicalResourceGroup(),
-      reservation.getDestinationPort().getPhysicalPort(),
-      reservation.getDestinationPort().getVirtualPort(),
-      reservation);
   }
 
 }

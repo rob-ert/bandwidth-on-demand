@@ -55,7 +55,7 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
       .setCurrentState(ConnectionStateType.TERMINATED)
       .withNoIds().create();
 
-    persist(connection);
+    persistConnection(connection);
   }
 
   @Test
@@ -73,19 +73,8 @@ public class ConnectionIndexAndSearchTest extends AbstractIndexAndSearch<Connect
     assertThat(connections, hasSize(1));
   }
 
-  private void persist(Connection connection) {
-    persist(
-      connection.getReservation().getSourcePort().getPhysicalResourceGroup().getInstitute(),
-      connection.getReservation().getSourcePort().getPhysicalResourceGroup(),
-      connection.getReservation().getSourcePort().getPhysicalPort(),
-      connection.getReservation().getSourcePort().getVirtualResourceGroup(),
-      connection.getReservation().getSourcePort().getVirtualPort(),
-      connection.getReservation().getDestinationPort().getPhysicalResourceGroup().getInstitute(),
-      connection.getReservation().getDestinationPort().getPhysicalResourceGroup(),
-      connection.getReservation().getDestinationPort().getPhysicalPort(),
-      connection.getReservation().getDestinationPort().getVirtualPort(),
-      connection.getReservation(),
-      connection);
+  private void persistConnection(Connection connection) {
+    persistReservation(connection.getReservation());
+    persist(connection);
   }
-
 }

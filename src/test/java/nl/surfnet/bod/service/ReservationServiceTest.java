@@ -241,7 +241,7 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
-        reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup()).create();
+        reservation.getSourcePort().getUniPort().get().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
     when(
@@ -257,10 +257,10 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAManagerInDestinationPortPrgShouldCallTerminate() throws InterruptedException,
       ExecutionException {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
-    reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
+    reservation.getDestinationPort().getUniPort().get().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
-        reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup()).create();
+        reservation.getDestinationPort().getUniPort().get().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
     when(

@@ -67,6 +67,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
@@ -263,8 +264,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision) {
-    checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
+    checkState(reservation.hasConsistentVirtualResourceGroups(), "virtual resource groups of reservation do not match");
 
     correctStart(reservation);
     stripSecondsAndMillis(reservation);
@@ -439,15 +439,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     if (role.isNocRole()) {
       return new ElementActionView(true, "label_cancel");
     } else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
-            role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
-            .getId().equals(role.getPhysicalResourceGroupId().get()))) {
+        && (isReservationDeleteAllowedForPortAsManager(role, reservation.getSourcePort())
+            || isReservationDeleteAllowedForPortAsManager(role, reservation.getDestinationPort()))) {
       return new ElementActionView(true, "label_cancel");
     } else if (role.isUserRole() && user.isMemberOf(reservation.getVirtualResourceGroup().getAdminGroup())) {
       return new ElementActionView(true, "label_cancel");
+    } else {
+      return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
     }
+  }
 
-    return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
+  private boolean isReservationDeleteAllowedForPortAsManager(BodRole managerRole, ReservationEndPoint sourcePort) {
+    Preconditions.checkArgument(managerRole.isManagerRole(), "must be manager");
+    return sourcePort.getUniPort().isPresent()
+        && sourcePort.getUniPort().get().getPhysicalResourceGroup().getId().equals(managerRole.getPhysicalResourceGroupId().get());
   }
 
   public ElementActionView isEditAllowed(Reservation reservation, BodRole role) {

@@ -67,8 +67,8 @@ public class ReserveRequestBuilder {
   }
 
   @VisibleForTesting
-  static ServiceAccessPointType getSap(Reservation reservation, ReservationEndPoint reservationEndPoint) {
-    ServiceAccessPointType sap = createServiceAccessPoint(reservationEndPoint.getPhysicalPort().getNbiPort(), reservation.getReservationId());
+  static ServiceAccessPointType getSap(Reservation reservation, ReservationEndPoint endPoint) {
+    ServiceAccessPointType sap = createServiceAccessPoint(endPoint.getPhysicalPort().getNbiPort(), reservation.getReservationId());
 
     List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
@@ -76,9 +76,11 @@ public class ReserveRequestBuilder {
     describedByList.add(createSscValue("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
     describedByList.add(createSscValue("TrafficMappingTo_Table_TrafficClass", TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
 
-    if (reservationEndPoint.getVlanId() != null) {
+    Integer vlanId = vlanIdOfEndPoint(endPoint);
+    if (vlanId != null) {
+      // TODO is this correct for E-NNI?
       describedByList.add(createSscValue("ServiceType", "EVPL"));
-      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(reservationEndPoint.getVlanId())));
+      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(vlanId)));
     } else {
       describedByList.add(createSscValue("ServiceType", "EPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
@@ -90,6 +92,16 @@ public class ReserveRequestBuilder {
     describedByList.add(createSscValue("ProtectionLevel", reservation.getProtectionType().getMtosiName()));
 
     return sap;
+  }
+
+  private static Integer vlanIdOfEndPoint(ReservationEndPoint endPoint) {
+    if (endPoint.getEnniVlanId().isPresent()) {
+      return endPoint.getEnniVlanId().get();
+    } else if (endPoint.getVirtualPort().isPresent() && endPoint.getVirtualPort().get().getVlanId() != null) {
+      return endPoint.getVirtualPort().get().getVlanId();
+    } else {
+      return null;
+    }
   }
 
   private static ReserveRequest createReserveRequest(DateTime endDateTime) {

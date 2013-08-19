@@ -110,8 +110,8 @@ public class ReservationControllerTest {
     Reservation reservation = (Reservation) model.asMap().get("reservation");
     assertThat(reservation.getStartDateTime(), not(nullValue()));
     assertThat(reservation.getEndDateTime(), not(nullValue()));
-    assertThat(reservation.getSourcePort().getVirtualPort(), is(sourcePort));
-    assertThat(reservation.getDestinationPort().getVirtualPort(), is(destPort));
+    assertThat(reservation.getSourcePort().getVirtualPort().get(), is(sourcePort));
+    assertThat(reservation.getDestinationPort().getVirtualPort().get(), is(destPort));
     assertThat(reservation.getBandwidth(), is(2000L));
   }
 

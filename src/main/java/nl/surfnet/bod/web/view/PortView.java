@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.web.view;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 
@@ -32,14 +34,23 @@ public class PortView {
   private final String physicalPortManagerLabel;
   private final String bodPortId;
   private final String institute;
+  // FIXME add VLAN ID
 
   public PortView(ReservationEndPoint reservationEndPoint) {
-    this.userLabel = reservationEndPoint.getUserLabel();
-    this.managerLabel = reservationEndPoint.getManagerLabel();
-    this.physicalPortManagerLabel = reservationEndPoint.getPhysicalPort().getManagerLabel();
-    this.physicalPortNocLabel = reservationEndPoint.getPhysicalPort().getNocLabel();
     this.bodPortId = reservationEndPoint.getPhysicalPort().getBodPortId();
-    this.institute = reservationEndPoint.getPhysicalPort().getPhysicalResourceGroup().getInstitute().getName();
+    this.physicalPortNocLabel = reservationEndPoint.getPhysicalPort().getNocLabel();
+    Optional<VirtualPort> virtualPort = reservationEndPoint.getVirtualPort();
+    if (virtualPort.isPresent()) {
+      this.userLabel = virtualPort.get().getUserLabel();
+      this.managerLabel = virtualPort.get().getManagerLabel();
+      this.physicalPortManagerLabel = virtualPort.get().getPhysicalPort().getManagerLabel();
+      this.institute = virtualPort.get().getPhysicalResourceGroup().getInstitute().getName();
+    } else {
+      this.userLabel = "-";
+      this.managerLabel = "-";
+      this.physicalPortManagerLabel = "-";
+      this.institute = "-";
+    }
   }
 
   public String getUserLabel() {

@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
@@ -90,6 +91,21 @@ public abstract class AbstractIndexAndSearch<T> {
       entityManager.persist(entity);
     }
     entityManager.getTransaction().commit();
+  }
+
+  protected void persistReservation(Reservation reservation) {
+    persist(
+      reservation.getSourcePort().getUniPort().get().getPhysicalResourceGroup().getInstitute(),
+      reservation.getSourcePort().getUniPort().get().getPhysicalResourceGroup(),
+      reservation.getSourcePort().getPhysicalPort(),
+      reservation.getSourcePort().getVirtualPort().get().getVirtualResourceGroup(),
+      reservation.getSourcePort().getVirtualPort().get(),
+      reservation.getDestinationPort().getUniPort().get().getPhysicalResourceGroup().getInstitute(),
+      reservation.getDestinationPort().getUniPort().get().getPhysicalResourceGroup(),
+      reservation.getDestinationPort().getPhysicalPort(),
+      reservation.getDestinationPort().getVirtualPort().get().getVirtualResourceGroup(),
+      reservation.getDestinationPort().getVirtualPort().get(),
+      reservation);
   }
 
 }

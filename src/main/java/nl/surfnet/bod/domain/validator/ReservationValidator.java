@@ -70,10 +70,15 @@ public class ReservationValidator implements Validator {
       return;
     }
 
-    long maxBandwidth = Math.min(sourcePort.getMaxBandwidth(), destinationPort.getMaxBandwidth());
+    long maxBandwidth = Long.MAX_VALUE;
+    if (sourcePort.getVirtualPort().isPresent()) {
+      maxBandwidth = Math.min(maxBandwidth, sourcePort.getVirtualPort().get().getMaxBandwidth());
+    }
+    if (destinationPort.getVirtualPort().isPresent()) {
+      maxBandwidth = Math.min(maxBandwidth, destinationPort.getVirtualPort().get().getMaxBandwidth());
+    }
     if (reservation.getBandwidth() > maxBandwidth) {
-      errors.rejectValue("bandwidth", "validation.reservation.maxBandwidth", new Object[] { maxBandwidth },
-          "bandwidth exceeded max");
+      errors.rejectValue("bandwidth", "validation.reservation.maxBandwidth", new Object[] { maxBandwidth }, "bandwidth exceeded max");
     }
   }
 
@@ -91,16 +96,12 @@ public class ReservationValidator implements Validator {
           "Source and Destination port should be different");
     }
 
-    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getAdminGroup();
-    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getAdminGroup();
-    String groupName = reservation.getVirtualResourceGroup().getAdminGroup();
-
-    if (!groupNameOfSource.equals(groupNameOfDestination) || !groupName.equals(groupNameOfSource)) {
+    if (!reservation.hasConsistentVirtualResourceGroups()) {
       errors.rejectValue("sourcePort", "", "");
       errors.rejectValue("destinationPort", "validation.reservation.security", "Ports are not in the same virtualResourceGroup");
     }
 
-    if (!Security.getUserDetails().getUserGroupIds().contains(groupNameOfSource)) {
+    if (reservation.getVirtualResourceGroup() != null && !Security.getUserDetails().getUserGroupIds().contains(reservation.getVirtualResourceGroup().getAdminGroup())) {
       errors.reject("validation.reservation.security", "You can not select this port");
     }
   }

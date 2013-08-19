@@ -80,16 +80,16 @@ public class ReservationServiceDbTestHelper {
       .setEndDateTime(endDateTime)
       .setStatus(status).create();
 
-    reservation.getSourcePort().getPhysicalPort().setPhysicalResourceGroup(sourceGroup);
-    reservation.getDestinationPort().getPhysicalPort().setPhysicalResourceGroup(destinationGroup);
+    reservation.getSourcePort().getUniPort().get().setPhysicalResourceGroup(sourceGroup);
+    reservation.getDestinationPort().getUniPort().get().setPhysicalResourceGroup(destinationGroup);
 
-    physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
-    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
-    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort());
+    physicalPortRepo.save(reservation.getSourcePort().getUniPort().get());
+    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualPort().get().getVirtualResourceGroup());
+    virtualPortRepo.save(reservation.getSourcePort().getVirtualPort().get());
 
-    physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
-    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
-    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort());
+    physicalPortRepo.save(reservation.getDestinationPort().getUniPort().get());
+    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualPort().get().getVirtualResourceGroup());
+    virtualPortRepo.save(reservation.getDestinationPort().getVirtualPort().get());
 
     return reservation;
   }
