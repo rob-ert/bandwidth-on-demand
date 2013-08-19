@@ -22,16 +22,20 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
@@ -48,6 +52,7 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -95,6 +100,21 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     virtualPort.setUserLabel(command.getUserLabel());
     virtualPortService.update(virtualPort);
 
+    return "redirect:/virtualports";
+  }
+  
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
+      RedirectAttributes redirectAttributes) {
+
+    VirtualPort virtualPort = virtualPortService.find(id);
+    
+    if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
+      return "redirect:/virtualports";
+    }
+
+    // TODO: Should go to e-mail form with request to the appropriate manager
+    //return "redirect:/virtualports";
     return "redirect:/virtualports";
   }
 
