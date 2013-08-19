@@ -65,10 +65,20 @@
                         
                         <c:choose>
                           <c:when test="${item.requestDeleteAllowed}">
-                            <table:actionsColumn item="${item}" delete="true" path="/virtualports" labelCode="label_virtualport" deleteConfirmLabelCode="An NOC engineer will be notified and your port will be removed. Are you sure?" />
+                            <table:actionsColumn 
+                             item="${item}" 
+                             delete="true" 
+                             path="/virtualports" 
+                             labelCode="label_virtualport" 
+                             deleteConfirmLabelCode="A NOC engineer will be notified and your port will be removed. Are you sure?" />
                           </c:when>
                           <c:otherwise>
-                            <table:actionsColumn item="${item}" delete="true" path="/virtualports" labelCode="label_virtualport" deleteEnabled="false"/>
+                            <table:actionsColumn 
+                             item="${item}" 
+                             delete="true" 
+                             path="/virtualports" 
+                             labelCode="label_virtualport" 
+                             deleteEnabled="false"/>
                           </c:otherwise>
                         </c:choose>
                         
