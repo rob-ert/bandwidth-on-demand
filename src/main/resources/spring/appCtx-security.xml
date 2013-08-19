@@ -22,10 +22,12 @@
     at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
 
 -->
-<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
     <http security="none" pattern="/Shibboleth.sso/*" />
     <http security="none" pattern="/splash" />
     <http security="none" pattern="/resources/**" />
@@ -34,15 +36,13 @@
     <http security="none" pattern="/nsi-topology"></http>
     <http security="none" pattern="/mtosi/**" />
 
-    <http use-expressions="true" create-session="never" >
-        <access-denied-handler error-page="/accessDenied"/>
+    <http use-expressions="true" create-session="never" entry-point-ref="bodAuthenticationEntryPoint" >
         <anonymous enabled="false" />
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
         <intercept-url pattern="/appmanager/**" access="hasRole('APP_MANAGER')"/>
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
         <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
-        <form-login login-page="/splash"/><!-- not the actual login page, but the page that sends the user to SURFConext-->
     </http>
 
     <beans:bean id="preAuthenticatedProcessingFilter" class="nl.surfnet.bod.web.security.RequestHeaderAuthenticationFilter">
@@ -53,6 +53,15 @@
         <beans:property name="preAuthenticatedUserDetailsService">
             <beans:bean class="nl.surfnet.bod.web.security.RichUserDetailsService" />
         </beans:property>
+    </beans:bean>
+
+    <beans:bean id="bodAuthenticationEntryPoint" class="nl.surfnet.bod.web.security.BodAuthenticationEntryPoint">
+        <beans:constructor-arg name="splashPath" value="/splash" />
+        <beans:constructor-arg name="machinePaths">
+            <beans:set>
+                <beans:value>/nsi</beans:value>
+            </beans:set>
+        </beans:constructor-arg>
     </beans:bean>
 
     <authentication-manager alias="authenticationManager" >
