@@ -304,6 +304,8 @@ public class VirtualPortView {
     else if (!vlanId.equals(other.vlanId)) {
       return false;
     }
+    
+    // TODO: equals for requestDeleteAllowed
     return true;
   }
 
