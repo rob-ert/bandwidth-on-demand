@@ -113,8 +113,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       return "redirect:/virtualports";
     }
 
-    // TODO: Should go to e-mail form with request to the appropriate manager
-    //return "redirect:/virtualports";
+    // TODO: Should go to e-mail form with request to the appropriate NOC
     return "redirect:/virtualports";
   }
 
