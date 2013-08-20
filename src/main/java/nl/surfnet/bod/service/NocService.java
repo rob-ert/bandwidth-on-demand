@@ -56,17 +56,10 @@ public class NocService {
 
   private Logger logger = org.slf4j.LoggerFactory.getLogger(NocService.class);
 
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private TransactionOperations transactionOperations;
+  @Resource private ReservationService reservationService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private TransactionOperations transactionOperations;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -91,7 +84,7 @@ public class NocService {
 
         switchVirtualPortsToNewPort(newPort, virtualPorts);
 
-        unallocateOldPort(oldPort);
+        physicalPortService.delete(oldPort.getId());
 
         Collection<Reservation> newReservations = makeNewReservations(reservations);
         Collection<Reservation> newReservationsWithId = new ArrayList<>();
@@ -125,10 +118,6 @@ public class NocService {
     });
   }
 
-  private void unallocateOldPort(UniPort oldPort) {
-    physicalPortService.delete(oldPort);
-  }
-
   private void switchVirtualPortsToNewPort(UniPort newPort, Collection<VirtualPort> virtualPorts) {
     for (VirtualPort vPort : virtualPorts) {
       vPort.setPhysicalPort(newPort);
@@ -154,8 +143,7 @@ public class NocService {
         try {
           // waiting for the cancel to complete
           future.get().get();
-        }
-        catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
           logger.error("Failed to wait for a newReservation to terminate:", e);
         }
       }

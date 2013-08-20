@@ -50,7 +50,6 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -154,22 +153,17 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     return physicalPortRepo.findByNbiPortNmsPortId(nmsPortId);
   }
 
-  /**
-   * Deletes the specified port and all its related objects like the mapped
-   * {@link VirtualPort}s, and {@link Reservation}s
-   *
-   * @param nmsPortId
-   *          NmsPort of the port
-   */
-  public void deleteByNmsPortId(String nmsPortId) {
-    PhysicalPort physicalPort = findByNmsPortId(nmsPortId);
+  public void delete(Long id) {
+    PhysicalPort physicalPort = find(id);
 
     if (physicalPort instanceof UniPort) {
       Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort((UniPort) physicalPort);
       virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
     }
 
-    delete(physicalPortRepo.findByNbiPortNmsPortId(nmsPortId));
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Port " + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
+
+    physicalPortRepo.delete(physicalPort);
   }
 
   public PhysicalPort find(Long id) {
@@ -192,12 +186,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
         + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
 
     return physicalPortRepo.save(physicalPort);
-  }
-
-  @VisibleForTesting
-  void delete(PhysicalPort physicalPort) {
-    logEventService.logDeleteEvent(Security.getUserDetails(), "Port " + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);
-    physicalPortRepo.delete(physicalPort);
   }
 
   public List<UniPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup, int firstResult, int maxResults, Sort sort) {

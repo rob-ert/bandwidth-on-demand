@@ -35,6 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -47,13 +48,16 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
@@ -75,16 +79,18 @@ public class PhysicalPortServiceTest {
   @Mock private NbiClient nbiClientMock;
   @Mock private PhysicalPortRepo physicalPortRepoMock;
   @Mock private Environment environmentMock;
-  @Mock private LogEventService logEventService;
-  @Mock private SnmpAgentService snmpAgentService;
+  @Mock private LogEventService logEventServiceMock;
+  @Mock private SnmpAgentService snmpAgentServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
 
   private Map<String, PhysicalPort> physicalPortMap;
   private Map<String, NbiPort> nbiPortMap;
+  private RichUserDetails user;
 
   @Before
   public void setUp() {
-    Security.setUserDetails(
-      new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group").create());
+    user = new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group").create();
+    Security.setUserDetails(user);
 
     List<PhysicalPort> physicalPorts = Lists.<PhysicalPort> newArrayList(
         new PhysicalPortFactory().setId(1L).setNbiPort(new NbiPortFactory().setNmsPortId("1").create()).create(),
@@ -161,12 +167,17 @@ public class PhysicalPortServiceTest {
   }
 
   @Test
-  public void deleteShouldCallDeleteOnRepo() {
+  public void delete_should_delete_virtual_ports() {
     UniPort port = new PhysicalPortFactory().create();
+    Collection<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
 
-    subject.delete(port);
+    when(physicalPortRepoMock.findOne(port.getId())).thenReturn(port);
+    when(virtualPortServiceMock.findAllForPhysicalPort(port)).thenReturn(virtualPorts);
 
-    verify(physicalPortRepoMock, only()).delete(port);
+    subject.delete(port.getId());
+
+    verify(virtualPortServiceMock).deleteVirtualPorts(virtualPorts, user);
+    verify(physicalPortRepoMock).delete(port);
   }
 
   @Test
@@ -248,7 +259,7 @@ public class PhysicalPortServiceTest {
     assertThat(dissapearedPorts, hasSize(1));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("2")));
 
-    verify(snmpAgentService, times(1)).sendMissingPortEvent("2");
+    verify(snmpAgentServiceMock, times(1)).sendMissingPortEvent("2");
   }
 
   @Test

@@ -269,16 +269,13 @@ public class PhysicalPortControllerTest {
   @Test
   public void deleteShouldStayOnSamePageButReload() throws Exception {
     UniPort port = new PhysicalPortFactory().create();
-    String nmsPortId = "port_name";
 
-    when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
-
-    mockMvc.perform(delete("/noc/physicalports/delete").param("id", nmsPortId).param("page", "3"))
+    mockMvc.perform(delete("/noc/physicalports/delete").param("id", "" + port.getId()).param("page", "3"))
         .andExpect(status().isMovedTemporarily())
         .andExpect(model().attribute(PAGE_KEY, is("3")))
         .andExpect(view().name("redirect:"));
 
-    verify(physicalPortServiceMock).deleteByNmsPortId(nmsPortId);
+    verify(physicalPortServiceMock).delete(port.getId());
   }
 
   @Test

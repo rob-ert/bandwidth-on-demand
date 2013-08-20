@@ -65,17 +65,10 @@ public class NocServiceTest {
   @InjectMocks
   private NocService subject;
 
-  @Mock
-  private ReservationService reservationServiceMock;
-
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-
-  @Mock
-  private EntityManager entityManagerMock;
+  @Mock private ReservationService reservationServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private PhysicalPortService physicalPortServiceMock;
+  @Mock private EntityManager entityManagerMock;
 
   private TransactionOperations transactionOperations = new FakeTransactionOperations();
 
@@ -125,7 +118,7 @@ public class NocServiceTest {
 
     subject.movePort(oldPort, newPort);
 
-    verify(physicalPortServiceMock).delete(oldPort);
+    verify(physicalPortServiceMock).delete(oldPort.getId());
   }
 
   @Test
