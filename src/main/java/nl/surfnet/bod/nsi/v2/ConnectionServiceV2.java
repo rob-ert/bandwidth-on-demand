@@ -70,28 +70,34 @@ public class ConnectionServiceV2 {
   @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
 
   public void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
-    checkConnection(connection, userDetails);
+    checkConnectionId(connection.getConnectionId());
+    checkGlobalReservationId(connection.getGlobalReservationId());
 
-    connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
-    connectionRepo.save(connection);
+    try {
+      checkProviderNsa(connection.getProviderNsa());
 
-    VirtualPort sourcePort = virtualPortService.findByNsiV2StpId(connection.getSourceStpId());
-    VirtualPort destinationPort = virtualPortService.findByNsiV2StpId(connection.getDestinationStpId());
+      connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
+      Reservation reservation = new Reservation();
+      reservation.setConnectionV2(connection);
+      reservation.setName(connection.getDescription());
+      reservation.setStartDateTime(connection.getStartTime().orNull());
+      reservation.setEndDateTime(connection.getEndTime().orNull());
+      reservation.setSourcePort(checkPort(connection.getSourceStpId(), userDetails));
+      reservation.setDestinationPort(checkPort(connection.getDestinationStpId(),  userDetails));
+      reservation.setBandwidth(connection.getDesiredBandwidth());
+      reservation.setUserCreated(userDetails.getNameId());
+      reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
+      connection.setReservation(reservation);
+      connectionRepo.save(connection);
 
-    Reservation reservation = new Reservation();
-    reservation.setConnectionV2(connection);
-    reservation.setName(connection.getDescription());
-    reservation.setStartDateTime(connection.getStartTime().orNull());
-    reservation.setEndDateTime(connection.getEndTime().orNull());
-    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
-    reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
-    reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
-    reservation.setBandwidth(connection.getDesiredBandwidth());
-    reservation.setUserCreated(userDetails.getNameId());
-    reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
-    connection.setReservation(reservation);
+      reservationService.create(reservation, false);
+    } catch (ReservationCreationException e) {
+      connection.setLifecycleState(LifecycleStateEnumType.FAILED);
+      connection.setReservationState(ReservationStateEnumType.RESERVE_START);
+      connectionRepo.save(connection);
 
-    reservationService.create(reservation, false);
+      throw e;
+    }
   }
 
   @Async
@@ -216,23 +222,6 @@ public class ConnectionServiceV2 {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
   }
 
-  private void checkConnection(ConnectionV2 connection, RichUserDetails richUserDetails) throws ReservationCreationException {
-    checkConnectionId(connection.getConnectionId());
-    checkGlobalReservationId(connection.getGlobalReservationId());
-
-    try {
-      checkProviderNsa(connection.getProviderNsa());
-      checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
-      checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
-    } catch (ReservationCreationException e) {
-      connection.setLifecycleState(LifecycleStateEnumType.FAILED);
-      connection.setReservationState(ReservationStateEnumType.RESERVE_START);
-      connectionRepo.save(connection);
-
-      throw e;
-    }
-  }
-
   private void checkGlobalReservationId(String globalReservationId) throws ReservationCreationException {
     if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
       log.debug("GlobalReservationId {} was not unique", globalReservationId);
@@ -260,16 +249,24 @@ public class ConnectionServiceV2 {
     }
   }
 
-  private void checkPort(String stpId, String attribute, RichUserDetails user) throws ReservationCreationException {
-    VirtualPort port = virtualPortService.findByNsiV2StpId(stpId);
-
-    if (port == null) {
+  private ReservationEndPoint checkPort(String stpId, RichUserDetails user) throws ReservationCreationException {
+    Optional<ReservationEndPoint> optionalEndPoint = findEndPoint(stpId);
+    if (!optionalEndPoint.isPresent()) {
       throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpId));
     }
+    ReservationEndPoint endPoint = optionalEndPoint.get();
 
-    if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
+    if (endPoint.getVirtualPort().isPresent()
+        && !user.getUserGroupIds().contains(endPoint.getVirtualPort().get().getVirtualResourceGroup().getAdminGroup())) {
       throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpId));
     }
+
+    return endPoint;
+  }
+
+  private Optional<ReservationEndPoint> findEndPoint(String stpId) {
+    VirtualPort port = virtualPortService.findByNsiV2StpId(stpId);
+    return port == null ? Optional.<ReservationEndPoint>absent() : Optional.of(new ReservationEndPoint(port));
   }
 
   @SuppressWarnings("serial")
