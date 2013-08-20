@@ -61,11 +61,11 @@ public class NsiTopologyController {
     List<TopologyEntryView> entries = new ArrayList<>();
 
     for(final VirtualPort virtualPort: virtualPorts) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + virtualPort.getPhysicalPort().getNmsPortId() + "_" + virtualPort.getId();
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
       entries.add(new TopologyEntryView(portGroupId, virtualPort.getVlanId().toString(), null, null));
     }
     // TODO hans also iterate over ENNI ports when they can be queries
-    // for ENNI the portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + nmsPortId
+    // for ENNI the portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + BodPortId
 
     model.addAttribute("entries", entries);
 
