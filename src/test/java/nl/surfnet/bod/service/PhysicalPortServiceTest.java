@@ -35,7 +35,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +51,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.UniPortRepo;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -78,6 +78,7 @@ public class PhysicalPortServiceTest {
 
   @Mock private NbiClient nbiClientMock;
   @Mock private PhysicalPortRepo physicalPortRepoMock;
+  @Mock private UniPortRepo uniPortRepoMock;
   @Mock private Environment environmentMock;
   @Mock private LogEventService logEventServiceMock;
   @Mock private SnmpAgentService snmpAgentServiceMock;
@@ -146,13 +147,13 @@ public class PhysicalPortServiceTest {
 
   @Test
   public void findAllocatedEntriesShouldReturnMaxAvailablePorts() {
-    List<PhysicalPort> ports = Lists.<PhysicalPort> newArrayList(
+    List<UniPort> ports = Lists.newArrayList(
       new PhysicalPortFactory().setNocLabel("first").create(),
       new PhysicalPortFactory().setNocLabel("second").create());
 
-    when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl<PhysicalPort>(ports));
+    when(uniPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(ports));
 
-    List<PhysicalPort> entries = subject.findAllocatedEntries(0, 20, new Sort("id"));
+    List<UniPort> entries = subject.findAllocatedUniEntries(0, 20, new Sort("id"));
 
     assertThat(entries, hasSize(2));
   }

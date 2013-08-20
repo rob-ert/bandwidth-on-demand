@@ -135,36 +135,60 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 //    return "physicalports/addPhysicalPort";
 //  }
 
-  // FIXME casts..
-  @RequestMapping(method = RequestMethod.POST)
-  public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+  @RequestMapping(value = "/enni", method = RequestMethod.POST)
+  public String createEnniPort(@Valid CreateEnniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
     if (result.hasErrors()) {
       model.addAttribute("createPortCommand", createPortCommand);
-      return "physicalports/createUni";
+      return "physicalports/createEnni";
     }
 
-    UniPort physicalPort = (UniPort) physicalPortService.findByNmsPortId(createPortCommand.getNmsPortId());
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(createPortCommand.getNmsPortId());
 
     if (!nbiPort.isPresent()) {
       return "redirect:";
     }
-    if (physicalPort == null) {
-      physicalPort = (UniPort) PhysicalPort.create(nbiPort.get());
+
+    EnniPort enniPort = (EnniPort) PhysicalPort.create(nbiPort.get());
+    enniPort.setNocLabel(createPortCommand.getNocLabel());
+    enniPort.setBodPortId(createPortCommand.getBodPortId());
+    enniPort.setVlanRanges(createPortCommand.getVlanRanges());
+    enniPort.setOutboundPeer(createPortCommand.getOutboundPeer());
+    enniPort.setInboundPeer(createPortCommand.getInboundPeer());
+
+    physicalPortService.save(enniPort);
+
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_created", enniPort.getNocLabel());
+
+    return "redirect:/noc/physicalports/enni";
+  }
+
+  @RequestMapping(value = "/uni", method = RequestMethod.POST)
+  public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+    if (result.hasErrors()) {
+      model.addAttribute("createUniPortCommand", createPortCommand);
+      return "physicalports/createUni";
     }
+
+    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(createPortCommand.getNmsPortId());
+
+    if (!nbiPort.isPresent()) {
+      return "redirect:";
+    }
+
+    UniPort uniPort = (UniPort) PhysicalPort.create(nbiPort.get());
 
     if (Strings.isNullOrEmpty(createPortCommand.getManagerLabel())) {
-      physicalPort.setManagerLabel(null);
+      uniPort.setManagerLabel(null);
     } else {
-      physicalPort.setManagerLabel(createPortCommand.getManagerLabel());
+      uniPort.setManagerLabel(createPortCommand.getManagerLabel());
     }
-    physicalPort.setPhysicalResourceGroup(createPortCommand.getPhysicalResourceGroup());
-    physicalPort.setNocLabel(createPortCommand.getNocLabel());
-    physicalPort.setBodPortId(createPortCommand.getBodPortId());
+    uniPort.setPhysicalResourceGroup(createPortCommand.getPhysicalResourceGroup());
+    uniPort.setNocLabel(createPortCommand.getNocLabel());
+    uniPort.setBodPortId(createPortCommand.getBodPortId());
 
-    physicalPortService.save(physicalPort);
+    physicalPortService.save(uniPort);
 
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_added", physicalPort.getNocLabel(), physicalPort.getPhysicalResourceGroup().getName());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
 
     return "redirect:/noc/physicalports";
   }
@@ -236,6 +260,30 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return super.search(page, sort, order, search, model);
   }
 
+  @RequestMapping(value = "/enni", method = RequestMethod.GET)
+  public String listEnni(
+    @RequestParam(value = PAGE_KEY, required = false) Integer page,
+    @RequestParam(value = "sort", required = false) String sort,
+    @RequestParam(value = "order", required = false) String order,
+    Model model) {
+
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+
+    List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
+        .transformAllocatedPhysicalPorts(physicalPortService.findAllocatedEnniEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), reservationService);
+
+    if (!StringUtils.hasText(sort)) {
+      sort = "nocLabel";
+    }
+
+    model.addAttribute(DATA_LIST, transformedUnallocatedPhysicalPorts);
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
+    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.ENNI_ALLOCATED);
+    model.addAttribute(FILTER_LIST, getAvailableFilters());
+
+    return PAGE_URL + "/listenni";
+  }
+
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(
     @RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -283,9 +331,12 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
-    List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformAllocatedPhysicalPorts(physicalPortService
-        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
-        reservationService);
+    List<PhysicalPortView> allocatedPhysicalPorts = Collections.emptyList();
+
+        // FIXME
+//        Functions.transformAllocatedPhysicalPorts(physicalPortService
+//        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
+//        reservationService);
 
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
     model.addAttribute(WebUtils.DATA_LIST, allocatedPhysicalPorts);
@@ -322,22 +373,19 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
   public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
-    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
 
     if (!nbiPort.isPresent()) {
       return "redirect:";
     }
 
-    if (physicalPort == null) {
-      physicalPort = PhysicalPort.create(nbiPort.get());
-    }
+    PhysicalPort physicalPort = PhysicalPort.create(nbiPort.get());
 
     if (physicalPort instanceof UniPort) {
-      model.addAttribute("createPortCommand", new CreateUniPortCommand((UniPort) physicalPort));
+      model.addAttribute("createUniPortCommand", new CreateUniPortCommand((UniPort) physicalPort));
       return PAGE_URL + "/createUni";
     } else {
-      model.addAttribute("createPortCommand", new CreateEnniPortCommand((EnniPort) physicalPort));
+      model.addAttribute("createEnniPortCommand", new CreateEnniPortCommand((EnniPort) physicalPort));
       return PAGE_URL + "/createEnni";
     }
   }
@@ -457,7 +505,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Functions.transformAllocatedPhysicalPorts(physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
+    return Functions.transformAllocatedPhysicalPorts(physicalPortService.findAllocatedUniEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
   }
 
   @Override
@@ -533,10 +581,45 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   public static final class CreateEnniPortCommand extends PhysicalPortCommand {
+    @NotEmpty private String inboundPeer;
+    @NotEmpty private String outboundPeer;
+    @NotEmpty private String vlanRanges;
+
     public CreateEnniPortCommand() {
     }
 
     public CreateEnniPortCommand(EnniPort port) {
+      setNmsPortId(port.getNmsPortId());
+      setNocLabel(port.getNocLabel());
+      setBodPortId(port.getBodPortId());
+
+      this.inboundPeer = port.getInboundPeer();
+      this.outboundPeer = port.getOutboundPeer();
+      this.vlanRanges = port.getVlanRanges();
+    }
+
+    public String getInboundPeer() {
+      return inboundPeer;
+    }
+
+    public void setInboundPeer(String inboudPeer) {
+      this.inboundPeer = inboudPeer;
+    }
+
+    public String getOutboundPeer() {
+      return outboundPeer;
+    }
+
+    public void setOutboundPeer(String outboundPeer) {
+      this.outboundPeer = outboundPeer;
+    }
+
+    public String getVlanRanges() {
+      return vlanRanges;
+    }
+
+    public void setVlanRanges(String vlanRanges) {
+      this.vlanRanges = vlanRanges;
     }
   }
 
@@ -621,7 +704,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   public enum PhysicalPortFilter {
     UNI_ALLOCATED("UNI", "/"),
-    ENNI_ALLOCATED("E-NNI", "?eni"),
+    ENNI_ALLOCATED("E-NNI", "/enni"),
     UN_ALLOCATED("Unallocated", "/free"),
     UN_ALIGNED("Unaligned", "/unaligned");
 

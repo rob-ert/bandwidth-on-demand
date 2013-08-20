@@ -25,6 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.UUID;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 
 public class NbiPortFactory {
 
@@ -32,6 +33,7 @@ public class NbiPortFactory {
   private String nmsPortId = UUID.randomUUID().toString();
   private String nmsNeId;
   private String nmsSapName;
+  private InterfaceType interfaceType = InterfaceType.UNI;
 
   public NbiPort create() {
     NbiPort port = new NbiPort();
@@ -39,6 +41,7 @@ public class NbiPortFactory {
     port.setNmsPortId(nmsPortId);
     port.setNmsSapName(nmsSapName);
     port.setNmsNeId(nmsNeId);
+    port.setInterfaceType(interfaceType);
 
     return port;
   }

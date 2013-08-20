@@ -25,6 +25,7 @@ package nl.surfnet.bod.support;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
@@ -42,6 +43,7 @@ public class PhysicalPortFactory {
   private NbiPort nbiPort = new NbiPortFactory().create();
 
   public UniPort create() {
+    nbiPort.setInterfaceType(InterfaceType.UNI);
     UniPort port = new UniPort(nbiPort);
     port.setId(id);
     port.setVersion(version);

@@ -28,8 +28,8 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -90,16 +90,34 @@ public final class Functions {
     return physicalPortView;
   }
 
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends PhysicalPort> ports,
-      VirtualPortService virtualPortService, ReservationService reservationService) {
+  /**
+   * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
+   */
+  public static PhysicalPortView transformAllocatedPhysicalPort(EnniPort port, ReservationService reservationService) {
+    ElementActionView allocateActionView = new ElementActionView(true, "label_unallocated");
 
-    List<PhysicalPortView> transformers = Lists.newArrayList();
-    for (PhysicalPort port : ports) {
-      // FIXME is not always a UniPort
-      transformers.add(transformAllocatedPhysicalPort((UniPort) port, virtualPortService, reservationService));
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView);
+    physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
+
+    return physicalPortView;
+  }
+
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<EnniPort> ports, ReservationService reservationService) {
+    List<PhysicalPortView> views = Lists.newArrayList();
+    for (EnniPort port : ports) {
+      views.add(transformAllocatedPhysicalPort(port, reservationService));
     }
 
-    return transformers;
+    return views;
+  }
+
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends UniPort> ports, VirtualPortService virtualPortService, ReservationService reservationService) {
+    List<PhysicalPortView> views = Lists.newArrayList();
+    for (UniPort port : ports) {
+      views.add(transformAllocatedPhysicalPort(port, virtualPortService, reservationService));
+    }
+
+    return views;
   }
 
   public static PhysicalPortView transformUnallocatedPhysicalPort(NbiPort unallocatedPort) {

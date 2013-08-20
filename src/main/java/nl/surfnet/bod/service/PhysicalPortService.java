@@ -30,6 +30,7 @@ import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byP
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -95,8 +97,13 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
-    return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  public List<UniPort> findAllocatedUniEntries(int firstResult, int maxResults, Sort sort) {
+    return uniPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  public List<EnniPort> findAllocatedEnniEntries(int firstResult, int maxResults, Sort sort) {
+    return Collections.emptyList();
+    //return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public Collection<NbiPort> findUnallocatedEntries(int firstResult, int sizeNo) {

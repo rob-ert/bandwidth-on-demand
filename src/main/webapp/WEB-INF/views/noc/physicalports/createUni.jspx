@@ -8,7 +8,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_PhysicalPort_Uni" modelAttribute="createPortCommand" path="/noc/physicalports">
+    <form:create id="fc_PhysicalPort_Uni" modelAttribute="createUniPortCommand" path="/noc/physicalports/uni">
+
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
         <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />

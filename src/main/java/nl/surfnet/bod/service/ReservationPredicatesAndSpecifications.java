@@ -35,6 +35,7 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.ConnectionV1_;
 import nl.surfnet.bod.domain.ConnectionV2_;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
@@ -125,7 +126,7 @@ public final class ReservationPredicatesAndSpecifications {
     };
   }
 
-  static Specification<Reservation> specByPhysicalPort(final UniPort port) {
+  static Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

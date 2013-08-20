@@ -16,9 +16,9 @@
         <put-attribute name="unallocated" value="true" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-
-    <definition extends="noc" name="physicalports/update">
-        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
+    <definition extends="noc" name="physicalports/listenni">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
+        <put-attribute name="unallocated" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
@@ -28,6 +28,11 @@
     </definition>
     <definition extends="noc" name="physicalports/createEnni">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/createEnni.jspx" />
+        <put-attribute name="active_menu" value="physicalport" cascade="true" />
+    </definition>
+
+    <definition extends="noc" name="physicalports/update">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 

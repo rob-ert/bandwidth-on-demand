@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.UniPort;
@@ -46,6 +47,10 @@ public class PhysicalPortView {
   private final String nmsSapName;
   private final String interfaceType;
 
+  private final String outboundPeer;
+  private final String inboundPeer;
+  private final String vlanRanges;
+
   private int reservationsAmount;
 
   public String getInterfaceType() {
@@ -69,9 +74,38 @@ public class PhysicalPortView {
     this.nmsPortSpeed = nbiPort.getNmsPortSpeed();
     this.nmsSapName = nbiPort.getNmsSapName();
 
+    this.inboundPeer = null;
+    this.outboundPeer = null;
+    this.vlanRanges = null;
+
     this.nmsPortId = nbiPort.getNmsPortId();
     this.nocLabel = nbiPort.getSuggestedNocLabel();
     this.bodPortId = nbiPort.getSuggestedBodPortId();
+  }
+
+  public PhysicalPortView(EnniPort enniPort, ElementActionView deleteActionView) {
+    this.id = enniPort.getId();
+    this.nocLabel = enniPort.getNocLabel();
+    this.bodPortId = enniPort.getBodPortId();
+    this.nmsPortId = enniPort.getNmsPortId();
+    this.vlanRequired = enniPort.isVlanRequired();
+    this.alignedWithNMS = enniPort.isAlignedWithNMS();
+    this.nmsAlignmentStatus = enniPort.getNmsAlignmentStatus();
+
+    this.numberOfVirtualPorts = 0L;
+    this.managerLabel = null;
+    this.instituteName = null;
+    this.deleteActionView = deleteActionView;
+    this.deleteRender = deleteActionView == null ? false : true;
+
+    this.inboundPeer = enniPort.getInboundPeer();
+    this.outboundPeer = enniPort.getOutboundPeer();
+    this.vlanRanges = enniPort.getVlanRanges();
+
+    this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
+    this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();
+    this.nmsSapName = enniPort.getNbiPort().getNmsSapName();
+    this.interfaceType = enniPort.getNbiPort().getInterfaceType().toString();
   }
 
   public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
@@ -88,6 +122,10 @@ public class PhysicalPortView {
     this.numberOfVirtualPorts = virtualPortSize;
     this.deleteActionView = deleteActionView;
     this.deleteRender = deleteActionView == null ? false : true;
+
+    this.inboundPeer = null;
+    this.outboundPeer = null;
+    this.vlanRanges = null;
 
     this.nmsNeId = physicalPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = physicalPort.getNbiPort().getNmsPortSpeed();
@@ -181,6 +219,18 @@ public class PhysicalPortView {
 
   public final void setDeleteRender(boolean deleteRender) {
     this.deleteRender = deleteRender;
+  }
+
+  public String getOutboundPeer() {
+    return outboundPeer;
+  }
+
+  public String getInboundPeer() {
+    return inboundPeer;
+  }
+
+  public String getVlanRanges() {
+    return vlanRanges;
   }
 
   @Override

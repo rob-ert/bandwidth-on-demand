@@ -280,7 +280,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findOne(id);
   }
 
-  public Collection<Reservation> findActiveByPhysicalPort(UniPort port) {
+  public Collection<Reservation> findActiveByPhysicalPort(PhysicalPort port) {
     return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
