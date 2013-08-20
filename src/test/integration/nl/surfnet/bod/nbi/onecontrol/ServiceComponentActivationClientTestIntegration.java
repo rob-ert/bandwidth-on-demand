@@ -24,10 +24,8 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 
 import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
-import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nbi.onecontrol.ServiceComponentActivationClient;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;

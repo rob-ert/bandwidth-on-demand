@@ -156,7 +156,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-
     if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason));
     }
@@ -289,8 +288,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Collection<Reservation> findAllActiveByVirtualPortForManager(VirtualPort port, RichUserDetails user) {
-    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
-        specByVirtualPortAndManager(port, user)));
+    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(specByManager(user)));
   }
 
   public List<Reservation> findAllEntriesUsingFilter(ReservationFilterView filter, int firstResult,
