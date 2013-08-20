@@ -22,19 +22,20 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import org.joda.time.DateTime;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/nsi-topology")
@@ -42,14 +43,31 @@ public class NsiTopologyController {
 
   @Resource(name = "bodEnvironment") private Environment environment;
 
+  @Resource private VirtualPortService virtualPortService;
+
   @RequestMapping(method = RequestMethod.GET)
   public String renderTopology(final Model model){
 
     model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA);
+
     model.addAttribute("networkName", NsiConstants.NETWORK_ID);
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
     model.addAttribute("nsiTopologyContact", environment.getNsiTopologyContact());
+
+    // query all virtual ports, these are my 'UNI ports'
+    List<VirtualPort> virtualPorts = virtualPortService.findAll();
+    List<TopologyEntryView> entries = new ArrayList<>();
+
+    for(final VirtualPort virtualPort: virtualPorts) {
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + virtualPort.getPhysicalPort().getNmsPortId() + "_" + virtualPort.getId();
+      entries.add(new TopologyEntryView(portGroupId, virtualPort.getVlanId().toString(), null, null));
+    }
+    // TODO hans also iterate over ENNI ports when they can be queries
+    // for ENNI the portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + nmsPortId
+
+    model.addAttribute("entries", entries);
+
     return "nsi-topology";
   }
 
@@ -59,6 +77,37 @@ public class NsiTopologyController {
    */
   private String getNsi2ConnectionProviderUrl() {
     return environment.getExternalBodUrl() + environment.getNsiV2ServiceUrl();
+  }
+
+  public static class TopologyEntryView {
+
+      private final String portGroupId;
+      private final String vlanRanges;
+      private final String outboundPeerUri;
+      private final String inboundPeerUri;
+
+    public TopologyEntryView(String portgroupId, String vlanRanges, String outboundPeerUri, String inboundPeerUri) {
+      this.portGroupId = portgroupId;
+      this.vlanRanges = vlanRanges;
+      this.outboundPeerUri = outboundPeerUri;
+      this.inboundPeerUri = inboundPeerUri;
+    }
+
+    public String getPortGroupId() {
+      return portGroupId;
+    }
+
+    public String getVlanRanges() {
+      return vlanRanges;
+    }
+
+    public String getOutboundPeerUri() {
+      return outboundPeerUri;
+    }
+
+    public String getInboundPeerUri() {
+      return inboundPeerUri;
+    }
   }
 
 }

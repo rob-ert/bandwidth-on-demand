@@ -27,25 +27,35 @@
         </nsi:Relation>
         <nml:Topology id="${nsiId}:topology">
             <nml:name>${networkName}</nml:name>
-            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-out"><!--
-            ps-out, in geval ENNI vervangen door ${bod_port_id} + ":out"
-            voor UNNI: ${bod_port_id} + {numeriek gedeelte van STP ID} + ":out"
-            -->
-                    <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
-                </nml:PortGroup>
-            </nml:Relation>
-            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-in"><!-- ps-in vervangen door ${bod_port_id} + ":in" (bij ENNI) -->
-                    <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
-                </nml:PortGroup>
-            </nml:Relation>
-            <nml:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:bi-ps">
-                <!-- ps-in vervangen door ${bod_port_id} (geen toevoeging) -->
-                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-in"/>
-                <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:ps-out"/>
-            </nml:BidirectionalPort>
-
+            <c:forEach items="${entries}" var="entry">
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                    <nml:PortGroup id="${entry.portGroupId}:out">
+                        <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        <c:if test="${not empty (entry.outboundPeerUri)}">
+                            <!-- ENNI only-->
+                            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <nml:PortGroup id="{outboundPeerUri}" />
+                            </nml:Relation>
+                        </c:if>
+                    </nml:PortGroup>
+                </nml:Relation>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                    <nml:PortGroup id="${entry.portGroupId}:in">
+                        <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        <c:if test="${not empty (entry.inboundPeerUri)}">
+                            <!-- ENNI only-->
+                            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <nml:PortGroup id="{inboundPeerUri}" />
+                            </nml:Relation>
+                        </c:if>
+                    </nml:PortGroup>
+                </nml:Relation>
+                <nml:BidirectionalPort id="${entry.portGroupId}:bi">
+                    <!-- refers to the two portgroup elements declared above (inbound+outbound) and thus wires them together -->
+                    <nml:PortGroup id="${entry.portGroupId}:in"/>
+                    <nml:PortGroup id="${entry.portGroupId}:out"/>
+                </nml:BidirectionalPort>
+            </c:forEach>
         </nml:Topology>
 
     </nsi:NSA>
