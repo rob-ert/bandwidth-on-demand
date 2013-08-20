@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -37,28 +38,23 @@ import nl.surfnet.bod.domain.UniPort_;
 
 public final class PhysicalPortPredicatesAndSpecifications {
 
-
-  static final Specification<UniPort> UNALIGNED_PORT_SPEC = new Specification<UniPort>() {
+  static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
     @Override
-    public javax.persistence.criteria.Predicate toPredicate(Root<UniPort> physicalPort, CriteriaQuery<?> query,
-        CriteriaBuilder cb) {
+    public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query, CriteriaBuilder cb) {
       return cb.notEqual(physicalPort.get(PhysicalPort_.nmsAlignmentStatus), NmsAlignmentStatus.ALIGNED);
     }
   };
 
-  private PhysicalPortPredicatesAndSpecifications() {
-  }
-
   static Specification<UniPort> byPhysicalResourceGroupSpec(final PhysicalResourceGroup physicalResourceGroup) {
     return new Specification<UniPort>() {
-
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<UniPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-
+      public javax.persistence.criteria.Predicate toPredicate(Root<UniPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.equal(root.get(UniPort_.physicalResourceGroup), physicalResourceGroup);
       }
     };
+  }
+
+  private PhysicalPortPredicatesAndSpecifications() {
   }
 
 }

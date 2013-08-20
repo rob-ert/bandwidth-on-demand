@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ReservationEndPoint;
@@ -78,10 +79,10 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public Converter<Long, UniPort> getIdToPhysicalPortConverter() {
-    return new Converter<Long, UniPort>() {
+  public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
+    return new Converter<Long, PhysicalPort>() {
       @Override
-      public UniPort convert(final Long id) {
+      public PhysicalPort convert(final Long id) {
         return physicalPortService.find(id);
       }
     };

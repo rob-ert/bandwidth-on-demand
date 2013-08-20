@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.repo;
 
-import static nl.surfnet.bod.repo.CustomRepoHelper.addSortClause;
-
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -32,40 +30,40 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.domain.ConnectionV2_;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 
-public class ConnectionV2RepoImpl implements CustomRepo<ConnectionV2> {
+public class UniPortRepoImpl implements CustomRepo<UniPort> {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(Specification<ConnectionV2> whereClause, Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<UniPort> whereClause, Optional<Sort> sort) {
     return findIds(Optional.of(whereClause), sort);
   }
 
+  @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<ConnectionV2>> absent(), sort);
+    return findIds(Optional.<Specification<UniPort>> absent(), sort);
   }
 
-  private List<Long> findIds(Optional<Specification<ConnectionV2>> whereClause, Optional<Sort> sort) {
+  private List<Long> findIds(Optional<Specification<UniPort>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    Root<ConnectionV2> root = criteriaQuery.from(ConnectionV2.class);
-
-    criteriaQuery.select(root.get(ConnectionV2_.id));
+    Root<UniPort> root = criteriaQuery.from(UniPort.class);
 
     if (whereClause.isPresent()) {
-      criteriaQuery.where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+      criteriaQuery.select(root.get(PhysicalPort_.id)).where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    } else {
+      criteriaQuery.select(root.get(PhysicalPort_.id));
     }
 
-    addSortClause(sort, criteriaBuilder, criteriaQuery, root);
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }

@@ -31,5 +31,7 @@ import com.google.common.base.Optional;
 
 public interface CustomRepo<T> {
 
-  List<Long> findIdsWithWhereClause(Optional<Specification<T>> whereClause, Optional<Sort> sort);
+  List<Long> findIdsWithWhereClause(Specification<T> whereClause, Optional<Sort> sort);
+
+  List<Long> findIds(Optional<Sort> sort);
 }

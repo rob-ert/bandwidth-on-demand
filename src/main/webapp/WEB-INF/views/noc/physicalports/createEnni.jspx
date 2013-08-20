@@ -8,7 +8,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:update id="fc_PhysicalPort" modelAttribute="updatePortCommand" path="/noc/physicalports">
+    <form:create id="fc_PhysicalPort" modelAttribute="createPortCommand" path="/noc/physicalports">
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
         <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
@@ -16,7 +16,6 @@
         <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
             items="${physicalResourceGroupList}" path="/noc/institutes" />
 
-        <sform:hidden path="nmsPortId" />
-    </form:update>
+    </form:create>
 
 </jsp:root>

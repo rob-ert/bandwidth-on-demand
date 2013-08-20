@@ -26,7 +26,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.UniPort;
+import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -41,8 +43,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.google.common.annotations.VisibleForTesting;
-
 @Controller("nocDashboardController")
 @RequestMapping(DashboardController.PAGE_URL)
 public class DashboardController {
@@ -53,14 +53,9 @@ public class DashboardController {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private MessageManager messageManager;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private ReservationService reservationService;
+  @Resource private MessageManager messageManager;
 
   @Resource(name = "bodEnvironment")
   private Environment environment;
@@ -104,11 +99,11 @@ public class DashboardController {
         countComingReservations, countMissingPhysicalPorts);
   }
 
-  private void generateErrorMessagesForUnalignedPorts(Model model, List<UniPort> unalignedPorts) {
+  private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unalignedPorts) {
 
     final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
-    for (UniPort port : unalignedPorts) {
+    for (PhysicalPort port : unalignedPorts) {
       messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms." + port.getNmsAlignmentStatus().name(), port
           .getNmsPortId(), port.getNocLabel());
     }

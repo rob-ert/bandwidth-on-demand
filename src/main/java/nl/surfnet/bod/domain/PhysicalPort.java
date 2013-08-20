@@ -34,13 +34,15 @@ import javax.persistence.Version;
 
 import com.google.common.base.Preconditions;
 
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
+
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
-public abstract class PhysicalPort implements PersistableDomain {
+public abstract class PhysicalPort implements PersistableDomain, Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -73,6 +75,16 @@ public abstract class PhysicalPort implements PersistableDomain {
     this.nbiPort = nbiPort;
     this.nocLabel = nbiPort.getSuggestedNocLabel();
     this.bodPortId = nbiPort.getSuggestedBodPortId();
+  }
+
+  public static PhysicalPort create(NbiPort nbiPort) {
+    if (nbiPort.getInterfaceType() == InterfaceType.E_NNI) {
+      return new EnniPort(nbiPort);
+    } else if (nbiPort.getInterfaceType() == InterfaceType.UNI) {
+      return new UniPort(nbiPort);
+    } else {
+      throw new IllegalArgumentException(String.format("Can not create physical port, interface type '%s'", nbiPort.getInterfaceType()));
+    }
   }
 
   @Override
@@ -131,6 +143,11 @@ public abstract class PhysicalPort implements PersistableDomain {
 
   public boolean isVlanRequired() {
     return nbiPort.isVlanRequired();
+  }
+
+  @Override
+  public String getLabel() {
+    return getNocLabel();
   }
 
 }

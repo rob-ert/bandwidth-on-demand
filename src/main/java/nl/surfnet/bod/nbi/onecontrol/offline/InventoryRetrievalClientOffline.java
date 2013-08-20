@@ -30,6 +30,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 
@@ -49,6 +50,7 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
       physicalPort.setSuggestedBodPortId("Mock_" + nbiPort.getName());
       physicalPort.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
       physicalPort.setVlanRequired(isVlanRequired(nbiPort.getName()));
+      physicalPort.setInterfaceType(InterfaceType.UNI);
 
       return physicalPort;
     }

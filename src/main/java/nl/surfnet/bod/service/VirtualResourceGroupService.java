@@ -106,12 +106,12 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return virtualResourceGroupRepo.count(specificationForManager(managerRole));
   }
 
-  public void delete(final VirtualResourceGroup virtualResourceGroup) {
+  public void delete(VirtualResourceGroup virtualResourceGroup) {
     logEventService.logDeleteEvent(Security.getUserDetails(), "", virtualResourceGroup);
     virtualResourceGroupRepo.delete(virtualResourceGroup);
   }
 
-  public VirtualResourceGroup find(final Long id) {
+  public VirtualResourceGroup find(Long id) {
     return virtualResourceGroupRepo.findOne(id);
   }
 
@@ -119,7 +119,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return virtualResourceGroupRepo.findAll();
   }
 
-  public List<VirtualResourceGroup> findEntries(final int firstResult, final int maxResults, final Sort sort) {
+  public List<VirtualResourceGroup> findEntries(int firstResult, int maxResults, Sort sort) {
     checkArgument(maxResults > 0);
 
     return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
@@ -157,14 +157,14 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     };
   }
 
-  public void save(final VirtualResourceGroup virtualResourceGroup) {
+  public void save(VirtualResourceGroup virtualResourceGroup) {
     virtualResourceGroupRepo.save(virtualResourceGroup);
 
     // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), virtualResourceGroup);
   }
 
-  public VirtualResourceGroup update(final VirtualResourceGroup virtualResourceGroup) {
+  public VirtualResourceGroup update(VirtualResourceGroup virtualResourceGroup) {
     logEventService.logUpdateEvent(Security.getUserDetails(), "", virtualResourceGroup);
     return virtualResourceGroupRepo.save(virtualResourceGroup);
   }
@@ -215,13 +215,11 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   }
 
   public List<Long> findAllTeamIds(Sort sort) {
-    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<VirtualResourceGroup>> absent(),
-        Optional.<Sort> fromNullable(sort));
+    return virtualResourceGroupRepo.findIds(Optional.<Sort> fromNullable(sort));
   }
 
-  public List<Long> findTeamIdsForRole(final BodRole bodRole, Sort sort) {
-    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.of(specificationForManager(bodRole)), Optional
-        .<Sort> fromNullable(sort));
+  public List<Long> findTeamIdsForRole(BodRole bodRole, Sort sort) {
+    return virtualResourceGroupRepo.findIdsWithWhereClause(specificationForManager(bodRole), Optional.<Sort> fromNullable(sort));
   }
 
   @Override

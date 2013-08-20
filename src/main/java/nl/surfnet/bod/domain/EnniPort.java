@@ -22,9 +22,58 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.Entity;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 public class EnniPort extends PhysicalPort {
 
+  @NotEmpty
+  private String inboundPeer;
+
+  @NotEmpty
+  private String outboundPeer;
+
+  @NotEmpty
+  private String vlanRanges;
+
+  public EnniPort() {
+  }
+
+  public EnniPort(NbiPort nbiPort) {
+    super(nbiPort);
+  }
+
+  public String getInboundPeer() {
+    return inboundPeer;
+  }
+
+  public void setInboundPeer(String inboundPeer) {
+    this.inboundPeer = inboundPeer;
+  }
+
+  public String getOutboundPeer() {
+    return outboundPeer;
+  }
+
+  public void setOutboundPeer(String outboundPeer) {
+    this.outboundPeer = outboundPeer;
+  }
+
+  public String getVlanRanges() {
+    return vlanRanges;
+  }
+
+  public void setVlanRanges(String vlanRanges) {
+    this.vlanRanges = vlanRanges;
+  }
+
+  @Override
+  public Collection<String> getAdminGroups() {
+    return Collections.emptyList();
+  }
 }

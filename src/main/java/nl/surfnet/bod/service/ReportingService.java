@@ -171,8 +171,7 @@ public class ReportingService {
     Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specReservationStartBeforeAndEndInOrAfter(start, end);
 
-    return reservationRepo.findIdsWithWhereClause(Optional.<Specification<Reservation>> of(whereClause), Optional
-        .<Sort> absent());
+    return reservationRepo.findIdsWithWhereClause(whereClause, Optional.<Sort> absent());
   }
 
   @VisibleForTesting

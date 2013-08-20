@@ -33,7 +33,6 @@ import com.google.common.annotations.VisibleForTesting;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;

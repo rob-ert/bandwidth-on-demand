@@ -43,8 +43,15 @@ public class VirtualPortRepoImpl implements CustomRepo<VirtualPort> {
   @PersistenceContext
   private EntityManager entityManager;
 
-  @Override
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualPort>> whereClause, Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<VirtualPort> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
+
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<VirtualPort>> absent(), sort);
+  }
+
+  private List<Long> findIds(Optional<Specification<VirtualPort>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<VirtualPort> root = criteriaQuery.from(VirtualPort.class);

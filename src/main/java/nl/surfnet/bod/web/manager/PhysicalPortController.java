@@ -53,21 +53,14 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   public static final String PAGE_URL = "/manager/physicalports";
 
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
-  public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
-    UniPort port = physicalPortService.find(id);
+  public String updateForm(@RequestParam("id") Long id, Model uiModel) {
+    UniPort port = physicalPortService.findUniPort(id);
 
     if (port == null || Security.managerMayNotEdit(port)) {
       return "manager/physicalports";
@@ -80,8 +73,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(final UpdateManagerLabelCommand command, final BindingResult result, final Model model) {
-    UniPort port = physicalPortService.find(command.getId());
+  public String update(UpdateManagerLabelCommand command, BindingResult result, Model model) {
+    UniPort port = physicalPortService.findUniPort(command.getId());
 
     if (port == null || Security.managerMayNotEdit(port)) {
       return "redirect:physicalports";
@@ -157,25 +150,24 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
+    Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
+
     if (physicalResourceGroup.isPresent()) {
-      return Functions.transformAllocatedPhysicalPorts(physicalPortService
-          .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup.get(), firstPage, maxItems, sort),
-          virtualPortService, reservationService);
-    }
-    else {
+      return Functions.transformAllocatedPhysicalPorts(
+        physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(
+          physicalResourceGroup.get(), firstPage, maxItems, sort), virtualPortService, reservationService);
+    } else {
       return new ArrayList<>();
     }
   }
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
+    Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
     if (physicalResourceGroup.isPresent()) {
       return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(
         Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.<Sort>fromNullable(sort));
-    }
-    else {
+    } else {
       return new ArrayList<>();
     }
   }
@@ -185,7 +177,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     if (!groupId.isPresent()) {
       return Optional.absent();
     }
+
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
+
     return Optional.of(physicalResourceGroup);
   }
 

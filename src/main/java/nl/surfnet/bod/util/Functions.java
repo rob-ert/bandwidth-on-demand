@@ -29,6 +29,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -70,18 +71,10 @@ public final class Functions {
       };
 
   /**
-   * Calculates the amount of related {@link VirtualPort}s and transforms it to
-   * a {@link PhysicalPortView}
-   *
-   * @param port
-   *          {@link UniPort} to enrich
-   * @param virtualPortService
-   *          {@link VirtualPortService} to retrieve the amount of related
-   *          {@link VirtualPort}s
-   * @return PhysicalPortView Transformed {@link UniPort}
+   * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
    */
   public static PhysicalPortView transformAllocatedPhysicalPort(UniPort port,
-      final VirtualPortService virtualPortService, final ReservationService reservationService) {
+      VirtualPortService virtualPortService, ReservationService reservationService) {
 
     long vpCount = virtualPortService.countForPhysicalPort(port);
     ElementActionView allocateActionView;
@@ -91,17 +84,19 @@ public final class Functions {
       allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
     }
 
-    final PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, vpCount);
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, vpCount);
     physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
+
     return physicalPortView;
   }
 
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends UniPort> ports,
-      final VirtualPortService virtualPortService, final ReservationService reservationService) {
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends PhysicalPort> ports,
+      VirtualPortService virtualPortService, ReservationService reservationService) {
 
     List<PhysicalPortView> transformers = Lists.newArrayList();
-    for (UniPort port : ports) {
-      transformers.add(transformAllocatedPhysicalPort(port, virtualPortService, reservationService));
+    for (PhysicalPort port : ports) {
+      // FIXME is not always a UniPort
+      transformers.add(transformAllocatedPhysicalPort((UniPort) port, virtualPortService, reservationService));
     }
 
     return transformers;

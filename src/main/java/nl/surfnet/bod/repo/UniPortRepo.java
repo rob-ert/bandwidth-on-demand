@@ -22,44 +22,11 @@
  */
 package nl.surfnet.bod.repo;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import nl.surfnet.bod.domain.UniPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.google.common.base.Optional;
-
-public class PhysicalPortRepoImpl implements CustomRepo<UniPort> {
-
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Override
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<UniPort>> whereClause, Optional<Sort> sort) {
-    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    Root<UniPort> root = criteriaQuery.from(UniPort.class);
-
-    if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(PhysicalPort_.id)).where(
-          whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
-    }
-    else {
-      criteriaQuery.select(root.get(PhysicalPort_.id));
-    }
-
-    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
-
-    return entityManager.createQuery(criteriaQuery).getResultList();
-  }
+public interface UniPortRepo extends JpaSpecificationExecutor<UniPort>, JpaRepository<UniPort, Long>, CustomRepo<UniPort> {
 
 }

@@ -54,6 +54,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -79,6 +80,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       port.setSuggestedBodPortId("Mock_" + nbiPort.getName());
       port.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
       port.setVlanRequired(isVlanRequired(nbiPort.getName()));
+      port.setInterfaceType(InterfaceType.UNI);
 
       return port;
     }

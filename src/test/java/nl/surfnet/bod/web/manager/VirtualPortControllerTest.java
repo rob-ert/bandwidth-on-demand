@@ -79,18 +79,12 @@ public class VirtualPortControllerTest {
   @InjectMocks
   private VirtualPortController subject;
 
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-  @Mock
-  private VirtualPortValidator virtualPortValidatorMock;
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-  @Mock
-  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-  @Mock
-  private VirtualResourceGroupService virtualResourceGroupServiceMock;
-  @Mock
-  private MessageRetriever messageRetrieverMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private VirtualPortValidator virtualPortValidatorMock;
+  @Mock private PhysicalPortService physicalPortServiceMock;
+  @Mock private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+  @Mock private VirtualResourceGroupService virtualResourceGroupServiceMock;
+  @Mock private MessageRetriever messageRetrieverMock;
 
   private RichUserDetails user;
   private UniPort physicalPort;
@@ -104,7 +98,7 @@ public class VirtualPortControllerTest {
     conversionService.addConverter(new Converter<String, UniPort>() {
       @Override
       public UniPort convert(String id) {
-        return physicalPortServiceMock.find(Long.valueOf(id));
+        return physicalPortServiceMock.findUniPort(Long.valueOf(id));
       }
     });
     conversionService.addConverter(new Converter<String, PhysicalResourceGroup>() {
@@ -149,7 +143,7 @@ public class VirtualPortControllerTest {
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
     when(virtualPortServiceMock.find(3L)).thenReturn(port);
-    when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
+    when(physicalPortServiceMock.findUniPort(2L)).thenReturn(new PhysicalPortFactory().create());
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(virtualResourceGroupServiceMock.find(2L)).thenReturn(new VirtualResourceGroupFactory().create());
     when(messageRetrieverMock.getMessageWithBoldArguments("info_virtualport_updated", "newLabel")).thenReturn("correctMessage");
@@ -220,7 +214,7 @@ public class VirtualPortControllerTest {
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup(ALLOWED_ADMIN_GROUP).create();
 
     when(virtualPortServiceMock.find(3L)).thenReturn(port);
-    when(physicalPortServiceMock.find(2L)).thenReturn(new PhysicalPortFactory().create());
+    when(physicalPortServiceMock.findUniPort(2L)).thenReturn(new PhysicalPortFactory().create());
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(virtualResourceGroupServiceMock.find(2L)).thenReturn(new VirtualResourceGroupFactory().create());
 

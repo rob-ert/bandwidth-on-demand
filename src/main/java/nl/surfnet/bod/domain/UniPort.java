@@ -93,9 +93,4 @@ public class UniPort extends PhysicalPort implements Loggable, PersistableDomain
     return ImmutableList.of(physicalResourceGroup.getAdminGroup());
   }
 
-  @Override
-  public String getLabel() {
-    return getNocLabel();
-  }
-
 }

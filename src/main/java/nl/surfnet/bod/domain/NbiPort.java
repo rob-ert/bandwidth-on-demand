@@ -24,6 +24,8 @@ package nl.surfnet.bod.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
 import org.hibernate.search.annotations.Field;
@@ -31,6 +33,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Embeddable
 public class NbiPort {
+
+  public enum InterfaceType {
+    E_NNI, UNI, UNKNOWN
+  }
 
   @NotEmpty
   @Column(unique = true)
@@ -47,6 +53,9 @@ public class NbiPort {
   private String nmsSapName;
 
   private String signalingType;
+
+  @Enumerated(EnumType.STRING)
+  private InterfaceType interfaceType;
 
   private String supportedServiceType;
 
@@ -90,19 +99,19 @@ public class NbiPort {
     this.nmsSapName = nmsSapName;
   }
 
-  public final String getSignalingType() {
+  public String getSignalingType() {
     return signalingType;
   }
 
-  public final void setSignalingType(String signalingType) {
+  public void setSignalingType(String signalingType) {
     this.signalingType = signalingType;
   }
 
-  public final String getSupportedServiceType() {
+  public String getSupportedServiceType() {
     return supportedServiceType;
   }
 
-  public final void setSupportedServiceType(String supportedServiceType) {
+  public void setSupportedServiceType(String supportedServiceType) {
     this.supportedServiceType = supportedServiceType;
   }
 
@@ -112,13 +121,6 @@ public class NbiPort {
 
   public void setVlanRequired(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
-  }
-
-  @Override
-  public String toString() {
-    return "NbiPort [nmsPortId=" + nmsPortId + ", nmsNeId=" + nmsNeId + ", nmsPortSpeed=" + nmsPortSpeed
-        + ", nmsSapName=" + nmsSapName + ", signalingType=" + signalingType + ", supportedServiceType="
-        + supportedServiceType + ", vlanRequired=" + vlanRequired + "]";
   }
 
   public String getSuggestedNocLabel() {
@@ -135,6 +137,21 @@ public class NbiPort {
 
   public void setSuggestedBodPortId(String suggestedBodPortId) {
     this.suggestedBodPortId = suggestedBodPortId;
+  }
+
+  public InterfaceType getInterfaceType() {
+    return interfaceType;
+  }
+
+  public void setInterfaceType(InterfaceType interfaceType) {
+    this.interfaceType = interfaceType;
+  }
+
+  @Override
+  public String toString() {
+    return "NbiPort [nmsPortId=" + nmsPortId + ", nmsNeId=" + nmsNeId + ", nmsPortSpeed=" + nmsPortSpeed
+        + ", nmsSapName=" + nmsSapName + ", signalingType=" + signalingType + ", supportedServiceType="
+        + supportedServiceType + ", vlanRequired=" + vlanRequired + "]";
   }
 
 }

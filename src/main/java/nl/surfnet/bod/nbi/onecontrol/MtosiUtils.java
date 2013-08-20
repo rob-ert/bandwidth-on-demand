@@ -25,8 +25,6 @@ package nl.surfnet.bod.nbi.onecontrol;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -38,7 +36,6 @@ import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.springframework.util.StringUtils;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
@@ -120,25 +117,6 @@ public final class MtosiUtils {
     });
   }
 
-  public static void printDescribedByList(List<ServiceCharacteristicValueType> describedByList) {
-    Iterator<ServiceCharacteristicValueType> iterator = describedByList.iterator();
-    while (iterator.hasNext()) {
-      ServiceCharacteristicValueType type = iterator.next();
-      System.err
-          .println(String.format("Type: %s, SscRef %s", getRdnString(type.getSscRef().getRdn()), type.getValue()));
-    }
-  }
-
-  private static String getRdnString(List<RelativeDistinguishNameType> rdn) {
-    List<String> contents = new ArrayList<>();
-    Iterator<RelativeDistinguishNameType> iterator = rdn.iterator();
-    while (iterator.hasNext()) {
-      RelativeDistinguishNameType item = iterator.next();
-      contents.add(item.getType() + " " + item.getValue());
-    }
-    return StringUtils.collectionToCommaDelimitedString(contents);
-  }
-
   public static String convertToShortPtP(String ptp) {
     return ptp.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
         .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
@@ -203,23 +181,18 @@ public final class MtosiUtils {
     case PLANNING_FEASIBILITY_CHECK:
       // Not used
       break;
-
     case PLANNING_DESIGNED:
       // Not used
       break;
-
     case PROVISIONED_ACTIVE:
       reservationState = ReservationStatus.RUNNING;
       break;
-
     case PROVISIONED_INACTIVE:
       reservationState = ReservationStatus.AUTO_START;
       break;
-
     case RESERVED:
       reservationState = ReservationStatus.SCHEDULED;
       break;
-
     case TERMINATED:
       reservationState = ReservationStatus.SUCCEEDED;
       break;

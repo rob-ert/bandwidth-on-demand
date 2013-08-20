@@ -50,6 +50,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
@@ -64,6 +65,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
@@ -74,7 +76,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -372,7 +373,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return connectionRepo.findIdsWithWhereClause(Optional.<Specification<ConnectionV1>>absent(), sort);
+    return connectionRepo.findIds(sort);
   }
 
   public List<ConnectionV1> findEntries(int firstResult, int maxResults, Sort sort) {
@@ -386,9 +387,8 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   protected boolean hasValidState(ConnectionV1 connection) {
     if (connection.getReservation() == null) {
       return connection.getCurrentState() == ConnectionStateType.TERMINATED;
-    }
-    else {
-        return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
+    } else {
+      return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
     }
   }
 

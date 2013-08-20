@@ -42,11 +42,17 @@ import com.google.common.base.Optional;
 
 public class ConnectionV1RepoImpl implements CustomRepo<ConnectionV1> {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-  @Override
-  public List<Long> findIdsWithWhereClause(Optional<Specification<ConnectionV1>> whereClause, Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<ConnectionV1> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
+
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<ConnectionV1>>absent(), sort);
+  }
+
+  private List<Long> findIds(Optional<Specification<ConnectionV1>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<ConnectionV1> root = criteriaQuery.from(ConnectionV1.class);

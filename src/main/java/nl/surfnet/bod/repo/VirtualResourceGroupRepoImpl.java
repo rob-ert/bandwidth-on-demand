@@ -44,9 +44,15 @@ public class VirtualResourceGroupRepoImpl implements CustomRepo<VirtualResourceG
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(Optional<Specification<VirtualResourceGroup>> whereClause,
-      Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<VirtualResourceGroup> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
 
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<VirtualResourceGroup>> absent(), sort);
+  }
+
+  private List<Long> findIds(Optional<Specification<VirtualResourceGroup>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<VirtualResourceGroup> root = criteriaQuery.from(VirtualResourceGroup.class);

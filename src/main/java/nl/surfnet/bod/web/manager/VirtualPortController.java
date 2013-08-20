@@ -71,20 +71,11 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private VirtualPortValidator virtualPortValidator;
-
-  @Resource
-  private MessageManager messageManager;
-
-  @Resource
-  private MessageRetriever messageRetriever;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private VirtualPortValidator virtualPortValidator;
+  @Resource private MessageManager messageManager;
+  @Resource private MessageRetriever messageRetriever;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model,
@@ -163,9 +154,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid VirtualPortUpdateCommand command, BindingResult result, Model model,
-      RedirectAttributes redirectAttributes) {
-
+  public String update(@Valid VirtualPortUpdateCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     VirtualPort port = virtualPortService.find(command.getId());
 
     if (port == null || Security.managerMayNotEdit(port)) {
@@ -185,6 +174,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       model.addAttribute("virtualResourceGroups", ImmutableList.of(port.getVirtualResourceGroup()));
       model.addAttribute("physicalResourceGroups", ImmutableList.of(port.getPhysicalResourceGroup()));
       model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
+
       return PAGE_URL + UPDATE;
     }
 

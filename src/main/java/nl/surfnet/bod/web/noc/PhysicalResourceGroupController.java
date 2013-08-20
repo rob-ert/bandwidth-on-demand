@@ -66,23 +66,12 @@ public class PhysicalResourceGroupController extends
   static final String MODEL_KEY = "physicalResourceGroupCommand";
   static final String MODEL_KEY_LIST = "physicalResourceGroup" + WebUtils.LIST_POSTFIX;
 
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private InstituteService instituteService;
-
-  @Resource
-  private MessageManager messageManager;
-
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private InstituteService instituteService;
+  @Resource private MessageManager messageManager;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(
@@ -390,18 +379,17 @@ public class PhysicalResourceGroupController extends
 
   @Override
   protected List<? extends PhysicalResourceGroupView> transformToView(List<? extends PhysicalResourceGroup> entities, RichUserDetails user) {
-    final List<PhysicalResourceGroupView> physicalResourceGroupViews = new ArrayList<>();
-    for (final PhysicalResourceGroup physicalResourceGroup : entities) {
-      final PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
-      final List<VirtualPort> virtualPorts = new ArrayList<>();
-      final List<Long> reservations = new ArrayList<>();
-      final List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(BodRole
-          .createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
-      for (final long id : physicalPortIds) {
-        final UniPort physicalPort = physicalPortService.find(id);
+    List<PhysicalResourceGroupView> physicalResourceGroupViews = new ArrayList<>();
+    for (PhysicalResourceGroup physicalResourceGroup : entities) {
+      PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
+      List<VirtualPort> virtualPorts = new ArrayList<>();
+      List<Long> reservations = new ArrayList<>();
+      List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
+
+      for (Long id : physicalPortIds) {
+        UniPort physicalPort = physicalPortService.findUniPort(id);
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
-        final long countActiveReservationsByVirtualPorts = reservationService
-            .countActiveReservationsByVirtualPorts(virtualPorts);
+        long countActiveReservationsByVirtualPorts = reservationService.countActiveReservationsByVirtualPorts(virtualPorts);
         if (countActiveReservationsByVirtualPorts != 0L) {
           reservations.add(countActiveReservationsByVirtualPorts);
         }
@@ -411,6 +399,7 @@ public class PhysicalResourceGroupController extends
       view.setVirtualPortsAmount(virtualPorts.size());
       physicalResourceGroupViews.add(view);
     }
+
     return physicalResourceGroupViews;
   }
 

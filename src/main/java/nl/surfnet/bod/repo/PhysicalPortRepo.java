@@ -22,15 +22,15 @@
  */
 package nl.surfnet.bod.repo;
 
-import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PhysicalPortRepo extends JpaSpecificationExecutor<UniPort>, JpaRepository<UniPort, Long>, CustomRepo<UniPort> {
+public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long> {
 
-  UniPort findByNbiPortNmsPortId(String nmsPortId);
+  PhysicalPort findByNbiPortNmsPortId(String nmsPortId);
 
 }

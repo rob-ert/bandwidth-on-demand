@@ -28,6 +28,7 @@ import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.getSapName;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
@@ -35,9 +36,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +136,8 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     port.setNmsNeId(managedElement);
     port.setNmsPortSpeed(nmsPortSpeed);
     port.setSupportedServiceType(supportedServiceType);
+    // TODO detect E-NNI ports
+    port.setInterfaceType(InterfaceType.UNI);
     port.setSignalingType("NA");
     port.setVlanRequired(isVlanRequired);
     port.setSuggestedBodPortId(nmsSapName);
@@ -141,6 +146,13 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     logger.debug("Retrieved physicalport: {}", port);
 
     return port;
+  }
+
+  // TODO MTOSI string format of E_NNI service type
+  private Map<String, InterfaceType> serviceTypeTranslations = ImmutableMap.of("UNI-N", InterfaceType.UNI, "???", InterfaceType.E_NNI);
+
+  public InterfaceType translateToInterfaceType(String serviceType) {
+    return serviceTypeTranslations.get(serviceType);
   }
 
   @VisibleForTesting

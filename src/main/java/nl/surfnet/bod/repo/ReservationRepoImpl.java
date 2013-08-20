@@ -45,7 +45,16 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(Optional<Specification<Reservation>> whereClause, Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<Reservation> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
+
+  @Override
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<Reservation>> absent(), sort);
+  }
+
+  private List<Long> findIds(Optional<Specification<Reservation>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<Reservation> root = criteriaQuery.from(Reservation.class);

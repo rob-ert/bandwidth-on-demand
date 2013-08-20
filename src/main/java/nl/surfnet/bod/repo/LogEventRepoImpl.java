@@ -44,8 +44,13 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause, Optional<Sort> sort) {
-    return findIds(whereClause, sort);
+  public List<Long> findIdsWithWhereClause(Specification<LogEvent> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
+
+  @Override
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<LogEvent>> absent(), sort);
   }
 
   @Override

@@ -45,11 +45,12 @@ import javax.persistence.PersistenceContext;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NsiVersion;
-import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
@@ -61,10 +62,10 @@ import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortView;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -76,23 +77,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   private static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
   private static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([0-9]+)");
 
-  @Resource
-  private VirtualPortRepo virtualPortRepo;
-
-  @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupReppo;
-
-  @Resource
-  private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
-
-  @Resource
-  private EmailSender emailSender;
-
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private LogEventService logEventService;
+  @Resource private VirtualPortRepo virtualPortRepo;
+  @Resource private VirtualResourceGroupRepo virtualResourceGroupReppo;
+  @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  @Resource private EmailSender emailSender;
+  @Resource private ReservationService reservationService;
+  @Resource private LogEventService logEventService;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -120,16 +110,15 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
 
   public void deleteVirtualPorts(Collection<VirtualPort> virtualPorts, RichUserDetails userDetails) {
-    for (final VirtualPort virtualPort : virtualPorts) {
-      final Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
+    for (VirtualPort virtualPort : virtualPorts) {
+      Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
       reservationService.cancelAndArchiveReservations(new ArrayList<>(reservations), userDetails);
       delete(virtualPort, userDetails);
     }
   }
 
-  public void delete(final VirtualPort virtualPort, RichUserDetails user) {
-    final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort,
-        virtualPort);
+  public void delete(VirtualPort virtualPort, RichUserDetails user) {
+    List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort);
     reservationService.cancelAndArchiveReservations(reservations, user);
 
     logEventService.logDeleteEvent(Security.getUserDetails(),
@@ -144,14 +133,14 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   private String getLogLabel(BodRole selectedRole, VirtualPort virtualPort) {
-    if ((selectedRole.isUserRole()) && StringUtils.hasText(virtualPort.getUserLabel())) {
+    if (selectedRole.isUserRole() && StringUtils.hasText(virtualPort.getUserLabel())) {
       return virtualPort.getUserLabel();
     }
 
     return virtualPort.getManagerLabel();
   }
 
-  public VirtualPort find(final Long id) {
+  public VirtualPort find(Long id) {
     return virtualPortRepo.findOne(id);
   }
 
@@ -159,7 +148,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.findAll();
   }
 
-  public List<VirtualPort> findAllForUser(final RichUserDetails user) {
+  public List<VirtualPort> findAllForUser(RichUserDetails user) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
@@ -169,14 +158,13 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.findAll(forUserSpec(user));
   }
 
-  public List<VirtualPort> findEntries(final int firstResult, final int maxResults, Sort sort) {
+  public List<VirtualPort> findEntries(int firstResult, int maxResults, Sort sort) {
     checkArgument(maxResults > 0);
 
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults,
-      Sort sort) {
+  public List<VirtualPort> findEntriesForUser(RichUserDetails user, int firstResult, int maxResults, Sort sort) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
@@ -203,14 +191,14 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.findByUserLabel(label);
   }
 
-  public void save(final VirtualPort virtualPort) {
+  public void save(VirtualPort virtualPort) {
     virtualPortRepo.save(virtualPort);
 
     // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), virtualPort);
   }
 
-  public VirtualPort update(final VirtualPort virtualPort) {
+  public VirtualPort update(VirtualPort virtualPort) {
     logEventService.logUpdateEvent(
         Security.getUserDetails(),
         getLogLabel(Security.getSelectedRole(), virtualPort),
@@ -266,7 +254,6 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public Collection<VirtualPortRequestLink> findRequestsForLastMonth(Collection<UserGroup> userGroups) {
-
     Collection<String> groups = Collections2.transform(userGroups, new Function<UserGroup, String>() {
       @Override
       public String apply(UserGroup group) {
@@ -302,8 +289,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return find(id);
   }
 
-  private Long parseLocalNsiId(String stpId, final NsiVersion nsiVersion) {
-
+  private Long parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
     Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
     Matcher matcher = pattern.matcher(stpId);
 
@@ -320,19 +306,16 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter, Sort sort) {
-    final BodRole selectedRole = userDetails.getSelectedRole();
+    BodRole selectedRole = userDetails.getSelectedRole();
+
     if (selectedRole.isManagerRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)), Optional
-          .<Sort> fromNullable(sort));
+      return virtualPortRepo.findIdsWithWhereClause(forManagerSpec(selectedRole), Optional.<Sort> fromNullable(sort));
+    } else if (selectedRole.isNocRole()) {
+      return virtualPortRepo.findIds(Optional.<Sort> fromNullable(sort));
+    } else if (selectedRole.isUserRole()) {
+      return virtualPortRepo.findIdsWithWhereClause(forUserSpec(userDetails), Optional.<Sort> fromNullable(sort));
     }
-    else if (selectedRole.isNocRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent(), Optional
-          .<Sort> fromNullable(sort));
-    }
-    else if (selectedRole.isUserRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)), Optional
-          .<Sort> fromNullable(sort));
-    }
-    return new ArrayList<>();
+
+    return Collections.emptyList();
   }
 }

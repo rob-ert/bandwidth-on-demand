@@ -99,8 +99,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       StringWriter writer = new StringWriter();
       try {
         mapper.writeValue(writer, reservation);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         // need to throw or we'll lose reservations
         throw new RuntimeException(e);
       }
@@ -349,19 +348,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(Optional
-        .<Specification<Reservation>> of(specFilteredReservationsForManager(filter, manager)), Optional
-        .fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager), Optional.fromNullable(sort));
   }
 
   public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(Optional
-        .<Specification<Reservation>> of(specFilteredReservations(filter)), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter), Optional.fromNullable(sort));
   }
 
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(Optional
-        .<Specification<Reservation>> of(specFilteredReservationsForUser(filter, user)), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user), Optional.fromNullable(sort));
   }
 
   /**

@@ -83,8 +83,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
       return false;
     if (reservation.getStatus() == RESERVED) {
       offlineReservations.put(reservationId, reservation.withStatus(AUTO_START));
-    }
-    else if (reservation.getStatus() == SCHEDULED) {
+    } else if (reservation.getStatus() == SCHEDULED) {
       offlineReservations.put(reservationId, reservation.withStatus(RUNNING));
     }
     return true;
@@ -154,18 +153,14 @@ public class NbiOneControlOfflineClient implements NbiClient {
     if (reservation.getStatus().isTransitionState()) {
       if (reservation.getStatus() == RESERVED && reservation.getStartDateTime().isBeforeNow()) {
         newStatus = ReservationStatus.SCHEDULED;
-      }
-      else if (reservation.getStatus() == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
+      } else if (reservation.getStatus() == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
         newStatus = RUNNING;
-      }
-      else if (reservation.getStatus() == REQUESTED) {
+      } else if (reservation.getStatus() == REQUESTED) {
         newStatus = AUTO_START; // could be NOT_ACCEPTED as well..
-      }
-      else if (reservation.getStatus() == RUNNING && reservation.getEndDateTime().isPresent()
+      } else if (reservation.getStatus() == RUNNING && reservation.getEndDateTime().isPresent()
           && reservation.getEndDateTime().get().isBeforeNow()) {
         newStatus = SUCCEEDED;
-      }
-      else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
+      } else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
         newStatus = PASSED_END_TIME;
       }
       offlineReservations.put(reservationId, reservation.withStatus(newStatus));

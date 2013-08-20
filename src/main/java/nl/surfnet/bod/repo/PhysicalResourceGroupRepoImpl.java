@@ -40,11 +40,19 @@ import com.google.common.base.Optional;
 
 public class PhysicalResourceGroupRepoImpl implements CustomRepo<PhysicalResourceGroup> {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalResourceGroup>> whereClause, Optional<Sort> sort) {
+  public List<Long> findIdsWithWhereClause(Specification<PhysicalResourceGroup> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
+
+  @Override
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<PhysicalResourceGroup>> absent(), sort);
+  }
+
+  private List<Long> findIds(Optional<Specification<PhysicalResourceGroup>> whereClause, Optional<Sort> sort) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     Root<PhysicalResourceGroup> root = criteriaQuery.from(PhysicalResourceGroup.class);

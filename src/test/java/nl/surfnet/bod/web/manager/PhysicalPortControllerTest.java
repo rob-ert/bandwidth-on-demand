@@ -74,20 +74,11 @@ public class PhysicalPortControllerTest {
   @InjectMocks
   private PhysicalPortController subject;
 
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-
-  @Mock
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-
-  @Mock
-  private InstituteService instituteService;
-  
-  @Mock
-  private ReservationService reservationService;
+  @Mock private PhysicalPortService physicalPortServiceMock;
+  @Mock private PhysicalResourceGroupService physicalResourceGroupService;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private InstituteService instituteService;
+  @Mock private ReservationService reservationService;
 
   private RichUserDetails user;
 
@@ -183,7 +174,7 @@ public class PhysicalPortControllerTest {
 
     UpdateManagerLabelCommand command = new PhysicalPortController.UpdateManagerLabelCommand(port);
 
-    when(physicalPortServiceMock.find(1L)).thenReturn(port);
+    when(physicalPortServiceMock.findUniPort(1L)).thenReturn(port);
 
     subject.update(command, new BeanPropertyBindingResult(command, "updateCommand"), new ModelStub());
 
@@ -216,7 +207,7 @@ public class PhysicalPortControllerTest {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     UniPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
-    when(physicalPortServiceMock.find(101L)).thenReturn(port);
+    when(physicalPortServiceMock.findUniPort(101L)).thenReturn(port);
 
     ModelStub model = new ModelStub();
     String page = subject.updateForm(101L, model);

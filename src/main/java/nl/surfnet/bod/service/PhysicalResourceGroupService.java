@@ -61,20 +61,11 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Resource
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
-
-  @Resource
-  private ActivationEmailLinkRepo activationEmailLinkRepo;
-
-  @Resource
-  private EmailSender emailSender;
-
-  @Resource
-  private LogEventService logEventService;
-
-  @Resource
-  private InstituteService instituteService;
+  @Resource private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Resource private ActivationEmailLinkRepo activationEmailLinkRepo;
+  @Resource private EmailSender emailSender;
+  @Resource private LogEventService logEventService;
+  @Resource private InstituteService instituteService;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -215,8 +206,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   }
 
   public List<Long> findAllIds(Sort sort) {
-    return physicalResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalResourceGroup>> absent(),
-        Optional.<Sort> fromNullable(sort));
+    return physicalResourceGroupRepo.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override
