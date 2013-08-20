@@ -244,8 +244,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     Model model) {
 
     List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
-        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedEntries(calculateFirstPage(page),
-            MAX_ITEMS_PER_PAGE));
+        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     if (!StringUtils.hasText(sort)) {
       sort = "nocLabel";

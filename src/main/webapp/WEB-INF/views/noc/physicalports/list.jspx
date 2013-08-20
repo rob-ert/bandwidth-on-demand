@@ -31,6 +31,7 @@
         </c:if>
         <c:if test="${show_unallocated}">
           <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
+          <table:sortableHeader labelCode="label_physicalport_interface_type" property="interfaceType" />
         </c:if>
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
@@ -97,6 +98,7 @@
           </c:if>
 
           <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
+          <table:column item="${item}" property="interfaceType" render="${show_unallocated}"/>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="true"

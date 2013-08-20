@@ -44,8 +44,13 @@ public class PhysicalPortView {
   private final String nmsNeId;
   private final String nmsPortSpeed;
   private final String nmsSapName;
+  private final String interfaceType;
 
   private int reservationsAmount;
+
+  public String getInterfaceType() {
+    return interfaceType;
+  }
 
   public PhysicalPortView(NbiPort nbiPort) {
     this.id = null;
@@ -54,6 +59,7 @@ public class PhysicalPortView {
     this.vlanRequired = nbiPort.isVlanRequired();
     this.alignedWithNMS = true;
     this.nmsAlignmentStatus = null;
+    this.interfaceType = nbiPort.getInterfaceType().toString();
 
     this.numberOfVirtualPorts = 0L;
     this.deleteActionView = null;
@@ -86,6 +92,7 @@ public class PhysicalPortView {
     this.nmsNeId = physicalPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = physicalPort.getNbiPort().getNmsPortSpeed();
     this.nmsSapName = physicalPort.getNbiPort().getNmsSapName();
+    this.interfaceType = physicalPort.getNbiPort().getInterfaceType().toString();
   }
 
   public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView) {
