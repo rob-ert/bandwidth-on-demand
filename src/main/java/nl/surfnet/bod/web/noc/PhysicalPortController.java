@@ -107,34 +107,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   @Resource private MessageManager messageManager;
   @Resource private EndPoints endPoints;
 
-//  @RequestMapping(value = "add", method = RequestMethod.GET)
-//  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
-//    PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
-//    if (prg == null) {
-//      return "redirect:/";
-//    }
-//
-//    Collection<NbiPort> unallocatedPorts = physicalPortService.findUnallocated();
-//
-//    if (unallocatedPorts.isEmpty()) {
-//      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated");
-//      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
-//    }
-//
-//    NbiPort port = Iterables.get(unallocatedPorts, 0);
-//
-//    AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
-//    addCommand.setPhysicalResourceGroup(prg);
-//    addCommand.setNmsPortId(port.getNmsPortId());
-//    addCommand.setNocLabel(port.getSuggestedNocLabel());
-//    addCommand.setBodPortId(port.getSuggestedBodPortId());
-//
-//    model.addAttribute("addPhysicalPortCommand", addCommand);
-//    model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
-//
-//    return "physicalports/addPhysicalPort";
-//  }
-
   @RequestMapping(value = "/enni", method = RequestMethod.POST)
   public String createEnniPort(@Valid CreateEnniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
     if (result.hasErrors()) {
