@@ -43,6 +43,7 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
@@ -70,6 +71,7 @@ import org.ogf.schemas.nsi._2013._07.framework.types.TypeValuePairType;
 import org.ogf.schemas.nsi._2013._07.framework.types.VariablesType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -134,12 +136,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       throw unsupportedParameter("Directionality", service.getDirectionality());
     }
 
-    if (service.getSourceSTP().getLabels() != null ) {
-      throw unsupportedParameter("SourceSTP::labels", service.getSourceSTP().getLabels());
-    }
-    if (service.getDestSTP().getLabels() != null) {
-      throw unsupportedParameter("DestSTP::labels", service.getDestSTP().getLabels());
-    }
+    validateStp(service.getSourceSTP(), "source");
+    validateStp(service.getDestSTP(), "dest");
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());
@@ -159,6 +157,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
 
     return connection;
+  }
+
+  private void validateStp(StpType stp, String sourceDest) throws ServiceException {
+    if (!stp.getNetworkId().equals(NsiConstants.URN_STP_V2)) {
+      throw unsupportedParameter(sourceDest + "STP::networkId", stp.getNetworkId());
+    }
+    if (stp.getLabels() != null ) {
+      throw unsupportedParameter(sourceDest + "STP::labels", stp.getLabels());
+    }
   }
 
   private P2PServiceBaseType extractService(ReservationConfirmCriteriaType criteria) throws ServiceException {

@@ -54,6 +54,7 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -440,8 +441,8 @@ public class ConnectionServiceProviderV2WsTest {
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
-        .withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source"))
-        .withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest")));
+        .withSourceSTP(new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId("source"))
+        .withDestSTP(new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId("dest")));
     return result;
   }
 }

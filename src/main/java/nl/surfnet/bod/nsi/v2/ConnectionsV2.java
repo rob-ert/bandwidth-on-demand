@@ -67,7 +67,7 @@ public final class ConnectionsV2 {
       };
 
   public static String stpTypeToStpId(StpType type) {
-    return type.getNetworkId() + ":" + type.getLocalId();
+    return type.getLocalId();
   }
 
   public static StpType toStpType(String sourceStpId) {
