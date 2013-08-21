@@ -43,6 +43,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint_;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UniPort_;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPort_;
@@ -134,7 +135,6 @@ public final class ReservationPredicatesAndSpecifications {
               .get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
         }
       };
-
     } else if (port instanceof EnniPort) {
       return new Specification<Reservation>() {
         @Override
