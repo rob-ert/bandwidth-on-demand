@@ -26,10 +26,9 @@ import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ReservationEndPoint;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -49,17 +48,10 @@ import org.springframework.format.support.FormattingConversionServiceFactoryBean
  */
 public class ApplicationConversionServiceFactoryBean extends FormattingConversionServiceFactoryBean {
 
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private VirtualPortService virtualPortService;
 
   public Converter<XMLGregorianCalendar, String> getXmlGregorianCalendarToStringConverter() {
     return new Converter<XMLGregorianCalendar, String>() {
@@ -73,17 +65,17 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<UniPort, String> getPhysicalPortToStringConverter() {
     return new Converter<UniPort, String>() {
       @Override
-      public String convert(final UniPort physicalPort) {
+      public String convert(UniPort physicalPort) {
         return physicalPort.getNocLabel();
       }
     };
   }
 
-  public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
-    return new Converter<Long, PhysicalPort>() {
+  public Converter<Long, UniPort> getIdToUniPortConverter() {
+    return new Converter<Long, UniPort>() {
       @Override
-      public PhysicalPort convert(final Long id) {
-        return physicalPortService.find(id);
+      public UniPort convert(Long id) {
+        return physicalPortService.findUniPort(id);
       }
     };
   }
@@ -91,16 +83,16 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<Long, VirtualPortRequestLink> getIdToVirtualPortRequestLinkConverter() {
     return new Converter<Long, VirtualPortRequestLink>() {
       @Override
-      public VirtualPortRequestLink convert(final Long id) {
+      public VirtualPortRequestLink convert(Long id) {
         return virtualPortService.findRequest(id);
       }
     };
   }
 
-  public Converter<String, UniPort> getStringToPhysicalPortConverter() {
+  public Converter<String, UniPort> getStringToUniPortConverter() {
     return new Converter<String, UniPort>() {
       @Override
-      public UniPort convert(final String id) {
+      public UniPort convert(String id) {
         return getObject().convert(getObject().convert(id, Long.class), UniPort.class);
       }
     };
@@ -109,7 +101,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<PhysicalResourceGroup, String> getPhysicalResourceGroupToStringConverter() {
     return new Converter<PhysicalResourceGroup, String>() {
       @Override
-      public String convert(final PhysicalResourceGroup physicalResourceGroup) {
+      public String convert(PhysicalResourceGroup physicalResourceGroup) {
         return physicalResourceGroup.getName();
       }
     };
@@ -118,7 +110,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<Long, PhysicalResourceGroup> getIdToPhysicalResourceGroupConverter() {
     return new Converter<Long, PhysicalResourceGroup>() {
       @Override
-      public PhysicalResourceGroup convert(final Long id) {
+      public PhysicalResourceGroup convert(Long id) {
         return physicalResourceGroupService.find(id);
       }
     };
@@ -127,7 +119,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<String, PhysicalResourceGroup> getStringToPhysicalResourceGroupConverter() {
     return new Converter<String, PhysicalResourceGroup>() {
       @Override
-      public PhysicalResourceGroup convert(final String id) {
+      public PhysicalResourceGroup convert(String id) {
         return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
       }
     };
@@ -136,7 +128,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<String, VirtualResourceGroup> getStringToVirtualResourceGroupConverter() {
     return new Converter<String, VirtualResourceGroup>() {
       @Override
-      public VirtualResourceGroup convert(final String id) {
+      public VirtualResourceGroup convert(String id) {
         return getObject().convert(getObject().convert(id, Long.class), VirtualResourceGroup.class);
       }
     };
@@ -226,8 +218,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
   public void registerConverters(final FormatterRegistry registry) {
     // physical ports
-    registry.addConverter(getIdToPhysicalPortConverter());
-    registry.addConverter(getStringToPhysicalPortConverter());
+    registry.addConverter(getIdToUniPortConverter());
+    registry.addConverter(getStringToUniPortConverter());
     registry.addConverter(getPhysicalPortToStringConverter());
 
     // physical resource groups

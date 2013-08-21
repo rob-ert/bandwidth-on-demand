@@ -22,9 +22,15 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -32,7 +38,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
@@ -58,12 +74,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
@@ -78,8 +88,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Resource private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model,
-      RedirectAttributes redirectAttributes) {
+  public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
 
     if (createCommand.getAcceptOrDecline().equals("decline")) {
       if (result.hasFieldErrors("declineMessage")) {
@@ -114,8 +123,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   private String addCreateFormToModel(VirtualPortCreateCommand command, Model model) {
     model.addAttribute("virtualPortCreateCommand", command);
-    model.addAttribute("physicalPorts", command.getPhysicalResourceGroup() == null ? Collections.emptyList() : command
-        .getPhysicalResourceGroup().getPhysicalPorts());
+    model.addAttribute("physicalPorts", command.getPhysicalResourceGroup().getPhysicalPorts());
     model.addAttribute("virtualResourceGroups", ImmutableList.of(command.getVirtualResourceGroup()));
     model.addAttribute("physicalResourceGroups", ImmutableList.of(command.getPhysicalResourceGroup()));
 

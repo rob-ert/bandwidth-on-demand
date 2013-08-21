@@ -68,13 +68,15 @@ public class VirtualPortValidator implements Validator {
   }
 
   private void validateVlanRequired(VirtualPort virtualPort, Errors errors) {
-    if ((virtualPort.getPhysicalPort() == null || virtualPort.getPhysicalPort().isVlanRequired())
-        && ((virtualPort.getVlanId() == null) || Integer.valueOf(0).equals(virtualPort.getVlanId()))) {
+    if (virtualPort.getPhysicalPort() == null) {
+      return;
+    }
+
+    if (virtualPort.getPhysicalPort().isVlanRequired() && (virtualPort.getVlanId() == null || virtualPort.getVlanId() <= 0)) {
       errors.rejectValue("vlanId", "validation.virtualport.vlanid.required.because.physicalport.requires.it");
     }
 
-    if ((virtualPort.getVlanId() != null) && (virtualPort.getVlanId().intValue() > 0)
-        && ((virtualPort.getPhysicalPort() == null || !virtualPort.getPhysicalPort().isVlanRequired()))) {
+    if (!virtualPort.getPhysicalPort().isVlanRequired() && virtualPort.getVlanId() != null) {
       errors.rejectValue("vlanId", "validation.virtualport.vlanid.not.allowed.since.physicalport.does.not.require.it");
     }
   }

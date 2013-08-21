@@ -33,8 +33,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -52,16 +52,15 @@ public class ApplicationConversionServiceFactoryBeanTest {
   @InjectMocks
   private ApplicationConversionServiceFactoryBean subject;
 
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
+  @Mock private PhysicalPortService physicalPortServiceMock;
 
   @Test
-  public void convetIdToPhysicalPort() {
-    PhysicalPort port = new PhysicalPortFactory().create();
+  public void convetIdToUniPort() {
+    UniPort port = new PhysicalPortFactory().create();
 
-    when(physicalPortServiceMock.find(1L)).thenReturn(port);
+    when(physicalPortServiceMock.findUniPort(1L)).thenReturn(port);
 
-    PhysicalPort convertedPort = subject.getIdToPhysicalPortConverter().convert(1L);
+    UniPort convertedPort = subject.getIdToUniPortConverter().convert(1L);
 
     assertThat(convertedPort, is(port));
   }
@@ -94,6 +93,5 @@ public class ApplicationConversionServiceFactoryBeanTest {
 
     assertThat(output, is("2011-02-04 12:00"));
   }
-
 
 }
