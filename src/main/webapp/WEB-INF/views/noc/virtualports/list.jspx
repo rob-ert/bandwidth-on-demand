@@ -52,8 +52,10 @@
                                         <dd><c:out value="${item.nmsPortId}"/></dd>
                                         <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
                                         <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
-                                        <dt><spring:message code="label_virtualport_nsi2stpid"/></dt>
-                                        <dd class="nsiV2StpId"><c:out value="${item.nsiStpIdV2}"/></dd>
+                                        <dt><spring:message code="label_virtualport_nsi2stpnetworkid"/></dt>
+                                        <dd class="nsiV2StpId"><c:out value="${item.nsiStpNetworkIdV2}"/></dd>
+                                        <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
+                                        <dd class="nsiV2StpId"><c:out value="${item.nsiStpLocalIdV2}"/></dd>
                                     </dl>
                                 </div>
                             </div>

@@ -23,6 +23,7 @@
 package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiConstants;
 
 import com.google.common.base.Optional;
 
@@ -38,7 +39,8 @@ public class VirtualPortView {
   private final String userLabel;
   private final Optional<Long> reservationCounter;
   private final String nsiStpIdV1;
-  private final String nsiStpIdV2;
+  private final String nsiStpLocalIdV2;
+  private final String nsiStpNetworkIdV2;
   private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
 
   public VirtualPortView(VirtualPort port) {
@@ -57,8 +59,9 @@ public class VirtualPortView {
     nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = port.getNsiStpIdV1();
-    this.nsiStpIdV2 = port.getNsiStpIdV2();
-    
+    this.nsiStpLocalIdV2 = port.getNsiStpIdV2();
+    this.nsiStpNetworkIdV2 = NsiConstants.URN_STP_V2;
+
     if (reservationCounter == Optional.<Long> absent()) {
       requestDeleteAllowed = true;
     }
@@ -118,8 +121,12 @@ public class VirtualPortView {
     return nsiStpIdV1;
   }
 
-  public String getNsiStpIdV2() {
-    return nsiStpIdV2;
+  public String getNsiStpLocalIdV2() {
+    return nsiStpLocalIdV2;
+  }
+
+  public String getNsiStpNetworkIdV2() {
+    return nsiStpNetworkIdV2;
   }
 
   @Override
@@ -304,7 +311,7 @@ public class VirtualPortView {
     else if (!vlanId.equals(other.vlanId)) {
       return false;
     }
-    
+
     // TODO: equals for requestDeleteAllowed
     return true;
   }
