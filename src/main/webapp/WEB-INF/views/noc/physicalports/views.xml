@@ -39,8 +39,8 @@
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
-    <definition extends="noc" name="physicalports/update">
-        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
+    <definition extends="noc" name="physicalports/uni/update">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/updateUni.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 

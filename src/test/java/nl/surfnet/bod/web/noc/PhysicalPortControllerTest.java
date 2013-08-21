@@ -160,12 +160,12 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void updateForm() throws Exception {
+  public void updateUniForm() throws Exception {
     UniPort port = new PhysicalPortFactory().create();
 
     when(physicalPortServiceMock.findUniPort(12L)).thenReturn(port);
 
-    mockMvc.perform(get("/noc/physicalports/edit").param("id", "12"))
+    mockMvc.perform(get("/noc/physicalports/editUni").param("id", "12"))
       .andExpect(status().isOk())
       .andExpect(model().attributeExists("updatePortCommand"));
   }
@@ -174,7 +174,7 @@ public class PhysicalPortControllerTest {
   public void updateFormWithNonExistingPortId() throws Exception {
     when(physicalPortServiceMock.findUniPort(12L)).thenReturn(null);
 
-    mockMvc.perform(get("/noc/physicalports/edit").param("id", "12"))
+    mockMvc.perform(get("/noc/physicalports/editUni").param("id", "12"))
         .andExpect(status().isMovedTemporarily())
         .andExpect(view().name("redirect:"));
   }
@@ -190,7 +190,7 @@ public class PhysicalPortControllerTest {
         "info_physicalport_updated", "NOC port", port.getPhysicalResourceGroup().getName()))
         .thenReturn("expectedMessage");
 
-    mockMvc.perform(put("/noc/physicalports")
+    mockMvc.perform(put("/noc/physicalports/editUni")
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("nocLabel", "NOC port")
@@ -215,7 +215,7 @@ public class PhysicalPortControllerTest {
     when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.of(port.getNbiPort()));
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(port.getPhysicalResourceGroup());
 
-    mockMvc.perform(put("/noc/physicalports")
+    mockMvc.perform(put("/noc/physicalports/editUni")
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("nocLabel", "NOC port")
@@ -235,7 +235,7 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(port);
 
-    mockMvc.perform(put("/noc/physicalports")
+    mockMvc.perform(put("/noc/physicalports/editUni")
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("nocLabel", "")
@@ -254,7 +254,7 @@ public class PhysicalPortControllerTest {
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(null);
     when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.<NbiPort> absent());
 
-    mockMvc.perform(put("/noc/physicalports")
+    mockMvc.perform(put("/noc/physicalports/editUni")
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("bodPortId", "2-2")

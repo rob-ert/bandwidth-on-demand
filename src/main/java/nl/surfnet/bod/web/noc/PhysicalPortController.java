@@ -162,11 +162,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
 
-    return "redirect:/noc/physicalports";
+    return "redirect:/noc/physicalports/enni";
   }
 
-  @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) Long id, Model model) {
+  @RequestMapping(value = "/editUni", params = ID_KEY, method = RequestMethod.GET)
+  public String updateUniForm(@RequestParam(ID_KEY) Long id, Model model) {
     UniPort uniPort = physicalPortService.findUniPort(id);
 
     if (uniPort == null) {
@@ -175,10 +175,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.addAttribute("updatePortCommand", new UpdateUniPortCommand(uniPort));
 
-    return "physicalports/update";
+    return "physicalports/uni/update";
   }
 
-  @RequestMapping(method = RequestMethod.PUT)
+  @RequestMapping(value = "/editUni", method = RequestMethod.PUT)
   public String update(@Valid UpdateUniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     if (result.hasErrors()) {
       model.addAttribute("updatePortCommand", command);

@@ -126,7 +126,7 @@
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
-            updateUrl="${show_unallocated ? '/create' : '/edit'}"
+            updateUrl="${show_unallocated ? '/createUni' : '/editUni'}"
             path="/noc/physicalports" idFieldName="${show_unallocated ? 'nmsPortId' : 'id'}"
             labelCode="label_physicalport"
             deleteConfirmLabelCode="physical_port_delete_confirm_counter" 
