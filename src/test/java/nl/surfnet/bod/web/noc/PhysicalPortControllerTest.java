@@ -75,6 +75,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -278,7 +279,6 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("Add through prg is broken")
   public void addPhysicalPortFormWithoutExistingPhysicalResourceGroup() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
@@ -288,7 +288,6 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("Add through prg is broken")
   public void addPhysicalPortFormWithoutAnyUnallocatedPorts() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<NbiPort> emptyList());
@@ -303,10 +302,9 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("Add through prg is broken")
   public void addPhysicalPortFormWithUnallocatedPorts() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
-    when(physicalPortServiceMock.findUnallocated()).thenReturn(ImmutableList.of(new NbiPortFactory().create()));
+    when(physicalPortServiceMock.findUnallocatedUniPorts()).thenReturn(ImmutableList.of(new NbiPortFactory().create()));
 
     mockMvc.perform(get("/noc/physicalports/add").param("prg", "1"))
         .andExpect(status().isOk())
@@ -314,7 +312,6 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("Add through prg is broken")
   public void addPhysicalPortWithoutPostData() throws Exception {
     mockMvc.perform(post("/noc/physicalports/add"))
         .andExpect(status().isOk())
@@ -323,40 +320,13 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("Add through prg is broken")
   public void addPhysicalPort() throws Exception {
     String nmsPortId = "00-BB_ETH0";
-    UniPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("").create();
+    NbiPort nbiPort = new NbiPortFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
-    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
-    when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
-    when(physicalPortServiceMock.findNbiPort(nmsPortId)).thenReturn(Optional.of(port.getNbiPort()));
-
-    mockMvc.perform(post("/noc/physicalports/add")
-        .param("nmsPortId", nmsPortId)
-        .param("nocLabel", "NOC port")
-        .param("bodPortId", "2-2")
-        .param("managerLabel", "Manager port")
-        .param("physicalResourceGroup", "1"))
-        .andExpect(status().isMovedTemporarily())
-        .andExpect(model().hasNoErrors())
-        .andExpect(view().name("redirect:/noc/institutes"));
-
-    assertThat(port.getManagerLabel(), is("Manager port"));
-    assertThat(port.getNocLabel(), is("NOC port"));
-
-    verify(physicalPortServiceMock).save(port);
-  }
-
-  @Test
-  @Ignore("Add through prg is broken")
-  public void addPhysicalPortWithoutManagerLabel() throws Exception {
-    String nmsPortId = "00-BB_ETH0";
-    UniPort port = new PhysicalPortFactory().withNoIds().setNocLabel("").setManagerLabel("Manager label").create();
-
-    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
-    when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
-    when(physicalPortServiceMock.findNbiPort(nmsPortId)).thenReturn(Optional.of(port.getNbiPort()));
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(prg);
+    when(physicalPortServiceMock.findNbiPort(nmsPortId)).thenReturn(Optional.of(nbiPort));
 
     mockMvc.perform(post("/noc/physicalports/add")
         .param("nmsPortId", nmsPortId)
@@ -368,10 +338,11 @@ public class PhysicalPortControllerTest {
         .andExpect(model().hasNoErrors())
         .andExpect(view().name("redirect:/noc/institutes"));
 
-    assertThat(port.getManagerLabel(), is("NOC port"));
-    assertThat(port.getNocLabel(), is("NOC port"));
+    ArgumentCaptor<UniPort> portCaptor = ArgumentCaptor.forClass(UniPort.class);
+    verify(physicalPortServiceMock).save(portCaptor.capture());
 
-    verify(physicalPortServiceMock).save(port);
+    assertThat(portCaptor.getValue().getNocLabel(), is("NOC port"));
+    assertThat(portCaptor.getValue().getPhysicalResourceGroup(), is(prg));
   }
 
   @Test

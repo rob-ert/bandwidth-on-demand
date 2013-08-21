@@ -30,7 +30,6 @@ import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byP
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +48,7 @@ import com.google.common.collect.Maps;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -121,6 +121,15 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
 
   private List<NbiPort> limitPorts(Collection<NbiPort> ports, int firstResult, int sizeNo) {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
+  }
+
+  public Collection<NbiPort> findUnallocatedUniPorts() {
+    return Collections2.filter(findUnallocated(), new Predicate<NbiPort>() {
+      @Override
+      public boolean apply(NbiPort input) {
+        return input.getInterfaceType() == InterfaceType.UNI;
+      }
+    });
   }
 
   public Collection<NbiPort> findUnallocated() {

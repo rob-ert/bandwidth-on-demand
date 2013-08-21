@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
@@ -51,6 +52,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.EnniPort;
@@ -106,6 +108,64 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   @Resource private NocService nocService;
   @Resource private MessageManager messageManager;
   @Resource private EndPoints endPoints;
+
+  @RequestMapping(value = "add", method = RequestMethod.GET)
+  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
+    PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
+    if (prg == null) {
+      return "redirect:/";
+    }
+
+    Collection<NbiPort> unallocatedUniPorts = physicalPortService.findUnallocatedUniPorts();
+
+    if (unallocatedUniPorts.isEmpty()) {
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocateduni");
+      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
+    }
+
+    NbiPort port = Iterables.get(unallocatedUniPorts, 0);
+
+    AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
+    addCommand.setPhysicalResourceGroup(prg);
+    addCommand.setNmsPortId(port.getNmsPortId());
+    addCommand.setNocLabel(port.getSuggestedNocLabel());
+    addCommand.setBodPortId(port.getSuggestedBodPortId());
+
+    model.addAttribute("addPhysicalPortCommand", addCommand);
+    model.addAttribute("unallocatedPhysicalPorts", unallocatedUniPorts);
+
+    return "physicalports/addPhysicalPort";
+  }
+
+  @RequestMapping(value = "add", method = RequestMethod.POST)
+  public String addPhysicalPort(@Valid AddPhysicalPortCommand addCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+    if (result.hasErrors()) {
+      model.addAttribute("addPhysicalPortCommand", addCommand);
+      model.addAttribute("unallocatedPhysicalPorts", physicalPortService.findUnallocated());
+      return "physicalports/addPhysicalPort";
+    }
+
+    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(addCommand.getNmsPortId());
+    if (!nbiPort.isPresent()) {
+      return "redirect:";
+    }
+
+    UniPort uniPort = new UniPort(nbiPort.get());
+    if (isNullOrEmpty(addCommand.getManagerLabel())) {
+      uniPort.setManagerLabel(null);
+    } else {
+      uniPort.setManagerLabel(addCommand.getManagerLabel());
+    }
+    uniPort.setNocLabel(addCommand.getNocLabel());
+    uniPort.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
+    uniPort.setBodPortId(addCommand.getBodPortId());
+
+    physicalPortService.save(uniPort);
+
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
+
+    return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
+  }
 
   @RequestMapping(value = "/enni", method = RequestMethod.POST)
   public String createEnniPort(@Valid CreateEnniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
@@ -491,6 +551,20 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return "nocLabel";
   }
 
+  @Override
+  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
+    return physicalPortService;
+  }
+
+  private Collection<PhysicalPortFilter> getAvailableFilters() {
+    return EnumSet.allOf(PhysicalPortFilter.class);
+  }
+
+  @Override
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
+  }
+
   public static class MovePhysicalPortCommand {
     private Long id;
     private String newPhysicalPort;
@@ -661,18 +735,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   }
 
-  @Override
-  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
-    return physicalPortService;
-  }
+  public static final class AddPhysicalPortCommand extends CreateUniPortCommand {
 
-  private Collection<PhysicalPortFilter> getAvailableFilters() {
-    return EnumSet.allOf(PhysicalPortFilter.class);
-  }
-
-  @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   public enum PhysicalPortFilter {
