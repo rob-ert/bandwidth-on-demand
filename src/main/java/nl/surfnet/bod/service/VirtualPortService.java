@@ -104,8 +104,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.count(forManagerSpec(managerRole));
   }
 
-  public long countForPhysicalPort(UniPort physicalPort) {
-    return virtualPortRepo.count(byPhysicalPortSpec(physicalPort));
+  public long countForUniPort(final UniPort uniPort) {
+    return virtualPortRepo.count(byPhysicalPortSpec(uniPort));
   }
 
 

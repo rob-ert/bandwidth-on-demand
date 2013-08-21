@@ -7,14 +7,16 @@
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
+
 <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
+<tiles:useAttribute id="show_enni" name="enni" classname="java.lang.Boolean" />
+<tiles:useAttribute id="show_unaligned" name="unaligned" classname="java.lang.Boolean" />
 
 <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
     <spring:url value="/noc/physicalports" var="pp_url" />
     <form action="${pp_url}" data-component="dropdown-filter" class="form-inline form-search">
         <sform:select path="filterSelect.path" items="${filterList}" itemLabel="name" itemValue="path" cssClass="input-medium" />
     </form>
-
   <c:if test="${not show_unallocated}">
     <util:search />
   </c:if>
@@ -24,12 +26,12 @@
         <table:rowDetailsHeader render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel"  />
         <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" />
-        <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated and not show_enni}" />
 
-        <c:if test="${not show_unallocated}">
+        <c:if test="${not show_unallocated and not show_enni}">
           <th class="cw55 center small"><spring:message code="label_physicalport_virtualportcount" /></th>
         </c:if>
-        <c:if test="${show_unallocated}">
+        <c:if test="${show_unallocated or show_unaligned}">
           <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
           <table:sortableHeader labelCode="label_physicalport_interface_type" property="interfaceType" />
         </c:if>
@@ -43,6 +45,24 @@
             <div class="row-fluid">
                 <div class="span6">
                     <dl class="dl-horizontal">
+                        <c:if test="${not empty item.inboundPeer}">
+                            <dt><spring:message code="label_physicalport_inbound_peer"/></dt>
+                            <dd>
+                                <c:out value="${item.inboundPeer}" />
+                            </dd>
+                        </c:if>
+                        <c:if test="${not empty item.outboundPeer}">
+                            <dt><spring:message code="label_physicalport_outbound_peer"/></dt>
+                            <dd>
+                                <c:out value="${item.outboundPeer}" />
+                            </dd>
+                        </c:if>
+                        <c:if test="${not empty item.vlanRanges}">
+                            <dt><spring:message code="label_physicalport_vlan_ranges"/></dt>
+                            <dd>
+                                <c:out value="${item.vlanRanges}" />
+                            </dd>
+                        </c:if>
                         <dt><spring:message code="label_physicalport_managerlabel_short"/></dt>
                         <dd>
                             <c:out value="${item.managerLabel}" />
@@ -91,14 +111,14 @@
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
           <table:column item="${item}" property="bodPortId" />
-          <table:column item="${item}" property="instituteName" render="${not show_unallocated}" />
+          <table:column item="${item}" property="instituteName" render="${not show_unallocated and not show_enni}" />
 
-          <c:if test="${not show_unallocated}">
+          <c:if test="${not show_unallocated and not show_enni}">
             <table:searchColumn value="${item.numberOfVirtualPorts}" searchField="physicalPort" searchValue="${item.nmsPortId}" viewName="/noc/virtualports" tooltipTitleCode="label_virtualport_link"/>
           </c:if>
 
-          <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
-          <table:column item="${item}" property="interfaceType" render="${show_unallocated}"/>
+          <table:column item="${item}" property="nmsPortId" render="${show_unallocated or show_unaligned}"/>
+          <table:column item="${item}" property="interfaceType" render="${show_unallocated or show_unaligned}"/>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="true"

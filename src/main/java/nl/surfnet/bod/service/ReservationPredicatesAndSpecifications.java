@@ -35,6 +35,7 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.ConnectionV1_;
 import nl.surfnet.bod.domain.ConnectionV2_;
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -125,13 +126,28 @@ public final class ReservationPredicatesAndSpecifications {
   }
 
   static Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port), cb.equal(root
-            .get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
-      }
-    };
+    if (port instanceof UniPort) {
+      return new Specification<Reservation>() {
+        @Override
+        public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+          return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port), cb.equal(root
+              .get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
+        }
+      };
+
+    } else if (port instanceof EnniPort) {
+      return new Specification<Reservation>() {
+        @Override
+        public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+          return cb.or(
+            cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.enniPort), port),
+            cb.equal(root.get(Reservation_.destinationPort).get(ReservationEndPoint_.enniPort), port));
+        }
+      };
+    }
+    else {
+      throw new IllegalArgumentException("Don't know how to handle physical port of type: " + port.getClass());
+    }
   }
 
   static Specification<Reservation> specByVirtualPort(final VirtualPort port) {

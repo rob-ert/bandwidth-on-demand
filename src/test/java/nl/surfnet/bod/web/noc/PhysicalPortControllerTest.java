@@ -149,7 +149,6 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  @Ignore("List of unligned ports is broken")
   public void listUnalignedPorts() throws Exception {
     when(physicalPortServiceMock.findUnalignedPhysicalPorts(eq(0), anyInt(), any(Sort.class)))
         .thenReturn(ImmutableList.<PhysicalPort> of(new PhysicalPortFactory().create()));
@@ -389,7 +388,7 @@ public class PhysicalPortControllerTest {
   public void movePhysicalPortWithNoAvailableUnallocatedPorts() throws Exception {
     UniPort port = new PhysicalPortFactory().create();
 
-    when(physicalPortServiceMock.findUniPort(8L)).thenReturn(port);
+    when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<NbiPort> emptyList());
     when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated", "EPL")).thenReturn("expectedMessage");
 
@@ -403,7 +402,7 @@ public class PhysicalPortControllerTest {
   public void movePhysicalPort() throws Exception {
     UniPort port = new PhysicalPortFactory().create();
 
-    when(physicalPortServiceMock.findUniPort(8L)).thenReturn(port);
+    when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Lists.newArrayList(new NbiPortFactory().create()));
 
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))

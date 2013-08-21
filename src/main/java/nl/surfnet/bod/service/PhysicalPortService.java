@@ -56,6 +56,7 @@ import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
+import nl.surfnet.bod.repo.EnniPortRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.UniPortRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -90,6 +91,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
   @Resource private VirtualPortService virtualPortService;
   @Resource private PhysicalPortRepo physicalPortRepo;
   @Resource private UniPortRepo uniPortRepo;
+  @Resource private EnniPortRepo enniPortRepo;
   @Resource private NbiClient nbiClient;
   @Resource private LogEventService logEventService;
   @Resource private SnmpAgentService snmpAgentService;
@@ -102,8 +104,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
   }
 
   public List<EnniPort> findAllocatedEnniEntries(int firstResult, int maxResults, Sort sort) {
-    return Collections.emptyList();
-    //return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+    return enniPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public Collection<NbiPort> findUnallocatedEntries(int firstResult, int sizeNo) {

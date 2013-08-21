@@ -63,14 +63,14 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static Specification<VirtualPort> byPhysicalPortSpec(final UniPort physicalPort) {
+  static Specification<VirtualPort> byPhysicalPortSpec(final UniPort uniPort) {
     return new Specification<VirtualPort>() {
 
-      private final Long physicalPortId = physicalPort.getId();
+      private final Long id = uniPort.getId();
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.id), physicalPortId));
+        return cb.and(cb.equal(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.id), id));
       }
     };
   }

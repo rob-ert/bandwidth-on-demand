@@ -303,19 +303,16 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
-    List<PhysicalPortView> allocatedPhysicalPorts = Collections.emptyList();
-
-        // FIXME
-//        Functions.transformAllocatedPhysicalPorts(physicalPortService
-//        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
-//        reservationService);
+    List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformUnalignedPhysicalPorts(physicalPortService
+        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
+        reservationService);
 
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
     model.addAttribute(WebUtils.DATA_LIST, allocatedPhysicalPorts);
     model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
     model.addAttribute(WebUtils.FILTER_LIST, getAvailableFilters());
 
-    return listUrl();
+    return PAGE_URL + "/listunaligned";
   }
 
   @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
@@ -374,7 +371,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
   public String moveForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttrs) {
-    final UniPort port = physicalPortService.findUniPort(id);
+    final PhysicalPort port = physicalPortService.find(id);
 
     if (port == null) {
       redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
@@ -392,7 +389,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       return "redirect:/noc/physicalports";
     }
 
-    long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);
+    long numberOfVirtualPorts = 0;
+    if (port instanceof UniPort) {
+      numberOfVirtualPorts = virtualPortService.countForUniPort((UniPort) port);
+    }
+
     long numberOfReservations = reservationService.countForPhysicalPort(port);
     long numberOfActiveReservations = reservationService.countActiveReservationsForPhysicalPort(port);
 
@@ -497,7 +498,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public MovePhysicalPortCommand() {
     }
 
-    public MovePhysicalPortCommand(UniPort port) {
+    public MovePhysicalPortCommand(PhysicalPort port) {
       this.id = port.getId();
     }
 
@@ -574,8 +575,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       return inboundPeer;
     }
 
-    public void setInboundPeer(String inboudPeer) {
-      this.inboundPeer = inboudPeer;
+    public void setInboundPeer(String inboundPeer) {
+      this.inboundPeer = inboundPeer;
     }
 
     public String getOutboundPeer() {

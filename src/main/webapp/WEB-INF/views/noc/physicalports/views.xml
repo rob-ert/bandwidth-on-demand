@@ -4,21 +4,29 @@
     <definition extends="noc" name="physicalports/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx" />
         <put-attribute name="unallocated" value="false" cascade="true"/>
+        <put-attribute name="unaligned" value="false" cascade="true"/>
+        <put-attribute name="enni" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
     <definition extends="noc" name="physicalports/listunaligned">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="false" cascade="true"/>
+        <put-attribute name="unaligned" value="true" cascade="true"/>
+        <put-attribute name="enni" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
     <definition extends="noc" name="physicalports/listunallocated">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="true" cascade="true"/>
+        <put-attribute name="enni" value="false" cascade="true"/>
+        <put-attribute name="unaligned" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
     <definition extends="noc" name="physicalports/listenni">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="false" cascade="true"/>
+        <put-attribute name="enni" value="true" cascade="true"/>
+        <put-attribute name="unaligned" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 

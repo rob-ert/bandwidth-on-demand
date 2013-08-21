@@ -189,7 +189,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return countForFilterAndVirtualResourceGroup(ReservationFilterViewFactory.ACTIVE, group);
   }
 
-  public long countActiveReservationsForPhysicalPort(UniPort port) {
+  public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
     return reservationRepo.count(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
@@ -226,7 +226,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(specFilteredReservationsForVirtualResourceGroup(filterView, vrg));
   }
 
-  public long countForPhysicalPort(UniPort port) {
+  public long countForPhysicalPort(PhysicalPort port) {
     return reservationRepo.count(specByPhysicalPort(port));
   }
 
