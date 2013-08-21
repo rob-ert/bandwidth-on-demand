@@ -49,6 +49,7 @@ import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
 import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.support.BodManagerWebDriver;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.util.XmlUtils;
@@ -69,7 +70,7 @@ import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.springframework.core.io.ClassPathResource;
@@ -146,11 +147,11 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
-    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-        .withSourceSTP(sourceStp)
-        .withDestSTP(destStp));
+        .withSourceSTP(sourceStp).withSourceVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID)
+        .withDestSTP(destStp).withDestVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -205,11 +206,11 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
-    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
-        .withCapacity(100)
-        .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-        .withSourceSTP(sourceStp)
-        .withDestSTP(destStp));
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
+      .withCapacity(100)
+      .withDirectionality(DirectionalityType.BIDIRECTIONAL)
+      .withSourceSTP(sourceStp).withSourceVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID)
+      .withDestSTP(destStp).withDestVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();

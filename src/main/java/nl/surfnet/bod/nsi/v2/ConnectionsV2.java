@@ -22,14 +22,13 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2Point2PointServiceUserType;
 
@@ -70,11 +69,8 @@ public final class ConnectionsV2 {
     return type.getLocalId();
   }
 
-  public static StpType toStpType(String sourceStpId) {
-    String[] parts = sourceStpId.split(":");
-    String networkId = Joiner.on(":").join(Arrays.copyOfRange(parts, 0, parts.length - 1));
-
-    return new StpType().withNetworkId(networkId).withLocalId(parts[parts.length - 1]);
+  public static StpType toStpType(String localId) {
+    return new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId(localId);
   }
 
   public static void addPointToPointService(Collection<Object> any, P2PServiceBaseType service) {

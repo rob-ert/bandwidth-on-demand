@@ -39,6 +39,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
+  public static final int DEFAULT_VIRTUAL_PORT_VLAN_ID = 23;
   private final RemoteWebDriver driver;
 
   public BodManagerWebDriver(RemoteWebDriver driver) {
@@ -195,7 +196,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
     page.sendName(name);
     page.sendUserLabel(vpUserLabel);
-    page.sendVlanId("23");
+    page.sendVlanId(String.valueOf(DEFAULT_VIRTUAL_PORT_VLAN_ID));
 
     page.save();
   }
@@ -204,7 +205,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 
     page.sendName(label);
-    page.sendVlanId("23");
+    page.sendVlanId(String.valueOf(DEFAULT_VIRTUAL_PORT_VLAN_ID));
     page.accept();
     page.save();
   }

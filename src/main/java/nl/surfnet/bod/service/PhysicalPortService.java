@@ -50,6 +50,7 @@ import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UniPort;
@@ -57,6 +58,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.EnniPortRepo;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.UniPortRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -168,6 +170,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
 
   public PhysicalPort findByNmsPortId(String nmsPortId) {
     return physicalPortRepo.findByNbiPortNmsPortId(nmsPortId);
+  }
+
+  public EnniPort findByNsiV2StpId(String stpId) {
+    String bodPortId = NsiConstants.parseLocalNsiId(stpId, NsiVersion.TWO);
+    return physicalPortRepo.findEnniPortByBodPortId(bodPortId);
   }
 
   public void delete(Long id) {

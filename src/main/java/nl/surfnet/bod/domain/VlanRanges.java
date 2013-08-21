@@ -20,22 +20,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.repo;
+package nl.surfnet.bod.domain;
 
-import nl.surfnet.bod.domain.EnniPort;
-import nl.surfnet.bod.domain.PhysicalPort;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-@Repository
-public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long> {
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import javax.validation.ReportAsSingleViolation;
+import javax.validation.constraints.Pattern;
 
-  PhysicalPort findByNbiPortNmsPortId(String nmsPortId);
+/**
+ * Checks the format of VLAN ranges.
+ */
+@Documented
+@Constraint(validatedBy = {  })
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
+@Retention(RUNTIME)
+@ReportAsSingleViolation
+@Pattern(regexp = "\\s*\\d+(\\s*-\\s*\\d+)?(\\s*,\\s*\\d+(\\s*-\\s*\\d+)?)*\\s*")
+public @interface VlanRanges {
+  String message() default "{nl.sufrnet.bod.domain.VlanRanges.message}";
 
-  @Query("select port from EnniPort port where port.bodPortId = ?1")
-  EnniPort findEnniPortByBodPortId(String bodPortId);
+  Class<?>[] groups() default { };
 
+  Class<? extends Payload>[] payload() default { };
 }

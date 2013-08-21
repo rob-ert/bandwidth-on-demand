@@ -27,6 +27,12 @@ import java.util.Collections;
 
 import javax.persistence.Entity;
 
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+
+import nl.surfnet.bod.nsi.NsiConstants;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
@@ -38,7 +44,7 @@ public class EnniPort extends PhysicalPort {
   @NotEmpty
   private String outboundPeer;
 
-  @NotEmpty
+  @VlanRanges
   private String vlanRanges;
 
   public EnniPort() {
@@ -78,7 +84,36 @@ public class EnniPort extends PhysicalPort {
   }
 
   public String getNsiStpIdV2() {
-    // TODO Auto-generated method stub
-    return "TODO-" + getBodPortId();
+    return NsiConstants.URN_STP_V2 + ":" + getBodPortId();
   }
+
+  public boolean isVlanIdAllowed(int vlan) {
+    if (!isVlanRequired()) {
+      return false;
+    }
+
+    RangeSet<Integer> range = parseRanges(vlanRanges);
+    return range.contains(vlan);
+  }
+
+  private RangeSet<Integer> parseRanges(String vlanRanges2) {
+    ImmutableRangeSet.Builder<Integer> builder = ImmutableRangeSet.builder();
+    for (String range: vlanRanges.split(",")) {
+      String[] xs = range.split("-");
+      if (xs.length == 1) {
+        builder.add(Range.singleton(Integer.parseInt(xs[0].trim())));
+      } else if (xs.length == 2) {
+        int lower = Integer.parseInt(xs[0].trim());
+        int upper = Integer.parseInt(xs[1].trim());
+        if (lower > upper) {
+          throw new IllegalArgumentException("lower bound " + lower + " cannot be greater than upper bound " + upper);
+        }
+        builder.add(Range.closed(lower, upper));
+      } else {
+        throw new IllegalArgumentException("invalid range " + vlanRanges2);
+      }
+    }
+    return builder.build();
+  }
+
 }

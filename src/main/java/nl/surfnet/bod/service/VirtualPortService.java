@@ -24,8 +24,6 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V2;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
@@ -35,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -56,6 +52,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -73,9 +70,6 @@ import org.springframework.util.StringUtils;
 @Service
 @Transactional
 public class VirtualPortService extends AbstractFullTextSearchService<VirtualPort> {
-
-  private static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
-  private static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([0-9]+)");
 
   @Resource private VirtualPortRepo virtualPortRepo;
   @Resource private VirtualResourceGroupRepo virtualResourceGroupReppo;
@@ -273,32 +267,26 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
   }
 
-  public VirtualPort findByNsiV1StpId(String sourceStpId) {
-    Long id = parseLocalNsiId(sourceStpId, NsiVersion.ONE);
+  public VirtualPort findByNsiV1StpId(String stpId) {
+    String id = NsiConstants.parseLocalNsiId(stpId, NsiVersion.ONE);
+    return findByLocalStpId(id);
+  }
+
+  public VirtualPort findByNsiV2StpId(String stpId) {
+    String id = NsiConstants.parseLocalNsiId(stpId, NsiVersion.TWO);
+    return findByLocalStpId(id);
+  }
+
+  private VirtualPort findByLocalStpId(String id) {
     if (id == null) {
       return null;
     }
-    return find(id);
-  }
-
-  public VirtualPort findByNsiV2StpId(String sourceStpId) {
-    Long id = parseLocalNsiId(sourceStpId, NsiVersion.TWO);
-    if (id == null) {
+    try {
+      return find(Long.valueOf(id));
+    } catch (NumberFormatException e) {
       return null;
     }
-    return find(id);
   }
-
-  private Long parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
-    Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
-    Matcher matcher = pattern.matcher(stpId);
-
-    if (!matcher.matches()) {
-      return null;
-    }
-    return Long.valueOf(matcher.group(1));
-  }
-
 
   @Override
   protected EntityManager getEntityManager() {

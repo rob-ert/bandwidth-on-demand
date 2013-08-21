@@ -35,12 +35,14 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import nl.surfnet.bod.domain.ConnectionV2;
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
@@ -50,6 +52,9 @@ import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
+import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -67,6 +72,7 @@ public class ConnectionServiceV2 {
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
   @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
 
   public void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
@@ -76,14 +82,22 @@ public class ConnectionServiceV2 {
     try {
       checkProviderNsa(connection.getProviderNsa());
 
+      P2PServiceBaseType service = ConnectionsV2.findPointToPointService(connection.getCriteria()).get();
+      Optional<Integer> sourceVlanId = Optional.absent();
+      Optional<Integer> destinationVlanId = Optional.absent();
+      if (service instanceof EthernetVlanType) {
+        EthernetVlanType vlan = (EthernetVlanType) service;
+        sourceVlanId = Optional.of(vlan.getSourceVLAN());
+        destinationVlanId = Optional.of(vlan.getDestVLAN());
+      }
       connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
       Reservation reservation = new Reservation();
       reservation.setConnectionV2(connection);
       reservation.setName(connection.getDescription());
       reservation.setStartDateTime(connection.getStartTime().orNull());
       reservation.setEndDateTime(connection.getEndTime().orNull());
-      reservation.setSourcePort(checkPort(connection.getSourceStpId(), userDetails));
-      reservation.setDestinationPort(checkPort(connection.getDestinationStpId(),  userDetails));
+      reservation.setSourcePort(findEndPoint(service.getSourceSTP(), sourceVlanId, userDetails));
+      reservation.setDestinationPort(findEndPoint(service.getDestSTP(),  destinationVlanId, userDetails));
       reservation.setBandwidth(connection.getDesiredBandwidth());
       reservation.setUserCreated(userDetails.getNameId());
       reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
@@ -249,24 +263,53 @@ public class ConnectionServiceV2 {
     }
   }
 
-  private ReservationEndPoint checkPort(String stpId, RichUserDetails user) throws ReservationCreationException {
-    Optional<ReservationEndPoint> optionalEndPoint = findEndPoint(stpId);
-    if (!optionalEndPoint.isPresent()) {
-      throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpId));
-    }
-    ReservationEndPoint endPoint = optionalEndPoint.get();
-
-    if (endPoint.getVirtualPort().isPresent()
-        && !user.getUserGroupIds().contains(endPoint.getVirtualPort().get().getVirtualResourceGroup().getAdminGroup())) {
-      throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpId));
+  private ReservationEndPoint findEndPoint(StpType stpType, Optional<Integer> vlanId, RichUserDetails user) throws ReservationCreationException {
+    ReservationEndPoint virtualPort = tryVirtualPortEndPoint(stpType, vlanId, user);
+    if (virtualPort != null) {
+      return virtualPort;
     }
 
-    return endPoint;
+    ReservationEndPoint enniPort = tryEnniPortAsEndPoint(stpType, vlanId, virtualPort);
+    if (enniPort != null) {
+      return enniPort;
+    }
+
+    throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpType.getLocalId()));
   }
 
-  private Optional<ReservationEndPoint> findEndPoint(String stpId) {
-    VirtualPort port = virtualPortService.findByNsiV2StpId(stpId);
-    return port == null ? Optional.<ReservationEndPoint>absent() : Optional.of(new ReservationEndPoint(port));
+  private ReservationEndPoint tryVirtualPortEndPoint(StpType stpType, Optional<Integer> vlanId, RichUserDetails user) throws ReservationCreationException {
+    VirtualPort virtualPort = virtualPortService.findByNsiV2StpId(stpType.getLocalId());
+    if (virtualPort == null) {
+      return null;
+    }
+
+    if (!user.getUserGroupIds().contains(virtualPort.getVirtualResourceGroup().getAdminGroup())) {
+      throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpType.getLocalId()));
+    }
+
+    boolean vlanRequired = virtualPort.getVlanId() != null;
+    if (vlanRequired != vlanId.isPresent()) {
+      throw new ReservationCreationException("400", String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), vlanRequired ? "requires" : "does not allow"));
+    } else if (vlanRequired && !virtualPort.getVlanId().equals(vlanId.get())) {
+      throw new ReservationCreationException("400", String.format("requested VLAN '%d' does not match required VLAN '%d' for STP '%s'", vlanId.get(), virtualPort.getVlanId(), stpType.getLocalId()));
+    }
+
+    return new ReservationEndPoint(virtualPort);
+  }
+
+  private ReservationEndPoint tryEnniPortAsEndPoint(StpType stpType, Optional<Integer> vlanId, ReservationEndPoint virtualPort) throws ReservationCreationException {
+    EnniPort enniPort = physicalPortService.findByNsiV2StpId(stpType.getLocalId());
+    if (enniPort == null) {
+      return null;
+    }
+
+    if (enniPort.isVlanRequired() != vlanId.isPresent()) {
+      throw new ReservationCreationException("400", String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), enniPort.isVlanRequired() ? "requires" : "does not allow"));
+    } else if (enniPort.isVlanRequired() && !enniPort.isVlanIdAllowed(vlanId.get())) {
+      throw new ReservationCreationException("400", String.format("requested VLAN '%d' is not allowed by E-NNI does not match required VLAN ranges '%s' for STP '%s'", vlanId.get(), enniPort.getVlanRanges(), stpType.getLabels()));
+    }
+
+    return new ReservationEndPoint(enniPort, vlanId);
   }
 
   @SuppressWarnings("serial")

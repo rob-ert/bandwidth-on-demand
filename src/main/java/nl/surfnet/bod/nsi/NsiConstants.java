@@ -22,13 +22,29 @@
  */
 package nl.surfnet.bod.nsi;
 
-public interface NsiConstants {
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-  String URN_OGF = "urn:ogf:network";
-  String NETWORK_ID = "surfnet.nl";
-  String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
-  String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID;
-  String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID + ":1990";
-  String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
+import nl.surfnet.bod.domain.NsiVersion;
 
+public class NsiConstants {
+
+  public static String URN_OGF = "urn:ogf:network";
+  public static String NETWORK_ID = "surfnet.nl";
+  public static String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
+  public static String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID;
+  public static String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID + ":1990";
+  public static String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
+  public static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([0-9]+)");
+  public static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
+
+  public static String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
+    Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
+    Matcher matcher = pattern.matcher(stpId);
+
+    if (!matcher.matches()) {
+      return null;
+    }
+    return matcher.group(1);
+  }
 }
