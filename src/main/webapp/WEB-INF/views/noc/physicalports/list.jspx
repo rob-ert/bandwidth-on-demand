@@ -119,6 +119,23 @@
 
           <table:column item="${item}" property="nmsPortId" render="${show_unallocated or show_unaligned}"/>
           <table:column item="${item}" property="interfaceType" render="${show_unallocated or show_unaligned}"/>
+          <c:set var="updateUrl" value="#" />
+
+          <c:choose>
+            <c:when test="${show_unallocated}">
+                <c:set var="updateUrl" value="/create" />
+            </c:when>
+            <c:otherwise>
+                <c:choose>
+                    <c:when test="${item.interfaceType == 'E_NNI'}">
+                        <c:set var="updateUrl" value="/updateEnni" />
+                    </c:when>
+                    <c:otherwise>
+                        <c:set var="updateUrl" value="/updateUni" />
+                    </c:otherwise>
+                </c:choose>
+            </c:otherwise>
+          </c:choose>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="true"
@@ -126,7 +143,7 @@
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
-            updateUrl="${show_unallocated ? '/createUni' : '/editUni'}"
+            updateUrl="${updateUrl}"
             path="/noc/physicalports" idFieldName="${show_unallocated ? 'nmsPortId' : 'id'}"
             labelCode="label_physicalport"
             deleteConfirmLabelCode="physical_port_delete_confirm_counter" 

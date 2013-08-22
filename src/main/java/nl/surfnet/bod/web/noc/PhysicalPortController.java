@@ -225,7 +225,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return "redirect:/noc/physicalports/enni";
   }
 
-  @RequestMapping(value = "/editUni", params = ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(value = "/updateUni", params = ID_KEY, method = RequestMethod.GET)
   public String updateUniForm(@RequestParam(ID_KEY) Long id, Model model) {
     UniPort uniPort = physicalPortService.findUniPort(id);
 
@@ -233,15 +233,28 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       return "redirect:";
     }
 
-    model.addAttribute("updatePortCommand", new UpdateUniPortCommand(uniPort));
+    model.addAttribute("updateUniPortCommand", new UpdateUniPortCommand(uniPort));
 
     return "physicalports/uni/update";
   }
 
-  @RequestMapping(value = "/editUni", method = RequestMethod.PUT)
-  public String update(@Valid UpdateUniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+  @RequestMapping(value = "/updateEnni", params = ID_KEY, method = RequestMethod.GET)
+  public String updateEnniForm(@RequestParam(ID_KEY) Long id, Model model) {
+    EnniPort port = physicalPortService.findEnniPort(id);
+
+    if (port == null) {
+      return "redirect:";
+    }
+
+    model.addAttribute("updateEnniPortCommand", new UpdateEnniPortCommand(port));
+
+    return "physicalports/enni/update";
+  }
+
+  @RequestMapping(value = "/updateUni", method = RequestMethod.PUT)
+  public String updateUni(@Valid UpdateUniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     if (result.hasErrors()) {
-      model.addAttribute("updatePortCommand", command);
+      model.addAttribute("updateUniPortCommand", command);
       return "physicalports/update";
     }
 
@@ -268,7 +281,35 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_updated", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
 
-    return "redirect:physicalports";
+    return "redirect:/noc/physicalports";
+  }
+
+  @RequestMapping(value = "/updateEnni", method = RequestMethod.PUT)
+  public String updateUni(@Valid UpdateEnniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    if (result.hasErrors()) {
+      model.addAttribute("updateEnniPortCommand", command);
+      return "physicalports/updateEnni";
+    }
+
+    EnniPort enniPort = (EnniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
+    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(command.getNmsPortId());
+
+    if (!nbiPort.isPresent()) {
+      return "redirect:";
+    }
+
+    enniPort.setNocLabel(command.getNocLabel());
+    enniPort.setBodPortId(command.getBodPortId());
+    enniPort.setInboundPeer(command.getInboundPeer());
+    enniPort.setOutboundPeer(command.getOutboundPeer());
+    enniPort.setVlanRanges(command.getVlanRanges());
+    physicalPortService.save(enniPort);
+
+    model.asMap().clear();
+
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_updated", enniPort.getNocLabel());
+
+    return "redirect:/noc/physicalports/enni";
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -400,8 +441,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return listUrl();
   }
 
-  @RequestMapping(value = "createUni", params = ID_KEY, method = RequestMethod.GET)
-  public String createUniForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
+  @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
+  public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
 
     if (!nbiPort.isPresent()) {
@@ -627,7 +668,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   }
 
-  public static final class CreateEnniPortCommand extends PhysicalPortCommand {
+  public static class CreateEnniPortCommand extends PhysicalPortCommand {
     @NotEmpty private String inboundPeer;
     @NotEmpty private String outboundPeer;
     @NotEmpty private String vlanRanges;
@@ -667,6 +708,40 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     public void setVlanRanges(String vlanRanges) {
       this.vlanRanges = vlanRanges;
+    }
+  }
+
+  public static class UpdateEnniPortCommand extends CreateEnniPortCommand {
+
+    private Long id;
+    private Integer version;
+
+    public UpdateEnniPortCommand() {
+
+    }
+
+    public UpdateEnniPortCommand(EnniPort enniPort) {
+
+      super(enniPort);
+
+      this.version = enniPort.getVersion();
+      this.id = enniPort.getId();
+    }
+
+    public Long getId() {
+      return id;
+    }
+
+    public void setId(Long id) {
+      this.id = id;
+    }
+
+    public Integer getVersion() {
+      return version;
+    }
+
+    public void setVersion(Integer version) {
+      this.version = version;
     }
   }
 

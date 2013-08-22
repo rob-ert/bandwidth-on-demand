@@ -7,14 +7,14 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:url value="/noc/physicalports" var="cancelUrl" />
-    <form:update id="fc_PhysicalPort" modelAttribute="updateUniPortCommand" path="/noc/physicalports/updateUni" cancelUrl="${cancelUrl}">
+    <spring:url value="/noc/physicalports/enni" var="cancelUrl" />
+    <form:update id="fc_PhysicalPort" modelAttribute="updateEnniPortCommand" path="/noc/physicalports/updateEnni" cancelUrl="${cancelUrl}">
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
-        <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
 
-        <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
-            items="${physicalResourceGroupList}" path="/noc/institutes" />
+        <field:input field="inboundPeer" id="c_PhysicalPort_inbound_peer" helpMessageCode="physicalport_urn_format" />
+        <field:input field="outboundPeer" id="c_PhysicalPort_outbound_peer" helpMessageCode="physicalport_urn_format" />
+        <field:input field="vlanRanges" id="c_PhysicalPort_vlan_ranges" helpMessageCode="physicalport_vlan_ranges"/>
 
         <sform:hidden path="nmsPortId" />
     </form:update>

@@ -43,6 +43,11 @@
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
+    <definition extends="noc" name="physicalports/enni/update">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/updateEnni.jspx" />
+        <put-attribute name="active_menu" value="physicalport" cascade="true" />
+    </definition>
+
     <definition extends="noc" name="physicalports/move">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/move.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />

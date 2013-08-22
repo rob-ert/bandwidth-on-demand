@@ -198,6 +198,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     return uniPortRepo.findOne(id);
   }
 
+  public EnniPort findEnniPort(Long id) {
+    return enniPortRepo.findOne(id);
+  }
+
   public void save(PhysicalPort physicalPort) {
     physicalPortRepo.save(physicalPort);
 
