@@ -23,6 +23,7 @@
 package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.base.MessageManager.INFO_MESSAGES_KEY;
@@ -31,6 +32,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyVararg;
@@ -115,6 +118,45 @@ public class PhysicalPortControllerTest {
 
     mockMvc = standaloneSetup(subject).setConversionService(conversionService).build();
   }
+
+  @Test
+  public void testCreateNoNbiFound() throws Exception {
+    final String nmsId = "foo";
+    when(physicalPortServiceMock.findNbiPort(nmsId)).thenReturn(Optional.<NbiPort>absent());
+    mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsId))
+        .andExpect(status().isMovedTemporarily())
+        .andExpect(view().name("redirect:"));
+  }
+
+  @Test
+  public void testCreateUni() throws Exception {
+    final String nmsPortId = "foo";
+    final NbiPort nbiPort = new NbiPortFactory().create();
+    nbiPort.setNmsPortId(nmsPortId);
+    when(physicalPortServiceMock.findNbiPort(nmsPortId)).thenReturn(Optional.of(nbiPort));
+
+    mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsPortId))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("createUniPortCommand", isA(PhysicalPortController.CreateUniPortCommand.class)))
+        .andExpect(view().name(PhysicalPortController.PAGE_URL + "/createUni"));
+  }
+
+  @Test
+  public void testCreateEnni() throws Exception {
+    final String nmsPortId = "foo";
+    final NbiPort nbiPort = new NbiPortFactory().create();
+    nbiPort.setNmsPortId(nmsPortId);
+    nbiPort.setInterfaceType(NbiPort.InterfaceType.E_NNI);
+
+    when(physicalPortServiceMock.findNbiPort(nmsPortId)).thenReturn(Optional.of(nbiPort));
+
+    mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsPortId))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("vlanRequired", notNullValue()))
+        .andExpect(model().attribute("createEnniPortCommand", isA(PhysicalPortController.CreateEnniPortCommand.class)))
+        .andExpect(view().name(PhysicalPortController.PAGE_URL + "/createEnni"));
+  }
+
 
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() throws Exception {
