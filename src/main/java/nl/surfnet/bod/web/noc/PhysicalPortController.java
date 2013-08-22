@@ -400,8 +400,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return listUrl();
   }
 
-  @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
-  public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
+  @RequestMapping(value = "createUni", params = ID_KEY, method = RequestMethod.GET)
+  public String createUniForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
 
     if (!nbiPort.isPresent()) {
