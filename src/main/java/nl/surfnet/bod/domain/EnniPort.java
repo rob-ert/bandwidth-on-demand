@@ -27,8 +27,6 @@ import java.util.Collections;
 
 import javax.persistence.Entity;
 
-import com.google.common.collect.ImmutableRangeSet;
-import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import nl.surfnet.bod.nsi.NsiConstants;
@@ -92,28 +90,7 @@ public class EnniPort extends PhysicalPort {
       return false;
     }
 
-    RangeSet<Integer> range = parseRanges(vlanRanges);
+    RangeSet<Integer> range = VlanRangesValidator.parseRanges(vlanRanges);
     return range.contains(vlan);
   }
-
-  private RangeSet<Integer> parseRanges(String vlanRanges2) {
-    ImmutableRangeSet.Builder<Integer> builder = ImmutableRangeSet.builder();
-    for (String range: vlanRanges.split(",")) {
-      String[] xs = range.split("-");
-      if (xs.length == 1) {
-        builder.add(Range.singleton(Integer.parseInt(xs[0].trim())));
-      } else if (xs.length == 2) {
-        int lower = Integer.parseInt(xs[0].trim());
-        int upper = Integer.parseInt(xs[1].trim());
-        if (lower > upper) {
-          throw new IllegalArgumentException("lower bound " + lower + " cannot be greater than upper bound " + upper);
-        }
-        builder.add(Range.closed(lower, upper));
-      } else {
-        throw new IllegalArgumentException("invalid range " + vlanRanges2);
-      }
-    }
-    return builder.build();
-  }
-
 }

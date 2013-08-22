@@ -61,6 +61,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.VlanRanges;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.NocService;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -671,7 +672,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public static class CreateEnniPortCommand extends PhysicalPortCommand {
     @NotEmpty private String inboundPeer;
     @NotEmpty private String outboundPeer;
-    @NotEmpty private String vlanRanges;
+    @NotEmpty @VlanRanges private String vlanRanges;
 
     public CreateEnniPortCommand() {
     }

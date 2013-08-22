@@ -42,13 +42,13 @@ import javax.validation.constraints.Pattern;
  * Checks the format of VLAN ranges.
  */
 @Documented
-@Constraint(validatedBy = {  })
+@Constraint(validatedBy = { VlanRangesValidator.class })
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RUNTIME)
 @ReportAsSingleViolation
 @Pattern(regexp = "\\s*\\d+(\\s*-\\s*\\d+)?(\\s*,\\s*\\d+(\\s*-\\s*\\d+)?)*\\s*")
 public @interface VlanRanges {
-  String message() default "{nl.sufrnet.bod.domain.VlanRanges.message}";
+  String message() default "{nl.surfnet.bod.domain.VlanRanges.message}";
 
   Class<?>[] groups() default { };
 
