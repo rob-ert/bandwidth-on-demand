@@ -105,6 +105,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     return uniPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
+  public List<EnniPort> findAllAllocatedEnniEntries() {
+    return enniPortRepo.findAll();
+  }
+
   public List<EnniPort> findAllocatedEnniEntries(int firstResult, int maxResults, Sort sort) {
     return enniPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }

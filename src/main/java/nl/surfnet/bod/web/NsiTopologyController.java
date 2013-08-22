@@ -27,8 +27,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
 
@@ -45,6 +47,7 @@ public class NsiTopologyController {
   @Resource(name = "bodEnvironment") private Environment environment;
 
   @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String renderTopology(final Model model){
@@ -64,8 +67,11 @@ public class NsiTopologyController {
       final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
       entries.add(new TopologyEntryView(portGroupId, virtualPort.getVlanId().toString(), null, null));
     }
-    // TODO hans also iterate over ENNI ports when they can be queries
-    // for ENNI the portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + BodPortId
+
+    for (final EnniPort enniPort: physicalPortService.findAllAllocatedEnniEntries()) {
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + enniPort.getBodPortId();
+      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(), enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
+    }
 
     model.addAttribute("entries", entries);
 
@@ -84,14 +90,14 @@ public class NsiTopologyController {
 
       private final String portGroupId;
       private final String vlanRanges;
-      private final String outboundPeerUri;
-      private final String inboundPeerUri;
+      private final String outboundPeer;
+      private final String inboundPeer;
 
-    public TopologyEntryView(String portgroupId, String vlanRanges, String outboundPeerUri, String inboundPeerUri) {
+    public TopologyEntryView(String portgroupId, String vlanRanges, String outboundPeer, String inboundPeer) {
       this.portGroupId = portgroupId;
       this.vlanRanges = vlanRanges;
-      this.outboundPeerUri = outboundPeerUri;
-      this.inboundPeerUri = inboundPeerUri;
+      this.outboundPeer = outboundPeer;
+      this.inboundPeer = inboundPeer;
     }
 
     public String getPortGroupId() {
@@ -102,12 +108,12 @@ public class NsiTopologyController {
       return vlanRanges;
     }
 
-    public String getOutboundPeerUri() {
-      return outboundPeerUri;
+    public String getOutboundPeer() {
+      return outboundPeer;
     }
 
-    public String getInboundPeerUri() {
-      return inboundPeerUri;
+    public String getInboundPeer() {
+      return inboundPeer;
     }
   }
 

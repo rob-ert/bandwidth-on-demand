@@ -31,10 +31,10 @@
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                     <nml:PortGroup id="${entry.portGroupId}:out">
                         <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
-                        <c:if test="${not empty (entry.outboundPeerUri)}">
+                        <c:if test="${not empty (entry.outboundPeer)}">
                             <!-- ENNI only-->
                             <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <nml:PortGroup id="{outboundPeerUri}" />
+                                <nml:PortGroup id="${entry.outboundPeer}" />
                             </nml:Relation>
                         </c:if>
                     </nml:PortGroup>
@@ -42,10 +42,10 @@
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                     <nml:PortGroup id="${entry.portGroupId}:in">
                         <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
-                        <c:if test="${not empty (entry.inboundPeerUri)}">
+                        <c:if test="${not empty (entry.inboundPeer)}">
                             <!-- ENNI only-->
                             <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <nml:PortGroup id="{inboundPeerUri}" />
+                                <nml:PortGroup id="${entry.inboundPeer}" />
                             </nml:Relation>
                         </c:if>
                     </nml:PortGroup>
