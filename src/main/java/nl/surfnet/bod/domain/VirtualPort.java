@@ -89,7 +89,7 @@ public class VirtualPort implements Loggable, PersistableDomain {
   private Long maxBandwidth;
 
   @Field
-  @Range(min = 1, max = 4095)
+  @Range(min = VlanRangesValidator.MINIMUM_VLAN_ID, max = VlanRangesValidator.MAXIMUM_VLAN_ID)
   private Integer vlanId;
 
   @Override

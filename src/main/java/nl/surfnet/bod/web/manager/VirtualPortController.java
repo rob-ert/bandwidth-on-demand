@@ -49,6 +49,7 @@ import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VlanRangesValidator;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
@@ -265,7 +266,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     @NotNull
     @Min(value = 1)
     private Long maxBandwidth;
-    @Range(min = 1, max = 4095)
+    @Range(min = VlanRangesValidator.MINIMUM_VLAN_ID, max = VlanRangesValidator.MAXIMUM_VLAN_ID)
     private Integer vlanId;
     @NotNull
     private UniPort physicalPort;

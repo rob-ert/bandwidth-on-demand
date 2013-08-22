@@ -27,11 +27,13 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
 
 import org.springframework.util.StringUtils;
 
 public class VlanRangesValidator implements ConstraintValidator<VlanRanges, String> {
+
+  public static final int MINIMUM_VLAN_ID = 1;
+  public static final int MAXIMUM_VLAN_ID = 4095;
 
   @Override
   public void initialize(VlanRanges constraintAnnotation) {
@@ -50,15 +52,15 @@ public class VlanRangesValidator implements ConstraintValidator<VlanRanges, Stri
     }
   }
 
-  public static RangeSet<Integer> parseRanges(String vlanRanges) {
+  public static ImmutableRangeSet<Integer> parseRanges(String vlanRanges) {
     ImmutableRangeSet.Builder<Integer> builder = ImmutableRangeSet.builder();
     for (String range: vlanRanges.split(",")) {
       String[] xs = range.split("-");
       if (xs.length == 1) {
-        builder.add(Range.singleton(Integer.parseInt(xs[0].trim())));
+        builder.add(Range.singleton(parseVlanId(xs[0])));
       } else if (xs.length == 2) {
-        int lower = Integer.parseInt(xs[0].trim());
-        int upper = Integer.parseInt(xs[1].trim());
+        int lower = parseVlanId(xs[0]);
+        int upper = parseVlanId(xs[1]);
         if (lower > upper) {
           throw new IllegalArgumentException("lower bound " + lower + " cannot be greater than upper bound " + upper);
         }
@@ -68,5 +70,13 @@ public class VlanRangesValidator implements ConstraintValidator<VlanRanges, Stri
       }
     }
     return builder.build();
+  }
+
+  private static int parseVlanId(String s) {
+    int result = Integer.parseInt(s.trim());
+    if (result < MINIMUM_VLAN_ID || result > MAXIMUM_VLAN_ID) {
+      throw new IllegalArgumentException("VLAN ID must be between " + MINIMUM_VLAN_ID + " and " + MAXIMUM_VLAN_ID);
+    }
+    return result;
   }
 }

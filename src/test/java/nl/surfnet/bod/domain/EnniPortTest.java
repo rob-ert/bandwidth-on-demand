@@ -24,13 +24,10 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import nl.surfnet.bod.nsi.NsiConstants;
 
 import org.junit.Test;
-
-
 
 public class EnniPortTest {
 
@@ -43,25 +40,7 @@ public class EnniPortTest {
   }
 
   @Test
-  public void should_support_single_vlan_for_evpl_port() {
-    EnniPort subject = evpl("1");
-    assertThat(subject.isVlanIdAllowed(1), is(true));
-    assertThat(subject.isVlanIdAllowed(2), is(false));
-  }
-
-  @Test
-  public void should_support_single_vlan_range_for_evpl_port() {
-    EnniPort subject = evpl("2-1000");
-    assertThat(subject.isVlanIdAllowed(1), is(false));
-    assertThat(subject.isVlanIdAllowed(2), is(true));
-    assertThat(subject.isVlanIdAllowed(3), is(true));
-    assertThat(subject.isVlanIdAllowed(999), is(true));
-    assertThat(subject.isVlanIdAllowed(1000), is(true));
-    assertThat(subject.isVlanIdAllowed(1001), is(false));
-  }
-
-  @Test
-  public void should_support_multiple_vlan_ranges_for_evpl_port() {
+  public void should_support_vlan_ranges() {
     EnniPort subject = evpl("1,100-1000,2000-2001");
     assertThat(subject.isVlanIdAllowed(1), is(true));
     assertThat(subject.isVlanIdAllowed(2), is(false));
@@ -75,17 +54,6 @@ public class EnniPortTest {
     assertThat(subject.isVlanIdAllowed(2000), is(true));
     assertThat(subject.isVlanIdAllowed(2001), is(true));
     assertThat(subject.isVlanIdAllowed(2002), is(false));
-  }
-
-  @Test
-  public void should_not_allow_empty_vlan_range_for_evpl_port() {
-    EnniPort subject = evpl("1000-100");
-    try {
-      subject.isVlanIdAllowed(100);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected.getMessage(), is("lower bound 1000 cannot be greater than upper bound 100"));
-    }
   }
 
   @Test
@@ -109,7 +77,4 @@ public class EnniPortTest {
     EnniPort subject = new EnniPort(nbiPort);
     return subject;
   }
-
-
-
 }

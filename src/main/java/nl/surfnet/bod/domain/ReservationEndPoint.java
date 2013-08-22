@@ -63,7 +63,7 @@ public class ReservationEndPoint {
   private EnniPort enniPort;
 
   @Field
-  @Range(min = 1, max = 4095)
+  @Range(min = VlanRangesValidator.MINIMUM_VLAN_ID, max = VlanRangesValidator.MAXIMUM_VLAN_ID)
   private Integer enniVlanId;
 
   protected ReservationEndPoint() {
