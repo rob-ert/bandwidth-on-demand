@@ -244,7 +244,7 @@ public class PhysicalPortControllerTest {
         .param("physicalResourceGroup", "1"))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("updateUniPortCommand"))
-        .andExpect(view().name("physicalports/update"));
+        .andExpect(view().name("physicalports/uni/update"));
 
     verify(physicalPortServiceMock, never()).save(port);
   }

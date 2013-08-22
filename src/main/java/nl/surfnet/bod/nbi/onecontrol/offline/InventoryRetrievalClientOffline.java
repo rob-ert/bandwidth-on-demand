@@ -70,6 +70,8 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
   public InventoryRetrievalClientOffline() {
     ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4", InterfaceType.E_NNI));
     ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4", InterfaceType.E_NNI));
+    ports.add(new MockNbiPort("Ut002A_VLAN01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-2-1-4", InterfaceType.E_NNI));
+    ports.add(new MockNbiPort("Ut002A_VLAN01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-2-2-4", InterfaceType.E_NNI));
     ports.add(new MockNbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a", InterfaceType.UNI));
     ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b", InterfaceType.UNI));
     ports.add(new MockNbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c", InterfaceType.UNI));
