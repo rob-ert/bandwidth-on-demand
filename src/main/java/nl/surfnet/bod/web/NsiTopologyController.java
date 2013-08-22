@@ -62,14 +62,16 @@ public class NsiTopologyController {
     List<VirtualPort> virtualPorts = virtualPortService.findAll();
     List<TopologyEntryView> entries = new ArrayList<>();
 
-    for(final VirtualPort virtualPort: virtualPorts) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
+    for (final VirtualPort virtualPort: virtualPorts) {
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" +
+          virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
       entries.add(new TopologyEntryView(portGroupId, virtualPort.getVlanId().toString(), null, null));
     }
 
     for (final EnniPort enniPort: physicalPortService.findAllAllocatedEnniEntries()) {
       final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + enniPort.getBodPortId();
-      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(), enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
+      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(),
+          enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
     }
 
     model.addAttribute("entries", entries);
