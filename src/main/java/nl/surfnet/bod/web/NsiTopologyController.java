@@ -33,7 +33,6 @@ import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
-
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -75,7 +74,7 @@ public class NsiTopologyController {
 
     model.addAttribute("entries", entries);
 
-    return "nsi-topology";
+    return "topology";
   }
 
   /**
