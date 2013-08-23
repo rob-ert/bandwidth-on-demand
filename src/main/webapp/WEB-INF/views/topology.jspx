@@ -13,7 +13,7 @@
             <nml:lat>${nsiTopologyCoordsLat}</nml:lat>
             <nml:long>${nsiTopologyCoordsLng}</nml:long>
         </nml:Location>
-        <nsi:Service id="{nsiId}:nsa-connection-service">
+        <nsi:Service id="${nsiId}:nsa-connection-service">
             <nsi:link>${nsi2ConnectionProviderUrl}</nsi:link>
             <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
             <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#providedBy">
