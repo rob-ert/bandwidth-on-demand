@@ -22,7 +22,7 @@
         </nsi:Service>
         <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#adminContact">
             <vc:text>
-                <c:out escapeXml="true" value="${nsiTopologyContact}"/>
+                <c:out value="${nsiTopologyContact}"/>
             </vc:text>
         </nsi:Relation>
         <nml:Topology id="${nsiId}:topology">
@@ -43,7 +43,9 @@
                 </nml:Relation>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                     <nml:PortGroup id="${entry.portGroupId}:in">
-                        <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        <c:if test="${not empty entry.vlanRanges}">
+                            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        </c:if>
                         <c:if test="${not empty (entry.inboundPeer)}">
                             <!-- ENNI only-->
                             <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">

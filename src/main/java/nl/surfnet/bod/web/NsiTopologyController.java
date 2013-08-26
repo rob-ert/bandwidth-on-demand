@@ -51,8 +51,7 @@ public class NsiTopologyController {
   @RequestMapping(method = RequestMethod.GET)
   public String renderTopology(final Model model){
 
-    model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA);
-
+    model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA_V2);
     model.addAttribute("networkName", NsiConstants.NETWORK_ID_V2);
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());

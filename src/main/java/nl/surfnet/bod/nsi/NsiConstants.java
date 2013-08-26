@@ -35,6 +35,8 @@ public class NsiConstants {
   public static String NETWORK_ID_V2 = "surfnet.nl:1990";
 
   public static String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID_V1;
+  public static String URN_PROVIDER_NSA_V2 = URN_OGF + ":nsa:" + NETWORK_ID_V2;
+
   public static String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID_V1;
   public static String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID_V2;
   public static String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
