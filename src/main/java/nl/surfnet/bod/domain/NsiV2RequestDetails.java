@@ -34,6 +34,8 @@ import javax.persistence.Table;
 
 import com.google.common.base.Optional;
 
+import nl.surfnet.bod.nsi.NsiHelper;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
@@ -46,6 +48,7 @@ import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 @Analyzer(definition = "customanalyzer")
 @Table(name = "nsi_v2_request_details")
 public class NsiV2RequestDetails {
+  private static final String PROTOCOL_VERSION = "application/vdn.ogf.nsi.cs.v2.requester+soap";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -75,12 +78,16 @@ public class NsiV2RequestDetails {
     this.providerNsa = providerNsa;
   }
 
-  public CommonHeaderType getCommonHeaderType(String protocolVersion) {
+  public CommonHeaderType createRequesterReplyHeaders() {
     return new CommonHeaderType()
       .withCorrelationId(getCorrelationId())
-      .withProtocolVersion(protocolVersion)
+      .withProtocolVersion(PROTOCOL_VERSION)
       .withProviderNSA(getProviderNsa())
       .withRequesterNSA(getRequesterNsa());
+  }
+
+  public CommonHeaderType createRequesterNotificationHeaders() {
+    return createRequesterReplyHeaders().withCorrelationId(NsiHelper.generateCorrelationId());
   }
 
   public Optional<URI> getReplyTo() {
