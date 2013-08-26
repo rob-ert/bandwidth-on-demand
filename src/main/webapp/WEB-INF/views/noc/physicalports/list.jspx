@@ -63,10 +63,12 @@
                                 <c:out value="${item.vlanRanges}" />
                             </dd>
                         </c:if>
-                        <dt><spring:message code="label_physicalport_managerlabel_short"/></dt>
-                        <dd>
-                            <c:out value="${item.managerLabel}" />
-                        </dd>
+                        <c:if test="${not empty item.managerLabel}">
+                            <dt><spring:message code="label_physicalport_managerlabel_short"/></dt>
+                            <dd>
+                                <c:out value="${item.managerLabel}" />
+                            </dd>
+                        </c:if>
                         <dt><spring:message code="label_phsyicalport_aligned"/></dt>
                         <dd>
                             <c:out value="${item.nmsAlignmentStatus}" />
