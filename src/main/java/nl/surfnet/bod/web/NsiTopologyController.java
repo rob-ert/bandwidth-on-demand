@@ -53,7 +53,7 @@ public class NsiTopologyController {
 
     model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA);
 
-    model.addAttribute("networkName", NsiConstants.NETWORK_ID);
+    model.addAttribute("networkName", NsiConstants.NETWORK_ID_V2);
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
     model.addAttribute("nsiTopologyContact", environment.getNsiTopologyContact());
@@ -63,7 +63,7 @@ public class NsiTopologyController {
     List<TopologyEntryView> entries = new ArrayList<>();
 
     for (final VirtualPort virtualPort: virtualPorts) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" +
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" +
           virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
       String vlanRange = null;
       if (virtualPort.getVlanId() != null) {
@@ -73,7 +73,7 @@ public class NsiTopologyController {
     }
 
     for (final EnniPort enniPort: physicalPortService.findAllAllocatedEnniEntries()) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" + enniPort.getBodPortId();
+      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" + enniPort.getBodPortId();
       entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(),
           enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
     }
