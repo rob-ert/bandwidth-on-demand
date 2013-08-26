@@ -30,7 +30,9 @@
             <c:forEach items="${entries}" var="entry">
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                     <nml:PortGroup id="${entry.portGroupId}:out">
-                        <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        <c:if test="${not empty entry.vlanRanges}">
+                            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">${entry.vlanRanges}</nml:LabelGroup>
+                        </c:if>
                         <c:if test="${not empty (entry.outboundPeer)}">
                             <!-- ENNI only-->
                             <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">

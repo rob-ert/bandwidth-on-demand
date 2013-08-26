@@ -65,7 +65,11 @@ public class NsiTopologyController {
     for (final VirtualPort virtualPort: virtualPorts) {
       final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID + ":" +
           virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
-      entries.add(new TopologyEntryView(portGroupId, virtualPort.getVlanId().toString(), null, null));
+      String vlanRange = null;
+      if (virtualPort.getVlanId() != null) {
+        vlanRange = virtualPort.getVlanId().toString();
+      }
+      entries.add(new TopologyEntryView(portGroupId, vlanRange, null, null));
     }
 
     for (final EnniPort enniPort: physicalPortService.findAllAllocatedEnniEntries()) {
