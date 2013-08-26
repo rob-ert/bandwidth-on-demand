@@ -22,35 +22,19 @@
  */
 package nl.surfnet.bod.nsi;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import nl.surfnet.bod.domain.NsiVersion;
 
-public class NsiConstants {
+import org.junit.Test;
 
-  public static String URN_OGF = "urn:ogf:network";
 
-  public static String NETWORK_ID_V1 = "surfnet.nl";
-  public static String NETWORK_ID_V2 = "surfnet.nl:1990";
 
-  public static String URN_PROVIDER_NSA_V1 = URN_OGF + ":nsa:" + NETWORK_ID_V1;
-  public static String URN_PROVIDER_NSA_V2 = URN_OGF + ":nsa:" + NETWORK_ID_V2;
+public class NsiConstantsTest {
 
-  public static String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID_V1;
-  public static String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID_V2;
-  public static String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
-
-  public static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
-  public static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([a-zA-Z0-9_\\\\-]+)");
-
-  public static String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
-    Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
-    Matcher matcher = pattern.matcher(stpId);
-
-    if (!matcher.matches()) {
-      return null;
-    }
-    return matcher.group(1);
+  @Test
+  public void should_match_enni_port_id() {
+    assertThat(NsiConstants.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
   }
 }
