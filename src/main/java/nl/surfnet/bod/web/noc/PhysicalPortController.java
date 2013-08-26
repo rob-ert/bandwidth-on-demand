@@ -185,6 +185,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       result.rejectValue("bodPortId", "validation.not.unique");
     }
 
+    if(!containsLetters(command.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.contain.letter");
+    }
+
     if (result.hasErrors()) {
       model.addAttribute("createPortCommand", command);
       model.addAttribute("vlanRequired", enniPort.isVlanRequired());
@@ -206,10 +210,25 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return "redirect:/noc/physicalports/enni";
   }
 
+  private boolean containsLetters(String input) {
+    if (input == null || input.length() <= 0) {
+      return false;
+    }
+    for (int i = 0; i < input.length(); i++) {
+      if (Character.isLetter(input.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @RequestMapping(value = "/uni", method = RequestMethod.POST)
   public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
     if (physicalPortService.findByBodPortId(createPortCommand.getBodPortId()) != null) {
       result.rejectValue("bodPortId", "validation.not.unique");
+    }
+    if(!containsLetters(createPortCommand.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.contain.letter");
     }
 
     if (result.hasErrors()) {
@@ -265,6 +284,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     if (!uniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
       result.rejectValue("bodPortId", "validation.not.unique");
     }
+    if(!containsLetters(command.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.contain.letter");
+    }
     if (result.hasErrors()) {
       model.addAttribute("updateUniPortCommand", command);
       return "physicalports/uni/update";
@@ -316,6 +338,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     }
     if (!enniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
       result.rejectValue("bodPortId", "validation.not.unique");
+    }
+    if(!containsLetters(command.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.contain.letter");
     }
 
     if (result.hasErrors()) {

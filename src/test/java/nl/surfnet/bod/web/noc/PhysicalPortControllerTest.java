@@ -273,7 +273,7 @@ public class PhysicalPortControllerTest {
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("nocLabel", "NOC port")
-        .param("bodPortId", "2-2")
+        .param("bodPortId", "2-2b")
         .param("managerLabel", "Manager port")
         .param("physicalResourceGroup", "1"))
         .andExpect(status().isMovedTemporarily())
@@ -298,7 +298,7 @@ public class PhysicalPortControllerTest {
         .param("version", "0")
         .param("nmsPortId", "12")
         .param("nocLabel", "NOC port")
-        .param("bodPortId", "2-2")
+        .param("bodPortId", "2-2b")
         .param("managerLabel", "")
         .param("physicalResourceGroup", "1"))
         .andExpect(status().isMovedTemporarily());
