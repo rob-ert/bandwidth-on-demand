@@ -258,7 +258,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     return new Holder<>(new CommonHeaderType()
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
-        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA)
+        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA_V1)
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
     );

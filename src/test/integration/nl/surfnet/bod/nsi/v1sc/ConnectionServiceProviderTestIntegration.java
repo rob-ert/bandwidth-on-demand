@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA_V1;
 import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -253,7 +253,7 @@ public class ConnectionServiceProviderTestIntegration {
     String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
     assertThat(response, containsString("<connectionId>" + connectionId + "</connectionId"));
-    assertThat(response, containsString("<providerNSA>" + URN_PROVIDER_NSA + "</providerNSA>"));
+    assertThat(response, containsString("<providerNSA>" + URN_PROVIDER_NSA_V1 + "</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>" + URN_REQUESTER_NSA + "</requesterNSA>"));
   }
 
@@ -375,7 +375,7 @@ public class ConnectionServiceProviderTestIntegration {
     source.setStpId(URN_STP_V1 + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA).setPath(
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA_V1).setPath(
         path).create();
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
@@ -387,17 +387,17 @@ public class ConnectionServiceProviderTestIntegration {
   }
 
   private QueryRequestType createQueryRequest(String connectionId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA)
+    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA_V1)
         .setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
   }
 
   private TerminateRequestType createTerminateRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA)
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA_V1)
         .createTerminateRequest();
   }
 
   private ProvisionRequestType createProvisionRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA)
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA_V1)
         .createProvisionRequest();
   }
 
