@@ -41,5 +41,20 @@ public enum NmsAlignmentStatus {
   /**
    * Port was changed to non-VLAN.
    */
-  TYPE_CHANGED_TO_LAN
+  TYPE_CHANGED_TO_LAN,
+
+  /**
+   * Interface type was changed to E-NNI.
+   */
+  TYPE_CHANGED_TO_ENNI,
+
+  /**
+   * Interface type was changed to UNI.
+   */
+  TYPE_CHANGED_TO_UNI,
+
+  /**
+   * Interface type was changed to UNKNOWN.
+   */
+  TYPE_CHANGED_TO_UNKNOWN
 }

@@ -37,19 +37,16 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
-import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -74,11 +71,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service implementation which combines {@link UniPort}s.
  *
- * The {@link UniPort}s found in the {@link NbiPortService} are leading and
- * when more data is available in our repository they will be enriched.
+ * The {@link UniPort}s found in the {@link NbiPortService} are leading and when
+ * more data is available in our repository they will be enriched.
  *
- * Since {@link UniPort}s from the {@link NbiPortService} are considered
- * read only, the methods that change data are performed using the
+ * Since {@link UniPort}s from the {@link NbiPortService} are considered read
+ * only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
  *
  */
@@ -243,13 +240,24 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     List<PhysicalPort> bodPorts = physicalPortRepo.findAll();
     List<NbiPort> nbiPorts = nbiClient.findAllPorts();
 
-    List<PhysicalPort> realignedPorts = markRealignedPortsInNMS(bodPorts, nbiPorts);
-    physicalPortRepo.save(realignedPorts);
-    logEventService.logUpdateEvent(Security.getUserDetails(), "Reappeared ports in NMS", realignedPorts);
+    PortAlignmentChecker checker = new PortAlignmentChecker();
+    checker.updateAlignment(bodPorts, nbiPorts);
 
-    List<PhysicalPort> unalignedPorts = markUnalignedWithNMS(bodPorts, nbiPorts);
-    physicalPortRepo.save(unalignedPorts);
-    logEventService.logUpdateEvent(Security.getUserDetails(), "Disappeared ports in NMS", unalignedPorts);
+    logger.info("Found {} ports realigned in the NMS", checker.getRealignedPorts().size());
+    logger.info("Found {} ports unaligned in the NMS", checker.getUnalignedPorts().size());
+    logger.info("Found {} ports changed alignment in the NMS", checker.getAlignmentChangedPorts().size());
+
+    for (PhysicalPort port : checker.getUnalignedPorts()) {
+      snmpAgentService.sendMissingPortEvent(port.getId().toString());
+    }
+
+    physicalPortRepo.save(checker.getRealignedPorts());
+    physicalPortRepo.save(checker.getUnalignedPorts());
+    physicalPortRepo.save(checker.getAlignmentChangedPorts());
+
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Reappeared ports in NMS", checker.getRealignedPorts());
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Alignment changed ports in NMS", checker.getAlignmentChangedPorts());
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Disappeared ports in NMS", checker.getUnalignedPorts());
   }
 
   static <T extends PhysicalPort> ImmutableMap<String, T> buildPhysicalPortIdMap(List<T> ports) {
@@ -258,81 +266,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
       physicalPorts.put(port.getNmsPortId(), port);
     }
     return ImmutableMap.copyOf(physicalPorts);
-  }
-
-  static ImmutableMap<String, NbiPort> buildNbiPortIdMap(List<NbiPort> ports) {
-    Map<String, NbiPort> physicalPorts = Maps.newHashMap();
-    for (NbiPort port : ports) {
-      physicalPorts.put(port.getNmsPortId(), port);
-    }
-    return ImmutableMap.copyOf(physicalPorts);
-  }
-
-  @VisibleForTesting
-  List<PhysicalPort> markRealignedPortsInNMS(List<PhysicalPort> bodPorts, List<NbiPort> nbiPorts) {
-    ImmutableMap<String, NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
-
-    List<PhysicalPort> realigned = Lists.newArrayList();
-    for (PhysicalPort bodPort: bodPorts) {
-      if (!bodPort.isAlignedWithNMS()) {
-        NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
-        if (nbiPort != null) {
-          if (bodPort.isVlanRequired() == nbiPort.isVlanRequired()) {
-            bodPort.setNmsAlignmentStatus(NmsAlignmentStatus.ALIGNED);
-            realigned.add(bodPort);
-          } else {
-            bodPort.setNmsAlignmentStatus(nbiPort.isVlanRequired()
-                ? NmsAlignmentStatus.TYPE_CHANGED_TO_VLAN
-                : NmsAlignmentStatus.TYPE_CHANGED_TO_LAN);
-          }
-        }
-      }
-    }
-
-    logger.info("Found {} ports realigned in the NMS", realigned.size());
-
-    return realigned;
-  }
-
-  /**
-   * Checks the {@link UniPort}s in the given Map which are aligned are now
-   * unaligned by finding the differences between the ports in the given list
-   * and the ports returned by the NMS based on the
-   * {@link UniPort#getNmsPortId()} and
-   * {@link UniPort#isVlanRequired()}.
-   *
-   * @param bodPorts
-   *          List with ports from BoD
-   * @param nbiPorts
-   *          List with ports from the NMS
-   * @return {@link List<PhysicalPort>} were aligned but are now unaligned.
-   */
-  @VisibleForTesting
-  List<PhysicalPort> markUnalignedWithNMS(List<PhysicalPort> bodPorts, List<NbiPort> nbiPorts) {
-    ImmutableMap<String, NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
-
-    List<PhysicalPort> unaligned = Lists.newArrayList();
-    for (PhysicalPort bodPort : bodPorts) {
-      if (bodPort.isAlignedWithNMS()) {
-        NbiPort nbiPort = nbiPortsMap.get(bodPort.getNmsPortId());
-        if (nbiPort == null) {
-          bodPort.setNmsAlignmentStatus(NmsAlignmentStatus.DISAPPEARED);
-          unaligned.add(bodPort);
-        } else if (bodPort.isVlanRequired() != nbiPort.isVlanRequired()) {
-          bodPort.setNmsAlignmentStatus(nbiPort.isVlanRequired()
-              ? NmsAlignmentStatus.TYPE_CHANGED_TO_VLAN
-              : NmsAlignmentStatus.TYPE_CHANGED_TO_LAN);
-          unaligned.add(bodPort);
-        }
-      }
-    }
-
-    for (PhysicalPort port: unaligned) {
-      snmpAgentService.sendMissingPortEvent(port.getId().toString());
-    }
-
-    logger.info("Found {} ports unaligned in the NMS", unaligned.size());
-    return unaligned;
   }
 
   @Override
