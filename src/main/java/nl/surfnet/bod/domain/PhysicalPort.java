@@ -23,6 +23,7 @@
 package nl.surfnet.bod.domain;
 
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -62,6 +63,7 @@ public abstract class PhysicalPort implements PersistableDomain, Loggable {
 
   @Field
   @NotEmpty
+  @Column(unique = true)
   private String bodPortId;
 
   @Basic(optional = false)

@@ -58,7 +58,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UniPort;
@@ -75,7 +77,6 @@ import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.noc.PhysicalPortController.PhysicalPortFilter;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -129,7 +130,7 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void testCreateUni() throws Exception {
+  public void create_uni_form() throws Exception {
     final String nmsPortId = "foo";
     final NbiPort nbiPort = new NbiPortFactory().create();
     nbiPort.setNmsPortId(nmsPortId);
@@ -142,7 +143,7 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void testCreateEnni() throws Exception {
+  public void create_enni_form() throws Exception {
     final String nmsPortId = "foo";
     final NbiPort nbiPort = new NbiPortFactory().create();
     nbiPort.setNmsPortId(nmsPortId);
@@ -157,6 +158,41 @@ public class PhysicalPortControllerTest {
         .andExpect(view().name(PhysicalPortController.PAGE_URL + "/createEnni"));
   }
 
+  @Test
+  public void bod_port_id_should_be_unique_create_enni() throws Exception {
+    NbiPort nbiPort = new NbiPortFactory().setInterfaceType(InterfaceType.E_NNI).create();
+
+    when(physicalPortServiceMock.findNbiPort("nmsPortId")).thenReturn(Optional.of(nbiPort));
+    when(physicalPortServiceMock.findByBodPortId("duplicate")).thenReturn(new PhysicalPortFactory().create());
+
+    mockMvc.perform(
+      post("/noc/physicalports/enni")
+        .param("nmsPortId", "nmsPortId")
+        .param("bodPortId", "duplicate")
+        .param("nocLabel", "Noc port name")
+        .param("outboundPeer", "urn:ogf:network:outboud")
+        .param("inboundPeer", "urn:ogf:network:inbound"))
+      .andExpect(model().attributeErrorCount("createEnniPortCommand", 1))
+      .andExpect(view().name("physicalports/createEnni"));
+  }
+
+  @Test
+  public void bod_port_id_should_be_unique_update_enni() throws Exception {
+    EnniPort enni = (EnniPort) PhysicalPort.create(new NbiPortFactory().setInterfaceType(InterfaceType.E_NNI).create());
+    enni.setBodPortId("oldid");
+
+    when(physicalPortServiceMock.findByNmsPortId("nmsPortId")).thenReturn(enni);
+    when(physicalPortServiceMock.findByBodPortId("duplicate")).thenReturn(new PhysicalPortFactory().create());
+
+    mockMvc.perform(
+      put("/noc/physicalports/updateEnni")
+        .param("nmsPortId", "nmsPortId")
+        .param("bodPortId", "duplicate")
+        .param("nocLabel", "Noc port name")
+        .param("outboundPeer", "urn:ogf:network:outboud")
+        .param("inboundPeer", "urn:ogf:network:inbound"))
+      .andExpect(model().attributeErrorCount("updateEnniPortCommand", 1));
+  }
 
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() throws Exception {

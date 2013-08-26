@@ -38,7 +38,7 @@ public class PhysicalPortFactory {
   private String managerLabel = "managedLabel " + id;
   private PhysicalResourceGroup physicalResourceGroup;
   private Integer version = 0;
-  private String bodPortId = "Asd001A_OME3T_ETH-1-1-4";
+  private String bodPortId = "Asd001A_OME3T_ETH-1-1-" + id;
   private boolean noIds;
   private NbiPort nbiPort = new NbiPortFactory().create();
 

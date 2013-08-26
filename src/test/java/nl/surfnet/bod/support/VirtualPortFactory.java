@@ -49,7 +49,6 @@ public class VirtualPortFactory {
 
 
   public VirtualPort create() {
-
     if (physicalPort == null) {
       physicalPort = createPhysicalPort();
     }

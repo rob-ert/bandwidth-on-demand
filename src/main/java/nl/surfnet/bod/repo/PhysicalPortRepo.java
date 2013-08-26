@@ -35,6 +35,8 @@ public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>
 
   PhysicalPort findByNbiPortNmsPortId(String nmsPortId);
 
+  PhysicalPort findByBodPortId(String bodPortId);
+
   @Query("select port from EnniPort port where port.bodPortId = ?1")
   EnniPort findEnniPortByBodPortId(String bodPortId);
 

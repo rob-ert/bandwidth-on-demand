@@ -46,6 +46,11 @@ public class NbiPortFactory {
     return port;
   }
 
+  public NbiPortFactory setInterfaceType(InterfaceType interfaceType) {
+    this.interfaceType = interfaceType;
+    return this;
+  }
+
   public NbiPortFactory setVlanRequired(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
     return this;

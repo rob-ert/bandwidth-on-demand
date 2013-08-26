@@ -181,6 +181,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       result.rejectValue("vlanRanges", "validation.not.empty");
     }
 
+    if (physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
+      result.rejectValue("bodPortId", "validation.not.unique");
+    }
+
     if (result.hasErrors()) {
       model.addAttribute("createPortCommand", command);
       model.addAttribute("vlanRequired", enniPort.isVlanRequired());
@@ -204,6 +208,10 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "/uni", method = RequestMethod.POST)
   public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+    if (physicalPortService.findByBodPortId(createPortCommand.getBodPortId()) != null) {
+      result.rejectValue("bodPortId", "validation.not.unique");
+    }
+
     if (result.hasErrors()) {
       model.addAttribute("createUniPortCommand", createPortCommand);
       return "physicalports/createUni";
@@ -248,16 +256,18 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "/updateUni", method = RequestMethod.PUT)
   public String updateUni(@Valid UpdateUniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    UniPort uniPort = (UniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
+
+    if (uniPort == null) {
+      return "redirect:";
+    }
+
+    if (!uniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
+      result.rejectValue("bodPortId", "validation.not.unique");
+    }
     if (result.hasErrors()) {
       model.addAttribute("updateUniPortCommand", command);
       return "physicalports/uni/update";
-    }
-
-    UniPort uniPort = (UniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
-    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(command.getNmsPortId());
-
-    if (!nbiPort.isPresent()) {
-      return "redirect:";
     }
 
     uniPort.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
@@ -295,15 +305,17 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @RequestMapping(value = "/updateEnni", method = RequestMethod.PUT)
   public String updateEnni(@Valid UpdateEnniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(command.getNmsPortId());
-    if (!nbiPort.isPresent()) {
+    EnniPort enniPort = (EnniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
+
+    if (enniPort == null) {
       return "redirect:";
     }
 
-    EnniPort enniPort = (EnniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
-
     if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
       result.rejectValue("vlanRanges", "validation.not.empty");
+    }
+    if (!enniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
+      result.rejectValue("bodPortId", "validation.not.unique");
     }
 
     if (result.hasErrors()) {
