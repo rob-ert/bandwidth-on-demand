@@ -22,19 +22,26 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static nl.surfnet.bod.nsi.NsiConstants.parseLocalNsiId;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import nl.surfnet.bod.domain.NsiVersion;
 
 import org.junit.Test;
 
-
-
 public class NsiConstantsTest {
 
   @Test
   public void should_match_enni_port_id() {
-    assertThat(NsiConstants.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:azAZ09+,-.:;=_!$()*@~&", NsiVersion.TWO), is("azAZ09+,-.:;=_!$()*@~&"));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:", NsiVersion.TWO), is(""));
+
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:#", NsiVersion.TWO), is(nullValue()));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:%33", NsiVersion.TWO), is(nullValue()));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:'", NsiVersion.TWO), is(nullValue()));
+    assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:<", NsiVersion.TWO), is(nullValue()));
   }
 }

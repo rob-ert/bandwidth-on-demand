@@ -41,8 +41,11 @@ public class NsiConstants {
   public static String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID_V2;
   public static String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
 
+  // Matches OPAQUE-PART of OGF URN (GFD.202, see https://www.gridforum.org/documents/GFD.202.pdf).
+  public static String GFD_202_OPAQUE_PART_PATTERN = "[a-zA-Z0-9+,\\-.:;=_!$()*@~&]*";
+
   public static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
-  public static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":([a-zA-Z0-9_\\\\-]+)");
+  public static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
 
   public static String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
     Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
