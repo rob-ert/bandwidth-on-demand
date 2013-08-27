@@ -26,9 +26,12 @@ import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.base.MessageManager.INFO_MESSAGES_KEY;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -49,6 +52,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.noc.EnniPortController.CreateEnniPortCommand;
@@ -130,7 +134,7 @@ public class PhysicalPortControllerTest {
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
         .andExpect(status().isMovedTemporarily())
         .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem(containsString("Could not find"))))
-        .andExpect(view().name("redirect:/noc/physicalports"));
+        .andExpect(view().name("redirect:/noc/physicalports/uni"));
   }
 
   @Test
@@ -144,7 +148,7 @@ public class PhysicalPortControllerTest {
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
         .andExpect(status().isMovedTemporarily())
         .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem("expectedMessage")))
-        .andExpect(view().name("redirect:/noc/physicalports"));
+        .andExpect(view().name("redirect:/noc/physicalports/uni"));
   }
 
   @Test
@@ -158,7 +162,21 @@ public class PhysicalPortControllerTest {
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("relatedObjects", "movePhysicalPortCommand"))
         .andExpect(model().attribute("physicalPort", port))
-        .andExpect(view().name("physicalports/move"));
+        .andExpect(view().name("noc/physicalports/move"));
+  }
+
+  @Test
+  public void deleteShouldStayOnSamePageButReload() throws Exception {
+    UniPort port = new PhysicalPortFactory().setId(2L).create();
+
+    when(physicalPortServiceMock.find(2L)).thenReturn(port);
+
+    mockMvc.perform(delete("/noc/physicalports/delete").param("id", "2").param("page", "3"))
+        .andExpect(status().isMovedTemporarily())
+        .andExpect(model().attribute(WebUtils.PAGE_KEY, is("3")))
+        .andExpect(view().name("redirect:/noc/physicalports/uni"));
+
+    verify(physicalPortServiceMock).delete(port.getId());
   }
 
 }

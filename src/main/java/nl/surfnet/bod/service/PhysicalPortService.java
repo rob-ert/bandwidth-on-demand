@@ -149,6 +149,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     });
   }
 
+  public long countUniPorts() {
+    return uniPortRepo.count();
+  }
+
   public long countAllocated() {
     return physicalPortRepo.count();
   }

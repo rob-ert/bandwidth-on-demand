@@ -254,6 +254,66 @@ public class UniPortController extends AbstractSearchableSortableListController<
     return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
   }
 
+  @Override
+  protected List<? extends PhysicalPortView> transformToView(List<? extends UniPort> entities, RichUserDetails user) {
+    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
+  }
+
+  @Override
+  protected String listUrl() {
+    return "noc/physicalports/uni/list";
+  }
+
+  @Override
+  protected List<UniPort> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return physicalPortService.findAllocatedUniEntries(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count(Model model) {
+    return physicalPortService.countUniPorts();
+  }
+
+  @Override
+  protected String getDefaultSortProperty() {
+    return "nocLabel";
+  }
+
+  @Override
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
+    return physicalPortService;
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("instituteName")) {
+      return ImmutableList.of("physicalResourceGroup.institute.name");
+    }
+
+    return super.translateSortProperty(sortProperty);
+  }
+
+  /**
+   * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
+   * group to a {@link UniPort}.
+   *
+   * @return Collection<PhysicalResourceGroup>
+   */
+  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
+  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
+    return physicalResourceGroupService.findAll();
+  }
+
+  @VisibleForTesting
+  void setMessageManager(MessageManager messageManager) {
+    this.messageManager = messageManager;
+  }
+
   public static class CreateUniPortCommand extends PhysicalPortController.PhysicalPortCommand {
     @NotNull
     private PhysicalResourceGroup physicalResourceGroup;
@@ -321,66 +381,6 @@ public class UniPortController extends AbstractSearchableSortableListController<
     public void setVersion(Integer version) {
       this.version = version;
     }
-  }
-
-  @Override
-  protected List<? extends PhysicalPortView> transformToView(List<? extends UniPort> entities, RichUserDetails user) {
-    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
-  }
-
-  @Override
-  protected String listUrl() {
-    return "noc/physicalports/uni/list";
-  }
-
-  @Override
-  protected List<UniPort> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return physicalPortService.findAllocatedUniEntries(firstPage, maxItems, sort);
-  }
-
-  @Override
-  protected long count(Model model) {
-    return physicalPortService.countAllocated();
-  }
-
-  @Override
-  protected String getDefaultSortProperty() {
-    return "nocLabel";
-  }
-
-  @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
-  }
-
-  @Override
-  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
-    return physicalPortService;
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("instituteName")) {
-      return ImmutableList.of("physicalResourceGroup.institute.name");
-    }
-
-    return super.translateSortProperty(sortProperty);
-  }
-
-  /**
-   * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
-   * group to a {@link UniPort}.
-   *
-   * @return Collection<PhysicalResourceGroup>
-   */
-  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
-  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    return physicalResourceGroupService.findAll();
-  }
-
-  @VisibleForTesting
-  void setMessageManager(MessageManager messageManager) {
-    this.messageManager = messageManager;
   }
 
 }

@@ -85,8 +85,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
 
   @Override
   protected long count(Model model) {
-    // TODO Auto-generated method stub
-    return 0;
+    return physicalPortService.countUnalignedPhysicalPorts();
   }
 
   @Override
@@ -98,6 +97,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
   @Override
   protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
     // TODO
+    //return physicalPortService;
     return null;
   }
 

@@ -36,7 +36,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -257,18 +256,6 @@ public class UniPortControllerTest {
   }
 
   @Test
-  public void deleteShouldStayOnSamePageButReload() throws Exception {
-    UniPort port = new PhysicalPortFactory().create();
-
-    mockMvc.perform(delete("/noc/physicalports/uni").param("id", "" + port.getId()).param("page", "3"))
-        .andExpect(status().isMovedTemporarily())
-        .andExpect(model().attribute(PAGE_KEY, is("3")))
-        .andExpect(view().name("redirect:"));
-
-    verify(physicalPortServiceMock).delete(port.getId());
-  }
-
-  @Test
   public void listAllPortsWithAPageParam() throws Exception {
     when(physicalPortServiceMock.findAllocatedUniEntries(eq(2 * WebUtils.MAX_ITEMS_PER_PAGE), anyInt(), any(Sort.class)))
         .thenReturn(ImmutableList.of(new PhysicalPortFactory().create()));
@@ -317,6 +304,5 @@ public class UniPortControllerTest {
 
     verify(physicalPortServiceMock).save(port);
   }
-
 
 }
