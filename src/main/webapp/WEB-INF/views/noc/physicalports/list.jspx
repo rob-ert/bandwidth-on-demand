@@ -130,10 +130,10 @@
             <c:otherwise>
                 <c:choose>
                     <c:when test="${item.interfaceType == 'E_NNI'}">
-                        <c:set var="updateUrl" value="/updateEnni" />
+                        <c:set var="updateUrl" value="/enni/edit" />
                     </c:when>
                     <c:otherwise>
-                        <c:set var="updateUrl" value="/updateUni" />
+                        <c:set var="updateUrl" value="/uni/edit" />
                     </c:otherwise>
                 </c:choose>
             </c:otherwise>

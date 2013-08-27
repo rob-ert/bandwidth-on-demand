@@ -7,8 +7,8 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:url value="/noc/physicalports/enni" var="cancelUrl" />
-    <form:update id="fc_PhysicalPort" modelAttribute="updateEnniPortCommand" path="/noc/physicalports/updateEnni" cancelUrl="${cancelUrl}">
+
+    <form:update id="fc_PhysicalPort" modelAttribute="updateEnniPortCommand" path="/noc/physicalports/enni">
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
 

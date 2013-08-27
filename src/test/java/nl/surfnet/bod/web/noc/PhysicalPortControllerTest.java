@@ -44,6 +44,7 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.NbiPortFactory;
@@ -70,6 +71,7 @@ public class PhysicalPortControllerTest {
   @Mock private VirtualPortService virtualPortServiceMock;
   @Mock private MessageRetriever messageRetriever;
   @Mock private ReservationService reservationService;
+  @Mock private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   private MessageManager messageManager;
 

@@ -178,7 +178,7 @@ public class UniPortControllerTest {
         .param("managerLabel", "Manager port")
         .param("physicalResourceGroup", "1"))
         .andExpect(status().isMovedTemporarily())
-        .andExpect(view().name("redirect:/noc/physicalports"))
+        .andExpect(view().name("redirect:/noc/physicalports/uni"))
         .andExpect(flash().attribute("infoMessages", hasItem("expectedMessage")));
 
     assertThat(port.getNocLabel(), is("NOC port"));
