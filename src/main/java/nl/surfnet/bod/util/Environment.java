@@ -117,9 +117,6 @@ public class Environment {
   @Value("${nsi.v2.service.url}")
   private String nsiV2ServiceUrl;
 
-  @Value("${nsi.topology.contact.info}")
-  private String nsiTopologyContact;
-
   public Environment() {
   }
 
@@ -293,7 +290,4 @@ public class Environment {
     return nsiV2ServiceUrl;
   }
 
-  public String getNsiTopologyContact() {
-    return nsiTopologyContact;
-  }
 }

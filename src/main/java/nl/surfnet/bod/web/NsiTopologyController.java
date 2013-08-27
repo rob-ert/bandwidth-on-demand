@@ -43,25 +43,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/nsi-topology")
 public class NsiTopologyController {
 
-  @Resource(name = "bodEnvironment") private Environment environment;
+  @Resource(name = "bodEnvironment")
+  private Environment environment;
 
-  @Resource private VirtualPortService virtualPortService;
-  @Resource private PhysicalPortService physicalPortService;
+  @Resource
+  private VirtualPortService virtualPortService;
+  @Resource
+  private PhysicalPortService physicalPortService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String renderTopology(final Model model){
+  public String renderTopology(final Model model) throws Exception {
 
     model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA_V2);
     model.addAttribute("networkName", NsiConstants.NETWORK_ID_V2);
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
-    model.addAttribute("nsiTopologyContact", environment.getNsiTopologyContact());
 
     // query all virtual ports, these are my 'UNI ports'
     List<VirtualPort> virtualPorts = virtualPortService.findAll();
     List<TopologyEntryView> entries = new ArrayList<>();
 
-    for (final VirtualPort virtualPort: virtualPorts) {
+    for (final VirtualPort virtualPort : virtualPorts) {
       final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" +
           virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
       String vlanRange = null;
@@ -71,7 +73,7 @@ public class NsiTopologyController {
       entries.add(new TopologyEntryView(portGroupId, vlanRange, null, null));
     }
 
-    for (final EnniPort enniPort: physicalPortService.findAllAllocatedEnniEntries()) {
+    for (final EnniPort enniPort : physicalPortService.findAllAllocatedEnniEntries()) {
       final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" + enniPort.getBodPortId();
       entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(),
           enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
@@ -83,7 +85,6 @@ public class NsiTopologyController {
   }
 
   /**
-   *
    * @return the URL of the soap-service that we run
    */
   private String getNsi2ConnectionProviderUrl() {
@@ -92,10 +93,10 @@ public class NsiTopologyController {
 
   public static class TopologyEntryView {
 
-      private final String portGroupId;
-      private final String vlanRanges;
-      private final String outboundPeer;
-      private final String inboundPeer;
+    private final String portGroupId;
+    private final String vlanRanges;
+    private final String outboundPeer;
+    private final String inboundPeer;
 
     public TopologyEntryView(String portgroupId, String vlanRanges, String outboundPeer, String inboundPeer) {
       this.portGroupId = portgroupId;
