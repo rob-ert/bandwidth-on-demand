@@ -40,6 +40,7 @@ import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.service.NocService;
@@ -56,6 +57,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -90,15 +92,6 @@ public class PhysicalPortController {
     this.messageManager = messageManager;
   }
 
-//  private void sortExternalResources(String sort, String order, Model model, List<PhysicalPortView> transformedUnallocatedPhysicalPorts) {
-//    prepareSortOptions(sort, order, model);
-//    Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
-//
-//    if (StringUtils.hasText(order) && "DESC".equals(order)) {
-//      Collections.reverse(transformedUnallocatedPhysicalPorts);
-//    }
-//  }
-
   @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
   public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
@@ -112,12 +105,12 @@ public class PhysicalPortController {
     if (physicalPort instanceof UniPort) {
       model.addAttribute("createUniPortCommand", new UniPortController.CreateUniPortCommand((UniPort) physicalPort));
 
-      return "physicalports/uni/create";
+      return "noc/physicalports/uni/create";
     } else {
       model.addAttribute("createEnniPortCommand", new EnniPortController.CreateEnniPortCommand((EnniPort) physicalPort));
       model.addAttribute("vlanRequired", physicalPort.isVlanRequired());
 
-      return "physicalports/enni/create";
+      return "noc/physicalports/enni/create";
     }
   }
 
@@ -202,6 +195,17 @@ public class PhysicalPortController {
     model.addAttribute("list", reservationViews);
 
     return "physicalports/moveResult";
+  }
+
+  /**
+   * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
+   * group to a {@link UniPort}.
+   *
+   * @return Collection<PhysicalResourceGroup>
+   */
+  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
+  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
+    return physicalResourceGroupService.findAll();
   }
 
   public static class MovePhysicalPortCommand {

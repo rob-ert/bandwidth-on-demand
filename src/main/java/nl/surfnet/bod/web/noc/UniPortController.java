@@ -79,7 +79,7 @@ public class UniPortController extends AbstractSearchableSortableListController<
   @Resource private MessageManager messageManager;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+  public String create(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
     if (physicalPortService.findByBodPortId(createPortCommand.getBodPortId()) != null) {
       result.rejectValue("bodPortId", "validation.not.unique");
     }
@@ -113,7 +113,7 @@ public class UniPortController extends AbstractSearchableSortableListController<
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
 
-    return "redirect:/noc/physicalports";
+    return "redirect:/noc/physicalports/uni";
   }
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
@@ -164,7 +164,7 @@ public class UniPortController extends AbstractSearchableSortableListController<
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_updated", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
 
-    return "redirect:/noc/physicalports";
+    return "redirect:/noc/physicalports/uni";
   }
 
   @RequestMapping(method = RequestMethod.GET)

@@ -96,7 +96,7 @@ public class PhysicalPortControllerTest {
         .andExpect(status().isOk())
         .andExpect(model().attribute("vlanRequired", notNullValue()))
         .andExpect(model().attribute("createEnniPortCommand", isA(CreateEnniPortCommand.class)))
-        .andExpect(view().name("physicalports/enni/create"));
+        .andExpect(view().name("noc/physicalports/enni/create"));
   }
 
   @Test
@@ -118,7 +118,7 @@ public class PhysicalPortControllerTest {
     mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsPortId))
         .andExpect(status().isOk())
         .andExpect(model().attribute("createUniPortCommand", isA(UniPortController.CreateUniPortCommand.class)))
-        .andExpect(view().name("physicalports/uni/create"));
+        .andExpect(view().name("noc/physicalports/uni/create"));
   }
 
   @Test
