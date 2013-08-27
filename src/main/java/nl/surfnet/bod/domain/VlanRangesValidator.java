@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.regex.Pattern;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -31,6 +33,7 @@ import com.google.common.collect.Range;
 import org.springframework.util.StringUtils;
 
 public class VlanRangesValidator implements ConstraintValidator<VlanRanges, String> {
+  public static final Pattern PATTERN = Pattern.compile("\\s*\\d+(\\s*-\\s*\\d+)?(\\s*,\\s*\\d+(\\s*-\\s*\\d+)?)*\\s*");
 
   public static final int MINIMUM_VLAN_ID = 1;
   public static final int MAXIMUM_VLAN_ID = 4095;
@@ -43,6 +46,9 @@ public class VlanRangesValidator implements ConstraintValidator<VlanRanges, Stri
   public boolean isValid(String value, ConstraintValidatorContext context) {
     if (StringUtils.isEmpty(value)) {
       return true;
+    }
+    if (!PATTERN.matcher(value).matches()) {
+      return false;
     }
     try {
       parseRanges(value);

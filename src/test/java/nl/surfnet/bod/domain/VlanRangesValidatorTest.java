@@ -27,11 +27,14 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.Random;
+
 import javax.validation.ConstraintValidatorContext;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -74,6 +77,16 @@ public class VlanRangesValidatorTest {
   @Test
   public void should_support_multiple_vlan_ranges_for_evpl_port() {
     assertThat(parseRanges("1,100-1000,2000-2001"), is(ImmutableRangeSet.<Integer>builder().add(Range.singleton(1)).add(Range.closed(100, 1000)).add(Range.closed(2000, 2001)).build()));
+  }
+
+  @Test
+  public void should_reject_random_strings() {
+    Random random = new Random();
+    for (int i = 0; i < 5000; ++i) {
+      int count = random.nextInt(42);
+      subject.isValid(RandomStringUtils.random(count), context);
+      subject.isValid(RandomStringUtils.randomAlphanumeric(count), context);
+    }
   }
 
   @Test
