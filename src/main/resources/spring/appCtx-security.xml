@@ -33,7 +33,7 @@
     <http security="none" pattern="/resources/**" />
     <http security="none" pattern="/healthcheck" />
     <http security="none" pattern="/healthcheck/alive" />
-    <http security="none" pattern="/nsi-topology"></http>
+    <http security="none" pattern="/nsi-topology" />
     <http security="none" pattern="/mtosi/**" />
 
     <http use-expressions="true" create-session="never" entry-point-ref="bodAuthenticationEntryPoint" >
