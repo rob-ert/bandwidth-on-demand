@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
@@ -167,8 +168,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
     if (physicalResourceGroup.isPresent()) {
-      return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(
-        Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.<Sort>fromNullable(sort));
+      return physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.<Sort>fromNullable(sort));
     } else {
       return new ArrayList<>();
     }
@@ -186,7 +186,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
     return physicalPortService;
   }
 

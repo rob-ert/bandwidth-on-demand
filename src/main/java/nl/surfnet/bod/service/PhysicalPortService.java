@@ -54,8 +54,8 @@ import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.repo.EnniPortRepo;
 import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.repo.EnniPortRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.UniPortRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -81,7 +81,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> {
+public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
 
   private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";
 
@@ -151,6 +151,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
 
   public long countUniPorts() {
     return uniPortRepo.count();
+  }
+
+  public long countEnniPorts() {
+    return countAllocated() - countUniPorts();
   }
 
   public long countAllocated() {
@@ -294,7 +298,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     return physicalPort.getNocLabel();
   }
 
-  public List<Long> findIdsByRoleAndPhysicalResourceGroup(BodRole bodRole, Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
+  public List<Long> findUniIdsByRoleAndPhysicalResourceGroup(BodRole bodRole, Optional<PhysicalResourceGroup> physicalResourceGroup, Optional<Sort> sort) {
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
       return uniPortRepo.findIdsWithWhereClause(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get()), sort);
     } else if (bodRole.isNocRole()) {
@@ -308,7 +312,18 @@ public class PhysicalPortService extends AbstractFullTextSearchService<UniPort> 
     return new ArrayList<>();
   }
 
-  public List<Long> findIds(Optional<Sort> sort) {
-    return findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent(), sort);
+  public List<Long> findUniIds(Optional<Sort> sort) {
+    return findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent(), sort);
   }
+
+  public List<Long> findEnniIds(Optional<Sort> sort) {
+    return enniPortRepo.findIds(sort);
+  }
+
+  public List<Long> findIds(Optional<Sort> sort) {
+    List<Long> ids = uniPortRepo.findIds(sort);
+    ids.addAll(enniPortRepo.findIds(sort));
+    return ids;
+  }
+
 }

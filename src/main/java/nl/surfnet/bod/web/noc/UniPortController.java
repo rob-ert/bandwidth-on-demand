@@ -281,11 +281,11 @@ public class UniPortController extends AbstractSearchableSortableListController<
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
+    return physicalPortService.findUniIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override
-  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
     return physicalPortService;
   }
 

@@ -31,21 +31,11 @@ import javax.validation.constraints.NotNull;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import org.apache.solr.analysis.LowerCaseFilterFactory;
-import org.apache.solr.analysis.WhitespaceTokenizerFactory;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
 
 @Indexed
-@AnalyzerDef(name = "customanalyzer",
-  tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
-  filters = { @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
-@Analyzer(definition = "customanalyzer")
 @Entity
 public class UniPort extends PhysicalPort implements Loggable, PersistableDomain {
 

@@ -31,14 +31,19 @@ import com.google.common.collect.RangeSet;
 
 import nl.surfnet.bod.nsi.NsiConstants;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
+@Indexed
 @Entity
 public class EnniPort extends PhysicalPort {
 
+  @Field
   @NotEmpty
   private String inboundPeer;
 
+  @Field
   @NotEmpty
   private String outboundPeer;
 

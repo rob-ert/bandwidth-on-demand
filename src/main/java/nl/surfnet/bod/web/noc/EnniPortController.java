@@ -220,20 +220,17 @@ public class EnniPortController extends AbstractSearchableSortableListController
 
   @Override
   protected long count(Model model) {
-    // TODO Auto-generated method stub
-    return 0;
+    return physicalPortService.countEnniPorts();
   }
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    // TODO Auto-generated method stub
-    return null;
+    return physicalPortService.findEnniIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override
-  protected AbstractFullTextSearchService<EnniPort> getFullTextSearchableService() {
-    // TODO Auto-generated method stub
-    return null;
+  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
+    return physicalPortService;
   }
 
   public static class CreateEnniPortCommand extends PhysicalPortCommand {

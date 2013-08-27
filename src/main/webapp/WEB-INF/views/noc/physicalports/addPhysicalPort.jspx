@@ -8,7 +8,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_PhysicalPort" modelAttribute="addPhysicalPortCommand" path="/noc/physicalports/add" fullLabel="Allocate a Physical Port" cancelPath="/noc/institutes">
+    <form:create id="fc_PhysicalPort" modelAttribute="addPhysicalPortCommand" path="/noc/physicalports/uni/add" fullLabel="Allocate a Physical Port" cancelPath="/noc/institutes">
         <div class="control-group">
             <label class="control-label">Institute</label>
             <div class="controls">

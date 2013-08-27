@@ -382,7 +382,7 @@ public class PhysicalResourceGroupController extends
       PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
       List<VirtualPort> virtualPorts = new ArrayList<>();
       List<Long> reservations = new ArrayList<>();
-      List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
+      List<Long> physicalPortIds = physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
 
       for (Long id : physicalPortIds) {
         UniPort physicalPort = physicalPortService.findUniPort(id);

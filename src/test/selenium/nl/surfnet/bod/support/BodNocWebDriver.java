@@ -317,7 +317,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyPhysicalResourceGroupToPhysicalPortsLink(String groupName) {
     ListPhysicalResourceGroupPage prgListPage = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = prgListPage.getNumberFromRowWithLinkAndClick(groupName, "noc/physicalports", "Show");
+    int numberOfItems = prgListPage.getNumberFromRowWithLinkAndClick(groupName, "noc/physicalports/uni", "Show");
 
     ListAllocatedPortsPage appListPage = ListAllocatedPortsPage.get(driver);
     appListPage.verifyIsCurrentPage();
@@ -334,10 +334,10 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
   }
 
-  public void verifyDashboardToAllocatedPhysicalPortsLink() {
+  public void verifyDashboardToUniPortsLink() {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Allocated", "noc/physicalports", "Show");
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Allocated UNI", "noc/physicalports/uni", "Show");
 
     ListAllocatedPortsPage listAllocatedPortsPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
     listAllocatedPortsPage.verifyIsCurrentPage();

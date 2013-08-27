@@ -228,6 +228,6 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     throw new IllegalStateException();
   }
 
-  protected abstract AbstractFullTextSearchService<ENTITY> getFullTextSearchableService();
+  protected abstract AbstractFullTextSearchService<? super ENTITY> getFullTextSearchableService();
 
 }

@@ -53,17 +53,10 @@ public class DashboardControllerTest {
   @InjectMocks
   private DashboardController subject;
 
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-
-  @Mock
-  private ReservationService reservationServiceMock;
-
-  @Mock
-  private Environment environment;
-
-  @Mock
-  private LogEventService logEventServiceMock;
+  @Mock private PhysicalPortService physicalPortServiceMock;
+  @Mock private ReservationService reservationServiceMock;
+  @Mock private Environment environment;
+  @Mock private LogEventService logEventServiceMock;
 
   @Test
   public void shouldAddNullPrgToModel() {
@@ -81,8 +74,7 @@ public class DashboardControllerTest {
 
   @Test
   public void shouldAddStatisticsToModel() {
-    ReservationFilterView elapsedFilter = new ReservationFilterViewFactory()
-        .create(ReservationFilterViewFactory.ELAPSED);
+    ReservationFilterView elapsedFilter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.ELAPSED);
     ReservationFilterView activeFilter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.ACTIVE);
     ReservationFilterView comingFilter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.COMING);
 
@@ -90,14 +82,16 @@ public class DashboardControllerTest {
     Security.setUserDetails(noc);
     Security.switchToNocEngineer();
 
-    when(physicalPortServiceMock.countAllocated()).thenReturn(2L);
+    when(physicalPortServiceMock.countUniPorts()).thenReturn(5L);
+    when(physicalPortServiceMock.countEnniPorts()).thenReturn(2L);
     when(reservationServiceMock.countAllEntriesUsingFilter(elapsedFilter)).thenReturn(3L);
     when(reservationServiceMock.countAllEntriesUsingFilter(activeFilter)).thenReturn(4L);
     when(reservationServiceMock.countAllEntriesUsingFilter(comingFilter)).thenReturn(5L);
     when(physicalPortServiceMock.countUnalignedPhysicalPorts()).thenReturn(6L);
 
     NocStatisticsView statistics = subject.determineStatistics();
-    assertThat(statistics.getPhysicalPortsAmount(), is(2L));
+    assertThat(statistics.getUniPortsAmount(), is(5L));
+    assertThat(statistics.getEnniPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));

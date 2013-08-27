@@ -82,7 +82,8 @@ public class DashboardController {
   NocStatisticsView determineStatistics() {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
 
-    long countPhysicalPorts = physicalPortService.countAllocated();
+    long countUniPorts = physicalPortService.countUniPorts();
+    long countEnniPorts = physicalPortService.countEnniPorts();
 
     long countElapsedReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
         .create(ReservationFilterViewFactory.ELAPSED));
@@ -95,7 +96,7 @@ public class DashboardController {
 
     long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
 
-    return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
+    return new NocStatisticsView(countUniPorts, countEnniPorts, countElapsedReservations, countActiveReservations,
         countComingReservations, countMissingPhysicalPorts);
   }
 

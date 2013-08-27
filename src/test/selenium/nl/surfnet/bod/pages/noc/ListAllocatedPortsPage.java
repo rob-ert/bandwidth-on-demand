@@ -27,7 +27,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class ListAllocatedPortsPage extends AbstractPhysicalPortListNocPage {
 
-  private static final String PAGE = "/noc/physicalports";
+  private static final String PAGE = "/noc/physicalports/uni";
 
   public ListAllocatedPortsPage(RemoteWebDriver driver) {
     super(driver);

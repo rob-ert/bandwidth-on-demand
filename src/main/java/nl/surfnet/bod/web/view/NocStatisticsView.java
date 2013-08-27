@@ -30,13 +30,15 @@ public class NocStatisticsView {
   private final long elapsedReservationsAmount;
   private final long activeReservationsAmount;
   private final long comingReservationsAmount;
-  private final long physicalPortsAmount;
+  private final long uniPortsAmount;
+  private final long enniPortsAmount;
   private final long unalignedPhysicalPortsAmount;
 
-  public NocStatisticsView(long countPhysicalPorts, long countElapsedReservations, long countActiveReservations,
+  public NocStatisticsView(long countUniPorts, long countEnniPorts, long countElapsedReservations, long countActiveReservations,
       long countComingReservations, long countUnalignedPhyscalPorts) {
 
-    this.physicalPortsAmount = countPhysicalPorts;
+    this.uniPortsAmount = countUniPorts;
+    this.enniPortsAmount = countEnniPorts;
     this.elapsedReservationsAmount = countElapsedReservations;
     this.activeReservationsAmount = countActiveReservations;
     this.comingReservationsAmount = countComingReservations;
@@ -55,8 +57,12 @@ public class NocStatisticsView {
     return comingReservationsAmount;
   }
 
-  public long getPhysicalPortsAmount() {
-    return physicalPortsAmount;
+  public long getUniPortsAmount() {
+    return uniPortsAmount;
+  }
+
+  public long getEnniPortsAmount() {
+    return enniPortsAmount;
   }
 
   public String getElapsedReservationsUrl() {
@@ -79,8 +85,12 @@ public class NocStatisticsView {
     return "noc/physicalports/unaligned";
   }
 
-  public String getPpsUrl() {
-    return "noc/physicalports";
+  public String getUniPortsUrl() {
+    return "noc/physicalports/uni";
+  }
+
+  public String getEnniPortsUrl() {
+    return "noc/physicalports/enni";
   }
 
   public String getLogEventsUrl() {

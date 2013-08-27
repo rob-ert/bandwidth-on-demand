@@ -64,9 +64,8 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    * @throws ParseException
    */
   @SuppressWarnings("unchecked")
-  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText) throws ParseException {
-    FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
-        entityClass);
+  private <T extends ENTITY> List<T> searchFor(Class<T> entityClass, String searchText) throws ParseException {
+    FullTextSearchContext<T> fullTextSearchContext = new FullTextSearchContext<T>(getEntityManager(), entityClass);
 
     return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotatedFields(searchText).getResultList();
   }
@@ -90,14 +89,14 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    * @return List<ENTITY> result list
    * @throws ParseException
    */
-  public FullTextSearchResult<ENTITY> searchForInFilteredList(Class<ENTITY> entityClass, String searchText,
+  public <T extends ENTITY> FullTextSearchResult<T> searchForInFilteredList(Class<T> entityClass, String searchText,
       int firstResult, int maxResults, RichUserDetails userDetails, List<Long> filterResult) throws ParseException {
 
     Preconditions.checkArgument(firstResult >= 0);
 
-    List<ENTITY> searchResult = searchFor(entityClass, searchText);
+    List<T> searchResult = searchFor(entityClass, searchText);
 
-    List<ENTITY> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
+    List<T> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
     return new FullTextSearchResult<>(intersectedList.size(), pageList(firstResult, maxResults, intersectedList));
   }
@@ -112,7 +111,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    *          List to page
    * @return {@link FullTextSearchResult} containing one page of data
    */
-  public List<ENTITY> pageList(int firstResult, int maxResults, List<ENTITY> listToPage) {
+  public <T extends ENTITY> List<T> pageList(int firstResult, int maxResults, List<T> listToPage) {
     // Determine count and chop list in to page
     int intersectedSize = listToPage.size();
     int lastResult = Math.min(firstResult + maxResults, intersectedSize);
@@ -126,7 +125,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
   protected abstract EntityManager getEntityManager();
 
   /**
-   * FInds objects that both list have in common. When one or both lists are
+   * Finds objects that both list have in common. When one or both lists are
    * empty, no elements are found.
    *
    * <Strong> The items will be sorted according to the sequence of the
@@ -139,14 +138,12 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
    *          remain sorted the same way these filterResults are.
    */
   @VisibleForTesting
-  protected List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults,
-      final List<Long> filterResults) {
-
-    final List<ENTITY> sortedEntityList = new ArrayList<>();
+  protected <T extends ENTITY> List<T> intersectFullTextResultAndFilterResult(List<T> searchResults, List<Long> filterResults) {
+    List<T> sortedEntityList = new ArrayList<>();
     for (final Long id : filterResults) {
-      Optional<ENTITY> foundEntity = Iterables.tryFind(searchResults, new Predicate<ENTITY>() {
+      Optional<T> foundEntity = Iterables.tryFind(searchResults, new Predicate<T>() {
         @Override
-        public boolean apply(ENTITY entity) {
+        public boolean apply(T entity) {
           return id.equals(entity.getId());
         }
       });
@@ -154,8 +151,8 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
       if (foundEntity.isPresent()) {
         sortedEntityList.add(foundEntity.get());
       }
-
     }
+
     return sortedEntityList;
   }
 }

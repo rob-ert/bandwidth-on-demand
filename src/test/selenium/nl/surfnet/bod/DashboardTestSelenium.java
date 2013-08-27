@@ -58,7 +58,7 @@ public class DashboardTestSelenium extends SeleniumWithSingleSetup {
   public void verifyNocStatisticLinksFromDashboard() {
     getManagerDriver().switchToNocRole();
 
-    getNocDriver().verifyDashboardToAllocatedPhysicalPortsLink();
+    getNocDriver().verifyDashboardToUniPortsLink();
     getNocDriver().verifyDashboardToElapsedReservationsLink();
     getNocDriver().verifyDashboardToComingReservationsLink();
   }

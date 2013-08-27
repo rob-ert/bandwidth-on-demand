@@ -33,9 +33,9 @@
                         <table:column item="${item}" property="name"/>
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" styleClass="center" />
-                        <table:searchColumn value="${item.physicalPortsAmount}" searchField="institute" searchValue="${item.institute.name}" viewName="/noc/physicalports" tooltipTitleCode="label_physicalport_link"/>
+                        <table:searchColumn value="${item.physicalPortsAmount}" searchField="institute" searchValue="${item.institute.name}" viewName="/noc/physicalports/uni" tooltipTitleCode="label_physicalport_link"/>
                         <table:actionsColumn item="${item}" path="/noc/institutes" labelCode="label_physicalresourcegroup" deleteConfirmLabelCode="institute_delete_confirm_counter" deleteConfirmLabelArgument="${item.physicalPortsAmount},${item.virtualPortsAmount},${item.reservationsAmount}" >
-                            <spring:url var="add_url" value="/noc/physicalports/add">
+                            <spring:url var="add_url" value="/noc/physicalports/uni/add">
                                 <spring:param name="prg" value="${item.id}" />
                             </spring:url>
                             <a href="${add_url}" rel="tooltip" data-type="info" title="Allocate a physical port" ><i class="icon-resize-small"><!--  --></i></a>

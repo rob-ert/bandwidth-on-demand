@@ -17,7 +17,8 @@
             <section>
             <h2>Statistics</h2>
             <div class="content">
-                <spring:url value="${stats.ppsUrl}" var="ppsUrl" />
+                <spring:url value="${stats.uniPortsUrl}" var="uniPortsUrl" />
+                <spring:url value="${stats.enniPortsUrl}" var="ennisPortsUrl" />
                 <spring:url value="${stats.elapsedReservationsUrl}" var="elapsedReservationsUrl" />
                 <spring:url value="${stats.activeReservationsUrl}" var="activeReservationsUrl" />
                 <spring:url value="${stats.comingReservationsUrl}" var="comingReservationsUrl" />
@@ -33,8 +34,12 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Allocated physical ports</td>
-                            <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}" tooltipTitleCode="label_physicalport_link"/>
+                            <td>Allocated UNI ports</td>
+                            <table:searchColumn value="${stats.uniPortsAmount}" viewName="${uniPortsUrl}" tooltipTitleCode="label_physicalport_link"/>
+                        </tr>
+                        <tr>
+                            <td>Allocated E-NNI ports</td>
+                            <table:searchColumn value="${stats.enniPortsAmount}" viewName="${enniPortsUrl}" tooltipTitleCode="label_physicalport_link"/>
                         </tr>
                         <tr>
                             <td>Reservations past ${defaultDuration}</td>

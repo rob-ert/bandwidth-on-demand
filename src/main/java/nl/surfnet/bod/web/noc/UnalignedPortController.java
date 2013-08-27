@@ -30,6 +30,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -90,15 +92,12 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    // TODO Auto-generated method stub
-    return null;
+    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override
   protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
-    // TODO
-    //return physicalPortService;
-    return null;
+    return physicalPortService;
   }
 
   @Override
@@ -106,28 +105,4 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
     return "nocLabel";
   }
 
-//  @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
-//  public String searchUnaligned(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-//      @RequestParam String search, @RequestParam(value = "sort", required = false) String sort,
-//      @RequestParam(value = "order", required = false) String order, Model model) {
-//
-//    List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
-//
-//    try {
-//      FullTextSearchResult<UniPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
-//          UniPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
-//          unalignedPorts);
-//
-//      model.addAttribute(PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
-//      model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchResult.getTotalCount()));
-//      model.addAttribute(DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
-//      model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
-//      model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-//
-//    } catch (ParseException e) {
-//      model.addAttribute(MessageManager.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
-//    }
-//
-//    return listUrl();
-//  }
 }
