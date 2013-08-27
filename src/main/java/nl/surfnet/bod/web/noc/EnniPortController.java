@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -39,6 +40,7 @@ import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VlanRanges;
+import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
@@ -235,8 +237,15 @@ public class EnniPortController extends AbstractSearchableSortableListController
   }
 
   public static class CreateEnniPortCommand extends PhysicalPortCommand {
-    @NotEmpty private String inboundPeer;
-    @NotEmpty private String outboundPeer;
+
+    @NotEmpty
+    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "nl.surfnet.bod.domain.urn.message")
+    private String inboundPeer;
+
+    @NotEmpty
+    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "nl.surfnet.bod.domain.urn.message")
+    private String outboundPeer;
+
     @VlanRanges private String vlanRanges;
 
     public CreateEnniPortCommand() {

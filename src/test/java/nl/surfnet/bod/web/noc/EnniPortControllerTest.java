@@ -74,8 +74,8 @@ public class EnniPortControllerTest {
         .param("nmsPortId", "nmsPortId")
         .param("bodPortId", "duplicate")
         .param("nocLabel", "Noc port name")
-        .param("outboundPeer", "urn:ogf:network:outboud")
-        .param("inboundPeer", "urn:ogf:network:inbound"))
+        .param("outboundPeer", "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:out")
+        .param("inboundPeer", "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"))
       .andExpect(model().attributeErrorCount("createEnniPortCommand", 1))
       .andExpect(view().name("noc/physicalports/enni/create"));
   }
@@ -93,8 +93,8 @@ public class EnniPortControllerTest {
         .param("nmsPortId", "nmsPortId")
         .param("bodPortId", "duplicate")
         .param("nocLabel", "Noc port name")
-        .param("outboundPeer", "urn:ogf:network:outboud")
-        .param("inboundPeer", "urn:ogf:network:inbound"))
+        .param("outboundPeer", "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:out")
+        .param("inboundPeer", "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"))
       .andExpect(model().attributeErrorCount("updateEnniPortCommand", 1));
   }
 

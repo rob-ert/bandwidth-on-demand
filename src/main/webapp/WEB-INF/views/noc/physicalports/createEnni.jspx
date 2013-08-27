@@ -12,8 +12,8 @@
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
 
-        <field:input field="inboundPeer" id="c_PhysicalPort_inbound_peer" helpMessageCode="physicalport_urn_format" />
-        <field:input field="outboundPeer" id="c_PhysicalPort_outbound_peer" helpMessageCode="physicalport_urn_format" />
+        <field:input cssClass="input-urn" field="inboundPeer" id="c_PhysicalPort_inbound_peer" helpMessageCode="physicalport_urn_format" />
+        <field:input cssClass="input-urn" field="outboundPeer" id="c_PhysicalPort_outbound_peer" helpMessageCode="physicalport_urn_format" />
         <c:if test="${vlanRequired}">
             <field:input field="vlanRanges" id="c_PhysicalPort_vlan_ranges" helpMessageCode="physicalport_vlan_ranges"/>
         </c:if>

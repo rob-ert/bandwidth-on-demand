@@ -144,3 +144,7 @@ section h2 {
 #idReport > tbody > tr > .right {
   padding-right: 17px;
 }
+
+.input-urn {
+    width: 320px;
+}

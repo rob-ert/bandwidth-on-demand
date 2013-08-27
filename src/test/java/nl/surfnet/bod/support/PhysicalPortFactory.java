@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.UniPort;
@@ -55,6 +56,17 @@ public class PhysicalPortFactory {
       physicalResourceGroup = createPhysicalResourceGroup();
     }
     port.setPhysicalResourceGroup(physicalResourceGroup);
+
+    return port;
+  }
+
+  public EnniPort createEnni() {
+    nbiPort.setInterfaceType(InterfaceType.E_NNI);
+    EnniPort port = new EnniPort(nbiPort);
+    port.setId(id);
+    port.setVersion(version);
+    port.setBodPortId(bodPortId);
+    port.setNocLabel(nocLabel);
 
     return port;
   }

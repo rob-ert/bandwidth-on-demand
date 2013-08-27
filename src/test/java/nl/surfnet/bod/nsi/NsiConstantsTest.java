@@ -22,10 +22,13 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static nl.surfnet.bod.nsi.NsiConstants.isValidNurn;
 import static nl.surfnet.bod.nsi.NsiConstants.parseLocalNsiId;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import nl.surfnet.bod.domain.NsiVersion;
 
@@ -43,5 +46,18 @@ public class NsiConstantsTest {
     assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:%33", NsiVersion.TWO), is(nullValue()));
     assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:'", NsiVersion.TWO), is(nullValue()));
     assertThat(parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:<", NsiVersion.TWO), is(nullValue()));
+  }
+
+  @Test
+  public void testNurnPattern() {
+    assertTrue(isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertTrue(isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertTrue(isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in?foo#bar"));
+
+    assertFalse(isValidNurn("urn:foo"));
+    assertFalse(isValidNurn("urn:ogf:network:surfnet.nl:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(isValidNurn("urn:ogf:network:surfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(isValidNurn("urn:ogf:network:žurfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+
   }
 }

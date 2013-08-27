@@ -27,27 +27,32 @@ import java.util.regex.Pattern;
 
 import nl.surfnet.bod.domain.NsiVersion;
 
-public class NsiConstants {
+public final class NsiConstants {
 
-  public static String URN_OGF = "urn:ogf:network";
+  public static final String URN_OGF = "urn:ogf:network";
 
-  public static String NETWORK_ID_V1 = "surfnet.nl";
-  public static String NETWORK_ID_V2 = "surfnet.nl:1990";
+  public static final String NETWORK_ID_V1 = "surfnet.nl";
+  public static final String NETWORK_ID_V2 = "surfnet.nl:1990";
 
-  public static String URN_PROVIDER_NSA_V1 = URN_OGF + ":nsa:" + NETWORK_ID_V1;
-  public static String URN_PROVIDER_NSA_V2 = URN_OGF + ":nsa:" + NETWORK_ID_V2;
+  public static final String URN_PROVIDER_NSA_V1 = URN_OGF + ":nsa:" + NETWORK_ID_V1;
+  public static final String URN_PROVIDER_NSA_V2 = URN_OGF + ":nsa:" + NETWORK_ID_V2;
 
-  public static String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID_V1;
-  public static String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID_V2;
-  public static String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
+  public static final String URN_STP_V1 = URN_OGF + ":stp:" + NETWORK_ID_V1;
+  public static final String URN_STP_V2 = URN_OGF + ":" + NETWORK_ID_V2;
+  public static final String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
 
   // Matches OPAQUE-PART of OGF URN (GFD.202, see https://www.gridforum.org/documents/GFD.202.pdf).
-  public static String GFD_202_OPAQUE_PART_PATTERN = "[a-zA-Z0-9+,\\-.:;=_!$()*@~&]*";
+  public static final String GFD_202_OPAQUE_PART_PATTERN = "[a-zA-Z0-9+,\\-.:;=_!$()*@~&]*";
+  public static final String NURN_PATTERN_REGEXP = "urn:ogf:network:[a-zA-Z0-9\\-.]+:[0-9]{4,8}:" + GFD_202_OPAQUE_PART_PATTERN + "(\\?" +  GFD_202_OPAQUE_PART_PATTERN + ")?" + "(#" +  GFD_202_OPAQUE_PART_PATTERN + ")?";
 
-  public static Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
-  public static Pattern NSIV2_STP_PATTERN = Pattern.compile(URN_STP_V2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
+  public static final Pattern NURN_PATTERN = Pattern.compile(NURN_PATTERN_REGEXP);
 
-  public static String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
+  public static final String NSIV2_STP_PATTERN_REGEXP = URN_STP_V2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")";
+
+  public static final Pattern NSIV1_STP_PATTERN = Pattern.compile(URN_STP_V1 + ":([0-9]+)");
+  public static final Pattern NSIV2_STP_PATTERN = Pattern.compile(NSIV2_STP_PATTERN_REGEXP);
+
+  public static final String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
     Pattern pattern = nsiVersion == NsiVersion.ONE ? NSIV1_STP_PATTERN : NSIV2_STP_PATTERN;
     Matcher matcher = pattern.matcher(stpId);
 
@@ -55,5 +60,9 @@ public class NsiConstants {
       return null;
     }
     return matcher.group(1);
+  }
+
+  public static boolean isValidNurn(final String candidate) {
+    return NURN_PATTERN.matcher(candidate).matches();
   }
 }
