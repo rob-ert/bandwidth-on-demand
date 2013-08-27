@@ -25,6 +25,7 @@ package nl.surfnet.bod.web.appmanager;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.TextSearchIndexer;
 import nl.surfnet.bod.web.base.MessageManager;
 
@@ -48,6 +49,7 @@ public class DashboardController {
   static final String SEARCH_INDEX_PART = REFRESH_PART + "searchindex";
   static final String INSTITUTES_PART = REFRESH_PART + "institutes";
   static final String SHIBBOLETH_INFO_PART = SHOW_PART + "shibbolethattribs";
+  static final String PORT_ALIGNMENT_URL = "/portalignment";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,6 +60,9 @@ public class DashboardController {
   private InstituteService instituteService;
 
   @Resource
+  private PhysicalPortService physicalPortService;
+
+  @Resource
   private MessageManager messageManager;
 
   @RequestMapping(method = RequestMethod.GET)
@@ -66,6 +71,7 @@ public class DashboardController {
     model.addAttribute("refresh_searchindex_url", PAGE_URL + SEARCH_INDEX_PART);
     model.addAttribute("refresh_institutes_url", PAGE_URL + INSTITUTES_PART);
     model.addAttribute("show_shibboleth_info_url", PAGE_URL + SHIBBOLETH_INFO_PART);
+    model.addAttribute("portalignment_url", PAGE_URL + PORT_ALIGNMENT_URL);
 
     return "appmanager/index";
   }
@@ -93,6 +99,13 @@ public class DashboardController {
   @RequestMapping(value = SHIBBOLETH_INFO_PART)
   public String showShibbolethInfo() {
     return "shibbolethinfo";
+  }
+
+  @RequestMapping(value = PORT_ALIGNMENT_URL, method = RequestMethod.GET)
+  public String forceCheckForPortInconsistencies(RedirectAttributes model) {
+    physicalPortService.forceCheckForPortInconsistencies();
+    messageManager.addInfoFlashMessage(model, "info_port_alignment_check");
+    return "redirect:/" + PAGE_URL;
   }
 
   void setMessageManager(MessageManager messageManager) {

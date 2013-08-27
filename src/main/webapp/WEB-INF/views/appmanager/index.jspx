@@ -34,6 +34,15 @@
                             </dt>
                             <dd>Refreshes institutes from IDD</dd>
                             <dt>
+                                <spring:url var="r_portalignment_url" value="${portalignment_url}" />
+                                <a href="${r_portalignment_url}">
+                                    <spring:message code="label_portalignment" />
+                                </a>
+                            </dt>
+                            <dd>
+                                Force physical port alignment check
+                            </dd>
+                            <dt>
                                 <spring:url var="r_search_url" value="${refresh_searchindex_url}" />
                                 <a href="${r_search_url}">
                                     <spring:message code="label_refresh_reindex_search" />
