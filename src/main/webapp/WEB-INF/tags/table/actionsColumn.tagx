@@ -3,20 +3,20 @@
     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
     <jsp:directive.attribute name="item" type="java.lang.Object" required="true" rtexprvalue="true" />
-    <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="idFieldName" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="deleteIcon" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="updateIcon" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" />
-    <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="updateUrl" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="updateIcon" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteIcon" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="updateUrl" type="java.lang.String" required="false" rtexprvalue="true" />
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />

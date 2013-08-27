@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
@@ -186,16 +185,6 @@ public class EnniPortController extends AbstractSearchableSortableListController
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_updated", enniPort.getNocLabel());
 
     return "redirect:/noc/physicalports/enni";
-  }
-
-  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page, Model uiModel) {
-    physicalPortService.delete(id);
-
-    uiModel.asMap().clear();
-    uiModel.addAttribute(PAGE_KEY, page == null ? "1" : page.toString());
-
-    return "redirect:";
   }
 
   @Override

@@ -22,7 +22,9 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,6 +94,22 @@ public class PhysicalPortController {
     this.messageManager = messageManager;
   }
 
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page, Model uiModel) {
+    PhysicalPort port = physicalPortService.find(id);
+
+    physicalPortService.delete(id);
+
+    uiModel.asMap().clear();
+    uiModel.addAttribute(PAGE_KEY, page == null ? "1" : page.toString());
+
+    if (port instanceof UniPort) {
+      return "redirect:/noc/physicalports/uni";
+    } else {
+      return "redirect:/noc/physicalports/enni";
+    }
+  }
+
   @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
   public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
     Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(nmsPortId);
@@ -120,7 +138,7 @@ public class PhysicalPortController {
 
     if (port == null) {
       redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
-      return "redirect:/noc/physicalports";
+      return "redirect:/noc/physicalports/uni";
     }
 
     Collection<NbiPort> unallocatedPorts = Collections2.filter(physicalPortService.findUnallocated(), new Predicate<NbiPort>() {
@@ -132,7 +150,7 @@ public class PhysicalPortController {
 
     if (unallocatedPorts.isEmpty()) {
       messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL");
-      return "redirect:/noc/physicalports";
+      return "redirect:/noc/physicalports/uni";
     }
 
     long numberOfVirtualPorts = 0;
@@ -148,7 +166,7 @@ public class PhysicalPortController {
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
     model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
 
-    return "physicalports/move";
+    return "noc/physicalports/move";
   }
 
   public static final class RelatedObjects {
@@ -194,7 +212,7 @@ public class PhysicalPortController {
     }
     model.addAttribute("list", reservationViews);
 
-    return "physicalports/moveResult";
+    return "noc/physicalports/moveResult";
   }
 
   /**

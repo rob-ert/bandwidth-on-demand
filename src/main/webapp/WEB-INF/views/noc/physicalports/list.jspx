@@ -139,15 +139,14 @@
             </c:otherwise>
           </c:choose>
 
-          <table:actionsColumn item="${item}" delete="${item.deleteRender}"
-            deleteEnabled="true"
-            deleteIcon="icon-remove"
+          <table:actionsColumn item="${item}"
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             updateUrl="${updateUrl}"
             path="/noc/physicalports" idFieldName="${show_unallocated ? 'nmsPortId' : 'id'}"
             labelCode="label_physicalport"
+            delete="${item.deleteRender}"
             deleteConfirmLabelCode="physical_port_delete_confirm_counter" 
             deleteConfirmLabelArgument="${item.numberOfVirtualPorts},${item.reservationsAmount}">
 

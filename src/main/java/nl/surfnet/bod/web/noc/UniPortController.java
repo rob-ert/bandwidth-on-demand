@@ -188,16 +188,6 @@ public class UniPortController extends AbstractSearchableSortableListController<
     return super.search(page, sort, order, search, model);
   }
 
-  @RequestMapping(params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page, Model uiModel) {
-    physicalPortService.delete(id);
-
-    uiModel.asMap().clear();
-    uiModel.addAttribute(PAGE_KEY, page == null ? "1" : page.toString());
-
-    return "redirect:";
-  }
-
   @RequestMapping(value = "add", method = RequestMethod.GET)
   public String addUniPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
     PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
