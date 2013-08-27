@@ -49,8 +49,8 @@ class TestSearchController extends AbstractSearchableSortableListController<Test
   }
 
   @Override
-  protected List<? extends TestView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return transformToView(testEntities, null);
+  protected List<TestEntity> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return testEntities;
   }
 
   @Override

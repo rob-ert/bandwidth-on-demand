@@ -22,85 +22,48 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.PARAM_SEARCH;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
-import nl.surfnet.bod.domain.VlanRanges;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.NocService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.FullTextSearchResult;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.util.ReflectiveFieldComparator;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.push.EndPoints;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.PhysicalPortView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, UniPort> {
-
-  public static final String PAGE_URL = "physicalports";
-  public static final String PAGE_UNALIGNED_URL = "/noc/" + PAGE_URL + "/unaligned";
+@RequestMapping("/noc/physicalports")
+public class PhysicalPortController {
 
   @Resource private PhysicalPortService physicalPortService;
   @Resource private PhysicalResourceGroupService physicalResourceGroupService;
@@ -110,107 +73,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   @Resource private MessageManager messageManager;
   @Resource private EndPoints endPoints;
 
-  @RequestMapping(value = "add", method = RequestMethod.GET)
-  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
-    PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
-    if (prg == null) {
-      return "redirect:/";
-    }
-
-    Collection<NbiPort> unallocatedUniPorts = physicalPortService.findUnallocatedUniPorts();
-
-    if (unallocatedUniPorts.isEmpty()) {
-      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocateduni");
-      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
-    }
-
-    NbiPort port = Iterables.get(unallocatedUniPorts, 0);
-
-    AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
-    addCommand.setPhysicalResourceGroup(prg);
-    addCommand.setNmsPortId(port.getNmsPortId());
-    addCommand.setNocLabel(port.getSuggestedNocLabel());
-    addCommand.setBodPortId(port.getSuggestedBodPortId());
-
-    model.addAttribute("addPhysicalPortCommand", addCommand);
-    model.addAttribute("unallocatedPhysicalPorts", unallocatedUniPorts);
-
-    return "physicalports/addPhysicalPort";
-  }
-
-  @RequestMapping(value = "add", method = RequestMethod.POST)
-  public String addPhysicalPort(@Valid AddPhysicalPortCommand addCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
-    if (result.hasErrors()) {
-      model.addAttribute("addPhysicalPortCommand", addCommand);
-      model.addAttribute("unallocatedPhysicalPorts", physicalPortService.findUnallocated());
-      return "physicalports/addPhysicalPort";
-    }
-
-    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(addCommand.getNmsPortId());
-    if (!nbiPort.isPresent()) {
-      return "redirect:";
-    }
-
-    UniPort uniPort = new UniPort(nbiPort.get());
-    if (isNullOrEmpty(addCommand.getManagerLabel())) {
-      uniPort.setManagerLabel(null);
-    } else {
-      uniPort.setManagerLabel(addCommand.getManagerLabel());
-    }
-    uniPort.setNocLabel(addCommand.getNocLabel());
-    uniPort.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
-    uniPort.setBodPortId(addCommand.getBodPortId());
-
-    physicalPortService.save(uniPort);
-
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
-
-    return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
-  }
-
-  @RequestMapping(value = "/enni", method = RequestMethod.POST)
-  public String createEnniPort(@Valid CreateEnniPortCommand command, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
-    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(command.getNmsPortId());
-    if (!nbiPort.isPresent()) {
-      return "redirect:";
-    }
-
-    EnniPort enniPort = (EnniPort) PhysicalPort.create(nbiPort.get());
-
-    if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
-      result.rejectValue("vlanRanges", "validation.not.empty");
-    }
-
-    if (physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-
-    if(!containsLetters(command.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
-
-    if (result.hasErrors()) {
-      model.addAttribute("createPortCommand", command);
-      model.addAttribute("vlanRequired", enniPort.isVlanRequired());
-      return "physicalports/createEnni";
-    }
-
-    enniPort.setNocLabel(command.getNocLabel());
-    enniPort.setBodPortId(command.getBodPortId());
-    if (enniPort.isVlanRequired()) {
-      enniPort.setVlanRanges(command.getVlanRanges());
-    }
-    enniPort.setOutboundPeer(command.getOutboundPeer());
-    enniPort.setInboundPeer(command.getInboundPeer());
-
-    physicalPortService.save(enniPort);
-
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_created", enniPort.getNocLabel());
-
-    return "redirect:/noc/physicalports/enni";
-  }
-
-  private boolean containsLetters(String input) {
+  public static boolean containsLetters(String input) {
     if (input == null || input.length() <= 0) {
       return false;
     }
@@ -222,277 +85,19 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return false;
   }
 
-  @RequestMapping(value = "/uni", method = RequestMethod.POST)
-  public String createUniPort(@Valid CreateUniPortCommand createPortCommand, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
-    if (physicalPortService.findByBodPortId(createPortCommand.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-    if(!containsLetters(createPortCommand.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
-
-    if (result.hasErrors()) {
-      model.addAttribute("createUniPortCommand", createPortCommand);
-      return "physicalports/createUni";
-    }
-
-    Optional<NbiPort> nbiPort = physicalPortService.findNbiPort(createPortCommand.getNmsPortId());
-
-    if (!nbiPort.isPresent()) {
-      return "redirect:";
-    }
-
-    UniPort uniPort = (UniPort) PhysicalPort.create(nbiPort.get());
-
-    if (Strings.isNullOrEmpty(createPortCommand.getManagerLabel())) {
-      uniPort.setManagerLabel(null);
-    } else {
-      uniPort.setManagerLabel(createPortCommand.getManagerLabel());
-    }
-    uniPort.setPhysicalResourceGroup(createPortCommand.getPhysicalResourceGroup());
-    uniPort.setNocLabel(createPortCommand.getNocLabel());
-    uniPort.setBodPortId(createPortCommand.getBodPortId());
-
-    physicalPortService.save(uniPort);
-
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_uni_created", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
-
-    return "redirect:/noc/physicalports";
-  }
-
-  @RequestMapping(value = "/updateUni", params = ID_KEY, method = RequestMethod.GET)
-  public String updateUniForm(@RequestParam(ID_KEY) Long id, Model model) {
-    UniPort uniPort = physicalPortService.findUniPort(id);
-
-    if (uniPort == null) {
-      return "redirect:";
-    }
-
-    model.addAttribute("updateUniPortCommand", new UpdateUniPortCommand(uniPort));
-
-    return "physicalports/uni/update";
-  }
-
-  @RequestMapping(value = "/updateUni", method = RequestMethod.PUT)
-  public String updateUni(@Valid UpdateUniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-    UniPort uniPort = (UniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
-
-    if (uniPort == null) {
-      return "redirect:";
-    }
-
-    if (!uniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-    if(!containsLetters(command.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
-    if (result.hasErrors()) {
-      model.addAttribute("updateUniPortCommand", command);
-      return "physicalports/uni/update";
-    }
-
-    uniPort.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
-    if (!Strings.isNullOrEmpty(command.getManagerLabel())) {
-      uniPort.setManagerLabel(command.getManagerLabel());
-    } else {
-      uniPort.setManagerLabel(null);
-    }
-
-    uniPort.setNocLabel(command.getNocLabel());
-    uniPort.setBodPortId(command.getBodPortId());
-
-    physicalPortService.save(uniPort);
-
-    model.asMap().clear();
-
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_updated", uniPort.getNocLabel(), uniPort.getPhysicalResourceGroup().getName());
-
-    return "redirect:/noc/physicalports";
-  }
-
-  @RequestMapping(value = "/updateEnni", params = ID_KEY, method = RequestMethod.GET)
-  public String updateEnniForm(@RequestParam(ID_KEY) Long id, Model model) {
-    EnniPort port = physicalPortService.findEnniPort(id);
-
-    if (port == null) {
-      return "redirect:";
-    }
-
-    model.addAttribute("updateEnniPortCommand", new UpdateEnniPortCommand(port));
-    model.addAttribute("vlanRequired", port.isVlanRequired());
-
-    return "physicalports/enni/update";
-  }
-
-  @RequestMapping(value = "/updateEnni", method = RequestMethod.PUT)
-  public String updateEnni(@Valid UpdateEnniPortCommand command, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-    EnniPort enniPort = (EnniPort) physicalPortService.findByNmsPortId(command.getNmsPortId());
-
-    if (enniPort == null) {
-      return "redirect:";
-    }
-
-    if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
-      result.rejectValue("vlanRanges", "validation.not.empty");
-    }
-    if (!enniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-    if(!containsLetters(command.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
-
-    if (result.hasErrors()) {
-      model.addAttribute("updateEnniPortCommand", command);
-      model.addAttribute("vlanRequired", enniPort.isVlanRequired());
-      return "physicalports/enni/update";
-    }
-
-    enniPort.setNocLabel(command.getNocLabel());
-    enniPort.setBodPortId(command.getBodPortId());
-    enniPort.setInboundPeer(command.getInboundPeer());
-    enniPort.setOutboundPeer(command.getOutboundPeer());
-    if (enniPort.isVlanRequired()) {
-      enniPort.setVlanRanges(command.getVlanRanges());
-    }
-    physicalPortService.save(enniPort);
-
-    model.asMap().clear();
-
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_updated", enniPort.getNocLabel());
-
-    return "redirect:/noc/physicalports/enni";
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  @Override
-  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, Model model) {
-
-    model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.UNI_ALLOCATED);
-    model.addAttribute(WebUtils.FILTER_LIST, getAvailableFilters());
-
-    return super.list(page, sort, order, model);
-  }
-
-  @Override
-  @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(Integer page, String sort, String order, String search, Model model) {
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UNI_ALLOCATED);
-    model.addAttribute(FILTER_LIST, getAvailableFilters());
-
-    return super.search(page, sort, order, search, model);
-  }
-
-  @RequestMapping(value = "/enni", method = RequestMethod.GET)
-  public String listEnni(
-    @RequestParam(value = PAGE_KEY, required = false) Integer page,
-    @RequestParam(value = "sort", required = false) String sort,
-    @RequestParam(value = "order", required = false) String order,
-    Model model) {
-
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-
-    List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
-        .transformAllocatedPhysicalPorts(physicalPortService.findAllocatedEnniEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), reservationService);
-
-    if (!StringUtils.hasText(sort)) {
-      sort = "nocLabel";
-    }
-
-    model.addAttribute(DATA_LIST, transformedUnallocatedPhysicalPorts);
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.ENNI_ALLOCATED);
-    model.addAttribute(FILTER_LIST, getAvailableFilters());
-
-    return PAGE_URL + "/listenni";
-  }
-
-  @RequestMapping(value = "/free", method = RequestMethod.GET)
-  public String listUnallocated(
-    @RequestParam(value = PAGE_KEY, required = false) Integer page,
-    @RequestParam(value = "sort", required = false) String sort,
-    @RequestParam(value = "order", required = false) String order,
-    Model model) {
-
-    List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
-        .transformUnallocatedPhysicalPorts(physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
-    if (!StringUtils.hasText(sort)) {
-      sort = "nocLabel";
-    }
-
-    sortExternalResources(sort, order, model, transformedUnallocatedPhysicalPorts);
-
-    model.addAttribute(DATA_LIST, transformedUnallocatedPhysicalPorts);
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALLOCATED);
-    model.addAttribute(FILTER_LIST, getAvailableFilters());
-
-    return PAGE_URL + "/listunallocated";
-  }
-
   @VisibleForTesting
   void setMessageManager(MessageManager messageManager) {
     this.messageManager = messageManager;
   }
 
-  private void sortExternalResources(String sort, String order, Model model, List<PhysicalPortView> transformedUnallocatedPhysicalPorts) {
-    prepareSortOptions(sort, order, model);
-    Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
-
-    if (StringUtils.hasText(order) && "DESC".equals(order)) {
-      Collections.reverse(transformedUnallocatedPhysicalPorts);
-    }
-  }
-
-  @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
-  public String listUnaligned(
-    @RequestParam(value = PAGE_KEY, required = false) Integer page,
-    @RequestParam(value = "sort", required = false) String sort,
-    @RequestParam(value = "order", required = false) String order,
-    Model model) {
-
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-
-    List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformUnalignedPhysicalPorts(physicalPortService
-        .findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions), virtualPortService,
-        reservationService);
-
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
-    model.addAttribute(WebUtils.DATA_LIST, allocatedPhysicalPorts);
-    model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
-    model.addAttribute(WebUtils.FILTER_LIST, getAvailableFilters());
-
-    return PAGE_URL + "/listunaligned";
-  }
-
-  @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
-  public String searchUnaligned(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam String search, @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, Model model) {
-
-    List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
-
-    try {
-      FullTextSearchResult<UniPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
-          UniPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, Security.getUserDetails(),
-          unalignedPorts);
-
-      model.addAttribute(PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
-      model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchResult.getTotalCount()));
-      model.addAttribute(DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
-      model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
-      model.addAttribute(FILTER_LIST, getAvailableFilters());
-
-    } catch (ParseException e) {
-      model.addAttribute(MessageManager.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
-    }
-
-    return listUrl();
-  }
+//  private void sortExternalResources(String sort, String order, Model model, List<PhysicalPortView> transformedUnallocatedPhysicalPorts) {
+//    prepareSortOptions(sort, order, model);
+//    Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
+//
+//    if (StringUtils.hasText(order) && "DESC".equals(order)) {
+//      Collections.reverse(transformedUnallocatedPhysicalPorts);
+//    }
+//  }
 
   @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
   public String createForm(@RequestParam(ID_KEY) String nmsPortId, Model model) {
@@ -505,23 +110,15 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     PhysicalPort physicalPort = PhysicalPort.create(nbiPort.get());
 
     if (physicalPort instanceof UniPort) {
-      model.addAttribute("createUniPortCommand", new CreateUniPortCommand((UniPort) physicalPort));
-      return PAGE_URL + "/createUni";
+      model.addAttribute("createUniPortCommand", new UniPortController.CreateUniPortCommand((UniPort) physicalPort));
+
+      return "physicalports/uni/create";
     } else {
-      model.addAttribute("createEnniPortCommand", new CreateEnniPortCommand((EnniPort) physicalPort));
+      model.addAttribute("createEnniPortCommand", new EnniPortController.CreateEnniPortCommand((EnniPort) physicalPort));
       model.addAttribute("vlanRequired", physicalPort.isVlanRequired());
-      return PAGE_URL + "/createEnni";
+
+      return "physicalports/enni/create";
     }
-  }
-
-  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page, Model uiModel) {
-    physicalPortService.delete(id);
-
-    uiModel.asMap().clear();
-    uiModel.addAttribute(PAGE_KEY, page == null ? "1" : page.toString());
-
-    return "redirect:";
   }
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
@@ -539,6 +136,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
         return input.isVlanRequired() == port.isVlanRequired();
       }
     });
+
     if (unallocatedPorts.isEmpty()) {
       messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL");
       return "redirect:/noc/physicalports";
@@ -557,16 +155,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
     model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
 
-    return PAGE_URL + "/move";
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("instituteName")) {
-      return ImmutableList.of("physicalResourceGroup.institute.name");
-    }
-
-    return super.translateSortProperty(sortProperty);
+    return "physicalports/move";
   }
 
   public static final class RelatedObjects {
@@ -613,51 +202,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     model.addAttribute("list", reservationViews);
 
     return "physicalports/moveResult";
-  }
-
-  /**
-   * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
-   * group to a {@link UniPort}.
-   *
-   * @return Collection<PhysicalResourceGroup>
-   */
-  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
-  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    return physicalResourceGroupService.findAll();
-  }
-
-  @Override
-  protected String listUrl() {
-    return PAGE_URL + LIST;
-  }
-
-  @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Functions.transformAllocatedPhysicalPorts(physicalPortService.findAllocatedUniEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
-  }
-
-  @Override
-  protected long count(Model model) {
-    return physicalPortService.countAllocated();
-  }
-
-  @Override
-  protected String getDefaultSortProperty() {
-    return "nocLabel";
-  }
-
-  @Override
-  protected AbstractFullTextSearchService<UniPort> getFullTextSearchableService() {
-    return physicalPortService;
-  }
-
-  private Collection<PhysicalPortFilter> getAvailableFilters() {
-    return EnumSet.allOf(PhysicalPortFilter.class);
-  }
-
-  @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
   }
 
   public static class MovePhysicalPortCommand {
@@ -722,160 +266,18 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   }
 
-  public static class CreateEnniPortCommand extends PhysicalPortCommand {
-    @NotEmpty private String inboundPeer;
-    @NotEmpty private String outboundPeer;
-    @VlanRanges private String vlanRanges;
-
-    public CreateEnniPortCommand() {
-    }
-
-    public CreateEnniPortCommand(EnniPort port) {
-      setNmsPortId(port.getNmsPortId());
-      setNocLabel(port.getNocLabel());
-      setBodPortId(port.getBodPortId());
-
-      this.inboundPeer = port.getInboundPeer();
-      this.outboundPeer = port.getOutboundPeer();
-      this.vlanRanges = port.getVlanRanges();
-    }
-
-    public String getInboundPeer() {
-      return inboundPeer;
-    }
-
-    public void setInboundPeer(String inboundPeer) {
-      this.inboundPeer = inboundPeer;
-    }
-
-    public String getOutboundPeer() {
-      return outboundPeer;
-    }
-
-    public void setOutboundPeer(String outboundPeer) {
-      this.outboundPeer = outboundPeer;
-    }
-
-    public String getVlanRanges() {
-      return vlanRanges;
-    }
-
-    public void setVlanRanges(String vlanRanges) {
-      this.vlanRanges = vlanRanges;
-    }
-  }
-
-  public static class UpdateEnniPortCommand extends CreateEnniPortCommand {
-
-    private Long id;
-    private Integer version;
-
-    public UpdateEnniPortCommand() {
-
-    }
-
-    public UpdateEnniPortCommand(EnniPort enniPort) {
-
-      super(enniPort);
-
-      this.version = enniPort.getVersion();
-      this.id = enniPort.getId();
-    }
-
-    public Long getId() {
-      return id;
-    }
-
-    public void setId(Long id) {
-      this.id = id;
-    }
-
-    public Integer getVersion() {
-      return version;
-    }
-
-    public void setVersion(Integer version) {
-      this.version = version;
-    }
-  }
-
-  public static final class UpdateUniPortCommand extends CreateUniPortCommand {
-    private Long id;
-    private Integer version;
-
-    public UpdateUniPortCommand() {
-    }
-
-    public UpdateUniPortCommand(UniPort uniPort) {
-      super(uniPort);
-      this.version = uniPort.getVersion();
-      this.id = uniPort.getId();
-    }
-
-    public Long getId() {
-      return id;
-    }
-
-    public void setId(Long id) {
-      this.id = id;
-    }
-
-    public Integer getVersion() {
-      return version;
-    }
-
-    public void setVersion(Integer version) {
-      this.version = version;
-    }
-  }
-
-  public static class CreateUniPortCommand extends PhysicalPortCommand {
-    @NotNull
-    private PhysicalResourceGroup physicalResourceGroup;
-
-    private String managerLabel;
-
-    public CreateUniPortCommand() {
-    }
-
-    public CreateUniPortCommand(UniPort port) {
-      setNmsPortId(port.getNmsPortId());
-      setNocLabel(port.getNocLabel());
-      setBodPortId(port.getBodPortId());
-      setManagerLabel(((UniPort) port).hasManagerLabel() ? ((UniPort) port).getManagerLabel() : "");
-      setPhysicalResourceGroup(((UniPort) port).getPhysicalResourceGroup());
-    }
-
-    public PhysicalResourceGroup getPhysicalResourceGroup() {
-      return physicalResourceGroup;
-    }
-
-    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-      this.physicalResourceGroup = physicalResourceGroup;
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public void setManagerLabel(String managerLabel) {
-      this.managerLabel = managerLabel;
-    }
-
-  }
-
-  public static final class AddPhysicalPortCommand extends CreateUniPortCommand {
-
-  }
-
   public enum PhysicalPortFilter {
-    UNI_ALLOCATED("UNI", "/"),
+    UNI_ALLOCATED("UNI", "/uni"),
     ENNI_ALLOCATED("E-NNI", "/enni"),
     UN_ALLOCATED("Unallocated", "/free"),
     UN_ALIGNED("Unaligned", "/unaligned");
 
     private final String path;
     private final String name;
+
+    public static Collection<PhysicalPortFilter> getAvailableFilters() {
+      return EnumSet.allOf(PhysicalPortFilter.class);
+    }
 
     private PhysicalPortFilter(String name, String path) {
       this.name = name;
@@ -889,11 +291,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     public String getName() {
       return name;
     }
-  }
-
-  @Override
-  protected List<? extends PhysicalPortView> transformToView(List<? extends UniPort> entities, RichUserDetails user) {
-    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 
 }

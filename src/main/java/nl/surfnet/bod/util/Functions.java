@@ -104,7 +104,7 @@ public final class Functions {
     return physicalPortView;
   }
 
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<EnniPort> ports, ReservationService reservationService) {
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends EnniPort> ports, ReservationService reservationService) {
     List<PhysicalPortView> views = Lists.newArrayList();
     for (EnniPort port : ports) {
       views.add(transformAllocatedPhysicalPort(port, reservationService));
@@ -122,7 +122,7 @@ public final class Functions {
     return views;
   }
 
-  public static List<PhysicalPortView> transformUnalignedPhysicalPorts(List<PhysicalPort> ports, VirtualPortService virtualPortService, ReservationService reservationService) {
+  public static List<PhysicalPortView> transformUnalignedPhysicalPorts(List<? extends PhysicalPort> ports, VirtualPortService virtualPortService, ReservationService reservationService) {
     List<PhysicalPortView> views = Lists.newArrayList();
     for (PhysicalPort port : ports) {
       if (port instanceof UniPort) {

@@ -72,7 +72,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count(model)));
-    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+    model.addAttribute(WebUtils.DATA_LIST, transformToView(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model), Security.getUserDetails()));
 
     return listUrl();
   }
@@ -125,7 +125,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
 
   protected abstract String listUrl();
 
-  protected abstract List<? extends VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
+  protected abstract List<ENTITY> list(int firstPage, int maxItems, Sort sort, Model model);
 
   protected abstract long count(Model model);
 
@@ -142,7 +142,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   }
 
   protected Sort sortOrder(List<String> sortProperties, Direction direction) {
-    return sort(direction, sortProperties);
+    return new Sort(direction, sortProperties);
   }
 
   private String sortProperty(String order) {
@@ -186,10 +186,6 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     } catch (IllegalArgumentException e) {
       return getDefaultSortOrder();
     }
-  }
-
-  private Sort sort(final Direction direction, List<String> properties) {
-    return new Sort(direction, properties);
   }
 
   protected abstract List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort);

@@ -62,14 +62,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   public static final String PAGE_URL = "/noc/virtualports";
 
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private ReservationService reservationService;
-
-  @Resource
-  private MessageManager messageManager;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private ReservationService reservationService;
+  @Resource private MessageManager messageManager;
 
   @Override
   protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
@@ -82,9 +77,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<? extends VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    List<VirtualPort> entries = virtualPortService.findEntries(firstPage, maxItems, sort);
-    return transformToView(entries, Security.getUserDetails());
+  protected List<VirtualPort> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return virtualPortService.findEntries(firstPage, maxItems, sort);
   }
 
   @Override

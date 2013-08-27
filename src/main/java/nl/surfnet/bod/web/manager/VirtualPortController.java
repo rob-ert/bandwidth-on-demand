@@ -234,11 +234,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<? extends VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final List<VirtualPort> entriesForManager = virtualPortService.findEntriesForManager(Security.getSelectedRole(),
-        firstPage, maxItems, sort);
-
-    return transformToView(entriesForManager, Security.getUserDetails());
+  protected List<VirtualPort> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return virtualPortService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
   }
 
   @Override

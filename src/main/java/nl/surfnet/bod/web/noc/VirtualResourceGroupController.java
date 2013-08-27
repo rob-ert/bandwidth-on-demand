@@ -54,8 +54,8 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected List<? extends VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), null);
+  protected List<VirtualResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return virtualResourceGroupService.findEntries(firstPage, maxItems, sort);
   }
 
   @Override

@@ -27,9 +27,15 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.UniPort;
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
@@ -44,8 +50,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.google.common.base.Optional;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
@@ -149,13 +153,11 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<UniPort> list(int firstPage, int maxItems, Sort sort, Model model) {
     Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
 
     if (physicalResourceGroup.isPresent()) {
-      return Functions.transformAllocatedPhysicalPorts(
-        physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(
-          physicalResourceGroup.get(), firstPage, maxItems, sort), virtualPortService, reservationService);
+      return physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup.get(), firstPage, maxItems, sort);
     } else {
       return new ArrayList<>();
     }

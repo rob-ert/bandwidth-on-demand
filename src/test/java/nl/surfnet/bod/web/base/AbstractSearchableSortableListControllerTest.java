@@ -57,11 +57,9 @@ import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractSearchableSortableListControllerTest {
-  @Mock
-  private EntityManager entityManager;
 
-  @Mock
-  private TestFullTextSearchService<TestEntity> service;
+  @Mock private EntityManager entityManager;
+  @Mock private TestFullTextSearchService<TestEntity> service;
 
   @InjectMocks
   private TestSearchController subject;

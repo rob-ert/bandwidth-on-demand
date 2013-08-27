@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
-    <definition extends="noc" name="physicalports/list">
+    <definition extends="noc" name="noc/physicalports/uni/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx" />
         <put-attribute name="unallocated" value="false" cascade="true"/>
         <put-attribute name="unaligned" value="false" cascade="true"/>
         <put-attribute name="enni" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/listunaligned">
+    <definition extends="noc" name="noc/physicalports/unaligned/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="false" cascade="true"/>
         <put-attribute name="unaligned" value="true" cascade="true"/>
         <put-attribute name="enni" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/listunallocated">
+    <definition extends="noc" name="noc/physicalports/unallocated/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="true" cascade="true"/>
         <put-attribute name="enni" value="false" cascade="true"/>
         <put-attribute name="unaligned" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/listenni">
+    <definition extends="noc" name="noc/physicalports/enni/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
         <put-attribute name="unallocated" value="false" cascade="true"/>
         <put-attribute name="enni" value="true" cascade="true"/>
         <put-attribute name="unaligned" value="false" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/createUni">
+    <definition extends="noc" name="noc/physicalports/uni/create">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/createUni.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/createEnni">
+    <definition extends="noc" name="noc/physicalports/enni/create">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/createEnni.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
-    <definition extends="noc" name="physicalports/uni/update">
+    <definition extends="noc" name="noc/physicalports/uni/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/updateUni.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
-    <definition extends="noc" name="physicalports/enni/update">
+    <definition extends="noc" name="noc/physicalports/enni/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/updateEnni.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
 
-    <definition extends="noc" name="physicalports/move">
+    <definition extends="noc" name="noc/physicalports/move">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/move.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/moveResult">
+    <definition extends="noc" name="noc/physicalports/moveResult">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/moveResult.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
         <put-attribute name="renderActions" value="false" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/addPhysicalPort">
+    <definition extends="noc" name="noc/physicalports/addPhysicalPort">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/addPhysicalPort.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>

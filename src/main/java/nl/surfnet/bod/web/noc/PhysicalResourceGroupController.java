@@ -222,24 +222,22 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<? extends PhysicalResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final List<PhysicalResourceGroup> physycalResourceGroups = physicalResourceGroupService.findEntries(firstPage,
-        maxItems, sort);
+  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
+    final List<PhysicalResourceGroup> physycalResourceGroups = physicalResourceGroupService.findEntries(firstPage, maxItems, sort);
 
     final List<VirtualPort> virtualPorts = new ArrayList<>();
     final List<Reservation> reservations = new ArrayList<>();
     List<UniPort> physicalPorts = new ArrayList<>();
 
     for (final PhysicalResourceGroup physycalResourceGroup : physycalResourceGroups) {
-      physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup,
-          MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
+      physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup, MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
       for (final UniPort physicalPort : physicalPorts) {
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
         reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));
       }
     }
 
-    return transformToView(physycalResourceGroups, Security.getUserDetails());
+    return physycalResourceGroups;
   }
 
   @Override

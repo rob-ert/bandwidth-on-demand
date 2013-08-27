@@ -27,12 +27,11 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 
 import java.util.List;
 
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
-import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -53,17 +52,14 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<? extends ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<Reservation> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-
-    return transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
-            Security.getUserDetails());
+    return getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort);
   }
 
   @Override
   protected long count(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-
     return getReservationService().countAllEntriesUsingFilter((filter));
   }
 

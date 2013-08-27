@@ -23,7 +23,6 @@
 package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.web.noc.LogEventController;
-import nl.surfnet.bod.web.noc.PhysicalPortController;
 import nl.surfnet.bod.web.noc.ReservationController;
 
 public class NocStatisticsView {
@@ -77,11 +76,11 @@ public class NocStatisticsView {
   }
 
   public String getUnalignedPhysicalPortsUrl() {
-    return PhysicalPortController.PAGE_UNALIGNED_URL;
+    return "noc/physicalports/unaligned";
   }
 
   public String getPpsUrl() {
-    return "noc/" + PhysicalPortController.PAGE_URL;
+    return "noc/physicalports";
   }
 
   public String getLogEventsUrl() {

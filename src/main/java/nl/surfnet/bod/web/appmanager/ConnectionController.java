@@ -91,8 +91,8 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  protected List<ConnectionView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return transformToView(connectionService.findEntries(firstPage, maxItems, sort), Security.getUserDetails());
+  protected List<ConnectionV1> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return connectionService.findEntries(firstPage, maxItems, sort);
   }
 
   @Override

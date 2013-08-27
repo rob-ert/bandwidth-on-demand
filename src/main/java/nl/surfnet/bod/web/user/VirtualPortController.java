@@ -59,8 +59,7 @@ import com.google.common.collect.Lists;
 @RequestMapping("/virtualports")
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
-  @Resource
-  private VirtualPortService virtualPortService;
+  @Resource private VirtualPortService virtualPortService;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
@@ -100,13 +99,13 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     return "redirect:/virtualports";
   }
-  
+
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
       RedirectAttributes redirectAttributes) {
 
     VirtualPort virtualPort = virtualPortService.find(id);
-    
+
     if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
       return "redirect:/virtualports";
     }
@@ -132,10 +131,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected List<? extends VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return transformToView(
-        virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
-        Security.getUserDetails());
+  protected List<VirtualPort> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort);
   }
 
   @Override

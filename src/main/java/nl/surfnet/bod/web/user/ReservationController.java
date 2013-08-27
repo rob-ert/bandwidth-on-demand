@@ -24,13 +24,21 @@ package nl.surfnet.bod.web.user;
 
 import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
 import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
 
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
@@ -46,7 +54,6 @@ import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Sort;
@@ -58,10 +65,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
@@ -69,14 +72,9 @@ public class ReservationController extends AbstractFilteredReservationController
   static final String PAGE_URL = "reservations";
   static final String MODEL_KEY = "reservation";
 
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Resource
-  private MessageManager messageManager;
-
-  @Resource
-  private MessageRetriever messageRetriever;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private MessageManager messageManager;
+  @Resource private MessageRetriever messageRetriever;
 
   private final ReservationValidator reservationValidator = new ReservationValidator();
 
@@ -186,11 +184,9 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  protected List<? extends ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+  protected List<Reservation> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-
-    return transformToView(getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter,
-        firstPage, maxItems, sort), Security.getUserDetails());
+    return getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort);
   }
 
   @Override
