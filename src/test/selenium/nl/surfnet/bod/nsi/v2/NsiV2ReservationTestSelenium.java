@@ -32,13 +32,20 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -53,10 +60,17 @@ import nl.surfnet.bod.support.BodManagerWebDriver;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.util.XmlUtils;
-
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionServiceProvider;
@@ -74,6 +88,7 @@ import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.springframework.core.io.ClassPathResource;
+import org.xml.sax.InputSource;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
@@ -251,6 +266,40 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       assertThat(connectionId3.value, is(nullValue()));
       assertThat(expected.getFaultInfo().getErrorId(), is("100"));
       assertThat(expected.getFaultInfo().getText(), is("PAYLOAD_ERROR"));
+    }
+  }
+
+  @Test
+  @Ignore("until Alan fixes the other tests")
+  public void nsiTopologyShouldBeValidAgainstCurrentXSD() throws Exception {
+
+    final String url = BodWebDriver.URL_UNDER_TEST + "/nsi-topology";
+    HttpClient httpclient = new DefaultHttpClient();
+
+    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    URL schemaFileUrl = this.getClass().getResource("/topology/nsi-ext.xsd");
+    Schema schema = schemaFactory.newSchema(new File(schemaFileUrl.toURI()));
+
+    try {
+      HttpGet httpget = new HttpGet(url);
+      HttpResponse response = httpclient.execute(httpget);
+      HttpEntity entity = response.getEntity();
+      EntityUtils.consume(entity);
+
+      Header header = response.getLastHeader("Content-Type");
+      assertTrue("application/xml;charset=UTF-8".equals(header.getValue()));
+
+      String xml = EntityUtils.toString(entity);
+      assertTrue(xml.length() > 0);
+
+      DocumentBuilderFactory domParserFactory = DocumentBuilderFactory.newInstance();
+      domParserFactory.setValidating(true);
+      domParserFactory.setSchema(schema);
+
+      domParserFactory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+
+    } finally {
+      httpclient.getConnectionManager().shutdown();
     }
   }
 
