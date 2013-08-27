@@ -159,7 +159,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyStatistics() {
     DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    page.findRow("Allocated physical ports", "2");
+    page.findRow("Allocated UNI ports", "2");
     page.findRow("Reservations past", "0");
     page.findRow("Active reservations", "0");
     page.findRow("Reservations in", "1");
