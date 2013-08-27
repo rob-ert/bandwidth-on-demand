@@ -57,7 +57,7 @@ public class NsiConstantsTest {
     assertFalse(isValidNurn("urn:foo"));
     assertFalse(isValidNurn("urn:ogf:network:surfnet.nl:Asd001A_OME3T_ETH-1-1-4_10:in"));
     assertFalse(isValidNurn("urn:ogf:network:surfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
-    assertFalse(isValidNurn("urn:ogf:network:žurfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(isValidNurn("urn:ogf:network:žurfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
 
   }
 }
