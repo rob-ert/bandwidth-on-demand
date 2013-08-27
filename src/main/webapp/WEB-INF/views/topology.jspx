@@ -20,7 +20,7 @@
             </nsi:Relation>
         </nsi:Service>
         <nsi:adminContact>
-            <vc:fn><vc:text>Adminstrator</vc:text></vc:fn>
+            <vc:fn><vc:text>Administrator</vc:text></vc:fn>
             <vc:n>
                 <vc:surname>Trompert</vc:surname>
                 <vc:given>Hans</vc:given>
