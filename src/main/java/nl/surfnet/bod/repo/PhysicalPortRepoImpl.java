@@ -22,22 +22,50 @@
  */
 package nl.surfnet.bod.repo;
 
-import nl.surfnet.bod.domain.EnniPort;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
-@Repository
-public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long>, CustomRepo<PhysicalPort> {
+public class PhysicalPortRepoImpl implements CustomRepo<PhysicalPort> {
 
-  PhysicalPort findByNbiPortNmsPortId(String nmsPortId);
+  @PersistenceContext
+  private EntityManager entityManager;
 
-  PhysicalPort findByBodPortId(String bodPortId);
+  @Override
+  public List<Long> findIdsWithWhereClause(Specification<PhysicalPort> whereClause, Optional<Sort> sort) {
+    return findIds(Optional.of(whereClause), sort);
+  }
 
-  @Query("select port from EnniPort port where port.bodPortId = ?1")
-  EnniPort findEnniPortByBodPortId(String bodPortId);
+  @Override
+  public List<Long> findIds(Optional<Sort> sort) {
+    return findIds(Optional.<Specification<PhysicalPort>> absent(), sort);
+  }
 
+  private List<Long> findIds(Optional<Specification<PhysicalPort>> whereClause, Optional<Sort> sort) {
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<PhysicalPort> root = criteriaQuery.from(PhysicalPort.class);
+
+    if (whereClause.isPresent()) {
+      criteriaQuery.select(root.get(PhysicalPort_.id)).where(whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
+    } else {
+      criteriaQuery.select(root.get(PhysicalPort_.id));
+    }
+
+    CustomRepoHelper.addSortClause(sort, criteriaBuilder, criteriaQuery, root);
+
+    return entityManager.createQuery(criteriaQuery).getResultList();
+  }
 }

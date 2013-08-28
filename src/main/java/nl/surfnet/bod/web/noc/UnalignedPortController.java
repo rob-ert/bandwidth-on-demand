@@ -102,7 +102,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findIds(Optional.<Sort> fromNullable(sort));
+    return physicalPortService.findUnalignedIds(Optional.<Sort> fromNullable(sort));
   }
 
   @Override

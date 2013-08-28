@@ -321,9 +321,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    List<Long> ids = uniPortRepo.findIds(sort);
-    ids.addAll(enniPortRepo.findIds(sort));
-    return ids;
+    return physicalPortRepo.findIds(sort);
+  }
+
+  public List<Long> findUnalignedIds(Optional<Sort> sort) {
+    return physicalPortRepo.findIdsWithWhereClause(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC, sort);
   }
 
 }
