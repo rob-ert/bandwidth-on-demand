@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
@@ -74,22 +72,25 @@ public class EnniPortController extends AbstractSearchableSortableListController
 
   @RequestMapping(method = RequestMethod.GET)
   @Override
-  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String list(
+      @RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
 
-    model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.ENNI_ALLOCATED);
-    model.addAttribute(WebUtils.FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
+    addEnniPortFilter(model);
 
     return super.list(page, sort, order, model);
+  }
+
+  private void addEnniPortFilter(Model model) {
+    model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.ENNI_ALLOCATED);
+    model.addAttribute(WebUtils.FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
   }
 
   @Override
   @RequestMapping(value = "search", method = RequestMethod.GET)
   public String search(Integer page, String sort, String order, String search, Model model) {
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.ENNI_ALLOCATED);
-    model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-
+    addEnniPortFilter(model);
     return super.search(page, sort, order, search, model);
   }
 
@@ -105,11 +106,9 @@ public class EnniPortController extends AbstractSearchableSortableListController
     if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
       result.rejectValue("vlanRanges", "validation.not.empty");
     }
-
     if (physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
       result.rejectValue("bodPortId", "validation.not.unique");
     }
-
     if(!PhysicalPortController.containsLetters(command.getBodPortId())) {
       result.rejectValue("bodPortId", "validation.should.contain.letter");
     }

@@ -23,8 +23,6 @@
 package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
@@ -173,18 +171,19 @@ public class UniPortController extends AbstractSearchableSortableListController<
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
 
+    addUniPortFilter(model);
+    return super.list(page, sort, order, model);
+  }
+
+  private void addUniPortFilter(Model model) {
     model.addAttribute(WebUtils.FILTER_SELECT, PhysicalPortFilter.UNI_ALLOCATED);
     model.addAttribute(WebUtils.FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-
-    return super.list(page, sort, order, model);
   }
 
   @Override
   @RequestMapping(value = "search", method = RequestMethod.GET)
   public String search(Integer page, String sort, String order, String search, Model model) {
-    model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UNI_ALLOCATED);
-    model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-
+    addUniPortFilter(model);
     return super.search(page, sort, order, search, model);
   }
 

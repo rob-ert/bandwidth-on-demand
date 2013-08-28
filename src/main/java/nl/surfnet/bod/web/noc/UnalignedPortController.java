@@ -64,10 +64,20 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
 
+    addUnalignedPortFilter(model);
+    return super.list(page, sort, order, model);
+  }
+
+  @Override
+  @RequestMapping(value = "search", method = RequestMethod.GET)
+  public String search(Integer page, String sort, String order, String search, Model model) {
+    addUnalignedPortFilter(model);
+    return super.search(page, sort, order, search, model);
+  }
+
+  private void addUnalignedPortFilter(Model model) {
     model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
     model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-
-    return super.list(page, sort, order, model);
   }
 
   @Override
