@@ -301,8 +301,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       LOG.debug("Response content: " + xml);
       Validator validator = schema.newValidator();
       validator.validate(new StreamSource(new StringReader(xml)));
-
-
     } finally {
       httpclient.getConnectionManager().shutdown();
     }
