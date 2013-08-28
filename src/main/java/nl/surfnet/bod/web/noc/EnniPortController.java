@@ -235,11 +235,11 @@ public class EnniPortController extends AbstractSearchableSortableListController
   public static class CreateEnniPortCommand extends PhysicalPortCommand {
 
     @NotEmpty
-    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "nl.surfnet.bod.domain.urn.message")
+    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
     private String inboundPeer;
 
     @NotEmpty
-    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "nl.surfnet.bod.domain.urn.message")
+    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
     private String outboundPeer;
 
     @VlanRanges private String vlanRanges;
