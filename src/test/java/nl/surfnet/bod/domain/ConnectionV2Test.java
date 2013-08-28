@@ -27,6 +27,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
 
 import com.google.common.base.Optional;
 
@@ -34,6 +41,7 @@ import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.XmlUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -45,6 +53,7 @@ import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.w3c.dom.Document;
 
 public class ConnectionV2Test {
 
@@ -64,7 +73,7 @@ public class ConnectionV2Test {
   }
 
   @Test
-  public void should_serialize_criteria_type_to_xml_string() {
+  public void should_serialize_criteria_type_to_xml_string() throws Exception {
     P2PServiceBaseType service = new P2PServiceBaseType()
         .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
         .withDestSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("2"))
@@ -76,14 +85,14 @@ public class ConnectionV2Test {
 
     String xml = new ConnectionV2.ReservationConfirmCriteriaTypeUserType().toXmlString(criteria);
 
-    assertEquals(CRITERIA_XML, xml);
+    performSemanticEqualityAssertion(CRITERIA_XML, xml);
   }
 
   private static final String DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:notificationBaseType xsi:type=\"ns2:DataPlaneStateChangeRequestType\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/07/framework/headers\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><connectionId>ConnectionId</connectionId><notificationId>22</notificationId><timeStamp>2013-06-17T13:10:14Z</timeStamp><dataPlaneStatus><active>true</active><version>0</version><versionConsistent>true</versionConsistent></dataPlaneStatus></ns2:notificationBaseType>";
 
   @Test
-  public void shoud_serialize_data_plane_state_change_request_type_to_xml_string() {
+  public void should_serialize_data_plane_state_change_request_type_to_xml_string() throws Exception {
     DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType()
         .withConnectionId("ConnectionId")
         .withDataPlaneStatus(new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true))
@@ -92,8 +101,7 @@ public class ConnectionV2Test {
 
     String xml = new NotificationBaseTypeUserType().toXmlString(notification);
 
-    assertEquals(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML, xml);
-    assertThat(xml, is(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML));
+    performSemanticEqualityAssertion(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML, xml);
   }
 
   @Test
@@ -101,5 +109,18 @@ public class ConnectionV2Test {
     NotificationBaseType dataPlaneNotification = new NotificationBaseTypeUserType().fromXmlString(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML);
 
     assertThat(dataPlaneNotification, is(instanceOf(DataPlaneStateChangeRequestType.class)));
+  }
+
+  public void performSemanticEqualityAssertion(final String expected, final String actual) throws Exception {
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+    Document expectedDoc = dBuilder.parse(IOUtils.toInputStream(expected, "UTF-8"));
+    Document actualDoc = dBuilder.parse(IOUtils.toInputStream(actual, "UTF-8"));
+
+    expectedDoc.getDocumentElement().normalize();
+    actualDoc.getDocumentElement().normalize();
+
+    assertTrue(expectedDoc.getDocumentElement().isEqualNode(actualDoc.getDocumentElement()));
   }
 }
