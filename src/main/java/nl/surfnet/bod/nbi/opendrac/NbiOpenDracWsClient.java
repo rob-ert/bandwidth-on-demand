@@ -56,6 +56,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTy
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -542,6 +543,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     port.setNmsPortId(endpoint.getId());
     port.setSuggestedBodPortId(endpoint.getTna());
     port.setVlanRequired(isVlanRequired(endpoint.getTna()));
+    port.setInterfaceType(InterfaceType.UNI);
 
     return port;
   }
