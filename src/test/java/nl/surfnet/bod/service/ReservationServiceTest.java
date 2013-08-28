@@ -75,17 +75,10 @@ public class ReservationServiceTest {
   @InjectMocks
   private ReservationService subject;
 
-  @Mock
-  private ReservationRepo reservationRepoMock;
-
-  @Mock
-  private ReservationToNbi reservationToNbiMock;
-
-  @Mock
-  private NbiClient nbiClientMock;
-
-  @Mock
-  private LogEventService logEventService;
+  @Mock private ReservationRepo reservationRepoMock;
+  @Mock private ReservationToNbi reservationToNbiMock;
+  @Mock private NbiClient nbiClientMock;
+  @Mock private LogEventService logEventService;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -194,7 +187,7 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).setDisplayname("Piet Puk").create();
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).setDisplayname("Piet Puk").create();
 
     when(
         reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk")).thenReturn(new AsyncResult<Long>(2L));

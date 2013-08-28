@@ -35,6 +35,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
 import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specForReservationBetweenForAdminGroupsWithStateIn;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -170,8 +171,7 @@ public class ReportingService {
   }
 
   @VisibleForTesting
-  List<Long> findSuccessfulReservationRequestsInAdminGroups(DateTime start, DateTime end,
-      Collection<String> adminGroups) {
+  List<Long> findSuccessfulReservationRequestsInAdminGroups(DateTime start, DateTime end, Collection<String> adminGroups) {
     Set<Long> reservationIds = new HashSet<>();
 
     // ReservationRequests
@@ -181,10 +181,8 @@ public class ReportingService {
   }
 
   @VisibleForTesting
-  List<Long> findReservationIdsInAdminGroupsWhichHadStateBetween(DateTime start, DateTime end,
-      Collection<String> adminGroups, ReservationStatus... states) {
-    return logEventService.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
-        .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
+  List<Long> findReservationIdsInAdminGroupsWhichHadStateBetween(DateTime start, DateTime end, Collection<String> adminGroups, ReservationStatus... states) {
+    return logEventService.findDistinctDomainObjectIdsWithWhereClause(specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
   /**

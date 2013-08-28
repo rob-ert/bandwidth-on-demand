@@ -55,7 +55,7 @@ public final class PushMessages {
       deleteTooltip = messageRetriever.getMessage("label_cancel", new String[] {"Reservation"});
     }
 
-    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getAdminGroup(), new JsonEvent(message,
+    return new JsonMessageEvent(reservation.getVirtualResourceGroup().get().getAdminGroup(), new JsonEvent(message,
         reservation.getId(), reservationStatusChangeEvent.getNewStatus().name(), deleteAllowed, deleteTooltip));
   }
 

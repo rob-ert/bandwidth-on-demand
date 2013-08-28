@@ -135,9 +135,9 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  private static Predicate getPredicateForDomainObjectInAdminGroupsBetween(final Root<LogEvent> root,
-      final CriteriaBuilder cb, final List<Long> reservationIds, final DateTime start, final DateTime end,
-      final String domainObjectName, final Collection<String> adminGroups) {
+  private static Predicate getPredicateForDomainObjectInAdminGroupsBetween(Root<LogEvent> root,
+      CriteriaBuilder cb, List<Long> reservationIds, DateTime start, DateTime end,
+      String domainObjectName, Collection<String> adminGroups) {
 
     Predicate predicate = getDomainObjectWithIdsInAdminGroups(root, cb, reservationIds, domainObjectName, adminGroups);
 
@@ -145,15 +145,15 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   private static Predicate getPredicateForDomainObjectBeforeInAdminGroups(Root<LogEvent> root, CriteriaBuilder cb,
-      final List<Long> reservationIds, final DateTime before, final String domainObjectName, final Collection<String> adminGroups) {
+      List<Long> reservationIds, DateTime before, String domainObjectName, Collection<String> adminGroups) {
 
     Predicate predicate = getDomainObjectWithIdsInAdminGroups(root, cb, reservationIds, domainObjectName, adminGroups);
 
     return cb.and(predicate, cb.lessThanOrEqualTo(root.get(LogEvent_.createdAt), before));
   }
 
-  private static Predicate getDomainObjectWithIdsInAdminGroups(final Root<LogEvent> root, final CriteriaBuilder cb,
-      final List<Long> reservationIds, final String domainObjectName, Collection<String> adminGroups) {
+  private static Predicate getDomainObjectWithIdsInAdminGroups(Root<LogEvent> root, CriteriaBuilder cb,
+      List<Long> reservationIds, String domainObjectName, Collection<String> adminGroups) {
 
     Predicate predicate = cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName);
 

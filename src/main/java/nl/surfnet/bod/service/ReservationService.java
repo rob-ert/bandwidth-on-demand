@@ -440,7 +440,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         && (isReservationDeleteAllowedForPortAsManager(role, reservation.getSourcePort())
             || isReservationDeleteAllowedForPortAsManager(role, reservation.getDestinationPort()))) {
       return new ElementActionView(true, "label_cancel");
-    } else if (role.isUserRole() && user.isMemberOf(reservation.getVirtualResourceGroup().getAdminGroup())) {
+    } else if (role.isUserRole() && reservation.getVirtualResourceGroup().isPresent() && user.isMemberOf(reservation.getVirtualResourceGroup().get().getAdminGroup())) {
       return new ElementActionView(true, "label_cancel");
     } else {
       return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
@@ -458,7 +458,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(false, "reservation_edit_user_has_no_rights");
     } else if (role.isManagerRole()) {
       return new ElementActionView(false, "reservation_copy_user_has_no_rights");
-    } else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+    } else if (role.isUserRole() && reservation.getVirtualResourceGroup().isPresent() && Security.isUserMemberOf(reservation.getVirtualResourceGroup().get())) {
       return new ElementActionView(true, "label_copy");
     }
 

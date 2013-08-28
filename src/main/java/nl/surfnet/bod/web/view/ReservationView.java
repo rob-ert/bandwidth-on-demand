@@ -30,6 +30,7 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
@@ -66,7 +67,12 @@ public class ReservationView {
 
   public ReservationView(Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
     this.id = reservation.getId();
-    this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
+    this.virtualResourceGroup = reservation.getVirtualResourceGroup()
+        .transform(new Function<VirtualResourceGroup, String>() {
+          public String apply(VirtualResourceGroup group) {
+            return group.getName();
+          }
+        }).or("-");
     this.sourcePort = new PortView(reservation.getSourcePort());
     this.destinationPort = new PortView(reservation.getDestinationPort());
     this.status = reservation.getStatus();

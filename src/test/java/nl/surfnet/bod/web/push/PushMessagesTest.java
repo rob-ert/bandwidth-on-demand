@@ -53,7 +53,7 @@ public class PushMessagesTest {
 
     PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
 
-    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getAdminGroup()));
+    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().get().getAdminGroup()));
 
     verify(messageRetriever).getMessageWithBoldArguments(eq("info_reservation_statuschanged"), (String[]) anyVararg());
   }

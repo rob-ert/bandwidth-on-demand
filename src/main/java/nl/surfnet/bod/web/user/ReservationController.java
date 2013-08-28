@@ -79,9 +79,7 @@ public class ReservationController extends AbstractFilteredReservationController
   private final ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
-      RedirectAttributes redirectAttributes) {
-
+  public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
     reservation.setUserCreated(Security.getUserDetails().getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
@@ -89,8 +87,7 @@ public class ReservationController extends AbstractFilteredReservationController
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, reservation);
       model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
-      model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
-          reservation.getVirtualResourceGroup().getVirtualPorts()));
+      model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(reservation.getVirtualResourceGroup().get().getVirtualPorts()));
 
       return PAGE_URL + CREATE;
     }
@@ -98,7 +95,7 @@ public class ReservationController extends AbstractFilteredReservationController
     getReservationService().create(reservation);
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_reservation_created", reservation.getName(),
-        reservation.getVirtualResourceGroup().getName());
+        reservation.getVirtualResourceGroup().get().getName());
 
     return "redirect:" + PAGE_URL;
   }
@@ -133,8 +130,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     model.addAttribute(MODEL_KEY, defaultReservation);
     model.addAttribute("virtualResourceGroups", vrgs);
-    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
-        defaultReservation.getVirtualResourceGroup().getVirtualPorts()));
+    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(defaultReservation.getVirtualResourceGroup().get().getVirtualPorts()));
 
     return PAGE_URL + CREATE;
   }
@@ -157,7 +153,6 @@ public class ReservationController extends AbstractFilteredReservationController
 
   @RequestMapping(value = "/copy", params = ID_KEY, method = RequestMethod.GET)
   public String copyReservation(@RequestParam(ID_KEY) Long id, Model model) {
-
     Reservation originalReservation = getReservationService().find(id);
 
     Reservation reservation = new Reservation();
@@ -171,11 +166,10 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setStartDate(originalReservation.getStartDate());
     reservation.setStartDateTime(originalReservation.getStartDateTime());
     reservation.setDestinationPort(originalReservation.getDestinationPort().copy());
-    reservation.setVirtualResourceGroup(originalReservation.getVirtualResourceGroup());
+    reservation.setVirtualResourceGroup(originalReservation.getVirtualResourceGroup().get());
 
     model.addAttribute(MODEL_KEY, reservation);
-    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
-        reservation.getVirtualResourceGroup().getVirtualPorts()));
+    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(reservation.getVirtualResourceGroup().get().getVirtualPorts()));
     model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
     model.addAttribute("destinationPort", reservation.getDestinationPort());
     model.addAttribute("sourcePort", reservation.getSourcePort());

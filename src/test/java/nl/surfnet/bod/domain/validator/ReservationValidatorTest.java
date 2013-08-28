@@ -70,8 +70,7 @@ public class ReservationValidatorTest {
   public void endDateShouldNotBeBeforeStartDate() {
     DateTime now = DateTime.now();
     Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusDays(1)).create();
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -86,7 +85,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusMinutes(10)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -100,7 +99,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusMinutes(1))
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -114,7 +113,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusHours(1)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -127,7 +126,7 @@ public class ReservationValidatorTest {
     VirtualPort port = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -143,7 +142,7 @@ public class ReservationValidatorTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(yesterday).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -158,7 +157,7 @@ public class ReservationValidatorTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateInThePast.toDateTime()).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     try {
@@ -177,7 +176,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(1).plusDays(1))
         .setEndDateTime(DateTime.now().plusYears(1).plusDays(10)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -190,7 +189,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusMinutes(3)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -208,7 +207,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -225,7 +224,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -258,7 +257,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setBandwidth(2500L).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -275,7 +274,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setBandwidth(0L).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -287,7 +286,7 @@ public class ReservationValidatorTest {
   public void noStartDateAndNoEdnDateShouldBeAllowed() {
     Reservation reservation = new ReservationFactory().create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getAdminGroup()).create());
+        reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     reservation.setStartDateTime(null);
     reservation.setEndDateTime(null);
 

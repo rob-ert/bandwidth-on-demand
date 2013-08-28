@@ -92,8 +92,7 @@ public class ReservationValidator implements Validator {
 
     if (sourcePort.equals(destinationPort)) {
       errors.rejectValue("sourcePort", "", "");
-      errors.rejectValue("destinationPort", "validation.reservation.sameports",
-          "Source and Destination port should be different");
+      errors.rejectValue("destinationPort", "validation.reservation.sameports", "Source and Destination port should be different");
     }
 
     if (!reservation.hasConsistentVirtualResourceGroups()) {
@@ -101,7 +100,7 @@ public class ReservationValidator implements Validator {
       errors.rejectValue("destinationPort", "validation.reservation.security", "Ports are not in the same virtualResourceGroup");
     }
 
-    if (reservation.getVirtualResourceGroup() != null && !Security.getUserDetails().getUserGroupIds().contains(reservation.getVirtualResourceGroup().getAdminGroup())) {
+    if (reservation.getVirtualResourceGroup().isPresent() && !Security.getUserDetails().getUserGroupIds().contains(reservation.getVirtualResourceGroup().get().getAdminGroup())) {
       errors.reject("validation.reservation.security", "You can not select this port");
     }
   }

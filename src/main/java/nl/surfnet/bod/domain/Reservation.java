@@ -145,8 +145,8 @@ public class Reservation implements Loggable, PersistableDomain {
     this.version = version;
   }
 
-  public VirtualResourceGroup getVirtualResourceGroup() {
-    return virtualResourceGroup;
+  public Optional<VirtualResourceGroup> getVirtualResourceGroup() {
+    return Optional.fromNullable(virtualResourceGroup);
   }
 
   public ReservationStatus getStatus() {

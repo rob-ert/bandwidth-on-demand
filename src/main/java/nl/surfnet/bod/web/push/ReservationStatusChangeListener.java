@@ -51,7 +51,11 @@ public class ReservationStatusChangeListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
+    if (!reservationStatusChangeEvent.getReservation().getVirtualResourceGroup().isPresent()) {
+      return;
+    }
     final PushMessage event = PushMessages.createMessage(messageRetriever, reservationStatusChangeEvent);
+
     Transactions.afterCommit(new Runnable() {
       @Override
       public void run() {
