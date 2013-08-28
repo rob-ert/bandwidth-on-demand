@@ -380,7 +380,9 @@ public class Reservation implements Loggable, PersistableDomain {
   @Override
   public Collection<String> getAdminGroups() {
     Builder<String> builder = ImmutableSet.builder();
-    builder.add(virtualResourceGroup.getAdminGroup());
+    if (virtualResourceGroup != null) {
+      builder.add(virtualResourceGroup.getAdminGroup());
+    }
     if (sourcePort.getUniPort().isPresent()) {
       builder.add(sourcePort.getUniPort().get().getPhysicalResourceGroup().getAdminGroup());
     }
