@@ -90,6 +90,10 @@ public class EnniPort extends PhysicalPort {
     return NsiConstants.URN_STP_V2 + ":" + getBodPortId();
   }
 
+  public String getNsiStpIdV1() {
+    return NsiConstants.URN_STP_V1 + ":" + getBodPortId();
+  }
+
   public boolean isVlanIdAllowed(int vlan) {
     if (!isVlanRequired()) {
       return false;

@@ -107,6 +107,16 @@
                                 </c:otherwise>
                             </c:choose>
                         </dd>
+                        <c:if test="${show_enni}">
+                            <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
+                            <dd>
+                                <c:out value="${item.nsiStpIdV2}" />
+                            </dd>
+                            <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
+                            <dd>
+                                <c:out value="${item.nsiStpIdV1}" />
+                            </dd>
+                        </c:if>
                     </dl>
                 </div>
             </div>

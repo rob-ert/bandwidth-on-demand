@@ -72,14 +72,9 @@ import org.springframework.util.CollectionUtils;
 @Transactional
 public class ReportingService {
 
-  @Resource
-  private LogEventService logEventService;
-
-  @Resource
-  private ReservationRepo reservationRepo;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private LogEventService logEventService;
+  @Resource private ReservationRepo reservationRepo;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
 
   public ReservationReportView determineReportForUser(Interval interval, RichUserDetails user) {
     return determineReport(interval, virtualResourceGroupService.determineAdminGroupsForUser(user));

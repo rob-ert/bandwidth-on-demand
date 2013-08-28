@@ -52,6 +52,8 @@ public class PhysicalPortView {
   private final String vlanRanges;
 
   private int reservationsAmount;
+  private String nsiStpIdV2;
+  private String nsiStpIdV1;
 
   public String getInterfaceType() {
     return interfaceType;
@@ -101,6 +103,8 @@ public class PhysicalPortView {
     this.inboundPeer = enniPort.getInboundPeer();
     this.outboundPeer = enniPort.getOutboundPeer();
     this.vlanRanges = enniPort.getVlanRanges();
+    this.nsiStpIdV2 = enniPort.getNsiStpIdV2();
+    this.nsiStpIdV1 = enniPort.getNsiStpIdV1();
 
     this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();
@@ -139,6 +143,14 @@ public class PhysicalPortView {
 
   public PhysicalPortView(UniPort physicalPort) {
     this(physicalPort, new ElementActionView(false, ""), 0L);
+  }
+
+  public String getNsiStpIdV2() {
+    return nsiStpIdV2;
+  }
+
+  public String getNsiStpIdV1() {
+    return nsiStpIdV1;
   }
 
   public String getDeleteReasonKey() {
