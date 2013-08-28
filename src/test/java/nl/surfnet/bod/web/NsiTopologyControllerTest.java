@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -86,5 +87,8 @@ public class NsiTopologyControllerTest {
         .andExpect(model().attribute("networkName", notNullValue()))
         .andExpect(model().attribute("version", notNullValue()))
         .andExpect(view().name("topology"));
+
+    verify(physicalPortService).findAllAllocatedEnniEntries();
+    verify(virtualPortService).findAll();
   }
 }
