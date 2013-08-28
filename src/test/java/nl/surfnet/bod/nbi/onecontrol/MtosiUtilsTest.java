@@ -154,7 +154,7 @@ public class MtosiUtilsTest {
 
     String sapName = MtosiUtils.getSapName(firstSap);
 
-    assertThat(sapName, is("SAP-00:03:18:58:cf:b0-3"));
+    assertThat(sapName, is("00:03:18:bb:5a:00-1/31"));
   }
 
 }

@@ -52,9 +52,4 @@ public enum NmsAlignmentStatus {
    * Interface type was changed to UNI.
    */
   TYPE_CHANGED_TO_UNI,
-
-  /**
-   * Interface type was changed to UNKNOWN.
-   */
-  TYPE_CHANGED_TO_UNKNOWN
 }

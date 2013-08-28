@@ -25,7 +25,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.File;
 
@@ -79,12 +79,13 @@ public class InventoryRetrievalClientTest {
       NbiPort physicalPort = subject.translateToNbiPort(sap);
       assertThat(physicalPort.getNmsPortId(), containsString("1-1"));
       assertThat(physicalPort.getNmsNeId(), containsString("0"));
-      assertThat(physicalPort.getSuggestedBodPortId(), startsWith("SAP-"));
+      assertThat(physicalPort.getSuggestedBodPortId(), is(notNullValue()));
       assertThat(physicalPort.getNmsPortSpeed(), containsString("0"));
-      assertThat(physicalPort.getNmsSapName(), startsWith("SAP-"));
+      assertThat(physicalPort.getNmsSapName(), is(notNullValue()));
       assertThat(physicalPort.getSuggestedNocLabel(), containsString("@"));
       assertThat(physicalPort.getSupportedServiceType(), is("EPL"));
       assertThat(physicalPort.getSignalingType(), is("NA"));
+      assertThat(physicalPort.getInterfaceType(), is(notNullValue()));
     }
   }
 

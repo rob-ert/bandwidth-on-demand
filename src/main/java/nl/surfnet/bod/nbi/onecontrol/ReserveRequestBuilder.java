@@ -31,6 +31,7 @@ import java.util.List;
 import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.util.XmlUtils;
@@ -86,12 +87,15 @@ public class ReserveRequestBuilder {
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
     }
 
-    // TODO could be an I-NNI
-    describedByList.add(createSscValue("InterfaceType", "UNI-N"));
+    describedByList.add(createSscValue("InterfaceType", translate(endPoint.getPhysicalPort().getNbiPort().getInterfaceType())));
     describedByList.add(createSscValue("TrafficMappingTo_Table_IngressCIR", reservation.getBandwidth().toString()));
     describedByList.add(createSscValue("ProtectionLevel", reservation.getProtectionType().getMtosiName()));
 
     return sap;
+  }
+
+  private static String translate(InterfaceType interfaceType) {
+    return interfaceType.name().replace('_', '-');
   }
 
   private static Integer vlanIdOfEndPoint(ReservationEndPoint endPoint) {

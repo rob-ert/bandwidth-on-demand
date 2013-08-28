@@ -128,6 +128,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     String ptp = findRdnValue("PTP", sap.getResourceRef()).get();
     String nmsPortSpeed = findSscValue("AdministrativeSpeedRate", sap.getDescribedByList()).get();
     String supportedServiceType = findSscValue("SupportedServices", sap.getDescribedByList()).get();
+    InterfaceType interfaceType = InterfaceType.valueOf(findSscValue("InterfaceType", sap.getDescribedByList()).get().replace('-', '_'));
     boolean isVlanRequired = determineVlanRequired(supportedServiceType);
 
     NbiPort port = new NbiPort();
@@ -136,8 +137,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     port.setNmsNeId(managedElement);
     port.setNmsPortSpeed(nmsPortSpeed);
     port.setSupportedServiceType(supportedServiceType);
-    // TODO detect E-NNI ports
-    port.setInterfaceType(InterfaceType.UNI);
+    port.setInterfaceType(interfaceType);
     port.setSignalingType("NA");
     port.setVlanRequired(isVlanRequired);
     port.setSuggestedBodPortId(nmsSapName);

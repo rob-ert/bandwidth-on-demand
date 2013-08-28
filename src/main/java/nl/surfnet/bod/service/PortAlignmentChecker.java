@@ -81,8 +81,6 @@ class PortAlignmentChecker {
         return NmsAlignmentStatus.TYPE_CHANGED_TO_ENNI;
       case UNI:
         return NmsAlignmentStatus.TYPE_CHANGED_TO_UNI;
-      case UNKNOWN:
-        return NmsAlignmentStatus.TYPE_CHANGED_TO_UNKNOWN;
       }
       throw new IllegalArgumentException("Unknown interface type: " + nbiPort.getInterfaceType());
     } else {

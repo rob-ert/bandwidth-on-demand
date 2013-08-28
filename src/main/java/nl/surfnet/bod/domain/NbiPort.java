@@ -35,7 +35,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class NbiPort {
 
   public enum InterfaceType {
-    E_NNI, UNI, UNKNOWN
+    E_NNI, UNI
   }
 
   @NotEmpty

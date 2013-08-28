@@ -109,7 +109,7 @@ public class ReserveRequestBuilderTest {
 
     assertThat(findSscValue("ServiceType", sap.getDescribedByList()), isPresent("EVPL"));
     assertThat(findSscValue("TrafficMappingFrom_Table_VID", sap.getDescribedByList()), isPresent("3"));
-    assertThat(findSscValue("InterfaceType", sap.getDescribedByList()), isPresent("UNI-N"));
+    assertThat(findSscValue("InterfaceType", sap.getDescribedByList()), isPresent("UNI"));
     assertThat(findSscValue("TrafficMappingTo_Table_IngressCIR", sap.getDescribedByList()), isPresent("1024"));
     assertThat(findSscValue("ProtectionLevel", sap.getDescribedByList()), isPresent(PROTECTED.getMtosiName()));
   }
@@ -124,7 +124,7 @@ public class ReserveRequestBuilderTest {
 
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ServiceType", "EPL")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
-    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI-N")));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", UNPROTECTED.getMtosiName())));
   }
