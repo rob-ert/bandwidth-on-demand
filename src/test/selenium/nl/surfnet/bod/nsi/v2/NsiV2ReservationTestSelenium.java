@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +45,10 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -70,8 +73,8 @@ import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionServiceProvider;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
@@ -87,10 +90,16 @@ import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.ext.DefaultHandler2;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
+
+  private static final Logger LOG = LoggerFactory.getLogger(NsiV2ReservationTestSelenium.class);
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_provider_v2_0.wsdl";
   private static final String ENDPOINT = BodWebDriver.URL_UNDER_TEST + "/nsi/v2/provider";
@@ -270,7 +279,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  @Ignore("until Alan fixes the other tests")
   public void nsiTopologyShouldBeValidAgainstCurrentXSD() throws Exception {
 
     final String url = BodWebDriver.URL_UNDER_TEST + "/nsi-topology";
@@ -284,19 +292,16 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       HttpGet httpget = new HttpGet(url);
       HttpResponse response = httpclient.execute(httpget);
       HttpEntity entity = response.getEntity();
-      EntityUtils.consume(entity);
 
       Header header = response.getLastHeader("Content-Type");
       assertTrue("application/xml;charset=UTF-8".equals(header.getValue()));
 
       String xml = EntityUtils.toString(entity);
       assertTrue(xml.length() > 0);
+      LOG.debug("Response content: " + xml);
+      Validator validator = schema.newValidator();
+      validator.validate(new StreamSource(new StringReader(xml)));
 
-      DocumentBuilderFactory domParserFactory = DocumentBuilderFactory.newInstance();
-      domParserFactory.setValidating(true);
-      domParserFactory.setSchema(schema);
-
-      domParserFactory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
 
     } finally {
       httpclient.getConnectionManager().shutdown();
