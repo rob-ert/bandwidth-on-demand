@@ -72,7 +72,7 @@
                              delete="true" 
                              path="/virtualports" 
                              labelCode="label_virtualport" 
-                             deleteConfirmLabelCode="A NOC engineer will be notified and your port will be removed. Are you sure?" />
+                             deleteConfirmLabelCode="Your manager will be notified and your port will be removed. Are you sure?" />
                           </c:when>
                           <c:otherwise>
                             <table:actionsColumn 
