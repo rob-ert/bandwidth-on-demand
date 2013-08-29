@@ -79,6 +79,7 @@ public class NsiTopologyControllerTest {
 
     when(physicalPortService.findAllAllocatedEnniEntries()).thenReturn(ImmutableList.of(enniPort));
     when(virtualPortService.findAll()).thenReturn(ImmutableList.of(virtualPort));
+    when(environment.getNsiTopologyAdminContactContentFileUri()).thenReturn("/topologyAdminContactContent.xml");
 
     mockMvc.perform(get("/nsi-topology"))
         .andExpect(status().isOk())
@@ -86,6 +87,7 @@ public class NsiTopologyControllerTest {
         .andExpect(model().attribute("nsiId", notNullValue()))
         .andExpect(model().attribute("networkName", notNullValue()))
         .andExpect(model().attribute("version", notNullValue()))
+        .andExpect(model().attribute("adminContactContent", notNullValue()))
         .andExpect(view().name("topology"));
 
     verify(physicalPortService).findAllAllocatedEnniEntries();

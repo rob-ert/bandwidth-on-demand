@@ -20,14 +20,7 @@
             </nsi:Relation>
         </nsi:Service>
         <nsi:adminContact>
-            <vc:fn><vc:text>Administrator</vc:text></vc:fn>
-            <vc:n>
-                <vc:surname>Trompert</vc:surname>
-                <vc:given>Hans</vc:given>
-            </vc:n>
-            <vc:org>
-                <vc:text>SURFnet, http://www.surf.nl</vc:text>
-            </vc:org>
+            <c:out value="${adminContactContent}" escapeXml="false"/>
         </nsi:adminContact>
         <nml:Topology id="${fn:escapeXml(nsiId)}:topology">
             <nml:name>${fn:escapeXml(networkName)}</nml:name>

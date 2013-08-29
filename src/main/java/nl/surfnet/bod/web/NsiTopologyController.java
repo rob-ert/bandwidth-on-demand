@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.web;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,7 @@ import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,6 +61,10 @@ public class NsiTopologyController {
     model.addAttribute("networkName", NsiConstants.NETWORK_ID_V2);
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
+
+    final URL url = this.getClass().getResource(environment.getNsiTopologyAdminContactContentFileUri());
+    final String adminContactContent = FileUtils.readFileToString(new File(url.toURI()));
+    model.addAttribute("adminContactContent", adminContactContent);
 
     // query all virtual ports, these are my 'UNI ports'
     List<VirtualPort> virtualPorts = virtualPortService.findAll();

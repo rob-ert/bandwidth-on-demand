@@ -114,6 +114,9 @@ public class Environment {
   @Value("${nsi.topology.lng}")
   private String nsiTopologyCoordsLng;
 
+  @Value("${nsi.topology.adminContactContent.fileUri}")
+  private String nsiTopologyAdminContactContentFileUri;
+
   @Value("${nsi.v2.service.url}")
   private String nsiV2ServiceUrl;
 
@@ -288,6 +291,10 @@ public class Environment {
 
   public String getNsiV2ServiceUrl() {
     return nsiV2ServiceUrl;
+  }
+
+  public String getNsiTopologyAdminContactContentFileUri() {
+    return nsiTopologyAdminContactContentFileUri;
   }
 
 }
