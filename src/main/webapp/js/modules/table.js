@@ -23,9 +23,10 @@ app.table = function(){
             var row = $(event.target).closest('.rowdetails');
             var details = row.find('.rowdetails-content');
 
-            var rowHeight = row.closest('table').find('tr').height();
-
             if(!row.hasClass('expanded')) {
+
+                var rowHeight = row.height();
+                row.data("originalHeight", rowHeight); // save the original tr-height so we can reset it later
 
                 details[0]._originalHeight = details[0]._originalHeight || details.height();
                 details.height(0);
@@ -41,7 +42,7 @@ app.table = function(){
             } else {
 
                 row.animate({
-                    height: rowHeight
+                    height: row.data("originalHeight")
                 });
 
                 details.animate({
