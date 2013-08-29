@@ -17,7 +17,7 @@
                     <table:sortableHeader labelCode="label_physicalresourcegroup_name" property="institute"/>
                     <table:sortableHeader labelCode="label_physicalresourcegroup_manageremail" property="managerEmail" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw75 center" />
-                    <th class="center cw85"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
+                    <th class="center cw80 small"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
                     <table:actionsHeader styleClass="cw75 center small" />
                 </tr>
             </thead>

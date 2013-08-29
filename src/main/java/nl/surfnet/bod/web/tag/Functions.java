@@ -39,8 +39,8 @@ public final class Functions {
     return optional.or(otherwise).toString();
   }
 
-  public static String get(Optional<?> optional) {
-    return optional.get().toString();
+  public static <T> T get(Optional<T> optional) {
+    return optional.get();
   }
 
   public static <T> T orNull(Optional<T> optional) {

@@ -102,7 +102,6 @@ public class ReservationController extends AbstractFilteredReservationController
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(@RequestParam(value = "vrg", required = false) Long virtualResourceGroupId, Model model) {
-
     Collection<VirtualResourceGroup> vrgs = findVirtualResourceGroups();
 
     if (vrgs.isEmpty()) {

@@ -28,7 +28,7 @@
                                 <select data-component="team-selector" data-url="${data_url}" class="input-xlarge" name="virtualResourceGroup">
                                     <c:forEach items="${virtualResourceGroups}" var="group">
                                         <c:choose>
-                                            <c:when test="${reservation.virtualResourceGroup.id eq group.id}">
+                                            <c:when test="${bodfn:get(reservation.virtualResourceGroup).id eq group.id}">
                                                 <option value="${group.id}" selected="true"><c:out value="${group.name}" /></option>
                                             </c:when>
                                             <c:otherwise>
