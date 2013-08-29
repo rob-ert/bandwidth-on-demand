@@ -22,54 +22,39 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.domain.ConnectionV2.*;
+import static nl.surfnet.bod.domain.ConnectionV2.ReservationConfirmCriteriaTypeUserType;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.stream.StreamSource;
-
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.XmlUtils;
-
-import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetBaseType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ConnectionV2Test {
-  private static final String CRITERIA_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><criteria version=\"0\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/07/framework/headers\"><schedule/><ns3:p2ps xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns3=\"http://schemas.ogf.org/nsi/2013/07/services/point2point\"><capacity>0</capacity><directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath><sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP><destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns3:p2ps></criteria>";
 
   @Test
   public void should_deserialize_criteria_type_from_xml_string() {
-    ReservationConfirmCriteriaType result = new ReservationConfirmCriteriaTypeUserType().fromXmlString(CRITERIA_XML);
+
+    String criteriaXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><criteria version=\"0\" xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/connection/types\" xmlns:ns4=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:ns3=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:ns5=\"http://www.w3.org/2000/09/xmldsig#\" xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/07/framework/headers\"><schedule/><ns3:p2ps xmlns:ns2=\"http://schemas.ogf.org/nsi/2013/07/framework/types\" xmlns:ns3=\"http://schemas.ogf.org/nsi/2013/07/services/point2point\"><capacity>0</capacity><directionality>Bidirectional</directionality><symmetricPath>true</symmetricPath><sourceSTP><networkId>surfnet.nl</networkId><localId>1</localId></sourceSTP><destSTP><networkId>surfnet.nl</networkId><localId>2</localId></destSTP></ns3:p2ps></criteria>";
+    ReservationConfirmCriteriaType result = new ReservationConfirmCriteriaTypeUserType().fromXmlString(criteriaXml);
 
     assertNotNull(result);
     Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(result);
