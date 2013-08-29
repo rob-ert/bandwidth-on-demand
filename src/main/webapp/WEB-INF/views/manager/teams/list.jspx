@@ -17,8 +17,8 @@
                     <table:rowDetailsHeader />
                     <table:sortableHeader property="name" labelCode="label_virtualresourcegroup_name" />
                     <table:sortableHeader property="description" labelCode="label_virtualresourcegroup_description" />
-                    <th class="center cw80"><spring:message code="label_virtualresourcegroup_allvirtualportcount" /></th>
-                    <th class="center cw80"><spring:message code="label_virtualresourcegroup_myvirtualportcount" /></th>
+                    <th class="center cw80 small"><spring:message code="label_virtualresourcegroup_allvirtualportcount" /></th>
+                    <th class="center cw80 small"><spring:message code="label_virtualresourcegroup_myvirtualportcount" /></th>
                 </tr>
             </thead>
             <tbody>

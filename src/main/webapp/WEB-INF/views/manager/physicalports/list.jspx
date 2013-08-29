@@ -18,7 +18,7 @@
                     <table:rowDetailsHeader />
                     <table:sortableHeader labelCode="label_physicalport_managerlabel" property="managerLabel" />
                     <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" />
-                    <th class="center"><spring:message code="label_physicalport_virtualportcount"/></th>
+                    <th class="cw80 small center"><spring:message code="label_physicalport_virtualportcount"/></th>
                     <table:actionsHeader />
                 </tr>
             </thead>
