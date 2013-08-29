@@ -309,14 +309,18 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
-    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
+    try {
+      NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
-    List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
-        Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
-        Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
-        requestDetails);
+      List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
+          Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
+          Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
+          requestDetails);
 
-    return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
+      return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
+    } catch (ServiceException e) {
+      throw new QueryNotificationSyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
+    }
   }
 
   private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {
@@ -338,7 +342,10 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
-  private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) {
+  private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) throws ServiceException {
+    if (!NsiConstants.URN_PROVIDER_NSA_V2.equals(header.getProviderNSA())) {
+      throw unsupportedParameter("providerNSA", header.getProviderNSA());
+    }
     Optional<URI> replyTo;
     if (header.getReplyTo() == null) {
       replyTo = Optional.absent();
@@ -387,6 +394,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {
     if (criteria.getSchedule() == null) {
       throw missingParameter("schedule");
+    }
+    if (criteria.getServiceType() == null) {
+      throw missingParameter("serviceType");
+    }
+    if (!criteria.getServiceType().equals(bodEnvironment.getNsiV2ServiceType())) {
+      throw unsupportedParameter("serviceType", criteria.getServiceType());
     }
 
     return new ReservationConfirmCriteriaType()

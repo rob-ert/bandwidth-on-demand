@@ -47,7 +47,6 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +63,6 @@ public class ConnectionServiceV2Test {
   @InjectMocks private ConnectionServiceV2 subject;
 
   @Mock private ConnectionV2Repo connectionRepoMock;
-  @Mock private Environment bodEnvironmentMock;
   @Mock private ReservationService reservationServiceMock;
   @Mock private ConnectionServiceRequesterV2 connectionServiceRequesterMock;
 
@@ -112,7 +110,6 @@ public class ConnectionServiceV2Test {
     NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
 
-    when(bodEnvironmentMock.getNsiProviderNsa()).thenReturn(providerNsa);
     when(connectionRepoMock.findByGlobalReservationId("GlobalReservationId")).thenReturn(connection);
 
     try {

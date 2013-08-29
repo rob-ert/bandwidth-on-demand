@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -74,7 +72,6 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionServiceProvider;
 import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
@@ -93,9 +90,6 @@ import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.ext.DefaultHandler2;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
@@ -170,7 +164,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
-        .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
+      .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
@@ -226,10 +221,10 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     String globalReservationId = generateGlobalReservationId();
     String description = "NSI v2 Reservation";
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
-      .withServiceType("serviceType")
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
-        .withEndTime(XmlUtils.toGregorianCalendar(endTime)));
+        .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
+      .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
@@ -310,7 +305,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     return new Holder<>(new CommonHeaderType()
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
-        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA_V1)
+        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA_V2)
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
     );

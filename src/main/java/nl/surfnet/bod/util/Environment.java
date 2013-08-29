@@ -120,6 +120,9 @@ public class Environment {
   @Value("${nsi.v2.service.url}")
   private String nsiV2ServiceUrl;
 
+  @Value("${nsi.v2.service.type}")
+  private String nsiV2ServiceType;
+
   public Environment() {
   }
 
@@ -297,4 +300,7 @@ public class Environment {
     return nsiTopologyAdminContactContentFileUri;
   }
 
+  public String getNsiV2ServiceType() {
+    return nsiV2ServiceType;
+  }
 }

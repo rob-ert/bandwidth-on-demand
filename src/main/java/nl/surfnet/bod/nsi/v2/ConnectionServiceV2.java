@@ -45,7 +45,6 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
@@ -68,7 +67,6 @@ public class ConnectionServiceV2 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV2.class);
 
-  @Resource private Environment bodEnvironment;
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
@@ -80,8 +78,6 @@ public class ConnectionServiceV2 {
     checkGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      checkProviderNsa(connection.getProviderNsa());
-
       P2PServiceBaseType service = ConnectionsV2.findPointToPointService(connection.getCriteria()).get();
       Optional<Integer> sourceVlanId = Optional.absent();
       Optional<Integer> destinationVlanId = Optional.absent();
@@ -240,14 +236,6 @@ public class ConnectionServiceV2 {
     if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
       log.debug("GlobalReservationId {} was not unique", globalReservationId);
       throw new ReservationCreationException("600", "Resource unavailable: GlobalReservationId already exists");
-    }
-  }
-
-  private void checkProviderNsa(String providerNsa) throws ReservationCreationException {
-    if (!bodEnvironment.getNsiProviderNsa().equals(providerNsa)) {
-      log.debug("ProviderNsa '{}' is not accepted", providerNsa);
-
-      throw new ReservationCreationException("100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
     }
   }
 

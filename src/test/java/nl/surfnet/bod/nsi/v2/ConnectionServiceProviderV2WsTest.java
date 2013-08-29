@@ -88,6 +88,10 @@ public class ConnectionServiceProviderV2WsTest {
 
   private static final String UNAUTHORIZED = "Unauthorized";
 
+  private static final String PROVIDER_NSA = NsiConstants.URN_PROVIDER_NSA_V2;
+
+  private static final String SERVICE_TYPE = "ServiceType";
+
   @InjectMocks private ConnectionServiceProviderV2Ws subject;
 
   @Mock private Environment bodEnvironmentMock;
@@ -100,6 +104,8 @@ public class ConnectionServiceProviderV2WsTest {
   public void setUp() {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.allOf(NsiScope.class)).create());
     headerHolder = new Holder<>(headers());
+
+    when(bodEnvironmentMock.getNsiV2ServiceType()).thenReturn(SERVICE_TYPE);
   }
 
   @After
@@ -166,6 +172,40 @@ public class ConnectionServiceProviderV2WsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void should_require_matching_provider_nsa() throws Exception {
+    Holder<String> connectionIdHolder = new Holder<>();
+    ReservationRequestCriteriaType criteria = initialReservationCriteria();
+    headerHolder.value.setProviderNSA("BadProviderNsa");
+
+    thrown.expect(ServiceException.class);
+    thrown.expectMessage(allOf(containsString("The attribute 'providerNSA'"), containsString("BadProviderNsa")));
+
+    subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
+  }
+
+  @Test
+  public void should_require_service_type_in_initial_reserve() throws Exception {
+    Holder<String> connectionIdHolder = new Holder<>();
+    ReservationRequestCriteriaType criteria = initialReservationCriteria().withServiceType(null);
+
+    thrown.expect(ServiceException.class);
+    thrown.expectMessage(is("Missing parameter 'serviceType'"));
+
+    subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
+  }
+
+  @Test
+  public void should_require_service_type_to_match_service_definition() throws Exception {
+    Holder<String> connectionIdHolder = new Holder<>();
+    ReservationRequestCriteriaType criteria = initialReservationCriteria().withServiceType("AnotherServiceType");
+
+    thrown.expect(ServiceException.class);
+    thrown.expectMessage(allOf(containsString("The attribute 'serviceType'"), containsString("AnotherServiceType")));
+
+    subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
+  }
 
   @Test
   public void should_reject_a_reserve_with_directionality_unidirectional() throws Exception {
@@ -432,12 +472,13 @@ public class ConnectionServiceProviderV2WsTest {
 
 
   private CommonHeaderType headers() {
-    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA("providerNSA").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
+    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA(PROVIDER_NSA).withRequesterNSA("requesterNSA").withReplyTo("replyTo");
   }
 
   private ReservationRequestCriteriaType initialReservationCriteria() {
     ReservationRequestCriteriaType result = new ReservationRequestCriteriaType()
         .withSchedule(new ScheduleType())
+        .withServiceType(SERVICE_TYPE)
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
