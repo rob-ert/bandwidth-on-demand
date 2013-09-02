@@ -241,7 +241,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
       for (VirtualPort virtualPort : virtualPorts) {
         virtualPortService.delete(virtualPort, Security.getUserDetails());
-        requestLink.setStatus(RequestStatus.DELETE_REQUESTED_APPROVED);
+        requestLink.setStatus(RequestStatus.DELETE_REQUEST_APPROVED);
         virtualPortRequestLinkRepo.saveAndFlush(requestLink);
         messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted",
             virtualPort.getManagerLabel());
