@@ -313,6 +313,6 @@ public class VirtualPortRequestLink implements Loggable {
   }
 
   public enum RequestStatus {
-    PENDING, APPROVED, DECLINED
+    PENDING, APPROVED, DECLINED, DELETE_REQUESTED
   }
 }

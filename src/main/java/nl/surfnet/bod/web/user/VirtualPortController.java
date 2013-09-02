@@ -109,8 +109,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
       return "redirect:/virtualports";
     }
-
-    // TODO: Should go to e-mail form with request to the appropriate NOC
+    virtualPortService.requestDeleteVirtualPort(Security.getUserDetails(),"VirtualPort Delete Request", virtualPort);
+    
     return "redirect:/virtualports";
   }
 

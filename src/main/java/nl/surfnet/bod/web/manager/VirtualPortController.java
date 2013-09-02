@@ -31,6 +31,7 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.UPDATE;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -38,16 +39,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VlanRangesValidator;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
@@ -74,6 +70,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
@@ -224,6 +226,24 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     virtualPortService.delete(virtualPort, Security.getUserDetails());
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted", virtualPort.getManagerLabel());
+
+    return "redirect:" + PAGE_URL;
+  }
+  
+  @RequestMapping(value = "/delete/{uuid}", method = RequestMethod.DELETE)
+  public String deleteVirtualPort(@PathVariable("uuid") String link, Model model, RedirectAttributes redirectAttributes) {
+    VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
+
+    if (requestLink.getStatus() == RequestStatus.DELETE_REQUESTED) {
+      Collection<VirtualPort> virtualPorts = requestLink.getVirtualResourceGroup().getVirtualPorts();
+
+      for (VirtualPort virtualPort : virtualPorts) {
+        virtualPortService.delete(virtualPort, Security.getUserDetails());
+
+        messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted",
+            virtualPort.getManagerLabel());
+      }
+    }
 
     return "redirect:" + PAGE_URL;
   }

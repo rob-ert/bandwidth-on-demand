@@ -34,6 +34,7 @@ import com.google.common.base.Strings;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
@@ -92,7 +93,13 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
-    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
+    String link;
+    if (requestLink.getStatus() == RequestStatus.DELETE_REQUESTED) {
+      link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid());
+    }
+    else {
+      link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
+    }
     SimpleMailMessage mail = new MailMessageBuilder().withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
         .withSubject(VirtualPortRequestMail.subject(from))
         .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
