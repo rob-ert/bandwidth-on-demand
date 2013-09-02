@@ -76,6 +76,10 @@ public class TestHelper {
     return loadProperties("prod");
   }
 
+  public static PropertiesEnvironment netherLightProperties() {
+    return loadProperties("netherlight");
+  }
+
   public static PropertiesEnvironment mtosiProperties() {
     return loadProperties("mtosi");
   }
@@ -125,6 +129,10 @@ public class TestHelper {
 
   public static void useAccEnv() {
     useEnv("acc");
+    dontUserLog4jMailAppender();
+  }
+  public static void useNetherLightEnv() {
+    useEnv("netherlight");
     dontUserLog4jMailAppender();
   }
 

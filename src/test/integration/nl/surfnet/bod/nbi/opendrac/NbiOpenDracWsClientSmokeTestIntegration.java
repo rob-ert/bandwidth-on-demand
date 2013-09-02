@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.opendrac;
 
 import static nl.surfnet.bod.util.TestHelper.accProperties;
+import static nl.surfnet.bod.util.TestHelper.netherLightProperties;
 import static nl.surfnet.bod.util.TestHelper.productionProperties;
 import static nl.surfnet.bod.util.TestHelper.testProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,6 +40,15 @@ import org.junit.Test;
 public class NbiOpenDracWsClientSmokeTestIntegration {
 
   private NbiOpenDracWsClient subject;
+
+  @Test
+  public void smokeTestNetherLight() {
+    initNetherLight();
+
+    List<NbiPort> allPorts = subject.findAllPorts();
+
+    assertThat(allPorts, hasSize(greaterThan(0)));
+  }
 
   @Test
   public void smokeTestAcceptance() {
@@ -65,6 +75,10 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
     List<NbiPort> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
+  }
+
+  private void initNetherLight() {
+    init(netherLightProperties());
   }
 
   private void initAcceptance() {
