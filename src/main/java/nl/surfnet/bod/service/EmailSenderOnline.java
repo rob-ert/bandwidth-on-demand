@@ -94,7 +94,7 @@ public class EmailSenderOnline implements EmailSender {
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
     String link;
-    if (requestLink.getStatus() == RequestStatus.DELETE_REQUESTED) {
+    if (requestLink.getStatus() == RequestStatus.DELETE_REQUEST_PENDING) {
       link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid());
     }
     else {

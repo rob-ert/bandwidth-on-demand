@@ -47,6 +47,7 @@ import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VlanRangesValidator;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -89,6 +90,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Resource private MessageManager messageManager;
   @Resource private MessageRetriever messageRetriever;
   @Resource private ReservationService reservationService;
+  @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -230,16 +232,17 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     return "redirect:" + PAGE_URL;
   }
   
-  @RequestMapping(value = "/delete/{uuid}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/delete/{uuid}")
   public String deleteVirtualPort(@PathVariable("uuid") String link, Model model, RedirectAttributes redirectAttributes) {
     VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
 
-    if (requestLink.getStatus() == RequestStatus.DELETE_REQUESTED) {
+    if (requestLink.getStatus() == RequestStatus.DELETE_REQUEST_PENDING) {
       Collection<VirtualPort> virtualPorts = requestLink.getVirtualResourceGroup().getVirtualPorts();
 
       for (VirtualPort virtualPort : virtualPorts) {
         virtualPortService.delete(virtualPort, Security.getUserDetails());
-
+        requestLink.setStatus(RequestStatus.DELETE_REQUESTED_APPROVED);
+        virtualPortRequestLinkRepo.saveAndFlush(requestLink);
         messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted",
             virtualPort.getManagerLabel());
       }

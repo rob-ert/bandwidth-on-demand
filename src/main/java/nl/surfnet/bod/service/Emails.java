@@ -75,7 +75,7 @@ public final class Emails {
             + FOOTER;
 
     public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
-      String message =  String.format(requestLink.getStatus()==RequestStatus.DELETE_REQUESTED?DELETE_VIRTUAL_PORT_REQUEST_BODY:NEW_VIRTUAL_PORT_REQUEST_BODY,
+      String message =  String.format(requestLink.getStatus()==RequestStatus.DELETE_REQUEST_PENDING?DELETE_VIRTUAL_PORT_REQUEST_BODY:NEW_VIRTUAL_PORT_REQUEST_BODY,
           from.getDisplayName(), from.getEmail().or("Unknown Email"),
           requestLink.getVirtualResourceGroup().getName(), requestLink.getUserLabel(),
           requestLink.getMinBandwidth(), requestLink.getMessage(),

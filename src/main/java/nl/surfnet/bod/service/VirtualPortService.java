@@ -239,7 +239,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(DateTime.now());
     
-    link.setStatus(RequestStatus.DELETE_REQUESTED);
+    link.setStatus(RequestStatus.DELETE_REQUEST_PENDING);
 
     virtualPortRequestLinkRepo.save(link);
     emailSender.sendVirtualPortRequestMail(user, link);
