@@ -99,6 +99,9 @@ public class Environment {
   @Value("${sab.enabled}")
   private boolean sabEnabled;
 
+  @Value("${vers.enabled}")
+  private boolean versEnabled;
+
   @Value("${institute.cache.max.age.in.hours}")
   private int instituteCacheMaxAgeInHours;
 
@@ -302,5 +305,9 @@ public class Environment {
 
   public String getNsiV2ServiceType() {
     return nsiV2ServiceType;
+  }
+
+  public boolean isVersEnabled() {
+    return versEnabled;
   }
 }

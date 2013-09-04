@@ -163,8 +163,7 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
     public ServiceState healthy() throws IOException {
       if (environment.isSabEnabled()) {
         return sabGroupService.getGroups(PERSON_URI).size() > 0 ? SUCCEEDED : FAILED;
-      }
-      else {
+      } else {
         return DISABLED;
       }
     }
@@ -178,7 +177,11 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
   private final ServiceCheck versCheck = new ServiceCheck() {
     @Override
     public ServiceState healthy() throws IOException {
-      return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
+      if (environment.isVersEnabled()) {
+        return verseReportingService.isWsdlAvailable() ? SUCCEEDED : FAILED;
+      } else {
+        return DISABLED;
+      }
     };
 
     @Override
@@ -205,7 +208,7 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
 
     if (healthCheckResult.isAllOk()) {
       httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-    }else{
+    } else{
       httpServletResponse.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
     }
   }
@@ -273,7 +276,6 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
       if (result.failed()) {
         logger.error("HealthCheck for '{}' failed", check.getName());
       }
-
     } catch (Exception e) {
       logger.error("Healthcheck for " + check.getName() + " failed with an exception: ", e);
       result = ServiceState.FAILED;

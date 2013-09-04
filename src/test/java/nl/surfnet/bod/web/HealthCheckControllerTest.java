@@ -135,8 +135,7 @@ public class HealthCheckControllerTest {
         containsString("NBI"),
         containsString("OAuth"),
         containsString("API"),
-        containsString("SAB"),
-        containsString("VERS")));
+        containsString("SAB")));
   }
 
   @Test
