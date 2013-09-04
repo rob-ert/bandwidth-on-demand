@@ -37,6 +37,8 @@ import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.ogf.schemas.nsi._2013._07.connection.requester.ConnectionServiceRequester;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
@@ -46,6 +48,8 @@ import org.springframework.stereotype.Component;
 class ConnectionServiceRequesterAsyncClient {
 
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceRequesterAsyncClient.class);
 
   @Value("${connection.service.requester.v2.connect.timeout}")
   private int connectTimeout;
@@ -59,16 +63,20 @@ class ConnectionServiceRequesterAsyncClient {
       return;
     }
 
-    Dispatch<SOAPMessage> dispatch = createDispatcher();
+    try {
+      Dispatch<SOAPMessage> dispatch = createDispatcher();
 
-    Map<String, Object> requestContext = dispatch.getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyTo.get().toASCIIString());
-    requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
-    requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
-    requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
-    requestContext.put(Dispatch.SOAPACTION_URI_PROPERTY, soapAction);
+      Map<String, Object> requestContext = dispatch.getRequestContext();
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyTo.get().toASCIIString());
+      requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
+      requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
+      requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
+      requestContext.put(Dispatch.SOAPACTION_URI_PROPERTY, soapAction);
 
-    dispatch.invokeOneWay(message);
+      dispatch.invoke(message);
+    } catch (Exception e) {
+      LOGGER.warn("Failed to send " + soapAction + " to " + replyTo.get() + ": " + e, e);
+    }
   }
 
   private Dispatch<SOAPMessage> createDispatcher() {
