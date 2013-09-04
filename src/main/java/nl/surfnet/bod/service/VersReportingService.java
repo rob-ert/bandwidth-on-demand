@@ -50,6 +50,7 @@ import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
 import surfnet_er.InsertReportInput;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
 @Service
@@ -59,37 +60,33 @@ public class VersReportingService {
   // Every 1st of the month at 1:00am
   private static final String FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION = "0 0 1 1 1/1 ?";
 
-  @Value("${vers.url}")
-  private String serviceURL;
-
-  @Value("${vers.user}")
-  private String versUserName;
-
-  @Value("${vers.password}")
-  private String versUserPassword;
-
-  @Resource
-  private ReportingService reportingService;
-
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
+  @Value("${vers.enabled}") private boolean enabled;
+  @Value("${vers.url}") private String serviceURL;
+  @Value("${vers.user}") private String versUserName;
+  @Value("${vers.password}") private String versUserPassword;
+  @Resource private ReportingService reportingService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Scheduled(cron = FIRST_DAY_OF_THE_MONTH_CRON_EXPRESSION)
   public void sendInternalReport() throws Exception {
-    YearMonth previousMonth = YearMonth.now().minusMonths(1);
+    if (!enabled) {
+      logger.info(String.format("Skiping VERS reporting, service is disabled"));
+      return;
+    }
 
+    YearMonth previousMonth = YearMonth.now().minusMonths(1);
     sendReports(previousMonth);
   }
 
-  public void sendReports(YearMonth period) {
+  @VisibleForTesting
+  protected void sendReports(YearMonth period) {
     logger.info(String.format("Sending reports to VERS for '%s'", period.toString("yyyy-MM")));
 
     Map<Optional<String>, ReservationReportView> reportViews = getAllReservationReportViews(period);
 
     for (Entry<Optional<String>, ReservationReportView> reservationReportViewEntry : reportViews.entrySet()) {
-
       Optional<String> institute = reservationReportViewEntry.getKey();
       ReservationReportView reportView = reservationReportViewEntry.getValue();
 
@@ -111,16 +108,13 @@ public class VersReportingService {
       HttpResponse response = new DefaultHttpClient().execute(new HttpGet(serviceURL + "?wsdl"));
 
       return HttpStatus.SC_OK == response.getStatusLine().getStatusCode();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.warn("Error performing healthcheck on Vers", e);
       return false;
     }
   }
 
-  Collection<ErInsertReportDocument> createAllReports(
-      YearMonth period, Optional<String> institute, ReservationReportView reportView) {
-
+  Collection<ErInsertReportDocument> createAllReports(YearMonth period, Optional<String> institute, ReservationReportView reportView) {
     List<ErInsertReportDocument> reports = new ArrayList<>();
 
     reports.addAll(createRunningReservationsSucceededPki(period, institute, reportView));
@@ -264,8 +258,7 @@ public class VersReportingService {
           logger.warn("Sending report failed with {}, '{}'", response.getReturnCode(), response.getReturnText());
         }
       }
-    }
-    catch (RemoteException e) {
+    } catch (RemoteException e) {
       logger.error("Could not send reports", e);
     }
   }
@@ -305,8 +298,7 @@ public class VersReportingService {
     if (instituteShortName.isPresent()) {
       insertReportInput.setOrganisation(instituteShortName.get());
       insertReportInput.setIsHidden(false);
-    }
-    else {
+    } else {
       insertReportInput.setIsHidden(true);
     }
 
@@ -316,7 +308,7 @@ public class VersReportingService {
     return versRequest;
   }
 
-  private ErInsertReport getErInsertReport(final InsertReportInput reportData) {
+  private ErInsertReport getErInsertReport(InsertReportInput reportData) {
     ErInsertReport messageBody = ErInsertReport.Factory.newInstance();
     messageBody.setUsername(versUserName);
     messageBody.setPassword(versUserPassword);

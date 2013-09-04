@@ -53,17 +53,10 @@ public class DashboardController {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Resource
-  private TextSearchIndexer textSearchIndexer;
-
-  @Resource
-  private InstituteService instituteService;
-
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private MessageManager messageManager;
+  @Resource private TextSearchIndexer textSearchIndexer;
+  @Resource private InstituteService instituteService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private MessageManager messageManager;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
