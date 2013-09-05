@@ -25,9 +25,6 @@ package nl.surfnet.bod.util;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -40,7 +37,9 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 import nl.surfnet.bod.web.view.UserGroupView;
-import nl.surfnet.bod.web.view.VirtualPortView;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public final class Functions {
 
@@ -63,13 +62,6 @@ public final class Functions {
         }
       };
 
-  public static final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
-      new Function<VirtualPort, VirtualPortView>() {
-        @Override
-        public VirtualPortView apply(VirtualPort port) {
-          return new VirtualPortView(port);
-        }
-      };
 
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}

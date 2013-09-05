@@ -43,10 +43,7 @@ public class VirtualPortView {
   private final String nsiStpNetworkIdV2;
   private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
 
-  public VirtualPortView(VirtualPort port) {
-    this(port, Optional.<Long> absent());
-  }
-
+  
   public VirtualPortView(VirtualPort port, final Optional<Long> reservationCounter) {
     id = port.getId();
     managerLabel = port.getManagerLabel();

@@ -34,6 +34,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
@@ -52,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -60,6 +63,7 @@ import com.google.common.collect.Lists;
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   @Resource private VirtualPortService virtualPortService;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
@@ -212,7 +216,16 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
-    return Lists.transform(entities, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
+    return Lists.transform(entities, FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
+  
+  public  final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
+      new Function<VirtualPort, VirtualPortView>() {
+        @Override
+        public VirtualPortView apply(VirtualPort port) {
+          final long counter = reservationService.findAllActiveByVirtualPort(port).size();
+          return new VirtualPortView(port, Optional.<Long> of(counter));
+        }
+      };
 
 }
