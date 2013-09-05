@@ -543,9 +543,19 @@ public class NbiOpenDracWsClient implements NbiClient {
     port.setNmsPortId(endpoint.getId());
     port.setSuggestedBodPortId(endpoint.getTna());
     port.setVlanRequired(isVlanRequired(endpoint.getTna()));
-    port.setInterfaceType(InterfaceType.UNI);
+    port.setInterfaceType(translateInterfaceType(endpoint.getSignalingType()));
 
     return port;
+  }
+
+  private InterfaceType translateInterfaceType(String interfaceType) {
+    if (interfaceType.equals("ENNI")) {
+      return InterfaceType.E_NNI;
+    } else if (interfaceType.equals("UNI")) {
+      return InterfaceType.UNI;
+    }
+
+    throw new IllegalArgumentException("Uknown interface type " + interfaceType);
   }
 
   /**
