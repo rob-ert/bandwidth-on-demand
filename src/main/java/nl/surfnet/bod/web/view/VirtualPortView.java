@@ -45,27 +45,20 @@ public class VirtualPortView {
 
 
   public VirtualPortView(VirtualPort port, NsiHelper nsiHelper, Optional<Long> reservationCounter) {
-    id = port.getId();
-    managerLabel = port.getManagerLabel();
-    userLabel = port.getUserLabel();
-    maxBandwidth = port.getMaxBandwidth();
-    vlanId = port.getVlanId();
-    virtualResourceGroup = port.getVirtualResourceGroup().getName();
-    physicalResourceGroup = port.getPhysicalResourceGroup().getName();
-    physicalPort = port.getPhysicalPort().getManagerLabel();
-    nmsPortId = port.getPhysicalPort().getNmsPortId();
+    this.id = port.getId();
+    this.managerLabel = port.getManagerLabel();
+    this.userLabel = port.getUserLabel();
+    this.maxBandwidth = port.getMaxBandwidth();
+    this.vlanId = port.getVlanId();
+    this.virtualResourceGroup = port.getVirtualResourceGroup().getName();
+    this.physicalResourceGroup = port.getPhysicalResourceGroup().getName();
+    this.physicalPort = port.getPhysicalPort().getManagerLabel();
+    this.nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
     this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
     this.nsiStpNetworkIdV2 = nsiHelper.getUrnStpV2();
-
-    if (reservationCounter == Optional.<Long> absent()) {
-      requestDeleteAllowed = true;
-    } else if (reservationCounter.isPresent() && reservationCounter.get() == 0L) {
-      requestDeleteAllowed = true;
-    } else {
-      requestDeleteAllowed = false;
-    }
+    this.requestDeleteAllowed = !reservationCounter.isPresent() || reservationCounter.get() == 0L;
   }
 
   public boolean isRequestDeleteAllowed() {
