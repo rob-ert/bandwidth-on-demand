@@ -32,7 +32,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -53,17 +59,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 @Controller
 @RequestMapping("/virtualports")
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   @Resource private VirtualPortService virtualPortService;
   @Resource private ReservationService reservationService;
+  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
@@ -114,7 +116,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       return "redirect:/virtualports";
     }
     virtualPortService.requestDeleteVirtualPort(Security.getUserDetails(),"VirtualPort Delete Request", virtualPort);
-    
+
     return "redirect:/virtualports";
   }
 
@@ -218,13 +220,13 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
     return Lists.transform(entities, FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
-  
-  public  final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
+
+  public final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {
           final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-          return new VirtualPortView(port, Optional.<Long> of(counter));
+          return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter));
         }
       };
 

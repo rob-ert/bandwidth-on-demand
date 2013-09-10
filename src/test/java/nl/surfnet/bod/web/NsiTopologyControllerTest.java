@@ -23,6 +23,7 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
@@ -53,14 +55,10 @@ public class NsiTopologyControllerTest {
   @InjectMocks
   private NsiTopologyController subject;
 
-  @Mock
-  private Environment environment;
-
-  @Mock
-  private VirtualPortService virtualPortService;
-
-  @Mock
-  private PhysicalPortService physicalPortService;
+  @Mock private Environment environment;
+  @Mock private VirtualPortService virtualPortService;
+  @Mock private PhysicalPortService physicalPortService;
+  @Mock private NsiHelper nsiHelper;
 
   private MockMvc mockMvc;
 
@@ -71,8 +69,8 @@ public class NsiTopologyControllerTest {
 
   @Test
   public void should_display_virtualports_and_enniports() throws Exception {
-    final EnniPort enniPort = new EnniPort();
-    final VirtualPort virtualPort = new VirtualPort();
+    EnniPort enniPort = new EnniPort();
+    VirtualPort virtualPort = new VirtualPort();
 
     virtualPort.setVlanId(1);
     virtualPort.setPhysicalPort(new UniPort());
@@ -80,12 +78,14 @@ public class NsiTopologyControllerTest {
     when(physicalPortService.findAllAllocatedEnniEntries()).thenReturn(ImmutableList.of(enniPort));
     when(virtualPortService.findAll()).thenReturn(ImmutableList.of(virtualPort));
     when(environment.getNsiTopologyAdminContactContentFileUri()).thenReturn("/topologyAdminContactContent.xml");
+    when(nsiHelper.getUrnProviderNsaV2()).thenReturn("providerNSA");
+    when(nsiHelper.getNetworkIdV2()).thenReturn("networkId");
 
     mockMvc.perform(get("/nsi-topology"))
         .andExpect(status().isOk())
         .andExpect(model().attribute("entries", hasSize(2)))
-        .andExpect(model().attribute("nsiId", notNullValue()))
-        .andExpect(model().attribute("networkName", notNullValue()))
+        .andExpect(model().attribute("nsiId", is("providerNSA")))
+        .andExpect(model().attribute("networkName", is("networkId")))
         .andExpect(model().attribute("version", notNullValue()))
         .andExpect(model().attribute("adminContactContent", notNullValue()))
         .andExpect(view().name("topology"));

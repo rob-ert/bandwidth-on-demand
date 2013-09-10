@@ -43,7 +43,6 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
@@ -86,10 +85,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Resource private ConnectionServiceV2 connectionService;
   @Resource private ConnectionV2Repo connectionRepo;
   @Resource private Environment bodEnvironment;
+  @Resource private NsiHelper nsiHelper;
 
   @Override
   public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
       Holder<CommonHeaderType> header) throws ServiceException {
+
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
@@ -121,7 +122,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage()).
           withErrorId(e.getErrorCode()).
-          withNsaId(bodEnvironment.getNsiProviderNsa());
+          withNsaId(nsiHelper.getUrnProviderNsaV2());
       throw new ServiceException(e.getMessage(), serviceException);
     }
   }
@@ -141,7 +142,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());
-    connection.setGlobalReservationId(globalReservationId.or(NsiHelper.generateGlobalReservationId()));
+    connection.setGlobalReservationId(globalReservationId.or(nsiHelper.generateGlobalReservationId()));
     connection.setDescription(description.orNull());
     connection.setStartTime(startTime.orNull());
     connection.setEndTime(endTime.orNull());
@@ -160,7 +161,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void validateStp(StpType stp, String sourceDest) throws ServiceException {
-    if (!stp.getNetworkId().equals(NsiConstants.URN_STP_V2)) {
+    if (!stp.getNetworkId().equals(nsiHelper.getUrnStpV2())) {
       throw unsupportedParameter(sourceDest + "STP::networkId", stp.getNetworkId());
     }
     if (stp.getLabels() != null ) {
@@ -343,9 +344,10 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) throws ServiceException {
-    if (!NsiConstants.URN_PROVIDER_NSA_V2.equals(header.getProviderNSA())) {
+    if (!nsiHelper.getUrnProviderNsaV2().equals(header.getProviderNSA())) {
       throw unsupportedParameter("providerNSA", header.getProviderNSA());
     }
+
     Optional<URI> replyTo;
     if (header.getReplyTo() == null) {
       replyTo = Optional.absent();
@@ -388,7 +390,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ServiceExceptionType createServiceExceptionType(String message) {
-    return new ServiceExceptionType().withNsaId(bodEnvironment.getNsiProviderNsa()).withText(message);
+    return new ServiceExceptionType().withNsaId(nsiHelper.getUrnProviderNsaV2()).withText(message);
   }
 
   private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {

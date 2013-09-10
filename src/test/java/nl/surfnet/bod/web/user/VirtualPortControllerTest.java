@@ -69,8 +69,7 @@ public class VirtualPortControllerTest {
   @InjectMocks
   private VirtualPortController subject;
 
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
 
   private RichUserDetails user;
 

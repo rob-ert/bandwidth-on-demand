@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA_V1;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -53,6 +51,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 import nl.surfnet.bod.nbi.opendrac.ReservationPoller;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -118,6 +117,7 @@ public class ConnectionServiceProviderTestIntegration {
   @Resource private ReservationService reservationService;
   @Resource private ReservationPoller reservationPoller;
   @Resource private NbiOpenDracOfflineClient nbiOfflineClient;
+  @Resource private NsiHelper nsiHelper;
 
   private static final String URN_REQUESTER_NSA = "urn:requester";
   private final String virtualResourceGroupName = "nsi:group";
@@ -253,7 +253,7 @@ public class ConnectionServiceProviderTestIntegration {
     String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
     assertThat(response, containsString("<connectionId>" + connectionId + "</connectionId"));
-    assertThat(response, containsString("<providerNSA>" + URN_PROVIDER_NSA_V1 + "</providerNSA>"));
+    assertThat(response, containsString("<providerNSA>" + nsiHelper.getUrnProviderNsaV1() + "</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>" + URN_REQUESTER_NSA + "</requesterNSA>"));
   }
 
@@ -272,8 +272,6 @@ public class ConnectionServiceProviderTestIntegration {
     Awaitility.await().until(internalConnectionStateIs(connectionId, ConnectionStateType.TERMINATED));
     Awaitility.await().until(internalReservationStateIs(connection.getReservation().getId(), ReservationStatus.CANCELLED));
   }
-
-
 
   @Test
   public void terminateShouldFailWhenStateIsTerminated() throws Exception {
@@ -368,14 +366,14 @@ public class ConnectionServiceProviderTestIntegration {
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(URN_STP_V1 + ":" + sourceVirtualPort.getId());
+    dest.setStpId(nsiHelper.getStpIdV1(sourceVirtualPort));
     path.setDestSTP(dest);
 
     ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(URN_STP_V1 + ":" + destinationVirtualPort.getId());
+    source.setStpId(nsiHelper.getStpIdV1(destinationVirtualPort));
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA_V1).setPath(
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(nsiHelper.getUrnProviderNsaV1()).setPath(
         path).create();
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
@@ -387,17 +385,17 @@ public class ConnectionServiceProviderTestIntegration {
   }
 
   private QueryRequestType createQueryRequest(String connectionId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA_V1)
+    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
         .setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
   }
 
   private TerminateRequestType createTerminateRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA_V1)
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
         .createTerminateRequest();
   }
 
   private ProvisionRequestType createProvisionRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA_V1)
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
         .createProvisionRequest();
   }
 

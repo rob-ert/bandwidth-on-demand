@@ -59,11 +59,11 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -103,7 +103,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV1.class);
 
-  @Resource private Environment bodEnvironment;
+  @Resource private NsiHelper nsiHelper;
   @Resource private ConnectionV1Repo connectionRepo;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
@@ -164,8 +164,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
       checkProviderNsa(connection.getProviderNsa());
       checkPort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
       checkPort(connection.getDestinationStpId(), "destSTP", richUserDetails);
-    }
-    catch (ValidationException e) {
+    } catch (ValidationException e) {
       connection.setCurrentState(ConnectionStateType.TERMINATED);
       connectionRepo.save(connection);
       throw e;
@@ -173,7 +172,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   private void checkProviderNsa(String providerNsa) throws ValidationException {
-    if (!bodEnvironment.getNsiProviderNsa().equals(providerNsa)) {
+    if (!nsiHelper.getUrnProviderNsaV1().equals(providerNsa)) {
       log.warn("ProviderNsa '{}' is not accepted", providerNsa);
 
       throw new ValidationException("providerNSA", "0100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
@@ -211,13 +210,11 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
       log.info("Connection is already provisioned", connection.getCurrentState());
       connectionServiceRequester.provisionConfirmed(connection, requestDetails);
-    }
-    else if (isProvisionPossible(connection)) {
+    } else if (isProvisionPossible(connection)) {
       connection.setProvisionRequestDetails(requestDetails);
       connection = connectionRepo.saveAndFlush(connection);
       reservationService.provision(connection.getReservation());
-    }
-    else {
+    } else {
       log.info("Provision is not possible for state '{}'", connection.getCurrentState());
       connectionServiceRequester.provisionFailedDontUpdateState(connection, requestDetails);
     }
@@ -240,8 +237,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
           connection.getReservation(),
           "NSI terminate by " + user.getNameId(),
           user);
-    }
-    else {
+    } else {
       log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
       connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
     }
@@ -326,8 +322,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
 
     if (operation.equals(QueryOperationType.DETAILS)) {
       confirmedType.getReservationDetails().add(getQueryDetailsResult(connection));
-    }
-    else {
+    } else {
       confirmedType.getReservationSummary().add(getQuerySummaryResult(connection));
     }
   }

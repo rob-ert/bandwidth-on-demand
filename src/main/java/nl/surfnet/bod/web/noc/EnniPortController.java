@@ -38,7 +38,7 @@ import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VlanRanges;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
@@ -69,6 +69,7 @@ public class EnniPortController extends AbstractSearchableSortableListController
   @Resource private PhysicalPortService physicalPortService;
   @Resource private ReservationService reservationService;
   @Resource private MessageManager messageManager;
+  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(method = RequestMethod.GET)
   @Override
@@ -190,7 +191,7 @@ public class EnniPortController extends AbstractSearchableSortableListController
 
   @Override
   protected List<? extends PhysicalPortView> transformToView(List<? extends EnniPort> entities, RichUserDetails user) {
-    return Functions.transformAllocatedPhysicalPorts(entities, reservationService);
+    return Functions.transformAllocatedPhysicalPorts(entities, reservationService, nsiHelper);
   }
 
   @Override
@@ -235,11 +236,11 @@ public class EnniPortController extends AbstractSearchableSortableListController
   public static class CreateEnniPortCommand extends PhysicalPortCommand {
 
     @NotEmpty
-    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
+    @Pattern(regexp = NsiHelper.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
     private String inboundPeer;
 
     @NotEmpty
-    @Pattern(regexp = NsiConstants.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
+    @Pattern(regexp = NsiHelper.NURN_PATTERN_REGEXP, message = "{nl.surfnet.bod.domain.urn.message}")
     private String outboundPeer;
 
     @VlanRanges private String vlanRanges;

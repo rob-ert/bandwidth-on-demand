@@ -28,7 +28,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2Point2PointServiceUserType;
 
@@ -41,8 +41,11 @@ import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.ObjectFactory;
 import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
+@Component
 public final class ConnectionsV2 {
 
   private static final ObjectFactory P2P_OF = new ObjectFactory();
@@ -50,7 +53,15 @@ public final class ConnectionsV2 {
   public static final JaxbUserType<P2PServiceBaseType> P2PS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createP2Ps(null));
   public static final JaxbUserType<EthernetBaseType> ETS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createEts(null));
   public static final JaxbUserType<EthernetVlanType> EVTS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createEvts(null));
+
   private static final String P2P_NAMESPACE = P2PS_CONVERTER.getXmlRootElementName().getNamespaceURI();
+
+  private final NsiHelper nsiHelper;
+
+  @Autowired
+  public ConnectionsV2(NsiHelper nsiHelper) {
+    this.nsiHelper = nsiHelper;
+  }
 
   public static final Function<ConnectionV2, QuerySummaryResultType> toQuerySummaryResultType = new Function<ConnectionV2, QuerySummaryResultType>() {
     public QuerySummaryResultType apply(ConnectionV2 connection) {
@@ -69,8 +80,8 @@ public final class ConnectionsV2 {
     return type.getLocalId();
   }
 
-  public static StpType toStpType(String localId) {
-    return new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId(localId);
+  public StpType toStpType(String localId) {
+    return new StpType().withNetworkId(nsiHelper.getUrnStpV2()).withLocalId(localId);
   }
 
   public static void addPointToPointService(Collection<Object> any, P2PServiceBaseType service) {
@@ -111,6 +122,4 @@ public final class ConnectionsV2 {
     return findPointToPointService(criteria.getAny());
   }
 
-  private ConnectionsV2() {
-  }
 }

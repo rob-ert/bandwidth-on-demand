@@ -22,10 +22,10 @@
  */
 package nl.surfnet.bod.web.view;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiConstants;
-
 import com.google.common.base.Optional;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 
 public class VirtualPortView {
   private final Long id;
@@ -43,8 +43,8 @@ public class VirtualPortView {
   private final String nsiStpNetworkIdV2;
   private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
 
-  
-  public VirtualPortView(VirtualPort port, final Optional<Long> reservationCounter) {
+
+  public VirtualPortView(VirtualPort port, NsiHelper nsiHelper, Optional<Long> reservationCounter) {
     id = port.getId();
     managerLabel = port.getManagerLabel();
     userLabel = port.getUserLabel();
@@ -55,17 +55,15 @@ public class VirtualPortView {
     physicalPort = port.getPhysicalPort().getManagerLabel();
     nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
-    this.nsiStpIdV1 = port.getNsiStpIdV1();
-    this.nsiStpLocalIdV2 = port.getNsiStpIdV2();
-    this.nsiStpNetworkIdV2 = NsiConstants.URN_STP_V2;
+    this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
+    this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
+    this.nsiStpNetworkIdV2 = nsiHelper.getUrnStpV2();
 
     if (reservationCounter == Optional.<Long> absent()) {
       requestDeleteAllowed = true;
-    }
-    else if (reservationCounter.isPresent() && reservationCounter.get() == 0L) {
+    } else if (reservationCounter.isPresent() && reservationCounter.get() == 0L) {
       requestDeleteAllowed = true;
-    }
-    else {
+    } else {
       requestDeleteAllowed = false;
     }
   }

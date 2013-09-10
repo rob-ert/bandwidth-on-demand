@@ -24,7 +24,6 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.Reservation;
@@ -38,24 +37,21 @@ public class ReservationArchiveTest {
 
   @Test
   public void testReservationArchive() throws Exception {
-    final ObjectMapper mapper = ReservationService.mapper;
+    ObjectMapper mapper = ReservationService.mapper;
 
     assertThat(mapper.canSerialize(Reservation.class), is(true));
 
-    final ConnectionV1 connection = new ConnectionV1Factory().create();
-    final Reservation reservation = new ReservationFactory().setConnectionV1(connection).create();
+    ConnectionV1 connection = new ConnectionV1Factory().create();
+    Reservation reservation = new ReservationFactory().setConnectionV1(connection).create();
 
-    final String reservationAsJson = mapper.writeValueAsString(reservation);
+    String reservationAsJson = mapper.writeValueAsString(reservation);
 
-    final Reservation reservationFromJson = mapper.readValue(reservationAsJson, Reservation.class);
-    final Connection connectionFromJson = reservationFromJson.getConnectionV1().get();
+    Reservation reservationFromJson = mapper.readValue(reservationAsJson, Reservation.class);
+    Connection connectionFromJson = reservationFromJson.getConnectionV1().get();
 
     assertThat(reservation.getStartDate(), is(reservationFromJson.getStartDate()));
     assertThat(reservation.getEndDate(), is(reservationFromJson.getEndDate()));
-    assertThat(reservation.getDestinationPort().getVirtualPort().get().getAdminGroups(),
-        is(reservationFromJson.getDestinationPort().getVirtualPort().get().getAdminGroups()));
-    assertThat(reservation.getDestinationPort().getNsiStpIdV1(),
-        is(reservationFromJson.getDestinationPort().getNsiStpIdV1()));
+    assertThat(reservation.getDestinationPort().getVirtualPort().get().getAdminGroups(), is(reservationFromJson.getDestinationPort().getVirtualPort().get().getAdminGroups()));
 
     assertThat(connection.getConnectionId(), is(connectionFromJson.getConnectionId()));
   }

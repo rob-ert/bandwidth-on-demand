@@ -25,8 +25,6 @@ package nl.surfnet.bod.domain;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import nl.surfnet.bod.nsi.NsiConstants;
-
 import org.junit.Test;
 
 public class EnniPortTest {
@@ -54,13 +52,6 @@ public class EnniPortTest {
     assertThat(subject.isVlanIdAllowed(2000), is(true));
     assertThat(subject.isVlanIdAllowed(2001), is(true));
     assertThat(subject.isVlanIdAllowed(2002), is(false));
-  }
-
-  @Test
-  public void should_derive_nsi_v2_stp_from_bod_port_id() {
-    EnniPort subject = new EnniPort();
-    subject.setBodPortId("bod-port-id");
-    assertThat(subject.getNsiStpIdV2(), is(NsiConstants.URN_STP_V2 + ":bod-port-id"));
   }
 
   private EnniPort evpl(String vlanRanges) {

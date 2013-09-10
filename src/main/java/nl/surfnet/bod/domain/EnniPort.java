@@ -29,8 +29,6 @@ import javax.persistence.Entity;
 
 import com.google.common.collect.RangeSet;
 
-import nl.surfnet.bod.nsi.NsiConstants;
-
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -84,14 +82,6 @@ public class EnniPort extends PhysicalPort {
   @Override
   public Collection<String> getAdminGroups() {
     return Collections.emptyList();
-  }
-
-  public String getNsiStpIdV2() {
-    return NsiConstants.URN_STP_V2 + ":" + getBodPortId();
-  }
-
-  public String getNsiStpIdV1() {
-    return NsiConstants.URN_STP_V1 + ":" + getBodPortId();
   }
 
   public boolean isVlanIdAllowed(int vlan) {

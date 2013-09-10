@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.nsi.NsiHelper.generateCorrelationId;
-import static nl.surfnet.bod.nsi.NsiHelper.generateGlobalReservationId;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -52,7 +51,6 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
 import nl.surfnet.bod.domain.NsiVersion;
-import nl.surfnet.bod.nsi.NsiConstants;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
 import nl.surfnet.bod.service.DatabaseTestHelper;
@@ -110,6 +108,9 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private StpType sourceStp;
   private StpType destStp;
 
+  private NsiHelper nsiHelper = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "urn:nl:surfnet:diensten:bod");
+  private ConnectionsV2 connectionsV2 = new ConnectionsV2(nsiHelper);
+
   @Override
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
@@ -142,8 +143,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
-    sourceStp = ConnectionsV2.toStpType(virtualPortIds.get(0));
-    destStp = ConnectionsV2.toStpType(virtualPortIds.get(1));
+    sourceStp = connectionsV2.toStpType(virtualPortIds.get(0));
+    destStp = connectionsV2.toStpType(virtualPortIds.get(1));
   }
 
   @After
@@ -160,7 +161,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   @Test
   public void reserveAndProvision() throws Exception {
     String description = "NSI v2 Reservation";
-    String globalReservationId = NsiHelper.generateGlobalReservationId();
+    String globalReservationId = nsiHelper.generateGlobalReservationId();
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
       .withSchedule(new ScheduleType()
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
@@ -218,7 +219,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void idempotency() throws Exception {
-    String globalReservationId = generateGlobalReservationId();
+    String globalReservationId = nsiHelper.generateGlobalReservationId();
     String description = "NSI v2 Reservation";
     ReservationRequestCriteriaType criteria = new ReservationRequestCriteriaType()
       .withSchedule(new ScheduleType()
@@ -305,7 +306,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     return new Holder<>(new CommonHeaderType()
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
-        .withProviderNSA(NsiConstants.URN_PROVIDER_NSA_V2)
+        .withProviderNSA(nsiHelper.getUrnProviderNsaV2())
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
     );
@@ -323,8 +324,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private URL wsdlUrl() {
     try {
       return new ClassPathResource(WSDL_LOCATION).getURL();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("Could not find the requester wsdl", e);
     }
   }

@@ -26,6 +26,7 @@ import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NmsAlignmentStatus;
 import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 
 public class PhysicalPortView {
 
@@ -85,7 +86,7 @@ public class PhysicalPortView {
     this.bodPortId = nbiPort.getSuggestedBodPortId();
   }
 
-  public PhysicalPortView(EnniPort enniPort, ElementActionView deleteActionView) {
+  public PhysicalPortView(EnniPort enniPort, ElementActionView deleteActionView, NsiHelper nsiHelper) {
     this.id = enniPort.getId();
     this.nocLabel = enniPort.getNocLabel();
     this.bodPortId = enniPort.getBodPortId();
@@ -103,8 +104,8 @@ public class PhysicalPortView {
     this.inboundPeer = enniPort.getInboundPeer();
     this.outboundPeer = enniPort.getOutboundPeer();
     this.vlanRanges = enniPort.getVlanRanges();
-    this.nsiStpIdV2 = enniPort.getNsiStpIdV2();
-    this.nsiStpIdV1 = enniPort.getNsiStpIdV1();
+    this.nsiStpIdV2 = nsiHelper.getStpIdV2(enniPort);
+    this.nsiStpIdV1 = nsiHelper.getStpIdV1(enniPort);
 
     this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();

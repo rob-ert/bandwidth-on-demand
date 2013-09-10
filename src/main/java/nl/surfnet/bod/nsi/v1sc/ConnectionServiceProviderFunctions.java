@@ -62,8 +62,8 @@ public final class ConnectionServiceProviderFunctions {
       }
     };
 
-  public static final Function<ReserveRequestType, ConnectionV1> RESERVE_REQUEST_TO_CONNECTION =
-    new Function<ReserveRequestType, ConnectionV1>() {
+  public static final Function<ReserveRequestType, ConnectionV1> reserveRequestToConnection(final NsiHelper nsiHelper) {
+    return new Function<ReserveRequestType, ConnectionV1>() {
       @Override
       public ConnectionV1 apply(ReserveRequestType reserveRequestType) {
 
@@ -96,7 +96,7 @@ public final class ConnectionServiceProviderFunctions {
 
         String globalReservationId = reservation.getGlobalReservationId();
         if (!StringUtils.hasText(globalReservationId)) {
-          globalReservationId = NsiHelper.generateGlobalReservationId();
+          globalReservationId = nsiHelper.generateGlobalReservationId();
         }
         connection.setGlobalReservationId(globalReservationId);
 
@@ -148,6 +148,7 @@ public final class ConnectionServiceProviderFunctions {
       }
 
     };
+  }
 
   private ConnectionServiceProviderFunctions() {
   }

@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.service.ReservationService;
@@ -69,6 +70,7 @@ public class ConnectionServiceV1Test {
   @Mock private ReservationService reservationServiceMock;
   @Mock private VirtualPortService virtualPortServiceMock;
   @Mock private Environment environmentMock;
+  @Mock private NsiHelper nsiHelper;
 
   @InjectMocks private ConnectionServiceV1 subject;
 
@@ -83,7 +85,7 @@ public class ConnectionServiceV1Test {
     userDetails = new RichUserDetailsFactory().setUsername("me").addUserGroup("admin").create();
     Security.setUserDetails(userDetails);
 
-    when(environmentMock.getNsiProviderNsa()).thenReturn(PROVIDER_NSA);
+    when(nsiHelper.getUrnProviderNsaV1()).thenReturn(PROVIDER_NSA);
   }
 
   @Test

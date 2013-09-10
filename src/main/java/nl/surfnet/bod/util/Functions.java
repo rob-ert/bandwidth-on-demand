@@ -32,11 +32,13 @@ import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 import nl.surfnet.bod.web.view.UserGroupView;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -62,7 +64,6 @@ public final class Functions {
         }
       };
 
-
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
    */
@@ -86,20 +87,20 @@ public final class Functions {
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
    */
-  public static PhysicalPortView transformAllocatedPhysicalPort(EnniPort port, ReservationService reservationService) {
+  public static PhysicalPortView transformAllocatedPhysicalPort(EnniPort port, ReservationService reservationService, NsiHelper nsiHelper) {
 
     ElementActionView allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
 
-    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView);
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, nsiHelper);
     physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
 
     return physicalPortView;
   }
 
-  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends EnniPort> ports, ReservationService reservationService) {
+  public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends EnniPort> ports, ReservationService reservationService, NsiHelper nsiHelper) {
     List<PhysicalPortView> views = Lists.newArrayList();
     for (EnniPort port : ports) {
-      views.add(transformAllocatedPhysicalPort(port, reservationService));
+      views.add(transformAllocatedPhysicalPort(port, reservationService, nsiHelper));
     }
 
     return views;
@@ -114,13 +115,18 @@ public final class Functions {
     return views;
   }
 
-  public static List<PhysicalPortView> transformUnalignedPhysicalPorts(List<? extends PhysicalPort> ports, VirtualPortService virtualPortService, ReservationService reservationService) {
+  public static List<PhysicalPortView> transformUnalignedPhysicalPorts(
+      List<? extends PhysicalPort> ports,
+      VirtualPortService virtualPortService,
+      ReservationService reservationService,
+      NsiHelper nsiHelper) {
+
     List<PhysicalPortView> views = Lists.newArrayList();
     for (PhysicalPort port : ports) {
       if (port instanceof UniPort) {
         views.add(transformAllocatedPhysicalPort((UniPort) port, virtualPortService, reservationService));
       } else if (port instanceof EnniPort) {
-        views.add(transformAllocatedPhysicalPort((EnniPort) port,  reservationService));
+        views.add(transformAllocatedPhysicalPort((EnniPort) port,  reservationService, nsiHelper));
       } else {
         throw new IllegalArgumentException("Don't know how to handle an instance of " + port.getClass());
       }

@@ -39,6 +39,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -47,6 +53,7 @@ import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VlanRangesValidator;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
@@ -72,12 +79,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
@@ -91,6 +92,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Resource private MessageRetriever messageRetriever;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -231,7 +233,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     return "redirect:" + PAGE_URL;
   }
-  
+
   @RequestMapping(value = "/delete/{uuid}")
   public String deleteVirtualPort(@PathVariable("uuid") String link, Model model, RedirectAttributes redirectAttributes) {
     VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
@@ -471,8 +473,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     return Lists.transform(entities, new Function<VirtualPort, VirtualPortView>() {
       @Override
       public VirtualPortView apply(VirtualPort port) {
-        final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-        return new VirtualPortView(port, Optional.<Long> of(counter));
+        long counter = reservationService.findAllActiveByVirtualPort(port).size();
+        return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter));
       }
     });
   }

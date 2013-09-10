@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -41,6 +40,7 @@ import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.support.ConnectionV1Factory;
 import nl.surfnet.bod.support.NsiV1RequestDetailsFactory;
@@ -71,11 +71,8 @@ public class ConnectionServiceProviderV1WsTest {
   @InjectMocks
   private ConnectionServiceProviderV1Ws subject;
 
-  @Mock
-  private ConnectionV1Repo connectionRepoMock;
-
-  @Mock
-  private ConnectionServiceV1 connectionServiceProviderComponent;
+  @Mock private ConnectionV1Repo connectionRepoMock;
+  @Mock private ConnectionServiceV1 connectionServiceProviderComponent;
 
   private final String nsaProvider = "nsa:surfnet.nl";
 
@@ -95,7 +92,7 @@ public class ConnectionServiceProviderV1WsTest {
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String> absent());
 
-    ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(new NsiHelper("", "", "")).apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
     assertThat(connection.getDesiredBandwidth(), is(1000L));
@@ -105,7 +102,7 @@ public class ConnectionServiceProviderV1WsTest {
   public void reserveTypeWithGlobalReservationId() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
 
-    ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(new NsiHelper("", "", "")).apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }
@@ -117,8 +114,7 @@ public class ConnectionServiceProviderV1WsTest {
     try {
       subject.reserve(createReservationRequestType(100, Optional.of("1234")));
       fail("Exception expected");
-    }
-    catch (ServiceException e) {
+    } catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE
           .getId()));
     }
@@ -131,16 +127,13 @@ public class ConnectionServiceProviderV1WsTest {
     try {
       subject.query(new QueryRequestType());
       fail("Exception expected");
-    }
-    catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE
-          .getId()));
+    } catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE.getId()));
     }
   }
 
 
-  public static ReserveRequestType createReservationRequestType(int desiredBandwidth,
-      Optional<String> globalReservationId) {
+  public static ReserveRequestType createReservationRequestType(int desiredBandwidth, Optional<String> globalReservationId) {
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
     dest.setStpId("urn:stp:1");
 
@@ -157,8 +150,7 @@ public class ConnectionServiceProviderV1WsTest {
       xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar();
       schedule.setStartTime(xmlGregorianCalendar);
       schedule.setEndTime(xmlGregorianCalendar);
-    }
-    catch (DatatypeConfigurationException e) {
+    } catch (DatatypeConfigurationException e) {
       Throwables.propagate(e);
     }
 

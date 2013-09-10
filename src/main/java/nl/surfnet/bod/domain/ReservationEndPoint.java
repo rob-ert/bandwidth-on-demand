@@ -102,14 +102,6 @@ public class ReservationEndPoint {
     return Optional.fromNullable(enniVlanId);
   }
 
-  public String getNsiStpIdV1() {
-    return virtualPort != null ? virtualPort.getNsiStpIdV1() : null;
-  }
-
-  public String getNsiStpIdV2() {
-    return virtualPort != null ? virtualPort.getNsiStpIdV2() : enniPort.getNsiStpIdV2();
-  }
-
   public String getLabel() {
     return virtualPort != null ? virtualPort.getLabel() : enniPort.getNocLabel();
   }

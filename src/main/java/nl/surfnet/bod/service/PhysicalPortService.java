@@ -54,7 +54,7 @@ import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.EnniPortRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.UniPortRepo;
@@ -94,6 +94,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   @Resource private NbiClient nbiClient;
   @Resource private LogEventService logEventService;
   @Resource private SnmpAgentService snmpAgentService;
+  @Resource private NsiHelper nsiHelper;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -182,7 +183,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public EnniPort findByNsiV2StpId(String stpId) {
-    String bodPortId = NsiConstants.parseLocalNsiId(stpId, NsiVersion.TWO);
+    String bodPortId = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
     return physicalPortRepo.findEnniPortByBodPortId(bodPortId);
   }
 

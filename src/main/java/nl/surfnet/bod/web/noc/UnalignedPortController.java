@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
@@ -57,6 +58,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
   @Resource private PhysicalPortService physicalPortService;
   @Resource private VirtualPortService virtualPortService;
   @Resource private ReservationService reservationService;
+  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(method = RequestMethod.GET)
   @Override
@@ -82,7 +84,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
 
   @Override
   protected List<? extends PhysicalPortView> transformToView(List<? extends PhysicalPort> entities, RichUserDetails user) {
-    return Functions.transformUnalignedPhysicalPorts(entities, virtualPortService, reservationService);
+    return Functions.transformUnalignedPhysicalPorts(entities, virtualPortService, reservationService, nsiHelper);
   }
 
   @Override

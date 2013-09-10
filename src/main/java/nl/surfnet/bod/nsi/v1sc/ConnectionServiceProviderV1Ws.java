@@ -23,7 +23,7 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.reserveRequestToConnection;
 
 import java.net.URI;
 import java.util.List;
@@ -39,11 +39,11 @@ import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -75,6 +75,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
   @Resource private ConnectionV1Repo connectionRepo;
   @Resource private ConnectionServiceV1 connectionService;
+  @Resource private NsiHelper nsiHelper;
 
   @Override
   public GenericAcknowledgmentType reserve(ReserveRequestType reservationRequest) throws ServiceException {
@@ -82,7 +83,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
 
     log.info("Received a NSI v1 reserve request connectionId {}", reservationRequest.getReserve().getReservation().getConnectionId());
 
-    ConnectionV1 connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
+    ConnectionV1 connection = reserveRequestToConnection(nsiHelper).apply(reservationRequest);
 
     NsiV1RequestDetails requestDetails = new NsiV1RequestDetails(URI.create(reservationRequest.getReplyTo()), reservationRequest.getCorrelationId());
 

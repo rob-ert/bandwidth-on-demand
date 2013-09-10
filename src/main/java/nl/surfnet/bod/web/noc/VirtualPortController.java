@@ -32,6 +32,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -65,6 +66,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Resource private VirtualPortService virtualPortService;
   @Resource private ReservationService reservationService;
   @Resource private MessageManager messageManager;
+  @Resource private NsiHelper nsiHelper;
 
   @Override
   protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
@@ -102,7 +104,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter, sort);
   }
 
@@ -131,9 +133,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public final Function<VirtualPort, VirtualPortView> fromNocVirtualportToVirtualportView = new Function<VirtualPort, VirtualPortView>() {
     @Override
     public VirtualPortView apply(VirtualPort port) {
-      final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-      final VirtualPortView virtualPortView = new VirtualPortView(port, Optional.of(counter));
-      return virtualPortView;
+      long counter = reservationService.findAllActiveByVirtualPort(port).size();
+      return new VirtualPortView(port, nsiHelper, Optional.of(counter));
     }
   };
 

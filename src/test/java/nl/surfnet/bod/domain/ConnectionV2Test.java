@@ -66,7 +66,7 @@ public class ConnectionV2Test {
 
   @Test
   public void should_serialize_p2p_to_correct_xml_element() throws Exception {
-    List any = new ArrayList<>();
+    List<Object> any = new ArrayList<>();
     final P2PServiceBaseType p2p = new P2PServiceBaseType()
         .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
         .withDestSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("2"))
@@ -79,7 +79,7 @@ public class ConnectionV2Test {
 
   @Test
   public void should_serialize_ethernetBaseType_to_correct_xml_element() throws Exception {
-    List any = new ArrayList<>();
+    List<Object> any = new ArrayList<>();
 
     final EthernetBaseType ethernetBaseType = new EthernetBaseType()
         .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
@@ -94,7 +94,7 @@ public class ConnectionV2Test {
   }
 
   public void should_serialize_ethernertVlanType_to_correct_xml_element() {
-    List any = new ArrayList<>();
+    List<Object> any = new ArrayList<>();
 
     final EthernetVlanType ethernetVlanType = new EthernetVlanType()
         .withSourceSTP(new StpType().withNetworkId("surfnet.nl").withLocalId("1"))
@@ -122,6 +122,7 @@ public class ConnectionV2Test {
 
     //performSemanticEqualityAssertion(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML, xml);
   }
+
   /*
   @Test
   public void should_deserialize_data_plane_state_change_request_type_from_xml_string() {

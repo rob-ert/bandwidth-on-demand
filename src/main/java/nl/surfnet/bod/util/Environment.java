@@ -105,9 +105,6 @@ public class Environment {
   @Value("${institute.cache.max.age.in.hours}")
   private int instituteCacheMaxAgeInHours;
 
-  @Value("${nsi.providerNsa}")
-  private String nsiProviderNsa;
-
   @Value("${nsi.reserve.held.timeout.value.in.seconds}")
   private int nsiReserveHeldTimeoutValueInSeconds;
 
@@ -277,10 +274,6 @@ public class Environment {
 
   public Duration getInstituteCacheMaxAge() {
     return Duration.standardHours(instituteCacheMaxAgeInHours);
-  }
-
-  public String getNsiProviderNsa() {
-    return nsiProviderNsa;
   }
 
   public int getNsiReserveHeldTimeoutValueInSeconds() {

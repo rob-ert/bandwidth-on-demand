@@ -22,16 +22,113 @@
  */
 package nl.surfnet.bod.nsi;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
-
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public final class NsiHelper {
-  private NsiHelper() {
+import com.google.common.base.Function;
+
+import nl.surfnet.bod.domain.EnniPort;
+import nl.surfnet.bod.domain.NsiVersion;
+import nl.surfnet.bod.domain.ReservationEndPoint;
+import nl.surfnet.bod.domain.VirtualPort;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+public class NsiHelper {
+
+  // Matches OPAQUE-PART of OGF URN (GFD.202, see https://www.gridforum.org/documents/GFD.202.pdf).
+  private static final String GFD_202_OPAQUE_PART_PATTERN = "[a-zA-Z0-9+,\\-.:;=_!$()*@~&]*";
+  public static final String NURN_PATTERN_REGEXP = "urn:ogf:network:[a-zA-Z0-9\\-.]+:[0-9]{4,8}:" + GFD_202_OPAQUE_PART_PATTERN + "(\\?" +  GFD_202_OPAQUE_PART_PATTERN + ")?" + "(#" +  GFD_202_OPAQUE_PART_PATTERN + ")?";
+  private static final Pattern NURN_PATTERN = Pattern.compile(NURN_PATTERN_REGEXP);
+
+  private static final String URN_OGF = "urn:ogf:network";
+
+  private final String networkIdV1;
+  private final String networkIdV2;
+  private final String urnGlobalReservationId;
+  private final String urnStpV1;
+  private final String urnStpV2;
+
+  private final Pattern stpPatternV1;
+  private final Pattern stpPatternV2;
+
+  @Autowired
+  public NsiHelper(
+      @Value("${nsi.v1.networkId}") String networkIdV1,
+      @Value("${nsi.v2.networkId}") String networkIdV2,
+      @Value("${nsi.globalReservationId}") String urnGlobalReservationId) {
+
+    this.networkIdV1 = networkIdV1;
+    this.networkIdV2 = networkIdV2;
+    this.urnGlobalReservationId = urnGlobalReservationId;
+    this.urnStpV1 = URN_OGF + ":stp:" + networkIdV1;
+    this.urnStpV2 = URN_OGF + ":" + networkIdV2;
+
+    this.stpPatternV1 = Pattern.compile(urnStpV1 + ":([0-9]+)");
+    this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
   }
 
-  public static String generateGlobalReservationId() {
-    return URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID().toString();
+  public String getNetworkIdV1() {
+    return networkIdV1;
+  }
+
+  public String getNetworkIdV2() {
+    return networkIdV2;
+  }
+
+  public String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
+    Pattern pattern = nsiVersion == NsiVersion.ONE ? stpPatternV1 : stpPatternV2;
+    Matcher matcher = pattern.matcher(stpId);
+
+    if (!matcher.matches()) {
+      return null;
+    }
+
+    return matcher.group(1);
+  }
+
+  public boolean isValidNurn(final String candidate) {
+    return NURN_PATTERN.matcher(candidate).matches();
+  }
+
+  public String generateGlobalReservationId() {
+    return urnGlobalReservationId + ":" + UUID.randomUUID().toString();
+  }
+
+  public String getStpIdV1(VirtualPort vp) {
+    return  urnStpV1 + ":" + vp.getId();
+  }
+
+  public String getStpIdV2(VirtualPort vp) {
+    return urnStpV2 + ":" + vp.getId();
+  }
+
+  public String getStpIdV2(EnniPort port) {
+    return urnStpV2 + ":" + port.getBodPortId();
+  }
+
+  public String getStpIdV1(EnniPort port) {
+    return urnStpV1 + ":" + port.getBodPortId();
+  }
+
+  public String getStpIdV1(ReservationEndPoint endPoint) {
+    return endPoint.getVirtualPort().transform(new Function<VirtualPort, String>() {
+      public String apply(VirtualPort port) {
+        return getStpIdV1(port);
+      }
+    }).or(getStpIdV1(endPoint.getEnniPort().get()));
+  }
+
+  public String getStpIdV2(ReservationEndPoint endPoint) {
+    return endPoint.getVirtualPort().transform(new Function<VirtualPort, String>() {
+      public String apply(VirtualPort port) {
+        return getStpIdV2(port);
+      }
+    }).or(getStpIdV2(endPoint.getEnniPort().get()));
   }
 
   public static String generateConnectionId() {
@@ -40,6 +137,18 @@ public final class NsiHelper {
 
   public static String generateCorrelationId() {
     return "urn:uuid:" + UUID.randomUUID().toString();
+  }
+
+  public String getUrnProviderNsaV2() {
+    return URN_OGF + ":nsa:" + networkIdV2;
+  }
+
+  public String getUrnProviderNsaV1() {
+    return URN_OGF + ":nsa:" + networkIdV1;
+  }
+
+  public String getUrnStpV2() {
+    return urnStpV2;
   }
 
 }

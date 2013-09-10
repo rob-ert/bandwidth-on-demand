@@ -31,10 +31,11 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Environment;
+
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Controller;
@@ -46,33 +47,30 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/nsi-topology")
 public class NsiTopologyController {
 
-  @Resource(name = "bodEnvironment")
-  private Environment environment;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-  @Resource
-  private PhysicalPortService physicalPortService;
+  @Resource private Environment bodEnvironment;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String renderTopology(final Model model) throws Exception {
+  public String renderTopology(Model model) throws Exception {
 
-    model.addAttribute("nsiId", NsiConstants.URN_PROVIDER_NSA_V2);
-    model.addAttribute("networkName", NsiConstants.NETWORK_ID_V2);
+    model.addAttribute("nsiId", nsiHelper.getUrnProviderNsaV2());
+    model.addAttribute("networkName", nsiHelper.getNetworkIdV2());
     model.addAttribute("version", DateTime.now().toString());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
 
-    final URL url = this.getClass().getResource(environment.getNsiTopologyAdminContactContentFileUri());
-    final String adminContactContent = FileUtils.readFileToString(new File(url.toURI()));
+    URL url = this.getClass().getResource(bodEnvironment.getNsiTopologyAdminContactContentFileUri());
+    String adminContactContent = FileUtils.readFileToString(new File(url.toURI()));
     model.addAttribute("adminContactContent", adminContactContent);
 
     // query all virtual ports, these are my 'UNI ports'
     List<VirtualPort> virtualPorts = virtualPortService.findAll();
     List<TopologyEntryView> entries = new ArrayList<>();
 
-    for (final VirtualPort virtualPort : virtualPorts) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" +
-          virtualPort.getPhysicalPort().getBodPortId() + "_" + virtualPort.getId();
+    for (VirtualPort virtualPort : virtualPorts) {
+      String portGroupId = nsiHelper.getStpIdV2(virtualPort);
+
       String vlanRange = null;
       if (virtualPort.getVlanId() != null) {
         vlanRange = virtualPort.getVlanId().toString();
@@ -80,10 +78,9 @@ public class NsiTopologyController {
       entries.add(new TopologyEntryView(portGroupId, vlanRange, null, null));
     }
 
-    for (final EnniPort enniPort : physicalPortService.findAllAllocatedEnniEntries()) {
-      final String portGroupId = NsiConstants.URN_OGF + ":" + NsiConstants.NETWORK_ID_V2 + ":" + enniPort.getBodPortId();
-      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(),
-          enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
+    for (EnniPort enniPort : physicalPortService.findAllAllocatedEnniEntries()) {
+      String portGroupId = nsiHelper.getStpIdV2(enniPort);
+      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(), enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
     }
 
     model.addAttribute("entries", entries);
@@ -95,7 +92,7 @@ public class NsiTopologyController {
    * @return the URL of the soap-service that we run
    */
   private String getNsi2ConnectionProviderUrl() {
-    return environment.getExternalBodUrl() + environment.getNsiV2ServiceUrl();
+    return bodEnvironment.getExternalBodUrl() + bodEnvironment.getNsiV2ServiceUrl();
   }
 
   public static class TopologyEntryView {

@@ -22,9 +22,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V1;
-import static nl.surfnet.bod.nsi.NsiConstants.URN_STP_V2;
-
 import java.util.Collection;
 
 import javax.persistence.Column;
@@ -159,14 +156,6 @@ public class VirtualPort implements Loggable, PersistableDomain {
 
   public void setUserLabel(String userLabel) {
     this.userLabel = userLabel;
-  }
-
-  public String getNsiStpIdV1() {
-    return URN_STP_V1 + ":" + getId();
-  }
-
-  public String getNsiStpIdV2() {
-    return URN_STP_V2 + ":" + getId();
   }
 
   @Override

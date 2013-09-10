@@ -52,7 +52,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -77,6 +77,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   @Resource private EmailSender emailSender;
   @Resource private ReservationService reservationService;
   @Resource private LogEventService logEventService;
+  @Resource private NsiHelper nsiHelper;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -225,20 +226,20 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
-  
+
   public void requestDeleteVirtualPort(RichUserDetails user, String message, VirtualPort virtualPort) {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
     link.setVirtualResourceGroup(virtualPort.getVirtualResourceGroup());
     link.setPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
     link.setUserLabel(virtualPort.getUserLabel());
-    
+
     link.setMinBandwidth(0L);
     link.setMessage(message);
     link.setRequestorEmail(user.getEmail().get());
     link.setRequestorName(user.getDisplayName());
     link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(DateTime.now());
-    
+
     link.setStatus(RequestStatus.DELETE_REQUEST_PENDING);
 
     virtualPortRequestLinkRepo.save(link);
@@ -291,12 +292,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public VirtualPort findByNsiV1StpId(String stpId) {
-    String id = NsiConstants.parseLocalNsiId(stpId, NsiVersion.ONE);
+    String id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.ONE);
     return findByLocalStpId(id);
   }
 
   public VirtualPort findByNsiV2StpId(String stpId) {
-    String id = NsiConstants.parseLocalNsiId(stpId, NsiVersion.TWO);
+    String id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
     return findByLocalStpId(id);
   }
 

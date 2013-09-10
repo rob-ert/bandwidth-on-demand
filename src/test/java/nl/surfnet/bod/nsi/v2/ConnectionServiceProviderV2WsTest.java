@@ -54,7 +54,7 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.NsiConstants;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -87,9 +87,6 @@ import org.ogf.schemas.nsi._2013._07.services.types.StpType;
 public class ConnectionServiceProviderV2WsTest {
 
   private static final String UNAUTHORIZED = "Unauthorized";
-
-  private static final String PROVIDER_NSA = NsiConstants.URN_PROVIDER_NSA_V2;
-
   private static final String SERVICE_TYPE = "ServiceType";
 
   @InjectMocks private ConnectionServiceProviderV2Ws subject;
@@ -97,6 +94,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Mock private Environment bodEnvironmentMock;
   @Mock private ConnectionV2Repo connectionRepoMock;
   @Mock private ConnectionServiceV2 connectionService;
+  @Mock private NsiHelper nsiHelper;
 
   private Holder<CommonHeaderType> headerHolder;
 
@@ -105,6 +103,9 @@ public class ConnectionServiceProviderV2WsTest {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.allOf(NsiScope.class)).create());
     headerHolder = new Holder<>(headers());
 
+    when(nsiHelper.getUrnProviderNsaV2()).thenReturn("providerNsa2");
+    when(nsiHelper.getUrnStpV2()).thenReturn("urnStpV2");
+    when(nsiHelper.generateGlobalReservationId()).thenReturn("globalReservationId");
     when(bodEnvironmentMock.getNsiV2ServiceType()).thenReturn(SERVICE_TYPE);
   }
 
@@ -472,7 +473,7 @@ public class ConnectionServiceProviderV2WsTest {
 
 
   private CommonHeaderType headers() {
-    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA(PROVIDER_NSA).withRequesterNSA("requesterNSA").withReplyTo("replyTo");
+    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA("providerNsa2").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
   }
 
   private ReservationRequestCriteriaType initialReservationCriteria() {
@@ -482,8 +483,9 @@ public class ConnectionServiceProviderV2WsTest {
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
-        .withSourceSTP(new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId("source"))
-        .withDestSTP(new StpType().withNetworkId(NsiConstants.URN_STP_V2).withLocalId("dest")));
+        .withSourceSTP(new StpType().withNetworkId("urnStpV2").withLocalId("source"))
+        .withDestSTP(new StpType().withNetworkId("urnStpV2").withLocalId("dest")));
+
     return result;
   }
 }
