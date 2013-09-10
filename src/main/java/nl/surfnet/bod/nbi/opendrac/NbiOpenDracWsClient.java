@@ -121,7 +121,6 @@ import org.springframework.util.StringUtils;
 public class NbiOpenDracWsClient implements NbiClient {
 
   private static final Minutes RAASS_TIMEOUT = minutes(10);
-  private static final String ROUTING_ALGORITHM = "VCAT";
   private static final String DEFAULT_VID = "Untagged";
   private static final Minutes MAX_DURATION = Minutes.MAX_VALUE;
 
@@ -154,6 +153,9 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Value("${nbi.opendrac.service.scheduling}")
   private String schedulingServiceUrl;
+
+  @Value("${nbi.opendrac.routing.algorithm}")
+  private String routingAlgorithm;
 
   public NbiOpenDracWsClient() {
     HttpConnectionManagerParams params = new HttpConnectionManagerParams();
@@ -516,7 +518,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     pathRequest.setRate(reservation.getBandwidth().intValue());
     pathRequest.setSourceVlanId(translateVlanId(virtualSourcePort));
     pathRequest.setTargetVlanId(translateVlanId(virtualDestinationPort));
-    pathRequest.setRoutingAlgorithm(ROUTING_ALGORITHM);
+    pathRequest.setRoutingAlgorithm(routingAlgorithm);
 
     switch (reservation.getProtectionType()) {
     case PROTECTED:
