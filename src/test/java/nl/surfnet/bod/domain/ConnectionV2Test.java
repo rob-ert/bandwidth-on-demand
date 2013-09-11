@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.domain.ConnectionV2.ReservationConfirmCriteriaTypeUserType;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -32,14 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Optional;
-import nl.surfnet.bod.domain.ConnectionV2.NotificationBaseTypeUserType;
+
+import nl.surfnet.bod.domain.ConnectionV2.ReservationConfirmCriteriaTypeUserType;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
-import nl.surfnet.bod.util.XmlUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+
 import org.junit.Test;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetBaseType;
 import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
@@ -109,27 +105,5 @@ public class ConnectionV2Test {
     Element element = (Element) any.get(0);
     assertThat(element.getLocalName(), equalTo("evts"));
   }
-
-  @Test
-  public void should_serialize_data_plane_state_change_request_type_to_xml_string() throws Exception {
-    DataPlaneStateChangeRequestType notification = new DataPlaneStateChangeRequestType()
-        .withConnectionId("ConnectionId")
-        .withDataPlaneStatus(new DataPlaneStatusType().withActive(true).withVersion(0).withVersionConsistent(true))
-        .withNotificationId(22)
-        .withTimeStamp(XmlUtils.toGregorianCalendar(new DateTime(2013, 6, 17, 13, 10, 14, DateTimeZone.UTC)));
-
-    String xml = new NotificationBaseTypeUserType().toXmlString(notification);
-
-    //performSemanticEqualityAssertion(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML, xml);
-  }
-
-  /*
-  @Test
-  public void should_deserialize_data_plane_state_change_request_type_from_xml_string() {
-    NotificationBaseType dataPlaneNotification = new NotificationBaseTypeUserType().fromXmlString(DATA_PLANE_STATE_CHANGE_REQUEST_TYPE_XML);
-
-    assertThat(dataPlaneNotification, is(instanceOf(DataPlaneStateChangeRequestType.class)));
-  }
-  */
 
 }

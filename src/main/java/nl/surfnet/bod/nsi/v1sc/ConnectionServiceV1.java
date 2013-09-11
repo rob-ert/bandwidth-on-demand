@@ -54,7 +54,6 @@ import com.google.common.collect.ImmutableMap;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
-import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -131,7 +130,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(userDetails.getNameId());
-    reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
+    reservation.setProtectionType(connection.getProtectionType());
     connection.setReservation(reservation);
 
     reservationService.create(reservation, autoProvision);

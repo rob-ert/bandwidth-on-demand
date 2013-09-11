@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.util;
 
+import nl.surfnet.bod.domain.ProtectionType;
+
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,6 +124,9 @@ public class Environment {
 
   @Value("${nsi.v2.service.type}")
   private String nsiV2ServiceType;
+
+  @Value("${nbi.default.protection.type}")
+  private ProtectionType defaultProtectionType;
 
   public Environment() {
   }
@@ -302,5 +307,9 @@ public class Environment {
 
   public boolean isVersEnabled() {
     return versEnabled;
+  }
+
+  public ProtectionType getDefaultProtectionType() {
+    return defaultProtectionType;
   }
 }

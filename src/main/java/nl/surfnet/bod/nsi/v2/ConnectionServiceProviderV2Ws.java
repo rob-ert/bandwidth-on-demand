@@ -41,7 +41,6 @@ import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
-import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -147,7 +146,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setStartTime(startTime.orNull());
     connection.setEndTime(endTime.orNull());
     connection.setDesiredBandwidth(service.getCapacity());
-    connection.setProtectionType(ProtectionType.PROTECTED.name());
+    connection.setProtectionType(bodEnvironment.getDefaultProtectionType());
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
     connection.setInitialReserveRequestDetails(requestDetails);

@@ -128,34 +128,17 @@ public class NbiOpenDracWsClient implements NbiClient {
   private static final String AUTHENTICATION_FAILED_LOWER_CASE_MESSAGE = "authentication check failed";
 
   private final HttpClient httpClient;
-
   private final Logger log = LoggerFactory.getLogger(getClass());
-
   private final ConcurrentMap<String, String> idToTnaCache = Maps.newConcurrentMap();
 
-  @Value("${nbi.opendrac.billing.group.name}")
-  private String billingGroupName;
-
-  @Value("${nbi.opendrac.password}")
-  private String password;
-
-  @Value("${nbi.opendrac.group.name}")
-  private String groupName;
-
-  @Value("${nbi.opendrac.resource.group.name}")
-  private String resourceGroupName;
-
-  @Value("${nbi.opendrac.user}")
-  private String username;
-
-  @Value("${nbi.opendrac.service.inventory}")
-  private String inventoryServiceUrl;
-
-  @Value("${nbi.opendrac.service.scheduling}")
-  private String schedulingServiceUrl;
-
-  @Value("${nbi.opendrac.routing.algorithm}")
-  private String routingAlgorithm;
+  @Value("${nbi.opendrac.billing.group.name}") private String billingGroupName;
+  @Value("${nbi.opendrac.password}") private String password;
+  @Value("${nbi.opendrac.group.name}") private String groupName;
+  @Value("${nbi.opendrac.resource.group.name}") private String resourceGroupName;
+  @Value("${nbi.opendrac.user}") private String username;
+  @Value("${nbi.opendrac.service.inventory}") private String inventoryServiceUrl;
+  @Value("${nbi.opendrac.service.scheduling}") private String schedulingServiceUrl;
+  @Value("${nbi.opendrac.routing.algorithm}") private String routingAlgorithm;
 
   public NbiOpenDracWsClient() {
     HttpConnectionManagerParams params = new HttpConnectionManagerParams();
@@ -188,14 +171,11 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private ActivateReservationOccurrenceRequestDocument createActivateReservationOccurrenceRequest(String serviceId) {
-    ActivateReservationOccurrenceRequestDocument activateReservationOccurrenceRequestDocument = ActivateReservationOccurrenceRequestDocument.Factory
-        .newInstance();
-
-    ActivateReservationOccurrenceRequest activateReservationOccurrenceRequest = activateReservationOccurrenceRequestDocument
-        .addNewActivateReservationOccurrenceRequest();
+    ActivateReservationOccurrenceRequestDocument requestDocument = ActivateReservationOccurrenceRequestDocument.Factory.newInstance();
+    ActivateReservationOccurrenceRequest activateReservationOccurrenceRequest = requestDocument.addNewActivateReservationOccurrenceRequest();
     activateReservationOccurrenceRequest.setOccurrenceId(serviceId);
 
-    return activateReservationOccurrenceRequestDocument;
+    return requestDocument;
   }
 
   @Override
@@ -203,8 +183,7 @@ public class NbiOpenDracWsClient implements NbiClient {
     checkNotNull(reservationId);
 
     try {
-      getResourceAllocationAndSchedulingService()
-        .cancelReservationSchedule(createCancelReservationScheduleRequest(reservationId), getSecurityDocument());
+      getResourceAllocationAndSchedulingService().cancelReservationSchedule(createCancelReservationScheduleRequest(reservationId), getSecurityDocument());
 
       // CompletionResponseDocument always signals that the operation executed successfully.
       return CANCELLED;
@@ -216,8 +195,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private CancelReservationScheduleRequestDocument createCancelReservationScheduleRequest(final String reservationId) {
-    CancelReservationScheduleRequestDocument requestDocument =
-      CancelReservationScheduleRequestDocument.Factory.newInstance();
+    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory.newInstance();
 
     CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
     request.setReservationScheduleId(reservationId);
@@ -227,8 +205,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public Reservation createReservation(Reservation reservation, boolean autoProvision) {
-    CreateReservationScheduleRequestDocument requestDocument =
-      createReservationScheduleRequest(reservation, autoProvision);
+    CreateReservationScheduleRequestDocument requestDocument = createReservationScheduleRequest(reservation, autoProvision);
 
     try {
       CreateReservationScheduleResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
@@ -238,8 +215,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
 
-      ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
-          .getCreateReservationScheduleResponse().getResult(), autoProvision);
+      ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument.getCreateReservationScheduleResponse().getResult(), autoProvision);
 
       if (status.isErrorState()) {
         String failedReason = composeFailedReason(responseDocument);
@@ -440,11 +416,9 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @VisibleForTesting
-  CreateReservationScheduleRequestDocument createReservationScheduleRequest(
-      Reservation reservation, boolean autoProvision) {
+  CreateReservationScheduleRequestDocument createReservationScheduleRequest(Reservation reservation, boolean autoProvision) {
 
-    CreateReservationScheduleRequestDocument requestDocument =
-      CreateReservationScheduleRequestDocument.Factory.newInstance();
+    CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory.newInstance();
 
     ReservationScheduleRequestT schedule =
       requestDocument.addNewCreateReservationScheduleRequest().addNewReservationSchedule();
@@ -452,8 +426,8 @@ public class NbiOpenDracWsClient implements NbiClient {
     ValidReservationScheduleTypeT.Enum type = autoProvision ? ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC
         : ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL;
     Calendar startTime = reservation.getStartDateTime().toCalendar(Locale.getDefault());
-    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION : minutesBetween(reservation
-        .getStartDateTime(), reservation.getEndDateTime());
+    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION
+        : minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime());
 
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(type);
@@ -658,8 +632,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   protected ResourceAllocationAndSchedulingService_v30Stub getResourceAllocationAndSchedulingService() throws AxisFault {
-    ResourceAllocationAndSchedulingService_v30Stub schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(
-        schedulingServiceUrl);
+    ResourceAllocationAndSchedulingService_v30Stub schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(schedulingServiceUrl);
 
     Options options = schedulingService._getServiceClient().getOptions();
     options.setTimeOutInMilliSeconds(RAASS_TIMEOUT.toStandardDuration().getMillis());

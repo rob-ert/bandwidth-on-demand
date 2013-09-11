@@ -38,6 +38,7 @@ import com.google.common.base.Throwables;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -72,7 +73,9 @@ public class ConnectionServiceProviderV1WsTest {
   private ConnectionServiceProviderV1Ws subject;
 
   @Mock private ConnectionV1Repo connectionRepoMock;
-  @Mock private ConnectionServiceV1 connectionServiceProviderComponent;
+  @Mock private ConnectionServiceV1 connectionServiceProviderComponentMock;
+
+  private NsiHelper dummyNsiHelper = new NsiHelper("", "", "");
 
   private final String nsaProvider = "nsa:surfnet.nl";
 
@@ -92,7 +95,7 @@ public class ConnectionServiceProviderV1WsTest {
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String> absent());
 
-    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(new NsiHelper("", "", "")).apply(reserveRequestType);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(dummyNsiHelper, ProtectionType.PROTECTED).apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
     assertThat(connection.getDesiredBandwidth(), is(1000L));
@@ -102,7 +105,7 @@ public class ConnectionServiceProviderV1WsTest {
   public void reserveTypeWithGlobalReservationId() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
 
-    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(new NsiHelper("", "", "")).apply(reserveRequestType);
+    ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(dummyNsiHelper, ProtectionType.PROTECTED).apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }

@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.XmlUtils;
@@ -49,7 +50,7 @@ public class ConnectionV2Factory {
   private String connectionId = UUID.randomUUID().toString();
   private Reservation reservation = new ReservationFactory().create();
   private String globalReservationId = UUID.randomUUID().toString();
-  private String protectionType = "PROTECTED";
+  private ProtectionType protectionType = ProtectionType.PROTECTED;
   private Long id = 0L;
   private String description = "";
   private P2PServiceBaseType path = new P2PServiceBaseType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
@@ -117,7 +118,7 @@ public class ConnectionV2Factory {
     return this;
   }
 
-  public ConnectionV2Factory setProtectionType(String protectionType) {
+  public ConnectionV2Factory setProtectionType(ProtectionType protectionType) {
     this.protectionType = protectionType;
     return this;
   }

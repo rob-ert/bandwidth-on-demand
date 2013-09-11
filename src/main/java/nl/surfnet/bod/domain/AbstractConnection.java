@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -93,7 +95,8 @@ public abstract class AbstractConnection implements Connection {
 
   @Column(nullable = false)
   @Field
-  private String protectionType = "PROTECTED";
+  @Enumerated(EnumType.STRING)
+  private ProtectionType protectionType;
 
   public AbstractConnection() {
   }
@@ -181,11 +184,11 @@ public abstract class AbstractConnection implements Connection {
     this.desiredBandwidth = desiredBandwidth;
   }
 
-  public String getProtectionType() {
+  public ProtectionType getProtectionType() {
     return protectionType;
   }
 
-  public void setProtectionType(String protectionType) {
+  public void setProtectionType(ProtectionType protectionType) {
     this.protectionType = protectionType;
   }
 }

@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -45,7 +46,7 @@ public class ConnectionV1Factory {
   private Reservation reservation = new ReservationFactory().create();
   private final String globalReservationId = UUID.randomUUID().toString();
   private final ServiceParametersType serviceParameters = new ServiceParametersType();
-  private String protectionType = "PROTECTED";
+  private ProtectionType protectionType = ProtectionType.PROTECTED;
   private Long id = 0L;
   private String description = "";
   private NsiV1RequestDetails reserveRequestDetails;
@@ -101,7 +102,7 @@ public class ConnectionV1Factory {
     return this;
   }
 
-  public ConnectionV1Factory setProtectionType(String protectionType) {
+  public ConnectionV1Factory setProtectionType(ProtectionType protectionType) {
     this.protectionType = protectionType;
     return this;
   }

@@ -37,7 +37,6 @@ import com.google.common.collect.TreeRangeSet;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
-import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -96,7 +95,7 @@ public class ConnectionServiceV2 {
       reservation.setDestinationPort(findEndPoint(service.getDestSTP(),  destinationVlanId, userDetails));
       reservation.setBandwidth(connection.getDesiredBandwidth());
       reservation.setUserCreated(userDetails.getNameId());
-      reservation.setProtectionType(ProtectionType.valueOf(connection.getProtectionType()));
+      reservation.setProtectionType(connection.getProtectionType());
       connection.setReservation(reservation);
       connectionRepo.save(connection);
 

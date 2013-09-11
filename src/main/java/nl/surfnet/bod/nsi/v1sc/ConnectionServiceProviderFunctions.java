@@ -62,7 +62,7 @@ public final class ConnectionServiceProviderFunctions {
       }
     };
 
-  public static final Function<ReserveRequestType, ConnectionV1> reserveRequestToConnection(final NsiHelper nsiHelper) {
+  public static final Function<ReserveRequestType, ConnectionV1> reserveRequestToConnection(final NsiHelper nsiHelper, final ProtectionType defaultProtectionType) {
     return new Function<ReserveRequestType, ConnectionV1>() {
       @Override
       public ConnectionV1 apply(ReserveRequestType reserveRequestType) {
@@ -108,7 +108,7 @@ public final class ConnectionServiceProviderFunctions {
         return connection;
       }
 
-      private String getProtectionType(ServiceParametersType serviceParameters) {
+      private ProtectionType getProtectionType(ServiceParametersType serviceParameters) {
         if (guaranteedAttributesAreSpecified(serviceParameters)) {
 
           List<Object> guaranteeds = serviceParameters.getServiceAttributes().getGuaranteed().getAttributeOrEncryptedAttribute();
@@ -120,12 +120,12 @@ public final class ConnectionServiceProviderFunctions {
             if (protectedAttr.getName().equals("sNCP")
               && protectedAttr.getAttributeValue().size() == 1
               && protectedAttr.getAttributeValue().get(0) instanceof String) {
-                return ((String) protectedAttr.getAttributeValue().get(0)).trim().toUpperCase();
+              return ProtectionType.valueOf(((String) protectedAttr.getAttributeValue().get(0)).trim().toUpperCase());
             }
           }
         }
 
-        return ProtectionType.PROTECTED.name();
+        return defaultProtectionType;
       }
 
       private boolean guaranteedAttributesAreSpecified(ServiceParametersType serviceParameters) {
