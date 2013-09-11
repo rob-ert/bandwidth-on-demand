@@ -167,6 +167,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+    System.err.println("!!!! source " + sourceStp);
+    System.err.println("!!!! dest " + destStp);
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
@@ -226,6 +228,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+    System.err.println("!!!! source " + sourceStp);
+    System.err.println("!!!! dest " + destStp);
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
