@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.domain.ProtectionType.PROTECTED;
-import static nl.surfnet.bod.domain.ProtectionType.UNPROTECTED;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static nl.surfnet.bod.matchers.ServiceCharacteristicValueTypeMatcher.serviceCharacteristic;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.findRdnValue;
@@ -42,11 +40,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
-import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
-import nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -111,7 +107,7 @@ public class ReserveRequestBuilderTest {
     assertThat(findSscValue("TrafficMappingFrom_Table_VID", sap.getDescribedByList()), isPresent("3"));
     assertThat(findSscValue("InterfaceType", sap.getDescribedByList()), isPresent("UNI"));
     assertThat(findSscValue("TrafficMappingTo_Table_IngressCIR", sap.getDescribedByList()), isPresent("1024"));
-    assertThat(findSscValue("ProtectionLevel", sap.getDescribedByList()), isPresent(PROTECTED.getMtosiName()));
+    assertThat(findSscValue("ProtectionLevel", sap.getDescribedByList()), isPresent("Partially Protected"));
   }
 
   @Test
@@ -126,7 +122,7 @@ public class ReserveRequestBuilderTest {
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
-    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", UNPROTECTED.getMtosiName())));
+    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", "Unprotected")));
   }
 
   @Test

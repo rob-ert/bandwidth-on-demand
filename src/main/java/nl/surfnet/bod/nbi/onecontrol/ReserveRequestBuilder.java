@@ -32,6 +32,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.util.XmlUtils;
@@ -89,13 +90,24 @@ public class ReserveRequestBuilder {
 
     describedByList.add(createSscValue("InterfaceType", translate(endPoint.getPhysicalPort().getNbiPort().getInterfaceType())));
     describedByList.add(createSscValue("TrafficMappingTo_Table_IngressCIR", reservation.getBandwidth().toString()));
-    describedByList.add(createSscValue("ProtectionLevel", reservation.getProtectionType().getMtosiName()));
+    describedByList.add(createSscValue("ProtectionLevel", translate(reservation.getProtectionType())));
 
     return sap;
   }
 
   private static String translate(InterfaceType interfaceType) {
     return interfaceType.name().replace('_', '-');
+  }
+
+  private static String translate(ProtectionType protectionType) {
+    switch (protectionType) {
+    case PROTECTED:
+      return "Partially Protected";
+    case UNPROTECTED:
+      return "Unprotected";
+    default:
+      throw new IllegalArgumentException(String.format("Unsported protectionType (%s) by OneControl", protectionType.name()));
+    }
   }
 
   private static Integer vlanIdOfEndPoint(ReservationEndPoint endPoint) {
