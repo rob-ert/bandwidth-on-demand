@@ -125,6 +125,9 @@ public class Environment {
   @Value("${nsi.v2.service.type}")
   private String nsiV2ServiceType;
 
+  @Value("${nsi.network.name}")
+  private String nsiNetworkName;
+
   @Value("${nbi.default.protection.type}")
   private ProtectionType defaultProtectionType;
 
@@ -311,5 +314,9 @@ public class Environment {
 
   public ProtectionType getDefaultProtectionType() {
     return defaultProtectionType;
+  }
+
+  public String getNsiNetworkName() {
+    return nsiNetworkName;
   }
 }
