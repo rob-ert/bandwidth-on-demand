@@ -50,8 +50,6 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
-import com.google.common.base.Joiner;
-
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
@@ -144,12 +142,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     connectionServiceProviderPort = createPort(oauthToken);
     virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
 
-    System.err.println("!!! vpIds " + virtualPortIds);
-
-    String ids = Joiner.on("-").join(virtualPortIds);
-
-    getWebDriver().takeScreenshot(new File(new File("target/selenium/screenshots"), "debug-" + ids + ".png"));
-
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
     sourceStp = connectionsV2.toStpType(virtualPortIds.get(0));
     destStp = connectionsV2.toStpType(virtualPortIds.get(1));
@@ -175,8 +167,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
-    System.err.println("!!!! source " + sourceStp);
-    System.err.println("!!!! dest " + destStp);
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
@@ -236,8 +226,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
-    System.err.println("!!!! source " + sourceStp);
-    System.err.println("!!!! dest " + destStp);
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
