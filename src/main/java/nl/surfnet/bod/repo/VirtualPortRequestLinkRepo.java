@@ -39,5 +39,7 @@ public interface VirtualPortRequestLinkRepo extends JpaSpecificationExecutor<Vir
   VirtualPortRequestLink findByUuid(String uuid);
 
   List<VirtualPortRequestLink> findByPhysicalResourceGroupAndStatus(PhysicalResourceGroup prg, RequestStatus status);
+  
+  List<VirtualPortRequestLink> findByUserLabelAndStatus(String userLabel, RequestStatus status);
 
 }

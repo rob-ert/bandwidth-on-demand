@@ -32,11 +32,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -60,6 +55,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -229,7 +229,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
         @Override
         public VirtualPortView apply(VirtualPort port) {
           final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-          long pendingDeleteRequests = virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(port.getPhysicalResourceGroup(), RequestStatus.DELETE_REQUEST_PENDING).size();
+          final long pendingDeleteRequests = virtualPortRequestLinkRepo.findByUserLabelAndStatus(port.getUserLabel(), RequestStatus.DELETE_REQUEST_PENDING).size();
           return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter + pendingDeleteRequests));
         }
       };

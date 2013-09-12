@@ -251,7 +251,9 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
-    return virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
+    List<VirtualPortRequestLink> requests = virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
+    requests.addAll(virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.DELETE_REQUEST_PENDING));
+    return requests;
   }
 
   public VirtualPortRequestLink findRequest(String uuid) {
