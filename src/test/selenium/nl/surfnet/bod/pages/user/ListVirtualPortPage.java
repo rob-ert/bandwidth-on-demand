@@ -24,8 +24,10 @@ package nl.surfnet.bod.pages.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.pages.AbstractListPage;
@@ -80,6 +82,8 @@ public class ListVirtualPortPage extends AbstractListPage {
     for (WebElement moreLink: getDriver().findElementsByCssSelector("i.icon-plus-sign")){
       moreLink.click();
     }
+
+    Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
 
     List<WebElement> ddElements = getDriver().findElementsByClassName(cssClassName);
     List<String> virtualPortIds = new ArrayList<>();

@@ -28,6 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
@@ -104,9 +105,11 @@ public class SoapReplyListener implements Provider<SOAPMessage> {
     try {
       LOG.warn("received SOAP message: {}", Converters.serializeMessage(asyncReply));
       responses.add(asyncReply);
+      return MessageFactory.newInstance().createMessage();
     } catch (IOException | SOAPException e) {
       e.printStackTrace();
+      return null;
     }
-    return null;
+
   }
 }

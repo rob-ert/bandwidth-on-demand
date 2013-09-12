@@ -50,6 +50,8 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
+import com.google.common.base.Joiner;
+
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
@@ -144,8 +146,9 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     System.err.println("!!! vpIds " + virtualPortIds);
 
+    String ids = Joiner.on("-").join(virtualPortIds);
 
-    getWebDriver().takeScreenshot(new File(new File("target/selenium/screenshots"), "debug.png"));
+    getWebDriver().takeScreenshot(new File(new File("target/selenium/screenshots"), "debug-" + ids + ".png"));
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
     sourceStp = connectionsV2.toStpType(virtualPortIds.get(0));
