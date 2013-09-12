@@ -78,6 +78,7 @@ public class NsiTopologyControllerTest {
     when(physicalPortService.findAllAllocatedEnniEntries()).thenReturn(ImmutableList.of(enniPort));
     when(virtualPortService.findAll()).thenReturn(ImmutableList.of(virtualPort));
     when(environment.getNsiTopologyAdminContactContentFileUri()).thenReturn("/topologyAdminContactContent.xml");
+    when(environment.getNsiNetworkName()).thenReturn("nsiNetworkName");
     when(nsiHelper.getProviderNsaV2()).thenReturn("providerNSA");
     when(nsiHelper.getNetworkIdV2()).thenReturn("networkId");
 
@@ -85,7 +86,7 @@ public class NsiTopologyControllerTest {
         .andExpect(status().isOk())
         .andExpect(model().attribute("entries", hasSize(2)))
         .andExpect(model().attribute("providerNsa", is("providerNSA")))
-        .andExpect(model().attribute("networkName", is("networkId")))
+        .andExpect(model().attribute("networkName", is("nsiNetworkName")))
         .andExpect(model().attribute("version", notNullValue()))
         .andExpect(model().attribute("adminContactContent", notNullValue()))
         .andExpect(view().name("topology"));
