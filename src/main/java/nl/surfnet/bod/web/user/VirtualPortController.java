@@ -38,7 +38,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -64,6 +66,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   @Resource private VirtualPortService virtualPortService;
+  @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
   @Resource private ReservationService reservationService;
   @Resource private NsiHelper nsiHelper;
 
@@ -226,7 +229,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
         @Override
         public VirtualPortView apply(VirtualPort port) {
           final long counter = reservationService.findAllActiveByVirtualPort(port).size();
-          return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter));
+          long pendingDeleteRequests = virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(port.getPhysicalResourceGroup(), RequestStatus.DELETE_REQUEST_PENDING).size();
+          return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter + pendingDeleteRequests));
         }
       };
 
