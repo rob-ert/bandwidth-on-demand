@@ -330,6 +330,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public List<String> getVirtualPortIds(final NsiVersion nsiVersion){
     DashboardPage dashboardPage = getDashboardPage();
     ListVirtualPortPage listVirtualPortPage = dashboardPage.clickVirtualPortsLink();
+
     return listVirtualPortPage.getAllNsiStpIds(nsiVersion);
   }
 

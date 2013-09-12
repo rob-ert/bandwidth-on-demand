@@ -131,7 +131,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     soapReplyListener = new SoapReplyListener();
     soapReplyListenerEndpoint = Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
 
@@ -141,6 +141,11 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     connectionServiceProviderPort = createPort(oauthToken);
     virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
+
+    System.err.println("!!! vpIds " + virtualPortIds);
+
+
+    getWebDriver().takeScreenshot(new File(new File("target/selenium/screenshots"), "debug.png"));
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
     sourceStp = connectionsV2.toStpType(virtualPortIds.get(0));
