@@ -108,7 +108,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private StpType sourceStp;
   private StpType destStp;
 
-  private NsiHelper nsiHelper = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "urn:nl:surfnet:diensten:bod");
+  private NsiHelper nsiHelper = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "bod:nsa", "topology:surfnet6:test", "urn:nl:surfnet:diensten:bod");
   private ConnectionsV2 connectionsV2 = new ConnectionsV2(nsiHelper);
 
   @Override
@@ -306,7 +306,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     return new Holder<>(new CommonHeaderType()
         .withProtocolVersion("2.0")
         .withRequesterNSA("urn:ogf:network:nsa:foo")
-        .withProviderNSA(nsiHelper.getUrnProviderNsaV2())
+        .withProviderNSA(nsiHelper.getProviderNsaV2())
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
     );

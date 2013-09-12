@@ -85,7 +85,7 @@ public class ConnectionServiceV1Test {
     userDetails = new RichUserDetailsFactory().setUsername("me").addUserGroup("admin").create();
     Security.setUserDetails(userDetails);
 
-    when(nsiHelper.getUrnProviderNsaV1()).thenReturn(PROVIDER_NSA);
+    when(nsiHelper.getProviderNsaV1()).thenReturn(PROVIDER_NSA);
   }
 
   @Test

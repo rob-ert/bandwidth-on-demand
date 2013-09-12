@@ -55,9 +55,10 @@ public class NsiTopologyController {
   @RequestMapping(method = RequestMethod.GET)
   public String renderTopology(Model model) throws Exception {
 
-    model.addAttribute("nsiId", nsiHelper.getUrnProviderNsaV2());
+    model.addAttribute("providerNsa", nsiHelper.getProviderNsaV2());
     model.addAttribute("networkName", nsiHelper.getNetworkIdV2());
     model.addAttribute("version", DateTime.now().toString());
+    model.addAttribute("topologyId", nsiHelper.getUrnStpV2());
     model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
 
     URL url = this.getClass().getResource(bodEnvironment.getNsiTopologyAdminContactContentFileUri());

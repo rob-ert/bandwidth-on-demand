@@ -171,7 +171,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   }
 
   private void checkProviderNsa(String providerNsa) throws ValidationException {
-    if (!nsiHelper.getUrnProviderNsaV1().equals(providerNsa)) {
+    if (!nsiHelper.getProviderNsaV1().equals(providerNsa)) {
       log.warn("ProviderNsa '{}' is not accepted", providerNsa);
 
       throw new ValidationException("providerNSA", "0100", String.format("ProviderNsa '%s' is not accepted", providerNsa));

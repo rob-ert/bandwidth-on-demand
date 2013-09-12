@@ -36,7 +36,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 
 public class VirtualPortViewTest {
 
-  private NsiHelper nsiHelper = new NsiHelper("", "", "");
+  private NsiHelper nsiHelper = new NsiHelper("", "", "", "", "");
 
   @Test
   public void virtual_port_with_no_reservations_may_be_deleted() {

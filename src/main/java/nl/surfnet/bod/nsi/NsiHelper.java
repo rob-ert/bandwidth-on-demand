@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiVersion;
@@ -46,12 +47,14 @@ public class NsiHelper {
   private static final Pattern NURN_PATTERN = Pattern.compile(NURN_PATTERN_REGEXP);
 
   private static final String URN_OGF = "urn:ogf:network";
+  private static final Joiner URN_JOINER = Joiner.on(":");
 
   private final String networkIdV1;
   private final String networkIdV2;
   private final String urnGlobalReservationId;
   private final String urnStpV1;
   private final String urnStpV2;
+  private final String providerId;
 
   private final Pattern stpPatternV1;
   private final Pattern stpPatternV2;
@@ -60,13 +63,16 @@ public class NsiHelper {
   public NsiHelper(
       @Value("${nsi.v1.networkId}") String networkIdV1,
       @Value("${nsi.v2.networkId}") String networkIdV2,
+      @Value("${nsi.v2.providerId}") String providerId,
+      @Value("${nsi.v2.topologyId}") String topologyId,
       @Value("${nsi.globalReservationId}") String urnGlobalReservationId) {
 
     this.networkIdV1 = networkIdV1;
     this.networkIdV2 = networkIdV2;
     this.urnGlobalReservationId = urnGlobalReservationId;
-    this.urnStpV1 = URN_OGF + ":stp:" + networkIdV1;
-    this.urnStpV2 = URN_OGF + ":" + networkIdV2;
+    this.urnStpV1 = join(URN_OGF, "stp", networkIdV1);
+    this.urnStpV2 = join(URN_OGF,  networkIdV2, topologyId);
+    this.providerId = providerId;
 
     this.stpPatternV1 = Pattern.compile(urnStpV1 + ":([0-9]+)");
     this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
@@ -96,23 +102,23 @@ public class NsiHelper {
   }
 
   public String generateGlobalReservationId() {
-    return urnGlobalReservationId + ":" + UUID.randomUUID().toString();
+    return join(urnGlobalReservationId, UUID.randomUUID().toString());
   }
 
   public String getStpIdV1(VirtualPort vp) {
-    return  urnStpV1 + ":" + vp.getId();
+    return join(urnStpV1, vp.getId());
   }
 
   public String getStpIdV2(VirtualPort vp) {
-    return urnStpV2 + ":" + vp.getId();
+    return join(urnStpV2, vp.getId());
   }
 
   public String getStpIdV2(EnniPort port) {
-    return urnStpV2 + ":" + port.getBodPortId();
+    return join(urnStpV2, port.getBodPortId());
   }
 
   public String getStpIdV1(EnniPort port) {
-    return urnStpV1 + ":" + port.getBodPortId();
+    return join(urnStpV1, port.getBodPortId());
   }
 
   public String getStpIdV1(ReservationEndPoint endPoint) {
@@ -136,19 +142,23 @@ public class NsiHelper {
   }
 
   public static String generateCorrelationId() {
-    return "urn:uuid:" + UUID.randomUUID().toString();
+    return join("urn:uuid", UUID.randomUUID().toString());
   }
 
-  public String getUrnProviderNsaV2() {
-    return URN_OGF + ":nsa:" + networkIdV2;
+  public String getProviderNsaV2() {
+    return join(URN_OGF, networkIdV2, providerId);
   }
 
-  public String getUrnProviderNsaV1() {
-    return URN_OGF + ":nsa:" + networkIdV1;
+  public String getProviderNsaV1() {
+    return join(URN_OGF, "nsa", networkIdV1);
   }
 
   public String getUrnStpV2() {
     return urnStpV2;
+  }
+
+  private static String join(Object... parts) {
+    return URN_JOINER.join(parts);
   }
 
 }

@@ -5,27 +5,26 @@
     <bod:env property="nsiTopologyCoordsLng" var="nsiTopologyCoordsLng"/>
 
     <nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
-             xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" id="${fn:escapeXml(nsiId)}"
+             xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" id="${fn:escapeXml(providerNsa)}"
              version="${fn:escapeXml(version)}">
-        <nml:Location id="${fn:escapeXml(nsiId)}:location">
-
+        <nml:Location id="${fn:escapeXml(providerNsa)}:location">
             <nml:lat>${fn:escapeXml(nsiTopologyCoordsLat)}</nml:lat>
             <nml:long>${fn:escapeXml(nsiTopologyCoordsLng)}</nml:long>
         </nml:Location>
-        <nsi:Service id="${fn:escapeXml(nsiId)}:nsa-connection-service">
+        <nsi:Service id="${fn:escapeXml(providerNsa)}:connection-service">
             <nsi:link>${fn:escapeXml(nsi2ConnectionProviderUrl)}</nsi:link>
             <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
             <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#providedBy">
-                <nsi:NSA id="${fn:escapeXml(nsiId)}:nsa"/>
+                <nsi:NSA id="${fn:escapeXml(providerNsa)}"/>
             </nsi:Relation>
         </nsi:Service>
         <nsi:adminContact>
             <c:out value="${adminContactContent}" escapeXml="false"/>
         </nsi:adminContact>
-        <nml:Topology id="${fn:escapeXml(nsiId)}:topology">
+        <nml:Topology id="${fn:escapeXml(topologyId)}">
             <nml:name>${fn:escapeXml(networkName)}</nml:name>
             <c:forEach items="${entries}" var="entry">
-                <nml:BidirectionalPort id="${fn:escapeXml(entry.portGroupId)}:bi">
+                <nml:BidirectionalPort id="${fn:escapeXml(entry.portGroupId)}">
                     <nml:PortGroup id="${fn:escapeXml(entry.portGroupId)}:in"/>
                     <nml:PortGroup id="${fn:escapeXml(entry.portGroupId)}:out"/>
                 </nml:BidirectionalPort>

@@ -119,9 +119,9 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ConnectionServiceV2.ReservationCreationException e) {
 
-      ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage()).
-          withErrorId(e.getErrorCode()).
-          withNsaId(nsiHelper.getUrnProviderNsaV2());
+      ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage())
+        .withErrorId(e.getErrorCode())
+        .withNsaId(nsiHelper.getProviderNsaV2());
       throw new ServiceException(e.getMessage(), serviceException);
     }
   }
@@ -343,7 +343,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) throws ServiceException {
-    if (!nsiHelper.getUrnProviderNsaV2().equals(header.getProviderNSA())) {
+    if (!nsiHelper.getProviderNsaV2().equals(header.getProviderNSA())) {
       throw unsupportedParameter("providerNSA", header.getProviderNSA());
     }
 
@@ -389,7 +389,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private ServiceExceptionType createServiceExceptionType(String message) {
-    return new ServiceExceptionType().withNsaId(nsiHelper.getUrnProviderNsaV2()).withText(message);
+    return new ServiceExceptionType().withNsaId(nsiHelper.getProviderNsaV2()).withText(message);
   }
 
   private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {

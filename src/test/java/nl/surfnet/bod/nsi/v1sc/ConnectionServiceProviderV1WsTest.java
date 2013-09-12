@@ -75,7 +75,7 @@ public class ConnectionServiceProviderV1WsTest {
   @Mock private ConnectionV1Repo connectionRepoMock;
   @Mock private ConnectionServiceV1 connectionServiceProviderComponentMock;
 
-  private NsiHelper dummyNsiHelper = new NsiHelper("", "", "");
+  private NsiHelper dummyNsiHelper = new NsiHelper("", "", "", "", "");
 
   private final String nsaProvider = "nsa:surfnet.nl";
 

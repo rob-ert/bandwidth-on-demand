@@ -253,7 +253,7 @@ public class ConnectionServiceProviderTestIntegration {
     String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
     assertThat(response, containsString("<connectionId>" + connectionId + "</connectionId"));
-    assertThat(response, containsString("<providerNSA>" + nsiHelper.getUrnProviderNsaV1() + "</providerNSA>"));
+    assertThat(response, containsString("<providerNSA>" + nsiHelper.getProviderNsaV1() + "</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>" + URN_REQUESTER_NSA + "</requesterNSA>"));
   }
 
@@ -373,7 +373,7 @@ public class ConnectionServiceProviderTestIntegration {
     source.setStpId(nsiHelper.getStpIdV1(destinationVirtualPort));
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(nsiHelper.getUrnProviderNsaV1()).setPath(
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(nsiHelper.getProviderNsaV1()).setPath(
         path).create();
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
@@ -385,17 +385,17 @@ public class ConnectionServiceProviderTestIntegration {
   }
 
   private QueryRequestType createQueryRequest(String connectionId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
+    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(nsiHelper.getProviderNsaV1())
         .setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
   }
 
   private TerminateRequestType createTerminateRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getProviderNsaV1())
         .createTerminateRequest();
   }
 
   private ProvisionRequestType createProvisionRequest(String connId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getUrnProviderNsaV1())
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(nsiHelper.getProviderNsaV1())
         .createProvisionRequest();
   }
 

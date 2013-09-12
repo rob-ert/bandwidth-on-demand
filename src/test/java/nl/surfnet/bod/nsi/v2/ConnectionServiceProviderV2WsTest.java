@@ -103,7 +103,7 @@ public class ConnectionServiceProviderV2WsTest {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.allOf(NsiScope.class)).create());
     headerHolder = new Holder<>(headers());
 
-    when(nsiHelper.getUrnProviderNsaV2()).thenReturn("providerNsa2");
+    when(nsiHelper.getProviderNsaV2()).thenReturn("providerNsa2");
     when(nsiHelper.getUrnStpV2()).thenReturn("urnStpV2");
     when(nsiHelper.generateGlobalReservationId()).thenReturn("globalReservationId");
     when(bodEnvironmentMock.getNsiV2ServiceType()).thenReturn(SERVICE_TYPE);

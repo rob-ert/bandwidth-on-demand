@@ -43,7 +43,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.TechnologySpecificAttribut
 
 public class ConnectionServiceProviderFunctionsTest {
 
-  private NsiHelper mockNsiHelper = new NsiHelper("", "", "");
+  private NsiHelper mockNsiHelper = new NsiHelper("", "", "", "", "");
 
   @Test
   public void reserveToConnectionWithoutStartTime() throws DatatypeConfigurationException {
