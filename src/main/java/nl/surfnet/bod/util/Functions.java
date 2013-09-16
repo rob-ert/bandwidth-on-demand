@@ -83,11 +83,7 @@ public final class Functions {
     return physicalPortView;
   }
 
-  /**
-   * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
-   */
   public static PhysicalPortView transformAllocatedPhysicalPort(EnniPort port, ReservationService reservationService, NsiHelper nsiHelper) {
-
     ElementActionView allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
 
     PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, nsiHelper);

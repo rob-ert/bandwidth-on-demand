@@ -55,6 +55,10 @@ public class PhysicalPortView {
   private int reservationsAmount;
   private String nsiStpIdV2;
   private String nsiStpIdV1;
+  private String nsiProviderIdV1;
+  private String nsiProviderIdV2;
+  private String nsiStpNetworkIdV2;
+  private String nsiStpLocalIdV2;
 
   public String getInterfaceType() {
     return interfaceType;
@@ -104,8 +108,12 @@ public class PhysicalPortView {
     this.inboundPeer = enniPort.getInboundPeer();
     this.outboundPeer = enniPort.getOutboundPeer();
     this.vlanRanges = enniPort.getVlanRanges();
-    this.nsiStpIdV2 = nsiHelper.getStpIdV2(enniPort);
+
+    this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(enniPort);
+    this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
+    this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
+    this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(enniPort);
 
     this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();
@@ -144,10 +152,6 @@ public class PhysicalPortView {
 
   public PhysicalPortView(UniPort physicalPort) {
     this(physicalPort, new ElementActionView(false, ""), 0L);
-  }
-
-  public String getNsiStpIdV2() {
-    return nsiStpIdV2;
   }
 
   public String getNsiStpIdV1() {
@@ -244,6 +248,22 @@ public class PhysicalPortView {
 
   public String getVlanRanges() {
     return vlanRanges;
+  }
+
+  public String getNsiProviderIdV1() {
+    return nsiProviderIdV1;
+  }
+
+  public String getNsiProviderIdV2() {
+    return nsiProviderIdV2;
+  }
+
+  public String getNsiStpLocalIdV2() {
+    return nsiStpLocalIdV2;
+  }
+
+  public String getNsiStpNetworkIdV2() {
+    return nsiStpNetworkIdV2;
   }
 
   @Override

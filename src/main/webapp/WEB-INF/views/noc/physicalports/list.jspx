@@ -44,7 +44,7 @@
           <table:rowDetailsColumn render="${not show_unallocated}">
             <div class="row-fluid">
                 <div class="span6">
-                    <dl class="dl-horizontal">
+                    <dl class="dl-horizontal" style="margin-bottom: 0;">
                         <c:if test="${not empty item.inboundPeer}">
                             <dt><spring:message code="label_physicalport_inbound_peer"/></dt>
                             <dd>
@@ -107,19 +107,23 @@
                                 </c:otherwise>
                             </c:choose>
                         </dd>
-                        <c:if test="${show_enni}">
-                            <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
-                            <dd>
-                                <c:out value="${item.nsiStpIdV2}" />
-                            </dd>
-                            <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
-                            <dd>
-                                <c:out value="${item.nsiStpIdV1}" />
-                            </dd>
-                        </c:if>
                     </dl>
                 </div>
             </div>
+            <c:if test="${show_enni}">
+                <dl class="dl-horizontal" style="margin-top: 0;">
+                    <dt><spring:message code="label_virtualport_nsi1providerid"/></dt>
+                    <dd><c:out value="${item.nsiProviderIdV1}"/></dd>
+                    <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
+                    <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
+                    <dt><spring:message code="label_virtualport_nsi2providerid"/></dt>
+                    <dd><c:out value="${item.nsiProviderIdV2}"/></dd>
+                    <dt><spring:message code="label_virtualport_nsi2stpnetworkid"/></dt>
+                    <dd><c:out value="${item.nsiStpNetworkIdV2}"/></dd>
+                    <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
+                    <dd class="nsiV2StpId"><c:out value="${item.nsiStpLocalIdV2}"/></dd>
+                </dl>
+            </c:if>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
           <table:column item="${item}" property="bodPortId" />
