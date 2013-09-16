@@ -104,7 +104,7 @@ public class ConnectionServiceProviderV2WsTest {
     headerHolder = new Holder<>(headers());
 
     when(nsiHelper.getProviderNsaV2()).thenReturn("providerNsa2");
-    when(nsiHelper.getUrnStpV2()).thenReturn("urnStpV2");
+    when(nsiHelper.getUrnTopology()).thenReturn("networkId");
     when(nsiHelper.generateGlobalReservationId()).thenReturn("globalReservationId");
     when(bodEnvironmentMock.getNsiV2ServiceType()).thenReturn(SERVICE_TYPE);
   }
@@ -483,8 +483,8 @@ public class ConnectionServiceProviderV2WsTest {
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
-        .withSourceSTP(new StpType().withNetworkId("urnStpV2").withLocalId("source"))
-        .withDestSTP(new StpType().withNetworkId("urnStpV2").withLocalId("dest")));
+        .withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source"))
+        .withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest")));
 
     return result;
   }
