@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>1.20.14</version>
+    <version>1.20.15-SNAPSHOT</version>
     <name>bod</name>
 
     <parent>
@@ -34,7 +34,7 @@
         <connection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</connection>
         <developerConnection>scm:git:git@github.com:BandwidthOnDemand/bandwidth-on-demand-os.git</developerConnection>
         <url>https://github.com/BandwidthOnDemand/bandwidth-on-demand-os</url>
-        <tag>bod-1.20.14</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
