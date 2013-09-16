@@ -26,7 +26,7 @@
                         <table:rowDetailsColumn>
                             <div class="row-fluid">
                                 <div class="span6">
-                                    <dl class="dl-horizontal">
+                                    <dl class="dl-horizontal" style="margin-bottom: 0;">
                                         <dt><spring:message code="label_virtualport_vlan_id" /></dt>
                                         <dd>
                                             <c:choose>
@@ -50,15 +50,21 @@
                                         <dd><c:out value="${item.physicalResourceGroup}" /></dd>
                                         <dt><spring:message code="label_physicalport_nms_port_id"/></dt>
                                         <dd><c:out value="${item.nmsPortId}"/></dd>
-                                        <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
-                                        <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
-                                        <dt><spring:message code="label_virtualport_nsi2stpnetworkid"/></dt>
-                                        <dd><c:out value="${item.nsiStpNetworkIdV2}"/></dd>
-                                        <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
-                                        <dd class="nsiV2StpId"><c:out value="${item.nsiStpLocalIdV2}"/></dd>
                                     </dl>
                                 </div>
                             </div>
+                            <dl class="dl-horizontal" style="margin-top: 0;">
+                                <dt><spring:message code="label_virtualport_nsi1providerid"/></dt>
+                                <dd><c:out value="${item.nsiProviderIdV1}"/></dd>
+                                <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
+                                <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
+                                <dt><spring:message code="label_virtualport_nsi2providerid"/></dt>
+                                <dd><c:out value="${item.nsiProviderIdV2}"/></dd>
+                                <dt><spring:message code="label_virtualport_nsi2stpnetworkid"/></dt>
+                                <dd><c:out value="${item.nsiStpNetworkIdV2}"/></dd>
+                                <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
+                                <dd class="nsiV2StpId"><c:out value="${item.nsiStpLocalIdV2}"/></dd>
+                            </dl>
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="managerLabel" />
                         <spring:message code="label_bandwidth_unit" var="mbit_label" />

@@ -39,8 +39,10 @@ public class VirtualPortView {
   private final String userLabel;
   private final Optional<Long> reservationCounter;
   private final String nsiStpIdV1;
+  private final String nsiProviderIdV1;
   private final String nsiStpLocalIdV2;
   private final String nsiStpNetworkIdV2;
+  private final String nsiProviderIdV2;
   private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
 
 
@@ -56,8 +58,10 @@ public class VirtualPortView {
     this.nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
+    this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
     this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
     this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
+    this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
     this.requestDeleteAllowed = !reservationCounter.isPresent() || reservationCounter.get() == 0L;
   }
 
@@ -115,6 +119,14 @@ public class VirtualPortView {
 
   public String getNsiStpNetworkIdV2() {
     return nsiStpNetworkIdV2;
+  }
+
+  public String getNsiProviderIdV1() {
+    return nsiProviderIdV1;
+  }
+
+  public String getNsiProviderIdV2() {
+    return nsiProviderIdV2;
   }
 
   @Override
@@ -215,88 +227,77 @@ public class VirtualPortView {
       if (other.id != null) {
         return false;
       }
-    }
-    else if (!id.equals(other.id)) {
+    } else if (!id.equals(other.id)) {
       return false;
     }
     if (managerLabel == null) {
       if (other.managerLabel != null) {
         return false;
       }
-    }
-    else if (!managerLabel.equals(other.managerLabel)) {
+    } else if (!managerLabel.equals(other.managerLabel)) {
       return false;
     }
     if (maxBandwidth == null) {
       if (other.maxBandwidth != null) {
         return false;
       }
-    }
-    else if (!maxBandwidth.equals(other.maxBandwidth)) {
+    } else if (!maxBandwidth.equals(other.maxBandwidth)) {
       return false;
     }
     if (nmsPortId == null) {
       if (other.nmsPortId != null) {
         return false;
       }
-    }
-    else if (!nmsPortId.equals(other.nmsPortId)) {
+    } else if (!nmsPortId.equals(other.nmsPortId)) {
       return false;
     }
     if (nsiStpIdV1 == null) {
       if (other.nsiStpIdV1 != null) {
         return false;
       }
-    }
-    else if (!nsiStpIdV1.equals(other.nsiStpIdV1)) {
+    } else if (!nsiStpIdV1.equals(other.nsiStpIdV1)) {
       return false;
     }
     if (physicalPort == null) {
       if (other.physicalPort != null) {
         return false;
       }
-    }
-    else if (!physicalPort.equals(other.physicalPort)) {
+    } else if (!physicalPort.equals(other.physicalPort)) {
       return false;
     }
     if (physicalResourceGroup == null) {
       if (other.physicalResourceGroup != null) {
         return false;
       }
-    }
-    else if (!physicalResourceGroup.equals(other.physicalResourceGroup)) {
+    } else if (!physicalResourceGroup.equals(other.physicalResourceGroup)) {
       return false;
     }
     if (reservationCounter == null) {
       if (other.reservationCounter != null) {
         return false;
       }
-    }
-    else if (!reservationCounter.equals(other.reservationCounter)) {
+    } else if (!reservationCounter.equals(other.reservationCounter)) {
       return false;
     }
     if (userLabel == null) {
       if (other.userLabel != null) {
         return false;
       }
-    }
-    else if (!userLabel.equals(other.userLabel)) {
+    } else if (!userLabel.equals(other.userLabel)) {
       return false;
     }
     if (virtualResourceGroup == null) {
       if (other.virtualResourceGroup != null) {
         return false;
       }
-    }
-    else if (!virtualResourceGroup.equals(other.virtualResourceGroup)) {
+    } else if (!virtualResourceGroup.equals(other.virtualResourceGroup)) {
       return false;
     }
     if (vlanId == null) {
       if (other.vlanId != null) {
         return false;
       }
-    }
-    else if (!vlanId.equals(other.vlanId)) {
+    } else if (!vlanId.equals(other.vlanId)) {
       return false;
     }
 
