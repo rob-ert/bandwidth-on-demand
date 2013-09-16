@@ -35,14 +35,14 @@ import org.junit.Test;
 
 public class NsiHelperTest {
 
-  private NsiHelper subject = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "nsa:bod", "topology:surfnet6:production", "");
+  private NsiHelper subject = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "bod", "surfnet6:production", "");
 
   @Test
   public void should_derive_nsi_v2_stp_from_bod_port_id() {
     EnniPort port = new EnniPort();
     port.setBodPortId("bod-port-id");
 
-    assertThat(subject.getStpIdV2(port), is("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:bod-port-id"));
+    assertThat(subject.getStpIdV2(port), is("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:bod-port-id"));
   }
 
   @Test
@@ -50,19 +50,19 @@ public class NsiHelperTest {
     EnniPort port = new EnniPort();
     port.setBodPortId("bod-port-id");
 
-    assertThat(subject.getStpIdV1(port), is("urn:ogf:network:stp:surfnet.nl" + ":bod-port-id"));
+    assertThat(subject.getStpIdV1(port), is("urn:ogf:network:stp:surfnet.nl:bod-port-id"));
   }
 
   @Test
   public void should_match_enni_port_id() {
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:azAZ09+,-.:;=_!$()*@~&", NsiVersion.TWO), is("azAZ09+,-.:;=_!$()*@~&"));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:", NsiVersion.TWO), is(""));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:azAZ09+,-.:;=_!$()*@~&", NsiVersion.TWO), is("azAZ09+,-.:;=_!$()*@~&"));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:", NsiVersion.TWO), is(""));
 
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:#", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:%33", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:'", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production:<", NsiVersion.TWO), is(nullValue()));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:#", NsiVersion.TWO), is(nullValue()));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:%33", NsiVersion.TWO), is(nullValue()));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:'", NsiVersion.TWO), is(nullValue()));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:port:surfnet6:production:<", NsiVersion.TWO), is(nullValue()));
   }
 
   @Test
@@ -75,5 +75,10 @@ public class NsiHelperTest {
     assertFalse(subject.isValidNurn("urn:ogf:network:surfnet.nl:Asd001A_OME3T_ETH-1-1-4_10:in"));
     assertFalse(subject.isValidNurn("urn:ogf:network:surfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
     assertFalse(subject.isValidNurn("urn:ogf:network:žurfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+  }
+
+  @Test
+  public void should_derive_urn_topology() {
+    assertThat(subject.getUrnTopology(), is("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production"));
   }
 }

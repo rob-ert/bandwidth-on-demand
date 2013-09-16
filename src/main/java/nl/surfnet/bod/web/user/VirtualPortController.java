@@ -221,10 +221,10 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
-    return Lists.transform(entities, FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
+    return Lists.transform(entities, fromVirtualPortToVirtualPortView);
   }
 
-  public final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
+  public final Function<VirtualPort, VirtualPortView> fromVirtualPortToVirtualPortView =
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {

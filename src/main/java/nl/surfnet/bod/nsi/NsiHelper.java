@@ -55,6 +55,7 @@ public class NsiHelper {
   private final String urnStpV1;
   private final String urnStpV2;
   private final String providerId;
+  private final String topologyId;
 
   private final Pattern stpPatternV1;
   private final Pattern stpPatternV2;
@@ -71,8 +72,9 @@ public class NsiHelper {
     this.networkIdV2 = networkIdV2;
     this.urnGlobalReservationId = urnGlobalReservationId;
     this.urnStpV1 = join(URN_OGF, "stp", networkIdV1);
-    this.urnStpV2 = join(URN_OGF,  networkIdV2, topologyId);
+    this.urnStpV2 = join(URN_OGF,  networkIdV2, "port", topologyId);
     this.providerId = providerId;
+    this.topologyId = topologyId;
 
     this.stpPatternV1 = Pattern.compile(urnStpV1 + ":([0-9]+)");
     this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
@@ -146,7 +148,7 @@ public class NsiHelper {
   }
 
   public String getProviderNsaV2() {
-    return join(URN_OGF, networkIdV2, providerId);
+    return join(URN_OGF, networkIdV2, "nsa", providerId);
   }
 
   public String getProviderNsaV1() {
@@ -155,6 +157,10 @@ public class NsiHelper {
 
   public String getUrnStpV2() {
     return urnStpV2;
+  }
+
+  public String getUrnTopology() {
+    return join(URN_OGF,  networkIdV2, "topology", topologyId);
   }
 
   private static String join(Object... parts) {

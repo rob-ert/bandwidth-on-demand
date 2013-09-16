@@ -57,7 +57,7 @@ public class VirtualPortView {
     this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
     this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
-    this.nsiStpNetworkIdV2 = nsiHelper.getUrnStpV2();
+    this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
     this.requestDeleteAllowed = !reservationCounter.isPresent() || reservationCounter.get() == 0L;
   }
 

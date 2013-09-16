@@ -81,7 +81,7 @@ public final class ConnectionsV2 {
   }
 
   public StpType toStpType(String localId) {
-    return new StpType().withNetworkId(nsiHelper.getUrnStpV2()).withLocalId(localId);
+    return new StpType().withNetworkId(nsiHelper.getUrnTopology()).withLocalId(localId);
   }
 
   public static void addPointToPointService(Collection<Object> any, P2PServiceBaseType service) {

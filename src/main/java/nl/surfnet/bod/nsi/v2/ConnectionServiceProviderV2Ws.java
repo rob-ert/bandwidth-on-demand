@@ -160,7 +160,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void validateStp(StpType stp, String sourceDest) throws ServiceException {
-    if (!stp.getNetworkId().equals(nsiHelper.getUrnStpV2())) {
+    if (!stp.getNetworkId().equals(nsiHelper.getUrnTopology())) {
       throw unsupportedParameter(sourceDest + "STP::networkId", stp.getNetworkId());
     }
     if (stp.getLabels() != null ) {
