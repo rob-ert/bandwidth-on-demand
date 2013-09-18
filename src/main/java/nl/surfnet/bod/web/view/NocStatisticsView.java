@@ -34,8 +34,9 @@ public class NocStatisticsView {
   private final long enniPortsAmount;
   private final long unalignedPhysicalPortsAmount;
 
-  public NocStatisticsView(long countUniPorts, long countEnniPorts, long countElapsedReservations, long countActiveReservations,
-      long countComingReservations, long countUnalignedPhyscalPorts) {
+  public NocStatisticsView(
+      long countUniPorts, long countEnniPorts, long countElapsedReservations,
+      long countActiveReservations, long countComingReservations, long countUnalignedPhyscalPorts) {
 
     this.uniPortsAmount = countUniPorts;
     this.enniPortsAmount = countEnniPorts;

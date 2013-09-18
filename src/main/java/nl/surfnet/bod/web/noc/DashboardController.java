@@ -101,8 +101,7 @@ public class DashboardController {
   }
 
   private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unalignedPorts) {
-
-    final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
+    String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
     for (PhysicalPort port : unalignedPorts) {
       messageManager.addErrorMessage(forcePortCheckButton, model, "info_physicalport_unaligned_with_nms." + port.getNmsAlignmentStatus().name(), port
@@ -112,7 +111,6 @@ public class DashboardController {
 
   private String createForcePortCheckButton(String actionUrl) {
     return String.format(
-        "<a href=\"%s\" rel=\"tooltip\" title=\"Force port check\"><i class=\"icon-refresh\"><!--  --></i></a>",
-        actionUrl);
+        "<a href=\"%s\" rel=\"tooltip\" title=\"Force port check\"><i class=\"icon-refresh\"><!--  --></i></a>", actionUrl);
   }
 }

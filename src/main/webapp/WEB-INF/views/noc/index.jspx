@@ -18,7 +18,7 @@
             <h2>Statistics</h2>
             <div class="content">
                 <spring:url value="${stats.uniPortsUrl}" var="uniPortsUrl" />
-                <spring:url value="${stats.enniPortsUrl}" var="ennisPortsUrl" />
+                <spring:url value="${stats.enniPortsUrl}" var="enniPortsUrl" />
                 <spring:url value="${stats.elapsedReservationsUrl}" var="elapsedReservationsUrl" />
                 <spring:url value="${stats.activeReservationsUrl}" var="activeReservationsUrl" />
                 <spring:url value="${stats.comingReservationsUrl}" var="comingReservationsUrl" />
