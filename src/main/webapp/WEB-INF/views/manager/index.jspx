@@ -34,6 +34,7 @@
                                 <th>Team</th>
                                 <th>Who</th>
                                 <th>Requested</th>
+                                <th>Status</th>
                                 <table:actionsHeader />
                         	</tr>
                         </thead>
@@ -43,13 +44,34 @@
                                     <td><c:out value="${request.virtualResourceGroup.name}" /></td>
                                     <td><c:out value="${request.requestorName}" /></td>
                                     <td><spring:eval expression="request.requestDateTime" /></td>
+                                    <td><c:out value="${request.status}" /></td>
+                                    
+                                    <c:choose>
+                                     <c:when test="${request.status eq 'DELETE_REQUEST_PENDING'}">
+                                     
+                                     <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
+                                        <spring:url value="/manager/virtualports/delete/${request.uuid}" var="requestUrl" />
+                                        <a href="${requestUrl}" rel="tooltip"
+                                            title="Delete Virtual Port Request" data-type="info"><i
+                                            class="icon-remove"> <!--  -->
+                                     </i></a>
+                                    </table:actionsColumn>
+                                    
+                                    
+                                     </c:when>
+                                    <c:otherwise>
                                     <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
                                         <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />
                                         <a href="${requestUrl}" rel="tooltip"
                                             title="New Virtual Port Request" data-type="info"><i
                                             class="icon-plus"> <!--  -->
-                                    	</i></a>
+                                     </i></a>
                                     </table:actionsColumn>
+                                    
+                                    </c:otherwise>
+                                    </c:choose>
+                                    
+                                    
                             	</tr>
                             </c:forEach>
                         </tbody>
