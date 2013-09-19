@@ -50,6 +50,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.push.EndPoints;
 import nl.surfnet.bod.web.view.ElementActionView;
@@ -223,7 +224,7 @@ public class PhysicalPortController {
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    return physicalResourceGroupService.findAll();
+    return Orderings.prgNameOrdering().immutableSortedCopy(physicalResourceGroupService.findAll());
   }
 
   public static class MovePhysicalPortCommand {
