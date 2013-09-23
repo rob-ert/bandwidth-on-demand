@@ -18,9 +18,9 @@
                 <nsi:NSA id="${fn:escapeXml(providerNsa)}"/>
             </nsi:Relation>
         </nsi:Service>
-        <nsi:adminContact>
+        <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#adminContact">
             <c:out value="${adminContactContent}" escapeXml="false"/>
-        </nsi:adminContact>
+        </nsi:Relation>
         <nml:Topology id="${fn:escapeXml(topologyId)}">
             <nml:name>${fn:escapeXml(networkName)}</nml:name>
             <c:forEach items="${entries}" var="entry">
