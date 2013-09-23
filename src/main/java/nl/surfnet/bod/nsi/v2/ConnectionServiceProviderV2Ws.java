@@ -118,7 +118,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     try {
       connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ConnectionServiceV2.ReservationCreationException e) {
-
       ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage())
         .withErrorId(e.getErrorCode())
         .withNsaId(nsiHelper.getProviderNsaV2());

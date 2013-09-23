@@ -63,6 +63,8 @@ public class ConnectionV2Factory {
   private NsiV2RequestDetails initialReserveRequestDetails = new NsiV2RequestDetailsFactory().create();
   private int reserveHeldTimeoutValue = 1200;
   private Optional<DateTime> reserveHeldTimeout = Optional.absent();
+  private DateTime startTime;
+  private DateTime endTime;
 
   public ConnectionV2 create() {
     ConnectionV2 connection = new ConnectionV2();
@@ -97,6 +99,9 @@ public class ConnectionV2Factory {
 
     connection.setReserveHeldTimeoutValue(reserveHeldTimeoutValue);
     connection.setReserveHeldTimeout(reserveHeldTimeout);
+
+    connection.setStartTime(startTime);
+    connection.setEndTime(endTime);
 
     reservation.setConnectionV2(connection);
 
@@ -190,6 +195,16 @@ public class ConnectionV2Factory {
 
   public ConnectionV2Factory setGlobalReservationId(String globalReservationId) {
     this.globalReservationId = globalReservationId;
+    return this;
+  }
+
+  public ConnectionV2Factory setStartTime(DateTime startTime) {
+    this.startTime = startTime;
+    return this;
+  }
+
+  public ConnectionV2Factory setEndTime(DateTime endTime) {
+    this.endTime = endTime;
     return this;
   }
 

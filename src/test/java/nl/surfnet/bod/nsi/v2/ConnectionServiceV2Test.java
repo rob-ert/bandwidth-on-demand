@@ -48,6 +48,8 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -117,6 +119,23 @@ public class ConnectionServiceV2Test {
       fail("Expected a ValidationException");
     } catch (ConnectionServiceV2.ReservationCreationException e) {
       assertThat(e.getMessage(), containsString("GlobalReservationId"));
+    }
+
+    verify(connectionRepoMock, never()).save(any(ConnectionV2.class));
+  }
+
+  @Test
+  public void reserve_with_a_end_time_before_start_time_should_give_validation_exception() throws ConnectionServiceV2.ReservationCreationException {
+    String providerNsa = "nsa:surfnet.nl";
+    ConnectionV2 connection = new ConnectionV2Factory().setStartTime(DateTime.now().plusMinutes(20)).setEndTime(DateTime.now()).setProviderNsa(providerNsa).create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+
+    try {
+      subject.reserve(connection, requestDetails, userDetails);
+      fail("Expected a ValidationException");
+    } catch (ConnectionServiceV2.ReservationCreationException e) {
+      assertThat(e.getMessage(), containsString("Start time is after end time"));
     }
 
     verify(connectionRepoMock, never()).save(any(ConnectionV2.class));

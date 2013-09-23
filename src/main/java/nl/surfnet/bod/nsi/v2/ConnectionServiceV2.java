@@ -46,6 +46,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
@@ -75,6 +76,7 @@ public class ConnectionServiceV2 {
   public void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
     checkConnectionId(connection.getConnectionId());
     checkGlobalReservationId(connection.getGlobalReservationId());
+    checkStartEndTime(connection.getStartTime(), connection.getEndTime());
 
     try {
       P2PServiceBaseType service = ConnectionsV2.findPointToPointService(connection.getCriteria()).get();
@@ -229,6 +231,15 @@ public class ConnectionServiceV2 {
   @Async
   public void asyncQueryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiV2RequestDetails requestDetails) {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
+  }
+
+  private void checkStartEndTime(Optional<DateTime> startTime, Optional<DateTime> endTime) throws ReservationCreationException {
+    if (startTime.isPresent() && endTime.isPresent()) {
+      if (startTime.get().isAfter(endTime.get())) {
+        log.debug("Start time {} is after end time {}", startTime.get(), endTime.get());
+        throw new ReservationCreationException("100", "Start time is after end time");
+      }
+    }
   }
 
   private void checkGlobalReservationId(String globalReservationId) throws ReservationCreationException {
