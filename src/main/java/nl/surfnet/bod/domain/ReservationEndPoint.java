@@ -139,4 +139,12 @@ public class ReservationEndPoint {
       return new ReservationEndPoint(enniPort, Optional.fromNullable(enniVlanId));
     }
   }
+
+  public Optional<Integer> getVlanId() {
+    if (getVirtualPort().isPresent()) {
+      return Optional.fromNullable(getVirtualPort().get().getVlanId());
+    } else {
+      return getEnniVlanId();
+    }
+  }
 }

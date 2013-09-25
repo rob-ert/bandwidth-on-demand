@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nbi.opendrac;
 
+import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -545,9 +547,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private String translateVlanId(ReservationEndPoint endPoint) {
-    Preconditions.checkArgument(endPoint.getVirtualPort().isPresent(), "OpenDRAC requires UNI ports");
-    VirtualPort virtualPort = endPoint.getVirtualPort().get();
-    return virtualPort.getVlanId() == null ? DEFAULT_VID : virtualPort.getVlanId().toString();
+    return endPoint.getVlanId().transform(toStringFunction()).or(DEFAULT_VID);
   }
 
   private List<EndpointT> findAllEndPoints() {
