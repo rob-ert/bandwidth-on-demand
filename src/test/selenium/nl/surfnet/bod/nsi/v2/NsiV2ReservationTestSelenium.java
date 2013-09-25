@@ -99,6 +99,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
   private static final int REPLY_SERVER_PORT = 31337;
   private static final String REPLY_ADDRESS = "http://localhost:" + REPLY_SERVER_PORT + "/requester";
+  private static final int VLAN_ID = 23;
 
   private SoapReplyListener soapReplyListener;
   private Endpoint soapReplyListenerEndpoint;
@@ -115,20 +116,20 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   @Override
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, "First port", GROUP_SURFNET);
-    getNocDriver().linkUniPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_2, "First port", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_3, "Second port", GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.of(VLAN_ID));
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(23));
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(VLAN_ID));
   }
 
   @Before
@@ -136,8 +137,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     soapReplyListener = new SoapReplyListener();
     soapReplyListenerEndpoint = Endpoint.publish(REPLY_ADDRESS, soapReplyListener);
 
-    startTime = DateTime.now().plusHours(1);
-    endTime = DateTime.now();
+    startTime = DateTime.now();
+    endTime = DateTime.now().plusHours(1);
     String oauthToken = "f00f";
 
     connectionServiceProviderPort = createPort(oauthToken);
@@ -172,7 +173,9 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
         .withSourceSTP(sourceStp)
-        .withDestSTP(destStp).withDestVLAN(23));
+        .withDestSTP(destStp)
+        .withSourceVLAN(VLAN_ID)
+        .withDestVLAN(VLAN_ID));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -231,7 +234,9 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
       .withSourceSTP(sourceStp)
-      .withDestSTP(destStp).withDestVLAN(23));
+      .withDestSTP(destStp)
+      .withSourceVLAN(VLAN_ID)
+      .withDestVLAN(VLAN_ID));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
