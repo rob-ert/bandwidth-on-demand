@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
@@ -34,7 +36,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test@test.nl");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "Request a virtual port", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "Request a virtual port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
 
     getWebDriver().clickLinkInLastEmail();
@@ -46,7 +48,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  public void requestAVirtualPortAndDecline() {
+  public void requestVirtualPortAndDecline() {
     getManagerDriver().switchToUserRole();
 
     getUserDriver().requestVirtualPort("Selenium users");
@@ -75,13 +77,11 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, "Mijn nieuwe poort", 1200,
         "I would like to have a new port");
 
-    getUserDriver().switchToManagerRole("SURFnet");
-
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().verifyNewVirtualPortHasProperties(GROUP_SURFNET, "Mijn nieuwe poort", 1200);
 
-    getManagerDriver().createVirtualPort("Your vport");
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "Your vport", Optional.of(""), Optional.<Integer>absent());
 
     getManagerDriver().verifyVirtualPortExists("Your vport", "Selenium users", "1200");
 
@@ -106,7 +106,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
     getNocDriver().verifyPhysicalResourceGroupExists(GROUP_SURFNET, "test@test.nl", "1");
 
     getNocDriver().switchToManagerRole("SURFnet");
-    getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
+    getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, Optional.<Integer>absent());
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
@@ -122,7 +122,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  public void requestAVirtualPortUsingButtonOnListPage() {
+  public void requestVirtualPortUsingButtonOnListPage() {
     getManagerDriver().switchToUserRole();
 
     getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "myVP", 1000,
@@ -132,7 +132,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().acceptVirtualPort("New VP");
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "New VP", Optional.<String>absent(), Optional.<Integer>absent());
 
     getManagerDriver().switchToUserRole();
 

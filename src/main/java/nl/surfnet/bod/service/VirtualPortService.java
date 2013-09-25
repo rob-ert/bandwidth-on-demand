@@ -25,11 +25,10 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byUniPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -99,25 +98,15 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.count(forManagerSpec(managerRole));
   }
 
-  public long countForUniPort(final UniPort uniPort) {
-    return virtualPortRepo.count(byPhysicalPortSpec(uniPort));
-  }
-
-
-  public void deleteVirtualPorts(Collection<VirtualPort> virtualPorts, RichUserDetails userDetails) {
-    for (VirtualPort virtualPort : virtualPorts) {
-      Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
-      reservationService.cancelAndArchiveReservations(new ArrayList<>(reservations), userDetails);
-      delete(virtualPort, userDetails);
-    }
+  public long countForUniPort(UniPort uniPort) {
+    return virtualPortRepo.count(byUniPortSpec(uniPort));
   }
 
   public void delete(VirtualPort virtualPort, RichUserDetails user) {
-    List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort);
+    Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
     reservationService.cancelAndArchiveReservations(reservations, user);
 
-    logEventService.logDeleteEvent(Security.getUserDetails(),
-        getLogLabel(Security.getSelectedRole(), virtualPort), virtualPort);
+    logEventService.logDeleteEvent(Security.getUserDetails(), getLogLabel(Security.getSelectedRole(), virtualPort), virtualPort);
 
     virtualPort.getVirtualResourceGroup().removeVirtualPort(virtualPort);
     virtualPortRepo.delete(virtualPort);
@@ -201,10 +190,10 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.save(virtualPort);
   }
 
-  public Collection<VirtualPort> findAllForPhysicalPort(UniPort physicalPort) {
-    checkNotNull(physicalPort);
+  public Collection<VirtualPort> findAllForUniPort(UniPort port) {
+    checkNotNull(port);
 
-    return virtualPortRepo.findAll(byPhysicalPortSpec(physicalPort));
+    return virtualPortRepo.findAll(byUniPortSpec(port));
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,

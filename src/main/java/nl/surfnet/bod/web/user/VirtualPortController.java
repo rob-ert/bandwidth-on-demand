@@ -228,7 +228,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {
-          final long counter = reservationService.findAllActiveByVirtualPort(port).size();
+          final long counter = reservationService.findActiveByVirtualPort(port).size();
           final long pendingDeleteRequests = virtualPortRequestLinkRepo.findByUserLabelAndStatus(port.getUserLabel(), RequestStatus.DELETE_REQUEST_PENDING).size();
           return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter + pendingDeleteRequests));
         }

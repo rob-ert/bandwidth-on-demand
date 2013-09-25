@@ -132,20 +132,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return cancelWithReason(reservation, "Cancelled by " + user.getDisplayName(), user);
   }
 
-  public void cancelAndArchiveReservations(List<Reservation> reservations, RichUserDetails user) {
-    for (Reservation reservation : reservations) {
-      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
-
-        if (StringUtils.hasText(reservation.getReservationId())) {
-          ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
-          reservation.setStatus(reservationState);
-
-          if (reservationState == ReservationStatus.CANCEL_FAILED) {
-            throw new RuntimeException("NMS Error during cancel of reservation: " + reservation.getReservationId());
-          }
-        }
-      }
-    }
+  public void cancelAndArchiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
+    cancelActiveReservations(reservations, user);
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
     reservationArchiveRepo.save(reservationArchives);
@@ -153,6 +141,19 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     reservationRepo.delete(reservations);
     logEventService.logDeleteEvent(Security.getUserDetails(), "Canceled, archived and deleted", reservations);
+  }
+
+  private void cancelActiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
+    for (Reservation reservation : reservations) {
+      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState() && StringUtils.hasText(reservation.getReservationId())) {
+        ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+        reservation.setStatus(reservationState);
+
+        if (reservationState == ReservationStatus.CANCEL_FAILED) {
+          throw new RuntimeException("NMS Error during cancel of reservation: " + reservation.getReservationId());
+        }
+      }
+    }
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
@@ -283,19 +284,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
-  public Collection<Reservation> findAllActiveByVirtualPort(VirtualPort port) {
+  public Collection<Reservation> findActiveByVirtualPort(VirtualPort port) {
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()));
   }
 
-  public Collection<Reservation> findAllActiveByVirtualPortForManager(VirtualPort port, RichUserDetails user) {
+  public Collection<Reservation> findActiveByVirtualPortForManager(VirtualPort port, RichUserDetails user) {
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(specByManager(user)));
   }
 
-  public List<Reservation> findAllEntriesUsingFilter(ReservationFilterView filter, int firstResult,
-      int maxResults, Sort sort) {
-
-    return reservationRepo.findAll(specFilteredReservations(filter),
-        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  public List<Reservation> findEntriesUsingFilter(ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
+    return reservationRepo.findAll(specFilteredReservations(filter), new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public Reservation findByConnectionId(String connectionId) {
@@ -306,8 +304,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findByReservationId(reservationId);
   }
 
-  public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {
-    return reservationRepo.findBySourcePortVirtualPortOrDestinationPortVirtualPort(virtualPortA, virtualPortB);
+
+  public Collection<Reservation> findByPhysicalPort(PhysicalPort port) {
+    return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)));
   }
 
   public Collection<Reservation> findByVirtualPort(VirtualPort port) {
@@ -486,7 +485,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   @VisibleForTesting
-  Collection<ReservationArchive> transformToReservationArchives(List<Reservation> reservations) {
+  Collection<ReservationArchive> transformToReservationArchives(Collection<Reservation> reservations) {
     return Collections2.transform(reservations, toReservationArchive);
   }
 

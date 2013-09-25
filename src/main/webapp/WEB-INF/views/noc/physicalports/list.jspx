@@ -145,32 +145,49 @@
                 <c:choose>
                     <c:when test="${item.interfaceType == 'E_NNI'}">
                         <c:set var="updateUrl" value="/enni/edit" />
+                        <c:set var="deleteMessage" value="label_physicalport_enni_delete_confirm" />
                     </c:when>
                     <c:otherwise>
                         <c:set var="updateUrl" value="/uni/edit" />
+                        <c:set var="deleteMessage" value="label_physicalport_uni_delete_confirm" />
                     </c:otherwise>
                 </c:choose>
             </c:otherwise>
           </c:choose>
 
-          <table:actionsColumn item="${item}"
+          <table:actionsColumn
+            item="${item}"
+            path="/noc/physicalports" idFieldName="${show_unallocated ? 'nmsPortId' : 'id'}"
+            labelCode="label_physicalport"
+
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             updateUrl="${updateUrl}"
-            path="/noc/physicalports" idFieldName="${show_unallocated ? 'nmsPortId' : 'id'}"
-            labelCode="label_physicalport"
+
             delete="${item.deleteRender}"
-            deleteConfirmLabelCode="physical_port_delete_confirm_counter" 
+            deleteConfirmLabelCode="${deleteMessage}"
             deleteConfirmLabelArgument="${item.numberOfVirtualPorts},${item.reservationsAmount}">
 
             <c:if test="${not show_unallocated}">
-              <spring:url var="moveUrl" value="/noc/physicalports/move">
-                <spring:param name="id" value="${item.id}" />
-              </spring:url>
-              <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port">
-                <i class="icon-truck"><!--  --></i>
-              </a>
+              <c:choose>
+                <c:when test="${item.moveAllowed}">
+                  <spring:message code="label_physicalport_move" var="move_title"/>
+                  <spring:url var="moveUrl" value="/noc/physicalports/move">
+                    <spring:param name="id" value="${item.id}" />
+                  </spring:url>
+
+                  <a href="${moveUrl}" rel="tooltip" data-type="info" title="${move_title}">
+                    <i class="icon-truck"><!--  --></i>
+                  </a>
+                </c:when>
+                <c:otherwise>
+                  <spring:message code="label_physicalport_move_not_allowed" var="move_title"/>
+                  <span class="disabled-icon" data-type="info" rel="tooltip" title="${move_title}">
+                    <i class="icon-truck"><!--  --></i>
+                  </span>
+                </c:otherwise>
+              </c:choose>
             </c:if>
 
             <c:if test="${not item.alignedWithNMS}">

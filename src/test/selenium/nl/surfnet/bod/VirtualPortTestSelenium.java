@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import org.junit.Test;
@@ -40,12 +42,12 @@ public class VirtualPortTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("First port");
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "First port", Optional.<String>absent(), Optional.of(23));
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1000, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("Second port");
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "Second port", Optional.<String>absent(), Optional.of(23));
   }
 
   @Test

@@ -133,7 +133,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public final Function<VirtualPort, VirtualPortView> fromNocVirtualportToVirtualportView = new Function<VirtualPort, VirtualPortView>() {
     @Override
     public VirtualPortView apply(VirtualPort port) {
-      long counter = reservationService.findAllActiveByVirtualPort(port).size();
+      long counter = reservationService.findActiveByVirtualPort(port).size();
       return new VirtualPortView(port, nsiHelper, Optional.of(counter));
     }
   };

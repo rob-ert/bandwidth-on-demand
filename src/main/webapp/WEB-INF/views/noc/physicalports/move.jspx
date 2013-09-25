@@ -12,8 +12,7 @@
     <h1><spring:message code="label_physicalport_move" /></h1>
     <div class="content">
         <spring:url value="/noc/physicalports/move" var="form_url" />
-        <sform:form action="${form_url}" method="PUT" modelAttribute="movePhysicalPortCommand"
-            cssClass="form form-horizontal">
+        <sform:form action="${form_url}" method="PUT" modelAttribute="movePhysicalPortCommand" cssClass="form form-horizontal">
 
             <div class="message">
                 <h3><spring:message code="label_physicalport_move_old_details" /></h3>
@@ -21,7 +20,9 @@
 
             <field:display labelCode="label_physicalport_noclabel" object="${physicalPort}" field="nocLabel"  />
             <field:display labelCode="label_physicalport_bod_port_id" object="${physicalPort}" field="bodPortId" />
-            <field:display labelCode="label_physicalresourcegroup" object="${physicalPort}" field="physicalResourceGroup" id="institute_id"/>
+            <c:if test="${not empty physicalPort.physicalResourceGroup}">
+                <field:display labelCode="label_physicalresourcegroup" object="${physicalPort}" field="physicalResourceGroup" id="institute_id"/>
+            </c:if>
             <field:display labelCode="label_physicalport_nms_port_id" object="${physicalPort}" field="nmsPortId" id="nms_port_id" />
             <field:display labelCode="label_physicalport_vlan" object="${physicalPort}" field="vlanRequired" id="vlanRequired" />
 
@@ -29,7 +30,9 @@
                 <h3><spring:message code="label_physicalport_move_related_details" /></h3>
             </div>
 
-            <field:display labelCode="Number of Virtual Ports" object="${relatedObjects}" field="numberOfVirtualPorts" id="nrvp_id"/>
+            <c:if test="${physicalPort.type eq 'UniPort'}">
+                <field:display labelCode="Number of Virtual Ports" object="${relatedObjects}" field="numberOfVirtualPorts" id="nrvp_id"/>
+            </c:if>
             <field:display labelCode="Number of Reservations" object="${relatedObjects}" field="numberOfReservations" id="nrr_id"/>
             <field:display labelCode="Number of Active Reservations" object="${relatedObjects}" field="numberOfActiveReservations" id="nrar_id" />
 

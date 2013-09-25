@@ -154,7 +154,7 @@ public class PhysicalResourceGroupControllerTest {
     when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(
         any(PhysicalResourceGroup.class), anyInt(), anyInt(), any(Sort.class))
       ).thenReturn(physicalPorts);
-    when(virtualPortServiceMock.findAllForPhysicalPort(any(UniPort.class))).thenReturn(virtualPorts);
+    when(virtualPortServiceMock.findAllForUniPort(any(UniPort.class))).thenReturn(virtualPorts);
     when(reservationServiceMock.findActiveByPhysicalPort(any(UniPort.class))).thenReturn(reservations);
     when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(groups);
 

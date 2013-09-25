@@ -40,17 +40,26 @@ public abstract class TestExternalSupport {
   protected static final String ICT_MANAGERS_GROUP_2 =
     "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers2";
 
-  protected static final String BOD_PORT_ID_1 = "Mock_ETH10G-1-13-1";
+  protected static final String BOD_ENNI_PORT_1 = "ETH10G-1-13-1";
+  protected static final String NMS_ENNI_PORT_ID_1 = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
+
+  protected static final String BOD_ENNI_PORT_ID_2 = "Mock_ETH-1-13-4";
+  protected static final String NMS_ENNI_PORT_ID_2 = "00-21-E1-D6-D5-DC_ETH-1-13-4";
+
+  protected static final String BOD_NOVLAN_PORT_ID_1 = "Ut002A_OME01_ETH-1-1-4";
+  protected static final String NMS_NOVLAN_PORT_ID_1 = "00-1B-25-2D-DA-65_ETH-1-1-4";
+
   protected static final String BOD_PORT_ID_2 = "Mock_ETH10G-1-13-2";
+  protected static final String NMS_PORT_ID_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
   protected static final String LABEL_PORT_2 = "Mock_Poort 2de verdieping toren1b";
+
   protected static final String BOD_PORT_ID_3 = "Mock_ETH-1-13-5";
-  protected static final String BOD_PORT_ID_4 = "Mock_ETH-1-13-4";
+  protected static final String NMS_PORT_ID_3 = "00-21-E1-D6-D5-DC_ETH-1-13-5";
+
+  protected static final String BOD_NOVLAN_PORT_ID_4 = "OME0039_OC12-1-12-2";
+  protected static final String NMS_NOVLAN_PORT_ID_4 = "00-21-E1-D6-D6-70_OC12-1-12-2";
 
   protected static final String USERS_GROUP = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users";
-  protected static final String NMS_PORT_ID_1 = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
-  protected static final String NMS_PORT_ID_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
-  protected static final String NMS_PORT_ID_3 = "00-21-E1-D6-D5-DC_ETH-1-13-5";
-  protected static final String NMS_PORT_ID_4 = "00-21-E1-D6-D5-DC_ETH-1-13-4";
 
   private static BodWebDriver webDriver = new BodWebDriver();
 

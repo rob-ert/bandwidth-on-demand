@@ -24,7 +24,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.base.MessageManager.INFO_MESSAGES_KEY;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
@@ -106,9 +105,11 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void testCreateNoNbiFound() throws Exception {
+  public void create_no_nbi_found() throws Exception {
     final String nmsId = "foo";
+
     when(physicalPortServiceMock.findNbiPort(nmsId)).thenReturn(Optional.<NbiPort>absent());
+
     mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsId))
         .andExpect(status().isMovedTemporarily())
         .andExpect(view().name("redirect:"));
@@ -128,13 +129,12 @@ public class PhysicalPortControllerTest {
   }
 
   @Test
-  public void moveWithNonExistingPhysicalPortId() throws Exception {
-    when(physicalPortServiceMock.find(8L)).thenReturn(null);
+  public void move_with_non_existing_physical_port_id() throws Exception {
+    when(physicalPortServiceMock.find(18L)).thenReturn(null);
 
-    mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
-        .andExpect(status().isMovedTemporarily())
-        .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem(containsString("Could not find"))))
-        .andExpect(view().name("redirect:/noc/physicalports/uni"));
+    mockMvc.perform(get("/noc/physicalports/move").param("id", "18"))
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(view().name("redirect:"));
   }
 
   @Test
@@ -143,12 +143,12 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.find(8L)).thenReturn(port);
     when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<NbiPort> emptyList());
-    when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated", "EPL")).thenReturn("expectedMessage");
+    when(messageRetriever.getMessageWithBoldArguments("info_physicalport_nounallocated", "EPL", "UNI")).thenReturn("expectedMessage");
 
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
-        .andExpect(status().isMovedTemporarily())
-        .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem("expectedMessage")))
-        .andExpect(view().name("redirect:/noc/physicalports/uni"));
+      .andExpect(status().isMovedTemporarily())
+      .andExpect(flash().attribute(INFO_MESSAGES_KEY, hasItem("expectedMessage")))
+      .andExpect(view().name("redirect:/noc/physicalports/uni"));
   }
 
   @Test
@@ -160,8 +160,7 @@ public class PhysicalPortControllerTest {
 
     mockMvc.perform(get("/noc/physicalports/move").param("id", "8"))
         .andExpect(status().isOk())
-        .andExpect(model().attributeExists("relatedObjects", "movePhysicalPortCommand"))
-        .andExpect(model().attribute("physicalPort", port))
+        .andExpect(model().attributeExists("relatedObjects", "movePhysicalPortCommand", "physicalPort"))
         .andExpect(view().name("noc/physicalports/move"));
   }
 

@@ -14,9 +14,6 @@
 
     <tiles:useAttribute name="renderActions" classname="java.lang.Boolean" />
     <section>
-        <div class="alert alert-info">
-            <spring:message code="label_physicalport_port_moved" />
-        </div>
         <div class="content">
             <c:choose>
                 <c:when test="${empty list}">

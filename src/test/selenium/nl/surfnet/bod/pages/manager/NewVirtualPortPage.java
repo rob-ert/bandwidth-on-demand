@@ -51,7 +51,7 @@ public class NewVirtualPortPage extends AbstractFormPage {
   @FindBy(id = "_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
-  @FindBy(id = "_physicalPort")
+  @FindBy(id = "physicalPort")
   private WebElement physicalPortSelect;
 
   @FindBy(id = "_virtualresourcegroup")

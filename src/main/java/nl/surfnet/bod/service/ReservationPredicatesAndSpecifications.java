@@ -131,8 +131,9 @@ public final class ReservationPredicatesAndSpecifications {
       return new Specification<Reservation>() {
         @Override
         public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-          return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port), cb.equal(root
-              .get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
+          return cb.or(
+              cb.equal(root.get(Reservation_.sourcePort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port),
+              cb.equal(root.get(Reservation_.destinationPort).get(ReservationEndPoint_.virtualPort).get(VirtualPort_.physicalPort), port));
         }
       };
     } else if (port instanceof EnniPort) {
@@ -144,8 +145,7 @@ public final class ReservationPredicatesAndSpecifications {
             cb.equal(root.get(Reservation_.destinationPort).get(ReservationEndPoint_.enniPort), port));
         }
       };
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("Don't know how to handle physical port of type: " + port.getClass());
     }
   }

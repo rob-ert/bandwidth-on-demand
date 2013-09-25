@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import org.junit.Test;
@@ -36,16 +38,15 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
-    getUserDriver().switchToManagerRole(GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort(vpOne);
+    getManagerDriver().acceptVirtualPort(managerLabel1, vpOne, Optional.<String>absent(), Optional.<Integer>absent());
   }
 
   @Test
@@ -86,7 +87,7 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void checkUnallocateState() {
-    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(BOD_PORT_ID_1, nocLabel);
+    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(BOD_NOVLAN_PORT_ID_1, nocLabel);
   }
 
   @Test

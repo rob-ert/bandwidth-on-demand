@@ -89,7 +89,7 @@ public class ReservationControllerTest {
     when(reservationServiceMock.countAllEntriesUsingFilter(filter2012)).thenReturn((long) reservationsFor2012.size());
 
     when(
-        reservationServiceMock.findAllEntriesUsingFilter(any(ReservationFilterView.class), anyInt(), anyInt(),
+        reservationServiceMock.findEntriesUsingFilter(any(ReservationFilterView.class), anyInt(), anyInt(),
             any(Sort.class))).thenReturn(reservationsFor2012);
   }
 

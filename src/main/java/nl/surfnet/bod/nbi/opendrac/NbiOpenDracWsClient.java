@@ -553,8 +553,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   private List<EndpointT> findAllEndPoints() {
     try {
       QueryEndpointsRequestDocument requestDocument = createQueryEndpointsRequest();
-      QueryEndpointsResponseDocument response = getNetworkMonitoringService().queryEndpoints(requestDocument,
-          getSecurityDocument());
+      QueryEndpointsResponseDocument response = getNetworkMonitoringService().queryEndpoints(requestDocument, getSecurityDocument());
 
       log.debug("Find all endpoints response: {}", response);
 

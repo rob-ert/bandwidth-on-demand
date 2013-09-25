@@ -179,10 +179,11 @@ public class PhysicalResourceGroupController extends
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
 
     for (UniPort physicalPort : physicalResourceGroup.getPhysicalPorts()) {
-      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
+      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForUniPort(physicalPort);
 
-      virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
-      // physicalPort's will be cascade deleted when deleting the physicalResourceGroup?
+      for (VirtualPort virtualPort : virtualPorts) {
+        virtualPortService.delete(virtualPort, Security.getUserDetails());
+      }
     }
 
     physicalResourceGroupService.delete(physicalResourceGroup.getId());
@@ -232,7 +233,7 @@ public class PhysicalResourceGroupController extends
     for (final PhysicalResourceGroup physycalResourceGroup : physycalResourceGroups) {
       physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup, MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
       for (final UniPort physicalPort : physicalPorts) {
-        virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
+        virtualPorts.addAll(virtualPortService.findAllForUniPort(physicalPort));
         reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));
       }
     }
@@ -386,7 +387,7 @@ public class PhysicalResourceGroupController extends
 
       for (Long id : physicalPortIds) {
         UniPort physicalPort = physicalPortService.findUniPort(id);
-        virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
+        virtualPorts.addAll(virtualPortService.findAllForUniPort(physicalPort));
         long countActiveReservationsByVirtualPorts = reservationService.countActiveReservationsByVirtualPorts(virtualPorts);
         if (countActiveReservationsByVirtualPorts != 0L) {
           reservations.add(countActiveReservationsByVirtualPorts);

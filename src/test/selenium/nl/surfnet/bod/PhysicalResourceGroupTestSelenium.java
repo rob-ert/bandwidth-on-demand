@@ -79,8 +79,8 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
   public void verifyNocLinkFromInstituteToPhysicalPorts() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 1 label", "Mock_Poort 2de verdieping toren1b");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SARA, "NOC 2 label", "Mock_Poort 4de verdieping toren1a");
 
     getNocDriver().verifyPhysicalResourceGroupToPhysicalPortsLink(GROUP_SARA);
   }

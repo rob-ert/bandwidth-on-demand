@@ -50,11 +50,12 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
 import nl.surfnet.bod.service.DatabaseTestHelper;
-import nl.surfnet.bod.support.BodManagerWebDriver;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.util.XmlUtils;
@@ -114,7 +115,7 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   @Override
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
@@ -122,12 +123,12 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("First port");
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.<Integer>absent());
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("Second port");
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(23));
   }
 
   @Before
@@ -170,8 +171,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-        .withSourceSTP(sourceStp).withSourceVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID)
-        .withDestSTP(destStp).withDestVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID));
+        .withSourceSTP(sourceStp)
+        .withDestSTP(destStp).withDestVLAN(23));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -229,8 +230,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
-      .withSourceSTP(sourceStp).withSourceVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID)
-      .withDestSTP(destStp).withDestVLAN(BodManagerWebDriver.DEFAULT_VIRTUAL_PORT_VLAN_ID));
+      .withSourceSTP(sourceStp)
+      .withDestSTP(destStp).withDestVLAN(23));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();

@@ -37,11 +37,13 @@ public class PhysicalPortView {
   private final String instituteName;
   private final String nmsPortId;
   private final ElementActionView deleteActionView;
-  private final Long numberOfVirtualPorts;
+  private final long numberOfVirtualPorts;
+  private final int numberOfReservations;
   private final boolean vlanRequired;
-  private boolean alignedWithNMS;
+  private final boolean alignedWithNMS;
   private final NmsAlignmentStatus nmsAlignmentStatus;
-  private boolean deleteRender;
+  private final boolean deleteRender;
+  private final boolean moveAllowed;
 
   private final String nmsNeId;
   private final String nmsPortSpeed;
@@ -52,8 +54,6 @@ public class PhysicalPortView {
   private final String inboundPeer;
   private final String vlanRanges;
 
-  private int reservationsAmount;
-  private String nsiStpIdV2;
   private String nsiStpIdV1;
   private String nsiProviderIdV1;
   private String nsiProviderIdV2;
@@ -73,9 +73,11 @@ public class PhysicalPortView {
     this.nmsAlignmentStatus = null;
     this.interfaceType = nbiPort.getInterfaceType().toString();
 
-    this.numberOfVirtualPorts = 0L;
+    this.numberOfVirtualPorts = 0;
+    this.numberOfReservations = 0;
     this.deleteActionView = null;
     this.deleteRender = deleteActionView == null ? false : true;
+    this.moveAllowed = false;
 
     this.nmsNeId = nbiPort.getNmsNeId();
     this.nmsPortSpeed = nbiPort.getNmsPortSpeed();
@@ -90,7 +92,7 @@ public class PhysicalPortView {
     this.bodPortId = nbiPort.getSuggestedBodPortId();
   }
 
-  public PhysicalPortView(EnniPort enniPort, ElementActionView deleteActionView, NsiHelper nsiHelper) {
+  public PhysicalPortView(EnniPort enniPort, ElementActionView deleteActionView, NsiHelper nsiHelper, int numberOfReservations) {
     this.id = enniPort.getId();
     this.nocLabel = enniPort.getNocLabel();
     this.bodPortId = enniPort.getBodPortId();
@@ -99,11 +101,13 @@ public class PhysicalPortView {
     this.alignedWithNMS = enniPort.isAlignedWithNMS();
     this.nmsAlignmentStatus = enniPort.getNmsAlignmentStatus();
 
-    this.numberOfVirtualPorts = 0L;
+    this.numberOfVirtualPorts = 0;
+    this.numberOfReservations = numberOfReservations;
     this.managerLabel = null;
     this.instituteName = null;
     this.deleteActionView = deleteActionView;
     this.deleteRender = deleteActionView == null ? false : true;
+    this.moveAllowed = numberOfReservations == 0;
 
     this.inboundPeer = enniPort.getInboundPeer();
     this.outboundPeer = enniPort.getOutboundPeer();
@@ -121,7 +125,7 @@ public class PhysicalPortView {
     this.interfaceType = enniPort.getNbiPort().getInterfaceType().toString();
   }
 
-  public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
+  public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView, long virtualPortSize, int numberOfReservations) {
     this.id = physicalPort.getId();
     this.managerLabel = physicalPort.getManagerLabel();
     this.nocLabel = physicalPort.getNocLabel();
@@ -133,6 +137,7 @@ public class PhysicalPortView {
     this.nmsAlignmentStatus = physicalPort.getNmsAlignmentStatus();
 
     this.numberOfVirtualPorts = virtualPortSize;
+    this.numberOfReservations = numberOfReservations;
     this.deleteActionView = deleteActionView;
     this.deleteRender = deleteActionView == null ? false : true;
 
@@ -144,14 +149,15 @@ public class PhysicalPortView {
     this.nmsPortSpeed = physicalPort.getNbiPort().getNmsPortSpeed();
     this.nmsSapName = physicalPort.getNbiPort().getNmsSapName();
     this.interfaceType = physicalPort.getNbiPort().getInterfaceType().toString();
+    this.moveAllowed = true;
   }
 
-  public PhysicalPortView(UniPort physicalPort, ElementActionView deleteActionView) {
-    this(physicalPort, deleteActionView, 0);
+  public PhysicalPortView(UniPort uniPort, ElementActionView deleteActionView) {
+    this(uniPort, deleteActionView, 0, 0);
   }
 
   public PhysicalPortView(UniPort physicalPort) {
-    this(physicalPort, new ElementActionView(false, ""), 0L);
+    this(physicalPort, new ElementActionView(false, ""));
   }
 
   public String getNsiStpIdV1() {
@@ -188,6 +194,10 @@ public class PhysicalPortView {
 
   public ElementActionView getDeleteActionView() {
     return deleteActionView;
+  }
+
+  public boolean isMoveAllowed() {
+    return moveAllowed;
   }
 
   public String getManagerLabel() {
@@ -227,15 +237,7 @@ public class PhysicalPortView {
   }
 
   public final int getReservationsAmount() {
-    return reservationsAmount;
-  }
-
-  public final void setReservationsAmount(int reservationsAmount) {
-    this.reservationsAmount = reservationsAmount;
-  }
-
-  public final void setDeleteRender(boolean deleteRender) {
-    this.deleteRender = deleteRender;
+    return numberOfReservations;
   }
 
   public String getOutboundPeer() {

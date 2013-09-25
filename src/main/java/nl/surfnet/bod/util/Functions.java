@@ -31,6 +31,7 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -66,28 +67,26 @@ public final class Functions {
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
    */
-  public static PhysicalPortView transformAllocatedPhysicalPort(UniPort port,
-      VirtualPortService virtualPortService, ReservationService reservationService) {
-
+  public static PhysicalPortView transformAllocatedPhysicalPort(UniPort port, VirtualPortService virtualPortService, ReservationService reservationService) {
     long vpCount = virtualPortService.countForUniPort(port);
-    ElementActionView allocateActionView;
+    ElementActionView deleteActionView;
     if (vpCount == 0) {
-      allocateActionView = new ElementActionView(true, "label_unallocate");
+      deleteActionView = new ElementActionView(true, "label_unallocate");
     } else {
-      allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
+      deleteActionView = new ElementActionView(false, "label_virtual_ports_related");
     }
 
-    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, vpCount);
-    physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
+    Collection<Reservation> reservations = reservationService.findActiveByPhysicalPort(port);
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, deleteActionView, vpCount, reservations.size());
 
     return physicalPortView;
   }
 
   public static PhysicalPortView transformAllocatedPhysicalPort(EnniPort port, ReservationService reservationService, NsiHelper nsiHelper) {
-    ElementActionView allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
+    ElementActionView deleteActionView = new ElementActionView(false, "label_virtual_ports_related");
 
-    PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, nsiHelper);
-    physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
+    Collection<Reservation> reservations = reservationService.findByPhysicalPort(port);
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, deleteActionView, nsiHelper, reservations.size());
 
     return physicalPortView;
   }

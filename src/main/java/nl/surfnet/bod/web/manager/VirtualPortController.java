@@ -473,7 +473,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     return Lists.transform(entities, new Function<VirtualPort, VirtualPortView>() {
       @Override
       public VirtualPortView apply(VirtualPort port) {
-        long counter = reservationService.findAllActiveByVirtualPort(port).size();
+        long counter = reservationService.findActiveByVirtualPort(port).size();
         return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter));
       }
     });

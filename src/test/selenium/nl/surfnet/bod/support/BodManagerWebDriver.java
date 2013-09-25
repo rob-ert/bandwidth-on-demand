@@ -28,6 +28,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
+
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.pages.manager.*;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -39,7 +42,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
-  public static final int DEFAULT_VIRTUAL_PORT_VLAN_ID = 23;
   private final RemoteWebDriver driver;
 
   public BodManagerWebDriver(RemoteWebDriver driver) {
@@ -143,14 +145,17 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     assertThat(page.getBandwidth(), is(bandwidth));
   }
 
-  public void editVirtualPort(String orignalName, String newName, int bandwidth, String vlanId) {
+  public void editVirtualPort(String orignalName, String newName, int bandwidth, Optional<Integer> vlanId) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     EditVirtualPortPage editPage = listPage.edit(orignalName);
 
     editPage.sendName(newName);
     editPage.sendMaxBandwidth(bandwidth);
-    editPage.sendVlanId(vlanId);
+
+    if (vlanId.isPresent()) {
+      editPage.sendVlanId(String.valueOf(vlanId.get()));
+    }
 
     editPage.save();
   }
@@ -188,25 +193,20 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.verifyRowWithLabelDoesNotExist(fields);
   }
 
-  public void createVirtualPort(String name) {
-    createVirtualPort(name, null);
-  }
-
-  public void createVirtualPort(String name, String vpUserLabel) {
+  public void acceptVirtualPort(String physicalPort, String name, Optional<String> userLabel, Optional<Integer> vlanId) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+
+    page.selectPhysicalPort(physicalPort);
+
     page.sendName(name);
-    page.sendUserLabel(vpUserLabel);
-    page.sendVlanId(String.valueOf(DEFAULT_VIRTUAL_PORT_VLAN_ID));
 
-    page.save();
-  }
+    if (userLabel.isPresent()) {
+      page.sendUserLabel(userLabel.get());
+    }
+    if (vlanId.isPresent()) {
+      page.sendVlanId(String.valueOf(vlanId.get()));
+    }
 
-  public void acceptVirtualPort(String label) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
-
-    page.sendName(label);
-    page.sendVlanId(String.valueOf(DEFAULT_VIRTUAL_PORT_VLAN_ID));
-    page.accept();
     page.save();
   }
 

@@ -101,8 +101,7 @@ public class VirtualPortServiceTest {
   @Test
   public void delete() {
     VirtualPort virtualPort = new VirtualPortFactory().create();
-    when(reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort)).thenReturn(
-        new ArrayList<Reservation>());
+    when(reservationService.findByVirtualPort(virtualPort)).thenReturn(new ArrayList<Reservation>());
     subject.delete(virtualPort, user);
 
     verify(virtualPortRepoMock).delete(virtualPort);

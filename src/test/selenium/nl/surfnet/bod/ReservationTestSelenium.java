@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
@@ -36,7 +38,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
   @Override
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SURFNET);
 
     getWebDriver().clickLinkInLastEmail();
@@ -44,12 +46,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("First port");
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.<Integer>absent());
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("Second port");
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(23));
   }
 
   @After

@@ -38,9 +38,12 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationEndPoint;
+import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
 
@@ -64,13 +67,12 @@ public class NocService {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public Collection<Reservation> movePort(final UniPort oldPort, final NbiPort nbiPort) {
+  public Collection<Reservation> movePort(final PhysicalPort oldPort, final NbiPort nbiPort) {
     Preconditions.checkState(
         !TransactionSynchronizationManager.isActualTransactionActive(),
         "transaction cannot be active");
 
-    final UniPort newPort = new UniPort(nbiPort);
-    final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
+    final PhysicalPort newPort = PhysicalPort.create(nbiPort);
     final Collection<Reservation> reservations = getActiveReservations(oldPort);
 
     logger.info("Move a port with {} reservations.", reservations.size());
@@ -80,21 +82,37 @@ public class NocService {
     return transactionOperations.execute(new TransactionCallback<Collection<Reservation>>() {
       @Override
       public Collection<Reservation> doInTransaction(TransactionStatus status) {
-        saveNewPort(oldPort, newPort);
+        if (oldPort instanceof UniPort) {
+          copyPortProperties((UniPort) oldPort, (UniPort) newPort);
 
-        switchVirtualPortsToNewPort(newPort, virtualPorts);
+          Collection<VirtualPort> virtualPorts = virtualPortService.findAllForUniPort((UniPort) oldPort);
+          switchVirtualPortsToNewPort((UniPort) newPort, virtualPorts);
+        } else if (oldPort instanceof EnniPort) {
+          copyPortProperties((EnniPort) oldPort, (EnniPort) newPort);
+        }
 
+        physicalPortService.save(newPort);
         physicalPortService.delete(oldPort.getId());
 
         Collection<Reservation> newReservations = makeNewReservations(reservations);
-        Collection<Reservation> newReservationsWithId = new ArrayList<>();
 
+        Collection<Reservation> newReservationsWithId = new ArrayList<>();
         for (Reservation newReservation : newReservations) {
           reservationService.create(newReservation);
           newReservationsWithId.add(newReservation);
         }
 
         return newReservationsWithId;
+      }
+
+      private void copyPortProperties(UniPort oldPort, UniPort newPort) {
+        ((UniPort) newPort).setPhysicalResourceGroup(((UniPort) oldPort).getPhysicalResourceGroup());
+      }
+
+      private void copyPortProperties(EnniPort oldPort, EnniPort newPort) {
+         newPort.setInboundPeer(oldPort.getInboundPeer());
+         newPort.setOutboundPeer(oldPort.getOutboundPeer());
+         newPort.setVlanRanges(oldPort.getVlanRanges());
       }
     });
   }
@@ -106,8 +124,8 @@ public class NocService {
         Reservation newRes = new Reservation();
         newRes.setStartDateTime(oldRes.getStartDateTime());
         newRes.setEndDateTime(oldRes.getEndDateTime());
-        newRes.setSourcePort(oldRes.getSourcePort());
-        newRes.setDestinationPort(oldRes.getDestinationPort());
+        newRes.setSourcePort(newReservationEndPoint(oldRes.getSourcePort()));
+        newRes.setDestinationPort(newReservationEndPoint(oldRes.getDestinationPort()));
         newRes.setName(oldRes.getName());
         newRes.setBandwidth(oldRes.getBandwidth());
         newRes.setUserCreated(oldRes.getUserCreated());
@@ -118,6 +136,14 @@ public class NocService {
     });
   }
 
+  private ReservationEndPoint newReservationEndPoint(ReservationEndPoint endPoint) {
+    if (endPoint.getVirtualPort().isPresent()) {
+      return new ReservationEndPoint(endPoint.getVirtualPort().get());
+    }
+
+    throw new AssertionError("Enni ports not supported");
+  }
+
   private void switchVirtualPortsToNewPort(UniPort newPort, Collection<VirtualPort> virtualPorts) {
     for (VirtualPort vPort : virtualPorts) {
       vPort.setPhysicalPort(newPort);
@@ -125,17 +151,12 @@ public class NocService {
     }
   }
 
-  private void saveNewPort(UniPort oldPort, UniPort newPort) {
-    newPort.setPhysicalResourceGroup(oldPort.getPhysicalResourceGroup());
-    physicalPortService.save(newPort);
-  }
 
   private void cancelReservationsAndWait(Collection<Reservation> reservations) {
     List<Optional<Future<Long>>> futures = new ArrayList<>();
 
     for (Reservation reservation : reservations) {
-      futures.add(reservationService.cancelWithReason(reservation, "A physical port, which the newReservation used was moved",
-          Security.getUserDetails()));
+      futures.add(reservationService.cancelWithReason(reservation, "A physical port, which the newReservation used was moved", Security.getUserDetails()));
     }
 
     for (Optional<Future<Long>> future : futures) {
@@ -155,7 +176,7 @@ public class NocService {
     }
   }
 
-  private Collection<Reservation> getActiveReservations(UniPort port) {
+  private Collection<Reservation> getActiveReservations(PhysicalPort port) {
     return reservationService.findActiveByPhysicalPort(port);
   }
 

@@ -38,11 +38,11 @@ public class ElementActionView {
   private final boolean allowed;
   private final String reasonKey;
 
-  public ElementActionView(final boolean actionAllowed) {
-    this(true, null);
+  public ElementActionView(boolean actionAllowed) {
+    this(actionAllowed, null);
   }
 
-  public ElementActionView(final boolean actionAllowed, final String actionReasonKey) {
+  public ElementActionView(boolean actionAllowed, String actionReasonKey) {
     this.allowed = actionAllowed;
     this.reasonKey = actionReasonKey;
   }

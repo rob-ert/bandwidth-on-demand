@@ -35,18 +35,13 @@ public interface NbiClient {
 
   String VLAN_REQUIRED_SELECTOR = "ome";
 
-  boolean activateReservation(final String reservationId);
+  boolean activateReservation(String reservationId);
 
   ReservationStatus cancelReservation(String scheduleId);
 
-  /**
-   *
-   * @return the amount of all available {@link UniPort}'s
-   */
   long getPhysicalPortsCount();
 
   /**
-   *
    * @param reservation
    * @param autoProvision, when true the reservation is automatically started
    * @return the reservation id returned from the underlying NMS

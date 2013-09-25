@@ -50,6 +50,7 @@ import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -94,6 +95,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   @Resource private NbiClient nbiClient;
   @Resource private LogEventService logEventService;
   @Resource private SnmpAgentService snmpAgentService;
+  @Resource private ReservationService reservationService;
   @Resource private NsiHelper nsiHelper;
 
   @PersistenceContext
@@ -194,9 +196,14 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public void delete(Long id) {
     PhysicalPort physicalPort = find(id);
 
+    Collection<Reservation> reservations = reservationService.findByPhysicalPort(physicalPort);
+    reservationService.cancelAndArchiveReservations(reservations, Security.getUserDetails());
+
     if (physicalPort instanceof UniPort) {
-      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort((UniPort) physicalPort);
-      virtualPortService.deleteVirtualPorts(virtualPorts, Security.getUserDetails());
+      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForUniPort((UniPort) physicalPort);
+      for (VirtualPort vp : virtualPorts) {
+        virtualPortService.delete(vp, Security.getUserDetails());
+      }
     }
 
     logEventService.logDeleteEvent(Security.getUserDetails(), "Port " + getLogLabel(Security.getSelectedRole(), physicalPort), physicalPort);

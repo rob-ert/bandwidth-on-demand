@@ -288,8 +288,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     verifyBySort(page, sortColumn, expectedSequenceLabels);
   }
 
-  public void verifyAllocatedPortsBySearchAndSort(String searchString, String sortColumn,
-      String... expectedSequenceLabels) {
+  public void verifyAllocatedPortsBySearchAndSort(String searchString, String sortColumn, String... expectedSequenceLabels) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     page.search(searchString);

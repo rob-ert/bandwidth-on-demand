@@ -80,6 +80,7 @@ public class PhysicalPortServiceTest {
   @Mock private LogEventService logEventServiceMock;
   @Mock private SnmpAgentService snmpAgentServiceMock;
   @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private ReservationService reservationServiceMock;
 
   private Map<String, PhysicalPort> physicalPortMap;
   private Map<String, NbiPort> nbiPortMap;
@@ -170,11 +171,10 @@ public class PhysicalPortServiceTest {
     Collection<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
 
     when(physicalPortRepoMock.findOne(port.getId())).thenReturn(port);
-    when(virtualPortServiceMock.findAllForPhysicalPort(port)).thenReturn(virtualPorts);
+    when(virtualPortServiceMock.findAllForUniPort(port)).thenReturn(virtualPorts);
 
     subject.delete(port.getId());
 
-    verify(virtualPortServiceMock).deleteVirtualPorts(virtualPorts, user);
     verify(physicalPortRepoMock).delete(port);
   }
 

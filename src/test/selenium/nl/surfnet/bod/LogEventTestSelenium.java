@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.Before;
@@ -51,7 +53,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_RUG, ICT_USER_GROUP_2, "test3@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_RUG);
   }
@@ -128,14 +130,14 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort(VP_LABEL_1);
+    getManagerDriver().acceptVirtualPort(PORT_LABEL_1, VP_LABEL_1, Optional.<String>absent(), Optional.<Integer>absent());
   }
 
   private void createVPTwoForGroupTwo() {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort(VP_LABEL_2);
+    getManagerDriver().acceptVirtualPort(PORT_LABEL_2, VP_LABEL_2, Optional.<String>absent(), Optional.of(23));
   }
 
 }

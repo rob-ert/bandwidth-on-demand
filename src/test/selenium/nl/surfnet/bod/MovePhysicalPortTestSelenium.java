@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.TestExternalSupport;
 
@@ -41,20 +43,20 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().switchToNocRole();
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "First port", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", GROUP_SARA);
 
     getNocDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("First port");
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.<Integer>absent());
 
     getManagerDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort("Second port");
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(23));
 
     getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation("First reservation", LocalDateTime.now().plusDays(1),
@@ -72,9 +74,9 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().movePhysicalPort("First port");
 
-    getNocDriver().verifyMovePage(NMS_PORT_ID_1, GROUP_SURFNET, 1, 2, 2);
+    getNocDriver().verifyMovePage(NMS_NOVLAN_PORT_ID_1, GROUP_SURFNET, 1, 2, 2);
 
-    getNocDriver().movePhysicalPortChooseNewPort(NMS_PORT_ID_3);
+    getNocDriver().movePhysicalPortChooseNewPort(NMS_NOVLAN_PORT_ID_4);
 
     getNocDriver().verifyMoveResultPage(2);
     // make sure the async reserve jobs are finished
@@ -88,7 +90,6 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     // Four reservations should appear in 2012 filter, the two new above and the two cancelled old ones.
     getNocDriver().verifyReservationByFilterAndSearch("" + LocalDateTime.now().plusDays(1).getYear(), null,
         "First reservation", "First reservation", "Second reservation", "Second reservation");
-
   }
 
 }

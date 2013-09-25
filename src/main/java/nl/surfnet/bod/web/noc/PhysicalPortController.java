@@ -37,7 +37,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
@@ -99,16 +98,16 @@ public class PhysicalPortController {
   public String delete(Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page, Model uiModel) {
     PhysicalPort port = physicalPortService.find(id);
 
+    if (port == null) {
+      return "redirect:";
+    }
+
     physicalPortService.delete(id);
 
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, page == null ? "1" : page.toString());
 
-    if (port instanceof UniPort) {
-      return "redirect:/noc/physicalports/uni";
-    } else {
-      return "redirect:/noc/physicalports/enni";
-    }
+    return redirectPortListPage(port);
   }
 
   @RequestMapping(value = "create", params = ID_KEY, method = RequestMethod.GET)
@@ -138,36 +137,81 @@ public class PhysicalPortController {
     final PhysicalPort port = physicalPortService.find(id);
 
     if (port == null) {
-      redirectAttrs.addFlashAttribute(MessageManager.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
-      return "redirect:/noc/physicalports/uni";
+      return "redirect:";
     }
 
     Collection<NbiPort> unallocatedPorts = Collections2.filter(physicalPortService.findUnallocated(), new Predicate<NbiPort>() {
       @Override
       public boolean apply(NbiPort input) {
-        return input.isVlanRequired() == port.isVlanRequired();
+        return input.isVlanRequired() == port.isVlanRequired() && input.getInterfaceType() == port.getNbiPort().getInterfaceType();
       }
     });
 
     if (unallocatedPorts.isEmpty()) {
-      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL");
-      return "redirect:/noc/physicalports/uni";
+      messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL", port.getNbiPort().getInterfaceType().name());
+      return redirectPortListPage(port);
     }
 
-    long numberOfVirtualPorts = 0;
-    if (port instanceof UniPort) {
-      numberOfVirtualPorts = virtualPortService.countForUniPort((UniPort) port);
-    }
-
+    long numberOfVirtualPorts = port instanceof UniPort ? virtualPortService.countForUniPort((UniPort) port) : 0;
     long numberOfReservations = reservationService.countForPhysicalPort(port);
     long numberOfActiveReservations = reservationService.countActiveReservationsForPhysicalPort(port);
 
     model.addAttribute("relatedObjects", new RelatedObjects(numberOfVirtualPorts, numberOfReservations, numberOfActiveReservations));
-    model.addAttribute("physicalPort", port);
+    model.addAttribute("physicalPort", new PhysicalPortMoveView(port));
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
     model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
 
     return "noc/physicalports/move";
+  }
+
+  private String redirectPortListPage(PhysicalPort port) {
+    return port instanceof UniPort ? "redirect:/noc/physicalports/uni" : "redirect:/noc/physicalports/enni";
+  }
+
+  public static final class PhysicalPortMoveView {
+    private final String bodPortId;
+    private final String nmsPortId;
+    private final String nocLabel;
+    private final Boolean vlanRequired;
+    private final String physicalResourceGroup;
+    private final String type;
+
+    public PhysicalPortMoveView(PhysicalPort port) {
+      this.bodPortId = port.getBodPortId();
+      this.nmsPortId = port.getNmsPortId();
+      this.nocLabel = port.getNocLabel();
+      this.vlanRequired = port.isVlanRequired();
+      this.type = port.getClass().getSimpleName();
+      if (port instanceof UniPort) {
+        this.physicalResourceGroup = ((UniPort) port).getPhysicalResourceGroup().getName();
+      } else {
+        this.physicalResourceGroup = null;
+      }
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public String getBodPortId() {
+      return bodPortId;
+    }
+
+    public String getNmsPortId() {
+      return nmsPortId;
+    }
+
+    public String getNocLabel() {
+      return nocLabel;
+    }
+
+    public Boolean getVlanRequired() {
+      return vlanRequired;
+    }
+
+    public String getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
   }
 
   public static final class RelatedObjects {
@@ -196,14 +240,15 @@ public class PhysicalPortController {
 
   @RequestMapping(value = "move", method = RequestMethod.PUT)
   public String move(MovePhysicalPortCommand command, BindingResult result, Model model) {
-
     Optional<NbiPort> newPort = physicalPortService.findNbiPort(command.getNewPhysicalPort());
-    if (!newPort.isPresent()) {
+    PhysicalPort oldPort = physicalPortService.find(command.getId());
+
+    if (!newPort.isPresent() || oldPort == null) {
       return "redirect:";
     }
-    UniPort oldPort = physicalPortService.findUniPort(command.getId());
 
     model.addAttribute("lastEventId", endPoints.getLastEventId());
+
     Collection<Reservation> reservations = nocService.movePort(oldPort, newPort.get());
 
     List<ReservationView> reservationViews = new ArrayList<>();
@@ -211,6 +256,9 @@ public class PhysicalPortController {
       ReservationView reservationView = new ReservationView(reservation, new ElementActionView(false), new ElementActionView(false));
       reservationViews.add(reservationView);
     }
+
+    messageManager.addInfoMessage(model, "label_physicalport_port_moved");
+
     model.addAttribute("list", reservationViews);
 
     return "noc/physicalports/moveResult";

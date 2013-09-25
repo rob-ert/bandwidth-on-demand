@@ -32,27 +32,23 @@ public class SearchAndSortTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_SURFNET);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
+    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
   }
 
   @Test
   public void verifySearch() {
-    String bodPortIdLabel1 = "Mock_ETH-1-1-1";
-    String bodPortIdLabel2 = "Mock_ETH-1-2-3";
-    String bodPortIdLabel3 = "Mock_OME0039_OC12-1-12-2";
-
     getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 1 pport label", "Mock_Poort 1de verdieping toren2");
     getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 2 pport label", "Mock_Poort 2de verdieping toren2");
-    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 3 pport label", "Mock_Poort 3de verdieping toren2");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC 3 pport label", "Mock_Poort 4de verdieping toren3");
 
-    getNocDriver().verifyAllocatedPortsBySearch("label", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
-    getNocDriver().verifyAllocatedPortsBySearch("*pport*", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
+    getNocDriver().verifyAllocatedPortsBySearch("label", "Mock_ETH-1-1-1", "Mock_ETH-1-2-3", "Mock_ETH10G-1-13-3");
+    getNocDriver().verifyAllocatedPortsBySearch("*pport*", "Mock_ETH-1-1-1", "Mock_ETH-1-2-3", "Mock_ETH10G-1-13-3");
 
-    getNocDriver().verifyAllocatedPortsBySearch("\"NOC 1 pport label\"", bodPortIdLabel1);
-    getNocDriver().verifyAllocatedPortsBySearch("NOC ? pport", bodPortIdLabel1, bodPortIdLabel2, bodPortIdLabel3);
+    getNocDriver().verifyAllocatedPortsBySearch("\"NOC 1 pport label\"", "Mock_ETH-1-1-1");
+    getNocDriver().verifyAllocatedPortsBySearch("NOC ? pport", "Mock_ETH-1-1-1", "Mock_ETH-1-2-3", "Mock_ETH10G-1-13-3");
   }
 
   @Test
@@ -62,9 +58,8 @@ public class SearchAndSortTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void verifySearchAndSort() {
-    getNocDriver().verifyAllocatedPortsBySearchAndSort("bcNO", "bodPortId", BOD_PORT_ID_4, BOD_PORT_ID_3);
-
-    getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH10G", "nocLabel", "123NOC", "987NOC");
+    getNocDriver().verifyAllocatedPortsBySearchAndSort("bcNO", "bodPortId", BOD_PORT_ID_3, BOD_NOVLAN_PORT_ID_4);
+    getNocDriver().verifyAllocatedPortsBySearchAndSort("ETH", "nocLabel", "123NOC", "987NOC", "abcNOC");
   }
 
 }

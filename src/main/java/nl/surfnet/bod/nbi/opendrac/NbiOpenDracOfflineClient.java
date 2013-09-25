@@ -80,7 +80,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       port.setSuggestedBodPortId("Mock_" + nbiPort.getName());
       port.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
       port.setVlanRequired(isVlanRequired(nbiPort.getName()));
-      port.setInterfaceType(InterfaceType.UNI);
+      port.setInterfaceType(nbiPort.getInterfaceType());
 
       return port;
     }
@@ -106,24 +106,24 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   private boolean shouldSleep = true;
 
   public NbiOpenDracOfflineClient() {
-    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
-    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
-    ports.add(new MockNbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
-    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
-    ports.add(new MockNbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
-    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
-    ports.add(new MockNbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
-    ports.add(new MockNbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
-    ports.add(new MockNbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
-    ports.add(new MockNbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
-    ports.add(new MockNbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
-    ports.add(new MockNbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
-    ports.add(new MockNbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
-    ports.add(new MockNbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
-    ports.add(new MockNbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
-    ports.add(new MockNbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
-    ports.add(new MockNbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
-    ports.add(new MockNbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4", InterfaceType.UNI));
+    ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4", InterfaceType.UNI));
+    ports.add(new MockNbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", InterfaceType.E_NNI, "Poort 1de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", InterfaceType.UNI, "Poort 2de verdieping toren1b"));
+    ports.add(new MockNbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", InterfaceType.E_NNI, "Poort 3de verdieping toren1c"));
+    ports.add(new MockNbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5", InterfaceType.UNI));
+    ports.add(new MockNbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1", InterfaceType.UNI));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", InterfaceType.UNI, "Poort 4de verdieping toren1a"));
+    ports.add(new MockNbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", InterfaceType.UNI, "Poort 5de verdieping toren1a"));
+    ports.add(new MockNbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1", InterfaceType.E_NNI));
+    ports.add(new MockNbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", InterfaceType.UNI, "Poort 1de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", InterfaceType.UNI, "Poort 2de verdieping toren2"));
+    ports.add(new MockNbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101", InterfaceType.UNI));
+    ports.add(new MockNbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2", InterfaceType.UNI));
+    ports.add(new MockNbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", InterfaceType.UNI, "Poort 3de verdieping toren2"));
+    ports.add(new MockNbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", InterfaceType.UNI, "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", InterfaceType.UNI, "Poort 4de verdieping toren3"));
+    ports.add(new MockNbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1", InterfaceType.UNI));
   }
 
   @PostConstruct
@@ -264,15 +264,21 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     private final String name;
     private final Optional<String> userLabel;
     private final String id;
+    private final InterfaceType interfaceType;
 
-    public MockNbiPort(String name, String id) {
-      this(name, id, null);
+    public MockNbiPort(String name, String id, InterfaceType interfaceType) {
+      this(name, id, interfaceType, null);
     }
 
-    public MockNbiPort(String name, String id, String userLabel) {
+    public MockNbiPort(String name, String id, InterfaceType interfaceType, String userLabel) {
       this.name = name;
       this.id = id;
+      this.interfaceType = interfaceType;
       this.userLabel = Optional.fromNullable(userLabel);
+    }
+
+    public InterfaceType getInterfaceType() {
+      return interfaceType;
     }
 
     public String getName() {

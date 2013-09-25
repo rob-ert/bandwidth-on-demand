@@ -94,7 +94,7 @@ public class NocServiceTest {
       .setStartDateTime(start)
       .setEndDateTime(end).create();
 
-    when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(vPort));
+    when(virtualPortServiceMock.findAllForUniPort(oldPort)).thenReturn(ImmutableList.of(vPort));
     when(reservationServiceMock.findActiveByPhysicalPort(oldPort)).thenReturn(ImmutableList.of(reservation));
     when(reservationServiceMock.cancelWithReason(any(Reservation.class), anyString(), any(RichUserDetails.class)))
       .thenReturn(Optional.<Future<Long>>of(new AsyncResult<>(reservation.getId())));
@@ -128,7 +128,7 @@ public class NocServiceTest {
     VirtualPort port1 = new VirtualPortFactory().create();
     VirtualPort port2 = new VirtualPortFactory().create();
 
-    when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(port1, port2));
+    when(virtualPortServiceMock.findAllForUniPort(oldPort)).thenReturn(ImmutableList.of(port1, port2));
 
     subject.movePort(oldPort, newPort);
 
