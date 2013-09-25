@@ -34,17 +34,15 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
     super(driver);
   }
 
-  public WebElement verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
-
+  public WebElement verifyPortWasAllocated(String nmsPortId, String label) {
     return findRow(nmsPortId, label);
   }
 
-  public void verifyPhysicalPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
+  public void verifyPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
     try {
-      verifyPhysicalPortWasAllocated(nmsPortId, label);
+      verifyPortWasAllocated(nmsPortId, label);
       assertThat("PhysicalPort should not be listed on unAllocated page", false);
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // Expected
     }
   }

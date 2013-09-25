@@ -22,46 +22,49 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 
-public class ListAllocatedPortsPage extends AbstractPhysicalPortListNocPage {
+import nl.surfnet.bod.pages.AbstractFormPage;
 
-  private static final String PAGE = "/noc/physicalports/uni";
+public class EditUniPortPage extends AbstractFormPage {
 
-  public ListAllocatedPortsPage(RemoteWebDriver driver) {
+  @FindBy(id = "_nocLabel_id")
+  private WebElement nocLabelInput;
+
+  @FindBy(id = "_managerLabel_id")
+  private WebElement managerLabelInput;
+
+  @FindBy(id = "_c_PhysicalPort_physicalResourceGroup")
+  private WebElement physicalResourceGroupSelect;
+
+  public EditUniPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListAllocatedPortsPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
-  }
-
-  public static ListAllocatedPortsPage get(RemoteWebDriver driver) {
-    ListAllocatedPortsPage page = new ListAllocatedPortsPage(driver);
+  public static EditUniPortPage get(RemoteWebDriver driver) {
+    EditUniPortPage page = new EditUniPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void unlinkPhysicalPort(String bodPortId) {
-    deleteForIcon("icon-remove", bodPortId);
+  public void sendNocLabel(String nocLabel) {
+    clearAndSend(nocLabelInput, nocLabel);
   }
 
-  public EditPhysicalPortPage edit(String nmsPortId) {
-    editRow(nmsPortId);
-
-    return EditPhysicalPortPage.get(getDriver());
+  public void selectPhysicalResourceGroup(String physicalResourceGroup) {
+    new Select(physicalResourceGroupSelect).selectByVisibleText(physicalResourceGroup);
   }
 
-  public MovePhysicalPortPage movePort(String name) {
-    clickRowIcon("icon-truck", name);
-
-    return MovePhysicalPortPage.get(getDriver());
+  public void sendManagerLabel(String managerLabel) {
+    clearAndSend(managerLabelInput, managerLabel);
   }
 
-  public void verifyIsCurrentPage() {
-    super.verifyIsCurrentPage(PAGE);
+  public String getManagerLabel() {
+    return managerLabelInput.getAttribute("value");
   }
 }

@@ -29,8 +29,6 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
-import javax.xml.bind.Marshaller;
-
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;

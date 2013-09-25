@@ -38,4 +38,9 @@ public class AbstractFormPage extends AbstractPage {
   public void save() {
     saveButton.click();
   }
+
+  protected void clearAndSend(WebElement input, String value) {
+    input.clear();
+    input.sendKeys(value);
+  }
 }

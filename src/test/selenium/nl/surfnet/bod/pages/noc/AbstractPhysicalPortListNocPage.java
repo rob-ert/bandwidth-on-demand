@@ -40,7 +40,7 @@ public abstract class AbstractPhysicalPortListNocPage extends AbstractPhysicalPo
 
   public void verifyPhysicalPortHasDisabledUnallocateIcon(String nmsPortId, String label, String toolTipText) {
 
-    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
+    WebElement row = verifyPortWasAllocated(nmsPortId, label);
 
     WebElement unAllocateElement = row.findElement(By.cssSelector("span.disabled-icon"));
     String deleteTooltip = unAllocateElement.getAttribute("data-original-title");
@@ -49,7 +49,7 @@ public abstract class AbstractPhysicalPortListNocPage extends AbstractPhysicalPo
   }
 
   public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
-    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
+    WebElement row = verifyPortWasAllocated(nmsPortId, label);
 
     try {
       row.findElement(By.cssSelector("span.disabled-icon"));

@@ -62,7 +62,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     assertThat(portName, is(managerLabel));
   }
 
-  public void changeManagerLabelOfPhyiscalPort(String nmsPortId, String managerLabel) {
+  public void changeManagerLabelOfUniPort(String nmsPortId, String managerLabel) {
     ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = page.edit(nmsPortId);

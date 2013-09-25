@@ -38,7 +38,7 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, nocLabel, managerLabel1, GROUP_SURFNET);
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().switchToUserRole();
@@ -53,36 +53,49 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
   public void allocateAndUnallocatePhysicalPortFromInstitutePage() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_SURFNET, "NOC label", LABEL_PORT_2);
 
-    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_2, "NOC label");
+    getNocDriver().verifyUniPortWasAllocated(BOD_PORT_ID_2, "NOC label");
 
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+    getNocDriver().unlinkUniPort(BOD_PORT_ID_2);
   }
 
   @Test
-  public void createRenameAndDeletePhysicalPort() {
+  public void create_rename_delete_uni_port() {
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel1 = "My Selenium Port (Manager 1st)";
     String managerLabel2 = "My Selenium Port (Manager 2nd)";
 
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, nocLabel, managerLabel1, GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_2, nocLabel, managerLabel1, GROUP_SURFNET);
 
-    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_2, nocLabel);
+    getNocDriver().verifyUniPortWasAllocated(BOD_PORT_ID_2, nocLabel);
 
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_2, nocLabel);
+    getNocDriver().verifyUniPortHasEnabledUnallocateIcon(BOD_PORT_ID_2, nocLabel);
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel1);
+    getNocDriver().gotoEditUniPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel1);
 
     getNocDriver().switchToManagerRole();
 
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(BOD_PORT_ID_2, managerLabel2);
+    getManagerDriver().changeManagerLabelOfUniPort(BOD_PORT_ID_2, managerLabel2);
 
     getManagerDriver().verifyManagerLabelChanged(BOD_PORT_ID_2, managerLabel2);
 
     getManagerDriver().switchToNocRole();
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel2);
+    getNocDriver().gotoEditUniPortAndVerifyManagerLabel(BOD_PORT_ID_2, managerLabel2);
 
-    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+    getNocDriver().unlinkUniPort(BOD_PORT_ID_2);
+  }
+
+  @Test
+  public void create_edit_delete_enni_port() {
+    getNocDriver().linkEnniPort(NMS_ENNI_PORT_ID_1, "NOC label", "urn:ogf:network:surfnet:1998:go", "urn:ogf:network:es-net:2013:test", "10-1010");
+
+    getNocDriver().verifyEnniPortWasAllocated(BOD_ENNI_PORT_1, "NOC label");
+
+    getNocDriver().editEnniPort(BOD_ENNI_PORT_1, "new label", "urn:ogf:network:bla:1900:yes", "urn:ogf:network:vla:1800:no", "10");
+
+    getNocDriver().verifyEnniPortWasAllocated(BOD_ENNI_PORT_1, "new label");
+
+    getNocDriver().unlinkEnniPort(BOD_ENNI_PORT_1);
   }
 
   @Test

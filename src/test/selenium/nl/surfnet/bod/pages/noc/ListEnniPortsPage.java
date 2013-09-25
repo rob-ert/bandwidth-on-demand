@@ -22,51 +22,36 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.Select;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
+public class ListEnniPortsPage extends AbstractPhysicalPortListNocPage {
 
-public class EditPhysicalPortPage extends AbstractFormPage {
+  private static final String PAGE = "/noc/physicalports/enni";
 
-  @FindBy(id = "_nocLabel_id")
-  private WebElement nocLabelInput;
-
-  @FindBy(id = "_managerLabel_id")
-  private WebElement managerLabelInput;
-
-  @FindBy(id = "_c_PhysicalPort_physicalResourceGroup")
-  private WebElement physicalResourceGroupSelect;
-
-  public EditPhysicalPortPage(RemoteWebDriver driver) {
+  public ListEnniPortsPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static EditPhysicalPortPage get(RemoteWebDriver driver) {
-    EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
+  public static ListEnniPortsPage get(RemoteWebDriver driver, String urlUnderTest) {
+    driver.get(urlUnderTest + PAGE);
+    return get(driver);
+  }
+
+  public static ListEnniPortsPage get(RemoteWebDriver driver) {
+    ListEnniPortsPage page = new ListEnniPortsPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void sendNocLabel(String nocLabel) {
-    nocLabelInput.clear();
-    nocLabelInput.sendKeys(nocLabel);
+  public void unlinkPort(String bodPortId) {
+    deleteForIcon("icon-remove", bodPortId);
   }
 
-  public void selectPhysicalResourceGroup(String physicalResourceGroup) {
-    new Select(physicalResourceGroupSelect).selectByVisibleText(physicalResourceGroup);
+  public EditEnniPortPage edit(String nmsPortId) {
+    editRow(nmsPortId);
+    return EditEnniPortPage.get(getDriver());
   }
 
-  public void sendManagerLabel(String managerLabel) {
-    managerLabelInput.clear();
-    managerLabelInput.sendKeys(managerLabel);
-  }
-
-  public String getManagerLabel() {
-    return managerLabelInput.getAttribute("value");
-  }
 }

@@ -53,9 +53,9 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_RUG, ICT_USER_GROUP_2, "test3@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_RUG);
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, PORT_LABEL_1, GROUP_SARA);
+    getNocDriver().linkUniPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_3, PORT_LABEL_3, GROUP_RUG);
   }
 
   @Test

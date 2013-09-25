@@ -30,9 +30,11 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.AbstractListPage;
 import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
 import nl.surfnet.bod.pages.noc.DashboardPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.EditEnniPortPage;
+import nl.surfnet.bod.pages.noc.EditUniPortPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
+import nl.surfnet.bod.pages.noc.ListEnniPortsPage;
+import nl.surfnet.bod.pages.noc.ListUniPortsPage;
 import nl.surfnet.bod.pages.noc.ListLogEventsPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.ListReservationPage;
@@ -118,32 +120,61 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   /* Physical ports */
   /* ******************************************** */
 
-  public void linkPhysicalPort(String nmsPortId, String nocLabel, String physicalResourceGroup) {
-    linkPhysicalPort(nmsPortId, nocLabel, "", physicalResourceGroup);
+  public void linkUniPort(String nmsPortId, String nocLabel, String physicalResourceGroup) {
+    linkUniPort(nmsPortId, nocLabel, "", physicalResourceGroup);
   }
 
-  public void linkPhysicalPort(String nmsPortId, String nocLabel, String managerLabel, String physicalResourceGroup) {
+  public void linkUniPort(String nmsPortId, String nocLabel, String managerLabel, String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    listPage.verifyRowWithLabelExists(nmsPortId, "UNI");
 
-    EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
+    EditUniPortPage editPage = listPage.editUni(nmsPortId);
     editPage.sendNocLabel(nocLabel);
     editPage.sendManagerLabel(managerLabel);
     editPage.selectPhysicalResourceGroup(physicalResourceGroup);
     editPage.save();
   }
 
-  public void unlinkPhysicalPort(String bodPortId) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+  public void linkEnniPort(String nmsPortId, String nocLabel, String inboundPeer, String outboundPeer, String vlanRange) {
+    ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    listPage.verifyRowWithLabelExists(nmsPortId, "E_NNI");
 
-    page.unlinkPhysicalPort(bodPortId);
+    EditEnniPortPage editPage = listPage.editEnni(nmsPortId);
+    editPage.setNocLabel(nocLabel);
+    editPage.setInboudPeer(inboundPeer);
+    editPage.setOutboundPeer(outboundPeer);
+    editPage.setVlanRange(vlanRange);
+    editPage.save();
   }
 
-  public void gotoEditPhysicalPortAndVerifyManagerLabel(String nmsPortId, String managerLabel) {
-    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+  public void unlinkUniPort(String bodPortId) {
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
+    page.unlinkPort(bodPortId);
+  }
 
-    EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
+  public void unlinkEnniPort(String bodPortId) {
+    ListEnniPortsPage page = ListEnniPortsPage.get(driver, URL_UNDER_TEST);
+    page.unlinkPort(bodPortId);
+  }
+
+  public void gotoEditUniPortAndVerifyManagerLabel(String nmsPortId, String managerLabel) {
+    ListUniPortsPage listPage = ListUniPortsPage.get(driver, URL_UNDER_TEST);
+
+    EditUniPortPage editPage = listPage.edit(nmsPortId);
 
     assertThat(editPage.getManagerLabel(), is(managerLabel));
+  }
+
+  public void editEnniPort(String portId, String nocLabel, String inboundPeer, String outboundPeer, String vlanRange) {
+    ListEnniPortsPage listPage = ListEnniPortsPage.get(driver, URL_UNDER_TEST);
+
+    EditEnniPortPage editPage = listPage.edit(portId);
+
+    editPage.setNocLabel(nocLabel);
+    editPage.setInboudPeer(inboundPeer);
+    editPage.setOutboundPeer(outboundPeer);
+    editPage.setVlanRange(vlanRange);
+    editPage.save();
   }
 
   public void addPhysicalPortToInstitute(String groupName, String nocLabel, String portLabel) {
@@ -188,14 +219,14 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     verifyBySearch(page, searchString, reservationLabels);
   }
 
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+  public void verifyUniPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
 
     page.verifyPhysicalPortHasEnabledUnallocateIcon(nmsPortId, label);
   }
 
   public void verifyPhysicalPortHasDisabeldUnallocateIcon(String nmsPortId, String label, String toolTipText) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
 
     page.verifyPhysicalPortHasDisabledUnallocateIcon(nmsPortId, label, toolTipText);
   }
@@ -203,17 +234,23 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   public void verifyPhysicalPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
     ListUnallocatedPortsPage page = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortIsNotOnUnallocatedPage(nmsPortId, label);
+    page.verifyPortIsNotOnUnallocatedPage(nmsPortId, label);
   }
 
-  public void verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+  public void verifyUniPortWasAllocated(String nmsPortId, String label) {
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortWasAllocated(nmsPortId, label);
+    page.verifyPortWasAllocated(nmsPortId, label);
+  }
+
+  public void verifyEnniPortWasAllocated(String nmsPortId, String nocLabel) {
+    ListEnniPortsPage page = ListEnniPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPortWasAllocated(nmsPortId, nocLabel);
   }
 
   public void movePhysicalPort(String name) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
 
     page.movePort(name);
   }
@@ -279,17 +316,17 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyAllocatedPortsBySearch(String searchString, String... portLabels) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
     verifyBySearch(page, searchString, portLabels);
   }
 
   public void verifyAllocatedPortsBySort(String sortColumn, String... expectedSequenceLabels) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
     verifyBySort(page, sortColumn, expectedSequenceLabels);
   }
 
   public void verifyAllocatedPortsBySearchAndSort(String searchString, String sortColumn, String... expectedSequenceLabels) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage page = ListUniPortsPage.get(driver, URL_UNDER_TEST);
 
     page.search(searchString);
     verifyBySort(page, sortColumn, expectedSequenceLabels);
@@ -318,7 +355,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
     int numberOfItems = prgListPage.getNumberFromRowWithLinkAndClick(groupName, "noc/physicalports/uni", "Show");
 
-    ListAllocatedPortsPage appListPage = ListAllocatedPortsPage.get(driver);
+    ListUniPortsPage appListPage = ListUniPortsPage.get(driver);
     appListPage.verifyIsCurrentPage();
     appListPage.verifyAmountOfRowsWithLabel(numberOfItems, groupName);
   }
@@ -338,7 +375,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
     int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Allocated UNI", "noc/physicalports/uni", "Show");
 
-    ListAllocatedPortsPage listAllocatedPortsPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    ListUniPortsPage listAllocatedPortsPage = ListUniPortsPage.get(driver, URL_UNDER_TEST);
     listAllocatedPortsPage.verifyIsCurrentPage();
     listAllocatedPortsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }

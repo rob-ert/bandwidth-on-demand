@@ -22,42 +22,54 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
+
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListUnallocatedPortsPage extends AbstractPhysicalPortListNocPage {
+public class EditEnniPortPage extends AbstractFormPage {
 
-  private static final String PAGE = "/noc/physicalports/free";
+  @FindBy(id = "_nocLabel_id")
+  private WebElement nocLabelInput;
 
-  public ListUnallocatedPortsPage(RemoteWebDriver driver) {
+  @FindBy(id = "_bodPortId_id")
+  private WebElement bodPortIdInput;
+
+  @FindBy(id = "_inboundPeer_id")
+  private WebElement inboudPeerInput;
+
+  @FindBy(id = "_outboundPeer_id")
+  private WebElement outboundPeerInput;
+
+  @FindBy(id = "_vlanRanges_id")
+  private WebElement vlanRangesInput;
+
+  public EditEnniPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListUnallocatedPortsPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
-  }
-
-
-  public static ListUnallocatedPortsPage get(RemoteWebDriver driver) {
-    ListUnallocatedPortsPage page = new ListUnallocatedPortsPage(driver);
+  public static EditEnniPortPage get(RemoteWebDriver driver) {
+    EditEnniPortPage page = new EditEnniPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public EditEnniPortPage editEnni(String nmsPortId) {
-    clickRowIcon("icon-resize-small", nmsPortId);
-    return EditEnniPortPage.get(getDriver());
+  public void setNocLabel(String nocLabel) {
+    clearAndSend(nocLabelInput, nocLabel);
   }
 
-  public EditUniPortPage editUni(String nmsPortId) {
-    clickRowIcon("icon-resize-small", nmsPortId);
-    return EditUniPortPage.get(getDriver());
+  public void setInboudPeer(String inboundPeer) {
+    clearAndSend(inboudPeerInput, inboundPeer);
   }
 
-  public void verifyIsCurrentPage() {
-    super.verifyIsCurrentPage(PAGE);
+  public void setOutboundPeer(String outboundPeer) {
+    clearAndSend(outboundPeerInput, outboundPeer);
   }
 
+  public void setVlanRange(String vlanRange) {
+    clearAndSend(vlanRangesInput, vlanRange);
+  }
 }

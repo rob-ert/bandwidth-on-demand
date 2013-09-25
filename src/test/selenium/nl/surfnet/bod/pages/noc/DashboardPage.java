@@ -87,7 +87,7 @@ public class DashboardPage extends AbstractListPage {
 
   public void verifyMenuPhysicalPorts() {
     clickMenuLink("Physical");
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(getDriver());
+    ListUniPortsPage page = ListUniPortsPage.get(getDriver());
     page.verifyIsCurrentPage();
     page.verifyHasDefaultTimeZone();
   }

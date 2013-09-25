@@ -32,10 +32,10 @@ public class SearchAndSortTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP, "test@example.com");
 
-    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, "123NOC", "XYZPort", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_2, "987NOC", "ABDPort", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_3, "abcNOC", "abcPort", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_4, "bbcNOC", "xyzPort", GROUP_SURFNET);
   }
 
   @Test

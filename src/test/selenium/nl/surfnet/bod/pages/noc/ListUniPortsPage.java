@@ -25,39 +25,43 @@ package nl.surfnet.bod.pages.noc;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListUnallocatedPortsPage extends AbstractPhysicalPortListNocPage {
+public class ListUniPortsPage extends AbstractPhysicalPortListNocPage {
 
-  private static final String PAGE = "/noc/physicalports/free";
+  private static final String PAGE = "/noc/physicalports/uni";
 
-  public ListUnallocatedPortsPage(RemoteWebDriver driver) {
+  public ListUniPortsPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListUnallocatedPortsPage get(RemoteWebDriver driver, String urlUnderTest) {
+  public static ListUniPortsPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
 
-
-  public static ListUnallocatedPortsPage get(RemoteWebDriver driver) {
-    ListUnallocatedPortsPage page = new ListUnallocatedPortsPage(driver);
+  public static ListUniPortsPage get(RemoteWebDriver driver) {
+    ListUniPortsPage page = new ListUniPortsPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public EditEnniPortPage editEnni(String nmsPortId) {
-    clickRowIcon("icon-resize-small", nmsPortId);
-    return EditEnniPortPage.get(getDriver());
+  public void unlinkPort(String bodPortId) {
+    deleteForIcon("icon-remove", bodPortId);
   }
 
-  public EditUniPortPage editUni(String nmsPortId) {
-    clickRowIcon("icon-resize-small", nmsPortId);
+  public EditUniPortPage edit(String nmsPortId) {
+    editRow(nmsPortId);
+
     return EditUniPortPage.get(getDriver());
+  }
+
+  public MovePhysicalPortPage movePort(String name) {
+    clickRowIcon("icon-truck", name);
+
+    return MovePhysicalPortPage.get(getDriver());
   }
 
   public void verifyIsCurrentPage() {
     super.verifyIsCurrentPage(PAGE);
   }
-
 }

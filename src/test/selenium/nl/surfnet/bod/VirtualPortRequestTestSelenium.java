@@ -36,8 +36,8 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
   public void setupInitialData() {
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SARA, ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test@test.nl");
-    getNocDriver().linkPhysicalPort(NMS_NOVLAN_PORT_ID_1, "Request a virtual port", GROUP_SURFNET);
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, "Request a virtual port", GROUP_SURFNET);
+    getNocDriver().linkUniPort(NMS_PORT_ID_2, "Request a virtual port", GROUP_SARA);
 
     getWebDriver().clickLinkInLastEmail();
   }
