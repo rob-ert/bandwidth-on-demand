@@ -104,7 +104,7 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
   }
 
   @Test
-  public void verifyManagerLinkFromPhysicalPortToVIrtualPorts() {
+  public void verify_manager_link_from_physical_port_to_virtual_ports() {
     getManagerDriver().verifyPhysicalPortToVirtualPortsLink(managerLabel1, vpOne);
   }
 
