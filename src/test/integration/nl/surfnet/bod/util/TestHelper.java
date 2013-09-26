@@ -80,6 +80,10 @@ public class TestHelper {
     return loadProperties("netherlight");
   }
 
+  public static PropertiesEnvironment czechLightProperties() {
+    return loadProperties("czechlight");
+  }
+
   public static PropertiesEnvironment mtosiProperties() {
     return loadProperties("mtosi");
   }
@@ -121,6 +125,10 @@ public class TestHelper {
 
   public static void useDevEnv() {
     useEnv("dev");
+  }
+
+  public static void useCzechLightEnv() {
+    useEnv("czechlight");
   }
 
   public static void useTestEnv() {

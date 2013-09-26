@@ -649,4 +649,8 @@ public class NbiOpenDracWsClient implements NbiClient {
     this.inventoryServiceUrl = inventoryServiceUrl;
   }
 
+  void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
+
 }

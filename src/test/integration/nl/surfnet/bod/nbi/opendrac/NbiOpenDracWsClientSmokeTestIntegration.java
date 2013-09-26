@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nbi.opendrac;
 
 import static nl.surfnet.bod.util.TestHelper.accProperties;
+import static nl.surfnet.bod.util.TestHelper.czechLightProperties;
 import static nl.surfnet.bod.util.TestHelper.netherLightProperties;
 import static nl.surfnet.bod.util.TestHelper.productionProperties;
 import static nl.surfnet.bod.util.TestHelper.testProperties;
@@ -40,6 +41,15 @@ import org.junit.Test;
 public class NbiOpenDracWsClientSmokeTestIntegration {
 
   private NbiOpenDracWsClient subject;
+
+  @Test
+  public void smokeTestCzechLight() {
+    initCzechLight();
+
+    List<NbiPort> allPorts = subject.findAllPorts();
+
+    assertThat(allPorts, hasSize(greaterThan(0)));
+  }
 
   @Test
   public void smokeTestNetherLight() {
@@ -81,6 +91,10 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
     init(netherLightProperties());
   }
 
+  private void initCzechLight() {
+    init(czechLightProperties());
+  }
+
   private void initAcceptance() {
     init(accProperties());
   }
@@ -98,6 +112,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
     subject.setInventoryServiceUrl(env.getProperty("nbi.opendrac.service.inventory"));
     subject.setPassword(env.getDecryptedProperty("nbi.opendrac.password"));
     subject.setUsername(env.getProperty("nbi.opendrac.user"));
+    subject.setGroupName(env.getProperty("nbi.opendrac.group.name"));
   }
 
 }
