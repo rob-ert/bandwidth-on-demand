@@ -84,9 +84,7 @@ public class NocService {
       public Collection<Reservation> doInTransaction(TransactionStatus status) {
         if (oldPort instanceof UniPort) {
           copyPortProperties((UniPort) oldPort, (UniPort) newPort);
-
-          Collection<VirtualPort> virtualPorts = virtualPortService.findAllForUniPort((UniPort) oldPort);
-          switchVirtualPortsToNewPort((UniPort) newPort, virtualPorts);
+          swapVirtualPorts(oldPort, newPort);
         } else if (oldPort instanceof EnniPort) {
           copyPortProperties((EnniPort) oldPort, (EnniPort) newPort);
         }
@@ -105,6 +103,11 @@ public class NocService {
         return newReservationsWithId;
       }
 
+      private void swapVirtualPorts(final PhysicalPort oldPort, final PhysicalPort newPort) {
+        Collection<VirtualPort> virtualPorts = virtualPortService.findAllForUniPort((UniPort) oldPort);
+        switchVirtualPortsToNewPort((UniPort) newPort, virtualPorts);
+      }
+
       private void copyPortProperties(UniPort oldPort, UniPort newPort) {
         ((UniPort) newPort).setPhysicalResourceGroup(((UniPort) oldPort).getPhysicalResourceGroup());
       }
@@ -113,6 +116,7 @@ public class NocService {
          newPort.setInboundPeer(oldPort.getInboundPeer());
          newPort.setOutboundPeer(oldPort.getOutboundPeer());
          newPort.setVlanRanges(oldPort.getVlanRanges());
+         //newPort.setBodPortId(oldPort.getBodPortId());
       }
     });
   }
