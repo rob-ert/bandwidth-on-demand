@@ -67,6 +67,10 @@ public class JaxbUserType<T> implements UserType {
     return type;
   }
 
+  public JAXBContext getJaxbContext() {
+    return jaxbContext;
+  }
+
   public T fromXmlString(String string) {
     if (string == null) {
       return null;

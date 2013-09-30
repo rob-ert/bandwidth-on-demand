@@ -91,7 +91,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       Holder<CommonHeaderType> header) throws ServiceException {
 
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received a NSI v2 reserve request");
@@ -179,7 +178,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserveCommit(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received reserve commit request for connection: {}", connectionId);
@@ -194,7 +192,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void reserveAbort(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.RESERVE);
 
     log.info("Received Reserve Abort for connection: {}", connectionId);
@@ -210,7 +207,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void provision(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.PROVISION);
 
     log.info("Received a Provision for connection: {}", connectionId);
@@ -229,14 +225,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void release(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
-    updateHeadersForReply(header);
     throw notImplemented();
   }
 
   @Override
   public void terminate(String connectionId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.TERMINATE);
 
     log.info("Received a Terminate for connection: {}", connectionId);
@@ -256,7 +250,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Override
   public void querySummary(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Summary");
@@ -268,7 +261,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   public void queryRecursive(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Recursive");
@@ -280,7 +272,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header)
       throws QuerySummarySyncFailed {
     try {
-      updateHeadersForReply(header);
       checkOAuthScope(NsiScope.QUERY);
 
       log.info("Received a Query Summary Sync");
@@ -297,7 +288,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   public void queryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
-    updateHeadersForReply(header);
     checkOAuthScope(NsiScope.QUERY);
 
     log.info("Received a Query Notifcation async");
@@ -407,9 +397,5 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       .withSchedule(criteria.getSchedule())
       .withServiceType(criteria.getServiceType())
       .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
-  }
-
-  private void updateHeadersForReply(Holder<CommonHeaderType> header) {
-    header.value.setReplyTo(null);
   }
 }

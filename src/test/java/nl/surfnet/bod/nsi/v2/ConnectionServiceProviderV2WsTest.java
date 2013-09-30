@@ -168,7 +168,6 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getLifecycleState(), is(CREATED));
     assertThat(connection.getValue().getProvisionState(), isAbsent());
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
-    assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
   }
 
   @Rule
@@ -268,7 +267,6 @@ public class ConnectionServiceProviderV2WsTest {
 
       ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
       verify(connectionService).asyncReserveCommit(eq("connectionId"), requestDetails.capture());
-      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
       assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 
@@ -305,7 +303,6 @@ public class ConnectionServiceProviderV2WsTest {
 
     ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
     verify(connectionService).asyncReserveAbort(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
-    assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
     assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 
@@ -355,7 +352,6 @@ public class ConnectionServiceProviderV2WsTest {
 
       ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
       verify(connectionService).asyncProvision(eq("connectionId"), requestDetails.capture());
-      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
       assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 
@@ -391,7 +387,6 @@ public class ConnectionServiceProviderV2WsTest {
 
       ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
       verify(connectionService).asyncTerminate(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
-      assertThat(headerHolder.value.getReplyTo(), is(nullValue()));
       assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 

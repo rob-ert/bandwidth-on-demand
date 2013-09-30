@@ -180,8 +180,10 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
     Holder<String> connectionId = new Holder<>(null);
-    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
+    Holder<CommonHeaderType> reserveHeader = createHeader(reserveCorrelationId);
+    connectionServiceProviderPort.reserve(connectionId, globalReservationId, description, criteria, reserveHeader);
     assertThat(connectionId.value, is(notNullValue()));
+    assertThat(reserveHeader.value.getReplyTo(), is(nullValue()));
 
     Message<ReserveConfirmedType> reserveConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
     assertThat("reserve confirmed correlation id", reserveConfirmed.header.getCorrelationId(), is(reserveCorrelationId));

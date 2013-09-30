@@ -25,6 +25,7 @@
         <wss:service>
             <ws:service bean="#connectionServiceProviderWs_v2">
                 <ws:handlers>
+                    <ref bean="updateNsiHeadersForAckHandler" />
                     <ref bean="connectionServiceProviderIdempotentMessageHandler" />
                     <ref bean="transactionSoapHandler" /> <!-- Must appear as last item to ensure transaction is started first! -->
                 </ws:handlers>
