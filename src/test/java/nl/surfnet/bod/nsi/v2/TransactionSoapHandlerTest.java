@@ -25,6 +25,7 @@ package nl.surfnet.bod.nsi.v2;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import javax.xml.ws.handler.MessageContext;
@@ -37,7 +38,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,7 +51,7 @@ public class TransactionSoapHandlerTest {
   @InjectMocks
   private TransactionSoapHandler subject = new TransactionSoapHandler();
 
-  private TransactionStatus transactionStatus = new SimpleTransactionStatus();
+  private SimpleTransactionStatus transactionStatus = new SimpleTransactionStatus();
 
   @Test
   public void shouldStartTransactionOnInboundMessage() {
@@ -83,5 +83,24 @@ public class TransactionSoapHandlerTest {
     assertThat(subject.handleFault(context), is(true));
 
     verify(transactionManager).rollback(transactionStatus);
+  }
+
+  @Test
+  public void shouldRollbackIncompleteTransactionsOnClose() {
+    when(context.get(TransactionSoapHandler.TRANSACTION_PROPERTY)).thenReturn(transactionStatus);
+
+    subject.close(context);
+
+    verify(transactionManager).rollback(transactionStatus);
+  }
+
+  @Test
+  public void shouldIgnoreCompletedTransactionOnClose() {
+    transactionStatus.setCompleted();
+    when(context.get(TransactionSoapHandler.TRANSACTION_PROPERTY)).thenReturn(transactionStatus);
+
+    subject.close(context);
+
+    verifyNoMoreInteractions(transactionManager);
   }
 }

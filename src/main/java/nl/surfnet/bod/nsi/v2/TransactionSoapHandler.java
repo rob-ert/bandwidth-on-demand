@@ -70,6 +70,12 @@ public class TransactionSoapHandler implements SOAPHandler<SOAPMessageContext> {
 
   @Override
   public void close(MessageContext context) {
+    TransactionStatus transaction = (TransactionStatus) context.get(TRANSACTION_PROPERTY);
+    if (transaction != null && !transaction.isCompleted()) {
+      // Roll back if the transaction has not been committed or rolled-back in
+      // the normal SOAP handler chain processing flow.
+      transactionManager.rollback(transaction);
+    }
   }
 
   @Override
