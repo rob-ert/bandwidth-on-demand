@@ -33,6 +33,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 import nl.surfnet.bod.nsi.NsiHelper;
 
@@ -64,8 +65,13 @@ public class NsiV2RequestDetails {
   @Column(nullable = false)
   private String correlationId;
 
-  @Field private String requesterNsa;
-  @Field private String providerNsa;
+  @Field
+  @Column(nullable = false)
+  private String requesterNsa;
+
+  @Field
+  @Column(nullable = false)
+  private String providerNsa;
 
   @SuppressWarnings("unused")
   private NsiV2RequestDetails() {
@@ -74,8 +80,8 @@ public class NsiV2RequestDetails {
   public NsiV2RequestDetails(Optional<URI> replyTo, String correlationId, String requesterNsa, String providerNsa) {
     this.replyTo = replyTo.orNull();
     this.correlationId = correlationId;
-    this.requesterNsa = requesterNsa;
-    this.providerNsa = providerNsa;
+    this.requesterNsa = Preconditions.checkNotNull(requesterNsa, "requesterNsa is required");
+    this.providerNsa = Preconditions.checkNotNull(providerNsa, "providerNsa is required");
   }
 
   public CommonHeaderType createRequesterReplyHeaders() {

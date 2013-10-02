@@ -76,7 +76,7 @@ import org.springframework.stereotype.Service;
 
 @Service("connectionServiceProviderWs_v2")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/provider")
-@SchemaValidation
+@SchemaValidation // NOTE This does not validate headers, see #createRequestDetails for additional header validation.
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV2Ws.class);
@@ -87,8 +87,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @Resource private NsiHelper nsiHelper;
 
   @Override
-  public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria,
-      Holder<CommonHeaderType> header) throws ServiceException {
+  public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria, Holder<CommonHeaderType> header) throws ServiceException {
 
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     checkOAuthScope(NsiScope.RESERVE);
@@ -332,6 +331,19 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) throws ServiceException {
+    // The @SchemaValidation annotiation does not validate the headers, so we have to manually validate everything here.
+    if (header.getProtocolVersion() == null) {
+      throw missingParameter("protocolVersion");
+    }
+    if (header.getCorrelationId() == null) {
+      throw missingParameter("correlationId");
+    }
+    if (header.getRequesterNSA() == null) {
+      throw missingParameter("requesterNSA");
+    }
+    if (header.getProviderNSA() == null) {
+      throw missingParameter("providerNSA");
+    }
     if (!nsiHelper.getProviderNsaV2().equals(header.getProviderNSA())) {
       throw unsupportedParameter("providerNSA", header.getProviderNSA());
     }

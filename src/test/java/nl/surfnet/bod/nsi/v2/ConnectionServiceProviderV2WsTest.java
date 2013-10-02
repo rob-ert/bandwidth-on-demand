@@ -466,9 +466,53 @@ public class ConnectionServiceProviderV2WsTest {
     }
   }
 
+  @Test
+  public void should_require_protocol_version() throws Exception {
+    headerHolder.value.setProtocolVersion(null);
+    try {
+      subject.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getMessage(), containsString("protocolVersion"));
+    }
+  }
+
+  @Test
+  public void should_require_correlation_id() throws Exception {
+    headerHolder.value.setCorrelationId(null);
+    try {
+      subject.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getMessage(), containsString("correlationId"));
+    }
+  }
+
+  @Test
+  public void should_require_requester_nsa() throws Exception {
+    headerHolder.value.setRequesterNSA(null);
+    try {
+      subject.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getMessage(), containsString("requesterNSA"));
+    }
+  }
+
+  @Test
+  public void should_require_provider_nsa() throws Exception {
+    headerHolder.value.setProviderNSA(null);
+    try {
+      subject.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
+      fail("ServiceException expected");
+    } catch (ServiceException expected) {
+      assertThat(expected.getMessage(), containsString("providerNSA"));
+    }
+  }
+
 
   private CommonHeaderType headers() {
-    return new CommonHeaderType().withCorrelationId("correlationId").withProviderNSA("providerNsa2").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
+    return new CommonHeaderType().withProtocolVersion("protocolVersion").withCorrelationId("correlationId").withProviderNSA("providerNsa2").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
   }
 
   private ReservationRequestCriteriaType initialReservationCriteria() {
