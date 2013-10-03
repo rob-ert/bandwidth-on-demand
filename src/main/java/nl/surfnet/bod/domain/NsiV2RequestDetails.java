@@ -49,7 +49,7 @@ import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
 @Analyzer(definition = "customanalyzer")
 @Table(name = "nsi_v2_request_details")
 public class NsiV2RequestDetails {
-  private static final String PROTOCOL_VERSION = "application/vdn.ogf.nsi.cs.v2.requester+soap";
+  private static final String PROTOCOL_VERSION = "application/vnd.ogf.nsi.cs.v2.requester+soap";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
