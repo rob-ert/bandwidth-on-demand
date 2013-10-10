@@ -32,8 +32,12 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReservationTestSelenium extends SeleniumWithSingleSetup {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReservationTestSelenium.class);
 
   @Override
   public void setupInitialData() {
@@ -108,8 +112,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().switchToUserRole();
 
-    getUserDriver().createNewReservation(even, date, date, startTime, startTime.plusHours(1));
+    LOGGER.info("Creating " + even);
     getUserDriver().createNewReservation(odd, date, date, startTime.plusHours(2), startTime.plusHours(2 + 1));
+    LOGGER.info("Created " + even);
+    LOGGER.info("Creating " + odd);
+    getUserDriver().createNewReservation(even, date, date, startTime, startTime.plusHours(1));
+    LOGGER.info("Created " + odd);
 
     // Filter on this year, and no search String. All should be found.
     getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", even, odd);
