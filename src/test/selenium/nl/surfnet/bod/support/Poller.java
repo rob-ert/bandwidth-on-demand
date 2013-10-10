@@ -28,7 +28,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 
 public class Poller {
 
-  private long[] waitTimes = new long[] { 0, 50, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 500, 1000, 1000, 2000 };
+  private long[] waitTimes = new long[] { 0, 50, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 500, 1000, 1000, 2000, 2000, 2000, 2000, 2000, 2000 };
 
   public void check(Probe probe) {
     int tries = 0;
