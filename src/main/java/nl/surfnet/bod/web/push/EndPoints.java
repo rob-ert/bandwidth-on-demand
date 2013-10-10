@@ -143,7 +143,8 @@ public class EndPoints {
   }
 
   public void clientRequest(String id, int count, int lastEventId, AsyncContext asyncContext, RichUserDetails user) {
-    logger.debug("New request for client {} with count {} and lastEventId {}", id, count, lastEventId);
+    checkNotNull(user, "user is required");
+    logger.debug("New request for client {} with count {} and lastEventId {} and user {}", id, count, lastEventId, user);
 
     EndPoint endPoint = endPoints.remove(id);
     if (endPoint == null) {
