@@ -39,6 +39,6 @@
         here, so I can eliminate the extra xml file". Don't. It will break the binding between jaxws and the spring-managed bean
         that does the actual handling of messages (NotificationConsumerHttp).
          -->
-        <import resource="aapCtx-ws-onecontrol.xml"/>
+        <import resource="appCtx-ws-onecontrol.xml"/>
     </beans>
 </beans>
