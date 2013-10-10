@@ -40,6 +40,69 @@
     </section>
 
     <section>
+        <h2>ServiceObjectDeletions</h2>
+        <div class="content">
+            <table:table items="${serviceObjectDeletions}" labelPluralCode="serviceObjectDeletions">
+                <thead>
+                    <tr>
+                        <th>NotificationId</th>
+                        <th>SourceTime / OsTime</th>
+                        <th>ObjectType</th>
+                        <th>ObjectName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${serviceObjectDeletions}" var="serviceObjectDeletion">
+                        <tr>
+                            <table:column item="${serviceObjectDeletion}" property="notificationId" />
+                            <td>
+                                <spring:eval expression="serviceObjectDeletion.sourceTime" htmlEscape="true" />
+                                /
+                                <spring:eval expression="serviceObjectDeletion.osTime" htmlEscape="true" />
+                            </td>
+                            <table:column item="${serviceObjectDeletion}" property="objectType" />
+                            <td>
+                                <c:out value="${serviceObjectDeletion.objectName}" />
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table:table>
+        </div>
+    </section>
+
+    <section>
+        <h2>ServiceAttributeValueChanges</h2>
+        <div class="content">
+            <table:table items="${serviceAttributeValueChanges}" labelPluralCode="serviceAttributeValueChange">
+                <thead>
+                    <tr>
+                        <th>NotificationId</th>
+                        <th>SourceTime / OsTime</th>
+                        <th>ObjectType</th>
+                        <th>ObjectName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${serviceAttributeValueChanges}" var="serviceAttributeValueChange">
+                        <tr>
+                            <table:column item="${serviceAttributeValueChange}" property="notificationId" />
+                            <td>
+                                <spring:eval expression="serviceAttributeValueChange.sourceTime" htmlEscape="true" />
+                                /
+                                <spring:eval expression="serviceAttributeValueChange.osTime" htmlEscape="true" />
+                            </td>
+                            <table:column item="${serviceAttributeValueChange}" property="objectType" />
+                            <td>
+                                <c:out value="${serviceAttributeValueChange.objectName}" />
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table:table>
+        </div>
+    </section>
+    <section>
         <h2>Events</h2>
         <div class="content">
             <table:table items="${events}" labelPluralCode="events">

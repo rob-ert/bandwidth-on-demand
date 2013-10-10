@@ -53,6 +53,8 @@ public class OneControlNotificationsController {
   public String listNotifications(Model model) {
     model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
     model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
+    model.addAttribute("serviceObjectDeletions", last(notificationConsumer.getServiceObjectDeletions(), 20));
+    model.addAttribute("serviceAttributeValueChanges", last(notificationConsumer.getServiceAttributeValueChanges(), 20));
     model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
 
     return "appmanager/onecontrol/notifications";
