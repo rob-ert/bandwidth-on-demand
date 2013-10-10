@@ -43,17 +43,21 @@
     <level value="INFO" />
   </logger>
 
-   <logger name="nl.surfnet.bod.web.base">
-    <level value="INFO" />
-   </logger>
+  <logger name="nl.surfnet.bod.web.base">
+   <level value="INFO" />
+  </logger>
 
-   <!-- <logger name="org.hibernate.type">
-    <level value="TRACE" />
-   </logger>
-
-   <logger name="org.hibernate.SQL">
+  <logger name="nl.surfnet.bod.web.security">
     <level value="DEBUG" />
-   </logger> -->
+  </logger>
+
+  <!-- <logger name="org.hibernate.type">
+   <level value="TRACE" />
+  </logger>
+
+  <logger name="org.hibernate.SQL">
+   <level value="DEBUG" />
+  </logger> -->
 
   <root>
     <level value="WARN" />

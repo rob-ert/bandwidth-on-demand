@@ -44,7 +44,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
   private final Logger logger = LoggerFactory.getLogger(RequestHeaderAuthenticationFilter.class);
 
-  private final Function<HttpServletRequest, String> immitateNameId = new Function<HttpServletRequest, String>() {
+  private final Function<HttpServletRequest, String> imitateNameId = new Function<HttpServletRequest, String>() {
       @Override
       public String apply(HttpServletRequest request) {
         String user = nullToEmpty(request.getParameter("nameId"));
@@ -52,7 +52,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       }
     };
 
-  private final Function<HttpServletRequest, String> immitateDisplayName = new Function<HttpServletRequest, String>() {
+  private final Function<HttpServletRequest, String> imitateDisplayName = new Function<HttpServletRequest, String>() {
       @Override
       public String apply(HttpServletRequest request) {
         String name = nullToEmpty(request.getParameter("displayName"));
@@ -60,7 +60,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       }
     };
 
-  private final Function<HttpServletRequest, String> immitateEmail = new Function<HttpServletRequest, String>() {
+  private final Function<HttpServletRequest, String> imitateEmail = new Function<HttpServletRequest, String>() {
       @Override
       public String apply(HttpServletRequest request) {
         String email = nullToEmpty(request.getParameter("email"));
@@ -76,11 +76,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-    if (isNsiRequest(request)) {
-      return getPrincipalFromOauth2Header(request);
-    }
-
-    return getPrincipalFromHeaders(request);
+    return isNsiRequest(request) ? getPrincipalFromOauth2Header(request) : getPrincipalFromHeaders(request);
   }
 
   private boolean isNsiRequest(HttpServletRequest request) {
@@ -88,9 +84,9 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
   }
 
   private Object getPrincipalFromHeaders(HttpServletRequest request) {
-    String nameId = getRequestHeaderOrImitate(request, ShibbolethConstants.NAME_ID, immitateNameId);
-    String displayName = getRequestHeaderOrImitate(request, ShibbolethConstants.DISPLAY_NAME, immitateDisplayName);
-    String email = getRequestHeaderOrImitate(request, ShibbolethConstants.EMAIL, immitateEmail);
+    String nameId = getRequestHeaderOrImitate(request, ShibbolethConstants.NAME_ID, imitateNameId);
+    String displayName = getRequestHeaderOrImitate(request, ShibbolethConstants.DISPLAY_NAME, imitateDisplayName);
+    String email = getRequestHeaderOrImitate(request, ShibbolethConstants.EMAIL, imitateEmail);
 
     logger.debug("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new Object[] {nameId, displayName, email});
 
