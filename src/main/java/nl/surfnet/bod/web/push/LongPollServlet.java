@@ -50,16 +50,27 @@ public class LongPollServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    if (Security.getUserDetails() == null) {
+      logger.debug("No user present");
+      response.setStatus(403);
+      return;
+    }
+
     String transport = request.getParameter("transport");
     if (transport == null) {
       logger.debug("No transport defined for the long polling call");
+      response.setStatus(400);
+      return;
     }
-    else if (transport.equals("longpollajax") || transport.equals("longpollxdr") || transport.equals("longpolljsonp")) {
+
+
+    if (transport.equals("longpollajax") || transport.equals("longpollxdr") || transport.equals("longpolljsonp")) {
       doLongPollConnect(request, response, transport);
+      return;
     }
-    else {
-      logger.debug("Do not understand the transport '{}'", transport);
-    }
+
+    logger.debug("Do not understand the transport '{}'", transport);
+    response.setStatus(400);
   }
 
   private void doLongPollConnect(HttpServletRequest request, HttpServletResponse response, String transport) {
