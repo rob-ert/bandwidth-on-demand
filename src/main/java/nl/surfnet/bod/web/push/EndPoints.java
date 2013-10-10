@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.web.push;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,10 +155,14 @@ public class EndPoints {
   }
 
   private Predicate<EndPoint> isAuthorized(final PushMessage event) {
+    checkNotNull(event, "event is required");
     return new Predicate<EndPoint>() {
       @Override
       public boolean apply(EndPoint connection) {
-        return connection.getUser().getUserGroupIds().contains(event.getGroupId());
+        checkNotNull(connection, "connection is required");
+        RichUserDetails user = checkNotNull(connection.getUser(), "user is required");
+        Collection<String> userGroupIds = checkNotNull(user.getUserGroupIds(), "userGroupIds is required");
+        return userGroupIds.contains(event.getGroupId());
       }
     };
   }
