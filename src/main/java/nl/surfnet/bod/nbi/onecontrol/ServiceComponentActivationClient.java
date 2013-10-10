@@ -85,7 +85,7 @@ public class ServiceComponentActivationClient {
     } catch (ReserveException e) {
       logger.info("Reserve request failed", e);
       // FIXME db should allow bigger failed reasons..
-      reservation.setFailedReason(StringUtils.abbreviate(e.getCause().getMessage(), 255));
+      reservation.setFailedReason(StringUtils.abbreviate(e.getMessage(), 255));
       reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
     }
 
