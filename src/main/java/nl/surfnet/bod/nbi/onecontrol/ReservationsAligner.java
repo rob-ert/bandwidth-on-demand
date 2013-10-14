@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -80,14 +81,18 @@ public class ReservationsAligner implements SmartLifecycle {
       log.info("Picking up reservation {}", reservationId);
 
       Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
+      if (!reservationStatus.isPresent()) {
+        return true;
+      }
       try {
-        ReservationStatus newStatus = reservationStatus.or(ReservationStatus.LOST);
-        Reservation reservation = reservationService.updateStatus(reservationId, newStatus);
-        if (!reservation.isNSICreated() && newStatus == ReservationStatus.RESERVED) {
-          // Auto-provision if the reservation was created in the UI (not through NSI).
+        Reservation reservation = reservationService.updateStatus(reservationId, reservationStatus.get());
+        if (!reservation.isNSICreated()
+            && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
+          // Auto-provision if the reservation was created in the UI (not
+          // through NSI).
           reservationService.provision(reservation);
         }
-      } catch (NoResultException e) {
+      } catch (EmptyResultDataAccessException e) {
         // apparently the reservation did not exist
         log.debug("Ignoring unknown reservation with id {}", reservationId);
       }

@@ -27,17 +27,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
-import javax.persistence.NoResultException;
 
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,7 +89,7 @@ public class ReservationPoller {
               logger.info("Status change detected {} -> {} for reservation {}", new Object[] { reservation.getStatus(), currentStatus.get(), reservation.getReservationId() });
               try {
                 reservationService.updateStatus(reservation.getReservationId(), currentStatus.get());
-              } catch (NoResultException e) {
+              } catch (EmptyResultDataAccessException e) {
                 // Reservation was already deleted, ignore.
               }
             }

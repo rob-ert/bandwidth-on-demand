@@ -59,6 +59,7 @@ public class ServiceComponentActivationClient {
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
+
   private final String endPoint;
 
   @Value("${onecontrol.service.component.activation.connect.timeout}")
@@ -104,7 +105,7 @@ public class ServiceComponentActivationClient {
       return true;
     } catch (ActivateException e) {
       BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
-      logger.warn("Could not activate reservation {} because {}", reservation, baseExceptionMessage.getReason());
+      logger.warn("Could not activate reservation {} because {}", reservation, baseExceptionMessage.getReason(), e);
       throw new AssertionError(baseExceptionMessage.getReason(), e);
     }
   }

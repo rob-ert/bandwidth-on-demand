@@ -493,7 +493,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Will update the status of the specified reservation if it is different than its current
    * @param reservationId
    * @param newStatus
-   * @throws javax.persistence.NoResultException when no Reservation with the specified reservationId exists
+   * @throws org.springframework.dao.EmptyResultDataAccessException when no Reservation with the specified reservationId exists
    * @return the reservation containing the new status
    */
   public Reservation updateStatus(String reservationId, ReservationStatus newStatus) {
@@ -502,7 +502,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
     ReservationStatus oldStatus = reservation.getStatus();
     if (oldStatus == newStatus) {
-      log.debug("Reservation ({}) status unchanged at {}", newStatus);
+      log.debug("Reservation ({}) status unchanged at {}", reservationId, newStatus);
+      return reservation;
+    } else if (!oldStatus.canTransition(newStatus)) {
+      log.warn("Reservation ({}) cannot transition from {} to {}", reservationId, oldStatus, newStatus);
       return reservation;
     }
     reservation.setStatus(newStatus);
