@@ -22,9 +22,13 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.util.Orderings.VP_REQUEST_LINK_ORDERING;
+
 import java.util.Collection;
 
 import javax.annotation.Resource;
+
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
@@ -33,7 +37,6 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -43,8 +46,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.google.common.base.Optional;
 
 @Controller("managerDashboardController")
 @RequestMapping("/manager")
@@ -74,7 +75,7 @@ public class DashboardController {
     Collection<VirtualPortRequestLink> requests = virtualPortService.findPendingRequests(group);
 
     model.addAttribute("prg", group);
-    model.addAttribute("requests", Orderings.vpRequestLinkOrdering().sortedCopy(requests));
+    model.addAttribute("requests", VP_REQUEST_LINK_ORDERING.sortedCopy(requests));
 
     model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);

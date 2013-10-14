@@ -57,7 +57,7 @@ public final class Orderings {
     }
   };
 
-  private static final Ordering<VirtualPortRequestLink> VP_REQUEST_LINK_ORDERING = new Ordering<VirtualPortRequestLink>() {
+  public static final Ordering<VirtualPortRequestLink> VP_REQUEST_LINK_ORDERING = new Ordering<VirtualPortRequestLink>() {
     @Override
     public int compare(VirtualPortRequestLink left, VirtualPortRequestLink right) {
       return left.getRequestDateTime().compareTo(right.getRequestDateTime());
@@ -83,7 +83,4 @@ public final class Orderings {
     return ROLE_ORDERING;
   }
 
-  public static Ordering<VirtualPortRequestLink> vpRequestLinkOrdering() {
-    return VP_REQUEST_LINK_ORDERING;
-  }
 }

@@ -27,7 +27,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -36,20 +38,36 @@ import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType.AttributeList;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ActivateException;
 import org.tmforum.mtop.sa.xsd.saiexcpt.v1.BasicFailureEventType;
+import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
+import org.w3c.dom.Node;
 
 public final class MtosiUtils {
 
   private static final String PTP_FORMAT = "/rack=%s/shelf=%s/slot=%s/port=%s";
   private static final String PTP_WITH_SUB_SLOT_FORMAT = "/rack=%s/shelf=%s/slot=%s/sub_slot=%s/port=%s";
+
+  private static final JAXBContext jaxbContext;
+  private static final Logger logger = LoggerFactory.getLogger(MtosiUtils.class);
+
+  static {
+    try {
+      jaxbContext = JAXBContext.newInstance("org.tmforum.mtop.sb.xsd.svc.v1");
+    } catch (Exception e) {
+      throw new AssertionError(e);
+    }
+  }
 
   private MtosiUtils() {
   }
@@ -102,8 +120,7 @@ public final class MtosiUtils {
     });
   }
 
-  public static Optional<String> findSscValue(final String sscValue,
-      List<ServiceCharacteristicValueType> characteristics) {
+  public static Optional<String> findSscValue(final String sscValue, List<ServiceCharacteristicValueType> characteristics) {
     return Iterables.tryFind(characteristics, new Predicate<ServiceCharacteristicValueType>() {
       @Override
       public boolean apply(ServiceCharacteristicValueType scv) {
@@ -115,6 +132,39 @@ public final class MtosiUtils {
         return ssc.getValue();
       }
     });
+  }
+
+  public static Optional<RfsSecondaryState> findSecondaryState(ServiceAttributeValueChangeType event) {
+    Optional<ResourceFacingServiceType> rfs = findRfs(event.getAttributeList());
+
+    Optional<Optional<RfsSecondaryState>> status = rfs.transform(new Function<ResourceFacingServiceType, Optional<RfsSecondaryState>>() {
+      @Override
+      public Optional<RfsSecondaryState> apply(ResourceFacingServiceType service) {
+        return findSscValue("SecondaryState", service.getDescribedByList()).transform(
+          new Function<String, RfsSecondaryState>() {
+            @Override
+            public RfsSecondaryState apply(String input) {
+              return RfsSecondaryState.valueOf(input);
+            }
+          });
+        }
+      });
+
+    return status.isPresent() ? status.get() : Optional.<RfsSecondaryState>absent();
+  }
+
+  private static Optional<ResourceFacingServiceType> findRfs(AttributeList attributeList) {
+    Object any = attributeList.getAny();
+
+    if (any instanceof Node) {
+      try {
+        return Optional.of(jaxbContext.createUnmarshaller().unmarshal((Node) any, ResourceFacingServiceType.class).getValue());
+      } catch (JAXBException e) {
+        logger.warn("Could not parse a RFS", e);
+      }
+    }
+
+    return Optional.absent();
   }
 
   public static String convertToShortPtP(String ptp) {

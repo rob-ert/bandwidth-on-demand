@@ -22,43 +22,88 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
+import static com.google.common.collect.Iterables.getOnlyElement;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryResponse;
+import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
 public class MtosiUtilsTest {
 
+  private static final List<String> packages = Lists.newArrayList(
+    "org.tmforum.mtop.fmw.xsd.notmsg.v1",
+    "org.tmforum.mtop.fmw.xsd.hdr.v1",
+    "org.tmforum.mtop.fmw.xsd.avc.v1",
+    "org.tmforum.mtop.fmw.xsd.sc.v1",
+    "org.tmforum.mtop.fmw.xsd.gen.v1",
+    "org.tmforum.mtop.fmw.xsd.cei.v1",
+    "org.tmforum.mtop.fmw.xsd.cornot.v1",
+    "org.tmforum.mtop.fmw.xsd.ei.v1",
+    "org.tmforum.mtop.fmw.xsd.hbt.v1",
+    "org.tmforum.mtop.fmw.xsd.msg.v1",
+    "org.tmforum.mtop.fmw.xsd.nam.v1",
+    "org.tmforum.mtop.fmw.xsd.oc.v1",
+    "org.tmforum.mtop.fmw.xsd.odel.v1",
+    "org.tmforum.mtop.nra.xsd.alm.v1",
+    "org.tmforum.mtop.nra.xsd.com.v1",
+    "org.tmforum.mtop.nra.xsd.prc.v1",
+    "org.tmforum.mtop.nrb.xsd.lay.v1",
+    "org.tmforum.mtop.sb.xsd.savc.v1",
+    "org.tmforum.mtop.sb.xsd.soc.v1",
+    "org.tmforum.mtop.sb.xsd.sodel.v1",
+    "org.tmforum.mtop.sb.xsd.svc.v1",
+    "org.tmforum.mtop.msi.xsd.sir.v1");
+
+  private static JAXBContext jaxbContext;
   private static GetServiceInventoryResponse rfsServiceInventory;
   private static GetServiceInventoryResponse sapServiceInventory;
+  private static Notify notifyServiceAttributeValueChange;
 
   @BeforeClass
   public static void initInventoryObjects() {
-    try{
-      Unmarshaller unmarshaller = JAXBContext.newInstance(GetServiceInventoryResponse.class).createUnmarshaller();
+    try {
+      jaxbContext = JAXBContext.newInstance(Joiner.on(":").join(packages));
+      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       rfsServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/RfsInventory.xml"));
       sapServiceInventory = (GetServiceInventoryResponse) unmarshaller.unmarshal(new File("src/test/resources/mtosi/SapInventory.xml"));
+      notifyServiceAttributeValueChange = (Notify) unmarshaller.unmarshal(new File("src/test/resources/mtosi/serviceAttributeValueChange.xml"));
     } catch (JAXBException e) {
       throw new AssertionError(e);
     }
+  }
+
+  @Test
+  public void should_find_secondary_state_in_service_attribute_value_change_notification() throws JAXBException {
+    ServiceAttributeValueChangeType valueChange = (ServiceAttributeValueChangeType) getOnlyElement(notifyServiceAttributeValueChange.getMessage().getCommonEventInformation()).getValue();
+
+    Optional<RfsSecondaryState> secondaryState = MtosiUtils.findSecondaryState(valueChange);
+
+    assertThat(secondaryState, isPresent(RfsSecondaryState.INITIAL));
   }
 
   @Test

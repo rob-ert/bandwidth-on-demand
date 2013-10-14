@@ -22,10 +22,20 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static nl.surfnet.bod.util.Orderings.VP_REQUEST_LINK_ORDERING;
+
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -33,7 +43,6 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.TeamView;
 
@@ -42,22 +51,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-
 @RequestMapping("/user")
 @Controller
 public class DashboardController {
 
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -71,8 +71,7 @@ public class DashboardController {
 
     List<TeamView> views = getTeamViews(userGroups);
 
-    model.addAttribute("requests",
-        Orderings.vpRequestLinkOrdering().sortedCopy(virtualPortService.findRequestsForLastMonth(userGroups)));
+    model.addAttribute("requests", VP_REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findRequestsForLastMonth(userGroups)));
     model.addAttribute("teams", views);
     model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
       @Override

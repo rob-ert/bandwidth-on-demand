@@ -39,6 +39,8 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -49,6 +51,8 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 @Profile("onecontrol")
 @Component
 public class NbiClientImpl implements NbiClient {
+
+  private final Logger logger = LoggerFactory.getLogger(NbiClientImpl.class);
 
   @Resource private InventoryRetrievalClient inventoryRetrievalClient;
   @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
@@ -73,6 +77,7 @@ public class NbiClientImpl implements NbiClient {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.save(reservation);
 
+    // TODO use autoProvision..
     return serviceComponentActivationClient.reserve(savedReservation);
   }
 

@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -31,10 +33,12 @@ import javax.persistence.NoResultException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -54,11 +58,8 @@ public class ReservationsAligner implements SmartLifecycle {
 
   public static String POISON_PILL = "TOXIC";
 
-  @Resource
-  private NbiClient nbiClient;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private NbiClient nbiClient;
+  @Resource private ReservationService reservationService;
 
   private BlockingQueue<String> reservationIds = new ArrayBlockingQueue<>(1000);
 
@@ -77,6 +78,7 @@ public class ReservationsAligner implements SmartLifecycle {
         return false;
       }
       log.info("Picking up reservation {}", reservationId);
+
       Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
       try {
         ReservationStatus newStatus = reservationStatus.or(ReservationStatus.LOST);
@@ -155,11 +157,11 @@ public class ReservationsAligner implements SmartLifecycle {
   }
 
   /**
-   *
    * @throws IllegalStateException
    *           when the backing queue is full
    */
   public void add(String reservationId) {
+    checkNotNull(reservationId);
     reservationIds.add(reservationId);
   }
 

@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import javax.sql.DataSource;
+import javax.xml.bind.Marshaller;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -79,10 +80,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableAsync
 public class AppComponents implements AsyncConfigurer {
 
-//  static {
-//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//  }
+  //static {
+    //System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+    //System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+    //System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+  //}
 
   private static final Logger logger = LoggerFactory.getLogger(AppComponents.class);
 

@@ -33,6 +33,11 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.ReservationService;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +58,7 @@ import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 @WebService(
     serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",
     portName = "NotificationConsumerSoapHttp", targetNamespace = "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0")
+//@SchemaValidation // OneControl notifications are not valid against the MTOSI schemas
 public class NotificationConsumerHttp implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
@@ -61,9 +67,10 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private final List<CommonEventInformationType> events = Collections.synchronizedList(new ArrayList<CommonEventInformationType>());
   private final List<ServiceObjectCreationType> serviceObjectCreations = Collections.synchronizedList(new ArrayList<ServiceObjectCreationType>());
   private final List<ServiceObjectDeletionType> serviceObjectDeletions = Collections.synchronizedList(new ArrayList<ServiceObjectDeletionType>());
+  private final List<ServiceAttributeValueChangeType> serviceAttributeValueChanges = Collections.synchronizedList(new ArrayList<ServiceAttributeValueChangeType>());
 
-  @Resource
-  private ReservationsAligner reservationsAligner;
+  @Resource private ReservationsAligner reservationsAligner;
+  @Resource private ReservationService reservationService;
 
   private DateTime lastHeartbeat = DateTime.now();
 
@@ -105,22 +112,46 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
-    scheduleUpdate(reservationId);
+
+    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
+      reservationService.updateStatus(reservationId.get(), ReservationStatus.RESERVED);
+    }
   }
 
-  private void handleServiceAttributeValueChange(ServiceAttributeValueChangeType serviceAttributeValueChange) throws JAXBException {
-    Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", serviceAttributeValueChange.getObjectName());
-    scheduleUpdate(reservationId);
+  private boolean reservationIsKnown(String reservationId) {
+    return reservationService.findByReservationId(reservationId) != null;
+  }
+
+  private void handleServiceAttributeValueChange(ServiceAttributeValueChangeType valueChange) throws JAXBException {
+    serviceAttributeValueChanges.add(valueChange);
+    Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", valueChange.getObjectName());
+
+    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
+      Optional<RfsSecondaryState> secondaryState = MtosiUtils.findSecondaryState(valueChange);
+
+      if (secondaryState.isPresent() && secondaryState.get() == RfsSecondaryState.INITIAL) {
+        handleInitialState(reservationId.get());
+      } else {
+        scheduleUpdate(reservationId);
+      }
+    }
+  }
+
+  private void handleInitialState(String reservationId) {
+    Reservation reservation = reservationService.findByReservationId(reservationId);
+    reservationService.updateStatus(reservationId, ReservationStatus.RESERVED);
+    reservationService.provision(reservation);
   }
 
   private void handleServiceObjectDeletion(ServiceObjectDeletionType deletionEvent) {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
-    scheduleUpdate(reservationId);
+
+//    scheduleUpdate(reservationId);
   }
 
   private void scheduleUpdate(Optional<String> reservationId) {
-    if (reservationId.isPresent()) {
+    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
       reservationsAligner.add(reservationId.get());
     }
   }
@@ -136,4 +167,13 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   public List<ServiceObjectCreationType> getServiceObjectCreations() {
     return ImmutableList.copyOf(serviceObjectCreations);
   }
+
+  public List<ServiceObjectDeletionType> getServiceObjectDeletions() {
+    return ImmutableList.copyOf(serviceObjectDeletions);
+  }
+
+  public List<ServiceAttributeValueChangeType> getServiceAttributeValueChanges() {
+    return ImmutableList.copyOf(serviceAttributeValueChanges);
+  }
+
 }
