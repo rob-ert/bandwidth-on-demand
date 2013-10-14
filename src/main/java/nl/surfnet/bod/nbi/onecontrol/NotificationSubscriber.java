@@ -79,7 +79,7 @@ public class NotificationSubscriber {
       serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, endPoint);
       faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, endPoint);
     } catch (Exception e) {
-      throw new AssertionError("Could not subscribe to MTOSI/OneControl notifications");
+      throw new IllegalArgumentException("Could not subscribe to MTOSI/OneControl notifications", e);
     }
   }
 
@@ -114,9 +114,9 @@ public class NotificationSubscriber {
 
   private String getEndPoint() {
     if (Strings.isNullOrEmpty(endPointAddress)) {
-      Optional<InetAddress> address = getOneControlIntAddress();
+      Optional<InetAddress> address = getOneControlInetAddress();
       if (!address.isPresent()) {
-        throw new AssertionError("Could not determine MTOSI/OneControl consumer end point");
+        throw new IllegalStateException("Could not determine MTOSI/OneControl consumer end point");
       }
       return getEndPoint(address.get());
     }
@@ -128,7 +128,7 @@ public class NotificationSubscriber {
     return String.format("http://%s:8082/bod/mtosi/fmw/NotificationConsumer", address.getHostAddress());
   }
 
-  private Optional<InetAddress> getOneControlIntAddress() {
+  private Optional<InetAddress> getOneControlInetAddress() {
     try {
       Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
       while (networkInterfaces.hasMoreElements()) {
@@ -142,7 +142,7 @@ public class NotificationSubscriber {
         }
       }
     } catch (IOException e) {
-      logger.info("Could not determine OneControl InetAddress", e);
+      logger.warn("Could not determine OneControl InetAddress", e);
     }
 
     return Optional.absent();

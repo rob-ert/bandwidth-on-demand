@@ -29,10 +29,10 @@ import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservat
 import javax.xml.ws.BindingProvider;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,10 +83,9 @@ public class ServiceComponentActivationClient {
         reservation.setStatus(ReservationStatus.FAILED);
       }
     } catch (ReserveException e) {
-      logger.info("Reserve request failed", e);
-      // FIXME db should allow bigger failed reasons..
-      reservation.setFailedReason(StringUtils.abbreviate(e.getMessage(), 255));
+      logger.info("Reserve request " + reservation.getName() +  " failed: " + e + " with fault info " + e.getFaultInfo(), e);
       reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
+      reservation.setFailedReason("reserve operation failed with error '" + e + "'");
     }
 
     return reservation;
