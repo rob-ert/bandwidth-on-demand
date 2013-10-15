@@ -51,61 +51,70 @@ import org.springframework.stereotype.Component;
  * Continuously polls for reservations that need to be aligned
  */
 @Component
-@Profile( {"onecontrol", "onecontrol-offline"})
+@Profile({ "onecontrol", "onecontrol-offline" })
 public class ReservationsAligner implements SmartLifecycle {
 
-  private final Logger log = LoggerFactory.getLogger(ReservationsAligner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReservationsAligner.class);
   private volatile boolean started = false;
 
   public static String POISON_PILL = "TOXIC";
 
-  @Resource private NbiClient nbiClient;
-  @Resource private ReservationService reservationService;
+  @Resource
+  private NbiClient nbiClient;
+  @Resource
+  private ReservationService reservationService;
 
-  private BlockingQueue<String> reservationIds = new ArrayBlockingQueue<>(1000);
+  private BlockingQueue<String> reservationQueue = new ArrayBlockingQueue<>(1000);
 
   public void align() throws InterruptedException {
-    for (;;) {
-      if (!doAlign())
-        break;
+    while (alignNextReservation()) {
     }
   }
 
   @VisibleForTesting
-  boolean doAlign() {
+  boolean alignNextReservation() throws InterruptedException {
     try {
-      String reservationId = reservationIds.take();
+      String reservationId = reservationQueue.take();
       if (POISON_PILL.equals(reservationId)) {
         return false;
       }
-      log.info("Picking up reservation {}", reservationId);
 
-      Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
-      if (!reservationStatus.isPresent()) {
-        return true;
-      }
-      try {
-        Reservation reservation = reservationService.updateStatus(reservationId, reservationStatus.get());
-        if (!reservation.isNSICreated()
-            && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
-          // Auto-provision if the reservation was created in the UI (not
-          // through NSI).
-          reservationService.provision(reservation);
-        }
-      } catch (EmptyResultDataAccessException e) {
-        // apparently the reservation did not exist
-        log.debug("Ignoring unknown reservation with id {}", reservationId);
-      }
+      alignReservation(reservationId);
+    } catch (InterruptedException e) {
+      throw e;
     } catch (Exception e) {
-      log.error("Exception occurred while updating a reservation", e);
+      LOGGER.error("Exception occurred while updating a reservation", e);
     }
     return true;
+  }
+
+  @VisibleForTesting
+  void alignReservation(String reservationId) {
+    LOGGER.info("Aligning reservation {}", reservationId);
+
+    Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
+    if (!reservationStatus.isPresent()) {
+      return;
+    }
+
+    try {
+      Reservation reservation = reservationService.updateStatus(reservationId, reservationStatus.get());
+      if (!reservation.isNSICreated()
+          && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
+        // Auto-provision if the reservation was created in the UI (not
+        // through NSI).
+        reservationService.provision(reservation);
+      }
+    } catch (EmptyResultDataAccessException e) {
+      // apparently the reservation did not exist
+      LOGGER.debug("Ignoring unknown reservation with id {}", reservationId);
+    }
   }
 
   @Override
   public void start() {
     started = true;
-    log.info("Starting OneControl Reservations Aligner...");
+    LOGGER.info("Starting OneControl Reservations Aligner...");
 
     Thread alignerThread = new Thread() {
       @Override
@@ -113,7 +122,8 @@ public class ReservationsAligner implements SmartLifecycle {
         try {
           align();
         } catch (InterruptedException e) {
-          log.debug("OneControl Reservations Aligner exiting");
+          LOGGER.debug("OneControl Reservations Aligner exiting");
+          Thread.currentThread().interrupt();
         } finally {
           started = false;
         }
@@ -126,10 +136,10 @@ public class ReservationsAligner implements SmartLifecycle {
 
   @Scheduled(fixedRate = 60000l)
   public void refreshReservationsToAlign() {
-    log.debug("Finding reservations to align");
+    LOGGER.debug("Finding reservations to align");
     Collection<Reservation> reservationsToPoll = reservationService.findTransitionableReservations();
     for (Reservation reservation : reservationsToPoll) {
-      log.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
+      LOGGER.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
       add(reservation.getReservationId());
     }
   }
@@ -151,7 +161,7 @@ public class ReservationsAligner implements SmartLifecycle {
 
   @Override
   public void stop(Runnable callback) {
-    log.debug("Shutting down OneControl ReservationsAligner");
+    LOGGER.debug("Shutting down OneControl ReservationsAligner");
     stop();
     callback.run();
   }
@@ -167,7 +177,7 @@ public class ReservationsAligner implements SmartLifecycle {
    */
   public void add(String reservationId) {
     checkNotNull(reservationId);
-    reservationIds.add(reservationId);
+    reservationQueue.add(reservationId);
   }
 
 }

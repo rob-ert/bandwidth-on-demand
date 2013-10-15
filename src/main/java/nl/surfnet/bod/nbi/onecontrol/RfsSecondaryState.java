@@ -23,5 +23,5 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 public enum RfsSecondaryState {
-  INITIAL, SCHEDULED
+  INITIAL, SCHEDULED, PROVISIONING, ACTIVATED, TERMINATING, TERMINATED
 }
