@@ -37,12 +37,14 @@ import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
@@ -229,18 +231,38 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     assertThat(page.getTeams(), hasItem(teamName));
   }
 
-  public void verifyReservationByFilterAndSearch(String filterValue, String searchString, String... reservationLabels) {
-    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+  public void verifyReservationByFilterAndSearch(final String filterValue, final String searchString, final String... reservationLabels) {
+    Poller.assertEventually(new Probe() {
+      private boolean satisfied = false;
 
-    page.filterReservations(filterValue);
-    page.search(searchString);
+      @Override
+      public void sample() {
+        ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    int expectedAmount = reservationLabels == null ? 0 : reservationLabels.length;
-    assertThat(page.getNumberOfRows(), is(expectedAmount));
+        page.filterReservations(filterValue);
+        page.search(searchString);
 
-    for (String label : reservationLabels) {
-      page.verifyRowWithLabelExists(label);
-    }
+        satisfied = page.getNumberOfRows() == reservationLabels.length;
+
+        for (String label : reservationLabels) {
+          try {
+            page.verifyRowWithLabelExists(label);
+          } catch (NoSuchElementException e) {
+            satisfied = false;
+          }
+        }
+      }
+
+      @Override
+      public boolean isSatisfied() {
+        return satisfied;
+      }
+
+      @Override
+      public String message() {
+        return "expected rows with labels <" + StringUtils.join(reservationLabels, "; ") + ">";
+      }
+    });
   }
 
   public void verifyDashboardToComingReservationsLink(String team) {

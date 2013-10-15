@@ -43,7 +43,7 @@ public class Poller {
     }
   }
 
-  public static void assertEventually(Probe probe) throws InterruptedException {
+  public static void assertEventually(Probe probe) {
     new Poller().check(probe);
   }
 }
