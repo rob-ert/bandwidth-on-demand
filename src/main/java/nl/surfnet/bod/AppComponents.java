@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import javax.sql.DataSource;
-import javax.xml.bind.Marshaller;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

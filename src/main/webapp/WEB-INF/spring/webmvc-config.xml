@@ -20,6 +20,8 @@
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler />
 
+    <!-- CSRF configuration -->
+    <bean id="requestDataValueProcessor" class="nl.surfnet.bod.web.csrf.CsrfRequestDataValueProcessor" />
     <mvc:interceptors>
         <bean class="nl.surfnet.bod.web.csrf.CsrfHandlerInterceptor" />
     </mvc:interceptors>

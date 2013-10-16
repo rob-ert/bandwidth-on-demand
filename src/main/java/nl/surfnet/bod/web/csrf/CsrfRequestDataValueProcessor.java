@@ -26,12 +26,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.support.RequestDataValueProcessor;
-
 import com.google.common.collect.ImmutableMap;
 
-@Component(value = "requestDataValueProcessor")
+import org.springframework.web.servlet.support.RequestDataValueProcessor;
+
 public class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
 
   @Override

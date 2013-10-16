@@ -26,8 +26,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -37,31 +35,21 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetup;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
-import com.google.common.io.Files;
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
 
 public class BodWebDriver {
-  private static final File SCREENSHOTDIR = new File("target/selenium/screenshots");
-
-  static {
-    SCREENSHOTDIR.mkdirs();
-  }
-
-
   public static final String URL_UNDER_TEST = withoutEndingSlash(
     System.getProperty("selenium.test.url", "http://localhost:8083/bod"));
 
@@ -145,18 +133,7 @@ public class BodWebDriver {
   }
 
   public void takeScreenshot(String name) {
-    takeScreenshot(driver, name);
-  }
-
-  public static void takeScreenshot(FirefoxDriver driver, String name) {
-    try {
-      if (driver != null) {
-        File temp = driver.getScreenshotAs(OutputType.FILE);
-        Files.copy(temp, new File(SCREENSHOTDIR, name + ".png"));
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Screenshotter.takeScreenshot(driver, name);
   }
 
   private MimeMessage getLastEmail() {

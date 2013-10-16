@@ -22,11 +22,25 @@
  */
 package nl.surfnet.bod.support;
 
+import java.io.File;
+import java.io.IOException;
+
+import com.google.common.io.Files;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class Screenshotter implements TestRule {
+  private static final File SCREENSHOTDIR = new File("target/selenium/screenshots");
+
+  static {
+    SCREENSHOTDIR.mkdirs();
+  }
+
+
   private final BodWebDriver webDriver;
 
   public Screenshotter(BodWebDriver driver) {
@@ -48,5 +62,16 @@ public class Screenshotter implements TestRule {
         }
       }
     };
+  }
+
+  public static void takeScreenshot(FirefoxDriver driver, String name) {
+    try {
+      if (driver != null) {
+        File temp = driver.getScreenshotAs(OutputType.FILE);
+        Files.copy(temp, new File(SCREENSHOTDIR, name + ".png"));
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

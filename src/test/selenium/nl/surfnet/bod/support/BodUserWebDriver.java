@@ -35,7 +35,19 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.*;
+import nl.surfnet.bod.pages.user.AdvancedPage;
+import nl.surfnet.bod.pages.user.DashboardPage;
+import nl.surfnet.bod.pages.user.EditVirtualPortPage;
+import nl.surfnet.bod.pages.user.ListLogEventsPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.ListVirtualPortPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.OauthAuthorizePage;
+import nl.surfnet.bod.pages.user.OauthTokenRequestFormPage;
+import nl.surfnet.bod.pages.user.OauthTokensPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
 
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
@@ -46,7 +58,6 @@ import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
@@ -147,9 +158,9 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.sendEndTime(endTime);
     page.sendBandwidth("500");
 
-    BodWebDriver.takeScreenshot(driver, "before_saving_" + label);
+    Screenshotter.takeScreenshot(driver, "before_saving_" + label);
     page.save();
-    BodWebDriver.takeScreenshot(driver, "after_saving_" + label);
+    Screenshotter.takeScreenshot(driver, "after_saving_" + label);
   }
 
   public void createNewReservation(String label) {
