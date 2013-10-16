@@ -22,19 +22,11 @@
  */
 package nl.surfnet.bod.support;
 
-import java.io.File;
-
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 public class Screenshotter implements TestRule {
-  private static final File SCREENSHOTDIR = new File("target/selenium/screenshots");
-
-  static {
-    SCREENSHOTDIR.mkdirs();
-  }
-
   private final BodWebDriver webDriver;
 
   public Screenshotter(BodWebDriver driver) {
@@ -51,7 +43,7 @@ public class Screenshotter implements TestRule {
         }
         catch (Throwable t) {
           t.printStackTrace();
-          webDriver.takeScreenshot(new File(SCREENSHOTDIR, description.getMethodName() + ".png"));
+          webDriver.takeScreenshot(description.getMethodName());
           throw t;
         }
       }

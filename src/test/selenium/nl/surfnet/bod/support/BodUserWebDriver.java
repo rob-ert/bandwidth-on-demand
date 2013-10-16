@@ -45,13 +45,14 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
 
-  private final RemoteWebDriver driver;
+  private final FirefoxDriver driver;
 
-  public BodUserWebDriver(RemoteWebDriver driver) {
+  public BodUserWebDriver(FirefoxDriver driver) {
     this.driver = driver;
   }
 
@@ -146,7 +147,9 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.sendEndTime(endTime);
     page.sendBandwidth("500");
 
+    BodWebDriver.takeScreenshot(driver, "before_saving_" + label);
     page.save();
+    BodWebDriver.takeScreenshot(driver, "after_saving_" + label);
   }
 
   public void createNewReservation(String label) {
