@@ -24,6 +24,12 @@
         <param-value>nl.surfnet.bod.AppConfiguration</param-value>
     </context-param>
 
+    <!-- Disable URL rewriting for storing the session id. Only session cookies should be used! -->
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>
+        <param-value>none</param-value>
+    </context-param>
+
     <!-- JAX-WS Spring bridge -->
     <servlet>
         <servlet-name>jaxws-servlet</servlet-name>
