@@ -48,7 +48,15 @@
   </logger>
 
 <!--
+  <logger name="nl.surfnet.bod.web.csrf">
+   <level value="DEBUG" />
+  </logger>
+
   <logger name="nl.surfnet.bod.web.push">
+    <level value="DEBUG" />
+  </logger>
+
+  <logger name="org.springframework.security.web.authentication">
     <level value="DEBUG" />
   </logger>
 

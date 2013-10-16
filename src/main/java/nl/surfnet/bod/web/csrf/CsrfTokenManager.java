@@ -35,6 +35,10 @@ public final class CsrfTokenManager {
   private CsrfTokenManager() {
   }
 
+  public static boolean isTokenPresentInSession(HttpSession session) {
+    return session.getAttribute(CSRF_SESSION_ATTR_NAME) != null;
+  }
+
   public static String getTokenForSession(HttpSession session) {
     synchronized (session) {
       String token = (String) session.getAttribute(CSRF_SESSION_ATTR_NAME);

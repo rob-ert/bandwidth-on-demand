@@ -26,6 +26,9 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.web.base.MessageManager;
 
@@ -34,27 +37,24 @@ import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import com.google.common.collect.ImmutableList;
-
 public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
+
+  private static final ImmutableList<String> CSRF_PROTECTED_HTTP_METHODS = ImmutableList.of("put", "post", "delete");
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
-
     if (requestCanChangeData(request)) {
-
-      if (request.getSession().isNew()) {
-
+      HttpSession session = request.getSession();
+      if (!CsrfTokenManager.isTokenPresentInSession(session)) {
         addInfoMessage(request, response);
         response.sendRedirect(request.getContextPath());
         return false;
       }
 
-      String sessionToken = CsrfTokenManager.getTokenForSession(request.getSession());
+      String sessionToken = CsrfTokenManager.getTokenForSession(session);
       String requestToken = CsrfTokenManager.getTokenFromRequest(request);
 
       if (!sessionToken.equals(requestToken)) {
-
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bad or missing CSRF token");
         return false;
       }
@@ -71,9 +71,6 @@ public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
   }
 
   private boolean requestCanChangeData(HttpServletRequest request) {
-    ImmutableList<String> changingMethods = ImmutableList.of("put", "post", "delete");
-
-    return changingMethods.contains(request.getMethod().toLowerCase());
+    return CSRF_PROTECTED_HTTP_METHODS.contains(request.getMethod().toLowerCase());
   }
-
 }

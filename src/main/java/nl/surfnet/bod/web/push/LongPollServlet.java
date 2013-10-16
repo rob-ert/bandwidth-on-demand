@@ -43,7 +43,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 @SuppressWarnings("serial")
 public class LongPollServlet extends HttpServlet {
 
-  private Logger logger = LoggerFactory.getLogger(LongPollServlet.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LongPollServlet.class);
 
   @Autowired
   private EndPoints connections;
@@ -51,14 +51,14 @@ public class LongPollServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     if (Security.getUserDetails() == null) {
-      logger.debug("No user present");
+      LOGGER.debug("No user present");
       response.setStatus(403);
       return;
     }
 
     String transport = request.getParameter("transport");
     if (transport == null) {
-      logger.debug("No transport defined for the long polling call");
+      LOGGER.debug("No transport defined for the long polling call");
       response.setStatus(400);
       return;
     }
@@ -69,7 +69,7 @@ public class LongPollServlet extends HttpServlet {
       return;
     }
 
-    logger.debug("Do not understand the transport '{}'", transport);
+    LOGGER.debug("Do not understand the transport '{}'", transport);
     response.setStatus(400);
   }
 
@@ -86,7 +86,7 @@ public class LongPollServlet extends HttpServlet {
     aCtx.addListener(new AsyncListener() {
       @Override
       public void onTimeout(AsyncEvent event) throws IOException {
-        logger.debug("onTimeout {}: {}", id, event);
+        LOGGER.debug("onTimeout {}: {}", id, event);
         cleanup(event);
       }
 
@@ -96,7 +96,7 @@ public class LongPollServlet extends HttpServlet {
 
       @Override
       public void onError(AsyncEvent event) throws IOException {
-        logger.debug("onError {}: {}", id, event);
+        LOGGER.debug("onError {}: {}", id, event);
         cleanup(event);
       }
 
