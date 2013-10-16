@@ -31,6 +31,7 @@ import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     DatabaseTestHelper.deleteReservationsFromSeleniumDatabase();
   }
 
-  @Test
+  @Test @Ignore
   public void createAndCancelAReservation() {
     LocalDate startDate = LocalDate.now().plusDays(3);
     LocalDate endDate = LocalDate.now().plusDays(5);
@@ -90,7 +91,7 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().verifyReservationIsCanceled(startDate, endDate, startTime, endTime);
   }
 
-  @Test
+  @Test @Ignore
   public void createReservationWithStartTimeNowAndEndTimeForever() {
     String reservationLabel = "Starts now and forever";
 
