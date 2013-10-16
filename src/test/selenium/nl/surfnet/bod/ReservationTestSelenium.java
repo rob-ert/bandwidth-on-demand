@@ -113,12 +113,12 @@ public class ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().switchToUserRole();
 
-    LOGGER.info("Creating " + even);
-    getUserDriver().createNewReservation(odd, date, date, startTime.plusHours(2), startTime.plusHours(2 + 1));
-    LOGGER.info("Created " + even);
     LOGGER.info("Creating " + odd);
-    getUserDriver().createNewReservation(even, date, date, startTime, startTime.plusHours(1));
+    getUserDriver().createNewReservation(odd, date, date, startTime, startTime.plusHours(1));
     LOGGER.info("Created " + odd);
+    LOGGER.info("Creating " + even);
+    getUserDriver().createNewReservation(even, date, date, startTime.plusHours(2), startTime.plusHours(2 + 1));
+    LOGGER.info("Created " + even);
 
     // Filter on this year, and no search String. All should be found.
     getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", even, odd);
