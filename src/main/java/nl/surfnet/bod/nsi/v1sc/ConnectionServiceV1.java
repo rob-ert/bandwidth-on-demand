@@ -35,6 +35,10 @@ import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_EXISTS;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNSUPPORTED_PARAMETER;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,6 +62,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
@@ -139,20 +144,20 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   @SuppressWarnings("serial")
   public static class ValidationException extends Exception {
     private final String attributeName;
-    private final String errorCode;
+    private final ConnectionServiceProviderError error;
 
-    public ValidationException(String attributeName, String errorCode, String errorMessage) {
+    public ValidationException(String attributeName, ConnectionServiceProviderError error, String errorMessage) {
       super(errorMessage);
       this.attributeName = attributeName;
-      this.errorCode = errorCode;
+      this.error = error;
     }
 
     public String getAttributeName() {
       return attributeName;
     }
 
-    public String getErrorCode() {
-      return errorCode;
+    public ConnectionServiceProviderError getError() {
+      return error;
     }
   }
 
@@ -174,19 +179,19 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     if (!nsiHelper.getProviderNsaV1().equals(providerNsa)) {
       log.warn("ProviderNsa '{}' is not accepted", providerNsa);
 
-      throw new ValidationException("providerNSA", "0100", String.format("ProviderNsa '%s' is not accepted", providerNsa));
+      throw new ValidationException("providerNSA", UNSUPPORTED_PARAMETER, String.format("ProviderNsa '%s' is not accepted", providerNsa));
     }
   }
 
   private void checkConnectionId(String connectionId) throws ValidationException {
     if (!StringUtils.hasText(connectionId)) {
       log.warn("ConnectionId was empty", connectionId);
-      throw new ValidationException("connectionId", "0100", "Connection id is empty");
+      throw new ValidationException("connectionId", UNSUPPORTED_PARAMETER, "Connection id is empty");
     }
 
     if (connectionRepo.findByConnectionId(connectionId) != null) {
       log.warn("ConnectionId {} was not unique", connectionId);
-      throw new ValidationException("connectionId", "0100", "Connection id already exists");
+      throw new ValidationException("connectionId", CONNECTION_EXISTS, "Connection id already exists");
     }
   }
 
@@ -194,11 +199,11 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     VirtualPort port = virtualPortService.findByNsiV1StpId(stpId);
 
     if (port == null) {
-      throw new ValidationException(attribute, "0100", String.format("Unknown STP '%s'", stpId));
+      throw new ValidationException(attribute, UNKNOWN_STP, String.format("Unknown STP '%s'", stpId));
     }
 
     if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
-      throw new ValidationException(attribute, "0100", String.format("Unauthorized for STP '%s'", stpId));
+      throw new ValidationException(attribute, UNAUTHORIZED, String.format("Unauthorized for STP '%s'", stpId));
     }
   }
 

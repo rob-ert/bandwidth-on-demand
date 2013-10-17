@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_NON_EXISTENT;
 import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.reserveRequestToConnection;
 
 import java.net.URI;
@@ -38,7 +38,7 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
@@ -121,11 +121,7 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
     checkOAuthScope(NsiScope.RELEASE);
 
-    ServiceExceptionType exceptionType = new ServiceExceptionType();
-    exceptionType.setErrorId(NOT_IMPLEMENTED.getId());
-    exceptionType.setText(NOT_IMPLEMENTED.getText());
-
-    throw new ServiceException("Not supported", exceptionType);
+    throw createServiceException(ConnectionServiceProviderError.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -181,30 +177,37 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
   }
 
   private void reThrowAsSeviceException(ValidationException ve) throws ServiceException {
-    throw createServiceException(ve.getAttributeName(), ve.getErrorCode(), ve.getMessage());
+    throw createServiceException(ve.getAttributeName(), ve.getError(), ve.getMessage());
   }
 
-  private ServiceException createServiceException(String attributeName, String errorCode, String errorMessage) {
+  private ServiceException createServiceException(ConnectionServiceProviderError error) {
+    ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
+    serviceExceptionType.setErrorId(error.getErrorId());
+    serviceExceptionType.setText(error.getMessage());
+
+    return new ServiceException(error.getMessage(), serviceExceptionType);
+  }
+
+  private ServiceException createServiceException(String attributeName, ConnectionServiceProviderError error, String errorMessage) {
     ServiceExceptionType serviceExceptionType = new ServiceExceptionType()
-      .withErrorId(errorCode)
+      .withErrorId(error.getErrorId())
       .withText(errorMessage);
 
     AttributeType attribute = new AttributeType()
       .withName(attributeName)
       .withNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
 
-    AttributeStatementType attributeStatement = new AttributeStatementType();
-    attributeStatement.getAttributeOrEncryptedAttribute().add(attribute);
+    AttributeStatementType attributeStatement = new AttributeStatementType().withAttributeOrEncryptedAttribute(attribute);
 
     serviceExceptionType.setVariables(attributeStatement);
 
-    return new ServiceException(errorCode, serviceExceptionType);
+    return new ServiceException(error.getErrorId(), serviceExceptionType);
   }
 
   private Connection getConnectionOrFail(String connectionId) throws ServiceException {
     Connection connection = connectionRepo.findByConnectionId(connectionId);
     if (connection == null) {
-      throw createServiceException("connectionId", "0100", "The connection id is unknown");
+      throw createServiceException("connectionId", CONNECTION_NON_EXISTENT, CONNECTION_NON_EXISTENT.getMessage());
     }
     return connection;
   }
@@ -218,16 +221,8 @@ public class ConnectionServiceProviderV1Ws implements ConnectionProviderPort {
   private void checkOAuthScope(NsiScope scope) throws ServiceException {
     if (!Security.hasOauthScope(scope)) {
       log.warn("OAuth access token not valid for {}", scope);
-      throw createServiceException(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE);
+      throw createServiceException(ConnectionServiceProviderError.UNAUTHORIZED);
     }
-  }
-
-  private ServiceException createServiceException(ConnectionServiceProviderErrorCodes.SECURITY error) {
-    ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
-    serviceExceptionType.setErrorId(error.getId());
-    serviceExceptionType.setText(error.getText());
-
-    return new ServiceException("403", serviceExceptionType);
   }
 
   static {

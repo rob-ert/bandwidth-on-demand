@@ -22,6 +22,10 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.TOPOLOGY_ERROR;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +44,7 @@ import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
@@ -237,7 +242,7 @@ public class ConnectionServiceV2 {
     if (startTime.isPresent() && endTime.isPresent()) {
       if (startTime.get().isAfter(endTime.get())) {
         log.debug("Start time {} is after end time {}", startTime.get(), endTime.get());
-        throw new ReservationCreationException("100", "Start time is after end time");
+        throw new ReservationCreationException(ConnectionServiceProviderError.PAYLOAD_ERROR, "Start time is after end time");
       }
     }
   }
@@ -245,19 +250,19 @@ public class ConnectionServiceV2 {
   private void checkGlobalReservationId(String globalReservationId) throws ReservationCreationException {
     if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
       log.debug("GlobalReservationId {} was not unique", globalReservationId);
-      throw new ReservationCreationException("600", "Resource unavailable: GlobalReservationId already exists");
+      throw new ReservationCreationException(ConnectionServiceProviderError.PAYLOAD_ERROR, "GlobalReservationId already exists");
     }
   }
 
   private void checkConnectionId(String connectionId) throws ReservationCreationException {
     if (!StringUtils.hasText(connectionId)) {
       log.warn("ConnectionId was empty", connectionId);
-      throw new ReservationCreationException("101", "Missing parameter");
+      throw new ReservationCreationException(ConnectionServiceProviderError.MISSING_PARAMETER, "Missing parameter");
     }
 
     if (connectionRepo.findByConnectionId(connectionId) != null) {
       log.warn("ConnectionId {} was not unique", connectionId);
-      throw new ReservationCreationException("202", "Connection id already exists");
+      throw new ReservationCreationException(ConnectionServiceProviderError.CONNECTION_EXISTS, "Connection id already exists");
     }
   }
 
@@ -272,7 +277,7 @@ public class ConnectionServiceV2 {
       return enniPort;
     }
 
-    throw new ReservationCreationException("401", String.format("Unknown STP '%s'", stpType.getLocalId()));
+    throw new ReservationCreationException(UNKNOWN_STP, String.format("Unknown STP '%s'", stpType.getLocalId()));
   }
 
   private ReservationEndPoint tryVirtualPortEndPoint(StpType stpType, Optional<Integer> vlanId, RichUserDetails user) throws ReservationCreationException {
@@ -282,14 +287,14 @@ public class ConnectionServiceV2 {
     }
 
     if (!user.getUserGroupIds().contains(virtualPort.getVirtualResourceGroup().getAdminGroup())) {
-      throw new ReservationCreationException("302", String.format("Unauthorized for STP '%s'", stpType.getLocalId()));
+      throw new ReservationCreationException(UNAUTHORIZED, String.format("Unauthorized for STP '%s'", stpType.getLocalId()));
     }
 
     boolean vlanRequired = virtualPort.getVlanId() != null;
     if (vlanRequired != vlanId.isPresent()) {
-      throw new ReservationCreationException("400", String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), vlanRequired ? "requires" : "does not allow"));
+      throw new ReservationCreationException(TOPOLOGY_ERROR, String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), vlanRequired ? "requires" : "does not allow"));
     } else if (vlanRequired && !virtualPort.getVlanId().equals(vlanId.get())) {
-      throw new ReservationCreationException("400", String.format("requested VLAN '%d' does not match required VLAN '%d' for STP '%s'", vlanId.get(), virtualPort.getVlanId(), stpType.getLocalId()));
+      throw new ReservationCreationException(TOPOLOGY_ERROR, String.format("requested VLAN '%d' does not match required VLAN '%d' for STP '%s'", vlanId.get(), virtualPort.getVlanId(), stpType.getLocalId()));
     }
 
     return new ReservationEndPoint(virtualPort);
@@ -302,9 +307,9 @@ public class ConnectionServiceV2 {
     }
 
     if (enniPort.isVlanRequired() != vlanId.isPresent()) {
-      throw new ReservationCreationException("400", String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), enniPort.isVlanRequired() ? "requires" : "does not allow"));
+      throw new ReservationCreationException(TOPOLOGY_ERROR, String.format("STP '%s' %s VLAN ID", stpType.getLocalId(), enniPort.isVlanRequired() ? "requires" : "does not allow"));
     } else if (enniPort.isVlanRequired() && !enniPort.isVlanIdAllowed(vlanId.get())) {
-      throw new ReservationCreationException("400", String.format("requested VLAN '%d' is not allowed by E-NNI does not match required VLAN ranges '%s' for STP '%s'", vlanId.get(), enniPort.getVlanRanges(), stpType.getLabels()));
+      throw new ReservationCreationException(TOPOLOGY_ERROR, String.format("requested VLAN '%d' is not allowed by E-NNI does not match required VLAN ranges '%s' for STP '%s'", vlanId.get(), enniPort.getVlanRanges(), stpType.getLabels()));
     }
 
     return new ReservationEndPoint(enniPort, vlanId);
@@ -312,18 +317,14 @@ public class ConnectionServiceV2 {
 
   @SuppressWarnings("serial")
   public static class ReservationCreationException extends Exception {
-    private final String errorCode;
+    private final ConnectionServiceProviderError errorCode;
 
-    public ReservationCreationException(String errorCode, String errorMessage) {
+    public ReservationCreationException(ConnectionServiceProviderError errorCode, String errorMessage) {
       super(errorMessage);
       this.errorCode = errorCode;
     }
 
-    /**
-     *
-     * @return the errorcode as specified in
-     */
-    public String getErrorCode() {
+    public ConnectionServiceProviderError getErrorCode() {
       return errorCode;
     }
   }

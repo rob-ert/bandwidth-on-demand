@@ -40,7 +40,7 @@ import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.support.ConnectionV1Factory;
@@ -118,8 +118,7 @@ public class ConnectionServiceProviderV1WsTest {
       subject.reserve(createReservationRequestType(100, Optional.of("1234")));
       fail("Exception expected");
     } catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE
-          .getId()));
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderError.UNAUTHORIZED.getErrorId()));
     }
   }
 
@@ -131,7 +130,7 @@ public class ConnectionServiceProviderV1WsTest {
       subject.query(new QueryRequestType());
       fail("Exception expected");
     } catch (ServiceException e) {
-      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE.getId()));
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderError.UNAUTHORIZED.getErrorId()));
     }
   }
 

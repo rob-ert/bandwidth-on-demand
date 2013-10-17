@@ -88,7 +88,6 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   @Override
   public void reserve(Holder<String> connectionId, String globalReservationId, String description, ReservationRequestCriteriaType criteria, Holder<CommonHeaderType> header) throws ServiceException {
-
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
     checkOAuthScope(NsiScope.RESERVE);
 
@@ -116,10 +115,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     try {
       connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ConnectionServiceV2.ReservationCreationException e) {
-      ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage())
-        .withErrorId(e.getErrorCode())
-        .withNsaId(nsiHelper.getProviderNsaV2());
-      throw new ServiceException(e.getMessage(), serviceException);
+      ServiceExceptionType serviceException = createServiceExceptionType(e.getMessage()).withErrorId(e.getErrorCode().getErrorId());
+      throw new ServiceException(e.getErrorCode().getMessage(), serviceException);
     }
   }
 

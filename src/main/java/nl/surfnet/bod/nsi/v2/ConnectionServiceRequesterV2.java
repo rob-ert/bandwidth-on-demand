@@ -23,6 +23,7 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.collect.Lists.transform;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.RESOURCE_UNAVAILABLE;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 
@@ -35,7 +36,6 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
-import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
@@ -86,7 +86,8 @@ class ConnectionServiceRequesterV2 {
 
     ServiceExceptionType exception = new ServiceExceptionType()
       .withConnectionId(connection.getConnectionId())
-      .withErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId())
+      // when nbi failed always assume the reason was resource unavailable
+      .withErrorId(RESOURCE_UNAVAILABLE.getErrorId())
       .withNsaId(requestDetails.getProviderNsa())
       .withText(connection.getReservation().getFailedReason());
 
