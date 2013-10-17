@@ -1,0 +1,2 @@
+alter table physical_port drop constraint physical_port_bod_port_id_unique;
+alter table physical_port add constraint physical_port_bod_port_id_unique UNIQUE(bod_port_id) DEFERRABLE INITIALLY DEFERRED;

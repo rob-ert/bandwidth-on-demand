@@ -116,7 +116,7 @@ public class NocService {
          newPort.setInboundPeer(oldPort.getInboundPeer());
          newPort.setOutboundPeer(oldPort.getOutboundPeer());
          newPort.setVlanRanges(oldPort.getVlanRanges());
-         //newPort.setBodPortId(oldPort.getBodPortId());
+         newPort.setBodPortId(oldPort.getBodPortId());
       }
     });
   }

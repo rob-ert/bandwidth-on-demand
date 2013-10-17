@@ -37,10 +37,14 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.FakeTransactionOperations;
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -109,6 +113,24 @@ public class NocServiceTest {
     assertThat(newReservation.getName(), is("My first reservation"));
     assertThat(newReservation.getStartDateTime(), is(start));
     assertThat(newReservation.getEndDateTime(), is(end));
+  }
+
+  @Test
+  public void move_an_enni_port_should_copy_the_bod_port_id() {
+    EnniPort oldPort = (EnniPort) PhysicalPort.create(new NbiPortFactory().setInterfaceType(InterfaceType.E_NNI).create());
+    oldPort.setBodPortId("old-port-id");
+    oldPort.setId(3L);
+    NbiPort newPort = new NbiPortFactory().setInterfaceType(InterfaceType.E_NNI).setNmsPortId("new-nms-port-id").create();
+
+    subject.movePort(oldPort, newPort);
+
+    verify(physicalPortServiceMock).delete(oldPort.getId());
+
+    ArgumentCaptor<PhysicalPort> enniPortCaptor = ArgumentCaptor.forClass(PhysicalPort.class);
+    verify(physicalPortServiceMock).save(enniPortCaptor.capture());
+
+    assertThat(enniPortCaptor.getValue().getBodPortId(), is("old-port-id"));
+    assertThat(enniPortCaptor.getValue().getNmsPortId(), is("new-nms-port-id"));
   }
 
   @Test
