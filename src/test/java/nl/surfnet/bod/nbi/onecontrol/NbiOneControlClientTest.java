@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.RfsList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
@@ -80,19 +81,18 @@ public class NbiOneControlClientTest {
   public void should_get_status() {
     reservation.setReservationId("123");
 
-
-    ResourceFacingServiceType rfs = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+    ResourceFacingServiceType rfs = new ResourceFacingServiceType()
       .withServiceState(ServiceStateType.RESERVED)
-      .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()));
+      .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()))
+      .withDescribedByList(MtosiUtils.createSecondaryStateValueType("INITIAL"));
 
-    RfsList rfsList = new org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory().createServiceInventoryDataTypeRfsList()
-      .withRfs(rfs);
+    RfsList rfsList = new ServiceInventoryDataType.RfsList().withRfs(rfs);
 
     when(inventoryRetrievalClient.getRfsInventory()).thenReturn(Optional.of(rfsList));
 
     ReservationStatus status = subject.getReservationStatus(reservation.getReservationId()).get();
 
-    assertThat(status, is(ReservationStatus.SCHEDULED));
+    assertThat(status, is(ReservationStatus.RESERVED));
   }
 
   @Test

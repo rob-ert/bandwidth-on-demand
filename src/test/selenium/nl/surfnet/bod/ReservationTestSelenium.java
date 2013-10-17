@@ -26,7 +26,6 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.Screenshotter;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
 import org.joda.time.LocalDate;

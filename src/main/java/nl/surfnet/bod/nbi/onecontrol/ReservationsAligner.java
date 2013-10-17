@@ -29,7 +29,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import javax.annotation.Resource;
-import javax.persistence.NoResultException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;

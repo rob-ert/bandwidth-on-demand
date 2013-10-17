@@ -95,7 +95,7 @@ public class NbiClientImpl implements NbiClient {
 
       return rfs.transform(new Function<ResourceFacingServiceType, ReservationStatus>() {
         public ReservationStatus apply(ResourceFacingServiceType rfs) {
-          return MtosiUtils.mapToReservationState(rfs.getServiceState());
+          return MtosiUtils.mapToReservationState(rfs);
         }
       });
     }

@@ -50,10 +50,11 @@ import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
-import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 import org.w3c.dom.Node;
 
 public final class MtosiUtils {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MtosiUtils.class);
 
   private static final String PTP_FORMAT = "/rack=%s/shelf=%s/slot=%s/port=%s";
   private static final String PTP_WITH_SUB_SLOT_FORMAT = "/rack=%s/shelf=%s/slot=%s/sub_slot=%s/port=%s";
@@ -140,17 +141,11 @@ public final class MtosiUtils {
     Optional<Optional<RfsSecondaryState>> status = rfs.transform(new Function<ResourceFacingServiceType, Optional<RfsSecondaryState>>() {
       @Override
       public Optional<RfsSecondaryState> apply(ResourceFacingServiceType service) {
-        return findSscValue("SecondaryState", service.getDescribedByList()).transform(
-          new Function<String, RfsSecondaryState>() {
-            @Override
-            public RfsSecondaryState apply(String input) {
-              return RfsSecondaryState.valueOf(input);
-            }
-          });
-        }
-      });
+        return findSecondaryState(service);
+      }
+    });
 
-    return status.isPresent() ? status.get() : Optional.<RfsSecondaryState>absent();
+    return status.isPresent() ? status.get() : Optional.<RfsSecondaryState> absent();
   }
 
   private static Optional<ResourceFacingServiceType> findRfs(AttributeList attributeList) {
@@ -205,13 +200,18 @@ public final class MtosiUtils {
     return namingAttributeType;
   }
 
+  public static ServiceCharacteristicValueType createSecondaryStateValueType(String value) {
+    return new ServiceCharacteristicValueType()
+        .withSscRef(new NamingAttributeType().withRdn(new RelativeDistinguishNameType().withType("SSC").withValue("SecondaryState")))
+        .withValue(value);
+  }
+
   public static JAXBElement<NamingAttributeType> createComonObjectInfoTypeName(String type, String value) {
     return new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory().createCommonObjectInfoTypeName(createNamingAttributeType(type, value));
   }
 
-  private static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
-        .createServiceCharacteristicValueType();
+  public static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {
+    ServiceCharacteristicValueType serviceCharacteristicValueType = new ServiceCharacteristicValueType();
 
     serviceCharacteristicValueType.setValue(value);
     serviceCharacteristicValueType.setSscRef(namingAttributeType);
@@ -222,32 +222,64 @@ public final class MtosiUtils {
   /**
    * Based on file:Dropbox/BOD/MTOSI/OneControl_R3 .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
    *
-   * In tree 2 DataModel->UML->ServiceBasic-> TypeDefinitions->ServiceStateType
+   * In 14 Service Management Model -> ServiceStates
    */
-  public static ReservationStatus mapToReservationState(ServiceStateType serviceState) {
-    ReservationStatus reservationState = null;
-
-    switch (serviceState) {
+  public static ReservationStatus mapToReservationState(ResourceFacingServiceType rfs) {
+    RfsSecondaryState secondaryState = findSecondaryState(rfs).or(RfsSecondaryState.UNKNOWN);
+    switch (rfs.getServiceState()) {
     case PLANNING_FEASIBILITY_CHECK:
       // Not used
       break;
     case PLANNING_DESIGNED:
       // Not used
       break;
+    case RESERVED:
+      switch (secondaryState) {
+      case RESERVING:
+        return ReservationStatus.REQUESTED;
+      case INITIAL:
+        return ReservationStatus.RESERVED;
+      case SCHEDULED:
+        return ReservationStatus.SCHEDULED;
+      case PROVISIONING:
+        return ReservationStatus.AUTO_START;
+      case ACTIVATING:
+        return ReservationStatus.SCHEDULED;
+      case TERMINATING:
+        return ReservationStatus.CANCELLED;
+      }
+      break;
     case PROVISIONED_ACTIVE:
-      reservationState = ReservationStatus.RUNNING;
+      switch (secondaryState) {
+      case ACTIVATED:
+        return ReservationStatus.RUNNING;
+      }
       break;
     case PROVISIONED_INACTIVE:
-      reservationState = ReservationStatus.AUTO_START;
-      break;
-    case RESERVED:
-      reservationState = ReservationStatus.SCHEDULED;
+      switch (secondaryState) {
+      case TERMINATING:
+        return ReservationStatus.SUCCEEDED;
+      }
       break;
     case TERMINATED:
-      reservationState = ReservationStatus.SUCCEEDED;
-      break;
+      return ReservationStatus.SUCCEEDED;
     }
 
-    return reservationState;
+    throw new IllegalArgumentException("unrecognized reservation state <" + rfs.getServiceState() + ", " + secondaryState + "> for RFS " + rfs);
+  }
+
+  static Optional<RfsSecondaryState> findSecondaryState(ResourceFacingServiceType service) {
+    return findSscValue("SecondaryState", service.getDescribedByList()).transform(
+      new Function<String, RfsSecondaryState>() {
+        @Override
+        public RfsSecondaryState apply(String input) {
+          try {
+            return RfsSecondaryState.valueOf(input);
+          } catch (IllegalArgumentException e) {
+            LOGGER.warn("Unrecognized MTOSI secondary state " + input);
+            return RfsSecondaryState.UNKNOWN;
+          }
+        }
+      });
   }
 }
