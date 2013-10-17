@@ -56,13 +56,11 @@ public class CsrfHandlerInterceptorTest {
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
 
-    String[] methods = { "post", "DELETE", "delete", "PUT", "put" };
-
-    when(request.getMethod()).thenReturn("POST", methods);
     when(request.getSession()).thenReturn(session);
     when(session.getAttribute(CsrfTokenManager.CSRF_SESSION_ATTR_NAME)).thenReturn("csrf-token-value");
 
-    for (int i = 0; i < methods.length + 1; i++) {
+    for (String method: new String[] { "POST", "post", "DELETE", "delete", "PUT", "put" }) {
+      when(request.getMethod()).thenReturn(method);
       boolean result = subject.preHandle(request, response, new Object());
       assertThat(result, is(false));
     }
