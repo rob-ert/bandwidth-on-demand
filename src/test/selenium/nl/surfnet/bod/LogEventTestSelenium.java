@@ -116,6 +116,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
     getUserDriver().switchToManagerRole(GROUP_SARA);
+    getWebDriver().takeScreenshot("after_switch_to_sara");
     getManagerDriver().verifyLogEventExists(CREATE_ACTION, "Testing log events");
 
     getManagerDriver().switchToManagerRole(GROUP_SURFNET);
