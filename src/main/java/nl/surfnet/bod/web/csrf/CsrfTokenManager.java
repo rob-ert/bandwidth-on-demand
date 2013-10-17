@@ -27,10 +27,12 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public final class CsrfTokenManager {
 
   public static final String CSRF_PARAM_NAME = "csrf-token";
-  private static final String CSRF_SESSION_ATTR_NAME = "csrf-token";
+  @VisibleForTesting static final String CSRF_SESSION_ATTR_NAME = "csrf-token";
 
   private CsrfTokenManager() {
   }

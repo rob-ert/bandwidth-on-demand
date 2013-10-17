@@ -158,9 +158,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.sendEndTime(endTime);
     page.sendBandwidth("500");
 
-    Screenshotter.takeScreenshot(driver, "before_saving_" + label);
     page.save();
-    Screenshotter.takeScreenshot(driver, "after_saving_" + label);
   }
 
   public void createNewReservation(String label) {

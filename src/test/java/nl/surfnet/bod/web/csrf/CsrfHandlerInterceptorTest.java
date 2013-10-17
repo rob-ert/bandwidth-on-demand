@@ -60,11 +60,11 @@ public class CsrfHandlerInterceptorTest {
 
     when(request.getMethod()).thenReturn("POST", methods);
     when(request.getSession()).thenReturn(session);
+    when(session.getAttribute(CsrfTokenManager.CSRF_SESSION_ATTR_NAME)).thenReturn("csrf-token-value");
 
     for (int i = 0; i < methods.length + 1; i++) {
       boolean result = subject.preHandle(request, response, new Object());
       assertThat(result, is(false));
     }
   }
-
 }
