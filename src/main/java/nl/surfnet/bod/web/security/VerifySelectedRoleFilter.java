@@ -69,7 +69,8 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
 
     RichUserDetails userDetails = Security.getUserDetails();
     if (userDetails != null) {
-      NDC.push("user=" + userDetails.getNameId() + ";role=" + userDetails.getSelectedRole());
+      BodRole selectedRole = userDetails.getSelectedRole();
+      NDC.push("user=" + userDetails.getNameId() + ";role=" + (selectedRole == null ? "<none>" : selectedRole.getRoleName()));
     } else {
       NDC.push("user=<none>");
     }

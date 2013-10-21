@@ -55,7 +55,6 @@
   <logger name="nl.surfnet.bod.web.push">
     <level value="DEBUG" />
   </logger>
--->
 
   <logger name="org.springframework.security.web">
     <level value="DEBUG" />
@@ -65,7 +64,6 @@
     <level value="DEBUG" />
   </logger>
 
-<!--
   <logger name="org.hibernate.type">
    <level value="TRACE" />
   </logger>
