@@ -254,7 +254,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     logger.info("Detecting port inconsistencies with the NMS, job based on configuration key: {}", PORT_DETECTION_CRON_KEY);
 
     List<PhysicalPort> bodPorts = physicalPortRepo.findAll();
+
     List<NbiPort> nbiPorts = nbiClient.findAllPorts();
+    logger.info("Found {} ports in the NMS", nbiPorts.size());
 
     PortAlignmentChecker checker = new PortAlignmentChecker();
     checker.updateAlignment(bodPorts, nbiPorts);
