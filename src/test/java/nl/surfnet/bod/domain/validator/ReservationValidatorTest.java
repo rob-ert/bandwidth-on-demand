@@ -83,7 +83,7 @@ public class ReservationValidatorTest {
   public void endDateMayBeOnStartDate() {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
-        .setEndDateTime(tomorrowNoon.plusMinutes(10)).create();
+        .setEndDateTime(tomorrowNoon.plusMinutes(16)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);

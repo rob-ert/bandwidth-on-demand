@@ -38,9 +38,9 @@ import org.springframework.validation.Validator;
 
 public class ReservationValidator implements Validator {
 
-  private static final Period MIN_PERIOD = new Period().withMinutes(5);
-  private static final Period MAX_PERIOD = new Period().withYears(1);
-  private static final Period MAX_PERIOD_AWAY = new Period().withYears(1);
+  private static final Period MIN_PERIOD = Period.minutes(15);
+  private static final Period MAX_PERIOD = Period.years(1);
+  private static final Period MAX_PERIOD_AWAY = Period.years(1);
   private static final PeriodFormatter PERIOD_FORMATTER = PeriodFormat.getDefault();
 
   @Override
