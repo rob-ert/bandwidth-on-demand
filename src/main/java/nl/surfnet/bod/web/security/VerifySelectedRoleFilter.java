@@ -28,19 +28,26 @@ import java.util.Collection;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.BodRole;
+
+import org.apache.log4j.NDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 @Component("verifySelectedRoleFilter")
 public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(VerifySelectedRoleFilter.class);
 
   private static final Collection<String> USER_PATHS = Lists.newArrayList(
       "/reservations",
@@ -56,12 +63,35 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-
-    if (request.getMethod() == HttpMethod.GET.name()) {
+    if (HttpMethod.GET.name().equalsIgnoreCase(request.getMethod())) {
       verifySelectedRole(request.getServletPath());
     }
 
-    filterChain.doFilter(request, response);
+    RichUserDetails userDetails = Security.getUserDetails();
+    if (userDetails != null) {
+      BodRole selectedRole = userDetails.getSelectedRole();
+      NDC.push("user=" + userDetails.getNameId() + ";role=" + (selectedRole == null ? "<none>" : selectedRole.getRoleName()));
+    } else {
+      NDC.push("user=<none>");
+    }
+    try {
+      if (LOGGER.isDebugEnabled()) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+          StringBuilder cookies = new StringBuilder();
+          if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+              cookies.append(cookie.getName()).append('=').append(cookie.getValue()).append(';');
+            }
+          }
+          LOGGER.debug("{}session {}, cookies {}", session.isNew() ? "NEW " : "", session.getId(), cookies);
+        }
+      }
+
+      filterChain.doFilter(request, response);
+    } finally {
+      NDC.pop();
+    }
   }
 
   protected void verifySelectedRole(String path) {
@@ -92,12 +122,11 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
   }
 
   private boolean isUserPath(final String path) {
-    return Iterables.any(USER_PATHS, new Predicate<String>(){
-      @Override
-      public boolean apply(String userPath) {
-        return path.startsWith(userPath);
+    for (String userPath: USER_PATHS) {
+      if (path.startsWith(userPath)) {
+        return true;
       }
-    });
+    }
+    return false;
   }
-
 }

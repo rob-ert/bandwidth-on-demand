@@ -15,7 +15,7 @@
   <!-- ============================== -->
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d %-5p [%t] (%c) - %m%n" />
+      <param name="ConversionPattern" value="%d %-5p [%t] (%c) %x - %m%n" />
     </layout>
   </appender>
 
@@ -55,6 +55,7 @@
   <logger name="nl.surfnet.bod.web.push">
     <level value="DEBUG" />
   </logger>
+-->
 
   <logger name="org.springframework.security.web.authentication">
     <level value="DEBUG" />
@@ -64,6 +65,7 @@
     <level value="DEBUG" />
   </logger>
 
+<!--
   <logger name="org.hibernate.type">
    <level value="TRACE" />
   </logger>
