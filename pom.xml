@@ -17,7 +17,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <!-- Upgrading breaks async support. https://bugs.eclipse.org/bugs/show_bug.cgi?id=410893 -->
         <jetty.version>8.1.13.v20130916</jetty.version>
-        <spring-security.version>3.1.3.RELEASE</spring-security.version>
+        <spring-security.version>3.2.0.RC1</spring-security.version>
         <tiles.version>2.2.2</tiles.version>
         <selenium.version>2.35.0</selenium.version>
         <flyway.version>2.2</flyway.version>
@@ -1040,6 +1040,16 @@
     </profiles>
 
     <repositories>
+        <repository>
+            <id>SpringSource releases</id>
+            <url>http://repo.springsource.org/release</url>
+            <name>SpringSource releases</name>
+        </repository>
+        <repository>
+            <id>SpringSource milestones</id>
+            <url>http://repo.springsource.org/milestone</url>
+            <name>SpringSource milestones</name>
+        </repository>
         <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
