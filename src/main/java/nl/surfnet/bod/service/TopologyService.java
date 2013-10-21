@@ -29,10 +29,10 @@ import ietf.params.xml.ns.vcard4_0.OrganizationType;
 import java.io.StringWriter;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -79,6 +79,15 @@ public class TopologyService {
   @Value("${nsi.network.name}") private String networkName;
   @Value("${nsi.provider.name}") private String providerName;
 
+  private volatile TopologyType cachedTopology;
+  private volatile DateTime cacheTime;
+
+  @PostConstruct
+  public void initTopology() {
+    cachedTopology = topology();
+    cacheTime = DateTime.now();
+  }
+
   public String nsiToplogyAsString() {
     try {
       JAXBContext jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._09.topology:ietf.params.xml.ns.vcard4_0");
@@ -94,14 +103,26 @@ public class TopologyService {
   }
 
   public NSAType nsiTopology() {
+    TopologyType newerTopology = topology();
+    synchronized (cachedTopology) {
+      if (!newerTopology.equals(cachedTopology)) {
+        cachedTopology = newerTopology;
+        cacheTime = DateTime.now();
+      }
+    }
+
+    return nsaTopology(cachedTopology, cacheTime);
+  }
+
+  private NSAType nsaTopology(TopologyType topology, DateTime version) {
     return new NSAType()
       .withId(nsiHelper.getProviderNsaV2())
       .withName(providerName)
-      .withVersion(version())
+      .withVersion(XmlUtils.toGregorianCalendar(version))
       .withLocation(location())
       .withService(service())
       .withRelation(adminContact())
-      .withTopology(topology());
+      .withTopology(topology);
   }
 
   private NsiServiceType service() {
@@ -240,10 +261,6 @@ public class TopologyService {
 
   private String getNsi2ConnectionProviderUrl() {
     return bodEnvironment.getExternalBodUrl() + bodEnvironment.getNsiV2ServiceUrl();
-  }
-
-  private XMLGregorianCalendar version() {
-    return XmlUtils.toGregorianCalendar(DateTime.now());
   }
 
 }
