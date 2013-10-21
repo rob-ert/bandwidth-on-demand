@@ -1,7 +1,7 @@
 <soapenv:Envelope xmlns:type="http://schemas.ogf.org/nsi/2013/07/connection/types" xmlns:head="http://schemas.ogf.org/nsi/2013/07/framework/headers" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
     <soapenv:Header>
         <head:nsiHeader>
-            <protocolVersion>application/vdn.ogf.nsi.cs.v2.provider+soap</protocolVersion>
+            <protocolVersion>application/vnd.ogf.nsi.cs.v2.provider+soap</protocolVersion>
             <correlationId>urn:uuid:5c716e15-c17c-481e-885d-c9a5c06e0436</correlationId>
             <requesterNSA>urn:ogf:network:nsa:surfnet-nsi-requester</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:surfnet.nl</providerNSA>

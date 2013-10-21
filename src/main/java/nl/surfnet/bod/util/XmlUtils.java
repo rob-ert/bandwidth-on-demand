@@ -73,8 +73,7 @@ public final class XmlUtils {
           timeStamp.getSecondOfMinute(),
           null,
           (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
-    }
-    catch (DatatypeConfigurationException e) {
+    } catch (DatatypeConfigurationException e) {
       throw new AssertionError(e);
     }
   }

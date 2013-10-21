@@ -110,23 +110,11 @@ public class Environment {
   @Value("${nsi.reserve.held.timeout.value.in.seconds}")
   private int nsiReserveHeldTimeoutValueInSeconds;
 
-  @Value("${nsi.topology.lat}")
-  private String nsiTopologyCoordsLat;
-
-  @Value("${nsi.topology.lng}")
-  private String nsiTopologyCoordsLng;
-
-  @Value("${nsi.topology.adminContactContent.fileUri}")
-  private String nsiTopologyAdminContactContentFileUri;
-
   @Value("${nsi.v2.service.url}")
   private String nsiV2ServiceUrl;
 
   @Value("${nsi.v2.service.type}")
   private String nsiV2ServiceType;
-
-  @Value("${nsi.network.name}")
-  private String nsiNetworkName;
 
   @Value("${nbi.default.protection.type}")
   private ProtectionType defaultProtectionType;
@@ -288,20 +276,8 @@ public class Environment {
     return nsiReserveHeldTimeoutValueInSeconds;
   }
 
-  public String getNsiTopologyCoordsLat() {
-    return nsiTopologyCoordsLat;
-  }
-
-  public String getNsiTopologyCoordsLng() {
-    return nsiTopologyCoordsLng;
-  }
-
   public String getNsiV2ServiceUrl() {
     return nsiV2ServiceUrl;
-  }
-
-  public String getNsiTopologyAdminContactContentFileUri() {
-    return nsiTopologyAdminContactContentFileUri;
   }
 
   public String getNsiV2ServiceType() {
@@ -316,7 +292,4 @@ public class Environment {
     return defaultProtectionType;
   }
 
-  public String getNsiNetworkName() {
-    return nsiNetworkName;
-  }
 }

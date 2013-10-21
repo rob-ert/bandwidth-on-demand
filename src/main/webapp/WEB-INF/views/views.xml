@@ -33,5 +33,4 @@
         <put-attribute name="body" value="/WEB-INF/views/splash.jspx" />
     </definition>
 
-    <definition name="topology" template="/WEB-INF/views/topology.jspx" />
 </tiles-definitions>

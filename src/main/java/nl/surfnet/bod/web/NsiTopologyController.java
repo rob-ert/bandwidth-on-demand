@@ -22,108 +22,27 @@
  */
 package nl.surfnet.bod.web;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
 
-import nl.surfnet.bod.domain.EnniPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.service.TopologyService;
 
-import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/nsi-topology")
 public class NsiTopologyController {
 
-  @Resource private Environment bodEnvironment;
-  @Resource private VirtualPortService virtualPortService;
-  @Resource private PhysicalPortService physicalPortService;
-  @Resource private NsiHelper nsiHelper;
+  @Resource private TopologyService topologyService;
 
-  @RequestMapping(method = RequestMethod.GET)
-  public String renderTopology(Model model) throws Exception {
-    model.addAttribute("providerNsa", nsiHelper.getProviderNsaV2());
-    model.addAttribute("networkName", bodEnvironment.getNsiNetworkName());
-    model.addAttribute("version", DateTime.now().toString());
-    model.addAttribute("topologyId", nsiHelper.getUrnTopology());
-    model.addAttribute("nsi2ConnectionProviderUrl", getNsi2ConnectionProviderUrl());
-
-    URL url = this.getClass().getResource(bodEnvironment.getNsiTopologyAdminContactContentFileUri());
-    String adminContactContent = FileUtils.readFileToString(new File(url.toURI()));
-    model.addAttribute("adminContactContent", adminContactContent);
-
-    // query all virtual ports, these are my 'UNI ports'
-    List<VirtualPort> virtualPorts = virtualPortService.findAll();
-    List<TopologyEntryView> entries = new ArrayList<>();
-
-    for (VirtualPort virtualPort : virtualPorts) {
-      String portGroupId = nsiHelper.getStpIdV2(virtualPort);
-
-      String vlanRange = null;
-      if (virtualPort.getVlanId() != null) {
-        vlanRange = virtualPort.getVlanId().toString();
-      }
-      entries.add(new TopologyEntryView(portGroupId, vlanRange, null, null));
-    }
-
-    for (EnniPort enniPort : physicalPortService.findAllAllocatedEnniEntries()) {
-      String portGroupId = nsiHelper.getStpIdV2(enniPort);
-      entries.add(new TopologyEntryView(portGroupId, enniPort.getVlanRanges(), enniPort.getOutboundPeer(), enniPort.getInboundPeer()));
-    }
-
-    model.addAttribute("entries", entries);
-
-    return "topology";
-  }
-
-  /**
-   * @return the URL of the soap-service that we run
-   */
-  private String getNsi2ConnectionProviderUrl() {
-    return bodEnvironment.getExternalBodUrl() + bodEnvironment.getNsiV2ServiceUrl();
-  }
-
-  public static class TopologyEntryView {
-
-    private final String portGroupId;
-    private final String vlanRanges;
-    private final String outboundPeer;
-    private final String inboundPeer;
-
-    public TopologyEntryView(String portgroupId, String vlanRanges, String outboundPeer, String inboundPeer) {
-      this.portGroupId = portgroupId;
-      this.vlanRanges = vlanRanges;
-      this.outboundPeer = outboundPeer;
-      this.inboundPeer = inboundPeer;
-    }
-
-    public String getPortGroupId() {
-      return portGroupId;
-    }
-
-    public String getVlanRanges() {
-      return vlanRanges;
-    }
-
-    public String getOutboundPeer() {
-      return outboundPeer;
-    }
-
-    public String getInboundPeer() {
-      return inboundPeer;
-    }
+  @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+  @ResponseBody
+  public String topology() throws JAXBException {
+    return topologyService.nsiToplogyAsString();
   }
 
 }
