@@ -37,9 +37,9 @@
     <http security="none" pattern="/mtosi/**" />
 
     <http use-expressions="true" create-session="never" entry-point-ref="bodAuthenticationEntryPoint" >
-        <access-denied-handler error-page="/accessDenied"/>
-        <anonymous enabled="false" />
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
+        <anonymous enabled="false" />
+        <access-denied-handler error-page="/accessDenied"/>
         <intercept-url pattern="/appmanager/**" access="hasRole('APP_MANAGER')"/>
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
         <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />

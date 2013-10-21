@@ -57,7 +57,7 @@
   </logger>
 -->
 
-  <logger name="org.springframework.security.web.authentication">
+  <logger name="org.springframework.security.web">
     <level value="DEBUG" />
   </logger>
 
