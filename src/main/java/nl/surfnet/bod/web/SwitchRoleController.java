@@ -59,7 +59,7 @@ public class SwitchRoleController {
 
   @Resource
   private MessageManager messageManager;
-  
+
   @Resource
   private MessageRetriever messageRetriever;
 
@@ -68,7 +68,12 @@ public class SwitchRoleController {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
-      userDetails.switchToRoleById(Long.valueOf(roleId));
+      try {
+        userDetails.switchToRoleById(Long.valueOf(roleId));
+      } catch (Exception e) {
+        logger.warn("Error switching to role {}: {}", roleId, e.toString());
+        throw e;
+      }
     }
 
     return determineViewNameAndAddAttributes(userDetails.getSelectedRole(), redirectAttribs);
