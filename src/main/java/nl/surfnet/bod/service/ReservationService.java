@@ -500,6 +500,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     // Avoid optimistic locking exceptions by pessimistically locking a reservation, so only a single
     // thread can update the row at the same time.
     Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
+    newStatus = handleSpecialCasesForSucceededTransition(reservation, newStatus);
     ReservationStatus oldStatus = reservation.getStatus();
     if (oldStatus == newStatus) {
       log.debug("Reservation ({}) status unchanged at {}", reservationId, newStatus);
@@ -517,4 +518,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.saveAndFlush(reservation);
   }
 
+  /**
+   * MTOSI just returns SUCCEEDED as final state. We need to translate to
+   * PASSED_END_TIME or CANCELLED based on the current state of the reservation,
+   * or leave the status unchanged.
+   */
+  private ReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, ReservationStatus newStatus) {
+    if (newStatus == ReservationStatus.SUCCEEDED) {
+      ReservationStatus oldStatus = reservation.getStatus();
+      boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().isBeforeNow();
+      if (oldStatus == ReservationStatus.CANCELLING) {
+        return ReservationStatus.CANCELLED;
+      } else if (passedEndTime && ReservationStatus.COULD_START_STATES.contains(oldStatus)) {
+        return ReservationStatus.PASSED_END_TIME;
+      }
+    }
+    return newStatus;
+  }
 }
