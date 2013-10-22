@@ -1110,12 +1110,12 @@
         <repository>
             <id>surfnet-releases</id>
             <name>surfnet-releases</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>surfnet-snapshots</id>
             <name>surfnet-snapshots</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
