@@ -186,7 +186,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
     if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
-      throw invalidTransition(connection.getReservationState());
+      throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
     connectionService.asyncReserveCommit(connectionId, requestDetails);
   }
@@ -200,7 +200,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
     if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
-      throw invalidTransition(connection.getReservationState());
+      throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
 
     connectionService.asyncReserveAbort(connectionId, requestDetails, Security.getUserDetails());
@@ -221,7 +221,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
     if (!(connection.getProvisionState().isPresent() && connection.getProvisionState().get() == ProvisionStateEnumType.RELEASED)) {
-      throw invalidTransition(connection.getReservationState());
+      throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
   }
 
@@ -245,7 +245,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private void checkTerminateAllowed(ConnectionV2 connection) throws ServiceException {
     if (connection.getLifecycleState() != LifecycleStateEnumType.CREATED) {
-      throw invalidTransition(connection.getReservationState());
+      throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
   }
 
@@ -365,17 +365,24 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       createServiceExceptionType(MISSING_PARAMETER).withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(parameter))));
   }
 
-  private ServiceException invalidTransition(final ReservationStateEnumType currentState) throws ServiceException {
+  private ServiceException invalidTransition(LifecycleStateEnumType lifecycleState, ReservationStateEnumType reservationState, Optional<ProvisionStateEnumType> provisionState) throws ServiceException {
+    VariablesType states = new VariablesType().withVariable(
+      new TypeValuePairType().withType("reservationState").withValue(reservationState.name()),
+      new TypeValuePairType().withType("lifecycleState").withValue(lifecycleState.name()));
+
+    if (provisionState.isPresent()) {
+      states.withVariable(new TypeValuePairType().withType("provisionState").withValue(provisionState.get().name()));
+    }
+
     return new ServiceException("This operation is not applicable",
-      createServiceExceptionType(INVALID_TRANSITION)
-        .withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(currentState.name())))
+      createServiceExceptionType(INVALID_TRANSITION).withVariables(states)
     );
   }
 
   private ServiceException unsupportedParameter(String attribute, Object value) {
     return new ServiceException(String.format("The attribute '%s' with value '%s' is not supported by this provider", attribute, value),
       createServiceExceptionType(UNSUPPORTED_PARAMETER)
-        .withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(attribute).withAny(value)))
+        .withVariables(new VariablesType().withVariable(new TypeValuePairType().withType(attribute).withValue(value.toString())))
     );
   }
 
