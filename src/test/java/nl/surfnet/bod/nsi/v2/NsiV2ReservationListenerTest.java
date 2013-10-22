@@ -213,6 +213,7 @@ public class NsiV2ReservationListenerTest {
     subject.onStatusChange(event);
 
     verify(requesterMock).dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
+    verify(requesterMock).reservePassedEndTime(connection.getId());
     verifyNoMoreInteractions(requesterMock);
   }
 

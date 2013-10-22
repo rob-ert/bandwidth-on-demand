@@ -77,6 +77,7 @@ class NsiV2ReservationListener implements ReservationListener {
       requester.dataPlaneActivated(connection.getId(), connection.getInitialReserveRequestDetails());
       break;
     case SUCCEEDED:
+      requester.reservePassedEndTime(connection.getId());
       requester.dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
       break;
     case CANCELLED:
@@ -92,8 +93,7 @@ class NsiV2ReservationListener implements ReservationListener {
         requester.reserveAbortConfirmed(connection.getId(), connection.getLastReservationRequestDetails());
       } else if (connection.getReservationState() == ReservationStateEnumType.RESERVE_HELD) {
         // Notify handled by ConnectionV2ReserveTimeoutPoller.
-      }
-      else {
+      } else {
         logger.warn("State transition to CANCELLED unhandled {}", event);
       }
       break;
