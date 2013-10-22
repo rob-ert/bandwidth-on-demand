@@ -39,7 +39,7 @@ public enum ConnectionServiceProviderError {
 
   SECURITY_ERROR("300", "SECURITY_ERROR", ""),
   AUTHENTICATION_FAILURE("301", "AUTHENTICATION_FAILURE", ""),
-  UNAUTHORIZED("302", "UNAUTHORIZED", ""),
+  UNAUTHORIZED("302", "UNAUTHORIZED", "Unauthorized"),
 
   TOPOLOGY_ERROR("400", "TOPOLOGY_ERROR", ""),
   UNKNOWN_STP("401", "UNKNOWN_STP", "Could not find STP in topology database"),

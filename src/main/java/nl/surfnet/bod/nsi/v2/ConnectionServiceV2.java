@@ -22,6 +22,9 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_EXISTS;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.MISSING_PARAMETER;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.PAYLOAD_ERROR;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.TOPOLOGY_ERROR;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
@@ -242,7 +245,7 @@ public class ConnectionServiceV2 {
     if (startTime.isPresent() && endTime.isPresent()) {
       if (startTime.get().isAfter(endTime.get())) {
         log.debug("Start time {} is after end time {}", startTime.get(), endTime.get());
-        throw new ReservationCreationException(ConnectionServiceProviderError.PAYLOAD_ERROR, "Start time is after end time");
+        throw new ReservationCreationException(PAYLOAD_ERROR, "Start time is after end time");
       }
     }
   }
@@ -250,19 +253,19 @@ public class ConnectionServiceV2 {
   private void checkGlobalReservationId(String globalReservationId) throws ReservationCreationException {
     if (connectionRepo.findByGlobalReservationId(globalReservationId) != null) {
       log.debug("GlobalReservationId {} was not unique", globalReservationId);
-      throw new ReservationCreationException(ConnectionServiceProviderError.PAYLOAD_ERROR, "GlobalReservationId already exists");
+      throw new ReservationCreationException(PAYLOAD_ERROR, "GlobalReservationId already exists");
     }
   }
 
   private void checkConnectionId(String connectionId) throws ReservationCreationException {
     if (!StringUtils.hasText(connectionId)) {
       log.warn("ConnectionId was empty", connectionId);
-      throw new ReservationCreationException(ConnectionServiceProviderError.MISSING_PARAMETER, "Missing parameter");
+      throw new ReservationCreationException(MISSING_PARAMETER, "Missing parameter");
     }
 
     if (connectionRepo.findByConnectionId(connectionId) != null) {
       log.warn("ConnectionId {} was not unique", connectionId);
-      throw new ReservationCreationException(ConnectionServiceProviderError.CONNECTION_EXISTS, "Connection id already exists");
+      throw new ReservationCreationException(CONNECTION_EXISTS, "Connection id already exists");
     }
   }
 

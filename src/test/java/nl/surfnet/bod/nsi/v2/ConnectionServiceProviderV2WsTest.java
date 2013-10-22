@@ -242,7 +242,7 @@ public class ConnectionServiceProviderV2WsTest {
       fail("ServiceException expected");
     } catch (ServiceException expected) {
       assertThat(expected.getFaultInfo().getErrorId(), is("103"));
-      assertThat(expected.getFaultInfo().getText(), is("Not Implemented"));
+      assertThat(expected.getFaultInfo().getText(), is("This operation is not implemented yet"));
     }
   }
 
