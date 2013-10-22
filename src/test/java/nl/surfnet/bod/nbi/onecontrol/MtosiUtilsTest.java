@@ -179,9 +179,9 @@ public class MtosiUtilsTest {
     assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.SCHEDULED), is(ReservationStatus.SCHEDULED));
     assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.PROVISIONING), is(ReservationStatus.AUTO_START));
     assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.ACTIVATING), is(ReservationStatus.SCHEDULED));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.TERMINATING), is(ReservationStatus.CANCELLED));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.TERMINATING), is(ReservationStatus.CANCELLING));
     assertThat(mapMtosiState(ServiceStateType.PROVISIONED_ACTIVE, RfsSecondaryState.ACTIVATED), is(ReservationStatus.RUNNING));
-    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_INACTIVE, RfsSecondaryState.TERMINATING), is(ReservationStatus.SUCCEEDED));
+    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_INACTIVE, RfsSecondaryState.TERMINATING), is(ReservationStatus.CANCELLING));
     assertThat(mapMtosiState(ServiceStateType.TERMINATED, null), is(ReservationStatus.SUCCEEDED));
   }
 

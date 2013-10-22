@@ -24,6 +24,7 @@ package nl.surfnet.bod.domain;
 
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLING;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
@@ -48,6 +49,7 @@ public class ReservationStatusTest {
   @Test
   public void someStatesShouldBeTransitionStates() {
     assertThat(RUNNING.isTransitionState(), is(true));
+    assertThat(CANCELLING.isTransitionState(), is(true));
 
     assertThat(FAILED.isTransitionState(), is(false));
     assertThat(FAILED.isTransitionState(), is(false));

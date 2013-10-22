@@ -89,6 +89,8 @@ class NsiV1ReservationListener implements ReservationListener {
       case RUNNING:
         requester.provisionConfirmed(connection, connection.getProvisionRequestDetails());
         break;
+      case CANCELLING:
+        break;
       case CANCELLED:
         requester.terminateConfirmed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
         break;

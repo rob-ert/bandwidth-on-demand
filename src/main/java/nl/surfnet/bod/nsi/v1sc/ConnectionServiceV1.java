@@ -25,6 +25,7 @@ package nl.surfnet.bod.nsi.v1sc;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLING;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
@@ -92,6 +93,7 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
       .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
       .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
+      .put(CANCELLING, ConnectionStateType.TERMINATING)
       .put(CANCELLED, ConnectionStateType.TERMINATED)
       .put(FAILED, ConnectionStateType.TERMINATED)
       .put(REQUESTED, ConnectionStateType.INITIAL)

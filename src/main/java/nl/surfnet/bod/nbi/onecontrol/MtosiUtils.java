@@ -246,19 +246,41 @@ public final class MtosiUtils {
       case ACTIVATING:
         return ReservationStatus.SCHEDULED;
       case TERMINATING:
-        return ReservationStatus.CANCELLED;
+        return ReservationStatus.CANCELLING;
+      case ACTIVATED:
+      case TERMINATED:
+      case UNKNOWN:
+        break;
       }
       break;
     case PROVISIONED_ACTIVE:
       switch (secondaryState) {
       case ACTIVATED:
         return ReservationStatus.RUNNING;
+      case ACTIVATING:
+      case INITIAL:
+      case PROVISIONING:
+      case RESERVING:
+      case SCHEDULED:
+      case TERMINATED:
+      case TERMINATING:
+      case UNKNOWN:
+        break;
       }
       break;
     case PROVISIONED_INACTIVE:
       switch (secondaryState) {
       case TERMINATING:
-        return ReservationStatus.SUCCEEDED;
+        return ReservationStatus.CANCELLING;
+      case ACTIVATED:
+      case ACTIVATING:
+      case INITIAL:
+      case PROVISIONING:
+      case RESERVING:
+      case SCHEDULED:
+      case TERMINATED:
+      case UNKNOWN:
+        break;
       }
       break;
     case TERMINATED:

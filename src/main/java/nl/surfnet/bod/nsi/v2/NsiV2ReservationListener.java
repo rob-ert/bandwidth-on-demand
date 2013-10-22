@@ -80,6 +80,8 @@ class NsiV2ReservationListener implements ReservationListener {
       requester.reservePassedEndTime(connection.getId());
       requester.dataPlaneDeactivated(connection.getId(), connection.getInitialReserveRequestDetails());
       break;
+    case CANCELLING:
+      break;
     case CANCELLED:
       if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING) {
         // if the connections dataplane status is active, notify that dataPlane was deactivated first

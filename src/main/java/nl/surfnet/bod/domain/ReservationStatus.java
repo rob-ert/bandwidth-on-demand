@@ -36,26 +36,12 @@ import nl.surfnet.bod.util.Transition;
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED;
+  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLING, CANCELLED, FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED;
 
   /**
    * All states which are considered as error states.
    */
   public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, CANCEL_FAILED);
-
-  /**
-   * All states that could transfer to a RUNNING state
-   */
-  public static final Set<ReservationStatus> COULD_START_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED);
-
-  /**
-   * All states which are allowed to transition to an other state. All other
-   * states will automatically be regarded as endStates.
-   */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING);
-
-  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
-      .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further
@@ -95,14 +81,15 @@ public enum ReservationStatus {
       .add(t(REQUESTED, RESERVED))
       .add(t(RESERVED, AUTO_START))
       .add(t(RESERVED, SCHEDULED))
-      .add(t(SCHEDULED, AUTO_START))
+      .add(t(RESERVED, CANCELLING))
       .add(t(AUTO_START, RUNNING))
-      .add(t(RUNNING, SUCCEEDED))
-      .add(t(RESERVED, CANCELLED))
-      .add(t(AUTO_START, CANCELLED))
-      .add(t(RUNNING, CANCELLED))
+      .add(t(AUTO_START, CANCELLING))
+      .add(t(SCHEDULED, AUTO_START))
       .add(t(SCHEDULED, PASSED_END_TIME))
-      .add(t(SCHEDULED, CANCELLED))
+      .add(t(SCHEDULED, CANCELLING))
+      .add(t(RUNNING, SUCCEEDED))
+      .add(t(RUNNING, CANCELLING))
+      .add(t(CANCELLING, CANCELLED))
       .build();
 
   private static final ImmutableMap<Transition<ReservationStatus>, ImmutableList<Transition<ReservationStatus>>> TRANSITION_PATHS
@@ -111,15 +98,47 @@ public enum ReservationStatus {
       .put(t(REQUESTED, SCHEDULED), path(REQUESTED, RESERVED, SCHEDULED))
       .put(t(REQUESTED, RUNNING), path(REQUESTED, RESERVED, AUTO_START, RUNNING))
       .put(t(REQUESTED, SUCCEEDED), path(REQUESTED, RESERVED, AUTO_START, RUNNING, SUCCEEDED))
-      .put(t(REQUESTED, CANCELLED), path(REQUESTED, RESERVED, CANCELLED))
+      .put(t(REQUESTED, CANCELLING), path(REQUESTED, RESERVED, CANCELLING))
+      .put(t(REQUESTED, CANCELLED), path(REQUESTED, RESERVED, CANCELLING, CANCELLED))
       .put(t(REQUESTED, PASSED_END_TIME), path(REQUESTED, RESERVED, SCHEDULED, PASSED_END_TIME))
       .put(t(RESERVED, RUNNING), path(RESERVED, AUTO_START, RUNNING))
       .put(t(RESERVED, SUCCEEDED), path(RESERVED, AUTO_START, RUNNING, SUCCEEDED))
       .put(t(RESERVED, PASSED_END_TIME), path(RESERVED, SCHEDULED, PASSED_END_TIME))
+      .put(t(RESERVED, CANCELLED), path(RESERVED, CANCELLING, CANCELLED))
+      .put(t(AUTO_START, SUCCEEDED), path(AUTO_START, RUNNING, SUCCEEDED))
+      .put(t(AUTO_START, CANCELLED), path(AUTO_START, CANCELLING, CANCELLED))
       .put(t(SCHEDULED, RUNNING), path(SCHEDULED, AUTO_START, RUNNING))
       .put(t(SCHEDULED, SUCCEEDED), path(SCHEDULED, AUTO_START, RUNNING, SUCCEEDED))
-      .put(t(AUTO_START, SUCCEEDED), path(AUTO_START, RUNNING, SUCCEEDED))
+      .put(t(SCHEDULED, CANCELLED), path(SCHEDULED, CANCELLING, CANCELLED))
+      .put(t(RUNNING, CANCELLED), path(RUNNING, CANCELLING, CANCELLED))
       .build();
+
+  /**
+   * All states that could transfer to a RUNNING state. Should be consistent with {@link #canTransition(ReservationStatus)}.
+   */
+  public static final Set<ReservationStatus> COULD_START_STATES;
+  static {
+    COULD_START_STATES = EnumSet.noneOf(ReservationStatus.class);
+    for (ReservationStatus status: ReservationStatus.values()) {
+      if (status.canTransition(RUNNING)) {
+        COULD_START_STATES.add(status);
+      }
+    }
+  }
+
+  /**
+   * All states which are allowed to transition to an other state. All other
+   * states will automatically be regarded as endStates.
+   */
+  public static final Set<ReservationStatus> TRANSITION_STATES;
+  static {
+    TRANSITION_STATES = EnumSet.noneOf(ReservationStatus.class);
+    for (Transition<ReservationStatus> transition : VALID_TRANSITIONS) {
+      TRANSITION_STATES.add(transition.getFrom());
+    }
+  }
+
+  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES.toArray(new ReservationStatus[0]);
 
   public boolean canDirectlyTransitionTo(ReservationStatus to) {
     return VALID_TRANSITIONS.contains(new Transition<>(this, to)) || to.isErrorState();
