@@ -65,15 +65,13 @@
                           <c:when test="${item.requestDeleteAllowed}">
                             <table:actionsColumn
                               item="${item}"
-                              delete="true"
                               path="/virtualports"
                               labelCode="label_virtualport"
-                              deleteConfirmLabelCode="Your manager will be notified and your port will be removed. Are you sure?" />
+                              deleteConfirmLabelCode="label_virtualport_delete_confirm" />
                           </c:when>
                           <c:otherwise>
                             <table:actionsColumn
                               item="${item}"
-                              delete="true"
                               path="/virtualports"
                               labelCode="label_virtualport"
                               deleteEnabled="false" />
