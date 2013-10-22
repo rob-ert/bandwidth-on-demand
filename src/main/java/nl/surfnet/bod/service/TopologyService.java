@@ -75,7 +75,6 @@ public class TopologyService {
   @Value("${nsi.topology.lng}") private Float longitude;
   @Value("${nsi.topology.admin.contact}") private String adminContact;
   @Value("${nsi.topology.admin.organization}") private String adminOrganization;
-
   @Value("${nsi.network.name}") private String networkName;
   @Value("${nsi.provider.name}") private String providerName;
 
@@ -83,7 +82,7 @@ public class TopologyService {
   private volatile DateTime cacheTime;
 
   @PostConstruct
-  public void initTopology() {
+  protected void initTopology() {
     cachedTopology = topology();
     cacheTime = DateTime.now();
   }
@@ -225,17 +224,18 @@ public class TopologyService {
   }
 
   private BidirectionalPortType bidirectionalPort(VirtualPort virtualPort) {
-    return bidirectionalPort(nsiHelper.getStpIdV2(virtualPort));
+    return bidirectionalPort(nsiHelper.getStpIdV2(virtualPort), virtualPort.getUserLabel());
   }
 
   private BidirectionalPortType bidirectionalPort(EnniPort enniPort) {
-    return bidirectionalPort(nsiHelper.getStpIdV2(enniPort));
+    return bidirectionalPort(nsiHelper.getStpIdV2(enniPort), enniPort.getNocLabel());
   }
 
-  private BidirectionalPortType bidirectionalPort(String stpId) {
+  private BidirectionalPortType bidirectionalPort(String stpId, String name) {
     @SuppressWarnings("unchecked")
     BidirectionalPortType port = new BidirectionalPortType()
       .withId(stpId)
+      .withName(name)
       .withRest(
           new ObjectFactory().createPortGroup(new PortGroupType().withId(stpId + ":out")),
           new ObjectFactory().createPortGroup(new PortGroupType().withId(stpId + ":in")));
