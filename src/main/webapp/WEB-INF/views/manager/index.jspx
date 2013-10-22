@@ -9,8 +9,8 @@
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<spring:message var="app_name" code="application_name"
-    htmlEscape="false" />
+<spring:message var="app_name" code="application_name" htmlEscape="false" />
+
 <div class="row">
     <div class="span8">
         <section>
@@ -30,25 +30,25 @@
                 <div class="content">
                     <table class="table table-bordered table-striped">
                         <thead>
-                        	<tr>
+                           <tr>
                                 <th>Team</th>
                                 <th>Who</th>
                                 <th>Requested</th>
                                 <th>Status</th>
                                 <table:actionsHeader />
-                        	</tr>
+                           </tr>
                         </thead>
                         <tbody>
                             <c:forEach items="${requests}" var="request">
-                        		<tr>
+                              <tr>
                                     <td><c:out value="${request.virtualResourceGroup.name}" /></td>
                                     <td><c:out value="${request.requestorName}" /></td>
                                     <td><spring:eval expression="request.requestDateTime" /></td>
                                     <td><c:out value="${request.status}" /></td>
-                                    
+
                                     <c:choose>
                                      <c:when test="${request.status eq 'DELETE_REQUEST_PENDING'}">
-                                     
+
                                      <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
                                         <spring:url value="/manager/virtualports/delete/${request.uuid}" var="requestUrl" />
                                         <a href="${requestUrl}" rel="tooltip"
@@ -56,8 +56,7 @@
                                             class="icon-remove"> <!--  -->
                                      </i></a>
                                     </table:actionsColumn>
-                                    
-                                    
+
                                      </c:when>
                                     <c:otherwise>
                                     <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
@@ -67,12 +66,11 @@
                                             class="icon-plus"> <!--  -->
                                      </i></a>
                                     </table:actionsColumn>
-                                    
+
                                     </c:otherwise>
                                     </c:choose>
-                                    
-                                    
-                            	</tr>
+
+                                </tr>
                             </c:forEach>
                         </tbody>
                     </table>
@@ -142,7 +140,7 @@
                     <h3>Pending Virtual Port Requests</h3>
                     <p>If there are any pending requests for a virtual port which
                         require your reaction they are displayed in this section.</p>
-                	<p>
+                    <p>
                         Click on the <i class="icon-plus"> <!--  -->
                         </i> icon behind a request in the table to process it.
                     </p>

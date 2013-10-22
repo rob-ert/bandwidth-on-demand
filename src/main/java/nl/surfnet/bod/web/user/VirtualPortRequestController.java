@@ -174,8 +174,7 @@ public class VirtualPortRequestController {
   public Collection<VirtualResourceGroup> getVirtualResourceGroups(final String teamUrn) {
     if (Strings.emptyToNull(teamUrn) == null) {
       return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
-    }
-    else {
+    } else {
       UserGroup userGroup = Security.getUserGroup(teamUrn);
 
       if (userGroup == null) {
