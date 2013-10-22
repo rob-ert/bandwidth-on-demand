@@ -27,7 +27,6 @@ import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.LOST;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
@@ -102,7 +101,6 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
       .put(SCHEDULED, ConnectionStateType.SCHEDULED)
       .put(SUCCEEDED, ConnectionStateType.TERMINATED)
       .put(PASSED_END_TIME, ConnectionStateType.TERMINATED)
-      .put(LOST, ConnectionStateType.UNKNOWN)
       .build();
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV1.class);

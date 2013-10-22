@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
@@ -39,7 +38,6 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.ReservationFactory;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -63,18 +61,6 @@ public class ReservationsAlignerTest {
   public void poison_pill_returns_false() throws Exception {
     subject.add(ReservationsAligner.POISON_PILL);
     assertFalse(subject.alignNextReservation());
-  }
-
-  @Test @Ignore // FIXME should we support LOST at all?
-  public void reservation_is_set_to_lost_when_onecontrol_does_not_know_about_it() throws Exception {
-    final String unknownId = "unknown";
-    when(nbiOneControlClient.getReservationStatus(unknownId)).thenReturn(Optional.<ReservationStatus> absent());
-
-    subject.alignReservation(unknownId);
-
-    verify(nbiOneControlClient, times(1)).getReservationStatus(unknownId);
-    verify(reservationService, times(1)).updateStatus(unknownId, ReservationStatus.LOST);
-    verifyNoMoreInteractions(reservationService);
   }
 
   @Test

@@ -36,18 +36,17 @@ import nl.surfnet.bod.util.Transition;
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED, LOST;
+  REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, PASSED_END_TIME, CANCEL_FAILED;
 
   /**
    * All states which are considered as error states.
    */
-  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, CANCEL_FAILED, LOST);
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, CANCEL_FAILED);
 
   /**
    * All states that could transfer to a RUNNING state
    */
-  public static final Set<ReservationStatus> COULD_START_STATES = EnumSet
-      .of(REQUESTED, RESERVED, AUTO_START, SCHEDULED);
+  public static final Set<ReservationStatus> COULD_START_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED);
 
   /**
    * All states which are allowed to transition to an other state. All other
