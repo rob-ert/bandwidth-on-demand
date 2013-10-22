@@ -9,7 +9,7 @@
     <parent>
         <groupId>nl.surfnet.bod</groupId>
         <artifactId>bod-parent-pom</artifactId>
-        <version>0.1.5-SNAPSHOT</version>
+        <version>0.1.5</version>
     </parent>
 
     <properties>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>nl.surfnet.bod</groupId>
             <artifactId>bod-nsi</artifactId>
-            <version>0.2.5-SNAPSHOT</version>
+            <version>0.2.5</version>
         </dependency>
         <dependency>
             <groupId>nl.surfnet.bod</groupId>
