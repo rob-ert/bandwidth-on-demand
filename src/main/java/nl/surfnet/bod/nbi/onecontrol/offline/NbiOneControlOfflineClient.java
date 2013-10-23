@@ -24,7 +24,6 @@ package nl.surfnet.bod.nbi.onecontrol.offline;
 
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
@@ -46,6 +45,7 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
@@ -91,12 +91,15 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public ReservationStatus cancelReservation(final String reservationId) {
+  public Optional<String> cancelReservation(final String reservationId) {
     if (reservationId == null) {
-      return CANCEL_FAILED;
+      return Optional.of("reservationId is required");
+    } else if (!offlineReservations.containsKey(reservationId)) {
+      return Optional.of("unknown reservationId " + reservationId);
+    } else {
+      offlineReservations.put(reservationId, offlineReservations.get(reservationId).withStatus(CANCELLED));
+      return Optional.absent();
     }
-    offlineReservations.put(reservationId, offlineReservations.get(reservationId).withStatus(CANCELLED));
-    return CANCELLED;
   }
 
   @Override
@@ -105,7 +108,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
+  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
     String reservationId = UUID.randomUUID().toString();
     reservation.setReservationId(reservationId);
 
@@ -113,21 +116,26 @@ public class NbiOneControlOfflineClient implements NbiClient {
       reservation.setStartDateTime(DateTime.now());
       log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
+    reservation = reservationRepo.saveAndFlush(reservation);
 
+    UpdatedReservationStatus result;
     if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
-      reservation.setStatus(NOT_ACCEPTED);
+      result = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
-      reservation.setStatus(FAILED);
+      result = UpdatedReservationStatus.failed("label contains FAILED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
-      reservation.setStatus(PASSED_END_TIME);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
     } else if (autoProvision) {
-      reservation.setStatus(AUTO_START);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
     } else {
-      reservation.setStatus(RESERVED);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
     }
 
-    offlineReservations.put(reservation.getReservationId(), new OfflineReservation(reservation));
-    return reservation;
+    offlineReservations.put(reservation.getReservationId(), new OfflineReservation(result.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
+
+    log.warn("NBI MOCK created reservation {} with label {} and start time {}", reservationId, reservation.getLabel(), reservation.getStartDateTime());
+
+    return result;
   }
 
   @PostConstruct

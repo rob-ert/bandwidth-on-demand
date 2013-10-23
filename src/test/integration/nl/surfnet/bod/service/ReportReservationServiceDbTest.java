@@ -41,6 +41,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.opendrac.NbiOpenDracOfflineClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.util.TestHelper;
@@ -283,7 +284,7 @@ public class ReportReservationServiceDbTest {
 
     assertThat(count, is(3L));
 
-    subject.updateStatus(reservationInPeriodGUI.getReservationId(), ReservationStatus.SUCCEEDED);
+    subject.updateStatus(reservationInPeriodGUI.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
     count = reportingService.countActiveReservationsBetweenWithState(reservationIds, periodStart, periodEnd, AUTO_START, adminGroups);
 
     assertThat("Should count one less because of state change", count, is(2L));

@@ -24,7 +24,6 @@ package nl.surfnet.bod.nbi.opendrac;
 
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
@@ -57,6 +56,7 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -146,29 +146,30 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
+  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
     final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
+    reservation.setReservationId(scheduleId);
 
     if (reservation.getStartDateTime() == null) {
       reservation.setStartDateTime(DateTime.now());
       log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
+    reservation = reservationRepo.saveAndFlush(reservation);
 
+    UpdatedReservationStatus result;
     if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
-      reservation.setStatus(NOT_ACCEPTED);
+      result = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
-      reservation.setStatus(FAILED);
+      result = UpdatedReservationStatus.failed("label contains FAILED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
-      reservation.setStatus(PASSED_END_TIME);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
     } else if (autoProvision) {
-      reservation.setStatus(AUTO_START);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
     } else {
-      reservation.setStatus(RESERVED);
+      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
     }
 
-    reservation.setReservationId(scheduleId);
-
-    scheduleIds.put(scheduleId, new OfflineReservation(reservation));
+    scheduleIds.put(scheduleId, new OfflineReservation(result.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
 
     log.warn("NBI MOCK created reservation {} with label {} and start time {}", scheduleId, reservation.getLabel(), reservation.getStartDateTime());
 
@@ -177,7 +178,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
     }
 
-    return reservation;
+    return result;
   }
 
   @Override
@@ -232,12 +233,15 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public ReservationStatus cancelReservation(String scheduleId) {
+  public Optional<String> cancelReservation(final String scheduleId) {
     if (scheduleId == null) {
-      return CANCEL_FAILED;
+      return Optional.of("scheduleId is required");
+    } else if (!scheduleIds.containsKey(scheduleId)) {
+      return Optional.of("unknown scheduleId " + scheduleId);
+    } else {
+      scheduleIds.put(scheduleId, scheduleIds.get(scheduleId).withStatus(CANCELLED));
+      return Optional.absent();
     }
-    scheduleIds.put(scheduleId, scheduleIds.get(scheduleId).withStatus(CANCELLED));
-    return CANCELLED;
   }
 
   @Override

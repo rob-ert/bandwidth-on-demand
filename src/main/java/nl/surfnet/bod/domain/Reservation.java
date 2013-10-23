@@ -157,6 +157,15 @@ public class Reservation implements Loggable, PersistableDomain {
     this.status = reservationStatus;
   }
 
+  public void applyStatusUpdate(UpdatedReservationStatus newStatus) {
+    setStatus(newStatus.getNewStatus());
+    if (newStatus.getCancelReason().isPresent()) {
+      setCancelReason(newStatus.getCancelReason().get());
+    } else if (newStatus.getFailedReason().isPresent()) {
+      setFailedReason(newStatus.getFailedReason().get());
+    }
+  }
+
   public ReservationEndPoint getSourcePort() {
     return sourcePort;
   }

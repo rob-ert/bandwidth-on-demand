@@ -22,27 +22,26 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLING;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import nl.surfnet.bod.FakeTransactionOperations;
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.transaction.support.TransactionOperations;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationToNbiTest {
@@ -57,30 +56,20 @@ public class ReservationToNbiTest {
   private ReservationRepo reservationRepoMock;
 
   @Mock
-  private LogEventService logEeventServiceMock;
-
-  private TransactionOperations transactionOperations = new FakeTransactionOperations();
-
-  @Before
-  public void setUp() {
-    subject.setTransactionOperations(transactionOperations);
-  }
+  private ReservationService reservationService;
 
   @Test
   public void terminateAReservation() {
-    Reservation reservation = new ReservationFactory().setStatus(RESERVED).setCancelReason(null).create();
+    Reservation reservation = new ReservationFactory().setStatus(CANCELLING).setCancelReason(null).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
-    when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(CANCELLED);
+    when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(Optional.<String>absent());
 
     subject.asyncTerminate(reservation.getId(), "Cancelled by Truus");
 
-    assertThat(reservation.getStatus(), is(CANCELLED));
-    assertThat(reservation.getCancelReason(), is("Cancelled by Truus"));
-
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.cancelled("Cancelled by Truus"));
   }
 
   @Test
@@ -93,7 +82,7 @@ public class ReservationToNbiTest {
 
     subject.asyncProvision(reservation.getId());
 
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(AUTO_START));
   }
 
   @Test
@@ -106,7 +95,7 @@ public class ReservationToNbiTest {
     subject.asyncProvision(reservation.getId());
 
     verify(reservationRepoMock).findOne(reservation.getId());
-    verifyNoMoreInteractions(reservationRepoMock, logEeventServiceMock);
+    verifyNoMoreInteractions(reservationRepoMock, reservationService);
   }
 
 }

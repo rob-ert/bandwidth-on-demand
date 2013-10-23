@@ -28,24 +28,21 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionOperations;
 
 @Service
 @Transactional(propagation=Propagation.NEVER)
@@ -55,8 +52,7 @@ public class ReservationToNbi {
 
   @Resource private NbiClient nbiClient;
   @Resource private ReservationRepo reservationRepo;
-  @Resource private LogEventService logEventService;
-  @Resource private TransactionOperations transactionTemplate;
+  @Resource private ReservationService reservationService;
 
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision) {
@@ -68,11 +64,9 @@ public class ReservationToNbi {
 
     checkNotNull(reservation);
 
-    ReservationStatus orgStatus = reservation.getStatus();
+    UpdatedReservationStatus updatedStatus = nbiClient.createReservation(reservation, autoProvision);
 
-    reservation = nbiClient.createReservation(reservation, autoProvision);
-
-    publishStatusChanged(reservation, orgStatus);
+    reservationService.updateStatus(reservation.getReservationId(), updatedStatus);
 
     return new AsyncResult<>(reservation.getId());
   }
@@ -81,17 +75,24 @@ public class ReservationToNbi {
   public Future<Long> asyncTerminate(Long reservationId, String cancelReason) {
     Reservation reservation = reservationRepo.findOne(reservationId);
     checkNotNull(reservation);
+    if (reservation.getStatus().isEndState()) {
+      logger.debug("Cannot terminate reservation that is in an end state: {}", reservation);
+      return new AsyncResult<>(reservation.getId());
+    }
+    if (reservation.getStatus() != ReservationStatus.CANCELLING) {
+      logger.warn("Cannot terminate reservation that is not in CANCELLING status: {}", reservation);
+      return new AsyncResult<>(reservation.getId());
+    }
 
     logger.info("Terminating reservation {}, {}", reservation, cancelReason);
 
-    ReservationStatus orgStatus = reservation.getStatus();
+    Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
+    UpdatedReservationStatus status =
+        error.isPresent()
+            ? UpdatedReservationStatus.cancelFailed("NBI failed to cancel reservation " + reservation.getReservationId())
+            : UpdatedReservationStatus.cancelled(cancelReason);
 
-    ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
-
-    reservation.setStatus(reservationState);
-    reservation.setCancelReason(cancelReason);
-
-    publishStatusChanged(reservation, orgStatus);
+    reservationService.updateStatus(reservation.getReservationId(), status);
 
     return new AsyncResult<>(reservation.getId());
   }
@@ -105,32 +106,7 @@ public class ReservationToNbi {
     boolean activateReservation = nbiClient.activateReservation(reservation.getReservationId());
 
     if (activateReservation) {
-      ReservationStatus orgStatus = reservation.getStatus();
-
-      reservation.setStatus(ReservationStatus.AUTO_START);
-
-      publishStatusChanged(reservation, orgStatus);
+      reservationService.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START));
     }
-  }
-
-  private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        Reservation updated = reservationRepo.save(reservation);
-
-        if (originalStatus == updated.getStatus()) {
-          logger.debug("No status change detected from {} to {}", originalStatus, updated.getStatus());
-          return;
-        }
-
-        logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), updated, originalStatus);
-      }
-    });
-  }
-
-  @VisibleForTesting
-  void setTransactionOperations(TransactionOperations transactionOperations) {
-    transactionTemplate = transactionOperations;
   }
 }

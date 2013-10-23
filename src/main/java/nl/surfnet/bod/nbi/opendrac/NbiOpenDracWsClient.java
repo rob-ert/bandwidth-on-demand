@@ -26,7 +26,6 @@ import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
@@ -60,12 +59,14 @@ import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
+import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
@@ -105,6 +106,7 @@ import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.Vali
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -130,6 +132,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final ConcurrentMap<String, String> idToTnaCache = Maps.newConcurrentMap();
 
+  private ReservationRepo reservationRepo;
   @Value("${nbi.opendrac.billing.group.name}") private String billingGroupName;
   @Value("${nbi.opendrac.password}") private String password;
   @Value("${nbi.opendrac.group.name}") private String groupName;
@@ -139,7 +142,9 @@ public class NbiOpenDracWsClient implements NbiClient {
   @Value("${nbi.opendrac.service.scheduling}") private String schedulingServiceUrl;
   @Value("${nbi.opendrac.routing.algorithm}") private String routingAlgorithm;
 
-  public NbiOpenDracWsClient() {
+  @Autowired
+  public NbiOpenDracWsClient(ReservationRepo reservationRepo) {
+    this.reservationRepo = reservationRepo;
     HttpConnectionManagerParams params = new HttpConnectionManagerParams();
     params.setDefaultMaxConnectionsPerHost(20);
     params.setConnectionTimeout(5000);
@@ -178,17 +183,18 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public ReservationStatus cancelReservation(final String reservationId) {
+  public Optional<String> cancelReservation(final String reservationId) {
     checkNotNull(reservationId);
 
     try {
       getResourceAllocationAndSchedulingService().cancelReservationSchedule(createCancelReservationScheduleRequest(reservationId), getSecurityDocument());
 
       // CompletionResponseDocument always signals that the operation executed successfully.
-      return CANCELLED;
+      return Optional.absent();
     } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error canceling reservation (" + reservationId + "): ", e);
-      return CANCEL_FAILED;
+      String message = "Error canceling reservation (" + reservationId + "): " + e;
+      log.info(message, e);
+      return Optional.of(message);
     }
 
   }
@@ -203,9 +209,10 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
+  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
     CreateReservationScheduleRequestDocument requestDocument = createReservationScheduleRequest(reservation, autoProvision);
 
+    UpdatedReservationStatus result;
     try {
       CreateReservationScheduleResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
           .createReservationSchedule(requestDocument, getSecurityDocument());
@@ -213,30 +220,27 @@ public class NbiOpenDracWsClient implements NbiClient {
       log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
+      reservation.setReservationId(reservationId);
+      reservation = reservationRepo.saveAndFlush(reservation);
 
       ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument.getCreateReservationScheduleResponse().getResult(), autoProvision);
-
       if (status.isErrorState()) {
         String failedReason = composeFailedReason(responseDocument);
-
-        reservation.setFailedReason(failedReason);
+        result = UpdatedReservationStatus.error(status, failedReason);
 
         log.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
+      } else {
+        result = UpdatedReservationStatus.forNewStatus(status);
       }
-
-      reservation.setReservationId(reservationId);
-      reservation.setStatus(status);
     } catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.warn("Creating a reservation failed", e);
-      reservation.setFailedReason(e.getMessage().trim());
-      reservation.setStatus(NOT_ACCEPTED);
+      result = UpdatedReservationStatus.notAccepted(e.getMessage().trim());
     } catch (RemoteException e) {
       log.error("Unexpected exception while requesting reservation from OpenDRAC", e);
-      reservation.setFailedReason(e.getMessage().trim());
-      reservation.setStatus(FAILED);
+      result = UpdatedReservationStatus.failed(e.getMessage().trim());
     }
 
-    return reservation;
+    return result;
   }
 
   private String composeFailedReason(CreateReservationScheduleResponseDocument responseDocument) {

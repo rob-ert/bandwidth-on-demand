@@ -34,6 +34,7 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -128,7 +129,7 @@ public class ReservationServiceDbTestHelper {
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Reservation updateStatusAndCommit(Reservation reservation, ReservationStatus status) {
-    return reservationService.updateStatus(reservation.getReservationId(), status);
+    return reservationService.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(status));
   }
 
 }

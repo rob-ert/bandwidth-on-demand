@@ -35,6 +35,7 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
 
@@ -97,7 +98,7 @@ public class ReservationsAligner implements SmartLifecycle {
     }
 
     try {
-      Reservation reservation = reservationService.updateStatus(reservationId, reservationStatus.get());
+      Reservation reservation = reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(reservationStatus.get()));
       if (!reservation.isNSICreated()
           && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
         // Auto-provision if the reservation was created in the UI (not
@@ -135,11 +136,12 @@ public class ReservationsAligner implements SmartLifecycle {
 
   @Scheduled(fixedRate = 60000l)
   public void refreshReservationsToAlign() {
-    LOGGER.debug("Finding reservations to align");
     Collection<Reservation> reservationsToPoll = reservationService.findTransitionableReservations();
     for (Reservation reservation : reservationsToPoll) {
-      LOGGER.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
-      add(reservation.getReservationId());
+      if (reservation.getReservationId() != null) {
+        LOGGER.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
+        add(reservation.getReservationId());
+      }
     }
   }
 

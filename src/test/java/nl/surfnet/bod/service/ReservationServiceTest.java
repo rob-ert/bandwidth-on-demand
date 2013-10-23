@@ -46,6 +46,7 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -168,7 +169,7 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
-    subject.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START);
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START));
   }
 
   @Test
@@ -176,7 +177,7 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
-    subject.updateStatus(reservation.getReservationId(), ReservationStatus.AUTO_START);
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START));
 
     assertThat(reservation.getStatus(), is(ReservationStatus.AUTO_START));
     verify(reservationRepoMock).saveAndFlush(reservation);
@@ -188,7 +189,7 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.CANCELLING).create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
-    subject.updateStatus(reservation.getReservationId(), ReservationStatus.SUCCEEDED);
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
 
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
   }
@@ -204,7 +205,7 @@ public class ReservationServiceTest {
         .create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
-    subject.updateStatus(reservation.getReservationId(), ReservationStatus.SUCCEEDED);
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
 
     assertThat(reservation.getStatus(), is(ReservationStatus.PASSED_END_TIME));
   }
@@ -220,7 +221,7 @@ public class ReservationServiceTest {
     .create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
-    subject.updateStatus(reservation.getReservationId(), ReservationStatus.SUCCEEDED);
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
 
     assertThat(reservation.getStatus(), is(ReservationStatus.SUCCEEDED));
   }
@@ -228,16 +229,17 @@ public class ReservationServiceTest {
   @Test
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().addUserGroup(
-        reservation.getVirtualResourceGroup().get().getAdminGroup()).setDisplayname("Piet Puk").create();
-
-    when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk")).thenReturn(new AsyncResult<Long>(2L));
-
+    RichUserDetails richUserDetails = new RichUserDetailsFactory()
+        .addUserRole()
+        .addUserGroup(reservation.getVirtualResourceGroup().get().getAdminGroup())
+        .setDisplayname("Piet Puk")
+        .create();
     Security.setUserDetails(richUserDetails);
+    when(reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk")).thenReturn(new AsyncResult<Long>(2L));
 
     subject.cancel(reservation, richUserDetails);
 
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLING));
     verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Piet Puk");
   }
 

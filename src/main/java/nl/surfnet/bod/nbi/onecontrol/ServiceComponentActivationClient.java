@@ -28,10 +28,12 @@ import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservat
 
 import javax.xml.ws.BindingProvider;
 
+import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,6 @@ public class ServiceComponentActivationClient {
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-
   private final String endPoint;
 
   @Value("${onecontrol.service.component.activation.connect.timeout}")
@@ -73,7 +74,7 @@ public class ServiceComponentActivationClient {
     this.endPoint = endPoint;
   }
 
-  public Reservation reserve(Reservation reservation) {
+  public UpdatedReservationStatus reserve(Reservation reservation) {
     ServiceComponentActivationInterface port = createPort();
 
     ReserveRequest reserveRequest = createReservationRequest(reservation);
@@ -81,15 +82,15 @@ public class ServiceComponentActivationClient {
       ReserveResponse reserveResponse = port.reserve(buildReserveHeader(endPoint), reserveRequest);
 
       if (reserveResponse.getRfsNameOrRfsCreation().isEmpty()) {
-        reservation.setStatus(ReservationStatus.FAILED);
+        logger.warn("No RFS name in reserve response {} for reservation request {}", reserveResponse, reserveRequest);
+        return UpdatedReservationStatus.failed("OneControl/MTOSI: No RFS name in reserve response");
       }
     } catch (ReserveException e) {
       logger.info("Reserve request " + reservation.getName() +  " failed: " + e + " with fault info " + e.getFaultInfo(), e);
-      reservation.setStatus(ReservationStatus.NOT_ACCEPTED);
-      reservation.setFailedReason("reserve operation failed with error '" + e + "'");
+      return UpdatedReservationStatus.notAccepted("reserve operation failed with error '" + e + "'");
     }
 
-    return reservation;
+    return UpdatedReservationStatus.forNewStatus(ReservationStatus.REQUESTED);
   }
 
   public boolean activate(Reservation reservation) {
@@ -110,16 +111,17 @@ public class ServiceComponentActivationClient {
     }
   }
 
-  public void terminate(Reservation reservation) {
+  public Optional<String> terminate(Reservation reservation) {
     ServiceComponentActivationInterface port = createPort();
 
     TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest();
     terminateRequest.setRfsName(createRfs(reservation.getReservationId()));
     try {
       port.terminate(buildReserveHeader(endPoint), terminateRequest);
+      return Optional.absent();
     } catch (TerminateException e) {
-      logger.info("Terminate failed", e);
-      e.printStackTrace();
+      logger.info("Terminate failed: " + e, e);
+      return Optional.of(e.toString());
     }
   }
 

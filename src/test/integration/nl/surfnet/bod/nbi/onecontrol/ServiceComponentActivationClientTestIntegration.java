@@ -29,6 +29,7 @@ import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -66,9 +67,9 @@ public class ServiceComponentActivationClientTestIntegration {
     reservation.getSourcePort().getVirtualPort().get().setPhysicalPort(sourcePort);
     reservation.getDestinationPort().getVirtualPort().get().setPhysicalPort(destPort);
 
-    Reservation savedReservation = subject.reserve(reservation);
+    UpdatedReservationStatus status = subject.reserve(reservation);
 
-    System.err.println(savedReservation);
+    System.err.println(status);
   }
 
   @Test

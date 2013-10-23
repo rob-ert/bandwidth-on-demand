@@ -146,11 +146,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private void cancelActiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
     for (Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState() && StringUtils.hasText(reservation.getReservationId())) {
-        ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
-        reservation.setStatus(reservationState);
-
-        if (reservationState == ReservationStatus.CANCEL_FAILED) {
-          throw new RuntimeException("NMS Error during cancel of reservation: " + reservation.getReservationId());
+        Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
+        if (error.isPresent()) {
+          doUpdateStatus(reservation, UpdatedReservationStatus.cancelFailed("NMS Error during cancel of active reservations"));
+          throw new RuntimeException("NMS Error during cancel of reservation " + reservation.getReservationId() + ": " + error.get());
+        } else {
+          doUpdateStatus(reservation, UpdatedReservationStatus.cancelled("cancel active reservations"));
         }
       }
     }
@@ -158,6 +159,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
     if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
+      doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLING));
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason));
     }
 
@@ -496,22 +498,27 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @throws org.springframework.dao.EmptyResultDataAccessException when no Reservation with the specified reservationId exists
    * @return the reservation containing the new status
    */
-  public Reservation updateStatus(String reservationId, ReservationStatus newStatus) {
+  public Reservation updateStatus(String reservationId, UpdatedReservationStatus statusUpdate) {
     // Avoid optimistic locking exceptions by pessimistically locking a reservation, so only a single
     // thread can update the row at the same time.
     Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
-    newStatus = handleSpecialCasesForSucceededTransition(reservation, newStatus);
+    return doUpdateStatus(reservation, statusUpdate);
+  }
+
+  private Reservation doUpdateStatus(Reservation reservation, UpdatedReservationStatus statusUpdate) {
+    UpdatedReservationStatus newStatus = handleSpecialCasesForSucceededTransition(reservation, statusUpdate);
     ReservationStatus oldStatus = reservation.getStatus();
-    if (oldStatus == newStatus) {
-      log.debug("Reservation ({}) status unchanged at {}", reservationId, newStatus);
+    if (oldStatus == newStatus.getNewStatus()) {
+      log.debug("Reservation ({}) status unchanged at {}", reservation.getReservationId(), newStatus.getNewStatus());
       return reservation;
-    } else if (!oldStatus.canTransition(newStatus)) {
-      log.warn("Reservation ({}) cannot transition from {} to {}", reservationId, oldStatus, newStatus);
+    } else if (!oldStatus.canTransition(newStatus.getNewStatus())) {
+      log.warn("Reservation ({}) cannot transition from {} to {}", reservation.getReservationId(), oldStatus, newStatus.getNewStatus());
       return reservation;
     }
-    reservation.setStatus(newStatus);
 
-    log.info("Reservation ({}) status {} -> {}", reservationId, oldStatus, newStatus);
+    reservation.applyStatusUpdate(newStatus);
+
+    log.info("Reservation ({}) status {} -> {}", reservation.getReservationId(), oldStatus, newStatus);
 
     logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, oldStatus);
 
@@ -523,14 +530,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * PASSED_END_TIME or CANCELLED based on the current state of the reservation,
    * or leave the status unchanged.
    */
-  private ReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, ReservationStatus newStatus) {
-    if (newStatus == ReservationStatus.SUCCEEDED) {
+  private UpdatedReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, UpdatedReservationStatus newStatus) {
+    if (newStatus.getNewStatus() == ReservationStatus.SUCCEEDED) {
       ReservationStatus oldStatus = reservation.getStatus();
       boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().isBeforeNow();
       if (oldStatus == ReservationStatus.CANCELLING) {
-        return ReservationStatus.CANCELLED;
+        return UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
       } else if (passedEndTime && ReservationStatus.COULD_START_STATES.contains(oldStatus)) {
-        return ReservationStatus.PASSED_END_TIME;
+        return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
       }
     }
     return newStatus;

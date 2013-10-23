@@ -34,6 +34,7 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -68,11 +69,11 @@ public class ReservationsAlignerTest {
     final String knownId = "known";
     ReservationStatus reserved = ReservationStatus.RESERVED;
     when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(reserved));
-    when(reservationService.updateStatus(knownId, reserved)).thenThrow(new EmptyResultDataAccessException(1));
+    when(reservationService.updateStatus(knownId, UpdatedReservationStatus.forNewStatus(reserved))).thenThrow(new EmptyResultDataAccessException(1));
 
     subject.alignReservation(knownId);
 
-    verify(reservationService).updateStatus(knownId, reserved);
+    verify(reservationService).updateStatus(knownId, UpdatedReservationStatus.forNewStatus(reserved));
   }
 
   @Test
@@ -98,10 +99,10 @@ public class ReservationsAlignerTest {
     Reservation reservation = new ReservationFactory().create();
 
     when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
-    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
+    when(reservationService.updateStatus(knownId, UpdatedReservationStatus.forNewStatus(oneControlStatus))).thenReturn(reservation);
 
     assertTrue(subject.alignNextReservation());
-    verify(reservationService, times(1)).updateStatus(knownId, oneControlStatus);
+    verify(reservationService, times(1)).updateStatus(knownId, UpdatedReservationStatus.forNewStatus(oneControlStatus));
     verify(reservationService, never()).provision(reservation);
   }
 
@@ -112,7 +113,7 @@ public class ReservationsAlignerTest {
     subject.add(knownId);
     Reservation reservation = new ReservationFactory().setStatus(oneControlStatus).create();
     when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
-    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
+    when(reservationService.updateStatus(knownId, UpdatedReservationStatus.forNewStatus(oneControlStatus))).thenReturn(reservation);
 
     assertTrue(subject.alignNextReservation());
 
@@ -127,7 +128,7 @@ public class ReservationsAlignerTest {
     Reservation reservation = new ReservationFactory().setConnectionV2(new ConnectionV2Factory().create()).create();
 
     when(nbiOneControlClient.getReservationStatus(knownId)).thenReturn(Optional.of(oneControlStatus));
-    when(reservationService.updateStatus(knownId, oneControlStatus)).thenReturn(reservation);
+    when(reservationService.updateStatus(knownId, UpdatedReservationStatus.forNewStatus(oneControlStatus))).thenReturn(reservation);
 
     assertTrue(subject.alignNextReservation());
 

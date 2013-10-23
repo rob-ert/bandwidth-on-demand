@@ -32,6 +32,7 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
 
@@ -85,10 +86,10 @@ public class ReservationPoller {
             Optional<ReservationStatus> currentStatus = nbiClient.getReservationStatus(reservation.getReservationId());
             logger.debug("Got back status {}", currentStatus);
 
-            if (currentStatus.isPresent() && !currentStatus.get().equals(reservation.getStatus())) {
+            if (currentStatus.isPresent() && currentStatus.get() != reservation.getStatus()) {
               logger.info("Status change detected {} -> {} for reservation {}", new Object[] { reservation.getStatus(), currentStatus.get(), reservation.getReservationId() });
               try {
-                reservationService.updateStatus(reservation.getReservationId(), currentStatus.get());
+                reservationService.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(currentStatus.get()));
               } catch (EmptyResultDataAccessException e) {
                 // Reservation was already deleted, ignore.
               }

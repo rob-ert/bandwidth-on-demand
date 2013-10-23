@@ -111,7 +111,7 @@ public final class DatabaseTestHelper {
 
   private static void truncateTables(Collection<String> tables, Connection connection) {
     try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate(createTruncateQuery(tables));
+      statement.executeUpdate("TRUNCATE " + Joiner.on(", ").join(tables) + " CASCADE");
     }
     catch (SQLException e) {
       throw new RuntimeException(e);
@@ -144,16 +144,6 @@ public final class DatabaseTestHelper {
     }
 
     return result;
-  }
-
-  private static String createTruncateQuery(Collection<String> tables) {
-    StringBuilder truncateQuery = new StringBuilder("TRUNCATE ");
-
-    truncateQuery.append(Joiner.on(", ").join(tables));
-
-    truncateQuery.append(" CASCADE");
-
-    return truncateQuery.toString();
   }
 
   private static ResultSet getTables(Connection connection) throws SQLException {

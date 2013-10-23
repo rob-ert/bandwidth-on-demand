@@ -28,6 +28,7 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 
 import com.google.common.base.Optional;
 
@@ -37,16 +38,26 @@ public interface NbiClient {
 
   boolean activateReservation(String reservationId);
 
-  ReservationStatus cancelReservation(String scheduleId);
+  /**
+   * @return the error code if the cancel failed, {@link Optional#absent()}
+   *         otherwise.
+   */
+  Optional<String> cancelReservation(String scheduleId);
 
   long getPhysicalPortsCount();
 
   /**
+   * Creates a new reservation in the underlying network. This method is
+   * responsible for setting and saving the underlying network's
+   * {@link Reservation#getReservationId()}.
+   *
    * @param reservation
-   * @param autoProvision, when true the reservation is automatically started
-   * @return the reservation id returned from the underlying NMS
+   * @param autoProvision
+   *          when true the reservation is automatically started
+   * @return the new reservation status. The caller is responsible for updating
+   *         the reservation status!
    */
-  Reservation createReservation(Reservation reservation, boolean autoProvision);
+  UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision);
 
   /**
    *

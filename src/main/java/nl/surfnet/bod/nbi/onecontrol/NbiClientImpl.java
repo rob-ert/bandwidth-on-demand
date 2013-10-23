@@ -35,12 +35,11 @@ import com.google.common.collect.Iterables;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -51,8 +50,6 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 @Profile("onecontrol")
 @Component
 public class NbiClientImpl implements NbiClient {
-
-  private final Logger logger = LoggerFactory.getLogger(NbiClientImpl.class);
 
   @Resource private InventoryRetrievalClient inventoryRetrievalClient;
   @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
@@ -73,11 +70,10 @@ public class NbiClientImpl implements NbiClient {
    */
   @Override
   @Transactional(propagation=Propagation.NEVER)
-  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
+  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.save(reservation);
 
-    // TODO use autoProvision..
     return serviceComponentActivationClient.reserve(savedReservation);
   }
 
@@ -109,9 +105,8 @@ public class NbiClientImpl implements NbiClient {
   }
 
   @Override
-  public ReservationStatus cancelReservation(String reservationId) {
-    serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
-    return ReservationStatus.CANCELLED;
+  public Optional<String> cancelReservation(String reservationId) {
+    return serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
   }
 
   @Override

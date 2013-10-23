@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
 
 import org.joda.time.DateTime;
@@ -114,7 +115,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
 
     if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
-      reservationService.updateStatus(reservationId.get(), ReservationStatus.RESERVED);
+      reservationService.updateStatus(reservationId.get(), UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED));
     }
   }
 
@@ -139,7 +140,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private void handleInitialState(String reservationId) {
     Reservation reservation = reservationService.findByReservationId(reservationId);
-    reservationService.updateStatus(reservationId, ReservationStatus.RESERVED);
+    reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED));
     reservationService.provision(reservation);
   }
 
