@@ -30,7 +30,6 @@ import nl.surfnet.bod.web.base.MessageManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +48,6 @@ public class DevelopmentController {
   static final String PAGE_URL = "dev";
 
   static final String REFRESH_PART = "/refresh/";
-
   static final String MESSAGES_PART = REFRESH_PART + "messages";
   static final String ROLES_PART = REFRESH_PART + "roles";
 
@@ -59,25 +57,7 @@ public class DevelopmentController {
   private Environment environment;
 
   @Resource
-  private ReloadableResourceBundleMessageSource messageSource;
-
-  @Resource
   private MessageManager messageManager;
-
-  @RequestMapping(value = MESSAGES_PART)
-  public String refreshMessageSource(HttpServletRequest request, RedirectAttributes model) {
-    if (environment.isDevelopment()) {
-      refreshMessageSource();
-      messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Messages");
-    }
-
-    return getRedirect(request);
-  }
-
-  private void refreshMessageSource() {
-    messageSource.clearCache();
-    logger.info("Refresing messages");
-  }
 
   @RequestMapping(value = ROLES_PART)
   public String refreshGroups(HttpServletRequest request, RedirectAttributes model) {

@@ -57,15 +57,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(MockitoJUnitRunner.class)
 public class DevelopmentControllerTest {
 
-  @InjectMocks
-  private DevelopmentController subject;
+  @InjectMocks private DevelopmentController subject;
 
-  @Mock
-  private MessageRetriever messageRetrieverMock;
-  @Mock
-  private ReloadableResourceBundleMessageSource messageSourceMock;
-  @Mock
-  private Environment environmentMock;
+  @Mock private MessageRetriever messageRetrieverMock;
+  @Mock private ReloadableResourceBundleMessageSource messageSourceMock;
+  @Mock private Environment environmentMock;
 
   private MockMvc mockMvc;
 
@@ -73,31 +69,6 @@ public class DevelopmentControllerTest {
   public void setup() {
     mockMvc = standaloneSetup(subject).build();
     subject.setMessageManager(new MessageManager(messageRetrieverMock));
-  }
-
-  @Test
-  public void refreshMessagesShouldClearMessageSourceCache() throws Exception {
-    when(environmentMock.isDevelopment()).thenReturn(true);
-    when(messageRetrieverMock.getMessageWithBoldArguments("info_dev_refresh", "Messages")).thenReturn("correctMessage");
-
-    mockMvc.perform(get("/" + PAGE_URL + MESSAGES_PART).header("Referer", "/referer_test"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().attribute("infoMessages", hasItem("correctMessage")))
-      .andExpect(view().name("redirect:/referer_test"));
-
-    verify(messageSourceMock).clearCache();
-  }
-
-  @Test
-  public void refreshMessagesShouldNotRefreshWhenNotInDevMode() throws Exception {
-    when(environmentMock.isDevelopment()).thenReturn(false);
-
-    mockMvc.perform(get("/" + PAGE_URL + MESSAGES_PART).header("Referer", "/referer_test"))
-      .andExpect(status().isMovedTemporarily())
-      .andExpect(flash().attribute("infoMessages", nullValue()))
-      .andExpect(view().name("redirect:/referer_test"));
-
-    verify(messageSourceMock, never()).clearCache();
   }
 
   @Test
