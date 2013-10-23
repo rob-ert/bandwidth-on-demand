@@ -238,15 +238,14 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public String deleteVirtualPort(@PathVariable("uuid") String link, Model model, RedirectAttributes redirectAttributes) {
     VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
 
-    if (requestLink.getStatus() == RequestStatus.DELETE_REQUEST_PENDING) {
+    if (requestLink.getStatus() == RequestStatus.DELETE_PENDING) {
       Collection<VirtualPort> virtualPorts = requestLink.getVirtualResourceGroup().getVirtualPorts();
 
       for (VirtualPort virtualPort : virtualPorts) {
         virtualPortService.delete(virtualPort, Security.getUserDetails());
-        requestLink.setStatus(RequestStatus.DELETE_REQUEST_APPROVED);
+        requestLink.setStatus(RequestStatus.DELETE_APPROVED);
         virtualPortRequestLinkRepo.saveAndFlush(requestLink);
-        messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted",
-            virtualPort.getManagerLabel());
+        messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_deleted", virtualPort.getManagerLabel());
       }
     }
 

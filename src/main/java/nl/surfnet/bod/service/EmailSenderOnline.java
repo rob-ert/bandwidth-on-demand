@@ -34,7 +34,6 @@ import com.google.common.base.Strings;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
@@ -63,8 +62,7 @@ public class EmailSenderOnline implements EmailSender {
   @Value("${bod.external.url}")
   private String externalBodUrl;
 
-  @Resource
-  private MailSender mailSender;
+  @Resource private MailSender mailSender;
 
   /**
    * Removes a trailing slash at the end the {@link #externalBodUrl} which is
@@ -93,21 +91,18 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
-    String link;
-    if (requestLink.getStatus() == RequestStatus.DELETE_REQUEST_PENDING) {
-      link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid());
-    }
-    else {
-      link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
-    }
-    SimpleMailMessage mail = new MailMessageBuilder().withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
-        .withSubject(VirtualPortRequestMail.subject(from))
-        .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
+    String link = requestLink.isDeleteRequest() ?
+      String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid()) :
+      String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
+
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
+      .withSubject(VirtualPortRequestMail.subject(from, requestLink))
+      .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
 
     if (from.getEmail().isPresent()) {
       mail.setReplyTo(from.getEmail().get());
-    }
-    else {
+    } else {
       log.warn("User {} has no email address that can be used as the reply-to!", from);
     }
 
@@ -136,8 +131,7 @@ public class EmailSenderOnline implements EmailSender {
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
           activationEmailLink.getUuid()));
-    }
-    catch (MalformedURLException e) {
+    } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }

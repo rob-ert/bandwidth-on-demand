@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -67,16 +68,11 @@ import com.google.common.collect.*;
 @RequestMapping("/request")
 public class VirtualPortRequestController {
 
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
-  @Resource
-  private VirtualPortService virtualPortService;
-  @Resource
-  private MessageManager messageManager;
-  @Resource
-  private MessageRetriever messageRetriever;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private MessageManager messageManager;
+  @Resource private MessageRetriever messageRetriever;
 
   /**
    * In case no team is selected yet, present the team selection.
@@ -145,6 +141,45 @@ public class VirtualPortRequestController {
     model.addAttribute("teamUrn", teamUrn);
 
     return "virtualports/selectInstitute";
+  }
+
+  @RequestMapping(value = "/delete", method = RequestMethod.GET)
+  public String deleteRequestForm(@RequestParam Long id, Model model) {
+    VirtualPort virtualPort = virtualPortService.find(id);
+
+    if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
+      return "redirect:/virtualports";
+    }
+
+    model.addAttribute("user", Security.getUserDetails());
+    model.addAttribute("deleteRequestCommand", new DeleteRequestCommand(virtualPort));
+
+    return "virtualports/deleterequestform";
+  }
+
+  @RequestMapping(value = "/delete", method = RequestMethod.POST)
+  public String deleteRequest(@Valid DeleteRequestCommand requestCommand, BindingResult result, Model model,
+      RedirectAttributes redirectAttributes) {
+
+    if (result.hasErrors()) {
+      model.addAttribute("user", Security.getUserDetails());
+      model.addAttribute("deleteRequestCommand", requestCommand);
+
+      return "virtualports/deleterequestform";
+    }
+
+    if (Security.userMayNotEdit(requestCommand.getVirtualPort())) {
+      return "redirect:/virtualports";
+    }
+
+    virtualPortService.requestDeleteVirtualPort(Security.getUserDetails(), requestCommand.getMessage(), requestCommand.getVirtualPort());
+
+    messageManager.addInfoFlashMessage(redirectAttributes,
+      "info_virtualport_delete_request_send",
+      requestCommand.getVirtualPort().getUserLabel(),
+      requestCommand.getVirtualPort().getVirtualResourceGroup().getName());
+
+    return "redirect:/user";
   }
 
   @RequestMapping(method = RequestMethod.GET, params = { "id", "teamUrn" })
@@ -235,9 +270,39 @@ public class VirtualPortRequestController {
     return "redirect:/user";
   }
 
-  public static class RequestCommand {
+  public static class DeleteRequestCommand {
+    @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")
+    private String message;
 
-    @Length(min = 0, max = 255, message = "Must be between 1 and 255 characters long")
+    @NotNull
+    private VirtualPort virtualPort;
+
+    public DeleteRequestCommand() {
+    }
+
+    public DeleteRequestCommand(VirtualPort virtualPort) {
+      this.virtualPort = virtualPort;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+    public VirtualPort getVirtualPort() {
+      return virtualPort;
+    }
+
+    public void setVirtualPort(VirtualPort virtualPort) {
+      this.virtualPort = virtualPort;
+    }
+  }
+
+  public static class RequestCommand {
+    @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")
     private String userLabel;
 
     @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")

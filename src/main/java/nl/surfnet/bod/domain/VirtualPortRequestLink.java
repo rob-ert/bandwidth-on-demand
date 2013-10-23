@@ -22,7 +22,11 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus.DELETE_APPROVED;
+import static nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus.DELETE_PENDING;
+
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.UUID;
 
 import javax.persistence.*;
@@ -200,6 +204,10 @@ public class VirtualPortRequestLink implements Loggable {
     return virtualResourceGroup.getLabel();
   }
 
+  public boolean isDeleteRequest() {
+    return EnumSet.of(DELETE_PENDING, DELETE_APPROVED).contains(status);
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -313,6 +321,6 @@ public class VirtualPortRequestLink implements Loggable {
   }
 
   public enum RequestStatus {
-    PENDING, APPROVED, DECLINED, DELETE_REQUEST_PENDING, DELETE_REQUEST_APPROVED
+    PENDING, APPROVED, DECLINED, DELETE_PENDING, DELETE_APPROVED
   }
 }

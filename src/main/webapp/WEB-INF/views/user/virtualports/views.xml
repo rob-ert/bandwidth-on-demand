@@ -23,6 +23,11 @@
         <put-attribute name="requestBody" value="/WEB-INF/views/user/virtualports/requestForm.jspx" cascade="true" />
     </definition>
 
+    <definition extends="default" name="virtualports/deleterequestform">
+        <put-attribute name="body" value="/WEB-INF/views/user/virtualports/deleteRequestForm.jspx" cascade="true" />
+        <put-attribute name="active_menu" value="virtualport" cascade="true" />
+    </definition>
+
     <definition extends="default" name="virtualports/update">
         <put-attribute name="body" value="/WEB-INF/views/user/virtualports/update.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />

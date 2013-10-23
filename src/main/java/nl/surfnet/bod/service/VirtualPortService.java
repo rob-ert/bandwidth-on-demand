@@ -221,27 +221,24 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     link.setVirtualResourceGroup(virtualPort.getVirtualResourceGroup());
     link.setPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
     link.setUserLabel(virtualPort.getUserLabel());
-
-    link.setMinBandwidth(0L);
     link.setMessage(message);
     link.setRequestorEmail(user.getEmail().get());
     link.setRequestorName(user.getDisplayName());
     link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(DateTime.now());
 
-    link.setStatus(RequestStatus.DELETE_REQUEST_PENDING);
+    link.setStatus(RequestStatus.DELETE_PENDING);
 
     virtualPortRequestLinkRepo.save(link);
     emailSender.sendVirtualPortRequestMail(user, link);
 
     // Log event after creation, so the ID is set by hibernate
-    logEventService.logDeleteEvent(Security.getUserDetails(), "Added delete request for VirtualPort with ID: "
-        + virtualPort.getId(), link);
+    logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
 
   public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
     List<VirtualPortRequestLink> requests = virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
-    requests.addAll(virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.DELETE_REQUEST_PENDING));
+    requests.addAll(virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.DELETE_PENDING));
     return requests;
   }
 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:sform="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:spring="http://www.springframework.org/tags" xmlns:bodfn="BodTags"
+    version="2.0">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <spring:url value="/request/delete" var="postUrl" />
+
+    <div class="row">
+
+        <div class="span8">
+            <section>
+                <h1><spring:message code="label_delete_request_vp" /></h1>
+                <div class="content">
+
+                    <sform:form action="${postUrl}" method="POST" modelAttribute="deleteRequestCommand" cssClass="form form-horizontal">
+                        <fieldset>
+                            <div class="control-group">
+                                <label class="control-label"><spring:message code="label_request_vp_to" /></label>
+                                <div class="controls">
+                                    <output>BoD Administrator(s) of '<c:out value="${deleteRequestCommand.virtualPort.physicalResourceGroup.institute.name}"/>'</output>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label"><spring:message code="label_request_vp_from" /></label>
+                                <div class="controls">
+                                    <output><c:out value="${user.displayName}" /> (<c:out value="${bodfn:getOr(user.email, 'Unknown')}" />)</output>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label"><spring:message code="label_request_vp_virtual_user_group" /></label>
+                                <div class="controls">
+                                    <output><c:out value="${deleteRequestCommand.virtualPort.virtualResourceGroup.name}" /></output>
+                                </div>
+                            </div>
+
+                            <div class="message">
+                                <h3>Message</h3>
+                            </div>
+
+                            <c:set var="errors">
+                                <sform:errors path="message" />
+                            </c:set>
+                            <c:if test="${not empty errors}">
+                                <c:set var="error_motivation_css" value=" error" />
+                            </c:if>
+                            <div class="control-group${error_motivation_css}">
+                                <label class="control-label"><spring:message code="label_request_vp_message" /></label>
+                                <div class="controls">
+                                    <sform:textarea path="message" rows="5" cssClass="xlarge" />
+                                    <form:help message="label_delete_request_vp_motivation_help" />
+                                    <sform:errors cssClass="help-block" id="_message_error_id" path="message" delimiter=", " />
+                                </div>
+                            </div>
+                            <input type="hidden" name="virtualPort" value="${deleteRequestCommand.virtualPort.id}" />
+
+                            <div class="actions">
+                                <spring:message code="label_request_vp_send_request" var="submitText" />
+                                <spring:url value="/" var="cancel_url" />
+
+                                <input class="btn btn-primary" type="submit" value="${submitText}" />
+                                <a href="${cancel_url}"><spring:message code="button_cancel" /></a>
+                            </div>
+                        </fieldset>
+                    </sform:form>
+                </div>
+            </section>
+        </div>
+
+        <div class="span4">
+            <section>
+                <h2><spring:message code="label_help_text_header" /></h2>
+                <div class="content-dense">
+                    <h3>Fill in your request</h3>
+                    <p>Fill in your motivation why the virtual port can be deleted by the BoD administrator.</p>
+                    <h3>Send email</h3>
+                    <p>Send the request and the BoD administrator will receive your request for deletion.</p>
+                    <h3>Track progress</h3>
+                    <p>View the status of the request on your dashboard.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+</jsp:root>

@@ -62,20 +62,29 @@
                         <table:column item="${item}" property="physicalResourceGroup" />
 
                         <c:choose>
-                          <c:when test="${item.requestDeleteAllowed}">
-                            <table:actionsColumn
-                              item="${item}"
-                              path="/virtualports"
-                              labelCode="label_virtualport"
-                              deleteConfirmLabelCode="label_virtualport_delete_confirm" />
-                          </c:when>
-                          <c:otherwise>
-                            <table:actionsColumn
-                              item="${item}"
-                              path="/virtualports"
-                              labelCode="label_virtualport"
-                              deleteEnabled="false" />
-                          </c:otherwise>
+                            <c:when test="${item.requestDeleteAllowed}">
+                                <table:actionsColumn
+                                    delete="false"
+                                    item="${item}"
+                                    path="/virtualports"
+                                    labelCode="label_virtualport">
+
+                                    <spring:message var="delete_title" code="label_virtualport_request_delete" />
+                                    <spring:url var="deleteUrl" value="/request/delete">
+                                        <spring:param name="id" value="${item.id}" />
+                                    </spring:url>
+                                    <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}">
+                                        <i class="icon-remove"><!--  --></i>
+                                    </a>
+                                </table:actionsColumn>
+                            </c:when>
+                            <c:otherwise>
+                                <table:actionsColumn
+                                    item="${item}"
+                                    path="/virtualports"
+                                    labelCode="label_virtualport"
+                                    deleteEnabled="false" />
+                            </c:otherwise>
                         </c:choose>
                     </tr>
                 </c:forEach>

@@ -22,15 +22,18 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
@@ -54,12 +57,6 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -105,20 +102,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     virtualPort.setUserLabel(command.getUserLabel());
     virtualPortService.update(virtualPort);
-
-    return "redirect:/virtualports";
-  }
-
-  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
-      RedirectAttributes redirectAttributes) {
-
-    VirtualPort virtualPort = virtualPortService.find(id);
-
-    if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
-      return "redirect:/virtualports";
-    }
-    virtualPortService.requestDeleteVirtualPort(Security.getUserDetails(),"VirtualPort Delete Request", virtualPort);
 
     return "redirect:/virtualports";
   }
@@ -228,8 +211,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {
-          final long counter = reservationService.findActiveByVirtualPort(port).size();
-          final long pendingDeleteRequests = virtualPortRequestLinkRepo.findByUserLabelAndStatus(port.getUserLabel(), RequestStatus.DELETE_REQUEST_PENDING).size();
+          long counter = reservationService.findActiveByVirtualPort(port).size();
+          long pendingDeleteRequests = virtualPortRequestLinkRepo.findByUserLabelAndStatus(port.getUserLabel(), RequestStatus.DELETE_PENDING).size();
           return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter + pendingDeleteRequests));
         }
       };
