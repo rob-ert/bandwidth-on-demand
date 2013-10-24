@@ -20,45 +20,62 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web.view;
+package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
-import org.junit.Test;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.support.VirtualPortFactory;
+@Entity
+public class VirtualPortDeleteRequestLink extends AbstractRequestLink implements Loggable {
 
+  @ManyToOne
+  private VirtualPort virtualPort;
 
-public class VirtualPortViewTest {
+  private String virtualPortLabel;
 
-  private NsiHelper nsiHelper = new NsiHelper("", "", "", "", "");
+  @NotEmpty
+  private String message;
 
-  @Test
-  public void virtual_port_with_no_reservations_may_be_deleted() {
-    VirtualPort port = new VirtualPortFactory().create();
-    VirtualPortView view = new VirtualPortView(port, nsiHelper, Optional.<Long>absent());
-
-    assertThat(view.isRequestDeleteAllowed(), is(true));
+  public Optional<VirtualPort> getVirtualPort() {
+    return Optional.fromNullable(virtualPort);
   }
 
-  @Test
-  public void virtual_port_with_zero_reservations_may_be_deleted() {
-    VirtualPort port = new VirtualPortFactory().create();
-    VirtualPortView view = new VirtualPortView(port, nsiHelper, Optional.of(0L));
-
-    assertThat(view.isRequestDeleteAllowed(), is(true));
+  public void setVirtualPort(VirtualPort virtualPort) {
+    this.virtualPort = virtualPort;
+    this.virtualPortLabel = virtualPort.getLabel();
+    this.setVirtualResourceGroup(virtualPort.getVirtualResourceGroup());
+    this.setPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
   }
 
-  @Test
-  public void virtual_port_with_reservations_may_not_be_deleted() {
-    VirtualPort port = new VirtualPortFactory().create();
-    VirtualPortView view = new VirtualPortView(port, nsiHelper, Optional.of(2L));
-
-    assertThat(view.isRequestDeleteAllowed(), is(false));
+  public String getMessage() {
+    return message;
   }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public String getVirtualPortLabel() {
+    return virtualPortLabel;
+  }
+
+  @Override
+  public String getLabel() {
+    return getVirtualPort().transform(new Function<VirtualPort, String>() {
+      @Override
+      public String apply(VirtualPort port) {
+        return port.getLabel();
+      }
+    }).or("<unknown>");
+  }
+
+  public void clearVirtualPort() {
+    this.virtualPort = null;
+  }
+
 }

@@ -31,7 +31,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
@@ -182,21 +182,21 @@ public class DashboardControllerTest {
 
   @Test
   public void overviewShouldShowVirutalPortRequests() {
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().create();
 
     RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
 
     Model model = new ModelStub();
 
-    when(virtualPortServiceMock.findRequestsForLastMonth(user.getUserGroups())).thenReturn(ImmutableList.of(link));
+    when(virtualPortServiceMock.findCreateRequestsForLastMonth(user.getUserGroups())).thenReturn(ImmutableList.of(link));
 
     String page = subject.index(model);
 
     assertThat(page, is("index"));
-    assertThat(model.asMap(), hasKey("requests"));
+    assertThat(model.asMap(), hasKey("createRequests"));
     @SuppressWarnings("unchecked")
-    List<VirtualPortRequestLink> requests = (List<VirtualPortRequestLink>) model.asMap().get("requests");
+    List<VirtualPortCreateRequestLink> requests = (List<VirtualPortCreateRequestLink>) model.asMap().get("createRequests");
     assertThat(requests, contains(link));
     assertThat(link.getPhysicalResourceGroup().getInstitute(), notNullValue());
   }

@@ -27,7 +27,7 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualPortCreateRequestLinkFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.junit.Before;
@@ -54,11 +54,11 @@ public class DomainModelTest {
   private final VirtualResourceGroupFactory vrgFactory = new VirtualResourceGroupFactory();
   private final VirtualPortFactory vpFactory = new VirtualPortFactory();
   private final PhysicalPortFactory ppFactory = new PhysicalPortFactory();
-  private final VirtualPortRequestLinkFactory vprlFactory = new VirtualPortRequestLinkFactory();
+  private final VirtualPortCreateRequestLinkFactory vprlFactory = new VirtualPortCreateRequestLinkFactory();
 
   private Reservation reservation;
   private Reservation reservationTwo;
-  private VirtualPortRequestLink link;
+  private VirtualPortCreateRequestLink link;
   private VirtualResourceGroup vrg;
 
   private PhysicalResourceGroup prg;
@@ -92,7 +92,7 @@ public class DomainModelTest {
     vrg.setReservations(Lists.newArrayList(reservation, reservationTwo));
 
     link = vprlFactory.setVirtualResourceGroup(vrg).create();
-    vrg.setVirtualPortRequestLinks(Lists.newArrayList(link));
+    vrg.setVirtualPortCreateRequestLinks(Lists.newArrayList(link));
   }
 
   /**
@@ -183,7 +183,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldOnlyConsiderIdAndVersionInVirtualPortRequestLinkEquals() {
-    VirtualPortRequestLink requestLink = new VirtualPortRequestLinkFactory().create();
+    VirtualPortCreateRequestLink requestLink = new VirtualPortCreateRequestLinkFactory().create();
     requestLink.setId(3l);
 
     assertThat("Only on Id and version", link, not(requestLink));
@@ -200,7 +200,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldOnlyConsiderIdAndVersionInVirtualPortRequestLinkHashCode() {
-    VirtualPortRequestLink requestLink = new VirtualPortRequestLinkFactory().create();
+    VirtualPortCreateRequestLink requestLink = new VirtualPortCreateRequestLinkFactory().create();
     requestLink.setId(3l);
 
     assertThat("Only on Id and version", link.hashCode(), not(requestLink.hashCode()));

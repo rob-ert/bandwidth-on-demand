@@ -30,7 +30,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -80,10 +80,10 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public Converter<Long, VirtualPortRequestLink> getIdToVirtualPortRequestLinkConverter() {
-    return new Converter<Long, VirtualPortRequestLink>() {
+  public Converter<Long, VirtualPortCreateRequestLink> getIdToVirtualPortRequestLinkConverter() {
+    return new Converter<Long, VirtualPortCreateRequestLink>() {
       @Override
-      public VirtualPortRequestLink convert(Long id) {
+      public VirtualPortCreateRequestLink convert(Long id) {
         return virtualPortService.findRequest(id);
       }
     };
@@ -143,11 +143,11 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
-  public Converter<String, VirtualPortRequestLink> getStringToVirtualPortRequestLinkConverter() {
-    return new Converter<String, VirtualPortRequestLink>() {
+  public Converter<String, VirtualPortCreateRequestLink> getStringToVirtualPortRequestLinkConverter() {
+    return new Converter<String, VirtualPortCreateRequestLink>() {
       @Override
-      public VirtualPortRequestLink convert(String id) {
-        return getObject().convert(getObject().convert(id, Long.class), VirtualPortRequestLink.class);
+      public VirtualPortCreateRequestLink convert(String id) {
+        return getObject().convert(getObject().convert(id, Long.class), VirtualPortCreateRequestLink.class);
       }
     };
   }

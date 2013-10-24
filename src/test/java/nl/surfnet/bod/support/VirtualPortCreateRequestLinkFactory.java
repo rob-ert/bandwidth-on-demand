@@ -22,14 +22,14 @@
  */
 package nl.surfnet.bod.support;
 
+import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.joda.time.DateTime;
 
-public class VirtualPortRequestLinkFactory {
+public class VirtualPortCreateRequestLinkFactory {
 
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
@@ -42,8 +42,8 @@ public class VirtualPortRequestLinkFactory {
   private Long minBandwidth = 1000L;
   private RequestStatus status = RequestStatus.PENDING;
 
-  public VirtualPortRequestLink create() {
-    VirtualPortRequestLink link = new VirtualPortRequestLink();
+  public VirtualPortCreateRequestLink create() {
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLink();
 
     link.setVirtualResourceGroup(virtualResourceGroup);
     link.setPhysicalResourceGroup(physicalResourceGroup);
@@ -62,27 +62,27 @@ public class VirtualPortRequestLinkFactory {
     return link;
   }
 
-  public VirtualPortRequestLinkFactory setMessage(String message) {
+  public VirtualPortCreateRequestLinkFactory setMessage(String message) {
     this.message = message;
     return this;
   }
 
-  public VirtualPortRequestLinkFactory setMinBandwidth(Long minBandwidth) {
+  public VirtualPortCreateRequestLinkFactory setMinBandwidth(Long minBandwidth) {
     this.minBandwidth = minBandwidth;
     return this;
   }
 
-  public VirtualPortRequestLinkFactory setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
+  public VirtualPortCreateRequestLinkFactory setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
     this.virtualResourceGroup = virtualResourceGroup;
     return this;
   }
 
-  public VirtualPortRequestLinkFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+  public VirtualPortCreateRequestLinkFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     this.physicalResourceGroup = physicalResourceGroup;
     return this;
   }
 
-  public VirtualPortRequestLinkFactory setStatus(RequestStatus status) {
+  public VirtualPortCreateRequestLinkFactory setStatus(RequestStatus status) {
     this.status = status;
     return this;
   }

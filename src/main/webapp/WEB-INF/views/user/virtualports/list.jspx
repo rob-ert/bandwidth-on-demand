@@ -62,7 +62,7 @@
                         <table:column item="${item}" property="physicalResourceGroup" />
 
                         <c:choose>
-                            <c:when test="${item.requestDeleteAllowed}">
+                            <c:when test="${item.deleteAllowed}">
                                 <table:actionsColumn
                                     delete="false"
                                     item="${item}"

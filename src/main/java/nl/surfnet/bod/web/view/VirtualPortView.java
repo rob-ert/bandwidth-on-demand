@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.web.view;
 
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
 
@@ -37,16 +35,16 @@ public class VirtualPortView {
   private final String physicalPort;
   private final String nmsPortId;
   private final String userLabel;
-  private final Optional<Long> reservationCounter;
   private final String nsiStpIdV1;
   private final String nsiProviderIdV1;
   private final String nsiStpLocalIdV2;
   private final String nsiStpNetworkIdV2;
   private final String nsiProviderIdV2;
-  private final boolean requestDeleteAllowed; // indicates if the 'request deletion' icon+link should be greyed out or active
+  private final long numberOfActiveReservations;
+  private final boolean deleteAllowed;
 
 
-  public VirtualPortView(VirtualPort port, NsiHelper nsiHelper, Optional<Long> reservationCounter) {
+  public VirtualPortView(VirtualPort port, NsiHelper nsiHelper, long numberOfActiveReservations, boolean deleteAllowed) {
     this.id = port.getId();
     this.managerLabel = port.getManagerLabel();
     this.userLabel = port.getUserLabel();
@@ -56,17 +54,21 @@ public class VirtualPortView {
     this.physicalResourceGroup = port.getPhysicalResourceGroup().getName();
     this.physicalPort = port.getPhysicalPort().getManagerLabel();
     this.nmsPortId = port.getPhysicalPort().getNmsPortId();
-    this.reservationCounter = reservationCounter;
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
     this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
     this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
     this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
     this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
-    this.requestDeleteAllowed = !reservationCounter.isPresent() || reservationCounter.get() == 0L;
+    this.numberOfActiveReservations = numberOfActiveReservations;
+    this.deleteAllowed = deleteAllowed;
   }
 
-  public boolean isRequestDeleteAllowed() {
-    return requestDeleteAllowed;
+  public long getNumberOfActiveReservations() {
+    return numberOfActiveReservations;
+  }
+
+  public boolean isdeleteAllowed() {
+    return deleteAllowed;
   }
 
   public String getManagerLabel() {
@@ -103,10 +105,6 @@ public class VirtualPortView {
 
   public String getUserLabel() {
     return userLabel;
-  }
-
-  public Long getReservationCounter() {
-    return reservationCounter.orNull();
   }
 
   public String getNsiStpIdV1() {
@@ -178,17 +176,10 @@ public class VirtualPortView {
       builder.append(userLabel);
       builder.append(", ");
     }
-    if (reservationCounter != null) {
-      builder.append("reservationCounter=");
-      builder.append(reservationCounter.orNull());
-      builder.append(", ");
-    }
     if (nsiStpIdV1 != null) {
       builder.append("nsiStpIdV1=");
       builder.append(nsiStpIdV1);
     }
-    builder.append("requestDeleteAllowed=");
-    builder.append(requestDeleteAllowed);
     builder.append("]");
     return builder.toString();
   }
@@ -204,7 +195,6 @@ public class VirtualPortView {
     result = prime * result + ((nsiStpIdV1 == null) ? 0 : nsiStpIdV1.hashCode());
     result = prime * result + ((physicalPort == null) ? 0 : physicalPort.hashCode());
     result = prime * result + ((physicalResourceGroup == null) ? 0 : physicalResourceGroup.hashCode());
-    result = prime * result + ((reservationCounter == null) ? 0 : reservationCounter.hashCode());
     result = prime * result + ((userLabel == null) ? 0 : userLabel.hashCode());
     result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.hashCode());
     result = prime * result + ((vlanId == null) ? 0 : vlanId.hashCode());
@@ -272,13 +262,6 @@ public class VirtualPortView {
     } else if (!physicalResourceGroup.equals(other.physicalResourceGroup)) {
       return false;
     }
-    if (reservationCounter == null) {
-      if (other.reservationCounter != null) {
-        return false;
-      }
-    } else if (!reservationCounter.equals(other.reservationCounter)) {
-      return false;
-    }
     if (userLabel == null) {
       if (other.userLabel != null) {
         return false;
@@ -301,7 +284,6 @@ public class VirtualPortView {
       return false;
     }
 
-    // TODO: equals for requestDeleteAllowed
     return true;
   }
 

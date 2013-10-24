@@ -48,7 +48,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -72,7 +72,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(LogEvent
       .getDomainObjectName(Reservation.class), LogEvent.getDomainObjectName(VirtualPort.class), LogEvent
       .getDomainObjectName(UniPort.class), LogEvent.getDomainObjectName(PhysicalResourceGroup.class), LogEvent
-      .getDomainObjectName(Institute.class), LogEvent.getDomainObjectName(VirtualPortRequestLink.class));
+      .getDomainObjectName(Institute.class), LogEvent.getDomainObjectName(VirtualPortCreateRequestLink.class));
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

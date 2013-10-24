@@ -25,7 +25,7 @@ package nl.surfnet.bod.web.manager;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -35,7 +35,7 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualPortCreateRequestLinkFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -65,26 +65,17 @@ public class DashboardControllerTest {
   @InjectMocks
   private DashboardController subject;
 
-  @Mock
-  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-
-  @Mock
-  private ReservationService reservationServiceMock;
-
-  @Mock
-  private LogEventService logEventServiceMock;
+  @Mock private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+  @Mock private PhysicalPortService physicalPortServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private ReservationService reservationServiceMock;
+  @Mock private LogEventService logEventServiceMock;
 
   @SuppressWarnings("unchecked")
   @Test
   public void shouldAddPrgAndRequestLinkToModel() {
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    VirtualPortRequestLink requestLink = new VirtualPortRequestLinkFactory().create();
+    VirtualPortCreateRequestLink requestLink = new VirtualPortCreateRequestLinkFactory().create();
     RichUserDetails user = new RichUserDetailsFactory().addManagerRole(physicalResourceGroup).create();
 
     Security.setUserDetails(user);
@@ -93,13 +84,12 @@ public class DashboardControllerTest {
     RedirectAttributes model = new ModelStub();
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
-    when(virtualPortServiceMock.findPendingRequests(physicalResourceGroup)).thenReturn(ImmutableList.of(requestLink));
+    when(virtualPortServiceMock.findPendingCreateRequests(physicalResourceGroup)).thenReturn(ImmutableList.of(requestLink));
 
     String page = subject.index(model);
 
     assertThat((PhysicalResourceGroup) WebUtils.getAttributeFromModel("prg", model), is(physicalResourceGroup));
-    assertThat((Collection<VirtualPortRequestLink>) WebUtils.getAttributeFromModel("requests", model),
-        contains(requestLink));
+    assertThat((Collection<VirtualPortCreateRequestLink>) WebUtils.getAttributeFromModel("createRequests", model), contains(requestLink));
     assertThat(WebUtils.getAttributeFromModel("stats", model), notNullValue());
     assertThat(page, is("manager/index"));
   }

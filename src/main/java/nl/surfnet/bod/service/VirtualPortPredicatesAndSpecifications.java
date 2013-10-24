@@ -72,16 +72,26 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static Specification<VirtualPortRequestLink> byGroupIdInLastMonthSpec(final Collection<String> vrgUrns) {
-    return new Specification<VirtualPortRequestLink>() {
-
+  static Specification<VirtualPortDeleteRequestLink> deleteRequestsByGroupIdInLastMonthSpec(final Collection<String> vrgUrns) {
+    return new Specification<VirtualPortDeleteRequestLink>() {
       @Override
-      public Predicate toPredicate(Root<VirtualPortRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+      public Predicate toPredicate(Root<VirtualPortDeleteRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
-
         return cb.and(
-            cb.between(root.get(VirtualPortRequestLink_.requestDateTime), start.minusDays(31), start),
-            root.get(VirtualPortRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
+            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusDays(31), start),
+            root.get(VirtualPortDeleteRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
+      }
+    };
+  }
+
+  static Specification<VirtualPortCreateRequestLink> createRequestsByGroupIdInLastMonthSpec(final Collection<String> vrgUrns) {
+    return new Specification<VirtualPortCreateRequestLink>() {
+      @Override
+      public Predicate toPredicate(Root<VirtualPortCreateRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
+        return cb.and(
+            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusDays(31), start),
+            root.get(VirtualPortCreateRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
       }
     };
   }

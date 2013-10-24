@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -274,9 +274,9 @@ public class VirtualPortControllerTest {
     PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory()
       .setAdminGroup("urn:manager-group-wrong")
       .create();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
 
-    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+    when(virtualPortServiceMock.findCreateRequest("123-abc-456-qwerty")).thenReturn(link);
 
     mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
       .andExpect(status().isMovedTemporarily())
@@ -285,7 +285,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void createWithNonExistinLinkShouldRedirect() throws Exception {
-    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(null);
+    when(virtualPortServiceMock.findCreateRequest("123-abc-456-qwerty")).thenReturn(null);
 
     mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
       .andExpect(status().isMovedTemporarily())
@@ -294,11 +294,11 @@ public class VirtualPortControllerTest {
 
   @Test
   public void createShouldAddCreateCommandToModel() throws Exception {
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory()
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory()
       .setPhysicalResourceGroup(prg)
       .setMinBandwidth(1024L).create();
 
-    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+    when(virtualPortServiceMock.findCreateRequest("123-abc-456-qwerty")).thenReturn(link);
 
     mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
       .andExpect(status().isOk())
@@ -313,11 +313,11 @@ public class VirtualPortControllerTest {
 
   @Test
   public void createShouldNotBeAllowdIfLinkIsAlreadyUsed() throws Exception {
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory()
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory()
       .setStatus(RequestStatus.APPROVED)
       .setPhysicalResourceGroup(prg).create();
 
-    when(virtualPortServiceMock.findRequest("123-abc-456-qwerty")).thenReturn(link);
+    when(virtualPortServiceMock.findCreateRequest("123-abc-456-qwerty")).thenReturn(link);
 
     mockMvc.perform(get("/manager/virtualports/create/123-abc-456-qwerty"))
       .andExpect(status().isOk())
@@ -328,13 +328,13 @@ public class VirtualPortControllerTest {
   @Test
   public void createShouldSwitchToRelatedManagerRole() {
     ModelStub model = new ModelStub();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(prg).create();
 
-    when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
+    when(virtualPortServiceMock.findCreateRequest("1234567890")).thenReturn(link);
 
     Security.switchToUser();
 
-    subject.createForm("1234567890", model, model);
+    subject.createRequestForm("1234567890", model, model);
 
     assertThat(user.getSelectedRole().getRole(), is(RoleEnum.ICT_MANAGER));
   }
@@ -342,11 +342,11 @@ public class VirtualPortControllerTest {
   @Test
   public void whenAPortIsCreatedLinkShouldChangeStatus() {
     ModelStub model = new ModelStub();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(prg).create();
     VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
     BindingResult result = new BeanPropertyBindingResult(command, "createVirtualPortCommand");
 
-    subject.create(command, result, model, model);
+    subject.createRequest(command, result, model, model);
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
     verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
@@ -355,7 +355,7 @@ public class VirtualPortControllerTest {
   @Test
   public void whenLinkIsApprovedDeclineMessageMayBeEmpty() {
     ModelStub model = new ModelStub();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(prg).create();
     VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
     BindingResult result = mock(BindingResult.class);
 
@@ -363,7 +363,7 @@ public class VirtualPortControllerTest {
     when(result.getErrorCount()).thenReturn(1);
     when(result.hasFieldErrors("declineMessage")).thenReturn(true);
 
-    subject.create(command, result, model, model);
+    subject.createRequest(command, result, model, model);
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
     verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
@@ -372,13 +372,13 @@ public class VirtualPortControllerTest {
   @Test
   public void requestCanBeDeclined() {
     ModelStub model = new ModelStub();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(prg).create();
     VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
     command.setAcceptOrDecline("decline");
     command.setDeclineMessage("Declined!");
     BindingResult result = new BeanPropertyBindingResult(command, "createVirtualPortCommand");
 
-    String page = subject.create(command, result, model, model);
+    String page = subject.createRequest(command, result, model, model);
 
     assertThat(page, is("redirect:/manager/virtualports"));
 

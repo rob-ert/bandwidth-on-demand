@@ -31,12 +31,12 @@ import static org.mockito.Mockito.verify;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.VirtualPortCreateRequestLinkFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -54,17 +54,12 @@ import org.springframework.mail.SimpleMailMessage;
 @RunWith(MockitoJUnitRunner.class)
 public class EmailSenderOnlineTest {
 
-  @InjectMocks
-  private EmailSenderOnline subject;
+  @InjectMocks private EmailSenderOnline subject;
 
-  @Mock
-  private MailSender mailSenderMock;
+  @Mock private MailSender mailSenderMock;
+  @Mock private LogEventService logEventService;
 
-  @Mock
-  private LogEventService logEventService;
-
-  @Captor
-  private ArgumentCaptor<SimpleMailMessage> messageCaptor;
+  @Captor private ArgumentCaptor<SimpleMailMessage> messageCaptor;
 
   @Before
   public void setUp() {
@@ -73,8 +68,7 @@ public class EmailSenderOnlineTest {
 
   @Test
   public void mailMessageShouldContainUrlWithNameAndUUID() {
-    ActivationEmailLink activationEmailLink = new ActivationEmailLinkFactory()
-        .create();
+    ActivationEmailLink activationEmailLink = new ActivationEmailLinkFactory().create();
 
     subject.setFromAddress("test@example.com");
     subject.sendActivationMail(activationEmailLink);
@@ -95,17 +89,17 @@ public class EmailSenderOnlineTest {
   }
 
   @Test
-  public void virtualPortRequestMessage() {
+  public void virtualPortCreateRequestMessage() {
     RichUserDetails user = new RichUserDetailsFactory().create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
     Long bandwidth = 1000L;
     String requestMessage = "I would like to have a port.";
 
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setPhysicalResourceGroup(pGroup)
         .setVirtualResourceGroup(vGroup).setMessage(requestMessage).setMinBandwidth(bandwidth).create();
 
-    subject.sendVirtualPortRequestMail(user, link);
+    subject.sendVirtualPortCreateRequestMail(user, link);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 
@@ -128,10 +122,13 @@ public class EmailSenderOnlineTest {
     Long bandwidth = 1000L;
     String requestMessage = "I would like to have a port.";
 
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)
-        .setVirtualResourceGroup(vGroup).setMessage(requestMessage).setMinBandwidth(bandwidth).create();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory()
+      .setPhysicalResourceGroup(pGroup)
+      .setVirtualResourceGroup(vGroup)
+      .setMessage(requestMessage)
+      .setMinBandwidth(bandwidth).create();
 
-    subject.sendVirtualPortRequestMail(user, link);
+    subject.sendVirtualPortCreateRequestMail(user, link);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 

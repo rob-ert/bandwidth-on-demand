@@ -731,7 +731,6 @@
                         <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
                     </compilerArguments>
                 </configuration>
-
             </plugin>
             <plugin>
                 <groupId>com.samaxes.maven</groupId>

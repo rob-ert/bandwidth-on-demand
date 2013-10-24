@@ -23,7 +23,8 @@
 package nl.surfnet.bod.service;
 
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 public final class Emails {
@@ -64,38 +65,38 @@ public final class Emails {
       "Dear BoD Administrator,\n\n" //
         + "You have received a new delete Virtual Port Request.\n\n" //
         + "From: %s (%s)\n" //
-        + "Team: %s\n" //
-        + "Name: %s\n" //
+        + "VirtualPort: %s\n" //
         + "Reason: %s\n" //
-        + "Institute: %s\n\n" //
         + "Click on the following link %s to delete the virtual port." //
         + FOOTER;
 
-    public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
-      return requestLink.isDeleteRequest() ?
-        String.format(DELETE_VIRTUAL_PORT_REQUEST_BODY,
-          from.getDisplayName(),
-          from.getEmail().or("Unknown Email"),
-          requestLink.getVirtualResourceGroup().getName(),
-          requestLink.getUserLabel(),
-          requestLink.getMessage(),
-          requestLink.getPhysicalResourceGroup().getInstitute().getName(),
-          link) :
-        String.format(NEW_VIRTUAL_PORT_REQUEST_BODY,
-          from.getDisplayName(),
-          from.getEmail().or("Unknown Email"),
-          requestLink.getVirtualResourceGroup().getName(),
-          requestLink.getUserLabel(),
-          requestLink.getMinBandwidth(),
-          requestLink.getMessage(),
-          requestLink.getPhysicalResourceGroup().getInstitute().getName(),
-          link);
+    public static String body(RichUserDetails from, VirtualPortDeleteRequestLink requestLink, String link) {
+      return String.format(DELETE_VIRTUAL_PORT_REQUEST_BODY,
+        from.getDisplayName(),
+        from.getEmail().or("Unknown Email"),
+        requestLink.getVirtualPort().get().getUserLabel(),
+        requestLink.getMessage(),
+        link);
     }
 
-    public static String subject(RichUserDetails user, VirtualPortRequestLink requestLink) {
-      return requestLink.isDeleteRequest() ?
-        String.format("[BoD] Virtual Port Delete Request from %s", user.getDisplayName()) :
-        String.format("[BoD] Virtual Port Request from %s", user.getDisplayName());
+    public static String body(RichUserDetails from, VirtualPortCreateRequestLink requestLink, String link) {
+      return String.format(NEW_VIRTUAL_PORT_REQUEST_BODY,
+        from.getDisplayName(),
+        from.getEmail().or("Unknown Email"),
+        requestLink.getVirtualResourceGroup().getName(),
+        requestLink.getUserLabel(),
+        requestLink.getMinBandwidth(),
+        requestLink.getMessage(),
+        requestLink.getPhysicalResourceGroup().getInstitute().getName(),
+        link);
+    }
+
+    public static String subject(RichUserDetails user, VirtualPortDeleteRequestLink requestLink) {
+      return String.format("[BoD] Virtual Port Delete Request from %s", user.getDisplayName());
+    }
+
+    public static String subject(RichUserDetails user, VirtualPortCreateRequestLink requestLink) {
+      return String.format("[BoD] Virtual Port Request from %s", user.getDisplayName());
     }
   }
 
@@ -106,7 +107,7 @@ public final class Emails {
         + "The Virtual Port is now available with the name '%s'. It has a max. bandwidth of %d Mbit/s." //
         + FOOTER;
 
-    public static String body(VirtualPortRequestLink link, VirtualPort port) {
+    public static String body(VirtualPortCreateRequestLink link, VirtualPort port) {
       return String.format(BODY, link.getRequestorName(), link.getPhysicalResourceGroup().getName(), link
           .getVirtualResourceGroup().getName(), port.getUserLabel(), port.getMaxBandwidth());
     }
@@ -127,7 +128,7 @@ public final class Emails {
       return "[BoD] Your Virtual Port Request has been declined";
     }
 
-    public static String body(VirtualPortRequestLink link, String message) {
+    public static String body(VirtualPortCreateRequestLink link, String message) {
       return String.format(BODY,
           link.getRequestorName(),
           link.getPhysicalResourceGroup().getName(),

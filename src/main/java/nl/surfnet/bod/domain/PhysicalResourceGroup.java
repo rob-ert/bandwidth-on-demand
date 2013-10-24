@@ -75,7 +75,7 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
 
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   @JsonIgnore
-  private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
+  private Collection<VirtualPortCreateRequestLink> virtualPortRequestLinks;
 
   @Override
   public Long getId() {

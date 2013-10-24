@@ -33,7 +33,8 @@ import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
@@ -90,10 +91,8 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
-    String link = requestLink.isDeleteRequest() ?
-      String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid()) :
-      String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
+  public void sendVirtualPortCreateRequestMail(RichUserDetails from, VirtualPortCreateRequestLink requestLink) {
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
 
     SimpleMailMessage mail = new MailMessageBuilder()
       .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
@@ -110,7 +109,25 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendVirtualPortRequestApproveMail(VirtualPortRequestLink link, VirtualPort port) {
+  public void sendVirtualPortDeleteRequestMail(RichUserDetails from, VirtualPortDeleteRequestLink requestLink) {
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid());
+
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
+      .withSubject(VirtualPortRequestMail.subject(from, requestLink))
+      .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
+
+    if (from.getEmail().isPresent()) {
+      mail.setReplyTo(from.getEmail().get());
+    } else {
+      log.warn("User {} has no email address that can be used as the reply-to!", from);
+    }
+
+    send(mail);
+  }
+
+  @Override
+  public void sendVirtualPortRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
         .withSubject(VirtualPortRequestApproveMail.subject(port))
         .withBodyText(VirtualPortRequestApproveMail.body(link, port)).create();
@@ -119,7 +136,7 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendVirtualPortRequestDeclineMail(VirtualPortRequestLink link, String declineMessage) {
+  public void sendVirtualPortRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
         .withSubject(VirtualPortRequestDeclineMail.subject())
         .withBodyText(VirtualPortRequestDeclineMail.body(link, declineMessage)).create();

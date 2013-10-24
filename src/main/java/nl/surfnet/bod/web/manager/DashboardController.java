@@ -22,16 +22,16 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.util.Orderings.VP_REQUEST_LINK_ORDERING;
-
-import java.util.Collection;
+import static nl.surfnet.bod.support.ReservationFilterViewFactory.ACTIVE;
+import static nl.surfnet.bod.support.ReservationFilterViewFactory.COMING;
+import static nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED;
+import static nl.surfnet.bod.util.Orderings.REQUEST_LINK_ORDERING;
 
 import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
@@ -51,17 +51,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/manager")
 public class DashboardController {
 
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
-
-  @Resource
-  private PhysicalPortService physicalPortService;
-
-  @Resource
-  private ReservationService reservationService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private VirtualPortService virtualPortService;
+  @Resource private PhysicalPortService physicalPortService;
+  @Resource private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -72,11 +65,10 @@ public class DashboardController {
     }
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(groupId.get());
-    Collection<VirtualPortRequestLink> requests = virtualPortService.findPendingRequests(group);
 
     model.addAttribute("prg", group);
-    model.addAttribute("requests", VP_REQUEST_LINK_ORDERING.sortedCopy(requests));
-
+    model.addAttribute("createRequests", REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findPendingCreateRequests(group)));
+    model.addAttribute("deleteRequests", REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findPendingDeleteRequests(group)));
     model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
@@ -89,20 +81,12 @@ public class DashboardController {
         .getPhysicalResourceGroupId().get());
 
     long countPhysicalPorts = physicalPortService.countAllocatedForPhysicalResourceGroup(managerPrg);
-
     long countVirtualPorts = virtualPortService.countForManager(manager.getSelectedRole());
+    long countElapsedReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory.create(ELAPSED));
+    long countActiveReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory.create(ACTIVE));
+    long countComingReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory.create(COMING));
 
-    long countElapsedReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ELAPSED));
-
-    long countActiveReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.ACTIVE));
-
-    long countComingReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory
-        .create(ReservationFilterViewFactory.COMING));
-
-    return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
-        countActiveReservations, countComingReservations);
+    return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations, countActiveReservations, countComingReservations);
   }
 
 }

@@ -31,14 +31,13 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualPortDeleteRequestLinkRepo;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -63,7 +62,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   @Resource private VirtualPortService virtualPortService;
-  @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  @Resource private VirtualPortDeleteRequestLinkRepo virtualPortDeleteRequestLinkRepo;
   @Resource private ReservationService reservationService;
   @Resource private NsiHelper nsiHelper;
 
@@ -152,6 +151,31 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     return super.translateSortProperty(sortProperty);
   }
 
+  @Override
+  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
+    return virtualPortService;
+  }
+
+  @Override
+  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
+    final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter, sort);
+  }
+
+  @Override
+  protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
+    return Lists.transform(entities, fromVirtualPortToVirtualPortView);
+  }
+
+  private final Function<VirtualPort, VirtualPortView> fromVirtualPortToVirtualPortView = new Function<VirtualPort, VirtualPortView>() {
+    @Override
+    public VirtualPortView apply(VirtualPort port) {
+      long numberOfActiveReservations = reservationService.findActiveByVirtualPort(port).size();
+      VirtualPortDeleteRequestLink request = virtualPortDeleteRequestLinkRepo.findByVirtualPort(port);
+      return new VirtualPortView(port, nsiHelper, numberOfActiveReservations, numberOfActiveReservations == 0 && request == null);
+    }
+  };
+
   public static class UpdateUserLabelCommand {
     private String userLabel;
     private Long id;
@@ -190,31 +214,5 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
       this.version = version;
     }
   }
-
-  @Override
-  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
-    return virtualPortService;
-  }
-
-  @Override
-  protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter, sort);
-  }
-
-  @Override
-  protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
-    return Lists.transform(entities, fromVirtualPortToVirtualPortView);
-  }
-
-  public final Function<VirtualPort, VirtualPortView> fromVirtualPortToVirtualPortView =
-      new Function<VirtualPort, VirtualPortView>() {
-        @Override
-        public VirtualPortView apply(VirtualPort port) {
-          long counter = reservationService.findActiveByVirtualPort(port).size();
-          long pendingDeleteRequests = virtualPortRequestLinkRepo.findByUserLabelAndStatus(port.getUserLabel(), RequestStatus.DELETE_PENDING).size();
-          return new VirtualPortView(port, nsiHelper, Optional.<Long> of(counter + pendingDeleteRequests));
-        }
-      };
 
 }

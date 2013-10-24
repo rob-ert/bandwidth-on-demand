@@ -21,7 +21,7 @@
                     </div>
                 </div>
 
-                <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestorName" />
+                <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestDateTime" />
 
                 <div class="control-group">
                     <label class="control-label">Motivation</label>
@@ -34,7 +34,7 @@
                         </output>
                     </div>
                 </div>
-                <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestDateTime" />
+
 
                 <div class="control-group" data-component="accept-decline-selector" data-accept="Accept" data-decline="Decline">
                     <label class="control-label">Accept or Decline</label>

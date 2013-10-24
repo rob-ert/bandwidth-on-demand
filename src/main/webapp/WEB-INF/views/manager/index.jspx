@@ -4,6 +4,7 @@
     xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:bodfn="BodTags"
     version="2.0">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
@@ -24,7 +25,7 @@
                 <a href="${edit_prg_url}" rel="tooltip" title="Edit institute" data-type="info"> <i class="icon-pencil"> <!--  --></i></a>
             </div>
         </section>
-        <c:if test="${not empty requests}">
+        <c:if test="${not empty createRequests}">
             <section>
                 <h2>Pending Virtual Port Requests</h2>
                 <div class="content">
@@ -34,47 +35,60 @@
                                 <th>Team</th>
                                 <th>Who</th>
                                 <th>Requested</th>
-                                <th>Status</th>
                                 <table:actionsHeader />
                            </tr>
                         </thead>
                         <tbody>
-                            <c:forEach items="${requests}" var="request">
-                              <tr>
+                            <c:forEach items="${createRequests}" var="request">
+                                <tr>
                                     <td><c:out value="${request.virtualResourceGroup.name}" /></td>
                                     <td><c:out value="${request.requestorName}" /></td>
                                     <td><spring:eval expression="request.requestDateTime" /></td>
-                                    <td><c:out value="${request.status}" /></td>
-
-                                    <c:choose>
-                                     <c:when test="${request.status eq 'DELETE_REQUEST_PENDING'}">
-
-                                     <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
-                                        <spring:url value="/manager/virtualports/delete/${request.uuid}" var="requestUrl" />
-                                        <a href="${requestUrl}" rel="tooltip"
-                                            title="Delete Virtual Port Request" data-type="info"><i
-                                            class="icon-remove"> <!--  -->
-                                     </i></a>
-                                    </table:actionsColumn>
-
-                                     </c:when>
-                                    <c:otherwise>
                                     <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
                                         <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />
-                                        <a href="${requestUrl}" rel="tooltip"
-                                            title="New Virtual Port Request" data-type="info"><i
-                                            class="icon-plus"> <!--  -->
-                                     </i></a>
+                                        <a href="${requestUrl}" rel="tooltip" title="Create Virtual Port" data-type="info">
+                                            <i class="icon-plus"><!--  --></i>
+                                        </a>
                                     </table:actionsColumn>
-
-                                    </c:otherwise>
-                                    </c:choose>
-
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
-                    </div>
+                </div>
+            </section>
+        </c:if>
+        <c:if test="${not empty deleteRequests}">
+            <section>
+                <h2>Pending Virtual Port Delete Requests</h2>
+                <div class="content">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                           <tr>
+                                <th>Team</th>
+                                <th>Who</th>
+                                <th>Virtual Port</th>
+                                <th>Requested</th>
+                                <table:actionsHeader />
+                           </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${deleteRequests}" var="request">
+                                <tr>
+                                    <td><c:out value="${request.virtualResourceGroup.name}" /></td>
+                                    <td><c:out value="${request.requestorName}" /></td>
+                                    <td><c:out value="${bodfn:get(request.virtualPort).managerLabel}" /></td>
+                                    <td><spring:eval expression="request.requestDateTime" /></td>
+                                    <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
+                                        <spring:url value="/manager/virtualports/delete/${request.uuid}" var="requestUrl" />
+                                        <a href="${requestUrl}" rel="tooltip" title="Delete Virtual Port" data-type="info">
+                                            <i class="icon-remove"><!--  --></i>
+                                        </a>
+                                    </table:actionsColumn>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </c:if>
         <section>

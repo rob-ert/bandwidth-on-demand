@@ -24,7 +24,8 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.deleteRequestsByGroupIdInLastMonthSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.createRequestsByGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byUniPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
@@ -41,6 +42,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 
+import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -48,12 +50,13 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.repo.VirtualPortDeleteRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualPortCreateRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -72,7 +75,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   @Resource private VirtualPortRepo virtualPortRepo;
   @Resource private VirtualResourceGroupRepo virtualResourceGroupReppo;
-  @Resource private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  @Resource private VirtualPortCreateRequestLinkRepo virtualPortCreateRequestLinkRepo;
+  @Resource private VirtualPortDeleteRequestLinkRepo virtualPortDeleteRequestLinkRepo;
   @Resource private EmailSender emailSender;
   @Resource private ReservationService reservationService;
   @Resource private LogEventService logEventService;
@@ -196,85 +200,89 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortRepo.findAll(byUniPortSpec(port));
   }
 
-  public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
+  public void requestCreateVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
       String userLabel, Long minBandwidth, String message) {
-    VirtualPortRequestLink link = new VirtualPortRequestLink();
+    VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLink();
+    link.setStatus(RequestStatus.PENDING);
     link.setVirtualResourceGroup(vGroup);
     link.setPhysicalResourceGroup(pGroup);
     link.setUserLabel(userLabel);
     link.setMinBandwidth(minBandwidth);
     link.setMessage(message);
-    link.setRequestorEmail(user.getEmail().get());
-    link.setRequestorName(user.getDisplayName());
-    link.setRequestorUrn(user.getUsername());
+    link.setUser(user);
     link.setRequestDateTime(DateTime.now());
 
-    virtualPortRequestLinkRepo.save(link);
-    emailSender.sendVirtualPortRequestMail(user, link);
+    virtualPortCreateRequestLinkRepo.save(link);
+    emailSender.sendVirtualPortCreateRequestMail(user, link);
 
-    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
 
   public void requestDeleteVirtualPort(RichUserDetails user, String message, VirtualPort virtualPort) {
-    VirtualPortRequestLink link = new VirtualPortRequestLink();
-    link.setVirtualResourceGroup(virtualPort.getVirtualResourceGroup());
-    link.setPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
-    link.setUserLabel(virtualPort.getUserLabel());
+    VirtualPortDeleteRequestLink link = new VirtualPortDeleteRequestLink();
+    link.setStatus(RequestStatus.PENDING);
     link.setMessage(message);
-    link.setRequestorEmail(user.getEmail().get());
-    link.setRequestorName(user.getDisplayName());
-    link.setRequestorUrn(user.getUsername());
+    link.setUser(user);
     link.setRequestDateTime(DateTime.now());
+    link.setVirtualPort(virtualPort);
 
-    link.setStatus(RequestStatus.DELETE_PENDING);
+    virtualPortDeleteRequestLinkRepo.save(link);
+    emailSender.sendVirtualPortDeleteRequestMail(user, link);
 
-    virtualPortRequestLinkRepo.save(link);
-    emailSender.sendVirtualPortRequestMail(user, link);
-
-    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
 
-  public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
-    List<VirtualPortRequestLink> requests = virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
-    requests.addAll(virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.DELETE_PENDING));
-    return requests;
+  public Collection<VirtualPortCreateRequestLink> findPendingCreateRequests(PhysicalResourceGroup prg) {
+    return virtualPortCreateRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
   }
 
-  public VirtualPortRequestLink findRequest(String uuid) {
-    return virtualPortRequestLinkRepo.findByUuid(uuid);
+  public Collection<VirtualPortDeleteRequestLink> findPendingDeleteRequests(PhysicalResourceGroup prg) {
+    return virtualPortDeleteRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
   }
 
-  public void requestLinkApproved(VirtualPortRequestLink link, VirtualPort port) {
+  public VirtualPortCreateRequestLink findCreateRequest(String uuid) {
+    return virtualPortCreateRequestLinkRepo.findByUuid(uuid);
+  }
+
+  public VirtualPortDeleteRequestLink findDeleteRequest(String uuid) {
+    return virtualPortDeleteRequestLinkRepo.findByUuid(uuid);
+  }
+
+  public void requestLinkApproved(VirtualPortCreateRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), "Approved request link " + link.getUserLabel(), link);
-    virtualPortRequestLinkRepo.save(link);
+    virtualPortCreateRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestApproveMail(link, port);
   }
 
-  public VirtualPortRequestLink findRequest(Long id) {
-    return virtualPortRequestLinkRepo.findOne(id);
+  public VirtualPortCreateRequestLink findRequest(Long id) {
+    return virtualPortCreateRequestLinkRepo.findOne(id);
   }
 
-  public Collection<VirtualPortRequestLink> findRequestsForLastMonth(Collection<UserGroup> userGroups) {
-    Collection<String> groups = Collections2.transform(userGroups, new Function<UserGroup, String>() {
+  public Collection<VirtualPortCreateRequestLink> findCreateRequestsForLastMonth(Collection<UserGroup> userGroups) {
+    return virtualPortCreateRequestLinkRepo.findAll(createRequestsByGroupIdInLastMonthSpec(toIds(userGroups)));
+  }
+
+  public Collection<VirtualPortDeleteRequestLink> findDeleteRequestsForLastMonth(Collection<UserGroup> userGroups) {
+    return virtualPortDeleteRequestLinkRepo.findAll(deleteRequestsByGroupIdInLastMonthSpec(toIds(userGroups)));
+  }
+
+  private Collection<String> toIds(Collection<UserGroup> userGroups) {
+    return Collections2.transform(userGroups, new Function<UserGroup, String>() {
       @Override
       public String apply(UserGroup group) {
         return group.getId();
       }
     });
-
-    return virtualPortRequestLinkRepo.findAll(byGroupIdInLastMonthSpec(groups));
   }
 
-  public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {
+  public void requestLinkDeclined(VirtualPortCreateRequestLink link, String declineMessage) {
     link.setStatus(RequestStatus.DECLINED);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), "Declined request link " + link.getUserLabel(), link);
-    virtualPortRequestLinkRepo.save(link);
+    virtualPortCreateRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
   }
@@ -317,5 +325,11 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     }
 
     return Collections.emptyList();
+  }
+
+  public void approveDeleteRequest(VirtualPortDeleteRequestLink deleteRequest, RichUserDetails userDetails) {
+    delete(deleteRequest.getVirtualPort().get(), userDetails);
+    deleteRequest.setStatus(RequestStatus.APPROVED);
+    deleteRequest.clearVirtualPort();
   }
 }

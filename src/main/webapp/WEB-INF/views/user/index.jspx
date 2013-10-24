@@ -65,9 +65,9 @@
 
                                 <c:choose>
                                     <c:when test="${team.existing}">
-                                            <table:searchColumn  value="${team.activeReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/active" tooltipTitleCode="label_reservation_link"/>
-                                            <table:searchColumn  value="${team.comingReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/coming" tooltipTitleCode="label_reservation_link"/>
-                                            <table:searchColumn  value="${team.elapsedReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/elapsed" tooltipTitleCode="label_reservation_link"/>
+                                        <table:searchColumn  value="${team.activeReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/active" tooltipTitleCode="label_reservation_link"/>
+                                        <table:searchColumn  value="${team.comingReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/coming" tooltipTitleCode="label_reservation_link"/>
+                                        <table:searchColumn  value="${team.elapsedReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/elapsed" tooltipTitleCode="label_reservation_link"/>
                                     </c:when>
                                     <c:otherwise>
                                         <td class="center">-</td>
@@ -102,9 +102,9 @@
                 </table>
             </div>
         </section>
-        <c:if test="${not requests.isEmpty()}">
+        <c:if test="${not createRequests.isEmpty()}">
             <section>
-                <h2><spring:message code="label_virtualport_pending_requests"/></h2>
+                <h2><spring:message code="label_virtualport_pending_create_requests"/></h2>
                 <div class="content">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -117,10 +117,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="request" items="${requests}">
+                            <c:forEach var="request" items="${createRequests}">
                                 <tr>
                                     <td class="cw75">${request.virtualResourceGroup.name}</td>
                                     <td>${request.physicalResourceGroup.name}</td>
+                                    <td>${request.requestorName}</td>
+                                    <td><spring:eval expression="request.requestDateTime" /></td>
+                                    <td>${request.status}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </c:if>
+        <c:if test="${not deleteRequests.isEmpty()}">
+            <section>
+                <h2><spring:message code="label_virtualport_pending_delete_requests"/></h2>
+                <div class="content">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Virtual Port</th>
+                                <th>Requestor</th>
+                                <th>Requested</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="request" items="${deleteRequests}">
+                                <tr>
+                                    <td class="cw75">${request.virtualResourceGroup.name}</td>
+                                    <td>${request.virtualPortLabel}</td>
                                     <td>${request.requestorName}</td>
                                     <td><spring:eval expression="request.requestDateTime" /></td>
                                     <td>${request.status}</td>

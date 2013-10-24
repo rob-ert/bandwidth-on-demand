@@ -57,9 +57,9 @@ public final class Orderings {
     }
   };
 
-  public static final Ordering<VirtualPortRequestLink> VP_REQUEST_LINK_ORDERING = new Ordering<VirtualPortRequestLink>() {
+  public static final Ordering<AbstractRequestLink> REQUEST_LINK_ORDERING = new Ordering<AbstractRequestLink>() {
     @Override
-    public int compare(VirtualPortRequestLink left, VirtualPortRequestLink right) {
+    public int compare(AbstractRequestLink left, AbstractRequestLink right) {
       return left.getRequestDateTime().compareTo(right.getRequestDateTime());
     }
   };

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.util.Orderings.VP_REQUEST_LINK_ORDERING;
+import static nl.surfnet.bod.util.Orderings.REQUEST_LINK_ORDERING;
 
 import java.util.Collection;
 import java.util.List;
@@ -71,7 +71,9 @@ public class DashboardController {
 
     List<TeamView> views = getTeamViews(userGroups);
 
-    model.addAttribute("requests", VP_REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findRequestsForLastMonth(userGroups)));
+    model.addAttribute("createRequests", REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findCreateRequestsForLastMonth(userGroups)));
+    model.addAttribute("deleteRequests", REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findDeleteRequestsForLastMonth(userGroups)));
+
     model.addAttribute("teams", views);
     model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
       @Override
@@ -81,6 +83,7 @@ public class DashboardController {
     }));
 
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
+
     return "index";
   }
 

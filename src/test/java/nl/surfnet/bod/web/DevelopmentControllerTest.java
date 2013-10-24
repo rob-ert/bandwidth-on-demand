@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.DevelopmentController.MESSAGES_PART;
 import static nl.surfnet.bod.web.DevelopmentController.PAGE_URL;
 import static nl.surfnet.bod.web.DevelopmentController.ROLES_PART;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,8 +29,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;

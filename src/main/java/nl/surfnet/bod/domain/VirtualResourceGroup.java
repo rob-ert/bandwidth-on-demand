@@ -77,7 +77,11 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   @JsonIgnore
-  private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
+  private Collection<VirtualPortCreateRequestLink> virtualPortCreateRequestLinks;
+
+  @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
+  private Collection<VirtualPortDeleteRequestLink> virtualPortDeleteRequestLinks;
 
   @Override
   public Long getId() {
@@ -136,12 +140,20 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
     this.description = description;
   }
 
-  public Collection<VirtualPortRequestLink> getVirtualPortRequestLinks() {
-    return virtualPortRequestLinks;
+  public Collection<VirtualPortCreateRequestLink> getVirtualPortCreateRequestLinks() {
+    return virtualPortCreateRequestLinks;
   }
 
-  public void setVirtualPortRequestLinks(Collection<VirtualPortRequestLink> virtualPortRequestLinks) {
-    this.virtualPortRequestLinks = virtualPortRequestLinks;
+  public void setVirtualPortCreateRequestLinks(Collection<VirtualPortCreateRequestLink> virtualPortCreateRequestLinks) {
+    this.virtualPortCreateRequestLinks = virtualPortCreateRequestLinks;
+  }
+
+  public Collection<VirtualPortDeleteRequestLink> getVirtualPortDeleteRequestLinks() {
+    return virtualPortDeleteRequestLinks;
+  }
+
+  public void setVirtualPortDeleteRequestLinks(Collection<VirtualPortDeleteRequestLink> virtualPortDeleteRequestLinks) {
+    this.virtualPortDeleteRequestLinks = virtualPortDeleteRequestLinks;
   }
 
   public boolean removeVirtualPort(VirtualPort port) {
@@ -251,9 +263,9 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
       }
       builder.append("], ");
     }
-    if (virtualPortRequestLinks != null) {
+    if (virtualPortCreateRequestLinks != null) {
       builder.append("virtualPortRequestLinks=[");
-      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
+      for (VirtualPortCreateRequestLink link : virtualPortCreateRequestLinks) {
         builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
       }
       builder.append("]");

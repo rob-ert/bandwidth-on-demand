@@ -20,26 +20,52 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.repo;
+package nl.surfnet.bod.domain;
 
-import java.util.List;
+import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+@Entity
+public class VirtualPortCreateRequestLink extends AbstractRequestLink implements Loggable {
 
-@Repository
-public interface VirtualPortRequestLinkRepo extends JpaSpecificationExecutor<VirtualPortRequestLink>,
-    JpaRepository<VirtualPortRequestLink, Long> {
+  @NotEmpty
+  private String userLabel;
 
-  VirtualPortRequestLink findByUuid(String uuid);
+  @NotEmpty
+  private String message;
 
-  List<VirtualPortRequestLink> findByPhysicalResourceGroupAndStatus(PhysicalResourceGroup prg, RequestStatus status);
-  
-  List<VirtualPortRequestLink> findByUserLabelAndStatus(String userLabel, RequestStatus status);
+  @NotNull
+  private Long minBandwidth;
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public Long getMinBandwidth() {
+    return minBandwidth;
+  }
+
+  public void setMinBandwidth(Long minBandwidth) {
+    this.minBandwidth = minBandwidth;
+  }
+
+  public String getUserLabel() {
+    return userLabel;
+  }
+
+  public void setUserLabel(String userLabel) {
+    this.userLabel = userLabel;
+  }
+
+  @Override
+  public String getLabel() {
+    return getVirtualResourceGroup().getLabel();
+  }
 
 }

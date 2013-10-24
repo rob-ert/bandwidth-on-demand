@@ -31,6 +31,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
@@ -50,12 +55,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @Controller("nocVirtualPortController")
 @RequestMapping("/noc/virtualports")
@@ -133,8 +132,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public final Function<VirtualPort, VirtualPortView> fromNocVirtualportToVirtualportView = new Function<VirtualPort, VirtualPortView>() {
     @Override
     public VirtualPortView apply(VirtualPort port) {
-      long counter = reservationService.findActiveByVirtualPort(port).size();
-      return new VirtualPortView(port, nsiHelper, Optional.of(counter));
+      long numberOfActiveReservations = reservationService.findActiveByVirtualPort(port).size();
+      return new VirtualPortView(port, nsiHelper, numberOfActiveReservations, true);
     }
   };
 

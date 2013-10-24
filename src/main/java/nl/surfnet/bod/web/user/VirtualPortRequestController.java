@@ -183,7 +183,7 @@ public class VirtualPortRequestController {
   }
 
   @RequestMapping(method = RequestMethod.GET, params = { "id", "teamUrn" })
-  public String requestForm(@RequestParam Long id, @RequestParam String teamUrn, Model model,
+  public String createRequestForm(@RequestParam Long id, @RequestParam String teamUrn, Model model,
       RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
@@ -225,7 +225,7 @@ public class VirtualPortRequestController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
+  public String createRequest(@Valid RequestCommand requestCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup prg = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
@@ -254,7 +254,7 @@ public class VirtualPortRequestController {
       shouldClearSecurityContext = true;
     }
 
-    virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
+    virtualPortService.requestCreateVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
         requestCommand.getBandwidth(), requestCommand.getMessage());
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_request_send", prg.getInstitute()

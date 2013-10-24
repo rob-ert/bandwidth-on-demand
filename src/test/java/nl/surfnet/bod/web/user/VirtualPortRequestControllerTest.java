@@ -72,21 +72,13 @@ import org.springframework.validation.BeanPropertyBindingResult;
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortRequestControllerTest {
 
-  @InjectMocks
-  private VirtualPortRequestController subject;
+  @InjectMocks private VirtualPortRequestController subject;
 
-  @Mock
-  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-  @Mock
-  private VirtualResourceGroupService virtualResourceGroupServiceMock;
-
-  @Mock
-  private MessageManager messageManager;
-
-  @Mock
-  private MessageRetriever messageRetriever;
+  @Mock private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+  @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private VirtualResourceGroupService virtualResourceGroupServiceMock;
+  @Mock private MessageManager messageManager;
+  @Mock private MessageRetriever messageRetriever;
 
   private RichUserDetails user;
 
@@ -96,8 +88,7 @@ public class VirtualPortRequestControllerTest {
     UserGroup group2 = new UserGroupFactory().setName("B").create();
     UserGroup group3 = new UserGroupFactory().setName("C").create();
 
-    user = new RichUserDetailsFactory().addUserRole().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2)
-        .create();
+    user = new RichUserDetailsFactory().addUserRole().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2).create();
     Security.setUserDetails(user);
   }
 
@@ -128,7 +119,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    String page = subject.requestForm(1L, null, model, model);
+    String page = subject.createRequestForm(1L, null, model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
   }
@@ -141,7 +132,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.requestForm(1L, null, model, model);
+    String page = subject.createRequestForm(1L, null, model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
   }
@@ -154,7 +145,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.requestForm(1L, "urn:user-group", model, model);
+    String page = subject.createRequestForm(1L, "urn:user-group", model, model);
 
     assertThat(page, is("virtualports/requestform"));
 
@@ -173,7 +164,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(null);
 
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
 
@@ -190,7 +181,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(group);
 
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
 
@@ -207,7 +198,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(group);
 
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
 
@@ -230,11 +221,11 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(vGroup);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/user"));
 
-    verify(virtualPortServiceMock).requestNewVirtualPort(user, vGroup, pGroup, "new port", 1000L, "message");
+    verify(virtualPortServiceMock).requestCreateVirtualPort(user, vGroup, pGroup, "new port", 1000L, "message");
   }
 
   @Test
@@ -252,12 +243,12 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/user"));
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
         eq("new port"), eq(1111L), eq("I want!"));
   }
 
@@ -277,12 +268,12 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), notNullValue());
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
         eq("new port"), eq(1111L), eq("I want!"));
   }
 
@@ -305,12 +296,12 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), nullValue());
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
         eq("port"), eq(1111L), eq("I want!"));
   }
 
@@ -329,7 +320,7 @@ public class VirtualPortRequestControllerTest {
   }
 
   private void verifyNeverRequestNewVirtualPort() {
-    verify(virtualPortServiceMock, never()).requestNewVirtualPort(any(RichUserDetails.class),
+    verify(virtualPortServiceMock, never()).requestCreateVirtualPort(any(RichUserDetails.class),
         any(VirtualResourceGroup.class), any(PhysicalResourceGroup.class), anyString(), anyLong(), anyString());
   }
 

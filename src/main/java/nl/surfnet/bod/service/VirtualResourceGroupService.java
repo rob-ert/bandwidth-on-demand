@@ -87,14 +87,10 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     }
   };
 
-  @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
+  @Resource private VirtualResourceGroupRepo virtualResourceGroupRepo;
+  @Resource private LogEventService logEventService;
 
-  @Resource
-  private LogEventService logEventService;
-
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   public long count() {
     return virtualResourceGroupRepo.count();

@@ -20,24 +20,26 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.repo;
 
-import nl.surfnet.bod.domain.ActivationEmailLink;
+import java.util.Collection;
+
+import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
-public interface EmailSender {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-  void sendActivationMail(ActivationEmailLink activationEmailLink);
+@Repository
+public interface VirtualPortDeleteRequestLinkRepo extends JpaSpecificationExecutor<VirtualPortDeleteRequestLink>,
+    JpaRepository<VirtualPortDeleteRequestLink, Long> {
 
-  void sendVirtualPortCreateRequestMail(RichUserDetails from, VirtualPortCreateRequestLink link);
+  VirtualPortDeleteRequestLink findByUuid(String uuid);
 
-  void sendVirtualPortDeleteRequestMail(RichUserDetails from, VirtualPortDeleteRequestLink link);
+  VirtualPortDeleteRequestLink findByVirtualPort(VirtualPort port);
 
-  void sendVirtualPortRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port);
-
-  void sendVirtualPortRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage);
-
+  Collection<VirtualPortDeleteRequestLink> findByPhysicalResourceGroupAndStatus(PhysicalResourceGroup prg, RequestStatus pending);
 }

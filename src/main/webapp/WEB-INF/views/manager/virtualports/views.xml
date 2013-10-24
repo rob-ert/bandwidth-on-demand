@@ -9,6 +9,10 @@
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualports/create.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
+    <definition extends="manager" name="/manager/virtualports/delete">
+        <put-attribute name="body" value="/WEB-INF/views/manager/virtualports/delete.jspx" />
+        <put-attribute name="active_menu" value="virtualport" cascade="true" />
+    </definition>
     <definition extends="manager" name="/manager/virtualports/update">
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualports/update.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
