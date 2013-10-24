@@ -22,68 +22,37 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.util.concurrent.Uninterruptibles;
-
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ReservationEventPublisherTest {
 
-  private final ReservationEventPublisher subject = new ReservationEventPublisher();
+  @Mock private ReservationListener reservationListener;
 
-  @Test
-  public void shouldNotGiveAConccurrenModifidationException() throws InterruptedException {
-    final int numberOfEvents = 100;
-    final Set<Long> set = new HashSet<>();
+  private ReservationEventPublisher subject;
 
-    final ReservationListener reservationListener = new ReservationListener() {
-      @Override
-      public void onStatusChange(ReservationStatusChangeEvent event) {
-        set.add(event.getReservation().getId());
-      }
-    };
-
-    Runnable adder = new Runnable() {
-      @Override
-      public void run() {
-        for (int i = 0; i < 100; i++) {
-          subject.addListener(reservationListener);
-          Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MILLISECONDS);
-        }
-      }
-    };
-
-    Runnable notifyer = new Runnable() {
-      @Override
-      public void run() {
-        for (int i = 0; i < numberOfEvents; i++) {
-          subject.notifyListeners(new ReservationStatusChangeEvent(new ReservationFactory().setStatus(AUTO_START).create(), RESERVED, AUTO_START));
-        }
-      }
-    };
-
-    // make sure we have at least on listener
-    subject.addListener(reservationListener);
-
-    Thread adderThread = new Thread(adder);
-    Thread notifyThread = new Thread(notifyer);
-    notifyThread.start();
-    adderThread.start();
-
-    adderThread.join();
-    notifyThread.join();
-
-    assertThat(set.size(), is(numberOfEvents));
+  @Before
+  public void setUp() {
+    subject = new ReservationEventPublisher(new ReservationListener[] { reservationListener });
   }
 
+  @Test
+  public void should_notify_listener_of_event() {
+    Reservation reservation = new ReservationFactory().create();
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(reservation, ReservationStatus.AUTO_START, ReservationStatus.RUNNING);
+
+    subject.notifyListeners(event);
+
+    verify(reservationListener).onStatusChange(event);
+  }
 }

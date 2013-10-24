@@ -22,13 +22,11 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
@@ -43,13 +41,7 @@ class NsiV2ReservationListener implements ReservationListener {
 
   private final Logger logger = LoggerFactory.getLogger(NsiV2ReservationListener.class);
 
-  @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private ConnectionServiceRequesterV2 requester;
-
-  @PostConstruct
-  public void registerListener() {
-    reservationEventPublisher.addListener(this);
-  }
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {

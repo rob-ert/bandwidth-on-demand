@@ -22,10 +22,8 @@
  */
 package nl.surfnet.bod.web.push;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.util.Transactions;
@@ -40,14 +38,8 @@ public class ReservationStatusChangeListener implements ReservationListener {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Resource private ReservationEventPublisher reservationEventPublisher;
   @Resource private EndPoints connections;
   @Resource private MessageRetriever messageRetriever;
-
-  @PostConstruct
-  public void registerListener() {
-    reservationEventPublisher.addListener(this);
-  }
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {

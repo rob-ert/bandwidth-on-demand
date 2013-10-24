@@ -22,11 +22,9 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,19 +32,19 @@ public class ReservationEventPublisher {
 
   private final Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
 
-  private final List<ReservationListener> listeners = new CopyOnWriteArrayList<ReservationListener>();
+  private final ReservationListener[] listeners;
 
-  public void addListener(ReservationListener reservationListener) {
-    listeners.add(reservationListener);
+  @Autowired
+  public ReservationEventPublisher(ReservationListener[] listeners) {
+    this.listeners = listeners;
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
-    logger.info("Notifying {} listeners of event {} -> {}", listeners.size(), changeEvent.getOldStatus(), changeEvent.getNewStatus());
+    logger.info("Notifying {} listeners of event {} -> {}", listeners.length, changeEvent.getOldStatus(), changeEvent.getNewStatus());
 
     for (ReservationListener listener : listeners) {
       logger.trace("Listener {}", listener.getClass());
       listener.onStatusChange(changeEvent);
     }
   }
-
 }
