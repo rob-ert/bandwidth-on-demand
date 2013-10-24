@@ -78,7 +78,7 @@ public class ReservationPoller {
 
     try {
       for (final Reservation reservation : reservations) {
-        executor.submit( new Runnable() {
+        executor.submit(new Runnable() {
           @Override
           public void run() {
             logger.debug("Checking status update for: '{}' (try {})", reservation.getId());

@@ -68,6 +68,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
@@ -372,7 +373,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservations.addAll(reservationRepo.findAll(specReservationsThatAreTimedOutAndTransitionally(dateTime)));
     reservations.addAll(findReservationWithStatus(RUNNING));
 
-    return reservations;
+    return Collections2.filter(reservations, new Predicate<Reservation>() {
+      @Override
+      public boolean apply(Reservation input) {
+        return StringUtils.hasText(input.getReservationId());
+      }
+    });
   }
 
   public Collection<Reservation> findTransitionableReservations() {

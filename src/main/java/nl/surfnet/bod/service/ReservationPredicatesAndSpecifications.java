@@ -270,11 +270,10 @@ public final class ReservationPredicatesAndSpecifications {
   static Specification<Reservation> specReservationsThatCouldStart(final DateTime startDateTime) {
     return new Specification<Reservation>() {
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-
-        return cb.and(cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime), reservation
-            .get(Reservation_.status).in(ReservationStatus.COULD_START_STATES));
+      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(
+            cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime),
+            reservation.get(Reservation_.status).in(ReservationStatus.COULD_START_STATES));
       }
     };
   }
