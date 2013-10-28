@@ -64,8 +64,7 @@ public class V1_9_0_2__LogEventDomainIds implements SpringJdbcMigration {
         Optional<Long> id;
         if (matcher.find()) {
           id = Optional.of(Long.valueOf(matcher.group(1)));
-        }
-        else {
+        } else {
           switch (objectClass) {
           case "PhysicalPort":
             id = findId(serializedObject, bodPortIdPattern, "select id from physical_port where bod_port_id = ?", jdbcTemplate, Functions.<String>identity());
@@ -109,13 +108,12 @@ public class V1_9_0_2__LogEventDomainIds implements SpringJdbcMigration {
     if (matcher.find()) {
       String arg = function.apply(matcher.group(1));
       try {
-        return Optional.of(jdbcTemplate.queryForLong(query, arg));
+        return Optional.of(jdbcTemplate.queryForObject(query, Long.class, arg));
       } catch (IncorrectResultSizeDataAccessException e) {
         if (e.getActualSize() == 0) {
           logger.error("Object deleted for arg '{}' in {}", arg, serializedObject);
           return Optional.absent();
-        }
-        else {
+        } else {
           logger.error("Multiple results for arg '{}' in {}", arg, serializedObject);
           return Optional.absent();
         }
