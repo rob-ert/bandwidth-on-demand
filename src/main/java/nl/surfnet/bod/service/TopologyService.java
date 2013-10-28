@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
@@ -134,13 +135,13 @@ public class TopologyService {
         .withNSA(new NSAType().withId(nsiHelper.getProviderNsaV2())));
   }
 
-  private TopologyType topology() {
+  protected TopologyType topology() {
     TopologyType topology = new TopologyType()
       .withId(nsiHelper.getUrnTopology())
       .withName(networkName);
 
-    List<VirtualPort> virtualPorts = virtualPortService.findAll();
-    List<EnniPort> enniPorts = physicalPortService.findAllAllocatedEnniEntries();
+    List<VirtualPort> virtualPorts = Orderings.LOGGABLE_ORDERING.immutableSortedCopy(virtualPortService.findAll());
+    List<EnniPort> enniPorts = Orderings.LOGGABLE_ORDERING.immutableSortedCopy(physicalPortService.findAllAllocatedEnniEntries());
 
     for (VirtualPort virtualPort : virtualPorts) {
       topology.withAny(new ObjectFactory().createBidirectionalPort(bidirectionalPort(virtualPort)));
@@ -261,6 +262,10 @@ public class TopologyService {
 
   private String getNsi2ConnectionProviderUrl() {
     return bodEnvironment.getExternalBodUrl() + bodEnvironment.getNsiV2ServiceUrl();
+  }
+
+  protected void setAdminContact(String adminContact) {
+    this.adminContact = adminContact;
   }
 
 }

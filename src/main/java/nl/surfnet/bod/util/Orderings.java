@@ -28,6 +28,12 @@ import com.google.common.collect.Ordering;
 
 public final class Orderings {
 
+  public static final Ordering<Loggable> LOGGABLE_ORDERING = new Ordering<Loggable>() {
+    public int compare(Loggable left, Loggable right) {
+      return left.getId().compareTo(right.getId());
+    }
+  };
+
   private static final Ordering<VirtualPort> VP_ORDERING = new Ordering<VirtualPort>() {
     @Override
     public int compare(VirtualPort left, VirtualPort right) {
