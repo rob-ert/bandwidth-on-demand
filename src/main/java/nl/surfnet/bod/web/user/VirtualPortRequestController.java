@@ -314,6 +314,7 @@ public class VirtualPortRequestController {
     @NotEmpty
     private String userGroupId;
 
+    @NotNull
     @Range(min = 1, max = 1000000, message = "Must be between 1 and 1000000 mb/s")
     private Long bandwidth;
 
