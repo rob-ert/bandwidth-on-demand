@@ -22,20 +22,19 @@
  */
 package nl.surfnet.bod.web.view;
 
+import com.google.common.base.Objects;
+
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePeriod;
 
-import com.google.common.base.Objects;
-
 /**
  * View object which holds filter related data regarding Reservations.
- * 
+ *
  */
 public class ReservationFilterView {
 
@@ -50,19 +49,13 @@ public class ReservationFilterView {
   /**
    * Constructs a filter for the given year. Filtering will take place both on
    * the start and end of Reservation
-   * 
-   * @param year
-   *          Year
    */
   public ReservationFilterView(int year) {
     id = String.valueOf(year);
     label = id;
 
-    start = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01)
-        .toDateTime().toDateTime();
-
-    end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31).toDateTime()
-        .toDateTime();
+    start = new DateTime().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01).withTimeAtStartOfDay();
+    end = new DateTime().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31).withTimeAtStartOfDay();
 
     filterOnReservationEndOnly = false;
     filterOnStatusOnly = false;
@@ -71,14 +64,8 @@ public class ReservationFilterView {
 
   /**
    * Constructs a filter for a given Period. Filtering will take place on the
-   * end of Reservation only;
-   * 
-   * @param id
-   *          Id
-   * @param label
-   *          Label
-   * @param period
-   *          Period
+   * end of Reservation only
+   *
    * @param endInPast
    *          Indicates that the endDate lies before the start date. This will
    *          be correct in the filter.
@@ -92,8 +79,7 @@ public class ReservationFilterView {
       this.start = end.minus(period);
       //In the past, all status must be shown, since they cannot be change anymore.
       states = ReservationStatus.values();
-    }
-    else {
+    } else {
       this.start = DateTime.now();
       this.end = start.plus(period);
       //For the coming period, only show states which can change in the future.
@@ -106,11 +92,7 @@ public class ReservationFilterView {
 
   /**
    * Constructs a filter based on the specified {@link ReservationStatus}.
-   * 
-   * @param id
-   *          Id
-   * @param label
-   *          Label
+   *
    * @param ReservationStatus
    *          status to filter on
    */
@@ -146,8 +128,7 @@ public class ReservationFilterView {
       ReservationFilterView resFilterView = (ReservationFilterView) obj;
 
       return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label);
-    }
-    else {
+    } else {
       return false;
     }
   }

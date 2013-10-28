@@ -29,10 +29,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.UniPort_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink_;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink_;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -76,9 +86,9 @@ public final class VirtualPortPredicatesAndSpecifications {
     return new Specification<VirtualPortDeleteRequestLink>() {
       @Override
       public Predicate toPredicate(Root<VirtualPortDeleteRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
+        DateTime start = DateTime.now().plusDays(1).withTimeAtStartOfDay();
         return cb.and(
-            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusDays(31), start),
+            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusMonths(1), start),
             root.get(VirtualPortDeleteRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
       }
     };
@@ -88,9 +98,9 @@ public final class VirtualPortPredicatesAndSpecifications {
     return new Specification<VirtualPortCreateRequestLink>() {
       @Override
       public Predicate toPredicate(Root<VirtualPortCreateRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
+        DateTime start = DateTime.now().plusDays(1).withTimeAtStartOfDay();
         return cb.and(
-            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusDays(31), start),
+            cb.between(root.get(VirtualPortCreateRequestLink_.requestDateTime), start.minusMonths(1), start),
             root.get(VirtualPortCreateRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(vrgUrns));
       }
     };

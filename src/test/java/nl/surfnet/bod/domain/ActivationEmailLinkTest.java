@@ -23,12 +23,16 @@
 package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.AfterClass;
@@ -36,8 +40,7 @@ import org.junit.Test;
 
 public class ActivationEmailLinkTest {
 
-  private final ActivationEmailLink linkOne = new ActivationEmailLinkFactory()
-      .create();
+  private final ActivationEmailLink linkOne = new ActivationEmailLinkFactory().create();
 
   /**
    * Set system time back to prevent influencing other test cases
@@ -59,8 +62,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldNoEmailSent() {
-    ActivationEmailLink link = new ActivationEmailLinkFactory()
-        .setEmailSent(false).create();
+    ActivationEmailLink link = new ActivationEmailLinkFactory().setEmailSent(false).create();
 
     assertThat(link.isEmailSent(), is(false));
     assertThat(link.getEmailSentDateTime(), nullValue());
@@ -68,7 +70,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldEmailSent() {
-    Long millis = DateMidnight.now().getMillis();
+    Long millis = DateTime.now().withTimeAtStartOfDay().getMillis();
     DateTimeUtils.setCurrentMillisFixed(millis);
 
     ActivationEmailLink link = new ActivationEmailLinkFactory().setEmailSent(false).create();
@@ -86,7 +88,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldActivate() {
-    Long millis = DateMidnight.now().getMillis();
+    Long millis = DateTime.now().withTimeAtStartOfDay().getMillis();
     DateTimeUtils.setCurrentMillisFixed(millis);
 
     assertThat(linkOne.isActivated(), is(false));

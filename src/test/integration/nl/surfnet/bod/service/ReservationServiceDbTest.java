@@ -37,7 +37,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
-import org.joda.time.DateMidnight;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.AfterClass;
@@ -65,7 +65,7 @@ public class ReservationServiceDbTest {
   @Resource private ReservationRepo reservationRepo;
   @Resource private ReservationServiceDbTestHelper reservationHelper;
 
-  private final DateTime nowMidnight = DateMidnight.now().toDateTime();
+  private final DateTime nowMidnight = DateTime.now().withTimeAtStartOfDay();
   private final DateTime anHourAgo = nowMidnight.minusHours(1);
 
   private Reservation rightReservationOnStartTime;
@@ -123,7 +123,7 @@ public class ReservationServiceDbTest {
 
   @Test
   public void shouldFindReservationsAfterMidnight() {
-    DateTimeUtils.setCurrentMillisFixed(DateMidnight.now().getMillis());
+    DateTimeUtils.setCurrentMillisFixed(DateTime.now().withTimeAtStartOfDay().getMillis());
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(nowMidnight);
 
     assertThat(reservations, hasSize(4));
