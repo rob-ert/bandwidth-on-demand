@@ -30,7 +30,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Entity
 public class VirtualPortCreateRequestLink extends AbstractRequestLink implements Loggable {
 
-  @NotEmpty
   private String userLabel;
 
   @NotEmpty

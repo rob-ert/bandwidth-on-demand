@@ -302,7 +302,7 @@ public class VirtualPortRequestController {
   }
 
   public static class RequestCommand {
-    @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")
+    @Length(min = 0, max = 255, message = "Must be between 0 and 255 characters long")
     private String userLabel;
 
     @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")
