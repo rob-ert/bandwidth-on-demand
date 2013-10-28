@@ -20,33 +20,31 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.pages.manager;
+package nl.surfnet.bod.pages.user;
 
-import org.openqa.selenium.WebElement;
+import nl.surfnet.bod.pages.AbstractPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
+public final class RequestCreateVirtualPortSelectInstitutePage extends AbstractPage {
 
-public class EditPhysicalPortPage extends AbstractFormPage {
-
-  @FindBy(id = "_managerLabel_id")
-  private WebElement managerLabelInput;
-
-  public EditPhysicalPortPage(RemoteWebDriver driver) {
+  private RequestCreateVirtualPortSelectInstitutePage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static EditPhysicalPortPage get(RemoteWebDriver driver) {
-    EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
+  public static RequestCreateVirtualPortSelectInstitutePage get(RemoteWebDriver driver) {
+    RequestCreateVirtualPortSelectInstitutePage page = new RequestCreateVirtualPortSelectInstitutePage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void sendMagerLabel(String managerLabel) {
-    managerLabelInput.clear();
-    managerLabelInput.sendKeys(managerLabel);
+  public RequestCreateVirtualPortPage selectInstitute(String institute) {
+    getDriver().findElementByLinkText(institute).click();
+
+    return RequestCreateVirtualPortPage.get(getDriver());
   }
+
+  
 }

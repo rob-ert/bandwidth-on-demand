@@ -45,9 +45,10 @@ import nl.surfnet.bod.pages.user.NewReservationPage;
 import nl.surfnet.bod.pages.user.OauthAuthorizePage;
 import nl.surfnet.bod.pages.user.OauthTokenRequestFormPage;
 import nl.surfnet.bod.pages.user.OauthTokensPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
+import nl.surfnet.bod.pages.user.RequestCreateVirtualPortPage;
+import nl.surfnet.bod.pages.user.RequestCreateVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.RequestCreateVirtualPortSelectTeamPage;
+import nl.surfnet.bod.pages.user.RequestDeleteVirtualPortPage;
 
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
@@ -105,20 +106,19 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.reservationShouldBe(label, ReservationStatus.AUTO_START, ReservationStatus.RUNNING);
   }
 
-  public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth,
-      String message) {
+  public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth, String message) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
-    RequestNewVirtualPortSelectTeamPage selectTeamPage = page.requestVirtualPort();
+    RequestCreateVirtualPortSelectTeamPage selectTeamPage = page.requestVirtualPort();
     selectTeamPage.selectTeam(team);
 
     selectInstituteAndRequest(institute, userLabel, bandwidth, message);
   }
 
   public void selectInstituteAndRequest(String institute, String userLabel, Integer bandwidth, String message) {
-    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
+    RequestCreateVirtualPortSelectInstitutePage page = RequestCreateVirtualPortSelectInstitutePage.get(driver);
 
-    RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
+    RequestCreateVirtualPortPage requestPage = page.selectInstitute(institute);
 
     requestPage.sendUserLabel(userLabel);
     requestPage.sendBandwidth("" + bandwidth);
@@ -131,7 +131,7 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyRequestVirtualPortInstituteInactive(String instituteName) {
-    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
+    RequestCreateVirtualPortSelectInstitutePage page = RequestCreateVirtualPortSelectInstitutePage.get(driver);
 
     try {
       page.selectInstitute(instituteName);
@@ -179,6 +179,15 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     editPage.sendUserLabel(newLabel);
     editPage.save();
   }
+
+  public void requestDeleteVirtualPort(String label, String deleteMessage) {
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+
+    RequestDeleteVirtualPortPage page = listPage.deleteRequest(label);
+    page.sendMessage(deleteMessage);
+    page.submit();
+  }
+
 
   public void verifyVirtualPortExists(String... fields) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
@@ -366,6 +375,12 @@ public class BodUserWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     ListVirtualPortPage listVirtualPortPage = dashboardPage.clickVirtualPortsLink();
 
     return listVirtualPortPage.getAllNsiStpIds(nsiVersion);
+  }
+
+  public void verifyNoMoreVirtualPorts() {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+
+    assertThat(page.getNumberOfRows(), is(0));
   }
 
 }

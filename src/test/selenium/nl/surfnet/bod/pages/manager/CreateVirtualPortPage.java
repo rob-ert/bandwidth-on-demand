@@ -34,7 +34,7 @@ import com.google.common.base.Strings;
 
 import nl.surfnet.bod.pages.AbstractFormPage;
 
-public class NewVirtualPortPage extends AbstractFormPage {
+public class CreateVirtualPortPage extends AbstractFormPage {
 
   @FindBy(id = "_managerLabel_id")
   private WebElement nameInput;
@@ -66,12 +66,12 @@ public class NewVirtualPortPage extends AbstractFormPage {
   @FindBy(id = "_declineMessage")
   private WebElement declineMessageTextArea;
 
-  public NewVirtualPortPage(RemoteWebDriver driver) {
+  public CreateVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static NewVirtualPortPage get(RemoteWebDriver driver) {
-    NewVirtualPortPage page = new NewVirtualPortPage(driver);
+  public static CreateVirtualPortPage get(RemoteWebDriver driver) {
+    CreateVirtualPortPage page = new CreateVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

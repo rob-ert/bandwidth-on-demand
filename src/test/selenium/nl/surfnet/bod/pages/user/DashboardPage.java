@@ -71,8 +71,7 @@ public class DashboardPage extends AbstractListPage {
   public void selectInstitute(String team) {
     try {
       getDriver().findElementByLinkText(team).click();
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       clickRowIcon("icon-envelope", team);
     }
   }

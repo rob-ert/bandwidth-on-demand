@@ -20,33 +20,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.pages.manager;
+package nl.surfnet.bod.pages.user;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
+public class RequestDeleteVirtualPortPage extends AbstractFormPage {
 
-public class EditPhysicalPortPage extends AbstractFormPage {
+  @FindBy(id = "message")
+  private WebElement message;
 
-  @FindBy(id = "_managerLabel_id")
-  private WebElement managerLabelInput;
-
-  public EditPhysicalPortPage(RemoteWebDriver driver) {
+  public RequestDeleteVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static EditPhysicalPortPage get(RemoteWebDriver driver) {
-    EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
+  public static RequestDeleteVirtualPortPage get(RemoteWebDriver driver) {
+    RequestDeleteVirtualPortPage page = new RequestDeleteVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void sendMagerLabel(String managerLabel) {
-    managerLabelInput.clear();
-    managerLabelInput.sendKeys(managerLabel);
+  public void submit() {
+    this.save();
   }
+
+  public void sendMessage(String deleteMessage) {
+    clearAndSend(message, deleteMessage);
+  }
+
 }

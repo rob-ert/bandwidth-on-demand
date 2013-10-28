@@ -74,8 +74,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
     getUserDriver().verifyRequestVirtualPortInstituteInactive(GROUP_SARA);
 
-    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, "Mijn nieuwe poort", 1200,
-        "I would like to have a new port");
+    getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, "Mijn nieuwe poort", 1200, "I would like to have a new port");
 
     getWebDriver().clickLinkInLastEmail();
 
@@ -125,8 +124,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
   public void requestVirtualPortUsingButtonOnListPage() {
     getManagerDriver().switchToUserRole();
 
-    getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "myVP", 1000,
-        "Doe mijn een nieuw poort...");
+    getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "myVP", 1000, "Doe mijn een nieuw poort...");
 
     getUserDriver().switchToManagerRole("SURFnet");
 

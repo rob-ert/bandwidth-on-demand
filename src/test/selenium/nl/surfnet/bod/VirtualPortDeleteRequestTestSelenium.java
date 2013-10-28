@@ -20,37 +20,51 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.pages.user;
+package nl.surfnet.bod;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import com.google.common.base.Optional;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
-public final class RequestNewVirtualPortSelectTeamPage extends AbstractPage {
+import org.junit.After;
+import org.junit.Test;
 
-  @FindBy(id="_all")
-  private WebElement radioButton;
+public class VirtualPortDeleteRequestTestSelenium extends SeleniumWithSingleSetup {
 
-  private RequestNewVirtualPortSelectTeamPage(RemoteWebDriver driver) {
-    super(driver);
+  @Override
+  public void setupInitialData() {
+    getNocDriver().createNewApiBasedPhysicalResourceGroup(GROUP_SURFNET, ICT_MANAGERS_GROUP_2, "test@test.nl");
+    getNocDriver().linkUniPort(NMS_NOVLAN_PORT_ID_1, "PhysicalPort One", GROUP_SURFNET);
+
+    getWebDriver().clickLinkInLastEmail();
   }
 
-  public static RequestNewVirtualPortSelectTeamPage get(RemoteWebDriver driver) {
-    RequestNewVirtualPortSelectTeamPage page = new RequestNewVirtualPortSelectTeamPage(driver);
-    PageFactory.initElements(driver, page);
-
-    return page;
+  @After
+  public void clearVirtualPorts() {
+    DatabaseTestHelper.deleteVirtualPortsFromSeleniumDatabase();
   }
 
-  public RequestNewVirtualPortRequestPage selectTeam(String team) {
+  @Test
+  public void requestDeleteVirtualPort() {
+    getManagerDriver().switchToUserRole();
 
-    radioButton.click();
-    getDriver().findElementByLinkText(team).click();
+    getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "PortToDelete", 1000, "Doe mijn een nieuw poort...");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().acceptVirtualPort("PhysicalPort One", "PortToDelete", Optional.of("PortToDelete"), Optional.<Integer>absent());
+    getManagerDriver().switchToUserRole();
 
-    return RequestNewVirtualPortRequestPage.get(getDriver());
+    getUserDriver().requestDeleteVirtualPort("PortToDelete", "Port not needed anymore");
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getManagerDriver().verifyDeleteVirtualPortRequest("Port not needed anymore", "PortToDelete", "PhysicalPort One");
+
+    getManagerDriver().acceptDeleteVirtualPort();
+
+    getManagerDriver().switchToUserRole();
+
+    getUserDriver().verifyNoMoreVirtualPorts();
   }
 
 }

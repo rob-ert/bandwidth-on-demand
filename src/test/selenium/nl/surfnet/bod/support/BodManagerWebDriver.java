@@ -55,7 +55,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyPhysicalPortSelected(String managerLabel) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+    CreateVirtualPortPage page = CreateVirtualPortPage.get(driver);
 
     String portName = page.getSelectedPhysicalPort();
 
@@ -138,7 +138,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void verifyNewVirtualPortHasProperties(String instituteName, String userLabel, Integer bandwidth) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+    CreateVirtualPortPage page = CreateVirtualPortPage.get(driver);
 
     assertThat(page.getUserLabel(), is(userLabel));
     assertThat(page.getSelectedPhysicalResourceGroup(), is(instituteName));
@@ -194,7 +194,7 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   }
 
   public void acceptVirtualPort(String physicalPort, String name, Optional<String> userLabel, Optional<Integer> vlanId) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+    CreateVirtualPortPage page = CreateVirtualPortPage.get(driver);
 
     page.selectPhysicalPort(physicalPort);
 
@@ -210,8 +210,22 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
     page.save();
   }
 
+  public void verifyDeleteVirtualPortRequest(String message, String adminLabel, String physicalPort) {
+    DeleteVirtualPortPage page = DeleteVirtualPortPage.get(driver);
+
+    assertThat(page.getMessage(), is(message));
+    assertThat(page.getAdminLabel(), is(adminLabel));
+    assertThat(page.getPhysicalPortLabel(), is(physicalPort));
+
+  }
+
+  public void acceptDeleteVirtualPort() {
+    DeleteVirtualPortPage page = DeleteVirtualPortPage.get(driver);
+    page.save();
+  }
+
   public void declineVirtualPort(String message) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+    CreateVirtualPortPage page = CreateVirtualPortPage.get(driver);
 
     page.decline();
     page.sendDeclineMessage(message);
@@ -301,5 +315,4 @@ public class BodManagerWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   protected DashboardPage getDashboardPage() {
     return DashboardPage.get(driver, URL_UNDER_TEST);
   }
-
 }

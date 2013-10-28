@@ -48,6 +48,9 @@ import org.springframework.util.StringUtils;
 
 public class AbstractListPage extends AbstractPage {
 
+  public static final String EDIT_ICON = "icon-pencil";
+  public static final String DELETE_ICON = "icon-remove";
+
   @FindBy(css = "table thead")
   private WebElement tableHeader;
 
@@ -69,15 +72,15 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void delete(String... fields) {
-    deleteForIcon("icon-remove", fields);
+    deleteForIcon(DELETE_ICON, fields);
   }
 
   public void deleteAndVerifyAlert(String alertText, String... fields) {
-    deleteForIconAndVerifyAlert("icon-remove", alertText, fields);
+    deleteForIconAndVerifyAlert(DELETE_ICON, alertText, fields);
   }
 
   protected void deleteForIconAndVerifyAlert(String icon, String alertText, String... fields) {
-    delete(icon, fields);
+    clickRowIcon(icon, fields);
     Alert alert = getDriver().switchTo().alert();
     alert.getText().contains(alertText);
     alert.accept();
@@ -87,7 +90,7 @@ public class AbstractListPage extends AbstractPage {
   }
 
   protected void deleteForIcon(String icon, String... fields) {
-    delete(icon, fields);
+    clickRowIcon(icon, fields);
     getDriver().switchTo().alert().accept();
 
     // wait for the reload, row should be gone..
@@ -95,26 +98,18 @@ public class AbstractListPage extends AbstractPage {
   }
 
   protected void editRow(String... fields) {
-    clickRowIcon("icon-pencil", fields);
+    clickRowIcon(EDIT_ICON, fields);
   }
 
   protected void clickRowIcon(String icon, String... fields) {
-    findRow(fields).findElement(By.cssSelector("a i[class~=" + icon + "]")).click();
-  }
-
-  private void delete(String icon, String... fields) {
-    WebElement row = findRow(fields);
-
-    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
-    deleteButton.click();
+    findRow(fields).findElement(By.cssSelector(String.format("a i[class~=%s]", icon))).click();
   }
 
   public boolean isTableEmpty() {
     try {
       table.findElements(By.tagName("tr"));
       return false;
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       return true;
     }
   }
@@ -132,13 +127,15 @@ public class AbstractListPage extends AbstractPage {
       }
     }
 
-    throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'", Joiner.on(',').join(
-        fields), Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
-      @Override
-      public String apply(WebElement row) {
-        return row.getText();
-      }
-    }))));
+    throw new NoSuchElementException(
+      String.format("row with fields '%s' not found in rows: '%s'",
+      Joiner.on(',').join(fields),
+      Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
+        @Override
+        public String apply(WebElement row) {
+          return row.getText();
+        }
+      }))));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {
@@ -153,8 +150,7 @@ public class AbstractListPage extends AbstractPage {
   public boolean containsAnyItems() {
     try {
       table.getText();
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       return false;
     }
 
@@ -165,8 +161,7 @@ public class AbstractListPage extends AbstractPage {
     int numberOfRows;
     try {
       numberOfRows = getRows().size();
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       numberOfRows = 0;
     }
 
@@ -192,8 +187,7 @@ public class AbstractListPage extends AbstractPage {
     try {
       findRow(labels);
       fail(String.format("Row related to [%s] exists, but should not be visible", Joiner.on(',').join(labels)));
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // as expected
     }
   }
@@ -225,8 +219,7 @@ public class AbstractListPage extends AbstractPage {
       // Click to sort, effect depends on current sorting, we don't know so
       // test it later on
       sortButton.click();
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // Happens when list is already sorted
     }
 
@@ -236,8 +229,7 @@ public class AbstractListPage extends AbstractPage {
       if (reverse) {
         sortButton.click();
       }
-    }
-    catch (NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       // No descending button found, it should be ascending then
       sortButton = tableHeader.findElement(By.cssSelector(sortButtonSelector + "&order=ASC\"]"));
       // Sort again to sort them ascending

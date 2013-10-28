@@ -22,7 +22,7 @@
                         <div class="control-group">
                             <label class="control-label">From</label>
                             <div class="controls">
-                                <output><c:out value="${request.requestorName} (${request.requestorEmail})" /></output>
+                                <output id="requestor"><c:out value="${request.requestorName} (${request.requestorEmail})" /></output>
                             </div>
                         </div>
 
@@ -31,10 +31,8 @@
                         <div class="control-group">
                             <label class="control-label">Motivation</label>
                             <div class="controls">
-                                <output>
-                                    <c:set var="motivation">
-                                        <c:out value="${request.message}" />
-                                    </c:set>
+                                <output id="motivation">
+                                    <c:set var="motivation"><c:out value="${request.message}" /></c:set>
                                     ${bodfn:trNewLineBr(motivation)}
                                 </output>
                             </div>
@@ -45,14 +43,14 @@
                         <div class="control-group">
                             <label class="control-label"><spring:message code="label_virtualport_managerlabel" /></label>
                             <div class="controls">
-                                <output><c:out value="${bodfn:get(request.virtualPort).managerLabel}" /> </output>
+                                <output id="managerLabel"><c:out value="${bodfn:get(request.virtualPort).managerLabel}" /> </output>
                             </div>
                         </div>
 
                         <div class="control-group">
                             <label class="control-label"><spring:message code="label_virtualport_userlabel" /></label>
                             <div class="controls">
-                                <output><c:out value="${bodfn:get(request.virtualPort).userLabel}" /> </output>
+                                <output id="userLabel"><c:out value="${bodfn:get(request.virtualPort).userLabel}" /> </output>
                             </div>
                         </div>
 
@@ -73,7 +71,7 @@
                         <div class="control-group">
                             <label class="control-label"><spring:message code="label_physicalport" /></label>
                             <div class="controls">
-                                <output><c:out value="${bodfn:get(request.virtualPort).physicalPort.managerLabel}" /></output>
+                                <output id="physicalPortLabel"><c:out value="${bodfn:get(request.virtualPort).physicalPort.managerLabel}" /></output>
                             </div>
                         </div>
 

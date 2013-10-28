@@ -22,29 +22,52 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.pages.AbstractFormPage;
 
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public final class RequestNewVirtualPortSelectInstitutePage extends AbstractPage {
+public class RequestCreateVirtualPortPage extends AbstractFormPage {
 
-  private RequestNewVirtualPortSelectInstitutePage(RemoteWebDriver driver) {
+  @FindBy(id = "message")
+  private WebElement messageTextArea;
+
+  @FindBy(id = "userLabel")
+  private WebElement preferredLabel;
+
+  @FindBy(id = "bandwidth")
+  private WebElement bandwidthInput;
+
+  public RequestCreateVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static RequestNewVirtualPortSelectInstitutePage get(RemoteWebDriver driver) {
-    RequestNewVirtualPortSelectInstitutePage page = new RequestNewVirtualPortSelectInstitutePage(driver);
+  public static RequestCreateVirtualPortPage get(RemoteWebDriver driver) {
+    RequestCreateVirtualPortPage page = new RequestCreateVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public RequestNewVirtualPortRequestPage selectInstitute(String institute) {
-    getDriver().findElementByLinkText(institute).click();
-
-    return RequestNewVirtualPortRequestPage.get(getDriver());
+  public void sendMessage(String message) {
+    messageTextArea.clear();
+    messageTextArea.sendKeys(message);
   }
 
-  
+  public void sentRequest() {
+    save();
+  }
+
+  public void sendBandwidth(String bandwidth) {
+    bandwidthInput.clear();
+    bandwidthInput.sendKeys(bandwidth);
+  }
+
+  public void sendUserLabel(String userLabel) {
+    preferredLabel.clear();
+    preferredLabel.sendKeys(userLabel);
+  }
+
 }

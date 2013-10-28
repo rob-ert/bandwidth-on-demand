@@ -20,7 +20,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.pages.user;
+package nl.surfnet.bod.pages.manager;
 
 import nl.surfnet.bod.pages.AbstractFormPage;
 
@@ -29,45 +29,37 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
+public class DeleteVirtualPortPage extends AbstractFormPage {
 
-  @FindBy(id = "message")
-  private WebElement messageTextArea;
+  @FindBy(id = "motivation")
+  private WebElement mesasge;
 
-  @FindBy(id = "userLabel")
-  private WebElement preferredLabel;
+  @FindBy(id = "managerLabel")
+  private WebElement amdinLabel;
 
-  @FindBy(id = "bandwidth")
-  private WebElement bandwidthInput;
+  @FindBy(id = "physicalPortLabel")
+  private WebElement physicalPortLabel;
 
-  public RequestNewVirtualPortRequestPage(RemoteWebDriver driver) {
+  public DeleteVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static RequestNewVirtualPortRequestPage get(RemoteWebDriver driver) {
-    RequestNewVirtualPortRequestPage page = new RequestNewVirtualPortRequestPage(driver);
+  public static DeleteVirtualPortPage get(RemoteWebDriver driver) {
+    DeleteVirtualPortPage page = new DeleteVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void sendMessage(String message) {
-    messageTextArea.clear();
-    messageTextArea.sendKeys(message);
+  public String getMessage() {
+    return mesasge.getText();
   }
 
-  public void sentRequest() {
-    save();
+  public String getAdminLabel() {
+    return amdinLabel.getText();
   }
 
-  public void sendBandwidth(String bandwidth) {
-    bandwidthInput.clear();
-    bandwidthInput.sendKeys(bandwidth);
+  public String getPhysicalPortLabel() {
+    return physicalPortLabel.getText();
   }
-
-  public void sendUserLabel(String userLabel) {
-    preferredLabel.clear();
-    preferredLabel.sendKeys(userLabel);
-  }
-
 }

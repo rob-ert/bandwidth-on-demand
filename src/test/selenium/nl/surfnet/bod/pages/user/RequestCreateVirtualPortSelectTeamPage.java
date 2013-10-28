@@ -20,33 +20,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.pages.manager;
+package nl.surfnet.bod.pages.user;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
+import nl.surfnet.bod.pages.AbstractPage;
 
-public class EditPhysicalPortPage extends AbstractFormPage {
+public final class RequestCreateVirtualPortSelectTeamPage extends AbstractPage {
 
-  @FindBy(id = "_managerLabel_id")
-  private WebElement managerLabelInput;
+  @FindBy(id="_all")
+  private WebElement radioButton;
 
-  public EditPhysicalPortPage(RemoteWebDriver driver) {
+  private RequestCreateVirtualPortSelectTeamPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static EditPhysicalPortPage get(RemoteWebDriver driver) {
-    EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
+  public static RequestCreateVirtualPortSelectTeamPage get(RemoteWebDriver driver) {
+    RequestCreateVirtualPortSelectTeamPage page = new RequestCreateVirtualPortSelectTeamPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public void sendMagerLabel(String managerLabel) {
-    managerLabelInput.clear();
-    managerLabelInput.sendKeys(managerLabel);
+  public RequestCreateVirtualPortPage selectTeam(String team) {
+
+    radioButton.click();
+    getDriver().findElementByLinkText(team).click();
+
+    return RequestCreateVirtualPortPage.get(getDriver());
   }
+
 }

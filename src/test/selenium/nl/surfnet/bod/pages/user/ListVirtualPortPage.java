@@ -65,10 +65,10 @@ public class ListVirtualPortPage extends AbstractListPage {
     return EditVirtualPortPage.get(getDriver());
   }
 
-  public RequestNewVirtualPortSelectTeamPage requestVirtualPort() {
+  public RequestCreateVirtualPortSelectTeamPage requestVirtualPort() {
     requestVirtualPortLink.click();
 
-    return RequestNewVirtualPortSelectTeamPage.get(getDriver());
+    return RequestCreateVirtualPortSelectTeamPage.get(getDriver());
   }
 
   public void verifyIsCurrentPage() {
@@ -95,6 +95,11 @@ public class ListVirtualPortPage extends AbstractListPage {
     }
 
     return virtualPortIds;
+  }
+
+  public RequestDeleteVirtualPortPage deleteRequest(String label) {
+    clickRowIcon(DELETE_ICON, label);
+    return RequestDeleteVirtualPortPage.get(getDriver());
   }
 
 }
