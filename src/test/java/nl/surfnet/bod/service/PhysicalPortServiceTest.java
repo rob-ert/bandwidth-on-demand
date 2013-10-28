@@ -78,7 +78,6 @@ public class PhysicalPortServiceTest {
   @Mock private UniPortRepo uniPortRepoMock;
   @Mock private Environment environmentMock;
   @Mock private LogEventService logEventServiceMock;
-  @Mock private SnmpAgentService snmpAgentServiceMock;
   @Mock private VirtualPortService virtualPortServiceMock;
   @Mock private ReservationService reservationServiceMock;
 
@@ -251,7 +250,6 @@ public class PhysicalPortServiceTest {
     assertThat(physicalPortMap.get("2").isAlignedWithNMS(), is(true));
     assertThat(physicalPortMap.get("3").isAlignedWithNMS(), is(false));
 
-    verify(snmpAgentServiceMock).sendMissingPortEvent("3");
     verify(physicalPortRepoMock, times(3)).save(anyListOf(UniPort.class));
   }
 

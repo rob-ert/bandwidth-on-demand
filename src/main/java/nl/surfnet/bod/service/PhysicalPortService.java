@@ -94,7 +94,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   @Resource private EnniPortRepo enniPortRepo;
   @Resource private NbiClient nbiClient;
   @Resource private LogEventService logEventService;
-  @Resource private SnmpAgentService snmpAgentService;
   @Resource private ReservationService reservationService;
   @Resource private NsiHelper nsiHelper;
 
@@ -264,10 +263,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     logger.info("Found {} ports realigned in the NMS", checker.getRealignedPorts().size());
     logger.info("Found {} ports unaligned in the NMS", checker.getUnalignedPorts().size());
     logger.info("Found {} ports changed alignment in the NMS", checker.getAlignmentChangedPorts().size());
-
-    for (PhysicalPort port : checker.getUnalignedPorts()) {
-      snmpAgentService.sendMissingPortEvent(port.getId().toString());
-    }
 
     physicalPortRepo.save(checker.getRealignedPorts());
     physicalPortRepo.save(checker.getUnalignedPorts());

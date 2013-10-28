@@ -71,9 +71,6 @@ public class InstituteIddServiceTest {
   @Mock
   private LogEventService logEventService;
 
-  @Mock
-  private SnmpAgentService snmpAgentService;
-
   private TransactionOperations transactionOperations = new FakeTransactionOperations();
 
   @Before

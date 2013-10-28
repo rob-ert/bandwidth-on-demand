@@ -64,9 +64,6 @@ public class InstituteIddService implements InstituteService {
   private LogEventService logEventService;
 
   @Resource
-  private SnmpAgentService snmpAgentService;
-
-  @Resource
   private TransactionOperations transactionOperations;
 
   @Override
@@ -136,7 +133,6 @@ public class InstituteIddService implements InstituteService {
   private void markNotAligned(List<Institute> allInstitutes) {
     for (Institute institute : allInstitutes) {
       institute.setAlignedWithIDD(false);
-      snmpAgentService.sendMissingInstituteEvent(institute.getId().toString());
     }
   }
 
