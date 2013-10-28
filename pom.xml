@@ -650,6 +650,9 @@
                         npqqntrommmmmUUJLI6kbqtW2XkatfaqeWlkW4bjXkaUUn
                         mmmm]]>
                     </license>
+                    <excludes>
+                      <exclude>nl/surfnet/bod/db/migration/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
