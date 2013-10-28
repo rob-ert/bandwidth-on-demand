@@ -79,11 +79,7 @@
                                 </table:actionsColumn>
                             </c:when>
                             <c:otherwise>
-                                <table:actionsColumn
-                                    item="${item}"
-                                    path="/virtualports"
-                                    labelCode="label_virtualport"
-                                    deleteEnabled="false" />
+                                <table:actionsColumn item="${item}" path="/virtualports" labelCode="label_virtualport" deleteLabelCode="Delete request has already been sent" deleteEnabled="false" />
                             </c:otherwise>
                         </c:choose>
                     </tr>
