@@ -33,6 +33,8 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -142,6 +144,15 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   public Collection<VirtualPortCreateRequestLink> getVirtualPortCreateRequestLinks() {
     return virtualPortCreateRequestLinks;
+  }
+
+  public Collection<VirtualPortCreateRequestLink> getPendingVirtualPortCreateRequestLinks() {
+    return Collections2.filter(getVirtualPortCreateRequestLinks(), new Predicate<VirtualPortCreateRequestLink>() {
+      @Override
+      public boolean apply(VirtualPortCreateRequestLink input) {
+        return input.isPending();
+      }
+    });
   }
 
   public void setVirtualPortCreateRequestLinks(Collection<VirtualPortCreateRequestLink> virtualPortCreateRequestLinks) {

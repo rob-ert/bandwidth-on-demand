@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -99,13 +100,41 @@ public class VirtualPortServiceTest {
   }
 
   @Test
-  public void delete() {
+  public void delete_last_port_should_delete_virtual_resource_group() {
     VirtualPort virtualPort = new VirtualPortFactory().create();
     when(reservationService.findByVirtualPort(virtualPort)).thenReturn(new ArrayList<Reservation>());
     subject.delete(virtualPort, user);
 
     verify(virtualPortRepoMock).delete(virtualPort);
     verify(virtualResourceGroupRepoMock).delete(virtualPort.getVirtualResourceGroup());
+  }
+
+  @Test
+  public void delete_non_last_port_should_only_delete_port() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+    new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    when(reservationService.findByVirtualPort(virtualPortOne)).thenReturn(new ArrayList<Reservation>());
+
+    subject.delete(virtualPortOne, user);
+
+    verify(virtualPortRepoMock).delete(virtualPortOne);
+    verifyNoMoreInteractions(virtualPortRepoMock, virtualResourceGroupRepoMock);
+  }
+
+  @Test
+  public void delete_last_port_and_peding_requests_should_only_delete_port() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory()
+      .addVirtualPortCreateReqeustLinks(new VirtualPortCreateRequestLinkFactory().setStatus(RequestStatus.PENDING).create()).create();
+    VirtualPort virtualPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    when(reservationService.findByVirtualPort(virtualPort)).thenReturn(new ArrayList<Reservation>());
+
+    subject.delete(virtualPort, user);
+
+    verify(virtualPortRepoMock).delete(virtualPort);
+    verifyNoMoreInteractions(virtualPortRepoMock, virtualResourceGroupRepoMock);
   }
 
   @Test

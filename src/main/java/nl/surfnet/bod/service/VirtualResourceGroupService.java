@@ -79,8 +79,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     }
   };
 
-  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
-    new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
     @Override
     public VirtualResourceGroupView apply(VirtualResourceGroup input) {
       return new VirtualResourceGroupView(input, input.getVirtualPortCount());

@@ -112,10 +112,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
     logEventService.logDeleteEvent(Security.getUserDetails(), getLogLabel(Security.getSelectedRole(), virtualPort), virtualPort);
 
-    virtualPort.getVirtualResourceGroup().removeVirtualPort(virtualPort);
+    VirtualResourceGroup vrg = virtualPort.getVirtualResourceGroup();
+    vrg.removeVirtualPort(virtualPort);
+
     virtualPortRepo.delete(virtualPort);
 
-    if (virtualPort.getVirtualResourceGroup().getVirtualPortCount() == 0) {
+    if (vrg.getVirtualPorts().isEmpty() && vrg.getPendingVirtualPortCreateRequestLinks().isEmpty()) {
       virtualResourceGroupReppo.delete(virtualPort.getVirtualResourceGroup());
     }
   }

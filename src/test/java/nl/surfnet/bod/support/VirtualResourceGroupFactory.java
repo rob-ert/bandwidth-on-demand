@@ -22,15 +22,17 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-
-import com.google.common.collect.Lists;
 
 public class VirtualResourceGroupFactory {
 
@@ -44,8 +46,11 @@ public class VirtualResourceGroupFactory {
   private String name = "VRG " + id;
   private String description = "Some virtual resource group";
 
-  private final Collection<VirtualPort> virtualPorts = Lists.newArrayList();
-  private final Collection<Reservation> reservations = Lists.newArrayList();
+  private final Collection<VirtualPort> virtualPorts = new ArrayList<>();
+  private final Collection<Reservation> reservations = new ArrayList<>();
+
+  private List<VirtualPortCreateRequestLink> createLinks = new ArrayList<>();
+  private List<VirtualPortDeleteRequestLink> deleteLinks = new ArrayList<>();
 
   public VirtualResourceGroup create() {
     VirtualResourceGroup vrg = new VirtualResourceGroup();
@@ -57,6 +62,8 @@ public class VirtualResourceGroupFactory {
     vrg.setAdminGroup(adminGroup);
     vrg.setVirtualPorts(virtualPorts);
     vrg.setReservations(reservations);
+    vrg.setVirtualPortCreateRequestLinks(createLinks);
+    vrg.setVirtualPortDeleteRequestLinks(deleteLinks);
 
     return vrg;
   }
@@ -100,6 +107,11 @@ public class VirtualResourceGroupFactory {
     this.version = null;
     this.id = null;
 
+    return this;
+  }
+
+  public VirtualResourceGroupFactory addVirtualPortCreateReqeustLinks(VirtualPortCreateRequestLink... links) {
+    this.createLinks.addAll(Arrays.asList(links));
     return this;
   }
 

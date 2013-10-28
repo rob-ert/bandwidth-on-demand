@@ -76,6 +76,8 @@ public class VirtualPortFactory {
       virtualResourceGroup.setAdminGroup(virtualGroupAdminGroup);
     }
 
+    virtualResourceGroup.addVirtualPort(virtualPort);
+
     return virtualPort;
   }
 
