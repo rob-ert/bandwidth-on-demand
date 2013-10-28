@@ -23,18 +23,6 @@
 package nl.surfnet.bod.nsi.v1sc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLING;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.PASSED_END_TIME;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_EXISTS;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
@@ -42,30 +30,21 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNSUPPORTED_PARA
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
-import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -78,8 +57,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,23 +64,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
-public class ConnectionServiceV1 extends AbstractFullTextSearchService<ConnectionV1> {
-
-  protected static final Map<ReservationStatus, ConnectionStateType> STATE_MAPPING =
-    new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
-      .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
-      .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
-      .put(CANCELLING, ConnectionStateType.TERMINATING)
-      .put(CANCELLED, ConnectionStateType.TERMINATED)
-      .put(FAILED, ConnectionStateType.TERMINATED)
-      .put(REQUESTED, ConnectionStateType.INITIAL)
-      .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
-      .put(RESERVED, ConnectionStateType.RESERVED)
-      .put(RUNNING, ConnectionStateType.PROVISIONED)
-      .put(SCHEDULED, ConnectionStateType.SCHEDULED)
-      .put(SUCCEEDED, ConnectionStateType.TERMINATED)
-      .put(PASSED_END_TIME, ConnectionStateType.TERMINATED)
-      .build();
+public class ConnectionServiceV1 {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceV1.class);
 
@@ -112,8 +73,6 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortService virtualPortService;
   @Resource private ConnectionServiceRequesterV1 connectionServiceRequester;
-
-  @PersistenceContext private EntityManager entityManager;
 
   public void reserve(ConnectionV1 connection, NsiV1RequestDetails requestDetails, boolean autoProvision, RichUserDetails userDetails) throws ValidationException {
     checkConnection(connection, userDetails);
@@ -363,47 +322,4 @@ public class ConnectionServiceV1 extends AbstractFullTextSearchService<Connectio
     return result;
   }
 
-  public Connection find(Long id) {
-    return connectionRepo.findOne(id);
-  }
-
-  public Collection<ConnectionV1> findAll() {
-    return connectionRepo.findAll();
-  }
-
-  public List<Long> findIds(Optional<Sort> sort) {
-    return connectionRepo.findIds(sort);
-  }
-
-  public List<ConnectionV1> findEntries(int firstResult, int maxResults, Sort sort) {
-    return connectionRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-  }
-
-  public long count() {
-    return connectionRepo.count();
-  }
-
-  protected boolean hasValidState(ConnectionV1 connection) {
-    if (connection.getReservation() == null) {
-      return connection.getCurrentState() == ConnectionStateType.TERMINATED;
-    } else {
-      return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
-    }
-  }
-
-  public List<ConnectionV1> findWithIllegalState(int firstResult, int maxResults, Sort sort) {
-    List<ConnectionV1> connections = connectionRepo.findAll(sort);
-
-    return FluentIterable.from(connections).filter(new Predicate<ConnectionV1>() {
-      @Override
-      public boolean apply(ConnectionV1 connection) {
-        return !hasValidState(connection);
-      }
-    }).toList();
-  }
-
-  @Override
-  protected EntityManager getEntityManager() {
-    return entityManager;
-  }
 }

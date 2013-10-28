@@ -25,21 +25,14 @@ package nl.surfnet.bod.nsi.v1sc;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.PROVISIONED;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
-
-import java.util.EnumSet;
-
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v1sc.ConnectionServiceV1.ValidationException;
 import nl.surfnet.bod.repo.ConnectionV1Repo;
@@ -52,6 +45,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -108,22 +102,6 @@ public class ConnectionServiceV1Test {
 
     assertThat(queryConfirmedType.getRequesterNSA(), is("urn:requester-nsa"));
     assertThat(queryConfirmedType.getProviderNSA(), is("urn:provider-nsa"));
-  }
-
-  @Test
-  public void allStatesShouldBeMapped() {
-    for (ReservationStatus status : EnumSet.allOf(ReservationStatus.class)) {
-      assertThat(ConnectionServiceV1.STATE_MAPPING.get(status), notNullValue());
-    }
-  }
-
-  @Test
-  public void aConnectionWithoutAReservationShouldBeTerminated() {
-    ConnectionV1 connectionValid = new ConnectionV1Factory().setReservation(null).setCurrentState(TERMINATED).create();
-    assertThat(subject.hasValidState(connectionValid), is(true));
-
-    ConnectionV1 connectionInvalid = new ConnectionV1Factory().setReservation(null).setCurrentState(PROVISIONED).create();
-    assertThat(subject.hasValidState(connectionInvalid), is(false));
   }
 
   @Test
