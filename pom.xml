@@ -1080,6 +1080,11 @@
             <name>Excilys Repository</name>
             <url>http://repository.excilys.com/content/groups/public</url>
         </pluginRepository>
+        <pluginRepository>
+            <id>surfnet-releases</id>
+            <name>surfnet-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+        </pluginRepository>
     </pluginRepositories>
 
     <distributionManagement>
