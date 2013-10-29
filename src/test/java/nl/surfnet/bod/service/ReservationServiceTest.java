@@ -195,25 +195,9 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void updateStatusShouldTransitionScheduledReservationToPassedEndTimeWhenUpdatedToSucceededAndCurrentTimeAfterEndTime() {
+  public void updateStatusShouldTransitionScheduledReservationToPassedEndTimeWhenUpdatedToSucceeded() {
     DateTime now = DateTime.now();
-    // MTOSI just returns SUCCEEDED as final state. We need to manage switching it to CANCELLED if the reservation is CANCELLING.
-    Reservation reservation = new ReservationFactory()
-        .setStatus(ReservationStatus.SCHEDULED)
-        .setStartDateTime(now.minusHours(2))
-        .setEndDateTime(now.minusMinutes(10))
-        .create();
-    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
-
-    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
-
-    assertThat(reservation.getStatus(), is(ReservationStatus.PASSED_END_TIME));
-  }
-
-  @Test
-  public void updateStatusShouldTransitionScheduledReservationToSucceededWhenUpdatedToSucceededAndCurrentTimeBeforeEndTime() {
-    DateTime now = DateTime.now();
-    // MTOSI just returns SUCCEEDED as final state. We need to manage switching it to CANCELLED if the reservation is CANCELLING.
+    // MTOSI just returns SUCCEEDED as final state. We need to manage switching it to PASSED_END_TIME when reservation is not RUNNING.
     Reservation reservation = new ReservationFactory()
     .setStatus(ReservationStatus.SCHEDULED)
     .setStartDateTime(now.minusHours(2))
@@ -223,7 +207,7 @@ public class ReservationServiceTest {
 
     subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
 
-    assertThat(reservation.getStatus(), is(ReservationStatus.SUCCEEDED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.PASSED_END_TIME));
   }
 
   @Test

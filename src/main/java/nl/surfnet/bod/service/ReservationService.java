@@ -542,6 +542,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().isBeforeNow();
       if (oldStatus == ReservationStatus.CANCELLING) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
+      } else if (oldStatus == ReservationStatus.SCHEDULED) {
+        // MTOSI deletes reservations 10 minutes before the end time. Mark this as a PASSED_END_TIME result.
+        return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
       } else if (passedEndTime && oldStatus.canTransition(ReservationStatus.RUNNING)) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
       }

@@ -27,18 +27,16 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.RESOURCE_UNAVAIL
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 
-import java.util.List;
+import com.google.common.base.Preconditions;
 
+import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
@@ -134,6 +132,8 @@ class ConnectionServiceRequesterV2 {
   }
 
   public void provisionConfirmed(Long connectionId, NsiV2RequestDetails requestDetails) {
+    Preconditions.checkNotNull(requestDetails, "cannot provision without provision request details");
+
     ConnectionV2 connection = connectionRepo.findOne(connectionId);
     connection.setProvisionState(ProvisionStateEnumType.PROVISIONED);
 
