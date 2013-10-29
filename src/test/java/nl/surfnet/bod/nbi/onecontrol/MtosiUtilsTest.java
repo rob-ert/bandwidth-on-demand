@@ -23,24 +23,21 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.io.File;
-import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
+import java.io.File;
+import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import nl.surfnet.bod.domain.ReservationStatus;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
@@ -174,18 +171,18 @@ public class MtosiUtilsTest {
 
   @Test
   public void shouldMapServiceStatesToReservationStates() {
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.RESERVING), is(ReservationStatus.REQUESTED));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.INITIAL), is(ReservationStatus.RESERVED));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.SCHEDULED), is(ReservationStatus.SCHEDULED));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.PROVISIONING), is(ReservationStatus.AUTO_START));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.ACTIVATING), is(ReservationStatus.SCHEDULED));
-    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.TERMINATING), is(ReservationStatus.CANCELLING));
-    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_ACTIVE, RfsSecondaryState.ACTIVATED), is(ReservationStatus.RUNNING));
-    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_INACTIVE, RfsSecondaryState.TERMINATING), is(ReservationStatus.CANCELLING));
-    assertThat(mapMtosiState(ServiceStateType.TERMINATED, null), is(ReservationStatus.SUCCEEDED));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.RESERVING), isPresent(ReservationStatus.REQUESTED));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.INITIAL), isPresent(ReservationStatus.RESERVED));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.SCHEDULED), isPresent(ReservationStatus.SCHEDULED));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.PROVISIONING), isPresent(ReservationStatus.AUTO_START));
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.ACTIVATING), isAbsent());
+    assertThat(mapMtosiState(ServiceStateType.RESERVED, RfsSecondaryState.TERMINATING), isAbsent());
+    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_ACTIVE, RfsSecondaryState.ACTIVATED), isPresent(ReservationStatus.RUNNING));
+    assertThat(mapMtosiState(ServiceStateType.PROVISIONED_INACTIVE, RfsSecondaryState.TERMINATING), isAbsent());
+    assertThat(mapMtosiState(ServiceStateType.TERMINATED, null), isAbsent());
   }
 
-  private ReservationStatus mapMtosiState(ServiceStateType serviceState, RfsSecondaryState secondaryState) {
+  private Optional<ReservationStatus> mapMtosiState(ServiceStateType serviceState, RfsSecondaryState secondaryState) {
     ResourceFacingServiceType rfs = new ResourceFacingServiceType()
         .withServiceState(serviceState);
     if (secondaryState != null) {

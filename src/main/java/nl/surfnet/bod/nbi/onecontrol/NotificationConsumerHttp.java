@@ -53,6 +53,7 @@ import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
 import org.tmforum.mtop.sb.xsd.savc.v1.ServiceAttributeValueChangeType;
 import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
 @Profile("onecontrol")
 @Component
@@ -62,7 +63,7 @@ import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 //@SchemaValidation // OneControl notifications are not valid against the MTOSI schemas
 public class NotificationConsumerHttp implements NotificationConsumer {
 
-  private final Logger log = LoggerFactory.getLogger(NotificationConsumerHttp.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
   private final List<AlarmType> alarms = Collections.synchronizedList(new ArrayList<AlarmType>());
   private final List<CommonEventInformationType> events = Collections.synchronizedList(new ArrayList<CommonEventInformationType>());
@@ -78,7 +79,6 @@ public class NotificationConsumerHttp implements NotificationConsumer {
   @Override
   public void notify(Header header, Notify body) {
     try {
-      log.info("Received a notification: {}, {}", body.getTopic(), body.getMessage());
 
       List<JAXBElement<? extends CommonEventInformationType>> eventInformations = body.getMessage().getCommonEventInformation();
 
@@ -86,22 +86,26 @@ public class NotificationConsumerHttp implements NotificationConsumer {
         CommonEventInformationType event = jaxbElement.getValue();
         if (event instanceof HeartbeatType) {
           lastHeartbeat = DateTime.now();
-          log.debug("Received heartbeat");
+          LOGGER.debug("Received heartbeat");
         } else if (event instanceof AlarmType) {
+          LOGGER.debug("ALARM  : {}, {}", body.getTopic(), body.getMessage());
           alarms.add((AlarmType) jaxbElement.getValue());
         } else if (event instanceof ServiceObjectCreationType) {
+          LOGGER.info("CREATION: {}, {}", body.getTopic(), body.getMessage());
           handleServiceObjectCreation((ServiceObjectCreationType) event);
         } else if (event instanceof ServiceAttributeValueChangeType) { // connection state changes: active/inactive
+          LOGGER.info("CHANGE  : {}, {}", body.getTopic(), body.getMessage());
           handleServiceAttributeValueChange((ServiceAttributeValueChangeType) event);
         } else if (event instanceof ServiceObjectDeletionType) {
+          LOGGER.info("DELETION: {}, {}", body.getTopic(), body.getMessage());
           handleServiceObjectDeletion((ServiceObjectDeletionType) event);
         } else {
           events.add(event);
-          log.warn("Got an unsupported event type: " + event.getClass().getSimpleName());
+          LOGGER.warn("Got an unsupported event type {}", event.getClass().getSimpleName());
         }
       }
     } catch (Exception e) {
-      log.warn("Error processing notification: {}", e, e);
+      LOGGER.warn("Error processing notification: {}", e, e);
     }
   }
 
@@ -112,49 +116,50 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private void handleServiceObjectCreation(ServiceObjectCreationType event) {
     serviceObjectCreations.add(event);
-    Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", event.getObjectName());
-
-    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
-      reservationService.updateStatus(reservationId.get(), UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED));
-    }
   }
 
-  private boolean reservationIsKnown(String reservationId) {
-    return reservationService.findByReservationId(reservationId) != null;
+  private Optional<Reservation> maybeFindReservation(Optional<String> reservationId) {
+    if (reservationId.isPresent()) {
+      return Optional.fromNullable(reservationService.findByReservationId(reservationId.get()));
+    } else {
+      return Optional.absent();
+    }
   }
 
   private void handleServiceAttributeValueChange(ServiceAttributeValueChangeType valueChange) throws JAXBException {
     serviceAttributeValueChanges.add(valueChange);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", valueChange.getObjectName());
+    Optional<ResourceFacingServiceType> rfs = MtosiUtils.findRfs(valueChange);
+    Optional<Reservation> reservation = maybeFindReservation(reservationId);
 
-    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
-      Optional<RfsSecondaryState> secondaryState = MtosiUtils.findSecondaryState(valueChange);
-
-      if (secondaryState.isPresent() && secondaryState.get() == RfsSecondaryState.INITIAL) {
-        handleInitialState(reservationId.get());
-      } else {
-        scheduleUpdate(reservationId);
+    if (reservation.isPresent() && !rfs.isPresent()) {
+      LOGGER.warn("RFS not found in value change event {}", valueChange);
+    }
+    if (reservation.isPresent() && rfs.isPresent()) {
+      Optional<ReservationStatus> newStatus = MtosiUtils.mapToReservationState(rfs.get());
+      if (newStatus.isPresent()) {
+        UpdatedReservationStatus updatedReservationStatus = UpdatedReservationStatus.forNewStatus(newStatus.get());
+        scheduleUpdate(reservationId.get(), updatedReservationStatus);
       }
     }
-  }
-
-  private void handleInitialState(String reservationId) {
-    Reservation reservation = reservationService.findByReservationId(reservationId);
-    reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED));
-    reservationService.provision(reservation);
   }
 
   private void handleServiceObjectDeletion(ServiceObjectDeletionType deletionEvent) {
     serviceObjectDeletions.add(deletionEvent);
     Optional<String> reservationId = MtosiUtils.findRdnValue("RFS", deletionEvent.getObjectName());
+    Optional<Reservation> reservation = maybeFindReservation(reservationId);
 
-//    scheduleUpdate(reservationId);
+    if (reservation.isPresent()) {
+      if (reservation.get().getStatus() == ReservationStatus.REQUESTED) {
+        scheduleUpdate(reservation.get().getReservationId(), UpdatedReservationStatus.notAccepted("reserve request not accepted by MTOSI"));
+      } else {
+        scheduleUpdate(reservation.get().getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
+      }
+    }
   }
 
-  private void scheduleUpdate(Optional<String> reservationId) {
-    if (reservationId.isPresent() && reservationIsKnown(reservationId.get())) {
-      reservationsAligner.add(reservationId.get());
-    }
+  private void scheduleUpdate(String reservationId, UpdatedReservationStatus updatedReservationStatus) {
+    reservationsAligner.add(reservationId, Optional.of(updatedReservationStatus));
   }
 
   public List<AlarmType> getAlarms() {

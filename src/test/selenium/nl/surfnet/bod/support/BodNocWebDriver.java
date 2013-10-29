@@ -335,7 +335,7 @@ public class BodNocWebDriver extends AbstractBoDWebDriver<DashboardPage> {
   private void verifyBySearch(AbstractListPage page, String searchString, String... labels) {
     page.search(searchString);
 
-    int expectedAmount = labels == null ? 0 : labels.length;
+    int expectedAmount = labels.length;
     assertThat(page.getNumberOfRows(), is(expectedAmount));
 
     for (String label : labels) {

@@ -22,16 +22,12 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Resource;
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -39,7 +35,6 @@ import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -89,11 +84,9 @@ public class NbiClientImpl implements NbiClient {
             }
           });
 
-      return rfs.transform(new Function<ResourceFacingServiceType, ReservationStatus>() {
-        public ReservationStatus apply(ResourceFacingServiceType rfs) {
-          return MtosiUtils.mapToReservationState(rfs);
-        }
-      });
+      if (rfs.isPresent()) {
+        return MtosiUtils.mapToReservationState(rfs.get());
+      }
     }
 
     return Optional.absent();

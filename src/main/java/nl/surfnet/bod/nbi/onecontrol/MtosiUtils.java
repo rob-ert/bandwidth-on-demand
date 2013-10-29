@@ -25,22 +25,17 @@ package nl.surfnet.bod.nbi.onecontrol;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
+import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import nl.surfnet.bod.domain.ReservationStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tmforum.mtop.fmw.xsd.avc.v1.AttributeValueChangeType.AttributeList;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
@@ -136,7 +131,7 @@ public final class MtosiUtils {
   }
 
   public static Optional<RfsSecondaryState> findSecondaryState(ServiceAttributeValueChangeType event) {
-    Optional<ResourceFacingServiceType> rfs = findRfs(event.getAttributeList());
+    Optional<ResourceFacingServiceType> rfs = findRfs(event);
 
     Optional<Optional<RfsSecondaryState>> status = rfs.transform(new Function<ResourceFacingServiceType, Optional<RfsSecondaryState>>() {
       @Override
@@ -148,9 +143,12 @@ public final class MtosiUtils {
     return status.isPresent() ? status.get() : Optional.<RfsSecondaryState> absent();
   }
 
-  private static Optional<ResourceFacingServiceType> findRfs(AttributeList attributeList) {
-    Object any = attributeList.getAny();
+  public static Optional<ResourceFacingServiceType> findRfs(ServiceAttributeValueChangeType event) {
+    if (event.getAttributeList() == null) {
+      return Optional.absent();
+    }
 
+    Object any = event.getAttributeList().getAny();
     if (any instanceof Node) {
       try {
         return Optional.of(jaxbContext.createUnmarshaller().unmarshal((Node) any, ResourceFacingServiceType.class).getValue());
@@ -220,71 +218,37 @@ public final class MtosiUtils {
   }
 
   /**
-   * Based on file:Dropbox/BOD/MTOSI/OneControl_R3 .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
+   * Based on file:Dropbox/BOD/MTOSI/OneControl_R3
+   * .0_MTOSI/DOCS/OneControl_R3.0_MTOSI_NBI.htm
    *
    * In 14 Service Management Model -> ServiceStates
+   *
+   * We only look at the secondary status, since the service state is null when
+   * receiving value attribute change notifications, even though this is not
+   * allowed by the schema.
    */
-  public static ReservationStatus mapToReservationState(ResourceFacingServiceType rfs) {
+  public static Optional<ReservationStatus> mapToReservationState(ResourceFacingServiceType rfs) {
     RfsSecondaryState secondaryState = findSecondaryState(rfs).or(RfsSecondaryState.UNKNOWN);
-    switch (rfs.getServiceState()) {
-    case PLANNING_FEASIBILITY_CHECK:
-      // Not used
-      break;
-    case PLANNING_DESIGNED:
-      // Not used
-      break;
-    case RESERVED:
-      switch (secondaryState) {
-      case RESERVING:
-        return ReservationStatus.REQUESTED;
-      case INITIAL:
-        return ReservationStatus.RESERVED;
-      case SCHEDULED:
-        return ReservationStatus.SCHEDULED;
-      case PROVISIONING:
-        return ReservationStatus.AUTO_START;
-      case ACTIVATING:
-        return ReservationStatus.SCHEDULED;
-      case TERMINATING:
-        return ReservationStatus.CANCELLING;
-      case ACTIVATED:
-      case TERMINATED:
-      case UNKNOWN:
-        break;
-      }
-      break;
-    case PROVISIONED_ACTIVE:
-      switch (secondaryState) {
-      case ACTIVATED:
-        return ReservationStatus.RUNNING;
-      case ACTIVATING:
-      case INITIAL:
-      case PROVISIONING:
-      case RESERVING:
-      case SCHEDULED:
-      case TERMINATED:
-      case TERMINATING:
-      case UNKNOWN:
-        break;
-      }
-      break;
-    case PROVISIONED_INACTIVE:
-      switch (secondaryState) {
-      case TERMINATING:
-        return ReservationStatus.CANCELLING;
-      case ACTIVATED:
-      case ACTIVATING:
-      case INITIAL:
-      case PROVISIONING:
-      case RESERVING:
-      case SCHEDULED:
-      case TERMINATED:
-      case UNKNOWN:
-        break;
-      }
-      break;
+    LOGGER.debug("MAPPING status {} {}", rfs.getServiceState(), secondaryState);
+    switch (secondaryState) {
+    case RESERVING:
+      return Optional.of(ReservationStatus.REQUESTED);
+    case INITIAL:
+      return Optional.of(ReservationStatus.RESERVED);
+    case SCHEDULED:
+      return Optional.of(ReservationStatus.SCHEDULED);
+    case PROVISIONING:
+      return Optional.of(ReservationStatus.AUTO_START);
+    case ACTIVATING:
+      return Optional.absent();
+    case ACTIVATED:
+      return Optional.of(ReservationStatus.RUNNING);
+    case TERMINATING:
+      return Optional.absent();
     case TERMINATED:
-      return ReservationStatus.SUCCEEDED;
+      return Optional.of(ReservationStatus.SUCCEEDED);
+    case UNKNOWN:
+      return Optional.absent();
     }
 
     throw new IllegalArgumentException("unrecognized reservation state <" + rfs.getServiceState() + ", " + secondaryState + "> for RFS " + rfs);

@@ -24,21 +24,18 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
 import javax.annotation.Resource;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.service.ReservationService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -57,14 +54,12 @@ public class ReservationsAligner implements SmartLifecycle {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReservationsAligner.class);
   private volatile boolean started = false;
 
-  public static String POISON_PILL = "TOXIC";
-
   @Resource
   private NbiClient nbiClient;
   @Resource
   private ReservationService reservationService;
 
-  private BlockingQueue<String> reservationQueue = new ArrayBlockingQueue<>(1000);
+  private BlockingQueue<ScheduledItem> reservationQueue = new ArrayBlockingQueue<>(1000);
 
   public void align() throws InterruptedException {
     while (alignNextReservation()) {
@@ -74,12 +69,12 @@ public class ReservationsAligner implements SmartLifecycle {
   @VisibleForTesting
   boolean alignNextReservation() throws InterruptedException {
     try {
-      String reservationId = reservationQueue.take();
-      if (POISON_PILL.equals(reservationId)) {
+      ScheduledItem item = reservationQueue.take();
+      if (item.poisonPill) {
         return false;
       }
 
-      alignReservation(reservationId);
+      alignReservation(item.reservationId, item.updatedReservationStatus);
     } catch (InterruptedException e) {
       throw e;
     } catch (Exception e) {
@@ -89,16 +84,16 @@ public class ReservationsAligner implements SmartLifecycle {
   }
 
   @VisibleForTesting
-  void alignReservation(String reservationId) {
+  void alignReservation(String reservationId, Optional<UpdatedReservationStatus> updatedReservationStatus) {
     LOGGER.info("Aligning reservation {}", reservationId);
 
-    Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
-    if (!reservationStatus.isPresent()) {
+    updatedReservationStatus = retrieveUpdatedReservationStatus(reservationId, updatedReservationStatus);
+    if (!updatedReservationStatus.isPresent()) {
       return;
     }
 
     try {
-      Reservation reservation = reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(reservationStatus.get()));
+      Reservation reservation = reservationService.updateStatus(reservationId, updatedReservationStatus.get());
       if (!reservation.isNSICreated()
           && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
         // Auto-provision if the reservation was created in the UI (not
@@ -109,6 +104,18 @@ public class ReservationsAligner implements SmartLifecycle {
       // apparently the reservation did not exist
       LOGGER.debug("Ignoring unknown reservation with id {}", reservationId);
     }
+  }
+
+  Optional<UpdatedReservationStatus> retrieveUpdatedReservationStatus(String reservationId, Optional<UpdatedReservationStatus> updatedReservationStatus) {
+    if (!updatedReservationStatus.isPresent()) {
+      Optional<ReservationStatus> reservationStatus = nbiClient.getReservationStatus(reservationId);
+      if (reservationStatus.isPresent()) {
+        updatedReservationStatus = Optional.of(UpdatedReservationStatus.forNewStatus(reservationStatus.get()));
+      } else {
+        updatedReservationStatus = Optional.absent();
+      }
+    }
+    return updatedReservationStatus;
   }
 
   @Override
@@ -134,20 +141,24 @@ public class ReservationsAligner implements SmartLifecycle {
     alignerThread.start();
   }
 
-  @Scheduled(fixedRate = 60000l)
+  /**
+   * Normally MTOSI notifications keep us updated of reservation changes.
+   * However, in case we miss a notification, we poll MTOSI once in a while.
+   */
+  @Scheduled(fixedRate = 600000L)
   public void refreshReservationsToAlign() {
     Collection<Reservation> reservationsToPoll = reservationService.findTransitionableReservations();
     for (Reservation reservation : reservationsToPoll) {
       if (reservation.getReservationId() != null) {
         LOGGER.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
-        add(reservation.getReservationId());
+        add(reservation.getReservationId(), Optional.<UpdatedReservationStatus>absent());
       }
     }
   }
 
   @Override
   public void stop() {
-    add(POISON_PILL);
+    reservationQueue.add(new ScheduledItem());
   }
 
   @Override
@@ -176,9 +187,35 @@ public class ReservationsAligner implements SmartLifecycle {
    * @throws IllegalStateException
    *           when the backing queue is full
    */
-  public void add(String reservationId) {
+  public void add(String reservationId, Optional<UpdatedReservationStatus> updatedReservationStatus) {
     checkNotNull(reservationId);
-    reservationQueue.add(reservationId);
+    reservationQueue.add(new ScheduledItem(reservationId, updatedReservationStatus));
   }
 
+  private static class ScheduledItem {
+    public final boolean poisonPill;
+    public final String reservationId;
+    public final Optional<UpdatedReservationStatus> updatedReservationStatus;
+
+    private ScheduledItem() {
+      this.poisonPill = true;
+      this.reservationId = null;
+      this.updatedReservationStatus = null;
+    }
+
+    public ScheduledItem(String reservationId, Optional<UpdatedReservationStatus> updatedReservationStatus) {
+      this.poisonPill = false;
+      this.reservationId = Preconditions.checkNotNull(reservationId);
+      this.updatedReservationStatus = Preconditions.checkNotNull(updatedReservationStatus);
+    }
+
+    @Override
+    public String toString() {
+      return "ScheduledItem [reservationId="
+          + reservationId
+          + ", updatedReservationStatus="
+          + updatedReservationStatus
+          + "]";
+    }
+  }
 }

@@ -39,7 +39,7 @@
     <level value="INFO" />
   </logger>
 
-  <logger name="nl.surfnet.bod.mtosi">
+  <logger name="nl.surfnet.bod.nbi.onecontrol">
     <level value="INFO" />
   </logger>
 

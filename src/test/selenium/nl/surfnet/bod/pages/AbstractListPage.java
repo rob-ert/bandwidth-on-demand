@@ -242,7 +242,7 @@ public class AbstractListPage extends AbstractPage {
   public void verifyRowsBySearch(String searchString, String... labels) {
     search(searchString);
 
-    int expectedAmount = labels == null ? 0 : labels.length;
+    int expectedAmount = labels.length;
     assertThat(getNumberOfRows(), is(expectedAmount));
 
     for (String label : labels) {
