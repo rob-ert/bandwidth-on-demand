@@ -22,7 +22,7 @@
         <selenium.version>2.37.1</selenium.version>
         <flyway.version>2.2.1</flyway.version>
         <gatling.version>2.0.0-M3a</gatling.version>
-        <hibernate.version>4.2.7.SP1</hibernate.version>
+        <hibernate.version>4.2.0.Final</hibernate.version>
         <hibernate-search.version>4.4.0.Final</hibernate-search.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:${jetty.port}/bod</selenium.test.url>
