@@ -89,4 +89,13 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
 
     return entityManager.createQuery(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
   }
+
+  public Reservation getByIdWithPessimisticWriteLock(Long id) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Reservation> query = builder.createQuery(Reservation.class);
+    Root<Reservation> root = query.from(Reservation.class);
+    query.where(builder.equal(root.get(Reservation_.id), id));
+
+    return entityManager.createQuery(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+  }
 }

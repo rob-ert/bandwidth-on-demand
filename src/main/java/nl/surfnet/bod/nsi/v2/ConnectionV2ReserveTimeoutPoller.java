@@ -23,13 +23,9 @@
 package nl.surfnet.bod.nsi.v2;
 
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
-import nl.surfnet.bod.service.ReservationService;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
@@ -46,12 +42,8 @@ public class ConnectionV2ReserveTimeoutPoller {
   private ConnectionV2Repo connectionRepo;
 
   @Resource
-  private ConnectionServiceRequesterV2 connectionServiceRequesterV2;
-
-  @Resource
-  private ReservationService reservationService;
-
-
+  private ConnectionServiceV2 connectionServiceV2;
+  
   @Scheduled(fixedDelay = 60 * 1000)
   public void timeOutUncommittedReservations() {
     DateTime now = DateTime.now();
@@ -60,8 +52,7 @@ public class ConnectionV2ReserveTimeoutPoller {
 
     for (ConnectionV2 connection : timedOut) {
       logger.info("Cancelling NSIv2 connection {} due to RESERVE_HELD timeout {}", connection.getConnectionId(), connection.getReserveHeldTimeout().orNull());
-      reservationService.cancelDueToReserveTimeout(connection.getReservation().getId());
-      connectionServiceRequesterV2.reserveTimeout(connection.getId(), now);
+      connectionServiceV2.asyncReserveTimeout(now, connection.getReservation().getId(), connection.getId());
     }
   }
 }

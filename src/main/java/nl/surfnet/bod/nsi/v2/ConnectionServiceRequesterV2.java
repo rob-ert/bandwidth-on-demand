@@ -94,10 +94,10 @@ class ConnectionServiceRequesterV2 {
     client.replyReserveFailed(requestDetails.createRequesterReplyHeaders(), connection.getConnectionId(), connection.getConnectionStates(), exception, requestDetails.getReplyTo());
   }
 
-  public void reserveTimeout(Long id, DateTime when) {
+  public void reserveTimeout(Long id, DateTime timedOutAt) {
     ConnectionV2 connection = connectionRepo.findOne(id);
     connection.setReservationState(ReservationStateEnumType.RESERVE_TIMEOUT);
-    final XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(when);
+    final XMLGregorianCalendar timeStamp = XmlUtils.toGregorianCalendar(timedOutAt);
 
     NsiV2RequestDetails requestDetails = connection.getLastReservationRequestDetails();
     ReserveTimeoutRequestType notification = new ReserveTimeoutRequestType();

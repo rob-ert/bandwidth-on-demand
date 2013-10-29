@@ -24,11 +24,9 @@ package nl.surfnet.bod.repo;
 
 import java.util.Collection;
 import java.util.List;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -43,6 +41,7 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
 
   Reservation findByReservationId(final String reservationId);
 
+  Reservation getByIdWithPessimisticWriteLock(Long id);
   Reservation getByReservationIdWithPessimisticWriteLock(String reservationId);
 
   Reservation findByConnectionV1ConnectionId(final String connectionId);

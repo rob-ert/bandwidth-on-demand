@@ -145,7 +145,7 @@ public enum ReservationStatus {
   }
 
   public boolean canTransition(ReservationStatus to) {
-    return this.canDirectlyTransitionTo(to) || TRANSITION_PATHS.containsKey(new Transition<>(this, to));
+    return this == to || this.canDirectlyTransitionTo(to) || TRANSITION_PATHS.containsKey(new Transition<>(this, to));
   }
 
   /**

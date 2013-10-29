@@ -27,6 +27,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
 
+import nl.surfnet.bod.domain.Reservation;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -35,11 +37,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
-
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
@@ -49,7 +49,6 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -63,7 +62,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -169,7 +167,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Optional.absent();
   }
 
-  public void cancelDueToReserveTimeout(final Long reservationId) {
+  public void cancelDueToReserveTimeout(Long reservationId) {
+    Reservation reservation = reservationRepo.getByIdWithPessimisticWriteLock(reservationId);
+    doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLING));
     reservationToNbi.asyncTerminate(reservationId, "Canceled due to reserve held timeout");
   }
 
@@ -532,17 +532,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   /**
-   * MTOSI just returns SUCCEEDED as final state. We need to translate to
-   * PASSED_END_TIME or CANCELLED based on the current state of the reservation,
-   * or leave the status unchanged.
+   * MTOSI just returns SUCCEEDED as final state. We need to any non-error end
+   * state to PASSED_END_TIME or CANCELLED based on the current state of the
+   * reservation, or leave the status unchanged.
    */
   private UpdatedReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, UpdatedReservationStatus newStatus) {
-    if (newStatus.getNewStatus() == ReservationStatus.SUCCEEDED) {
+    if (newStatus.getNewStatus().isEndState() && !newStatus.getNewStatus().isErrorState()) {
       ReservationStatus oldStatus = reservation.getStatus();
       boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().isBeforeNow();
       if (oldStatus == ReservationStatus.CANCELLING) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
-      } else if (passedEndTime && ReservationStatus.COULD_START_STATES.contains(oldStatus)) {
+      } else if (passedEndTime && oldStatus.canTransition(ReservationStatus.RUNNING)) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
       }
     }

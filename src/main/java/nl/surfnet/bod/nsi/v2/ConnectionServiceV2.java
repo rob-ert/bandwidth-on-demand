@@ -29,18 +29,15 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.TOPOLOGY_ERROR;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Resource;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Resource;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
@@ -53,7 +50,6 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
@@ -239,6 +235,12 @@ public class ConnectionServiceV2 {
   @Async
   public void asyncQueryNotification(String connectionId, Optional<Integer> startNotificationId, Optional<Integer> endNotificationId, NsiV2RequestDetails requestDetails) {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
+  }
+
+  @Async
+  public void asyncReserveTimeout(DateTime timedOutAt, Long reservationId, Long connectionId) {
+    reservationService.cancelDueToReserveTimeout(reservationId);
+    connectionServiceRequester.reserveTimeout(connectionId, timedOutAt);
   }
 
   private void checkStartEndTime(Optional<DateTime> startTime, Optional<DateTime> endTime) throws ReservationCreationException {
