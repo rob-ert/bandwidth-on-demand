@@ -102,6 +102,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
   private final List<MockNbiPort> ports = new ArrayList<>();
   private final Map<String, OfflineReservation> scheduleIds = new HashMap<>();
+  private long lastScheduleIdTimestamp = -1L;
 
   private boolean shouldSleep = true;
 
@@ -147,7 +148,8 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
   @Override
   public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
-    final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
+    String scheduleId = generateScheduleId();
+
     reservation.setReservationId(scheduleId);
 
     if (reservation.getStartDateTime() == null) {
@@ -179,6 +181,15 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     }
 
     return result;
+  }
+
+  private synchronized String generateScheduleId() {
+    long timestamp;
+    do {
+      timestamp = System.currentTimeMillis();
+    } while (lastScheduleIdTimestamp >= timestamp);
+    lastScheduleIdTimestamp = timestamp;
+    return "SCHEDULE-" + timestamp;
   }
 
   @Override
