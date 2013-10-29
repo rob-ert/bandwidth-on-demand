@@ -23,9 +23,7 @@
                                   <spring:message code="label_healthcheck" />
                               </a>
                             </dt>
-                            <dd>
-                                Shows the healthstatus of external BoD systems
-                            </dd>
+                            <dd>Shows the healthstatus of external BoD systems</dd>
                             <dt>
                                 <spring:url var="r_institutes_url" value="${refresh_institutes_url}" />
                                 <a href="${r_institutes_url}">
@@ -39,9 +37,7 @@
                                     <spring:message code="label_portalignment" />
                                 </a>
                             </dt>
-                            <dd>
-                                Force physical port alignment check
-                            </dd>
+                            <dd>Force physical port alignment check</dd>
                             <dt>
                                 <spring:url var="r_search_url" value="${refresh_searchindex_url}" />
                                 <a href="${r_search_url}">

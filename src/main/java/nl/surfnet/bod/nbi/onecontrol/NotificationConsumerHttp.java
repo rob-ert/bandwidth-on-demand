@@ -55,7 +55,7 @@ import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 import org.tmforum.mtop.sb.xsd.sodel.v1.ServiceObjectDeletionType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 
-@Profile("onecontrol")
+@Profile({ "onecontrol", "onecontrol-offline" })
 @Component
 @WebService(
     serviceName = "NotificationConsumerHttp", endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer",

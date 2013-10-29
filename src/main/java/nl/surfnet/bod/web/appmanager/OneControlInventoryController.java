@@ -41,7 +41,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.OperationalStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
-@Profile("onecontrol")
+@Profile({ "onecontrol", "onecontrol-offline" })
 @Controller
 @RequestMapping("/appmanager/onecontrol/inventory")
 public class OneControlInventoryController {

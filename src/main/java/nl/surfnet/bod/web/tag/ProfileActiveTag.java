@@ -39,14 +39,13 @@ public class ProfileActiveTag extends BodTagSupport {
   public void doTag() throws JspException, IOException {
     PageContext context = getPageContext();
 
-    if (getEnvironment().acceptsProfiles(profile)) {
+    if (getEnvironment().acceptsProfiles(profile.split(","))) {
       getJspBody().invoke(context.getOut());
     }
   }
 
   private Environment getEnvironment() {
-    WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getPageContext()
-        .getServletContext());
+    WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getPageContext().getServletContext());
     return applicationContext.getBean(Environment.class);
   }
 
