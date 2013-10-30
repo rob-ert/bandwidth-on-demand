@@ -29,14 +29,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import nl.surfnet.bod.domain.ReservationStatus;
 
+import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -66,10 +66,10 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(Optional.<String>absent());
 
-    subject.asyncTerminate(reservation.getId(), "Cancelled by Truus");
+    subject.asyncTerminate(reservation.getId());
 
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());
-    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.cancelled("Cancelled by Truus"));
+    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
   }
 
   @Test

@@ -25,43 +25,19 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByPhysicalPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatAreTimedOutAndTransitionally;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
 
-import nl.surfnet.bod.domain.Reservation;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
-import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ReservationArchiveRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -73,6 +49,49 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Future;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationEndPoint;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.UpdatedReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.ReservationArchiveRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -108,6 +127,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return reservationArchive;
     }
   };
+
+  public static final Period LOST_RESERVATION_GRACE_PERIOD = Period.minutes(30);
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -145,12 +166,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private void cancelActiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
     for (Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState() && StringUtils.hasText(reservation.getReservationId())) {
+        doUpdateStatus(reservation, UpdatedReservationStatus.cancelling("cancel active reservations due to port deletion"));
         Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
         if (error.isPresent()) {
           doUpdateStatus(reservation, UpdatedReservationStatus.cancelFailed("NMS Error during cancel of active reservations"));
           throw new RuntimeException("NMS Error during cancel of reservation " + reservation.getReservationId() + ": " + error.get());
         } else {
-          doUpdateStatus(reservation, UpdatedReservationStatus.cancelled("cancel active reservations"));
+          doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
         }
       }
     }
@@ -158,8 +180,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
     if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
-      doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLING));
-      return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason));
+      doUpdateStatus(reservation, UpdatedReservationStatus.cancelling(cancelReason));
+      return Optional.of(reservationToNbi.asyncTerminate(reservation.getId()));
     }
 
     log.info("Not allowed to cancel reservation {} with state {}", reservation.getName(), reservation.getStatus());
@@ -169,8 +191,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public void cancelDueToReserveTimeout(Long reservationId) {
     Reservation reservation = reservationRepo.getByIdWithPessimisticWriteLock(reservationId);
-    doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLING));
-    reservationToNbi.asyncTerminate(reservationId, "Canceled due to reserve held timeout");
+    doUpdateStatus(reservation, UpdatedReservationStatus.cancelling("Canceled due to reserve held timeout"));
+    reservationToNbi.asyncTerminate(reservationId);
   }
 
   private void correctStart(Reservation reservation) {
@@ -550,5 +572,25 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       }
     }
     return newStatus;
+  }
+
+  /**
+   * MTOSI does not return any data when the reservation is still being RESERVED
+   * or after the reservation has TERMINATED. These "lost" reservations may need
+   * to be cleaned up, in case we miss a notification.
+   */
+  public void handleLostReservation(String reservationId) {
+    Reservation reservation = reservationRepo.getByReservationIdWithPessimisticWriteLock(reservationId);
+    if (reservation.getStatus() == ReservationStatus.REQUESTED) {
+      if (reservation.getCreationDateTime().plus(LOST_RESERVATION_GRACE_PERIOD).isBeforeNow()) {
+        doUpdateStatus(reservation, UpdatedReservationStatus.notAccepted("not accepted by NBI within reservation grace period"));
+      }
+    } else if (reservation.getStatus() == ReservationStatus.CANCELLING) {
+      doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
+    } else if (reservation.getStatus().isTransitionState()) {
+      if (reservation.getEndDateTime() != null && reservation.getEndDateTime().plus(LOST_RESERVATION_GRACE_PERIOD).isBeforeNow()) {
+        doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
+      }
+    }
   }
 }

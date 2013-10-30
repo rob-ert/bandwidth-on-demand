@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -88,17 +87,17 @@ public class ReservationsAligner implements SmartLifecycle {
     LOGGER.info("Aligning reservation {}", reservationId);
 
     updatedReservationStatus = retrieveUpdatedReservationStatus(reservationId, updatedReservationStatus);
-    if (!updatedReservationStatus.isPresent()) {
-      return;
-    }
-
     try {
-      Reservation reservation = reservationService.updateStatus(reservationId, updatedReservationStatus.get());
-      if (!reservation.isNSICreated()
-          && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
-        // Auto-provision if the reservation was created in the UI (not
-        // through NSI).
-        reservationService.provision(reservation);
+      if (!updatedReservationStatus.isPresent()) {
+        reservationService.handleLostReservation(reservationId);
+      } else {
+        Reservation reservation = reservationService.updateStatus(reservationId, updatedReservationStatus.get());
+        if (!reservation.isNSICreated()
+            && (reservation.getStatus() == ReservationStatus.RESERVED || reservation.getStatus() == ReservationStatus.SCHEDULED)) {
+          // Auto-provision if the reservation was created in the UI (not
+          // through NSI).
+          reservationService.provision(reservation);
+        }
       }
     } catch (EmptyResultDataAccessException e) {
       // apparently the reservation did not exist

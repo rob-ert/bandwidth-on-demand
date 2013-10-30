@@ -72,7 +72,7 @@ public class ReservationToNbi {
   }
 
   @Async
-  public Future<Long> asyncTerminate(Long reservationId, String cancelReason) {
+  public Future<Long> asyncTerminate(Long reservationId) {
     Reservation reservation = reservationRepo.findOne(reservationId);
     checkNotNull(reservation);
     if (reservation.getStatus().isEndState()) {
@@ -84,13 +84,13 @@ public class ReservationToNbi {
       return new AsyncResult<>(reservation.getId());
     }
 
-    logger.info("Terminating reservation {}, {}", reservation, cancelReason);
+    logger.info("Terminating reservation {}", reservation);
 
     Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
     UpdatedReservationStatus status =
         error.isPresent()
             ? UpdatedReservationStatus.cancelFailed("NBI failed to cancel reservation " + reservation.getReservationId())
-            : UpdatedReservationStatus.cancelled(cancelReason);
+            : UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
 
     reservationService.updateStatus(reservation.getReservationId(), status);
 

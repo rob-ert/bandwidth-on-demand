@@ -35,14 +35,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -57,8 +55,9 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -80,6 +79,11 @@ public class ReservationServiceTest {
   @Mock private ReservationToNbi reservationToNbiMock;
   @Mock private NbiClient nbiClientMock;
   @Mock private LogEventService logEventService;
+
+  @After
+  public void tearDown() {
+    DateTimeUtils.setCurrentMillisSystem();
+  }
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -197,17 +201,71 @@ public class ReservationServiceTest {
   @Test
   public void updateStatusShouldTransitionScheduledReservationToPassedEndTimeWhenUpdatedToSucceeded() {
     DateTime now = DateTime.now();
-    // MTOSI just returns SUCCEEDED as final state. We need to manage switching it to PASSED_END_TIME when reservation is not RUNNING.
+    // MTOSI just returns SUCCEEDED as final state. We need to manage switching
+    // it to PASSED_END_TIME when reservation is not RUNNING.
     Reservation reservation = new ReservationFactory()
-    .setStatus(ReservationStatus.SCHEDULED)
-    .setStartDateTime(now.minusHours(2))
-    .setEndDateTime(now.plusMinutes(10))
-    .create();
+        .setStatus(ReservationStatus.SCHEDULED)
+        .setStartDateTime(now.minusHours(2))
+        .setEndDateTime(now.plusMinutes(10))
+        .create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 
     subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
 
     assertThat(reservation.getStatus(), is(ReservationStatus.PASSED_END_TIME));
+  }
+
+  @Test
+  public void lost_reservation_in_requested_state_should_become_not_accepted_after_grace_period() {
+    DateTime createdAt = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(createdAt.getMillis());
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.REQUESTED).create();
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
+
+    DateTimeUtils.setCurrentMillisFixed(createdAt.plus(ReservationService.LOST_RESERVATION_GRACE_PERIOD).plusMillis(1).getMillis());
+    subject.handleLostReservation(reservation.getReservationId());
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
+    assertThat(reservation.getFailedReason(), is("not accepted by NBI within reservation grace period"));
+  }
+
+  @Test
+  public void lost_reservation_not_in_requested_state_after_creation_grace_period_is_unaffected() {
+    DateTime createdAt = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(createdAt.getMillis());
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).create();
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
+
+    DateTimeUtils.setCurrentMillisFixed(createdAt.plus(ReservationService.LOST_RESERVATION_GRACE_PERIOD).plusMillis(1).getMillis());
+
+    subject.handleLostReservation(reservation.getReservationId());
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.RESERVED));
+  }
+
+  @Test
+  public void lost_reservation_in_requested_state_should_stay_requested_within_grace_period() {
+    DateTime createdAt = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(createdAt.getMillis());
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.REQUESTED).create();
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
+
+    DateTimeUtils.setCurrentMillisFixed(createdAt.plus(ReservationService.LOST_RESERVATION_GRACE_PERIOD).getMillis());
+    subject.handleLostReservation(reservation.getReservationId());
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.REQUESTED));
+  }
+
+  @Test
+  public void running_lost_reservation_past_end_time_and_grace_period_becomes_succeeded() {
+    DateTime now = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RUNNING).setEndDateTime(now.minus(ReservationService.LOST_RESERVATION_GRACE_PERIOD).minusMillis(1)).create();
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
+
+    subject.handleLostReservation(reservation.getReservationId());
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.SUCCEEDED));
   }
 
   @Test
@@ -219,12 +277,13 @@ public class ReservationServiceTest {
         .setDisplayname("Piet Puk")
         .create();
     Security.setUserDetails(richUserDetails);
-    when(reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk")).thenReturn(new AsyncResult<Long>(2L));
+    when(reservationToNbiMock.asyncTerminate(reservation.getId())).thenReturn(new AsyncResult<Long>(2L));
 
     subject.cancel(reservation, richUserDetails);
 
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLING));
-    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Piet Puk");
+    assertThat(reservation.getCancelReason(), is("Cancelled by Piet Puk"));
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId());
   }
 
   @Test
@@ -266,12 +325,13 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher")).thenReturn(new AsyncResult<Long>(2L));
+        reservationToNbiMock.asyncTerminate(reservation.getId())).thenReturn(new AsyncResult<Long>(2L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(2L));
-    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher");
+    assertThat(reservation.getCancelReason(), is("Cancelled by Truus Visscher"));
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId());
   }
 
   @Test
@@ -285,12 +345,12 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher")).thenReturn(new AsyncResult<Long>(5L));
+        reservationToNbiMock.asyncTerminate(reservation.getId())).thenReturn(new AsyncResult<Long>(5L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(5L));
-    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher");
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId());
   }
 
   @Test
@@ -300,12 +360,12 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher")).thenReturn(new AsyncResult<Long>(3L));
+        reservationToNbiMock.asyncTerminate(reservation.getId())).thenReturn(new AsyncResult<Long>(3L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(3L));
-    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher");
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId());
   }
 
   @Test

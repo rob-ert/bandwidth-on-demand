@@ -44,8 +44,8 @@ public final class UpdatedReservationStatus {
     return new UpdatedReservationStatus(newStatus, Optional.<String>absent(), Optional.<String>absent());
   }
 
-  public static UpdatedReservationStatus cancelled(String cancelReason) {
-    return new UpdatedReservationStatus(ReservationStatus.CANCELLED, Optional.of(cancelReason), Optional.<String>absent());
+  public static UpdatedReservationStatus cancelling(String cancelReason) {
+    return new UpdatedReservationStatus(ReservationStatus.CANCELLING, Optional.of(cancelReason), Optional.<String>absent());
   }
 
   public static UpdatedReservationStatus cancelFailed(String failedReason) {
