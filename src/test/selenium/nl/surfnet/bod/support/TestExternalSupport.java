@@ -46,8 +46,8 @@ public abstract class TestExternalSupport {
   protected static final String BOD_ENNI_PORT_ID_2 = "Mock_ETH-1-13-4";
   protected static final String NMS_ENNI_PORT_ID_2 = "00-21-E1-D6-D5-DC_ETH-1-13-4";
 
-  protected static final String BOD_NOVLAN_PORT_ID_1 = "Ut002A_OME01_ETH-1-1-4";
-  protected static final String NMS_NOVLAN_PORT_ID_1 = "00-1B-25-2D-DA-65_ETH-1-1-4";
+  protected static final String BOD_NOVLAN_PORT_ID_1 = "Mock_Asd001A_OME3T_ETH-1-1-1";
+  protected static final String NMS_NOVLAN_PORT_ID_1 = "00-20-D8-DF-33-59_ETH-1-1-1";
 
   protected static final String BOD_PORT_ID_2 = "Mock_ETH10G-1-13-2";
   protected static final String NMS_PORT_ID_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
