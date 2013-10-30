@@ -28,7 +28,6 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.UpdatedReservationStatus;
 
 import com.google.common.base.Optional;
 
@@ -36,13 +35,9 @@ public interface NbiClient {
 
   String VLAN_REQUIRED_SELECTOR = "ome";
 
-  boolean activateReservation(String reservationId);
+  void activateReservation(String reservationId);
 
-  /**
-   * @return the error code if the cancel failed, {@link Optional#absent()}
-   *         otherwise.
-   */
-  Optional<String> cancelReservation(String scheduleId);
+  void cancelReservation(String reservationId);
 
   long getPhysicalPortsCount();
 
@@ -54,10 +49,8 @@ public interface NbiClient {
    * @param reservation
    * @param autoProvision
    *          when true the reservation is automatically started
-   * @return the new reservation status. The caller is responsible for updating
-   *         the reservation status!
    */
-  UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision);
+  void createReservation(Reservation reservation, boolean autoProvision);
 
   /**
    *

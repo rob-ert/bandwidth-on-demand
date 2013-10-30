@@ -167,13 +167,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     for (Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState() && StringUtils.hasText(reservation.getReservationId())) {
         doUpdateStatus(reservation, UpdatedReservationStatus.cancelling("cancel active reservations due to port deletion"));
-        Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
-        if (error.isPresent()) {
-          doUpdateStatus(reservation, UpdatedReservationStatus.cancelFailed("NMS Error during cancel of active reservations"));
-          throw new RuntimeException("NMS Error during cancel of reservation " + reservation.getReservationId() + ": " + error.get());
-        } else {
-          doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
-        }
+        nbiClient.cancelReservation(reservation.getReservationId());
       }
     }
   }

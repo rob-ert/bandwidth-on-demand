@@ -37,12 +37,13 @@ import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static org.joda.time.Minutes.minutes;
 import static org.joda.time.Minutes.minutesBetween;
 
+import nl.surfnet.bod.service.ReservationService;
+
 import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -53,7 +54,6 @@ import com.google.common.collect.Maps;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
-
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
@@ -67,7 +67,6 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -132,7 +131,9 @@ public class NbiOpenDracWsClient implements NbiClient {
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final ConcurrentMap<String, String> idToTnaCache = Maps.newConcurrentMap();
 
-  private ReservationRepo reservationRepo;
+  private final ReservationRepo reservationRepo;
+  private final ReservationService reservationService;
+
   @Value("${nbi.opendrac.billing.group.name}") private String billingGroupName;
   @Value("${nbi.opendrac.password}") private String password;
   @Value("${nbi.opendrac.group.name}") private String groupName;
@@ -143,8 +144,9 @@ public class NbiOpenDracWsClient implements NbiClient {
   @Value("${nbi.opendrac.routing.algorithm}") private String routingAlgorithm;
 
   @Autowired
-  public NbiOpenDracWsClient(ReservationRepo reservationRepo) {
+  public NbiOpenDracWsClient(ReservationRepo reservationRepo, ReservationService reservationService) {
     this.reservationRepo = reservationRepo;
+    this.reservationService = reservationService;
     HttpConnectionManagerParams params = new HttpConnectionManagerParams();
     params.setDefaultMaxConnectionsPerHost(20);
     params.setConnectionTimeout(5000);
@@ -154,7 +156,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public boolean activateReservation(final String reservationId) {
+  public void activateReservation(final String reservationId) {
     checkNotNull(reservationId);
 
     Optional<String> serviceId = findServiceId(reservationId);
@@ -165,13 +167,13 @@ public class NbiOpenDracWsClient implements NbiClient {
         CompletionResponseDocument responseDocument = getResourceAllocationAndSchedulingService()
             .activateReservationOccurrence(requestDocument, getSecurityDocument());
 
-        return responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS;
+        if (responseDocument.getCompletionResponse().getResult() == ValidCompletionTypeT.SUCCESS) {
+          reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START));
+        }
       } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
         log.error("Error activating reservation (" + reservationId + "): ", e);
       }
     }
-
-    return false;
   }
 
   private ActivateReservationOccurrenceRequestDocument createActivateReservationOccurrenceRequest(String serviceId) {
@@ -183,18 +185,16 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public Optional<String> cancelReservation(final String reservationId) {
+  public void cancelReservation(final String reservationId) {
     checkNotNull(reservationId);
 
     try {
       getResourceAllocationAndSchedulingService().cancelReservationSchedule(createCancelReservationScheduleRequest(reservationId), getSecurityDocument());
-
-      // CompletionResponseDocument always signals that the operation executed successfully.
-      return Optional.absent();
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
     } catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       String message = "Error canceling reservation (" + reservationId + "): " + e;
       log.info(message, e);
-      return Optional.of(message);
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.cancelFailed(message));
     }
 
   }
@@ -209,7 +209,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
+  public void createReservation(Reservation reservation, boolean autoProvision) {
     CreateReservationScheduleRequestDocument requestDocument = createReservationScheduleRequest(reservation, autoProvision);
 
     UpdatedReservationStatus result;
@@ -240,7 +240,9 @@ public class NbiOpenDracWsClient implements NbiClient {
       result = UpdatedReservationStatus.failed(e.getMessage().trim());
     }
 
-    return result;
+    if (reservation.getReservationId() != null) {
+      reservationService.updateStatus(reservation.getReservationId(), result);
+    }
   }
 
   private String composeFailedReason(CreateReservationScheduleResponseDocument responseDocument) {

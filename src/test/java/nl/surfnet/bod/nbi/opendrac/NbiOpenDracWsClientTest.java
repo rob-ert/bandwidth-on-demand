@@ -30,17 +30,17 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import nl.surfnet.bod.service.ReservationService;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.matchers.OptionalMatchers;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
@@ -51,7 +51,6 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-
 import org.apache.xmlbeans.XmlException;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,6 +73,7 @@ public class NbiOpenDracWsClientTest {
   private NbiOpenDracWsClient subject;
 
   @Mock private ReservationRepo reservationRepo;
+  @Mock private ReservationService reservationService;
   @Mock private NetworkMonitoringService_v30Stub networkingServiceMock;
   @Mock private ResourceAllocationAndSchedulingService_v30Stub schedulingServiceMock;
 
@@ -84,7 +84,7 @@ public class NbiOpenDracWsClientTest {
 
   @Before
   public void init() throws Exception {
-    subject = spy(new NbiOpenDracWsClient(reservationRepo));
+    subject = spy(new NbiOpenDracWsClient(reservationRepo, reservationService));
     when(subject.getNetworkMonitoringService()).thenReturn(networkingServiceMock);
     when(subject.getResourceAllocationAndSchedulingService()).thenReturn(schedulingServiceMock);
 
@@ -133,17 +133,15 @@ public class NbiOpenDracWsClientTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.REQUESTED).setSourcePort(sourcePort).setDestinationPort(destPort).create();
     CreateReservationScheduleResponseDocument responseDocument = CreateReservationScheduleResponseDocument.Factory
         .parse(new File("src/test/resources/opendrac/createReservationScheduleResponse.xml"));
-
+    when(reservationRepo.saveAndFlush(reservation)).thenReturn(reservation);
     when(
         schedulingServiceMock.createReservationSchedule(any(CreateReservationScheduleRequestDocument.class),
             any(SecurityDocument.class))).thenReturn(responseDocument);
 
-    UpdatedReservationStatus scheduledReservation = subject.createReservation(reservation, true);
+    subject.createReservation(reservation, true);
 
     verify(reservationRepo).saveAndFlush(reservation);
-    assertThat(reservation.getStatus(), is(ReservationStatus.REQUESTED));
-    assertThat(scheduledReservation.getNewStatus(), is(ReservationStatus.NOT_ACCEPTED));
-    assertThat(scheduledReservation.getFailedReason(), OptionalMatchers.isPresent("No available bandwidth on source port"));
+    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.notAccepted("No available bandwidth on source port"));
   }
 
   @Test

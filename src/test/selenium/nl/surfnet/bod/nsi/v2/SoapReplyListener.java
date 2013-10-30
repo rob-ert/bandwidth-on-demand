@@ -92,6 +92,9 @@ public class SoapReplyListener implements Provider<SOAPMessage> {
   public <T> Message<T> getLastReply(JaxbUserType<T> converter) {
     try {
       SOAPMessage message = responses.poll(5000, TimeUnit.MILLISECONDS);
+      if (message == null) {
+        throw new RuntimeException("response did not arrive in time");
+      }
       CommonHeaderType header = Converters.parseNsiHeader(message);
       T body = Converters.parseBody(converter, message);
       return new Message<>(header, body);

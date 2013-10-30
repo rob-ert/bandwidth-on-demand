@@ -92,7 +92,7 @@ public class ServiceComponentActivationClient {
     return UpdatedReservationStatus.forNewStatus(ReservationStatus.REQUESTED);
   }
 
-  public boolean activate(Reservation reservation) {
+  public Optional<String> activate(Reservation reservation) {
     OneControlConfiguration configuration = oneControlInstance.getCurrentConfiguration();
     ServiceComponentActivationInterface port = createPort(configuration);
 
@@ -103,11 +103,12 @@ public class ServiceComponentActivationClient {
       port.activate(buildActivateHeader(configuration), activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
-      return true;
+      return Optional.absent();
     } catch (ActivateException e) {
       BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
-      logger.warn("Could not activate reservation {} because {}", reservation, baseExceptionMessage.getReason(), e);
-      throw new AssertionError(baseExceptionMessage.getReason(), e);
+      String message = "Could not activate reservation " + reservation + " because " + baseExceptionMessage.getReason();
+      logger.warn(message, e);
+      return Optional.of(message);
     }
   }
 

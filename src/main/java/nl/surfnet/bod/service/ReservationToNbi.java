@@ -25,17 +25,11 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.concurrent.Future;
-
 import javax.annotation.Resource;
-
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -52,7 +46,6 @@ public class ReservationToNbi {
 
   @Resource private NbiClient nbiClient;
   @Resource private ReservationRepo reservationRepo;
-  @Resource private ReservationService reservationService;
 
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision) {
@@ -64,9 +57,7 @@ public class ReservationToNbi {
 
     checkNotNull(reservation);
 
-    UpdatedReservationStatus updatedStatus = nbiClient.createReservation(reservation, autoProvision);
-
-    reservationService.updateStatus(reservation.getReservationId(), updatedStatus);
+    nbiClient.createReservation(reservation, autoProvision);
 
     return new AsyncResult<>(reservation.getId());
   }
@@ -86,13 +77,7 @@ public class ReservationToNbi {
 
     logger.info("Terminating reservation {}", reservation);
 
-    Optional<String> error = nbiClient.cancelReservation(reservation.getReservationId());
-    UpdatedReservationStatus status =
-        error.isPresent()
-            ? UpdatedReservationStatus.cancelFailed("NBI failed to cancel reservation " + reservation.getReservationId())
-            : UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
-
-    reservationService.updateStatus(reservation.getReservationId(), status);
+    nbiClient.cancelReservation(reservation.getReservationId());
 
     return new AsyncResult<>(reservation.getId());
   }
@@ -103,10 +88,6 @@ public class ReservationToNbi {
 
     logger.debug("Activating a reservation {}", reservation);
 
-    boolean activateReservation = nbiClient.activateReservation(reservation.getReservationId());
-
-    if (activateReservation) {
-      reservationService.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START));
-    }
+    nbiClient.activateReservation(reservation.getReservationId());
   }
 }

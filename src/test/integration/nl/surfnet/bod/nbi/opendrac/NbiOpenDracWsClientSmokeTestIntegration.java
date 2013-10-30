@@ -108,7 +108,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
   }
 
   private void init(PropertiesEnvironment env) {
-    subject = new NbiOpenDracWsClient(null);
+    subject = new NbiOpenDracWsClient(null, null);
     subject.setInventoryServiceUrl(env.getProperty("nbi.opendrac.service.inventory"));
     subject.setPassword(env.getDecryptedProperty("nbi.opendrac.password"));
     subject.setUsername(env.getProperty("nbi.opendrac.user"));

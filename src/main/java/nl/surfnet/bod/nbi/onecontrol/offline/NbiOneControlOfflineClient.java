@@ -33,15 +33,14 @@ import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
-import java.util.HashMap;
+import com.google.common.base.Preconditions;
+
+import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
-
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -50,7 +49,7 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 import nl.surfnet.bod.repo.ReservationRepo;
-
+import nl.surfnet.bod.service.ReservationService;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -63,42 +62,45 @@ import org.springframework.stereotype.Component;
 @Profile("onecontrol-offline")
 public class NbiOneControlOfflineClient implements NbiClient {
 
-  private InventoryRetrievalClient inventoryRetrievalClient;
-  private ReservationRepo reservationRepo;
-  private Map<String, OfflineReservation> offlineReservations = new HashMap<>();
+  private static final Logger LOGGER = LoggerFactory.getLogger(NbiOneControlOfflineClient.class);
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final InventoryRetrievalClient inventoryRetrievalClient;
+  private final ReservationRepo reservationRepo;
+  private final ReservationService reservationService;
+
+  private final Map<String, OfflineReservation> offlineReservations = new ConcurrentHashMap<>();
 
   @Autowired
-  public NbiOneControlOfflineClient(InventoryRetrievalClient inventoryRetrievalClient, ReservationRepo reservationRepo) {
+  public NbiOneControlOfflineClient(InventoryRetrievalClient inventoryRetrievalClient, ReservationRepo reservationRepo, ReservationService reservationService) {
     this.inventoryRetrievalClient = inventoryRetrievalClient;
     this.reservationRepo = reservationRepo;
+    this.reservationService = reservationService;
   }
 
   @Override
-  public boolean activateReservation(final String reservationId) {
+  public void activateReservation(final String reservationId) {
     OfflineReservation reservation = offlineReservations.get(reservationId);
+    if (reservation == null) {
+      return;
+    }
 
-    if (reservation == null)
-      return false;
     if (reservation.getStatus() == RESERVED) {
       offlineReservations.put(reservationId, reservation.withStatus(AUTO_START));
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(AUTO_START));
     } else if (reservation.getStatus() == SCHEDULED) {
       offlineReservations.put(reservationId, reservation.withStatus(RUNNING));
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(RUNNING));
     }
-    return true;
-
   }
 
   @Override
-  public Optional<String> cancelReservation(final String reservationId) {
-    if (reservationId == null) {
-      return Optional.of("reservationId is required");
-    } else if (!offlineReservations.containsKey(reservationId)) {
-      return Optional.of("unknown reservationId " + reservationId);
+  public void cancelReservation(final String reservationId) {
+    Preconditions.checkNotNull(reservationId, "reservationId is required");
+    if (!offlineReservations.containsKey(reservationId)) {
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.cancelFailed("unknown reservationId " + reservationId));
     } else {
       offlineReservations.put(reservationId, offlineReservations.get(reservationId).withStatus(CANCELLED));
-      return Optional.absent();
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
     }
   }
 
@@ -108,39 +110,39 @@ public class NbiOneControlOfflineClient implements NbiClient {
   }
 
   @Override
-  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
+  public void createReservation(Reservation reservation, boolean autoProvision) {
     String reservationId = UUID.randomUUID().toString();
     reservation.setReservationId(reservationId);
 
     if (reservation.getStartDateTime() == null) {
       reservation.setStartDateTime(DateTime.now());
-      log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
+      LOGGER.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
     reservation = reservationRepo.saveAndFlush(reservation);
 
-    UpdatedReservationStatus result;
+    UpdatedReservationStatus status;
     if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
-      result = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
+      status = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
-      result = UpdatedReservationStatus.failed("label contains FAILED");
+      status = UpdatedReservationStatus.failed("label contains FAILED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
     } else if (autoProvision) {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
     } else {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
     }
 
-    offlineReservations.put(reservation.getReservationId(), new OfflineReservation(result.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
+    offlineReservations.put(reservation.getReservationId(), new OfflineReservation(status.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
 
-    log.warn("NBI MOCK created reservation {} with label {} and start time {}", reservationId, reservation.getLabel(), reservation.getStartDateTime());
+    LOGGER.warn("NBI MOCK created reservation {} with label {} and start time {}", reservationId, reservation.getLabel(), reservation.getStartDateTime());
 
-    return result;
+    reservationService.updateStatus(reservationId, status);
   }
 
   @PostConstruct
   public void init() {
-    log.info("USING OFFLINE NBI CLIENT!");
+    LOGGER.info("USING OFFLINE NBI CLIENT!");
     List<Reservation> reservations = reservationRepo.findAll();
     for (Reservation reservation : reservations) {
       this.offlineReservations.put(reservation.getReservationId(), new OfflineReservation(reservation));

@@ -22,18 +22,12 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLING;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-
-import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -55,21 +49,16 @@ public class ReservationToNbiTest {
   @Mock
   private ReservationRepo reservationRepoMock;
 
-  @Mock
-  private ReservationService reservationService;
-
   @Test
   public void terminateAReservation() {
     Reservation reservation = new ReservationFactory().setStatus(CANCELLING).setCancelReason(null).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
-    when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(Optional.<String>absent());
 
     subject.asyncTerminate(reservation.getId());
 
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());
-    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
   }
 
   @Test
@@ -78,11 +67,10 @@ public class ReservationToNbiTest {
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
-    when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(true);
 
     subject.asyncProvision(reservation.getId());
 
-    verify(reservationService).updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(AUTO_START));
+    verify(nbiClientMock).activateReservation(reservation.getReservationId());
   }
 
   @Test
@@ -90,12 +78,10 @@ public class ReservationToNbiTest {
     Reservation reservation = new ReservationFactory().setStatus(RESERVED).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
-    when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(false);
 
     subject.asyncProvision(reservation.getId());
 
     verify(reservationRepoMock).findOne(reservation.getId());
-    verifyNoMoreInteractions(reservationRepoMock, reservationService);
+    verify(nbiClientMock).activateReservation(reservation.getReservationId());
   }
-
 }

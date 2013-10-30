@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
+import nl.surfnet.bod.service.ReservationService;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -49,6 +50,7 @@ public class NbiClientImpl implements NbiClient {
   @Resource private InventoryRetrievalClient inventoryRetrievalClient;
   @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
   @Resource private ReservationRepo reservationRepo;
+  @Resource private ReservationService reservationService;
 
   @Override
   public long getPhysicalPortsCount() {
@@ -65,11 +67,12 @@ public class NbiClientImpl implements NbiClient {
    */
   @Override
   @Transactional(propagation=Propagation.NEVER)
-  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
+  public void createReservation(Reservation reservation, boolean autoProvision) {
     reservation.setReservationId(UUID.randomUUID().toString());
     Reservation savedReservation = reservationRepo.save(reservation);
 
-    return serviceComponentActivationClient.reserve(savedReservation);
+    UpdatedReservationStatus status = serviceComponentActivationClient.reserve(savedReservation);
+    reservationService.updateStatus(savedReservation.getReservationId(), status);
   }
 
   @Override
@@ -93,13 +96,18 @@ public class NbiClientImpl implements NbiClient {
   }
 
   @Override
-  public boolean activateReservation(String reservationId) {
-    return serviceComponentActivationClient.activate(reservationRepo.findByReservationId(reservationId));
+  public void activateReservation(String reservationId) {
+    serviceComponentActivationClient.activate(reservationRepo.findByReservationId(reservationId));
+    // TODO do something with the error or just ignore like before?
   }
 
   @Override
-  public Optional<String> cancelReservation(String reservationId) {
-    return serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
+  public void cancelReservation(String reservationId) {
+    Optional<String> error = serviceComponentActivationClient.terminate(reservationRepo.findByReservationId(reservationId));
+    if (error.isPresent()) {
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.cancelFailed("NBI failed to cancel reservation"));
+    }
+    // Successful termination status update is handled by the notification listener.
   }
 
   @Override

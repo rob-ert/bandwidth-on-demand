@@ -33,16 +33,16 @@ import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
+import nl.surfnet.bod.service.ReservationService;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -51,7 +51,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
-
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
@@ -60,7 +59,6 @@ import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -99,6 +97,8 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
   @Resource
   private ReservationRepo reservationRepo;
+  @Resource
+  private ReservationService reservationService;
 
   private final List<MockNbiPort> ports = new ArrayList<>();
   private final Map<String, OfflineReservation> scheduleIds = new HashMap<>();
@@ -147,7 +147,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public UpdatedReservationStatus createReservation(Reservation reservation, boolean autoProvision) {
+  public void createReservation(Reservation reservation, boolean autoProvision) {
     String scheduleId = generateScheduleId();
 
     reservation.setReservationId(scheduleId);
@@ -158,20 +158,20 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     }
     reservation = reservationRepo.saveAndFlush(reservation);
 
-    UpdatedReservationStatus result;
+    UpdatedReservationStatus status;
     if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
-      result = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
+      status = UpdatedReservationStatus.notAccepted("label contains NOT_ACCEPTED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
-      result = UpdatedReservationStatus.failed("label contains FAILED");
+      status = UpdatedReservationStatus.failed("label contains FAILED");
     } else if (StringUtils.containsIgnoreCase(reservation.getLabel(), PASSED_END_TIME.name())) {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
     } else if (autoProvision) {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.AUTO_START);
     } else {
-      result = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
+      status = UpdatedReservationStatus.forNewStatus(ReservationStatus.RESERVED);
     }
 
-    scheduleIds.put(scheduleId, new OfflineReservation(result.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
+    scheduleIds.put(scheduleId, new OfflineReservation(status.getNewStatus(), reservation.getStartDateTime(), reservation.getEndDateTime()));
 
     log.warn("NBI MOCK created reservation {} with label {} and start time {}", scheduleId, reservation.getLabel(), reservation.getStartDateTime());
 
@@ -180,7 +180,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
     }
 
-    return result;
+    reservationService.updateStatus(scheduleId, status);
   }
 
   private synchronized String generateScheduleId() {
@@ -226,32 +226,30 @@ public class NbiOpenDracOfflineClient implements NbiClient {
   }
 
   @Override
-  public boolean activateReservation(String scheduleId) {
+  public void activateReservation(String scheduleId) {
     OfflineReservation reservation = scheduleIds.get(scheduleId);
-
-    if (reservation != null) {
-      if (reservation.getStatus() == RESERVED) {
-        scheduleIds.put(scheduleId, reservation.withStatus(AUTO_START));
-        return true;
-      }
-      else if (reservation.getStatus() == SCHEDULED) {
-        scheduleIds.put(scheduleId, reservation.withStatus(RUNNING));
-        return true;
-      }
+    if (reservation == null) {
+      return;
     }
 
-    return false;
-  }
+
+    if (reservation.getStatus() == RESERVED) {
+      scheduleIds.put(scheduleId, reservation.withStatus(AUTO_START));
+      reservationService.updateStatus(scheduleId, UpdatedReservationStatus.forNewStatus(AUTO_START));
+    } else if (reservation.getStatus() == SCHEDULED) {
+      scheduleIds.put(scheduleId, reservation.withStatus(RUNNING));
+      reservationService.updateStatus(scheduleId, UpdatedReservationStatus.forNewStatus(RUNNING));
+    }
+ }
 
   @Override
-  public Optional<String> cancelReservation(final String scheduleId) {
-    if (scheduleId == null) {
-      return Optional.of("scheduleId is required");
-    } else if (!scheduleIds.containsKey(scheduleId)) {
-      return Optional.of("unknown scheduleId " + scheduleId);
+  public void cancelReservation(final String reservationId) {
+    Preconditions.checkNotNull(reservationId, "reservationId is required");
+    if (!scheduleIds.containsKey(reservationId)) {
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.cancelFailed("unknown reservationId " + reservationId));
     } else {
-      scheduleIds.put(scheduleId, scheduleIds.get(scheduleId).withStatus(CANCELLED));
-      return Optional.absent();
+      scheduleIds.put(reservationId, scheduleIds.get(reservationId).withStatus(CANCELLED));
+      reservationService.updateStatus(reservationId, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
     }
   }
 
