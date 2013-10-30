@@ -34,7 +34,6 @@ public class PortView {
   private final String physicalPortManagerLabel;
   private final String bodPortId;
   private final String institute;
-  // FIXME add VLAN ID
 
   public PortView(ReservationEndPoint reservationEndPoint) {
     this.bodPortId = reservationEndPoint.getPhysicalPort().getBodPortId();
@@ -106,48 +105,42 @@ public class PortView {
       if (other.bodPortId != null) {
         return false;
       }
-    }
-    else if (!bodPortId.equals(other.bodPortId)) {
+    } else if (!bodPortId.equals(other.bodPortId)) {
       return false;
     }
     if (institute == null) {
       if (other.institute != null) {
         return false;
       }
-    }
-    else if (!institute.equals(other.institute)) {
+    } else if (!institute.equals(other.institute)) {
       return false;
     }
     if (managerLabel == null) {
       if (other.managerLabel != null) {
         return false;
       }
-    }
-    else if (!managerLabel.equals(other.managerLabel)) {
+    } else if (!managerLabel.equals(other.managerLabel)) {
       return false;
     }
     if (physicalPortManagerLabel == null) {
       if (other.physicalPortManagerLabel != null) {
         return false;
       }
-    }
-    else if (!physicalPortManagerLabel.equals(other.physicalPortManagerLabel)) {
+    } else if (!physicalPortManagerLabel.equals(other.physicalPortManagerLabel)) {
       return false;
     }
     if (physicalPortNocLabel == null) {
       if (other.physicalPortNocLabel != null) {
         return false;
       }
-    }
-    else if (!physicalPortNocLabel.equals(other.physicalPortNocLabel)) {
+    } else if (!physicalPortNocLabel.equals(other.physicalPortNocLabel)) {
       return false;
     }
     if (userLabel == null) {
       if (other.userLabel != null) {
         return false;
       }
-    }
-    else if (!userLabel.equals(other.userLabel)) {
+    } else if (!userLabel.equals(other.userLabel)) {
       return false;
     }
     return true;
