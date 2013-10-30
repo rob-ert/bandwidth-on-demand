@@ -24,8 +24,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -34,12 +32,12 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.Collection;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.NbiPortFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalPortController.PhysicalPortFilter;
 
 import org.junit.Before;
@@ -54,37 +52,29 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(MockitoJUnitRunner.class)
 public class UnallocatedPortControllerTest {
 
-  @InjectMocks
-  private UnallocatedPortController subject;
+  @InjectMocks private UnallocatedPortController subject;
 
   @Mock private PhysicalPortService physicalPortServiceMock;
-//  @Mock private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-//  @Mock private MessageRetriever messageRetriever;
-  @Mock private VirtualPortService virtualPortService;
-  @Mock private ReservationService reservationService;
 
   private MockMvc mockMvc;
 
   @Before
   public void setup() {
-//    FormattingConversionService conversionService = new FormattingConversionService();
-//    conversionService.addConverter(new Converter<String, PhysicalResourceGroup>() {
-//      @Override
-//      public PhysicalResourceGroup convert(final String id) {
-//        return physicalResourceGroupServiceMock.find(Long.valueOf(id));
-//      }
-//    });
-
     mockMvc = standaloneSetup(subject).build();
   }
+
   @Test
   public void listAllUnallocatedPortsShouldSetPorts() throws Exception {
-    when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(ImmutableList.of(new NbiPortFactory().create()));
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(
+      FluentIterable.from(Iterables.cycle(new NbiPortFactory()
+        .setSuggestedBodPortId("PortId")
+        .setSuggestedNocLabel("NOC label").create())).limit(100).toList());
+    when(physicalPortServiceMock.countUnallocated()).thenReturn(100L);
 
     mockMvc.perform(get("/noc/physicalports/free"))
-        .andExpect(status().isOk())
-        .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(1)))
-        .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED));
+      .andExpect(status().isOk())
+      .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(WebUtils.MAX_ITEMS_PER_PAGE)))
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED));
   }
 
 }

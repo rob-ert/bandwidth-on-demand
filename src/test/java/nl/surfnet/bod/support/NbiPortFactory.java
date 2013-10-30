@@ -34,6 +34,8 @@ public class NbiPortFactory {
   private String nmsNeId;
   private String nmsSapName;
   private InterfaceType interfaceType = InterfaceType.UNI;
+  private String suggestedBodPortId;
+  private String suggestedNocLabel;
 
   public NbiPort create() {
     NbiPort port = new NbiPort();
@@ -42,6 +44,8 @@ public class NbiPortFactory {
     port.setNmsSapName(nmsSapName);
     port.setNmsNeId(nmsNeId);
     port.setInterfaceType(interfaceType);
+    port.setSuggestedBodPortId(suggestedBodPortId);
+    port.setSuggestedNocLabel(suggestedNocLabel);
 
     return port;
   }
@@ -68,6 +72,16 @@ public class NbiPortFactory {
 
   public NbiPortFactory setNmsSapName(String nmsSapName) {
     this.nmsSapName = nmsSapName;
+    return this;
+  }
+
+  public NbiPortFactory setSuggestedBodPortId(String suggestedBodPortId) {
+    this.suggestedBodPortId = suggestedBodPortId;
+    return this;
+  }
+
+  public NbiPortFactory setSuggestedNocLabel(String suggestedNocLabel) {
+    this.suggestedNocLabel = suggestedNocLabel;
     return this;
   }
 

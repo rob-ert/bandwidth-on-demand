@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static nl.surfnet.bod.web.WebUtils.DATA_LIST;
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
@@ -37,7 +38,8 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -47,8 +49,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,32 +66,28 @@ public class UnallocatedPortController {
   @RequestMapping(method = RequestMethod.GET)
   public String list(
     @RequestParam(value = PAGE_KEY, required = false) Integer page,
-    @RequestParam(value = "sort", required = false) String sort,
-    @RequestParam(value = "order", required = false) String order,
+    @RequestParam(value = "sort", required = false) String sortProperty,
+    @RequestParam(value = "order", required = false) String sortDirection,
     Model model) {
 
-    Sort sortOptions = prepareSortOptions(sort, order, model);
+    Order order = prepareSortOptions(sortProperty, sortDirection, model);
 
     model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALLOCATED);
     model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(count(model)));
-    model.addAttribute(DATA_LIST, transformToView(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model), Security.getUserDetails()));
+    model.addAttribute(DATA_LIST, transformToView(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, order), Security.getUserDetails()));
 
     return "noc/physicalports/unallocated/list";
   }
 
-  private Sort prepareSortOptions(String sort, String order, Model model) {
+  private Order prepareSortOptions(String sort, String order, Model model) {
     String sortProperty = sortProperty(sort);
     Direction sortDirection = sortDirection(order);
 
     model.addAttribute("sortProperty", sortProperty);
     model.addAttribute("sortDirection", sortDirection);
 
-    return sortOrder(translateSortProperty(sortProperty), sortDirection);
-  }
-
-  private List<String> translateSortProperty(String sortProperty) {
-    return ImmutableList.of(sortProperty);
+    return new Order(sortDirection, sortProperty);
   }
 
   private Direction sortDirection(String order) {
@@ -108,29 +106,41 @@ public class UnallocatedPortController {
     return Direction.ASC;
   }
 
-  private Sort sortOrder(List<String> sortProperties, Direction direction) {
-    return new Sort(direction, sortProperties);
-  }
-
-  private String sortProperty(String order) {
-    if (Strings.emptyToNull(order) == null || !doesPropertyExist(order)) {
-      return getDefaultSortProperty();
-    }
-
-    return order;
-  }
-
-  private boolean doesPropertyExist(String order) {
-    // TODO
-    return true;
+  private String sortProperty(String property) {
+    return isNullOrEmpty(property) ? getDefaultSortProperty() : property;
   }
 
   private List<PhysicalPortView> transformToView(Collection<NbiPort> unallocatedPorts, RichUserDetails user) {
     return Functions.transformUnallocatedPhysicalPorts(unallocatedPorts);
   }
 
-  private Collection<NbiPort> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return physicalPortService.findUnallocatedEntries(firstPage, maxItems);
+  private List<NbiPort> list(int firstResult, int maxItems, Order order) {
+    Collection<NbiPort> ports = physicalPortService.findUnallocated();
+
+    Ordering<NbiPort> ordering;
+    switch (order.getProperty()) {
+    case "nocLabel":
+      ordering = NOC_LABEL_ORDERING;
+      break;
+    case "bodPortId":
+      ordering = BOD_PORT_ID_ORDERING;
+      break;
+    case "nmsPortId":
+      ordering = NMS_PORT_ID_ORDERING;
+      break;
+    case "interfaceType":
+      ordering = INTERFACE_TYPE_ORDERING;
+      break;
+    default:
+      ordering = NOC_LABEL_ORDERING;
+      break;
+    }
+
+    if (order.getDirection() == Direction.DESC) {
+      ordering = ordering.reverse();
+    }
+
+    return FluentIterable.from(ordering.sortedCopy(ports)).skip(firstResult).limit(maxItems).toList();
   }
 
   protected long count(Model model) {
@@ -141,4 +151,28 @@ public class UnallocatedPortController {
     return "nocLabel";
   }
 
+  private static final Ordering<NbiPort> BOD_PORT_ID_ORDERING = new Ordering<NbiPort>() {
+    @Override
+    public int compare(NbiPort left, NbiPort right) {
+      return left.getSuggestedBodPortId().compareTo(right.getSuggestedBodPortId());
+    }
+  };
+  private static final Ordering<NbiPort> NMS_PORT_ID_ORDERING = new Ordering<NbiPort>() {
+    @Override
+    public int compare(NbiPort left, NbiPort right) {
+      return left.getNmsPortId().compareTo(right.getNmsPortId());
+    }
+  };
+  private static final Ordering<NbiPort> NOC_LABEL_ORDERING = new Ordering<NbiPort>() {
+    @Override
+    public int compare(NbiPort left, NbiPort right) {
+      return left.getSuggestedNocLabel().compareTo(right.getSuggestedNocLabel());
+    }
+  };
+  private static final Ordering<NbiPort> INTERFACE_TYPE_ORDERING = new Ordering<NbiPort>() {
+    @Override
+    public int compare(NbiPort left, NbiPort right) {
+      return left.getInterfaceType().compareTo(right.getInterfaceType());
+    }
+  };
 }

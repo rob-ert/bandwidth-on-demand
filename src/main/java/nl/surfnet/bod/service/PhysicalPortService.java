@@ -22,9 +22,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
@@ -112,20 +109,12 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return enniPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public Collection<NbiPort> findUnallocatedEntries(int firstResult, int sizeNo) {
-    return limitPorts(findUnallocated(), firstResult, sizeNo);
-  }
-
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
 
   public List<PhysicalPort> findUnalignedPhysicalPorts(int firstResult, int maxResults, Sort sort) {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC, new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-  }
-
-  private List<NbiPort> limitPorts(Collection<NbiPort> ports, int firstResult, int sizeNo) {
-    return newArrayList(limit(skip(ports, firstResult), sizeNo));
   }
 
   public Collection<NbiPort> findUnallocatedUniPorts() {
