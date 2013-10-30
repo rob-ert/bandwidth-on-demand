@@ -22,7 +22,8 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildNotificationHeader;
+import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildSubscribeHeader;
+import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildUnsubscribeHeader;
 
 import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
@@ -72,7 +73,7 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
   private String subscribe(NotificationTopic topic, String consumerErp, OneControlConfiguration configuration) throws SubscribeException {
     NotificationProducer port = createPort(configuration);
 
-    Holder<Header> header = buildNotificationHeader(configuration);
+    Holder<Header> header = buildSubscribeHeader(configuration);
     SubscribeRequest body = createSubscribeRequest(topic, consumerErp);
 
     SubscribeResponse response = port.subscribe(header, body);
@@ -90,7 +91,7 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
   private UnsubscribeResponse unsubscribe(NotificationTopic topic, String id, OneControlConfiguration configuration) throws UnsubscribeException {
     NotificationProducer port = createPort(configuration);
 
-    Holder<Header> header = buildNotificationHeader(configuration);
+    Holder<Header> header = buildUnsubscribeHeader(configuration);
     UnsubscribeRequest body = createUnsubscribeRequest(topic, id);
 
     return port.unsubscribe(header, body);

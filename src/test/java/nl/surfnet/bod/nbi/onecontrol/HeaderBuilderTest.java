@@ -67,7 +67,7 @@ public class HeaderBuilderTest {
   public void notificationProducerHeader() {
     final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildNotificationHeader(new OneControlConfiguration("wrong", "wrong", endpoint));
+    Holder<Header> holder = HeaderBuilder.buildSubscribeHeader(new OneControlConfiguration("wrong", "wrong", endpoint));
 
     Header header = holder.value;
 

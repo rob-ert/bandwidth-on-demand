@@ -22,7 +22,9 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
+import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildActivateHeader;
 import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildReserveHeader;
+import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildTerminateHeader;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRfs;
 import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservationRequest;
 
@@ -98,7 +100,7 @@ public class ServiceComponentActivationClient {
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      port.activate(buildReserveHeader(configuration), activateRequest);
+      port.activate(buildActivateHeader(configuration), activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;
@@ -116,7 +118,7 @@ public class ServiceComponentActivationClient {
     TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest()
       .withRfsName(createRfs(reservation.getReservationId()));
     try {
-      port.terminate(buildReserveHeader(configuration), terminateRequest);
+      port.terminate(buildTerminateHeader(configuration), terminateRequest);
       return Optional.absent();
     } catch (TerminateException e) {
       logger.info("Terminate failed: " + e, e);

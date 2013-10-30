@@ -58,12 +58,23 @@ public final class HeaderBuilder {
     return buildHeader(configuration.getServiceReserveEndpoint(), "reserve", "reserveRequest");
   }
 
+  public static Holder<Header> buildActivateHeader(OneControlConfiguration configuration) {
+    return buildHeader(configuration.getServiceReserveEndpoint(), "activate", "activateRequest");
+  }
+
+  public static Holder<Header> buildTerminateHeader(OneControlConfiguration configuration) {
+    return buildHeader(configuration.getServiceReserveEndpoint(), "terminate", "terminateRequest");
+  }
+
   public static Holder<Header> buildInventoryHeader(OneControlConfiguration configuration) {
     return buildHeader(configuration.getInventoryRetrievalEndpoint(), "getServiceInventory", "getServiceInventoryRequest");
   }
 
-  public static Holder<Header> buildNotificationHeader(OneControlConfiguration configuration) {
+  public static Holder<Header> buildSubscribeHeader(OneControlConfiguration configuration) {
     return buildHeader(configuration.getNotificationProducerEndpoint(), "subscribe", "subscribeRequest");
   }
 
+  public static Holder<Header> buildUnsubscribeHeader(OneControlConfiguration configuration) {
+    return buildHeader(configuration.getNotificationProducerEndpoint(), "unsubscribe", "unsubscribeRequest");
+  }
 }
