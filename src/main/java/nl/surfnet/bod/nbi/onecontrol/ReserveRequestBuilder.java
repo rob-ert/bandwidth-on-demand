@@ -80,7 +80,6 @@ public class ReserveRequestBuilder {
 
     Integer vlanId = vlanIdOfEndPoint(endPoint);
     if (vlanId != null) {
-      // TODO is this correct for E-NNI?
       describedByList.add(createSscValue("ServiceType", "EVPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(vlanId)));
     } else {
