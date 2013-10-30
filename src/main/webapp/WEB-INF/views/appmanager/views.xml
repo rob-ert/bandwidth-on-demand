@@ -39,4 +39,9 @@
     <put-attribute name="active_menu" value="onecontrol" cascade="true" />
   </definition>
 
+  <definition extends="appmanager" name="appmanager/onecontrol/configuration">
+    <put-attribute name="body" value="/WEB-INF/views/appmanager/onecontrol/configuration.jspx" />
+    <put-attribute name="active_menu" value="onecontrol" cascade="true" />
+  </definition>
+
 </tiles-definitions>

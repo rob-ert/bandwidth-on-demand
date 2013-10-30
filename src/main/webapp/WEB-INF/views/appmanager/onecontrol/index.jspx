@@ -6,13 +6,18 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <section>
-        <h2>MTOSI</h2>
+        <h2>OneControl</h2>
         <div class="content">
             <div class="form">
                 <div class="message">
                     <h3>OneControl Pages</h3>
                 </div>
                 <dl class="dl">
+                    <dt>
+                        <spring:url var="configuration_url" value="/appmanager/onecontrol/configuration" />
+                        <a href="${configuration_url}">Configuration</a>
+                    </dt>
+                    <dd>OneControl Configuration</dd>
                     <dt>
                         <spring:url var="notifications_url" value="/appmanager/onecontrol/notifications" />
                         <a href="${notifications_url}">Notifications</a>

@@ -20,50 +20,40 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.nbi.onecontrol;
-
-import javax.xml.ws.Holder;
+package nl.surfnet.bod;
 
 import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
-import nl.surfnet.bod.util.XmlUtils;
 
-import org.joda.time.DateTime;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
-import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
-public final class HeaderBuilder {
+@Profile({ "onecontrol", "onecontrol-offline" })
+@Configuration
+public class AppOneControlConfiguration {
 
-  private HeaderBuilder() {
+  @Value("${nbi.onecontrol.primary.inventory.retrieval.endpoint}")
+  private String primaryInventoryRetrievalEndpoint;
+  @Value("${nbi.onecontrol.primary.service.reserve.endpoint}")
+  private String primaryServiceReserveEndpoint;
+  @Value("${nbi.onecontrol.primary.notification.producer.endpoint}")
+  private String primaryNotificationProducerEndpoint;
+
+  @Value("${nbi.onecontrol.secondary.inventory.retrieval.endpoint}")
+  private String secondaryInventoryRetrievalEndpoint;
+  @Value("${nbi.onecontrol.secondary.service.reserve.endpoint}")
+  private String secondaryServiceReserveEndpoint;
+  @Value("${nbi.onecontrol.secondary.notification.producer.endpoint}")
+  private String secondaryNotificationProducerEndpoint;
+
+  @Bean
+  public OneControlConfiguration primaryConfiguration() {
+    return new OneControlConfiguration(primaryInventoryRetrievalEndpoint, primaryServiceReserveEndpoint, primaryNotificationProducerEndpoint);
   }
 
-  private static Holder<Header> buildHeader(String endPoint, String activityName, String msgName) {
-    // TODO should change sender URI?
-
-    Header header = new Header()
-      .withDestinationURI(endPoint)
-      .withCommunicationStyle(CommunicationStyleType.RPC)
-      .withCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE)
-      .withTimestamp(XmlUtils.toGregorianCalendar(DateTime.now()))
-      .withActivityName(activityName)
-      .withMsgName(msgName)
-      .withSenderURI("http://localhost:9009")
-      .withMsgType(MessageTypeType.REQUEST);
-
-    return new Holder<>(header);
+  @Bean
+  public OneControlConfiguration secondaryConfiguration() {
+    return new OneControlConfiguration(secondaryInventoryRetrievalEndpoint, secondaryServiceReserveEndpoint, secondaryNotificationProducerEndpoint);
   }
-
-  public static Holder<Header> buildReserveHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getServiceReserveEndpoint(), "reserve", "reserveRequest");
-  }
-
-  public static Holder<Header> buildInventoryHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getInventoryRetrievalEndpoint(), "getServiceInventory", "getServiceInventoryRequest");
-  }
-
-  public static Holder<Header> buildNotificationHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getNotificationProducerEndpoint(), "subscribe", "subscribeRequest");
-  }
-
 }

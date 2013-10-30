@@ -26,6 +26,7 @@ import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildReserveHeader;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRfs;
 import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservationRequest;
 
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 
 import com.google.common.base.Optional;
@@ -34,10 +35,10 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -61,7 +62,7 @@ public class ServiceComponentActivationClient {
 
   private final Logger logger = LoggerFactory.getLogger(ServiceComponentActivationClient.class);
 
-  private final String endPoint;
+  @Resource private OneControlInstance oneControlInstance;
 
   @Value("${onecontrol.service.component.activation.connect.timeout}")
   private int connectTimeout;
@@ -69,17 +70,13 @@ public class ServiceComponentActivationClient {
   @Value("${onecontrol.service.component.activation.request.timeout}")
   private int requestTimeout;
 
-  @Autowired
-  public ServiceComponentActivationClient(@Value("${nbi.onecontrol.service.reserve.endpoint}") String endPoint) {
-    this.endPoint = endPoint;
-  }
-
   public UpdatedReservationStatus reserve(Reservation reservation) {
-    ServiceComponentActivationInterface port = createPort();
+    OneControlConfiguration configuration = oneControlInstance.getCurrentConfiguration();
+    ServiceComponentActivationInterface port = createPort(configuration);
 
     ReserveRequest reserveRequest = createReservationRequest(reservation);
     try {
-      ReserveResponse reserveResponse = port.reserve(buildReserveHeader(endPoint), reserveRequest);
+      ReserveResponse reserveResponse = port.reserve(buildReserveHeader(configuration), reserveRequest);
 
       if (reserveResponse.getRfsNameOrRfsCreation().isEmpty()) {
         logger.warn("No RFS name in reserve response {} for reservation request {}", reserveResponse, reserveRequest);
@@ -94,13 +91,14 @@ public class ServiceComponentActivationClient {
   }
 
   public boolean activate(Reservation reservation) {
-    ServiceComponentActivationInterface port = createPort();
+    OneControlConfiguration configuration = oneControlInstance.getCurrentConfiguration();
+    ServiceComponentActivationInterface port = createPort(configuration);
 
     ActivateRequest activateRequest = new ObjectFactory().createActivateRequest();
     activateRequest.setRfsName(createRfs(reservation.getReservationId()));
 
     try {
-      port.activate(buildReserveHeader(endPoint), activateRequest);
+      port.activate(buildReserveHeader(configuration), activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
       return true;
@@ -112,12 +110,13 @@ public class ServiceComponentActivationClient {
   }
 
   public Optional<String> terminate(Reservation reservation) {
-    ServiceComponentActivationInterface port = createPort();
+    OneControlConfiguration configuration = oneControlInstance.getCurrentConfiguration();
+    ServiceComponentActivationInterface port = createPort(configuration);
 
-    TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest();
-    terminateRequest.setRfsName(createRfs(reservation.getReservationId()));
+    TerminateRequest terminateRequest = new ObjectFactory().createTerminateRequest()
+      .withRfsName(createRfs(reservation.getReservationId()));
     try {
-      port.terminate(buildReserveHeader(endPoint), terminateRequest);
+      port.terminate(buildReserveHeader(configuration), terminateRequest);
       return Optional.absent();
     } catch (TerminateException e) {
       logger.info("Terminate failed: " + e, e);
@@ -125,12 +124,13 @@ public class ServiceComponentActivationClient {
     }
   }
 
-  private ServiceComponentActivationInterface createPort() {
+  private ServiceComponentActivationInterface createPort(OneControlConfiguration configuration) {
     ServiceComponentActivationInterface port = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceComponentActivationInterfaceSoapHttp();
     BindingProvider bindingProvider = (BindingProvider) port;
-    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, configuration.getServiceReserveEndpoint());
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
+
     return port;
   }
 

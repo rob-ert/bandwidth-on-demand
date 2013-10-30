@@ -24,12 +24,16 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.buildNotificationHeader;
 
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
+
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,7 @@ import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducerHttp;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeRequest;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeResponse;
@@ -50,7 +55,8 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
   private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-  private final String endPoint;
+
+  @Resource private OneControlInstance oneControlInstance;
 
   @Value("${onecontrol.notification.producer.connect.timeout}")
   private int connectTimeout;
@@ -58,17 +64,18 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
   @Value("${onecontrol.notification.producer.request.timeout}")
   private int requestTimeout;
 
-  @Autowired
-  public NotificationProducerClientImpl(@Value("${nbi.onecontrol.notification.producer.endpoint}") String endPoint) {
-    this.endPoint = endPoint;
-  }
-
   @Override
   public String subscribe(NotificationTopic topic, String consumerErp) throws SubscribeException {
-    SubscribeRequest subscribeRequest = createSubscribeRequest(topic, consumerErp);
+    return subscribe(topic, consumerErp, oneControlInstance.getCurrentConfiguration());
+  }
 
-    NotificationProducer port = createPort();
-    SubscribeResponse response = port.subscribe(buildNotificationHeader(endPoint), subscribeRequest);
+  private String subscribe(NotificationTopic topic, String consumerErp, OneControlConfiguration configuration) throws SubscribeException {
+    NotificationProducer port = createPort(configuration);
+
+    Holder<Header> header = buildNotificationHeader(configuration);
+    SubscribeRequest body = createSubscribeRequest(topic, consumerErp);
+
+    SubscribeResponse response = port.subscribe(header, body);
 
     log.info("Successfully subscribed to topic {} with id {}", topic, response.getSubscriptionID());
 
@@ -77,37 +84,38 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
 
   @Override
   public UnsubscribeResponse unsubscribe(NotificationTopic topic, String id) throws UnsubscribeException {
-    UnsubscribeRequest unsubscribeRequest = createUnsubscribeRequest(topic, id);
+    return unsubscribe(topic, id, oneControlInstance.getCurrentConfiguration());
+  }
 
-    NotificationProducer port = createPort();
+  private UnsubscribeResponse unsubscribe(NotificationTopic topic, String id, OneControlConfiguration configuration) throws UnsubscribeException {
+    NotificationProducer port = createPort(configuration);
 
-    return port.unsubscribe(buildNotificationHeader(endPoint), unsubscribeRequest);
+    Holder<Header> header = buildNotificationHeader(configuration);
+    UnsubscribeRequest body = createUnsubscribeRequest(topic, id);
+
+    return port.unsubscribe(header, body);
   }
 
   private UnsubscribeRequest createUnsubscribeRequest(NotificationTopic topic, String id) {
-    UnsubscribeRequest unsubscribeRequest = new ObjectFactory().createUnsubscribeRequest();
-    unsubscribeRequest.setSubscriptionID(id);
-    unsubscribeRequest.setTopic(topic.name().toLowerCase());
-
-    return unsubscribeRequest;
+    return new ObjectFactory().createUnsubscribeRequest()
+      .withSubscriptionID(id)
+      .withTopic(topic.name().toLowerCase());
   }
 
   private SubscribeRequest createSubscribeRequest(NotificationTopic topic, String consumerErp) {
-    SubscribeRequest subscribeRequest = new ObjectFactory().createSubscribeRequest();
-    subscribeRequest.setConsumerEpr(consumerErp);
-    subscribeRequest.setTopic(topic.name().toLowerCase());
-
-    return subscribeRequest;
+    return new ObjectFactory().createSubscribeRequest()
+      .withConsumerEpr(consumerErp)
+      .withTopic(topic.name().toLowerCase());
   }
 
-  private NotificationProducer createPort() {
+  private NotificationProducer createPort(OneControlConfiguration configuration) {
     NotificationProducer port = new NotificationProducerHttp(this.getClass().getResource(WSDL_LOCATION)).getNotificationProducerSoapHttp();
     BindingProvider bindingProvider = (BindingProvider) port;
-    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, configuration.getNotificationProducerEndpoint());
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
+
     return port;
   }
-
 
 }

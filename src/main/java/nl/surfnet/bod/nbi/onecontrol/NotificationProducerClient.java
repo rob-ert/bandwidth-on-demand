@@ -35,4 +35,5 @@ public interface NotificationProducerClient {
   String subscribe(NotificationTopic topic, String consumerErp) throws SubscribeException;
 
   UnsubscribeResponse unsubscribe(NotificationTopic topic, String id) throws UnsubscribeException;
+
 }

@@ -30,7 +30,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -41,13 +43,14 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
@@ -68,18 +71,13 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final String endPoint;
+  @Resource private OneControlInstance oneControlInstance;
 
   @Value("${onecontrol.inventory.client.connect.timeout}")
   private int connectTimeout;
 
   @Value("${onecontrol.inventory.client.request.timeout}")
   private int requestTimeout;
-
-  @Autowired
-  public InventoryRetrievalClientImpl(@Value("${nbi.onecontrol.inventory.retrieval.endpoint}") String endPoint) {
-    this.endPoint = endPoint;
-  }
 
   @Override
   public List<NbiPort> getPhysicalPorts() {
@@ -203,15 +201,17 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   }
 
   private GetServiceInventoryResponse retrieveServiceInventory(GetServiceInventoryRequest inventoryRequest) throws GetServiceInventoryException {
-    GetServiceInventoryResponse serviceInventory = createPort().getServiceInventory(HeaderBuilder.buildInventoryHeader(endPoint), inventoryRequest);
+    OneControlConfiguration configuration = oneControlInstance.getCurrentConfiguration();
 
-    return serviceInventory;
+    Holder<Header> header = HeaderBuilder.buildInventoryHeader(configuration);
+
+    return createPort(configuration).getServiceInventory(header, inventoryRequest);
   }
 
-  private ServiceInventoryRetrievalRPC createPort() {
+  private ServiceInventoryRetrievalRPC createPort(OneControlConfiguration configuration) {
     ServiceInventoryRetrievalRPC port = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceInventoryRetrievalSoapHttp();
     BindingProvider bindingProvider = (BindingProvider) port;
-    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endPoint);
+    bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, configuration.getInventoryRetrievalEndpoint());
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;

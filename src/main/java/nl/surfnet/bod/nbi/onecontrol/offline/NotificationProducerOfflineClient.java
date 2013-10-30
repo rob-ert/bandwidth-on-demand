@@ -20,14 +20,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod;
+package nl.surfnet.bod.nbi.onecontrol.offline;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient;
 
-@Configuration
-@Import({ AppComponents.class , AppOneControlConfiguration.class })
-@EnableScheduling
-public class AppConfiguration {
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
+import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
+
+@Service
+@Profile("onecontrol-offline")
+public class NotificationProducerOfflineClient implements NotificationProducerClient {
+
+  @Override
+  public String subscribe(NotificationTopic topic, String consumerErp) throws SubscribeException {
+    return "2";
+  }
+
+  @Override
+  public UnsubscribeResponse unsubscribe(NotificationTopic topic, String id) throws UnsubscribeException {
+    return new UnsubscribeResponse();
+  }
+
 }

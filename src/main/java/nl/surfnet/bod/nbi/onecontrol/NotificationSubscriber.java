@@ -32,7 +32,10 @@ import javax.annotation.PreDestroy;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.net.InetAddresses;
+
 import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +45,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException;
 
-@Profile("onecontrol")
+@Profile({ "onecontrol", "onecontrol-offline" })
 @Component
 public class NotificationSubscriber {
 
@@ -116,7 +119,8 @@ public class NotificationSubscriber {
     if (Strings.isNullOrEmpty(endPointAddress)) {
       Optional<InetAddress> address = getOneControlInetAddress();
       if (!address.isPresent()) {
-        throw new IllegalStateException("Could not determine MTOSI/OneControl consumer end point");
+        logger.warn("Could not determine MTOSI/OneControl consumer end point");
+        return getEndPoint(InetAddresses.forString("127.0.0.1"));
       }
       return getEndPoint(address.get());
     }

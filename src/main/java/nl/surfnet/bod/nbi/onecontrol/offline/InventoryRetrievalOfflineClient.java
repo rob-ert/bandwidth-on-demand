@@ -40,7 +40,7 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
 
 @Component
 @Profile("onecontrol-offline")
-public class InventoryRetrievalClientOffline implements InventoryRetrievalClient {
+public class InventoryRetrievalOfflineClient implements InventoryRetrievalClient {
 
   private static final Function<MockNbiPort, NbiPort> TRANSFORM_FUNCTION = new Function<MockNbiPort, NbiPort>() {
     @Override
@@ -67,7 +67,7 @@ public class InventoryRetrievalClientOffline implements InventoryRetrievalClient
 
   private List<MockNbiPort> ports = new ArrayList<>();
 
-  public InventoryRetrievalClientOffline() {
+  public InventoryRetrievalOfflineClient() {
     ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4", InterfaceType.E_NNI));
     ports.add(new MockNbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4", InterfaceType.E_NNI));
     ports.add(new MockNbiPort("Ut002A_VLAN01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-2-1-4", InterfaceType.E_NNI));

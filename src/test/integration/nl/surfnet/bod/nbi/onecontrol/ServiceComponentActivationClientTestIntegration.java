@@ -47,7 +47,7 @@ public class ServiceComponentActivationClientTestIntegration {
   @Before
   public void setup() {
     PropertiesEnvironment testEnv = mtosiProperties();
-    subject = new ServiceComponentActivationClient(testEnv.getProperty("nbi.onecontrol.service.reserve.endpoint"));
+    subject = new ServiceComponentActivationClient();
   }
 
   @Test

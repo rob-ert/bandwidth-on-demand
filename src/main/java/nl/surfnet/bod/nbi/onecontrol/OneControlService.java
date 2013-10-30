@@ -20,14 +20,24 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod;
+package nl.surfnet.bod.nbi.onecontrol;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import javax.annotation.Resource;
 
-@Configuration
-@Import({ AppComponents.class , AppOneControlConfiguration.class })
-@EnableScheduling
-public class AppConfiguration {
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+@Profile({ "onecontrol", "onecontrol-offline" })
+@Service
+public class OneControlService {
+
+  @Resource private OneControlInstance oneControlInstance;
+  @Resource private NotificationSubscriber notificationSubscriber;
+
+  public void switchOneControlInstance() {
+    notificationSubscriber.unsubscribe();
+    oneControlInstance.switchConfiguration();
+    notificationSubscriber.subscribe();
+  }
+
 }

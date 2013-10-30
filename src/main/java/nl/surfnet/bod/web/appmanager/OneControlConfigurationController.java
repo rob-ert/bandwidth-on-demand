@@ -20,14 +20,41 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod;
+package nl.surfnet.bod.web.appmanager;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import javax.annotation.Resource;
 
-@Configuration
-@Import({ AppComponents.class , AppOneControlConfiguration.class })
-@EnableScheduling
-public class AppConfiguration {
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance;
+import nl.surfnet.bod.nbi.onecontrol.OneControlService;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+@Controller
+@Profile({ "onecontrol", "onecontrol-offline" })
+@RequestMapping("/appmanager/onecontrol")
+public class OneControlConfigurationController {
+
+  @Resource private OneControlInstance oneControlInstance;
+  @Resource private OneControlService oneControlService;
+
+  @RequestMapping("/configuration")
+  public String configuration(Model model) {
+    model.addAttribute("instance", oneControlInstance.isPrimaryEnabled() ? "Primary": "Secondary");
+    model.addAttribute("other", oneControlInstance.isPrimaryEnabled() ? "Secondary" : "Primary");
+    model.addAttribute("configuration", oneControlInstance.getCurrentConfiguration());
+
+    return "appmanager/onecontrol/configuration";
+  }
+
+  @RequestMapping(value = "/configuration/switch", method = RequestMethod.POST)
+  public String switchConfiguration(Model model) {
+
+    oneControlService.switchOneControlInstance();
+
+    return "appmanager/onecontrol/configuration";
+  }
 }

@@ -60,7 +60,7 @@ public class NotificationProducerClientTestIntegration {
   @Before
   public void setup() throws IOException {
     PropertiesEnvironment testEnv = mtosiProperties();
-    notificationClient = new NotificationProducerClientImpl(testEnv.getProperty("nbi.onecontrol.notification.producer.endpoint"));
+    notificationClient = new NotificationProducerClientImpl();
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }
 

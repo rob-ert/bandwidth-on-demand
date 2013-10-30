@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.nbi.onecontrol.HeaderBuilder;
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -38,27 +39,40 @@ public class HeaderBuilderTest {
 
   @Test
   public void reserveHeaderShouldFileHeaders() {
-    final String endPoint = "http://nonexisting.example.com/wsendpoint";
+    final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildReserveHeader(endPoint);
+    Holder<Header> holder = HeaderBuilder.buildReserveHeader(new OneControlConfiguration("wrong", endpoint, "wrong"));
 
     Header header = holder.value;
 
-    assertThat(header.getDestinationURI(), is(endPoint));
+    assertThat(header.getDestinationURI(), is(endpoint));
     assertThat(header.getActivityName(), is("reserve"));
     assertThat(header.getTimestamp().getYear(), is(DateTime.now().getYear()));
   }
 
   @Test
   public void inventoryHeaderShouldFileHeaders() {
-    final String endPoint = "http://nonexisting.example.com/wsendpoint";
+    final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildInventoryHeader(endPoint);
+    Holder<Header> holder = HeaderBuilder.buildInventoryHeader(new OneControlConfiguration(endpoint, "wrong", "wrong"));
 
     Header header = holder.value;
 
-    assertThat(header.getDestinationURI(), is(endPoint));
+    assertThat(header.getDestinationURI(), is(endpoint));
     assertThat(header.getActivityName(), is("getServiceInventory"));
+    assertThat(header.getTimestamp().getYear(), is(DateTime.now().getYear()));
+  }
+
+  @Test
+  public void notificationProducerHeader() {
+    final String endpoint = "http://nonexisting.example.com/wsendpoint";
+
+    Holder<Header> holder = HeaderBuilder.buildNotificationHeader(new OneControlConfiguration("wrong", "wrong", endpoint));
+
+    Header header = holder.value;
+
+    assertThat(header.getDestinationURI(), is(endpoint));
+    assertThat(header.getActivityName(), is("subscribe"));
     assertThat(header.getTimestamp().getYear(), is(DateTime.now().getYear()));
   }
 }
