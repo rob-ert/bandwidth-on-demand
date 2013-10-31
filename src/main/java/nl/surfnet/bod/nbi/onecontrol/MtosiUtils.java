@@ -177,9 +177,7 @@ public final class MtosiUtils {
   }
 
   public static RelativeDistinguishNameType createRdn(String type, String value) {
-     return new RelativeDistinguishNameType()
-      .withType(type)
-      .withValue(value);
+    return new RelativeDistinguishNameType().withType(type).withValue(value);
   }
 
   public static NamingAttributeType createRfs(String name) {
@@ -191,16 +189,12 @@ public final class MtosiUtils {
   }
 
   public static NamingAttributeType createNamingAttributeType(String type, String value) {
-    NamingAttributeType namingAttributeType = new NamingAttributeType();
-
-    namingAttributeType.getRdn().add(createRdn(type, value));
-
-    return namingAttributeType;
+    return new NamingAttributeType().withRdn(createRdn(type, value));
   }
 
   public static ServiceCharacteristicValueType createSecondaryStateValueType(String value) {
     return new ServiceCharacteristicValueType()
-        .withSscRef(new NamingAttributeType().withRdn(new RelativeDistinguishNameType().withType("SSC").withValue("SecondaryState")))
+        .withSscRef(createNamingAttributeType("SSC", "SecondaryState"))
         .withValue(value);
   }
 
@@ -209,12 +203,7 @@ public final class MtosiUtils {
   }
 
   public static ServiceCharacteristicValueType createSscValue(NamingAttributeType namingAttributeType, String value) {
-    ServiceCharacteristicValueType serviceCharacteristicValueType = new ServiceCharacteristicValueType();
-
-    serviceCharacteristicValueType.setValue(value);
-    serviceCharacteristicValueType.setSscRef(namingAttributeType);
-
-    return serviceCharacteristicValueType;
+    return new ServiceCharacteristicValueType().withValue(value).withSscRef(namingAttributeType);
   }
 
   /**

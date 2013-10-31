@@ -175,9 +175,10 @@ public class TopologyService {
   private TopologyRelationType inboundPort(EnniPort enniPort) {
     PortGroupType group = new PortGroupType()
       .withId(nsiHelper.getStpIdV2(enniPort) + ":in")
-      .withLabelGroup(vlanLabelGroup(enniPort.getVlanRanges()))
       .withRelation(isAlias(enniPort.getInboundPeer()));
-
+    if (enniPort.isVlanRequired()) {
+      group.withLabelGroup(vlanLabelGroup(enniPort.getVlanRanges()));
+    }
     return inboundPort(group);
   }
 

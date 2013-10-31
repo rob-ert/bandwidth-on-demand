@@ -63,9 +63,7 @@ public class ReserveRequestBuilder {
       getSap(reservation, reservation.getSourcePort()),
       getSap(reservation, reservation.getDestinationPort()));
 
-    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime()).withRfsCreateData(rfsData);
-
-    return reserveRequest;
+    return createReserveRequest(reservation.getEndDateTime()).withRfsCreateData(rfsData);
   }
 
   @VisibleForTesting
@@ -95,7 +93,13 @@ public class ReserveRequestBuilder {
   }
 
   private static String translate(InterfaceType interfaceType) {
-    return interfaceType.name().replace('_', '-');
+    switch (interfaceType) {
+    case E_NNI:
+      return "E-NNI";
+    case UNI:
+      return "UNI";
+    }
+    throw new IllegalArgumentException("Unsupported interfaceType (" + interfaceType.name() + ")");
   }
 
   private static String translate(ProtectionType protectionType) {
@@ -104,9 +108,10 @@ public class ReserveRequestBuilder {
       return "Partially Protected";
     case UNPROTECTED:
       return "Unprotected";
-    default:
-      throw new IllegalArgumentException(String.format("Unsported protectionType (%s) by OneControl", protectionType.name()));
+    case REDUNDANT:
+      break;
     }
+    throw new IllegalArgumentException("Unsupported protectionType (" + protectionType.name() + ")");
   }
 
   private static Integer vlanIdOfEndPoint(ReservationEndPoint endPoint) {
