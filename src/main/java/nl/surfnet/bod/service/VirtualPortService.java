@@ -117,8 +117,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
     virtualPortRepo.delete(virtualPort);
 
+    deleteVirtualResourceGroupIfNotNeededAnymore(vrg);
+  }
+
+  private void deleteVirtualResourceGroupIfNotNeededAnymore(VirtualResourceGroup vrg) {
     if (vrg.getVirtualPorts().isEmpty() && vrg.getPendingVirtualPortCreateRequestLinks().isEmpty()) {
-      virtualResourceGroupReppo.delete(virtualPort.getVirtualResourceGroup());
+      virtualResourceGroupReppo.delete(vrg);
     }
   }
 
@@ -266,6 +270,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     virtualPortCreateRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortCreateRequestDeclineMail(link, declineMessage);
+
+    deleteVirtualResourceGroupIfNotNeededAnymore(link.getVirtualResourceGroup());
   }
 
   public void approveDeleteRequest(VirtualPortDeleteRequestLink deleteRequest, RichUserDetails userDetails) {
