@@ -47,7 +47,7 @@ public class VirtualPortDeleteRequestLink extends AbstractRequestLink implements
 
   public void setVirtualPort(VirtualPort virtualPort) {
     this.virtualPort = virtualPort;
-    this.virtualPortLabel = virtualPort.getLabel();
+    this.virtualPortLabel = virtualPort.getUserLabel();
     this.setVirtualResourceGroup(virtualPort.getVirtualResourceGroup());
     this.setPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
   }
