@@ -44,8 +44,7 @@ public class EnvironmentTag extends BodTagSupport {
     try {
       Object value = PropertyUtils.getSimpleProperty(env, property);
       getPageContext().setAttribute(var, value);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new JspException(e);
     }
   }

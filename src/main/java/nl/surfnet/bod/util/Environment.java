@@ -119,6 +119,12 @@ public class Environment {
   @Value("${nbi.default.protection.type}")
   private ProtectionType defaultProtectionType;
 
+  @Value("${nbi.setup.time}")
+  private int nbiSetupTime;
+
+  @Value("${nbi.teardown.time}")
+  private int nbiTeardownTime;
+
   public Environment() {
   }
 
@@ -290,6 +296,14 @@ public class Environment {
 
   public ProtectionType getDefaultProtectionType() {
     return defaultProtectionType;
+  }
+
+  public int getNbiSetupTime() {
+    return nbiSetupTime;
+  }
+
+  public int getNbiTeardownTime() {
+    return nbiTeardownTime;
   }
 
 }
