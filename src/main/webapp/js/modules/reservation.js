@@ -26,9 +26,9 @@ app.reservation = function() {
 
     var updateReservationRow = function(id, newStatus, deletable, deleteTooltip) {
         var row = $('tr[data-reservationId="'+id+'"]'),
-                cell = row.find('td.status').wrapInner('<span></span>'),
-                span = cell.find('span'),
-                actionCell = row.find('.actions-column');
+            cell = row.find('td.status').wrapInner('<span></span>'),
+            span = cell.find('span'),
+            actionCell = row.find('.actions-column');
 
         if (!deletable) {
             actionCell.find('a .icon-remove').parent().hide();

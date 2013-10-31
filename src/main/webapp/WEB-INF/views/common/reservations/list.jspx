@@ -171,8 +171,7 @@
                         <table:column item="${item}" property="status" styleClass="status" />
                         <table:actionsColumn item="${item}" path="/reservations" labelCode="label_reservation"
                           update="${item.updateAllowedForSelectedRole}" updateLabelCode="${item.updateReasonKey}" updateIcon="icon-copy" updateUrl="/copy"
-                          delete="true" deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
-                          successMessageCode="Termination request has been sent">
+                          delete="true" deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}">
                       </table:actionsColumn>
                     </tr>
                 </c:forEach>

@@ -140,8 +140,7 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) Long id, Model model, RedirectAttributes redirectAttributes) {
-
+  public String delete(@RequestParam(ID_KEY) Long id) {
     Reservation reservation = getReservationService().find(id);
 
     getReservationService().cancel(reservation, Security.getUserDetails());
