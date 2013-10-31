@@ -61,6 +61,15 @@
                             </div>
                         </div>
 
+                        <c:if test="${not empty bodfn:get(request.virtualPort).vlanId}">
+                            <div class="control-group">
+                                <label class="control-label"><spring:message code="label_virtualport_vlan_id" /></label>
+                                <div class="controls">
+                                    <output><c:out value="${bodfn:get(request.virtualPort).vlanId}" /></output>
+                                </div>
+                            </div>
+                        </c:if>
+
                         <div class="control-group">
                             <label class="control-label"><spring:message code="label_virtualresourcegroup" /></label>
                             <div class="controls">
