@@ -100,8 +100,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
         return addCreateFormToModel(createCommand, model);
       }
 
-      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(), createCommand
-          .getDeclineMessage());
+      virtualPortService.declineCreateRequestLink(createCommand.getVirtualPortRequestLink(), createCommand.getDeclineMessage());
 
       return "redirect:" + PAGE_URL;
     }
@@ -115,7 +114,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     model.asMap().clear();
 
     virtualPortService.save(port);
-    virtualPortService.requestLinkApproved(createCommand.getVirtualPortRequestLink(), port);
+    virtualPortService.approveCreateRequestLink(createCommand.getVirtualPortRequestLink(), port);
 
     messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_created", port.getManagerLabel());
 

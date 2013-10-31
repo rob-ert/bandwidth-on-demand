@@ -349,7 +349,7 @@ public class VirtualPortControllerTest {
     subject.createRequest(command, result, model, model);
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
-    verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
+    verify(virtualPortServiceMock).approveCreateRequestLink(eq(link), any(VirtualPort.class));
   }
 
   @Test
@@ -366,7 +366,7 @@ public class VirtualPortControllerTest {
     subject.createRequest(command, result, model, model);
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
-    verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
+    verify(virtualPortServiceMock).approveCreateRequestLink(eq(link), any(VirtualPort.class));
   }
 
   @Test
@@ -382,7 +382,7 @@ public class VirtualPortControllerTest {
 
     assertThat(page, is("redirect:/manager/virtualports"));
 
-    verify(virtualPortServiceMock).requestLinkDeclined(link, "Declined!");
+    verify(virtualPortServiceMock).declineCreateRequestLink(link, "Declined!");
   }
 
   @Test

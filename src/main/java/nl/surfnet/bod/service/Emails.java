@@ -48,7 +48,7 @@ public final class Emails {
     }
   }
 
-  public static class VirtualPortRequestMail {
+  public static class VirtualPortCreateRequestMail {
     private static final String NEW_VIRTUAL_PORT_REQUEST_BODY = //
       "Dear BoD Administrator,\n\n" //
         + "You have received a new Virtual Port Request.\n\n" //
@@ -100,7 +100,7 @@ public final class Emails {
     }
   }
 
-  public static final class VirtualPortRequestApproveMail {
+  public static final class VirtualPortCreateRequestApproveMail {
     private static final String BODY = //
     "Dear %s,\n\n" //
         + "Your Request for a Virtual Port from %s for your team %s has been approved.\n" //
@@ -117,10 +117,10 @@ public final class Emails {
     }
   }
 
-  public static class VirtualPortRequestDeclineMail {
+  public static class VirtualPortCreateRequestDeclineMail {
     private static final String BODY = //
         "Dear %s,\n\n" //
-        + "You Request for a Virtual Port from %s for your team %s has been declined.\n" //
+        + "You Request for a Virtual Port from '%s' for your team '%s' has been declined.\n" //
         + "The reason the BoD Administrator gave:\n%s"
         + FOOTER;
 
@@ -134,6 +134,25 @@ public final class Emails {
           link.getPhysicalResourceGroup().getName(),
           link.getVirtualResourceGroup().getName(),
           message);
+    }
+  }
+
+  public static class VirtualPortDeleteRequestApproveMail {
+    private static final String BODY = //
+        "Dear %s,\n\n" //
+        + "You Request to delete Virtual Port '%s' from your team '%s' has been approved.\n" //
+        + "The Virtual Port has now been deleted from your team."
+        + FOOTER;
+
+    public static String subject() {
+      return "[BoD] Your Virtual Port Delete Request has been approved";
+    }
+
+    public static String body(VirtualPortDeleteRequestLink link) {
+      return String.format(BODY,
+          link.getRequestorName(),
+          link.getVirtualPortLabel(),
+          link.getVirtualResourceGroup().getName());
     }
   }
 }

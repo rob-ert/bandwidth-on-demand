@@ -36,9 +36,10 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
-import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
-import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
-import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
+import nl.surfnet.bod.service.Emails.VirtualPortCreateRequestApproveMail;
+import nl.surfnet.bod.service.Emails.VirtualPortCreateRequestDeclineMail;
+import nl.surfnet.bod.service.Emails.VirtualPortCreateRequestMail;
+import nl.surfnet.bod.service.Emails.VirtualPortDeleteRequestApproveMail;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -96,8 +97,8 @@ public class EmailSenderOnline implements EmailSender {
 
     SimpleMailMessage mail = new MailMessageBuilder()
       .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
-      .withSubject(VirtualPortRequestMail.subject(from, requestLink))
-      .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
+      .withSubject(VirtualPortCreateRequestMail.subject(from, requestLink))
+      .withBodyText(VirtualPortCreateRequestMail.body(from, requestLink, link)).create();
 
     if (from.getEmail().isPresent()) {
       mail.setReplyTo(from.getEmail().get());
@@ -114,8 +115,8 @@ public class EmailSenderOnline implements EmailSender {
 
     SimpleMailMessage mail = new MailMessageBuilder()
       .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
-      .withSubject(VirtualPortRequestMail.subject(from, requestLink))
-      .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
+      .withSubject(VirtualPortCreateRequestMail.subject(from, requestLink))
+      .withBodyText(VirtualPortCreateRequestMail.body(from, requestLink, link)).create();
 
     if (from.getEmail().isPresent()) {
       mail.setReplyTo(from.getEmail().get());
@@ -127,19 +128,29 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendVirtualPortRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port) {
+  public void sendVirtualPortCreateRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
-        .withSubject(VirtualPortRequestApproveMail.subject(port))
-        .withBodyText(VirtualPortRequestApproveMail.body(link, port)).create();
+        .withSubject(VirtualPortCreateRequestApproveMail.subject(port))
+        .withBodyText(VirtualPortCreateRequestApproveMail.body(link, port)).create();
 
     send(mail);
   }
 
   @Override
-  public void sendVirtualPortRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage) {
+  public void sendVirtualPortCreateRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
-        .withSubject(VirtualPortRequestDeclineMail.subject())
-        .withBodyText(VirtualPortRequestDeclineMail.body(link, declineMessage)).create();
+        .withSubject(VirtualPortCreateRequestDeclineMail.subject())
+        .withBodyText(VirtualPortCreateRequestDeclineMail.body(link, declineMessage)).create();
+
+    send(mail);
+  }
+
+  @Override
+  public void sendVirtualPortDeleteRequestApproveMail(VirtualPortDeleteRequestLink link) {
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(link.getRequestorName(), link.getRequestorEmail())
+      .withSubject(VirtualPortDeleteRequestApproveMail.subject())
+      .withBodyText(VirtualPortDeleteRequestApproveMail.body(link)).create();
 
     send(mail);
   }
@@ -212,4 +223,5 @@ public class EmailSenderOnline implements EmailSender {
       return this;
     }
   }
+
 }

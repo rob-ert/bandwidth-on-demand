@@ -40,7 +40,7 @@ public class EmailsTest {
     VirtualPortCreateRequestLink requestLink = new VirtualPortCreateRequestLinkFactory().create();
     String link = "http://localhost";
 
-    String body = Emails.VirtualPortRequestMail.body(from, requestLink, link);
+    String body = Emails.VirtualPortCreateRequestMail.body(from, requestLink, link);
 
     assertThat(body, containsString("From: Henk (henk@henk.nl)"));
   }
@@ -51,7 +51,7 @@ public class EmailsTest {
     VirtualPortCreateRequestLink requestLink = new VirtualPortCreateRequestLinkFactory().create();
     String link = "http://localhost";
 
-    String body = Emails.VirtualPortRequestMail.body(from, requestLink, link);
+    String body = Emails.VirtualPortCreateRequestMail.body(from, requestLink, link);
 
     assertThat(body, containsString("From: Henk (Unknown Email)"));
   }

@@ -250,13 +250,30 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return virtualPortDeleteRequestLinkRepo.findByUuid(uuid);
   }
 
-  public void requestLinkApproved(VirtualPortCreateRequestLink link, VirtualPort port) {
+  public void approveCreateRequestLink(VirtualPortCreateRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), "Approved request link " + link.getUserLabel(), link);
     virtualPortCreateRequestLinkRepo.save(link);
 
-    emailSender.sendVirtualPortRequestApproveMail(link, port);
+    emailSender.sendVirtualPortCreateRequestApproveMail(link, port);
+  }
+
+  public void declineCreateRequestLink(VirtualPortCreateRequestLink link, String declineMessage) {
+    link.setStatus(RequestStatus.DECLINED);
+
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Declined request link " + link.getUserLabel(), link);
+    virtualPortCreateRequestLinkRepo.save(link);
+
+    emailSender.sendVirtualPortCreateRequestDeclineMail(link, declineMessage);
+  }
+
+  public void approveDeleteRequest(VirtualPortDeleteRequestLink deleteRequest, RichUserDetails userDetails) {
+    delete(deleteRequest.getVirtualPort().get(), userDetails);
+    deleteRequest.setStatus(RequestStatus.APPROVED);
+    deleteRequest.clearVirtualPort();
+
+    emailSender.sendVirtualPortDeleteRequestApproveMail(deleteRequest);
   }
 
   public VirtualPortCreateRequestLink findRequest(Long id) {
@@ -278,15 +295,6 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
         return group.getId();
       }
     });
-  }
-
-  public void requestLinkDeclined(VirtualPortCreateRequestLink link, String declineMessage) {
-    link.setStatus(RequestStatus.DECLINED);
-
-    logEventService.logUpdateEvent(Security.getUserDetails(), "Declined request link " + link.getUserLabel(), link);
-    virtualPortCreateRequestLinkRepo.save(link);
-
-    emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
   }
 
   public VirtualPort findByNsiV1StpId(String stpId) {
@@ -329,9 +337,4 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return Collections.emptyList();
   }
 
-  public void approveDeleteRequest(VirtualPortDeleteRequestLink deleteRequest, RichUserDetails userDetails) {
-    delete(deleteRequest.getVirtualPort().get(), userDetails);
-    deleteRequest.setStatus(RequestStatus.APPROVED);
-    deleteRequest.clearVirtualPort();
-  }
 }

@@ -228,24 +228,24 @@ public class VirtualPortServiceTest {
     VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setStatus(RequestStatus.PENDING).create();
     VirtualPort port = new VirtualPortFactory().create();
 
-    subject.requestLinkApproved(link, port);
+    subject.approveCreateRequestLink(link, port);
 
     assertThat(link.getStatus(), is(RequestStatus.APPROVED));
 
     verify(virtualPortRequestLinkRepoMock).save(link);
-    verify(emailSenderMock).sendVirtualPortRequestApproveMail(link, port);
+    verify(emailSenderMock).sendVirtualPortCreateRequestApproveMail(link, port);
   }
 
   @Test
   public void linkDeclinedShouldChangeStatusAndSendMail() {
     VirtualPortCreateRequestLink link = new VirtualPortCreateRequestLinkFactory().setStatus(RequestStatus.PENDING).create();
 
-    subject.requestLinkDeclined(link, "I don't like you");
+    subject.declineCreateRequestLink(link, "I don't like you");
 
     assertThat(link.getStatus(), is(RequestStatus.DECLINED));
 
     verify(virtualPortRequestLinkRepoMock).save(link);
-    verify(emailSenderMock).sendVirtualPortRequestDeclineMail(link, "I don't like you");
+    verify(emailSenderMock).sendVirtualPortCreateRequestDeclineMail(link, "I don't like you");
   }
 
   @Test

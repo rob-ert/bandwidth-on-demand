@@ -36,8 +36,10 @@ public interface EmailSender {
 
   void sendVirtualPortDeleteRequestMail(RichUserDetails from, VirtualPortDeleteRequestLink link);
 
-  void sendVirtualPortRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port);
+  void sendVirtualPortCreateRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port);
 
-  void sendVirtualPortRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage);
+  void sendVirtualPortCreateRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage);
+
+  void sendVirtualPortDeleteRequestApproveMail(VirtualPortDeleteRequestLink deleteRequest);
 
 }
