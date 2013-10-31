@@ -201,16 +201,6 @@ public class PhysicalPortServiceTest {
   }
 
   @Test
-  public void countUnallocatedShouldCalculateDifferenceBetweenNbiAndRepoPorts() {
-    when(nbiClientMock.getPhysicalPortsCount()).thenReturn(15L);
-    when(physicalPortRepoMock.count()).thenReturn(10L);
-
-    long countUnallocated = subject.countUnallocated();
-
-    assertThat(countUnallocated, is(5L));
-  }
-
-  @Test
   public void shouldChangeNoPorts() {
     when(nbiClientMock.findAllPorts()).thenReturn(Lists.newArrayList(nbiPortMap.values()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));

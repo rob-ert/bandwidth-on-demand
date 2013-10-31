@@ -69,12 +69,12 @@ public class UnallocatedPortControllerTest {
       FluentIterable.from(Iterables.cycle(new NbiPortFactory()
         .setSuggestedBodPortId("PortId")
         .setSuggestedNocLabel("NOC label").create())).limit(100).toList());
-    when(physicalPortServiceMock.countUnallocated()).thenReturn(100L);
 
     mockMvc.perform(get("/noc/physicalports/free"))
       .andExpect(status().isOk())
       .andExpect(model().<Collection<?>> attribute(DATA_LIST, hasSize(WebUtils.MAX_ITEMS_PER_PAGE)))
-      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED));
+      .andExpect(model().attribute("filterSelect", PhysicalPortFilter.UN_ALLOCATED))
+      .andExpect(model().attribute(WebUtils.MAX_PAGES_KEY, (int) Math.ceil((float) 100 / WebUtils.MAX_ITEMS_PER_PAGE)));
   }
 
 }

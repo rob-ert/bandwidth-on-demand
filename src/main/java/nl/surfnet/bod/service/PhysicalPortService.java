@@ -152,10 +152,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPortRepo.count();
   }
 
-  public long countUnallocated() {
-    return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
-  }
-
   public long countUnalignedPhysicalPorts() {
     return physicalPortRepo.count(UNALIGNED_PORT_SPEC);
   }

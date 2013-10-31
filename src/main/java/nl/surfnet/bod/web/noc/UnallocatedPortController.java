@@ -72,10 +72,12 @@ public class UnallocatedPortController {
 
     Order order = prepareSortOptions(sortProperty, sortDirection, model);
 
+    Collection<NbiPort> unallocatedPorts = physicalPortService.findUnallocated();
+
     model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALLOCATED);
     model.addAttribute(FILTER_LIST, PhysicalPortFilter.getAvailableFilters());
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(count(model)));
-    model.addAttribute(DATA_LIST, transformToView(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, order), Security.getUserDetails()));
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(unallocatedPorts.size()));
+    model.addAttribute(DATA_LIST, transformToView(list(unallocatedPorts, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, order), Security.getUserDetails()));
 
     return "noc/physicalports/unallocated/list";
   }
@@ -114,9 +116,7 @@ public class UnallocatedPortController {
     return Functions.transformUnallocatedPhysicalPorts(unallocatedPorts);
   }
 
-  private List<NbiPort> list(int firstResult, int maxItems, Order order) {
-    Collection<NbiPort> ports = physicalPortService.findUnallocated();
-
+  private List<NbiPort> list(Collection<NbiPort> unallocatedPorts, int firstResult, int maxItems, Order order) {
     Ordering<NbiPort> ordering;
     switch (order.getProperty()) {
     case "nocLabel":
@@ -140,11 +140,7 @@ public class UnallocatedPortController {
       ordering = ordering.reverse();
     }
 
-    return FluentIterable.from(ordering.sortedCopy(ports)).skip(firstResult).limit(maxItems).toList();
-  }
-
-  protected long count(Model model) {
-    return physicalPortService.countUnallocated();
+    return FluentIterable.from(ordering.sortedCopy(unallocatedPorts)).skip(firstResult).limit(maxItems).toList();
   }
 
   private String getDefaultSortProperty() {
