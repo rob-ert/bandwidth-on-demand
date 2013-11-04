@@ -22,15 +22,9 @@
  */
 package nl.surfnet.bod.web.appmanager;
 
-import java.util.List;
-
 import javax.annotation.Resource;
-
-import com.google.common.collect.FluentIterable;
-
 import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
 import nl.surfnet.bod.web.base.MessageManager;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,20 +45,12 @@ public class OneControlNotificationsController {
 
   @RequestMapping("/notifications")
   public String listNotifications(Model model) {
-    model.addAttribute("alarms", last(notificationConsumer.getAlarms(), 20));
-    model.addAttribute("serviceObjectCreations", last(notificationConsumer.getServiceObjectCreations(), 20));
-    model.addAttribute("serviceObjectDeletions", last(notificationConsumer.getServiceObjectDeletions(), 20));
-    model.addAttribute("serviceAttributeValueChanges", last(notificationConsumer.getServiceAttributeValueChanges(), 20));
-    model.addAttribute("events", last(notificationConsumer.getEvents(), 20));
+    model.addAttribute("alarms", notificationConsumer.getAlarms());
+    model.addAttribute("serviceObjectCreations", notificationConsumer.getServiceObjectCreations());
+    model.addAttribute("serviceObjectDeletions", notificationConsumer.getServiceObjectDeletions());
+    model.addAttribute("serviceAttributeValueChanges", notificationConsumer.getServiceAttributeValueChanges());
+    model.addAttribute("events", notificationConsumer.getEvents());
 
     return "appmanager/onecontrol/notifications";
-  }
-
-  protected <T> List<T> last(List<T> collection, int size) {
-    if (collection.size() > size) {
-      return FluentIterable.from(collection).skip(collection.size() - size).toList();
-    }
-
-    return collection;
   }
 }

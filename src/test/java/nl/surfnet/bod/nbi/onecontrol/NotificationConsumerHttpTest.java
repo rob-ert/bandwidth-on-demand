@@ -20,54 +20,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package nl.surfnet.bod.web.appmanager;
+package nl.surfnet.bod.nbi.onecontrol;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-
-import com.google.common.collect.Lists;
-import nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp;
-import org.junit.Before;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;
+import org.tmforum.mtop.sb.xsd.soc.v1.ObjectFactory;
+import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OneControlNotificationsControllerTest {
 
-  @InjectMocks
-  private OneControlNotificationsController subject;
+public class NotificationConsumerHttpTest {
 
-  @Mock
-  private NotificationConsumerHttp notificationConsumerHttpMock;
-
-  private MockMvc mockMvc;
-
-  @Before
-  public void setup() {
-    mockMvc = standaloneSetup(subject).build();
-  }
+  private static final ObjectFactory OBJECT_FACTORY = new org.tmforum.mtop.sb.xsd.soc.v1.ObjectFactory();
 
   @Test
-  public void notificationsShouldAddAlarmsToModel() throws Exception {
-    when(notificationConsumerHttpMock.getAlarms()).thenReturn(Lists.newArrayList(new AlarmType()));
+  public void should_limit_number_of_saved_notifications() {
+    NotificationConsumerHttp subject = new NotificationConsumerHttp();
+    for (int i = 0; i < NotificationConsumerHttp.NOTIFICATION_LIMIT + 5; ++i) {
+      @SuppressWarnings("unchecked")
+      Notify notification = new Notify().withMessage(new Message().withCommonEventInformation(
+          OBJECT_FACTORY.createServiceObjectCreation(new ServiceObjectCreationType().withNotificationId("" + i))));
+      subject.notify(null, notification);
+    }
 
-    mockMvc.perform(get("/appmanager/onecontrol/notifications"))
-      .andExpect(status().isOk())
-      .andExpect(model().attribute("alarms", hasSize(1)));
-  }
-
-  @Test
-  public void indexPageShouldBeOk() throws Exception {
-    mockMvc.perform(get("/appmanager/onecontrol"))
-      .andExpect(status().isOk());
+    assertThat(subject.getServiceObjectCreations(), hasSize(NotificationConsumerHttp.NOTIFICATION_LIMIT));
+    assertThat(subject.getServiceObjectCreations().get(0), Matchers.is(new ServiceObjectCreationType().withNotificationId("5")));
+    assertThat(
+        subject.getServiceObjectCreations().get(NotificationConsumerHttp.NOTIFICATION_LIMIT - 1),
+        is(new ServiceObjectCreationType().withNotificationId(String.valueOf(NotificationConsumerHttp.NOTIFICATION_LIMIT + 5 - 1))));
   }
 }

@@ -22,23 +22,20 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.google.common.base.Optional;
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Queues;
 import java.util.List;
-
+import java.util.Queue;
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,16 +62,18 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NotificationConsumerHttp.class);
 
-  private final List<AlarmType> alarms = Collections.synchronizedList(new ArrayList<AlarmType>());
-  private final List<CommonEventInformationType> events = Collections.synchronizedList(new ArrayList<CommonEventInformationType>());
-  private final List<ServiceObjectCreationType> serviceObjectCreations = Collections.synchronizedList(new ArrayList<ServiceObjectCreationType>());
-  private final List<ServiceObjectDeletionType> serviceObjectDeletions = Collections.synchronizedList(new ArrayList<ServiceObjectDeletionType>());
-  private final List<ServiceAttributeValueChangeType> serviceAttributeValueChanges = Collections.synchronizedList(new ArrayList<ServiceAttributeValueChangeType>());
+  public static final int NOTIFICATION_LIMIT = 20;
+
+  private final Queue<AlarmType> alarms = Queues.synchronizedQueue(EvictingQueue.<AlarmType>create(NOTIFICATION_LIMIT));
+  private final Queue<CommonEventInformationType> events = Queues.synchronizedQueue(EvictingQueue.<CommonEventInformationType>create(NOTIFICATION_LIMIT));
+  private final Queue<ServiceObjectCreationType> serviceObjectCreations = Queues.synchronizedQueue(EvictingQueue.<ServiceObjectCreationType>create(NOTIFICATION_LIMIT));
+  private final Queue<ServiceObjectDeletionType> serviceObjectDeletions = Queues.synchronizedQueue(EvictingQueue.<ServiceObjectDeletionType>create(NOTIFICATION_LIMIT));
+  private final Queue<ServiceAttributeValueChangeType> serviceAttributeValueChanges = Queues.synchronizedQueue(EvictingQueue.<ServiceAttributeValueChangeType>create(NOTIFICATION_LIMIT));
 
   @Resource private ReservationsAligner reservationsAligner;
   @Resource private ReservationService reservationService;
 
-  private DateTime lastHeartbeat = DateTime.now();
+  private volatile DateTime lastHeartbeat = DateTime.now();
 
   @Override
   public void notify(Header header, Notify body) {
@@ -93,7 +92,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
         } else if (event instanceof ServiceObjectCreationType) {
           LOGGER.info("CREATION: {}, {}", body.getTopic(), body.getMessage());
           handleServiceObjectCreation((ServiceObjectCreationType) event);
-        } else if (event instanceof ServiceAttributeValueChangeType) { // connection state changes: active/inactive
+        } else if (event instanceof ServiceAttributeValueChangeType) {
           LOGGER.info("CHANGE  : {}, {}", body.getTopic(), body.getMessage());
           handleServiceAttributeValueChange((ServiceAttributeValueChangeType) event);
         } else if (event instanceof ServiceObjectDeletionType) {
@@ -151,7 +150,7 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
     if (reservation.isPresent()) {
       if (reservation.get().getStatus() == ReservationStatus.REQUESTED) {
-        scheduleUpdate(reservation.get().getReservationId(), UpdatedReservationStatus.notAccepted("reserve request not accepted by MTOSI"));
+        scheduleUpdate(reservation.get().getReservationId(), UpdatedReservationStatus.notAccepted("reserve request not accepted by network"));
       } else {
         scheduleUpdate(reservation.get().getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
       }
