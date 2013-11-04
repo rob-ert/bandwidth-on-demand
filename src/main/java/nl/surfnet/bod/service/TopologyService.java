@@ -22,25 +22,21 @@
  */
 package nl.surfnet.bod.service;
 
+import nl.surfnet.bod.util.NsaTopologyUserType;
+
 import ietf.params.xml.ns.vcard4_0.FormattedNameType;
 import ietf.params.xml.ns.vcard4_0.NameType;
 import ietf.params.xml.ns.vcard4_0.OrganizationType;
-
-import java.io.StringWriter;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.ogf.schemas.nml._2013._05.base.BidirectionalPortType;
 import org.ogf.schemas.nml._2013._05.base.LabelGroupType;
@@ -88,19 +84,7 @@ public class TopologyService {
     cacheTime = DateTime.now();
   }
 
-  public String nsiToplogyAsString() {
-    try {
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._09.topology:ietf.params.xml.ns.vcard4_0");
-
-      StringWriter writer = new StringWriter();
-
-      jaxbContext.createMarshaller().marshal(new org.ogf.schemas.nsi._2013._09.topology.ObjectFactory().createNSA(nsiTopology()), writer);
-
-      return writer.toString();
-    } catch (JAXBException e) {
-      throw new AssertionError("Could not serialize nsi toplogy", e);
-    }
-  }
+  public static final JaxbUserType<NSAType> NSA_TOPOLOGY_CONVERTER = new NsaTopologyUserType();
 
   public NSAType nsiTopology() {
     TopologyType newerTopology = topology();

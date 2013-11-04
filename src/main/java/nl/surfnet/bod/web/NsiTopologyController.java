@@ -22,11 +22,18 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.Enumeration;
+
+import com.google.common.net.HttpHeaders;
+import java.util.Date;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-
 import nl.surfnet.bod.service.TopologyService;
-
+import org.apache.commons.httpclient.util.DateParseException;
+import org.apache.commons.httpclient.util.DateUtil;
+import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,8 +48,21 @@ public class NsiTopologyController {
 
   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
   @ResponseBody
-  public String topology() throws JAXBException {
-    return topologyService.nsiToplogyAsString();
+  public String topology(HttpServletRequest request, HttpServletResponse response) throws JAXBException, DateParseException {
+    NSAType topology = topologyService.nsiTopology();
+    Date lastModified = topology.getVersion().toGregorianCalendar().getTime();
+
+    Enumeration<String> ifModifiedSinceValues = request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE);
+    if (ifModifiedSinceValues.hasMoreElements()) {
+      Date ifModifiedSince = DateUtil.parseDate(ifModifiedSinceValues.nextElement());
+      if (ifModifiedSince.equals(lastModified)) {
+        response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        return null;
+      }
+    }
+
+    response.addHeader(HttpHeaders.LAST_MODIFIED, DateUtil.formatDate(lastModified));
+    return TopologyService.NSA_TOPOLOGY_CONVERTER.toXmlString(topology);
   }
 
 }

@@ -59,6 +59,10 @@ public class JaxbUserType<T> implements UserType {
     this.type = type;
   }
 
+  protected JaxbUserType(JAXBContext jaxbContext, JAXBElement<T> nullJaxbElement) {
+    this(jaxbContext, nullJaxbElement.getName(), nullJaxbElement.getDeclaredType());
+  }
+
   public QName getXmlRootElementName() {
     return xmlRootElementName;
   }
