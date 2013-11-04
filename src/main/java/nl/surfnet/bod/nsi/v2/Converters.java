@@ -56,8 +56,7 @@ import org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory;
 import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
 import org.w3c.dom.Element;
 
-// FIXME move all NSIv2 code to nsi package. This can then be package-protected again.
-public class Converters {
+class Converters {
   private static final org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory();
   private static final org.ogf.schemas.nsi._2013._07.connection.types.ObjectFactory BODY_OF = new org.ogf.schemas.nsi._2013._07.connection.types.ObjectFactory();
 
