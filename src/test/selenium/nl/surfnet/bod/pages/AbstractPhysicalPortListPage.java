@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.pages;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -41,7 +41,7 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
   public void verifyPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
     try {
       verifyPortWasAllocated(nmsPortId, label);
-      assertThat("PhysicalPort should not be listed on unAllocated page", false);
+      fail("PhysicalPort should not be listed on unAllocated page");
     } catch (NoSuchElementException e) {
       // Expected
     }

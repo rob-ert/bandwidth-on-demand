@@ -23,8 +23,9 @@
 package nl.surfnet.bod.pages.noc;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 
 import org.openqa.selenium.By;
@@ -39,12 +40,12 @@ public abstract class AbstractPhysicalPortListNocPage extends AbstractPhysicalPo
   }
 
   public void verifyPhysicalPortHasDisabledUnallocateIcon(String nmsPortId, String label, String toolTipText) {
-
     WebElement row = verifyPortWasAllocated(nmsPortId, label);
 
     WebElement unAllocateElement = row.findElement(By.cssSelector("span.disabled-icon"));
     String deleteTooltip = unAllocateElement.getAttribute("data-original-title");
 
+    assertTrue(unAllocateElement.isDisplayed());
     assertThat(deleteTooltip, containsString(toolTipText));
   }
 
@@ -52,10 +53,10 @@ public abstract class AbstractPhysicalPortListNocPage extends AbstractPhysicalPo
     WebElement row = verifyPortWasAllocated(nmsPortId, label);
 
     try {
-      row.findElement(By.cssSelector("span.disabled-icon"));
-      fail("PhysicalPort should not contain disabled unallocate Icon");
-    }
-    catch (NoSuchElementException e) {
+      boolean visible = row.findElement(By.cssSelector("span.disabled-icon")).isDisplayed();
+
+      assertFalse("PhysicalPort row should not contain a visible disabled unallocate icon", visible);
+    } catch (NoSuchElementException e) {
       // Expected
     }
   }
