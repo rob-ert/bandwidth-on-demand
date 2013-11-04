@@ -244,7 +244,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void checkTerminateAllowed(ConnectionV2 connection) throws ServiceException {
-    if (connection.getLifecycleState() != LifecycleStateEnumType.CREATED) {
+    if (connection.getLifecycleState() == LifecycleStateEnumType.TERMINATING || connection.getLifecycleState() == LifecycleStateEnumType.TERMINATED) {
       throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
   }
