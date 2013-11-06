@@ -52,7 +52,6 @@ public class OneControlConfigurationController {
 
   @RequestMapping(value = "/configuration/switch", method = RequestMethod.POST)
   public String switchConfiguration(Model model) {
-
     oneControlService.switchOneControlInstance();
 
     return "appmanager/onecontrol/configuration";

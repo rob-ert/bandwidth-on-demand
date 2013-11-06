@@ -33,8 +33,6 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 
 import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -54,8 +52,6 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 public class NotificationProducerClientImpl implements NotificationProducerClient {
 
   private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationProducer/NotificationProducerHttp.wsdl";
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource private OneControlInstance oneControlInstance;
 
@@ -77,8 +73,6 @@ public class NotificationProducerClientImpl implements NotificationProducerClien
     SubscribeRequest body = createSubscribeRequest(topic, consumerErp);
 
     SubscribeResponse response = port.subscribe(header, body);
-
-    log.info("Successfully subscribed to topic {} with id {}", topic, response.getSubscriptionID());
 
     return response.getSubscriptionID();
   }

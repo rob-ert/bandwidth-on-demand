@@ -29,6 +29,7 @@ import java.util.Enumeration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -51,58 +52,47 @@ public class NotificationSubscriber {
 
   private Logger logger = LoggerFactory.getLogger(NotificationSubscriber.class);
 
-  private String serviceTopicSubscribeId;
-  private String faultTopicSubscribeId;
+  private volatile TopicSubscription serviceTopicSubscription;
+  private volatile TopicSubscription faultTopicSubscription;
 
-  private int flatlineTolerance; // in seconds
+  private final int flatlineToleranceSeconds;
 
-  private NotificationProducerClient notificationClient;
-
-  private NotificationConsumerHttp notificationConsumerHttp;
-
-  private String endPointAddress;
+  @Resource private NotificationProducerClient notificationClient;
+  @Resource private NotificationConsumerHttp notificationConsumerHttp;
 
   @Autowired
-  public NotificationSubscriber(@Value("${nbi.onecontrol.notification.flatline.tolerance}") int flatlineTolerance,
-                                @Value("${nbi.onecontrol.notification.consumer.endpoint}") String endPointAddress,
-                                NotificationProducerClient notificationClient, NotificationConsumerHttp notificationConsumerHttp) {
-    this.flatlineTolerance = flatlineTolerance;
-    this.endPointAddress = endPointAddress;
-    this.notificationClient = notificationClient;
-    this.notificationConsumerHttp = notificationConsumerHttp;
+  public NotificationSubscriber(
+      @Value("${nbi.onecontrol.notification.flatline.tolerance}") int flatlineTolerance,
+      @Value("${nbi.onecontrol.notification.consumer.endpoint}") String endPointAddress) {
+
+    this.flatlineToleranceSeconds = flatlineTolerance;
+
+    String consumerEndpoint = getConsumerEndpoint(endPointAddress);
+
+    logger.info("Using '{}' as our callback endpoint", consumerEndpoint);
+
+    this.serviceTopicSubscription = new TopicSubscription(NotificationTopic.SERVICE, consumerEndpoint);
+    this.faultTopicSubscription = new TopicSubscription(NotificationTopic.FAULT, consumerEndpoint);
   }
 
   @PostConstruct
   public void subscribe() {
-    try {
-      String endPoint = getEndPoint();
-
-      logger.info("Using '{}' as our callback endpoint", endPoint);
-
-      serviceTopicSubscribeId = notificationClient.subscribe(NotificationTopic.SERVICE, endPoint);
-      faultTopicSubscribeId = notificationClient.subscribe(NotificationTopic.FAULT, endPoint);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Could not subscribe to MTOSI/OneControl notifications", e);
-    }
+    serviceTopicSubscription.subscribe();
+    faultTopicSubscription.subscribe();
   }
 
   @PreDestroy
   public void unsubscribe() {
-    if (!Strings.isNullOrEmpty(serviceTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.SERVICE, serviceTopicSubscribeId);
-    }
-    if (!Strings.isNullOrEmpty(faultTopicSubscribeId)) {
-      unsubscribe(NotificationTopic.FAULT, faultTopicSubscribeId);
-    }
+    serviceTopicSubscription.unsubscribe();
+    faultTopicSubscription.unsubscribe();
   }
 
   public boolean isHealthy() {
-    // the last time a notification was received may not be more than {tolerance} seconds ago
-    return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineTolerance).isAfterNow();
+    return notificationConsumerHttp.getTimeOfLastHeartbeat().plusSeconds(flatlineToleranceSeconds).isAfterNow();
   }
 
   /**
-   * Reconnects when the heartbeat is lost
+   * Reconnects when the heart beat is lost
    */
   @Scheduled(initialDelay = 30000, fixedDelayString = "${nbi.onecontrol.notification.monitor.interval}")
   public void monitor() {
@@ -115,8 +105,8 @@ public class NotificationSubscriber {
     }
   }
 
-  private String getEndPoint() {
-    if (Strings.isNullOrEmpty(endPointAddress)) {
+  private String getConsumerEndpoint(String endpoint) {
+    if (Strings.isNullOrEmpty(endpoint)) {
       Optional<InetAddress> address = getOneControlInetAddress();
       if (!address.isPresent()) {
         logger.warn("Could not determine MTOSI/OneControl consumer end point");
@@ -125,7 +115,7 @@ public class NotificationSubscriber {
       return getEndPoint(address.get());
     }
 
-    return endPointAddress;
+    return endpoint;
   }
 
   private String getEndPoint(InetAddress address) {
@@ -152,12 +142,43 @@ public class NotificationSubscriber {
     return Optional.absent();
   }
 
-  private void unsubscribe(NotificationTopic topic, String subscriptionId) {
-    try {
-      notificationClient.unsubscribe(topic, subscriptionId);
-      logger.info("Successfully un-subscribed from {} topic with id {}", topic, subscriptionId);
-    } catch (UnsubscribeException e) {
-      logger.warn("Un-subscribe to {} topic with id {} has failed: {}", topic, subscriptionId, e);
+  private final class TopicSubscription {
+    private final NotificationTopic topic;
+    private final String consumerEndpoint;
+
+    private Optional<String> subscriptionId = Optional.absent();
+
+    public TopicSubscription(NotificationTopic topic, String consumerEndpoint) {
+      this.topic = topic;
+      this.consumerEndpoint = consumerEndpoint;
+    }
+
+    public synchronized void unsubscribe() {
+      if (!subscriptionId.isPresent()) {
+        return;
+      }
+
+      try {
+        notificationClient.unsubscribe(topic, subscriptionId.get());
+        logger.info("Successfully un-subscribed from {} topic with id {}", topic, subscriptionId.get());
+        subscriptionId = Optional.absent();
+      } catch (UnsubscribeException e) {
+        logger.warn("Un-subscribe to {} topic with id {} has failed: {}", topic, subscriptionId.get(), e);
+      }
+    }
+
+    public synchronized void subscribe() {
+      if (subscriptionId.isPresent()) {
+        return;
+      }
+
+      try {
+        String subscribe = notificationClient.subscribe(topic, consumerEndpoint);
+        logger.info("Successfully subscribed to topic {} with id {}", topic, subscribe);
+        subscriptionId = Optional.of(subscribe);
+      } catch (Exception e) {
+        logger.error("Subscribe to {} topic failed: {}", topic, e);
+      }
     }
   }
 
