@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
@@ -38,17 +39,6 @@ import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.spec
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatAreTimedOutAndTransitionally;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -57,9 +47,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -78,6 +81,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -173,12 +177,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-    if (isDeleteAllowed(reservation, user).isAllowed() && reservation.getStatus().isTransitionState()) {
+    ElementActionView deleteAllowed = isDeleteAllowed(reservation, user);
+
+    if (deleteAllowed.isAllowed()) {
       doUpdateStatus(reservation, UpdatedReservationStatus.cancelling(cancelReason));
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId()));
     }
 
-    log.info("Not allowed to cancel reservation {} with state {}", reservation.getName(), reservation.getStatus());
+    log.info("Not allowed to cancel '{}' with state {}, because: {}", reservation.getName(), reservation.getStatus(), deleteAllowed.getReasonKey());
 
     return Optional.absent();
   }
@@ -432,18 +438,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * A reservation is allowed to be delete for the following cases:
    * <ul>
-   * <li>a manager may delete a reservation to minimal one of his ports</li>
-   * <li>or</li>
-   * <li>a user may delete a reservation if he is a member of the
-   * virtualResourceGroup of the reservation</li>
-   * <li>and</li>
-   * <li>the current status of the reservation must allow it</li>
+   *   <li>a manager may delete a reservation if it uses at least one of his ports</li>
+   *   <li>a user may delete a reservation if he is a member of the virtualResourceGroup of the reservation</li>
    * </ul>
    *
-   * @param reservation
-   *          {@link Reservation} to check
-   * @param role
-   *          {@link BodRole} the selected user role
    * @return true if the reservation is allowed to be delete, false otherwise
    */
   public ElementActionView isDeleteAllowed(Reservation reservation, RichUserDetails user) {
@@ -459,21 +457,29 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     if (role.isNocRole()) {
       return new ElementActionView(true, "label_cancel");
-    } else if (role.isManagerRole()
-        && (isReservationDeleteAllowedForPortAsManager(role, reservation.getSourcePort())
-            || isReservationDeleteAllowedForPortAsManager(role, reservation.getDestinationPort()))) {
+    } else if (role.isManagerRole() && isReservationDeleteAllowedAsManager(role, reservation)) {
       return new ElementActionView(true, "label_cancel");
-    } else if (role.isUserRole() && reservation.getVirtualResourceGroup().isPresent() && user.isMemberOf(reservation.getVirtualResourceGroup().get().getAdminGroup())) {
+    } else if (role.isUserRole() && isReservationDeleteAllowedAsUser(user, reservation)) {
       return new ElementActionView(true, "label_cancel");
     } else {
       return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
     }
   }
 
-  private boolean isReservationDeleteAllowedForPortAsManager(BodRole managerRole, ReservationEndPoint sourcePort) {
-    Preconditions.checkArgument(managerRole.isManagerRole(), "must be manager");
-    return sourcePort.getUniPort().isPresent()
-        && sourcePort.getUniPort().get().getPhysicalResourceGroup().getId().equals(managerRole.getPhysicalResourceGroupId().get());
+  private boolean isReservationDeleteAllowedAsUser(RichUserDetails user, Reservation reservation) {
+    return reservation.getVirtualResourceGroup().isPresent() && user.isMemberOf(reservation.getVirtualResourceGroup().get().getAdminGroup());
+  }
+
+  private boolean isReservationDeleteAllowedAsManager(BodRole managerRole, Reservation reservation) {
+    checkArgument(managerRole.isManagerRole(), "must be manager");
+
+    return isReservationDeleteAllowedForPortAsManager(managerRole, reservation.getSourcePort())
+        || isReservationDeleteAllowedForPortAsManager(managerRole, reservation.getDestinationPort());
+  }
+
+  private boolean isReservationDeleteAllowedForPortAsManager(BodRole managerRole, ReservationEndPoint endPoint) {
+    return endPoint.getUniPort().isPresent()
+        && endPoint.getUniPort().get().getPhysicalResourceGroup().getId().equals(managerRole.getPhysicalResourceGroupId().get());
   }
 
   public ElementActionView isEditAllowed(Reservation reservation, BodRole role) {
@@ -515,8 +521,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Will update the status of the specified reservation if it is different than its current
-   * @param reservationId
-   * @param newStatus
+   *
    * @throws org.springframework.dao.EmptyResultDataAccessException when no Reservation with the specified reservationId exists
    * @return the reservation containing the new status
    */
