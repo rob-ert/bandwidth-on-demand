@@ -35,15 +35,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import nl.surfnet.bod.domain.EnniPort;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
 import nl.surfnet.bod.domain.ReservationEndPoint;
