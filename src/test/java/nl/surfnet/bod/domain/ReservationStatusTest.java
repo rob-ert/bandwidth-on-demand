@@ -71,19 +71,19 @@ public class ReservationStatusTest {
 
   @Test
   public void forTheseStatesShouldDeletionBeAllowed() {
-    assertThat(REQUESTED.isDeleteAllowed(), is(false));
-    assertThat(RESERVED.isDeleteAllowed(), is(true));
-    assertThat(RUNNING.isDeleteAllowed(), is(true));
-    assertThat(AUTO_START.isDeleteAllowed(), is(true));
+    assertThat(REQUESTED.isCancelAllowed(), is(false));
+    assertThat(RESERVED.isCancelAllowed(), is(true));
+    assertThat(RUNNING.isCancelAllowed(), is(true));
+    assertThat(AUTO_START.isCancelAllowed(), is(true));
   }
 
   @Test
   public void forTheseStateShouldDeletionNotBeAllowed() {
-    assertThat(CANCELLED.isDeleteAllowed(), is(false));
-    assertThat(FAILED.isDeleteAllowed(), is(false));
-    assertThat(NOT_ACCEPTED.isDeleteAllowed(), is(false));
-    assertThat(PASSED_END_TIME.isDeleteAllowed(), is(false));
-    assertThat(SUCCEEDED.isDeleteAllowed(), is(false));
+    assertThat(CANCELLED.isCancelAllowed(), is(false));
+    assertThat(FAILED.isCancelAllowed(), is(false));
+    assertThat(NOT_ACCEPTED.isCancelAllowed(), is(false));
+    assertThat(PASSED_END_TIME.isCancelAllowed(), is(false));
+    assertThat(SUCCEEDED.isCancelAllowed(), is(false));
   }
 
   @Test

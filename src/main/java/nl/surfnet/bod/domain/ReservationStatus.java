@@ -59,7 +59,7 @@ public enum ReservationStatus {
     return TRANSITION_STATES.contains(this);
   }
 
-  public boolean isDeleteAllowed() {
+  public boolean isCancelAllowed() {
     return this != REQUESTED && isTransitionState();
   }
 

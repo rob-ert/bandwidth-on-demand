@@ -169,7 +169,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private void cancelActiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
     for (Reservation reservation : reservations) {
-      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed() && reservation.getStatus().isTransitionState() && StringUtils.hasText(reservation.getReservationId())) {
+      if (isCancelAllowed(reservation, user).isAllowed() && StringUtils.hasText(reservation.getReservationId())) {
         doUpdateStatus(reservation, UpdatedReservationStatus.cancelling("cancel active reservations due to port deletion"));
         nbiClient.cancelReservation(reservation.getReservationId());
       }
@@ -177,14 +177,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-    ElementActionView deleteAllowed = isDeleteAllowed(reservation, user);
+    ElementActionView cancelAction = isCancelAllowed(reservation, user);
 
-    if (deleteAllowed.isAllowed()) {
+    if (cancelAction.isAllowed()) {
       doUpdateStatus(reservation, UpdatedReservationStatus.cancelling(cancelReason));
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId()));
     }
 
-    log.info("Not allowed to cancel '{}' with state {}, because: {}", reservation.getName(), reservation.getStatus(), deleteAllowed.getReasonKey());
+    log.info("Not allowed to cancel '{}' with state {}, because: {}", reservation.getName(), reservation.getStatus(), cancelAction.getReasonKey());
 
     return Optional.absent();
   }
@@ -436,41 +436,42 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   /**
-   * A reservation is allowed to be delete for the following cases:
+   * A reservation is allowed to be cancelled when the state is a transition state and:
    * <ul>
-   *   <li>a manager may delete a reservation if it uses at least one of his ports</li>
-   *   <li>a user may delete a reservation if he is a member of the virtualResourceGroup of the reservation</li>
+   *   <li>a noc may always cancel a reservation</li>
+   *   <li>a manager may cancel a reservation if it uses at least one of his ports</li>
+   *   <li>a user may cancel a reservation if he is a member of the virtualResourceGroup of the reservation,
+   *       or if the virtualResourceGroup is empty he should be the user who created the reservation</li>
    * </ul>
    *
    * @return true if the reservation is allowed to be delete, false otherwise
    */
-  public ElementActionView isDeleteAllowed(Reservation reservation, RichUserDetails user) {
-    if (!reservation.getStatus().isDeleteAllowed()) {
+  public ElementActionView isCancelAllowed(Reservation reservation, RichUserDetails user) {
+    if (!reservation.getStatus().isCancelAllowed()) {
       return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
-    return isDeleteAllowedForUserOnly(reservation, user);
-  }
-
-  private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, RichUserDetails user) {
     BodRole role = user.getSelectedRole();
-
     if (role.isNocRole()) {
       return new ElementActionView(true, "label_cancel");
-    } else if (role.isManagerRole() && isReservationDeleteAllowedAsManager(role, reservation)) {
+    } else if (role.isManagerRole() && isCancelAllowedAsManager(role, reservation)) {
       return new ElementActionView(true, "label_cancel");
-    } else if (role.isUserRole() && isReservationDeleteAllowedAsUser(user, reservation)) {
+    } else if (role.isUserRole() && isCancelAllowedAsUser(user, reservation)) {
       return new ElementActionView(true, "label_cancel");
     } else {
       return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
     }
   }
 
-  private boolean isReservationDeleteAllowedAsUser(RichUserDetails user, Reservation reservation) {
-    return reservation.getVirtualResourceGroup().isPresent() && user.isMemberOf(reservation.getVirtualResourceGroup().get().getAdminGroup());
+  private boolean isCancelAllowedAsUser(RichUserDetails user, Reservation reservation) {
+    if (reservation.getVirtualResourceGroup().isPresent()) {
+      return user.isMemberOf(reservation.getVirtualResourceGroup().get().getAdminGroup());
+    } else {
+      return reservation.getUserCreated().equals(user.getNameId());
+    }
   }
 
-  private boolean isReservationDeleteAllowedAsManager(BodRole managerRole, Reservation reservation) {
+  private boolean isCancelAllowedAsManager(BodRole managerRole, Reservation reservation) {
     checkArgument(managerRole.isManagerRole(), "must be manager");
 
     return isReservationDeleteAllowedForPortAsManager(managerRole, reservation.getSourcePort())

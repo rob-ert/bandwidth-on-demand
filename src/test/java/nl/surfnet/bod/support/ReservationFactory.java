@@ -40,8 +40,8 @@ public class ReservationFactory {
   private Integer version;
   private String name = "Default name";
   private ReservationStatus status = AUTO_START;
-  private VirtualPort sourcePort;
-  private VirtualPort destinationPort;
+  private ReservationEndPoint sourcePort;
+  private ReservationEndPoint destinationPort;
   private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
   private DateTime endDateTime = startDateTime.plusDays(1).plus(WebUtils.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
@@ -57,16 +57,16 @@ public class ReservationFactory {
   private boolean noIds = false;
 
   public Reservation create() {
-    sourcePort = sourcePort == null ? createVirtualPort() : sourcePort;
-    destinationPort = destinationPort == null ? createVirtualPort() : destinationPort;
+    sourcePort = sourcePort == null ? createVirtualPortAsEndPoint() : sourcePort;
+    destinationPort = destinationPort == null ? createVirtualPortAsEndPoint() : destinationPort;
 
     Reservation reservation = new Reservation();
     reservation.setId(id);
     reservation.setVersion(version);
     reservation.setName(name);
     reservation.setStatus(status);
-    reservation.setSourcePort(new ReservationEndPoint(sourcePort));
-    reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
+    reservation.setSourcePort(sourcePort);
+    reservation.setDestinationPort(destinationPort);
     reservation.setStartDateTime(startDateTime);
     reservation.setEndDateTime(endDateTime);
     reservation.setUserCreated(userCreated);
@@ -107,14 +107,14 @@ public class ReservationFactory {
     return virtualResourceGroup;
   }
 
-  private VirtualPort createVirtualPort() {
+  private ReservationEndPoint createVirtualPortAsEndPoint() {
     VirtualPortFactory factory = new VirtualPortFactory().setVirtualResourceGroup(createVirtualResourceGroup());
 
     if (noIds) {
       factory.withNodIds();
     }
 
-    return factory.create();
+    return new ReservationEndPoint(factory.create());
   }
 
   public ReservationFactory withProtection() {
@@ -153,12 +153,22 @@ public class ReservationFactory {
   }
 
   public ReservationFactory setSourcePort(VirtualPort sourcePort) {
-    this.sourcePort = sourcePort;
+    this.sourcePort = new ReservationEndPoint(sourcePort);
     return this;
   }
 
   public ReservationFactory setDestinationPort(VirtualPort endPort) {
-    this.destinationPort = endPort;
+    this.destinationPort = new ReservationEndPoint(endPort);
+    return this;
+  }
+
+  public ReservationFactory setSourcePort(ReservationEndPoint source) {
+    this.sourcePort = source;
+    return this;
+  }
+
+  public ReservationFactory setDestinationPort(ReservationEndPoint dest) {
+    this.destinationPort = dest;
     return this;
   }
 

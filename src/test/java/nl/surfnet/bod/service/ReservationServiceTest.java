@@ -37,24 +37,31 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
@@ -450,6 +457,23 @@ public class ReservationServiceTest {
     final Collection<ReservationArchive> flattenedReservations = subject.transformToReservationArchives(reservations);
 
     assertThat(flattenedReservations, hasSize(10));
+  }
+
+  @Test
+  public void cancel_should_be_allowed_when_user_created_reservation() {
+    RichUserDetails userAllowed = new RichUserDetailsFactory().addUserRole().setUsername("name-id").create();
+    RichUserDetails userDenied = new RichUserDetailsFactory().addUserRole().setUsername("some-other-name-id").create();
+
+    Reservation reservation = new ReservationFactory()
+      .setSourcePort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.<Integer>absent()))
+      .setDestinationPort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.<Integer>absent()))
+      .setUserCreated("name-id").create();
+
+    ElementActionView cancelAllowed = subject.isCancelAllowed(reservation, userAllowed);
+    assertThat(cancelAllowed.isAllowed(), is(true));
+
+    ElementActionView cancelDenied = subject.isCancelAllowed(reservation, userDenied);
+    assertThat(cancelDenied.isAllowed(), is(false));
   }
 
 }
