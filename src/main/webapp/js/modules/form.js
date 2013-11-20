@@ -44,14 +44,16 @@ app.form = function(){
         $('a[data-form]').on('click', function(event) {
 
             var errorMessage = 'Sorry, action failed.',
-                successMessage = $(this).attr('data-success');
+                successMessage = $(this).attr('data-success'),
+                reload = $(this).attr('data-reload');
 
             var post = function(url, data) {
                 $.post(url, data)
                 .success(function() {
                     if (successMessage) {
                         app.message.showInfo(successMessage);
-                    } else {
+                    }
+                    if (reload === 'true') {
                         window.location.reload(true);
                     }
                 })

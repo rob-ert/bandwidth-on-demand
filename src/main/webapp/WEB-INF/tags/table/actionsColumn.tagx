@@ -17,6 +17,7 @@
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteReload" type="java.lang.Boolean" required="false" rtexprvalue="true" />
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
@@ -48,6 +49,9 @@
     <c:if test="${empty updateUrl}">
         <c:set var="updateUrl" value="/edit" />
     </c:if>
+    <c:if test="${empty deleteReload}">
+        <c:set var="deleteReload" value="${empty successMessageCode}" />
+    </c:if>
     <spring:message code="${labelCode}" var="label" />
 
     <td class="center actions-column">
@@ -74,7 +78,7 @@
                 <c:when test="${not empty successMessageCode and deleteEnabled}">
                     <spring:message code="${successMessageCode}" arguments="${item['name']}" var="successMessage" />
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
-                        data-confirm="${delete_confirm_title}" data-success="${successMessage}">
+                        data-confirm="${delete_confirm_title}" data-success="${successMessage}" data-reload="${deleteReload}">
                         <i class="${deleteIcon}"><!--  --></i>
                     </a>
                     <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon" style="display: none">
@@ -83,7 +87,7 @@
                 </c:when>
                 <c:when test="${empty successMessageCode and deleteEnabled}">
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
-                        data-confirm="${delete_confirm_title}">
+                        data-confirm="${delete_confirm_title}" data-reload="${deleteReload}">
                         <i class="${deleteIcon}"><!--  --></i>
                     </a>
                     <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon" style="display: none">
@@ -93,7 +97,7 @@
                 <c:when test="${not empty successMessageCode and not deleteEnabled}">
                     <spring:message code="${successMessageCode}" arguments="${item['name']}" var="successMessage" />
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
-                        data-confirm="${delete_confirm_title}" data-success="${successMessage}" style="display: none">
+                        data-confirm="${delete_confirm_title}" data-success="${successMessage}" style="display: none" data-reload="${deleteReload}">
                         <i class="${deleteIcon}"><!--  --></i>
                     </a>
                     <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">
@@ -102,7 +106,7 @@
                 </c:when>
                 <c:when test="${empty successMessageCode and not deleteEnabled}">
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true"
-                        data-confirm="${delete_confirm_title}" style="display: none">
+                        data-confirm="${delete_confirm_title}" style="display: none" data-reload="${deleteReload}">
                         <i class="${deleteIcon}"><!--  --></i>
                     </a>
                     <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">
