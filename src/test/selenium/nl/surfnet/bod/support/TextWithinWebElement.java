@@ -33,6 +33,7 @@ public class TextWithinWebElement implements Probe {
 
   private boolean satisfied;
   private String regex;
+  private String lastTextSample;
 
   public static TextWithinWebElement forText(WebElement element, String text) {
     return new TextWithinWebElement(element, Pattern.quote(text));
@@ -50,7 +51,8 @@ public class TextWithinWebElement implements Probe {
 
   @Override
   public void sample() {
-    satisfied = pattern.matcher(element.getText()).find();
+    lastTextSample = element.getText();
+    satisfied = pattern.matcher(lastTextSample).find();
   }
 
   @Override
@@ -60,7 +62,7 @@ public class TextWithinWebElement implements Probe {
 
   @Override
   public String message() {
-    return String.format("Expected to find regex '%s' in '%s', but could not", regex, element.getText());
+    return String.format("Expected to find regex '%s' in '%s', but could not", regex, lastTextSample);
   }
 
 }
