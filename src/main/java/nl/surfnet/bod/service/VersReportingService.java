@@ -24,10 +24,17 @@ package nl.surfnet.bod.service;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -35,9 +42,10 @@ import nl.surfnet.bod.vers.SURFnetErStub;
 import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.joda.time.YearMonth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +57,6 @@ import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.ErInsertReportResponseDocument.ErInsertReportResponse;
 import surfnet_er.InsertReportInput;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 
 @Service
 public class VersReportingService {
@@ -99,14 +104,13 @@ public class VersReportingService {
   }
 
   /**
-   * Simply tests if the wsdl of the vers reporting service can be retrieved
+   * Simply tests if the wsdl of the VERS reporting service can be retrieved
    *
    * @return true if so, false otherwise
    */
   public boolean isWsdlAvailable() {
-    try {
-      HttpResponse response = new DefaultHttpClient().execute(new HttpGet(serviceURL + "?wsdl"));
-
+    try (CloseableHttpClient client = HttpClients.createDefault();
+         CloseableHttpResponse response = client.execute(new HttpGet(serviceURL + "?wsdl"))) {
       return HttpStatus.SC_OK == response.getStatusLine().getStatusCode();
     } catch (IOException e) {
       logger.warn("Error performing healthcheck on Vers", e);

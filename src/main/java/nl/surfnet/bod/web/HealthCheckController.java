@@ -51,9 +51,10 @@ import nl.surfnet.bod.service.VersReportingService;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
@@ -129,11 +130,11 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
   private final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
     @Override
     public ServiceState healthy() throws IOException {
-      DefaultHttpClient client = new DefaultHttpClient();
-      HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
-      HttpResponse response = client.execute(httpGet);
-      httpGet.releaseConnection();
-      return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN ? SUCCEEDED : FAILED;
+      HttpGet request = new HttpGet(environment.getOauthServerUrl() + "/admin");
+      try (CloseableHttpClient client = HttpClients.createDefault();
+          CloseableHttpResponse response = client.execute(request)) {
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN ? SUCCEEDED : FAILED;
+      }
     }
 
     @Override

@@ -50,8 +50,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+  private CloseableHttpClient httpClient = HttpClients.createMinimal(new PoolingHttpClientConnectionManager());
 
   @Value("${sab.endpoint}")
   private String sabEndPoint;

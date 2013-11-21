@@ -62,10 +62,10 @@ import nl.surfnet.bod.util.XmlUtils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -284,17 +284,14 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
   @Test
   public void nsiTopologyShouldBeValidAgainstCurrentXSD() throws Exception {
-
     final String url = BodWebDriver.URL_UNDER_TEST + "/nsi-topology";
-    HttpClient httpclient = new DefaultHttpClient();
 
     SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     URL schemaFileUrl = this.getClass().getResource("/topology/nsi-ext.xsd");
     Schema schema = schemaFactory.newSchema(new File(schemaFileUrl.toURI()));
 
-    try {
-      HttpGet httpget = new HttpGet(url);
-      HttpResponse response = httpclient.execute(httpget);
+    try (CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpResponse response = httpclient.execute(new HttpGet(url))) {
       HttpEntity entity = response.getEntity();
 
       Header header = response.getLastHeader("Content-Type");
@@ -305,8 +302,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       LOG.debug("Response content: " + xml);
       Validator validator = schema.newValidator();
       validator.validate(new StreamSource(new StringReader(xml)));
-    } finally {
-      httpclient.getConnectionManager().shutdown();
     }
   }
 

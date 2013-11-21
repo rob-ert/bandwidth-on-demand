@@ -33,20 +33,38 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.BodAccount;
-import nl.surfnet.bod.domain.oauth.*;
+import nl.surfnet.bod.domain.oauth.AccessToken;
+import nl.surfnet.bod.domain.oauth.AccessTokenResponse;
+import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.domain.oauth.VerifiedToken;
+import nl.surfnet.bod.domain.oauth.VerifyTokenResponse;
 import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.HttpUtils;
 
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -55,11 +73,6 @@ import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.*;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -76,7 +89,7 @@ public class OAuthServerService {
   @Resource
   private BodAccountRepo bodAccountRepo;
 
-  private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+  private final CloseableHttpClient httpClient = HttpClients.createMinimal(new PoolingHttpClientConnectionManager());
 
   public Optional<VerifiedToken> getVerifiedToken(String accessToken) {
     if (Strings.isNullOrEmpty(accessToken)) {
