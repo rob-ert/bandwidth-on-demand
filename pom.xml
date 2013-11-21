@@ -17,7 +17,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <!-- Upgrading breaks async support. https://bugs.eclipse.org/bugs/show_bug.cgi?id=410893 -->
         <jetty.version>8.1.13.v20130916</jetty.version>
-        <spring-security.version>3.2.0.RC1</spring-security.version>
+        <spring-security.version>3.2.0.RC2</spring-security.version>
         <tiles.version>2.2.2</tiles.version>
         <selenium.version>2.37.1</selenium.version>
         <flyway.version>2.2.1</flyway.version>
