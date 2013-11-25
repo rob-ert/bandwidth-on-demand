@@ -27,8 +27,14 @@ import static com.google.common.base.Preconditions.checkState;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.xml.XMLConstants;
@@ -41,14 +47,17 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.HttpUtils;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -64,8 +73,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class SabEntitlementsHandler implements EntitlementsHandler {
 
   private static final String STATUS_MESSAGE_NO_ROLES = "Could not find any roles for given NameID";
@@ -79,27 +86,19 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
   private static final String XPATH_SAML_CONDITIONS = "//saml:Conditions";
   private static final String XPATH_ISSUE_INSTANT = "//saml:Assertion/@IssueInstant";
 
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private CloseableHttpClient httpClient = HttpClients.createMinimal(new PoolingHttpClientConnectionManager());
 
-  @Value("${sab.endpoint}")
-  private String sabEndPoint;
+  @Value("${sab.endpoint}") private String sabEndPoint;
+  @Value("${sab.user}") private String sabUser;
+  @Value("${sab.password}") private String sabPassword;
+  @Value("${sab.issuer}") private String sabIssuer;
+  @Value("${sab.role}") private String sabRole;
 
-  @Value("${sab.user}")
-  private String sabUser;
-
-  @Value("${sab.password}")
-  private String sabPassword;
-
-  @Value("${sab.issuer}")
-  private String sabIssuer;
-
-  @Value("${sab.role}")
-  private String sabRole;
-
-  @Resource
-  private Environment bodEnvironment;
+  @Resource private Environment bodEnvironment;
 
   @Override
   public List<String> checkInstitutes(String nameId) {
@@ -110,13 +109,11 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
 
     String messageId = UUID.randomUUID().toString();
 
-    try {
-      HttpPost httpPost = new HttpPost(sabEndPoint);
-      httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
-      httpPost.setEntity(new StringEntity(createRequest(messageId, sabIssuer, nameId)));
+    HttpPost httpPost = new HttpPost(sabEndPoint);
+    httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
+    httpPost.setEntity(createRequest(messageId, sabIssuer, nameId));
 
-      HttpResponse response = httpClient.execute(httpPost);
-
+    try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
       if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
         return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
       } else {
@@ -125,9 +122,9 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
         return Collections.emptyList();
       }
     } catch (XPathExpressionException | IOException e) {
-      throw new RuntimeException(e);
+      logger.error("Failed to check SaB institutes for {}: {}", nameId, e);
+      return Collections.emptyList();
     }
-
   }
 
   private boolean hasValidConditions(Document document) throws XPathExpressionException {
@@ -156,29 +153,26 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
     boolean result = issueInstant.isAfter(notBeforeOrAfter) && issueInstant.isBefore(notOnOrAfter);
 
     if (!result) {
-      logger.warn("IssueInstant [{}] not in expected timeframe [{}] and [{}]", issueInstant, notBeforeOrAfter,
-          notOnOrAfter);
+      logger.warn("IssueInstant [{}] not in expected timeframe [{}] and [{}]", issueInstant, notBeforeOrAfter, notOnOrAfter);
     }
 
     return result;
   }
 
   @VisibleForTesting
-  String createRequest(String messageId, String issuer, String nameId) {
+  StringEntity createRequest(String messageId, String issuer, String nameId) {
     String template;
     try {
-      template = IOUtils.toString(this.getClass().getResourceAsStream(REQUEST_TEMPLATE_LOCATION), "UTF-8");
+      template = IOUtils.toString(this.getClass().getResourceAsStream(REQUEST_TEMPLATE_LOCATION), DEFAULT_CHARSET.name());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
-    return MessageFormat.format(template, messageId, issuer, nameId);
+    return new StringEntity(MessageFormat.format(template, messageId, issuer, nameId), ContentType.create("text/xml", DEFAULT_CHARSET));
   }
 
   @VisibleForTesting
-  List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream)
-      throws XPathExpressionException {
-
+  List<String> getInstitutesWhichHaveBoDAdminEntitlement(String messageId, InputStream responseStream) throws XPathExpressionException {
     Document document = createDocument(responseStream);
 
     checkStatusCodeAndMessageIdOrFail(document, messageId);
@@ -222,8 +216,7 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
     String responseString;
     try {
       responseString = IOUtils.toString(responseStream);
-    }
-    catch (IOException ioExc) {
+    } catch (IOException ioExc) {
       throw new RuntimeException(ioExc);
     }
 
@@ -239,8 +232,7 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
     return document;
   }
 
-  private void checkStatusCodeAndMessageIdOrFail(Document document, String inResponseToIdToMatch)
-      throws XPathExpressionException {
+  private void checkStatusCodeAndMessageIdOrFail(Document document, String inResponseToIdToMatch) throws XPathExpressionException {
     XPath xPath = getXPath();
 
     String statusCode = getStatusCode(document, xPath);

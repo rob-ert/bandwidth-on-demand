@@ -39,7 +39,9 @@ import javax.xml.xpath.XPathExpressionException;
 import nl.surfnet.bod.sab.SabEntitlementsHandler;
 import nl.surfnet.bod.util.Environment;
 
+import org.apache.http.ParseException;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +81,8 @@ public class SabEntitlementsHandlerTest {
   }
 
   @Test
-  public void shouldCreateRequestWithParameters() {
-    String request = subject.createRequest(REQ_ID, ISSUER, NAME_ID);
+  public void shouldCreateRequestWithParameters() throws ParseException, IOException {
+    String request = EntityUtils.toString(subject.createRequest(REQ_ID, ISSUER, NAME_ID));
 
     assertThat(request, containsString("ID=\"" + REQ_ID));
     assertThat(request, containsString(NAME_ID + "</saml:NameID>"));

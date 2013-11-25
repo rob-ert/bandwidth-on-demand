@@ -58,20 +58,11 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   @Value("${os.group.appmanager}")
   private String appManagerGroupId;
 
-  @Resource
-  private GroupService openSocialGroupService;
-
-  @Resource
-  private GroupService sabGroupService;
-
-  @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Resource
-  private BodAccountRepo bodAccountRepo;
+  @Resource private GroupService openSocialGroupService;
+  @Resource private GroupService sabGroupService;
+  @Resource private PhysicalResourceGroupService physicalResourceGroupService;
+  @Resource private VirtualResourceGroupService virtualResourceGroupService;
+  @Resource private BodAccountRepo bodAccountRepo;
 
   @Override
   @Transactional
@@ -109,7 +100,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   /**
    * Determines for which userGroups there is a {@link PhysicalResourceGroup}
    * related and creates a {@link BodRole} based on that information.
-   * 
+   *
    * @param Collection
    *          <UserGroup> groups to process
    * @return List<BodRole> List with roles sorted on the roleName

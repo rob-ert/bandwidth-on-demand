@@ -45,8 +45,7 @@ public class SabGroupService implements GroupService {
   static final String NAME_PREFIX = "BoD Administrator ";
   static final String DESCRIPTION_PREFIX = NAME_PREFIX + " of ";
 
-  @Resource
-  private EntitlementsHandler entitlementsHandler;
+  @Resource private EntitlementsHandler entitlementsHandler;
 
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
