@@ -57,13 +57,14 @@ import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -78,6 +79,8 @@ import org.springframework.scheduling.annotation.AsyncResult;
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
 
+  private static final int NSI_TEAR_DOWN_TIME = 10;
+
   @InjectMocks
   private ReservationService subject;
 
@@ -85,6 +88,12 @@ public class ReservationServiceTest {
   @Mock private ReservationToNbi reservationToNbiMock;
   @Mock private NbiClient nbiClientMock;
   @Mock private LogEventService logEventService;
+  @Mock private Environment environment;
+
+  @Before
+  public void setUp() {
+    when(environment.getNbiTeardownTime()).thenReturn(NSI_TEAR_DOWN_TIME);
+  }
 
   @After
   public void tearDown() {
@@ -205,14 +214,33 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void updateStatusShouldTransitionScheduledReservationToPassedEndTimeWhenUpdatedToSucceeded() {
+  public void updateStatusShouldTransitionScheduledReservationToFailedWhenUpdatedToSucceededBeforeScheduledEndTime() {
     DateTime now = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
     // MTOSI just returns SUCCEEDED as final state. We need to manage switching
-    // it to PASSED_END_TIME when reservation is not RUNNING.
+    // it to PASSED_END_TIME or FAILED when reservation is not yet RUNNING.
     Reservation reservation = new ReservationFactory()
         .setStatus(ReservationStatus.SCHEDULED)
         .setStartDateTime(now.minusHours(2))
-        .setEndDateTime(now.plusMinutes(10))
+        .setEndDateTime(now.plusMinutes(NSI_TEAR_DOWN_TIME))
+        .create();
+    when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
+
+    subject.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+  }
+
+  @Test
+  public void updateStatusShouldTransitionScheduledReservationToPassedEndTimeWhenUpdatedToSucceededAfterScheduledEndTime() {
+    DateTime now = DateTime.now();
+    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+    // MTOSI just returns SUCCEEDED as final state. We need to manage switching
+    // it to PASSED_END_TIME or FAILED when reservation is not yet RUNNING.
+    Reservation reservation = new ReservationFactory()
+        .setStatus(ReservationStatus.SCHEDULED)
+        .setStartDateTime(now.minusHours(2))
+        .setEndDateTime(now.plusMinutes(NSI_TEAR_DOWN_TIME - 1))
         .create();
     when(reservationRepoMock.getByReservationIdWithPessimisticWriteLock(reservation.getReservationId())).thenReturn(reservation);
 

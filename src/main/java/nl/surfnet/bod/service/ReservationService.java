@@ -77,11 +77,11 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -141,6 +141,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Resource private NbiClient nbiClient;
   @Resource private ReservationToNbi reservationToNbi;
   @Resource private LogEventService logEventService;
+  @Resource(name="bodEnvironment") private Environment environment;
 
   @PersistenceContext private EntityManager entityManager;
 
@@ -554,21 +555,30 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   /**
-   * MTOSI just returns SUCCEEDED as final state. We need to any non-error end
-   * state to PASSED_END_TIME or CANCELLED based on the current state of the
-   * reservation, or leave the status unchanged.
+   * MTOSI just returns SUCCEEDED as final state. We need to transition a
+   * non-error end state to PASSED_END_TIME or CANCELLED based on the current
+   * state of the reservation, or leave the status unchanged.
    */
   private UpdatedReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, UpdatedReservationStatus newStatus) {
     if (newStatus.getNewStatus().isEndState() && !newStatus.getNewStatus().isErrorState()) {
       ReservationStatus oldStatus = reservation.getStatus();
-      boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().isBeforeNow();
+      boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().minusMinutes(environment.getNbiTeardownTime()).isBeforeNow();
+
       if (oldStatus == ReservationStatus.CANCELLING) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
-      } else if (oldStatus == ReservationStatus.SCHEDULED) {
-        // MTOSI deletes reservations 10 minutes before the end time. Mark this as a PASSED_END_TIME result.
-        return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
-      } else if (passedEndTime && oldStatus.canTransition(ReservationStatus.RUNNING)) {
-        return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
+      } else if (oldStatus == ReservationStatus.REQUESTED) {
+        return UpdatedReservationStatus.notAccepted("not accepted by NBI within reservation grace period");
+      } else if (passedEndTime) {
+        if (oldStatus == ReservationStatus.RUNNING) {
+          return UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED);
+        } else if (oldStatus.canTransition(ReservationStatus.RUNNING)) {
+          return UpdatedReservationStatus.forNewStatus(ReservationStatus.PASSED_END_TIME);
+        }
+      } else if (oldStatus.canTransition(ReservationStatus.RUNNING) || oldStatus == ReservationStatus.RUNNING) {
+        // When MTOSI activation fails the reservation immediately transitions
+        // to TERMINATED without any intermediate steps. Mark this reservation
+        // as FAILED.
+        return UpdatedReservationStatus.forNewStatus(ReservationStatus.FAILED);
       }
     }
     return newStatus;
