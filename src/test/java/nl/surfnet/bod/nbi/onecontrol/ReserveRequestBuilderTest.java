@@ -39,6 +39,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
@@ -80,7 +82,6 @@ public class ReserveRequestBuilderTest {
     String startDateTime = MtosiUtils.findSscValue("StartTime", rfs.getDescribedByList()).get();
 
     assertThat(getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
-    assertThat(rfs.getDescribedByList(), hasItem(serviceCharacteristic("AdmissionControl", "Strict")));
     assertThat(rfs.getSapList(), hasSize(2));
 
     ServiceAccessPointType sourceSapList = rfs.getSapList().get(0);
@@ -92,7 +93,26 @@ public class ReserveRequestBuilderTest {
     assertThat(sourceSSCList, hasSize(8));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT)));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingFrom_Table_Priority", ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY)));
+  }
 
+  @Test
+  public void admission_control_should_be_set_to_loose_when_bandwidth_below_or_equal_thousand() {
+    for (Long bandwidth : Lists.newArrayList(1L, 10L, 500L, 1000L)) {
+      Reservation reservation = new ReservationFactory().setBandwidth(bandwidth).create();
+      ResourceFacingServiceType rfs = ReserveRequestBuilder.createBasicRfsData(reservation);
+
+      assertThat(rfs.getDescribedByList(), hasItem(serviceCharacteristic("AdmissionControl", "Loose")));
+    }
+  }
+
+  @Test
+  public void admission_control_should_be_set_to_strict_when_bandwidth_above_thousand() {
+    for (Long bandwidth : Lists.newArrayList(1001L, 5000L, 10000L)) {
+      Reservation reservation = new ReservationFactory().setBandwidth(bandwidth).create();
+      ResourceFacingServiceType rfs = ReserveRequestBuilder.createBasicRfsData(reservation);
+
+      assertThat(rfs.getDescribedByList(), hasItem(serviceCharacteristic("AdmissionControl", "Strict")));
+    }
   }
 
   @Test

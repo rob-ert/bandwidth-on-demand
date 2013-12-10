@@ -141,7 +141,7 @@ public class ReserveRequestBuilder {
       .withServiceState(ServiceStateType.RESERVED)
       .withDescribedByList(
         createSscValue("StartTime", convertToXml(reservation.getStartDateTime())),
-        createSscValue("AdmissionControl", "Strict"));
+        createSscValue("AdmissionControl", reservation.getBandwidth() <= 1000 ? "Loose" : "Strict"));
 
     return rfsData;
   }

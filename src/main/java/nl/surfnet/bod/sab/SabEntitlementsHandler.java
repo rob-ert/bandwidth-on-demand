@@ -298,7 +298,6 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
   }
 
   private class SabNamespaceResolver implements NamespaceContext {
-
     @Override
     public String getNamespaceURI(String prefix) {
 
