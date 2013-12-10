@@ -87,7 +87,6 @@ public class ReserveRequestBuilder {
 
     describedByList.add(createSscValue("InterfaceType", translate(endPoint.getPhysicalPort().getNbiPort().getInterfaceType())));
     describedByList.add(createSscValue("TrafficMappingTo_Table_IngressCIR", reservation.getBandwidth().toString()));
-    describedByList.add(createSscValue("ProtectionLevel", translate(reservation.getProtectionType())));
 
     return sap;
   }
@@ -133,7 +132,7 @@ public class ReserveRequestBuilder {
 
   @VisibleForTesting
   static ResourceFacingServiceType createBasicRfsData(Reservation reservation) {
-    ResourceFacingServiceType rfsData = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory().createResourceFacingServiceType()
+    ResourceFacingServiceType rfsData = new ResourceFacingServiceType()
       .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()))
       .withIsMandatory(true)
       .withIsStateful(true)
@@ -141,7 +140,8 @@ public class ReserveRequestBuilder {
       .withServiceState(ServiceStateType.RESERVED)
       .withDescribedByList(
         createSscValue("StartTime", convertToXml(reservation.getStartDateTime())),
-        createSscValue("AdmissionControl", reservation.getBandwidth() <= 1000 ? "Loose" : "Strict"));
+        createSscValue("AdmissionControl", reservation.getBandwidth() <= 1000 ? "Loose" : "Strict"),
+        createSscValue("ProtectionLevel", translate(reservation.getProtectionType())));
 
     return rfsData;
   }
