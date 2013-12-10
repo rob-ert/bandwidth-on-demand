@@ -36,11 +36,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
 import java.util.List;
-
 import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
@@ -49,7 +46,6 @@ import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
-
 import org.junit.Test;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
@@ -76,21 +72,29 @@ public class ReserveRequestBuilderTest {
 
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
 
-    assertRfs(rfs);
-    assertThat(rfs.getDescribedByList(), hasSize(2));
+    assertThat("name", rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
+    assertTrue("mandatory", rfs.isIsMandatory());
+    assertTrue("stateful", rfs.isIsStateful());
+    assertThat("adminState", rfs.getAdminState(), is(AdminStateType.UNLOCKED));
+    assertThat("serviceState", rfs.getServiceState(), is(ServiceStateType.RESERVED));
+    assertThat(rfs.getDescribedByList(), hasSize(3));
+
+    assertThat("protectionLevel", findSscValue("ProtectionLevel", rfs.getDescribedByList()), isPresent("Partially Protected"));
 
     String startDateTime = MtosiUtils.findSscValue("StartTime", rfs.getDescribedByList()).get();
-
     assertThat(getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
-    assertThat(rfs.getSapList(), hasSize(2));
 
+    assertThat(rfs.getSapList(), hasSize(2));
     ServiceAccessPointType sourceSapList = rfs.getSapList().get(0);
 
-    assertSourceSapList(sourceSapList);
+    assertThat(sourceSapList.getDescribedByList().get(0), serviceCharacteristic("TrafficMappingTableCount", TRAFFIC_MAPPING_TABLECOUNT));
+    assertThat(sourceSapList.getDescribedByList().get(1), serviceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
+
+    String tmttt = MtosiUtils.findSscValue("TrafficMappingTo_Table_TrafficClass", sourceSapList.getDescribedByList()).get();
+    assertThat(tmttt, is(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
 
     List<ServiceCharacteristicValueType> sourceSSCList = sourceSapList.getDescribedByList();
-
-    assertThat(sourceSSCList, hasSize(8));
+    assertThat(sourceSSCList, hasSize(7));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT)));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingFrom_Table_Priority", ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY)));
   }
@@ -127,7 +131,6 @@ public class ReserveRequestBuilderTest {
     assertThat(findSscValue("TrafficMappingFrom_Table_VID", sap.getDescribedByList()), isPresent("3"));
     assertThat(findSscValue("InterfaceType", sap.getDescribedByList()), isPresent("UNI"));
     assertThat(findSscValue("TrafficMappingTo_Table_IngressCIR", sap.getDescribedByList()), isPresent("1024"));
-    assertThat(findSscValue("ProtectionLevel", sap.getDescribedByList()), isPresent("Partially Protected"));
   }
 
   @Test
@@ -142,7 +145,6 @@ public class ReserveRequestBuilderTest {
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));
-    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ProtectionLevel", "Unprotected")));
   }
 
   @Test
@@ -172,23 +174,6 @@ public class ReserveRequestBuilderTest {
     assertThat(findRdnValue("ME", sap.getResourceRef()), isPresent("NeId"));
     assertThat(findRdnValue("PTP", sap.getResourceRef()), isPresent("/rack=1/shelf=1/slot=1/port=1"));
     assertThat(findRdnValue("CTP", sap.getResourceRef()), isPresent("/eth=ReservationId"));
-  }
-
-  private void assertSourceSapList(ServiceAccessPointType sourceSapList) {
-    assertThat(sourceSapList.getDescribedByList().get(0), serviceCharacteristic("TrafficMappingTableCount", TRAFFIC_MAPPING_TABLECOUNT));
-    assertThat(sourceSapList.getDescribedByList().get(1), serviceCharacteristic("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
-
-    String tmttt = MtosiUtils.findSscValue("TrafficMappingTo_Table_TrafficClass", sourceSapList.getDescribedByList()).get();
-
-    assertThat(tmttt, is(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
-  }
-
-  private void assertRfs(ResourceFacingServiceType rfs) {
-    assertThat(rfs.getName().getValue().getRdn().get(0).getValue(), is("123"));
-    assertTrue(rfs.isIsMandatory());
-    assertTrue(rfs.isIsStateful());
-    assertThat(rfs.getAdminState(), is(AdminStateType.UNLOCKED));
-    assertThat(rfs.getServiceState(), is(ServiceStateType.RESERVED));
   }
 
 }
