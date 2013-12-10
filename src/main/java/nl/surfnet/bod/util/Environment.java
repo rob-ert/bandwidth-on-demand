@@ -22,8 +22,9 @@
  */
 package nl.surfnet.bod.util;
 
+import javax.annotation.PostConstruct;
+import org.apache.commons.lang.Validate;
 import nl.surfnet.bod.domain.ProtectionType;
-
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -135,6 +136,12 @@ public class Environment {
     this.imitateShibbolethDisplayName = imitateShibbolethDisplayName;
     this.imitateShibbolethEmail = imitateShibbolethEmail;
     this.shibbolethLogoutUrl = shibbolethLogoutUrl;
+  }
+
+  @PostConstruct
+  public void validate() {
+    Validate.isTrue(nbiSetupTime >= 0, "nbi.setup.time must be non-negative");
+    Validate.isTrue(nbiTeardownTime >= 0, "nbi.teardown.time must be non-negative");
   }
 
   public String getOpenSocialUrl() {
@@ -305,5 +312,4 @@ public class Environment {
   public int getNbiTeardownTime() {
     return nbiTeardownTime;
   }
-
 }
