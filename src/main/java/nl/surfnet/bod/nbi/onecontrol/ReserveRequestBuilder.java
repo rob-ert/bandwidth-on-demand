@@ -104,7 +104,7 @@ public class ReserveRequestBuilder {
   private static String translate(ProtectionType protectionType) {
     switch (protectionType) {
     case PROTECTED:
-      return "Partially Protected";
+      return "Fully Protected";
     case UNPROTECTED:
       return "Unprotected";
     case REDUNDANT:
