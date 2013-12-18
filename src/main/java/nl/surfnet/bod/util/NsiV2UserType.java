@@ -32,7 +32,7 @@ public class NsiV2UserType<T> extends JaxbUserType<T> {
 
   static {
     try {
-      JAXB_CONTEXT = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._07.connection.types:org.ogf.schemas.nsi._2013._07.framework.headers:org.ogf.schemas.nsi._2013._07.framework.types");
+      JAXB_CONTEXT = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._12.connection.types:org.ogf.schemas.nsi._2013._12.framework.headers:org.ogf.schemas.nsi._2013._12.framework.types");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

@@ -53,7 +53,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderIdempotentMessageHandlerTest {

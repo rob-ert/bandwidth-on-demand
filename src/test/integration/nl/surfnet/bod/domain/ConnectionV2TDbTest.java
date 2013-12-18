@@ -33,7 +33,7 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;

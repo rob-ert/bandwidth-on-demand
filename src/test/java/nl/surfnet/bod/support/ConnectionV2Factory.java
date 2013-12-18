@@ -34,13 +34,12 @@ import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
-import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 
 
 public class ConnectionV2Factory {
@@ -53,7 +52,7 @@ public class ConnectionV2Factory {
   private ProtectionType protectionType = ProtectionType.PROTECTED;
   private Long id = 0L;
   private String description = "";
-  private P2PServiceBaseType path = new P2PServiceBaseType().withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source")).withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest"));
+  private P2PServiceBaseType path = new P2PServiceBaseType().withSourceSTP("networkId:source").withDestSTP("networkId:dest");
   private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
   private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
   private ProvisionStateEnumType provisionState;
@@ -113,13 +112,13 @@ public class ConnectionV2Factory {
     return this;
   }
 
-  public ConnectionV2Factory setDestinationStpId(String networkId, String localId) {
-    this.path.getDestSTP().withNetworkId(networkId).withLocalId(localId);
+  public ConnectionV2Factory setDestinationStpId(String stpId) {
+    this.path.setDestSTP(stpId);
     return this;
   }
 
-  public ConnectionV2Factory setSourceStpId(String networkId, String localId) {
-    this.path.getSourceSTP().withNetworkId(networkId).withLocalId(localId);
+  public ConnectionV2Factory setSourceStpId(String stpId) {
+    this.path.setSourceSTP(stpId);
     return this;
   }
 

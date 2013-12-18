@@ -30,8 +30,8 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
-import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

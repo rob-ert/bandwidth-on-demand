@@ -34,7 +34,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
 
 public class ReservationView {
   private final Long id;

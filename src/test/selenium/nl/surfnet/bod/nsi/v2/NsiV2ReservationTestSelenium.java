@@ -71,21 +71,20 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionServiceProvider;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._07.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
-import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionServiceProvider;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -107,11 +106,10 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private DateTime endTime;
   private ConnectionProviderPort connectionServiceProviderPort;
   private List<String> virtualPortIds;
-  private StpType sourceStp;
-  private StpType destStp;
+  private String sourceStp;
+  private String destStp;
 
   private NsiHelper nsiHelper = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "bod-selenium", "surfnet6:testbed", "urn:nl:surfnet:diensten:bod");
-  private ConnectionsV2 connectionsV2 = new ConnectionsV2(nsiHelper);
 
   @Override
   public void setupInitialData() {
@@ -145,8 +143,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
-    sourceStp = connectionsV2.toStpType(virtualPortIds.get(0));
-    destStp = connectionsV2.toStpType(virtualPortIds.get(1));
+    sourceStp = virtualPortIds.get(0);
+    destStp = virtualPortIds.get(1);
   }
 
   @After
@@ -169,13 +167,11 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
-    ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
         .withDirectionality(DirectionalityType.BIDIRECTIONAL)
         .withSourceSTP(sourceStp)
-        .withDestSTP(destStp)
-        .withSourceVLAN(VLAN_ID)
-        .withDestVLAN(VLAN_ID));
+        .withDestSTP(destStp));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();
@@ -232,13 +228,11 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withStartTime(XmlUtils.toGregorianCalendar(startTime))
         .withEndTime(XmlUtils.toGregorianCalendar(endTime)))
       .withServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
-    ConnectionsV2.addPointToPointService(criteria.getAny(), new EthernetVlanType()
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
       .withCapacity(100)
       .withDirectionality(DirectionalityType.BIDIRECTIONAL)
       .withSourceSTP(sourceStp)
-      .withDestSTP(destStp)
-      .withSourceVLAN(VLAN_ID)
-      .withDestVLAN(VLAN_ID));
+      .withDestSTP(destStp));
 
     // Initial reserve
     String reserveCorrelationId = generateCorrelationId();

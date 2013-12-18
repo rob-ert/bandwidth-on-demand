@@ -32,7 +32,7 @@ public class NsiV2Point2PointServiceUserType<T> extends JaxbUserType<T> {
 
   static {
     try {
-      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._07.services.point2point");
+      jaxbContext = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._12.services.point2point");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

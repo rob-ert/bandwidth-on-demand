@@ -28,20 +28,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
-import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2Point2PointServiceUserType;
 
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetBaseType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.EthernetVlanType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.ObjectFactory;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
-import org.ogf.schemas.nsi._2013._07.services.types.StpType;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._12.services.point2point.ObjectFactory;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
@@ -51,17 +46,8 @@ public final class ConnectionsV2 {
   private static final ObjectFactory P2P_OF = new ObjectFactory();
 
   public static final JaxbUserType<P2PServiceBaseType> P2PS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createP2Ps(null));
-  public static final JaxbUserType<EthernetBaseType> ETS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createEts(null));
-  public static final JaxbUserType<EthernetVlanType> EVTS_CONVERTER = new NsiV2Point2PointServiceUserType<>(P2P_OF.createEvts(null));
 
   private static final String P2P_NAMESPACE = P2PS_CONVERTER.getXmlRootElementName().getNamespaceURI();
-
-  private final NsiHelper nsiHelper;
-
-  @Autowired
-  public ConnectionsV2(NsiHelper nsiHelper) {
-    this.nsiHelper = nsiHelper;
-  }
 
   public static final Function<ConnectionV2, QuerySummaryResultType> toQuerySummaryResultType = new Function<ConnectionV2, QuerySummaryResultType>() {
     public QuerySummaryResultType apply(ConnectionV2 connection) {
@@ -76,24 +62,8 @@ public final class ConnectionsV2 {
         }
       };
 
-  public static String stpTypeToStpId(StpType type) {
-    return type.getLocalId();
-  }
-
-  public StpType toStpType(String localId) {
-    return new StpType().withNetworkId(nsiHelper.getUrnTopology()).withLocalId(localId);
-  }
-
   public static void addPointToPointService(Collection<Object> any, P2PServiceBaseType service) {
-    Element element;
-    if (service instanceof EthernetVlanType) {
-      element = EVTS_CONVERTER.toDomElement((EthernetVlanType) service);
-    } else if (service instanceof EthernetBaseType) {
-      element = ETS_CONVERTER.toDomElement((EthernetBaseType) service);
-    } else {
-      element = P2PS_CONVERTER.toDomElement(service);
-    }
-    any.add(element);
+    any.add(P2PS_CONVERTER.toDomElement(service));
   }
 
   public static Optional<P2PServiceBaseType> findPointToPointService(Collection<Object> any) {
@@ -101,13 +71,7 @@ public final class ConnectionsV2 {
       if (object instanceof Element) {
         Element element = (Element) object;
         if (P2P_NAMESPACE.equals(element.getNamespaceURI())) {
-          if (P2PS_CONVERTER.getXmlRootElementName().getLocalPart().equals(element.getLocalName())) {
-            return Optional.of(P2PS_CONVERTER.fromDomElement(element));
-          } else if (ETS_CONVERTER.getXmlRootElementName().getLocalPart().equals(element.getLocalName())) {
-            return Optional.<P2PServiceBaseType> of(ETS_CONVERTER.fromDomElement(element));
-          } else if (EVTS_CONVERTER.getXmlRootElementName().getLocalPart().equals(element.getLocalName())) {
-            return Optional.<P2PServiceBaseType> of(EVTS_CONVERTER.fromDomElement(element));
-          }
+          return Optional.of(P2PS_CONVERTER.fromDomElement(element));
         }
       }
     }

@@ -27,7 +27,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.ConnectionV2;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

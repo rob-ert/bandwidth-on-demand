@@ -41,24 +41,24 @@ import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2UserType;
 
 import org.apache.commons.io.IOUtils;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._07.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReserveTimeoutRequestType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory;
-import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory;
+import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.w3c.dom.Element;
 
 class Converters {
-  private static final org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._07.framework.headers.ObjectFactory();
-  private static final org.ogf.schemas.nsi._2013._07.connection.types.ObjectFactory BODY_OF = new org.ogf.schemas.nsi._2013._07.connection.types.ObjectFactory();
+  private static final org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory();
+  private static final org.ogf.schemas.nsi._2013._12.connection.types.ObjectFactory BODY_OF = new org.ogf.schemas.nsi._2013._12.connection.types.ObjectFactory();
 
   public static final JaxbUserType<ReservationConfirmCriteriaType> RESERVATION_CONFIRM_CRITERIA_TYPE = new ConnectionV2.ReservationConfirmCriteriaTypeUserType();
   public static final JaxbUserType<CommonHeaderType> COMMON_HEADER_CONVERTER = new NsiV2UserType<>(HEADER_OF.createNsiHeader(null));

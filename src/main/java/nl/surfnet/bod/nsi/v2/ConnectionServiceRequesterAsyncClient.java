@@ -36,7 +36,7 @@ import javax.xml.ws.Service.Mode;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
-import org.ogf.schemas.nsi._2013._07.connection.requester.ConnectionServiceRequester;
+import org.ogf.schemas.nsi._2013._12.connection.requester.ConnectionServiceRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

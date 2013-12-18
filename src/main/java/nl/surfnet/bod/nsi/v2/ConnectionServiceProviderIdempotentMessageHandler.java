@@ -41,8 +41,8 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;

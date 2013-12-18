@@ -53,9 +53,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceV2Test {
@@ -226,7 +226,7 @@ public class ConnectionServiceV2Test {
     connection.addNotification(new DataPlaneStateChangeRequestType().withNotificationId(1));
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
 
     assertThat(notifications, hasSize(2));
   }
@@ -245,21 +245,21 @@ public class ConnectionServiceV2Test {
     }
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
 
     assertThat(notifications, hasSize(4));
   }
 
   @Test
   public void queryNotification_should_only_post_back_notifications_that_are_in_range() {
-    final Optional<Integer> lowerBound = Optional.of(2);
-    final Optional<Integer> upperBound = Optional.of(3);
+    final Optional<Long> lowerBound = Optional.of(2L);
+    final Optional<Long> upperBound = Optional.of(3L);
     final String connectionId = "f00f";
     final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
     ConnectionV2 connection = new ConnectionV2Factory().create();
     connection.setConnectionId(connectionId);
 
-    for (int i = lowerBound.get() - 1; i <= upperBound.get() + 1; i++){
+    for (long i = lowerBound.get() - 1; i <= upperBound.get() + 1; i++){
       ErrorEventType notification = new ErrorEventType();
       notification.setNotificationId(i);
       connection.addNotification(notification);
@@ -277,7 +277,7 @@ public class ConnectionServiceV2Test {
     final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(null);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Integer>absent(), Optional.<Integer>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
 
     assertThat(notifications, empty());
   }

@@ -38,7 +38,7 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

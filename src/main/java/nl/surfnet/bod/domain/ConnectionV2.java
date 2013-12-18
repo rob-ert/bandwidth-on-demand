@@ -52,19 +52,8 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._07.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.*;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 
 @Entity
 @Indexed
@@ -275,8 +264,8 @@ public class ConnectionV2 extends AbstractConnection {
     this.criteria = criteria;
     Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(criteria);
     if (service.isPresent()) {
-      this.sourceStpId = ConnectionsV2.stpTypeToStpId(service.get().getSourceSTP());
-      this.destinationStpId = ConnectionsV2.stpTypeToStpId(service.get().getDestSTP());
+      this.sourceStpId = service.get().getSourceSTP();
+      this.destinationStpId = service.get().getDestSTP();
     }
   }
 

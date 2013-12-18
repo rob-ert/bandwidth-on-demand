@@ -35,21 +35,24 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.CREATED;
-import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.TERMINATED;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.PROVISIONED;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.RELEASED;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_FAILED;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_HELD;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_START;
-import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
+import static org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType.CREATED;
+import static org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType.TERMINATED;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType.PROVISIONED;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType.RELEASED;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType.RESERVE_FAILED;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType.RESERVE_HELD;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType.RESERVE_START;
+import static org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+
 import javax.xml.ws.Holder;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
@@ -59,6 +62,7 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,17 +73,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._07.connection.provider.QuerySummarySyncFailed;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.framework.types.TypeValuePairListType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
-import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
@@ -118,7 +119,6 @@ public class ConnectionServiceProviderV2WsTest {
 
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
     P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
-    service.getSourceSTP().setLabels(new TypeValuePairListType());
     criteria.getAny().clear();
     ConnectionsV2.addPointToPointService(criteria.getAny(), service);
     try {
@@ -135,7 +135,6 @@ public class ConnectionServiceProviderV2WsTest {
 
     ReservationRequestCriteriaType criteria = initialReservationCriteria();
     P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
-    service.getDestSTP().setLabels(new TypeValuePairListType());
     criteria.getAny().clear();
     ConnectionsV2.addPointToPointService(criteria.getAny(), service);
     try {
@@ -468,7 +467,7 @@ public class ConnectionServiceProviderV2WsTest {
     try {
       subject.querySummarySync(Collections.<String>emptyList(), null, headerHolder);
       fail("QuerySummarySyncFailed expected");
-    } catch (QuerySummarySyncFailed expected) {
+    } catch (org.ogf.schemas.nsi._2013._12.connection.provider.Error expected) {
       assertThat(expected.getFaultInfo().getServiceException().getText(), is(UNAUTHORIZED));
     }
   }
@@ -529,8 +528,8 @@ public class ConnectionServiceProviderV2WsTest {
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
-        .withSourceSTP(new StpType().withNetworkId("networkId").withLocalId("source"))
-        .withDestSTP(new StpType().withNetworkId("networkId").withLocalId("dest")));
+        .withSourceSTP("networkId:source")
+        .withDestSTP("networkId:dest"));
 
     return result;
   }

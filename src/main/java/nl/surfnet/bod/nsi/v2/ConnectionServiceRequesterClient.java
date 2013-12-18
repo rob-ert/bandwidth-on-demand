@@ -38,22 +38,22 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 import nl.surfnet.bod.util.JaxbUserType;
 
-import org.ogf.schemas.nsi._2013._07.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._07.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._07.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReserveTimeoutRequestType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -89,7 +89,7 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER);
   }
 
-  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final int notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
+  public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final long notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     ReserveTimeoutRequestType body = new ReserveTimeoutRequestType()
       .withConnectionId(connectionId)
       .withTimeoutValue(timeoutValue)
@@ -120,7 +120,7 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "provisionConfirmed", header, body, Converters.PROVISION_CONFIRMED_CONVERTER);
   }
 
-  public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final int notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
+  public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final long notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
     DataPlaneStateChangeRequestType body = new DataPlaneStateChangeRequestType()
       .withConnectionId(connectionId)
       .withNotificationId(notificationId)

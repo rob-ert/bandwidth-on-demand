@@ -41,9 +41,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NsiV2ReservationListenerTest {

@@ -56,33 +56,32 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort;
-import org.ogf.schemas.nsi._2013._07.connection.provider.QueryNotificationSyncFailed;
-import org.ogf.schemas.nsi._2013._07.connection.provider.QuerySummarySyncFailed;
-import org.ogf.schemas.nsi._2013._07.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QueryNotificationType;
-import org.ogf.schemas.nsi._2013._07.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationRequestCriteriaType;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._07.framework.types.ServiceExceptionType;
-import org.ogf.schemas.nsi._2013._07.framework.types.TypeValuePairType;
-import org.ogf.schemas.nsi._2013._07.framework.types.VariablesType;
-import org.ogf.schemas.nsi._2013._07.services.point2point.P2PServiceBaseType;
-import org.ogf.schemas.nsi._2013._07.services.types.DirectionalityType;
-import org.ogf.schemas.nsi._2013._07.services.types.StpType;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort;
+import org.ogf.schemas.nsi._2013._12.connection.provider.Error;
+import org.ogf.schemas.nsi._2013._12.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2013._12.connection.types.GenericErrorType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryResultResponseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2013._12.framework.types.TypeValuePairType;
+import org.ogf.schemas.nsi._2013._12.framework.types.VariablesType;
+import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
+import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("connectionServiceProviderWs_v2")
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._07.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/provider")
 @SchemaValidation // NOTE This does not validate headers, see #createRequestDetails for additional header validation.
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
@@ -159,12 +158,9 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     return connection;
   }
 
-  private void validateStp(StpType stp, String sourceDest) throws ServiceException {
-    if (!stp.getNetworkId().equals(nsiHelper.getUrnTopology())) {
-      throw unsupportedParameter(sourceDest + "STP::networkId", stp.getNetworkId());
-    }
-    if (stp.getLabels() != null ) {
-      throw unsupportedParameter(sourceDest + "STP::labels", stp.getLabels());
+  private void validateStp(String stpId, String sourceDest) throws ServiceException {
+    if (!stpId.startsWith(nsiHelper.getUrnTopology())) {
+      throw unsupportedParameter(sourceDest + "STP::networkId", stpId);
     }
   }
 
@@ -275,8 +271,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header)
-      throws QuerySummarySyncFailed {
+  public List<QuerySummaryResultType> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, Holder<CommonHeaderType> header) throws Error {
     try {
       checkOAuthScope(NsiScope.QUERY);
 
@@ -286,12 +281,12 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       return transform(connections, toQuerySummaryResultType);
     } catch (ServiceException e) {
-      throw toQuerySummarySyncFailed(e);
+      throw toError(e);
     }
   }
 
   @Override
-  public void queryNotification(String connectionId, Integer startNotificationId, Integer endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
+  public void queryNotification(String connectionId, Long startNotificationId, Long endNotificationId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
     checkOAuthScope(NsiScope.QUERY);
@@ -303,7 +298,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws QueryNotificationSyncFailed {
+  public QueryNotificationConfirmedType queryNotificationSync(QueryNotificationType queryNotificationSync, Holder<CommonHeaderType> header) throws Error {
     try {
       NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
@@ -314,12 +309,13 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
     } catch (ServiceException e) {
-      throw new QueryNotificationSyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
+      throw toError(e);
+      //throw new QueryNotificationSyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
     }
   }
 
-  private QuerySummarySyncFailed toQuerySummarySyncFailed(ServiceException e) {
-    return new QuerySummarySyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
+  private Error toError(ServiceException e) {
+    return new Error(e.getMessage(), new GenericErrorType().withServiceException(e.getFaultInfo()), e);
   }
 
   private ConnectionV2 getConnectionOrFail(String connectionId) throws ServiceException {
@@ -423,5 +419,18 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       .withSchedule(criteria.getSchedule())
       .withServiceType(criteria.getServiceType())
       .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
+  }
+
+  @Override
+  public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header)
+      throws ServiceException {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public List<QueryResultResponseType> queryResultSync(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws Error {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

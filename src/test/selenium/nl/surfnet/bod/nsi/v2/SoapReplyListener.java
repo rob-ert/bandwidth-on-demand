@@ -41,7 +41,7 @@ import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.util.JaxbUserType;
 
-import org.ogf.schemas.nsi._2013._07.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
