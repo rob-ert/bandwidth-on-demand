@@ -69,7 +69,7 @@ class ConnectionServiceRequesterClient {
   @Resource private ConnectionServiceRequesterAsyncClient asyncClient;
 
   private static String soapAction(String action) {
-    return "http://schemas.ogf.org/nsi/2013/07/connection/service/" + action;
+    return "http://schemas.ogf.org/nsi/2013/12/connection/service/" + action;
   }
 
   public void replyReserveConfirmed(CommonHeaderType header, String connectionId, String globalReservationId, String description, ReservationConfirmCriteriaType criteria, Optional<URI> replyTo) {

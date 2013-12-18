@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * which you obviously should only use poll() on.
  *
  */
-@WebServiceProvider(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/request")
+@WebServiceProvider(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/12/connection/request")
 @ServiceMode(Mode.MESSAGE)
 @SchemaValidation
 public class SoapReplyListener implements Provider<SOAPMessage> {

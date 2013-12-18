@@ -414,7 +414,7 @@ public class ConnectionV2 extends AbstractConnection {
 
   public static class NotificationBaseTypeUserType extends NsiV2UserType<NotificationBaseType> {
     public NotificationBaseTypeUserType() {
-      super(new QName("http://schemas.ogf.org/nsi/2013/07/connection/types", "notificationBaseType"), NotificationBaseType.class);
+      super(new QName("http://schemas.ogf.org/nsi/2013/12/connection/types", "notificationBaseType"), NotificationBaseType.class);
     }
   }
   public static class ReservationConfirmCriteriaTypeUserType extends NsiV2UserType<ReservationConfirmCriteriaType> {

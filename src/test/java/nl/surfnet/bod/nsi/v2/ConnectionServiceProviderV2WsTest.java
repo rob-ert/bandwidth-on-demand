@@ -114,38 +114,6 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
-  public void reserve_should_not_support_labels_in_sourceStp(){
-    Holder<String> connectionIdHolder = new Holder<>();
-
-    ReservationRequestCriteriaType criteria = initialReservationCriteria();
-    P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
-    criteria.getAny().clear();
-    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
-    try {
-      subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
-      fail("ServiceException expected");
-    } catch (ServiceException expected) {
-    }
-
-  }
-
-  @Test
-  public void reserve_should_not_support_labels_in_destStp(){
-    Holder<String> connectionIdHolder = new Holder<>();
-
-    ReservationRequestCriteriaType criteria = initialReservationCriteria();
-    P2PServiceBaseType service = ConnectionsV2.findPointToPointService(criteria).get();
-    criteria.getAny().clear();
-    ConnectionsV2.addPointToPointService(criteria.getAny(), service);
-    try {
-      subject.reserve(connectionIdHolder, "globalReservationId", "description", criteria, headerHolder);
-      fail("ServiceException expected");
-    } catch (ServiceException expected) {
-    }
-  }
-
-
-  @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
     Holder<String> connectionIdHolder = new Holder<>();
 

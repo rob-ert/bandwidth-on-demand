@@ -34,11 +34,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.util.Collections;
 import java.util.List;
-import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
@@ -47,6 +49,7 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +59,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
 import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceV2Test {

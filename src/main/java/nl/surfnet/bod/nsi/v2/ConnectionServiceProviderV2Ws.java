@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("connectionServiceProviderWs_v2")
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/07/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2013/12/connection/provider")
 @SchemaValidation // NOTE This does not validate headers, see #createRequestDetails for additional header validation.
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 

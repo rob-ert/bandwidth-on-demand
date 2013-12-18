@@ -80,7 +80,7 @@ class ConnectionServiceRequesterAsyncClient {
   }
 
   private Dispatch<SOAPMessage> createDispatcher() {
-    return new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/07/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
+    return new ConnectionServiceRequester(wsdlUrl()).createDispatch(new QName("http://schemas.ogf.org/nsi/2013/12/connection/requester", "ConnectionServiceRequesterPort"), SOAPMessage.class, Mode.MESSAGE);
   }
 
   private URL wsdlUrl() {
