@@ -22,9 +22,7 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -32,16 +30,15 @@ import org.springframework.stereotype.Component;
 @Profile({ "onecontrol", "onecontrol-offline" })
 public class OneControlInstance {
 
-  @Resource private OneControlConfiguration primaryConfiguration;
-  @Resource private OneControlConfiguration secondaryConfiguration;
+  private final OneControlConfiguration primaryConfiguration;
+  private final OneControlConfiguration secondaryConfiguration;
 
   private volatile OneControlConfiguration currentConfiguration;
 
-  public OneControlInstance() {
-  }
-
-  @PostConstruct
-  public void init() {
+  @Autowired
+  public OneControlInstance(OneControlConfiguration primaryConfiguration, OneControlConfiguration secondaryConfiguration) {
+    this.primaryConfiguration = primaryConfiguration;
+    this.secondaryConfiguration = secondaryConfiguration;
     currentConfiguration = primaryConfiguration;
   }
 

@@ -61,6 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -81,6 +82,9 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
 
   @Autowired(required = false)
   private NotificationSubscriber notificationSubscriber; // only when in onecontrol mode
+
+  @Value("${healthcheck.timeout.seconds}")
+  private int timeoutInSeconds;
 
   private org.springframework.core.env.Environment springEnvironment;
   private List<ServiceCheck> checks;
@@ -219,11 +223,10 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
     ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
     List<ServiceCheckResult> systems = new ArrayList<>();
     try {
-      List<Future<ServiceCheckResult>> futures = threadPool.invokeAll(tasks, 20, TimeUnit.SECONDS);
+      List<Future<ServiceCheckResult>> futures = threadPool.invokeAll(tasks, timeoutInSeconds, TimeUnit.SECONDS);
       for (int i = 0; i < futures.size(); ++i) {
         systems.add(toState(checks.get(i).getName(), futures.get(i)));
       }
-
     } catch (InterruptedException e) {
       everythingOk = false;
       logger.error("Error during calling healthchecks", e);

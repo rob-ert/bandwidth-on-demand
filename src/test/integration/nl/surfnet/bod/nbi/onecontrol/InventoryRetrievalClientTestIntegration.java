@@ -29,9 +29,13 @@ import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
+import javax.xml.bind.Marshaller;
+
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
+import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
@@ -44,12 +48,25 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 @Ignore
 public class InventoryRetrievalClientTestIntegration {
 
+  static {
+    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+  }
+
   private InventoryRetrievalClient subject;
 
   @Before
   public void setup() {
+    TestHelper.useMtosiEnv();
     PropertiesEnvironment testEnv = mtosiProperties();
-    subject = new InventoryRetrievalClientImpl();
+    OneControlConfiguration configuration = new OneControlConfiguration(
+        testEnv.getProperty("nbi.onecontrol.primary.inventory.retrieval.endpoint"),
+        testEnv.getProperty("nbi.onecontrol.primary.service.reserve.endpoint"),
+        testEnv.getProperty("nbi.onecontrol.primary.notification.producer.endpoint"));
+    subject = new InventoryRetrievalClientImpl(new OneControlInstance(configuration, null));
+    ((InventoryRetrievalClientImpl) subject).setConnectTimeout(60000);
+    ((InventoryRetrievalClientImpl) subject).setRequestTimeout(120000);
   }
 
   @Test
@@ -58,14 +75,6 @@ public class InventoryRetrievalClientTestIntegration {
     List<NbiPort> physicalPorts = subject.getPhysicalPorts();
 
     assertThat(physicalPorts, hasSize(greaterThan(0)));
-
-//    PhysicalPort firstPhysicalPort = physicalPorts.get(0);
-//    assertThat(firstPhysicalPort.getBodPortId(), startsWith("SAP-"));
-//    assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
-//    assertThat(firstPhysicalPort.getNmsPortSpeed(), containsString("0"));
-//    assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
-//    assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
-//    assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
 
     for (NbiPort physicalPort : physicalPorts) {
       System.err.println(physicalPort.getNmsSapName() + " " + physicalPort.getNmsPortId());
@@ -79,7 +88,7 @@ public class InventoryRetrievalClientTestIntegration {
   }
 
   @Test
-//  @Ignore("For dubugging..")
+  @Ignore
   public void getRfsInventory() {
     Optional<RfsList> inventory = subject.getRfsInventory();
     for (ResourceFacingServiceType rfs : inventory.get().getRfs()) {

@@ -29,7 +29,6 @@ import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.getSapName;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -45,6 +44,7 @@ import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -69,13 +69,18 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Resource private OneControlInstance oneControlInstance;
+  private final OneControlInstance oneControlInstance;
 
   @Value("${onecontrol.inventory.client.connect.timeout}")
   private int connectTimeout;
 
   @Value("${onecontrol.inventory.client.request.timeout}")
   private int requestTimeout;
+
+  @Autowired
+  public InventoryRetrievalClientImpl(OneControlInstance oneControlInstance) {
+    this.oneControlInstance = oneControlInstance;
+  }
 
   @Override
   public List<NbiPort> getPhysicalPorts() {
@@ -206,6 +211,14 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
     return port;
+  }
+
+  public void setConnectTimeout(int connectTimeout) {
+    this.connectTimeout = connectTimeout;
+  }
+
+  public void setRequestTimeout(int requestTimeout) {
+    this.requestTimeout = requestTimeout;
   }
 
 }

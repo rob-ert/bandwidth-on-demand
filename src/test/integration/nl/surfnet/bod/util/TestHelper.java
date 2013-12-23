@@ -92,10 +92,8 @@ public class TestHelper {
     PropertiesEnvironment environment = new PropertiesEnvironment();
     try {
       environment.load(new FileInputStream(String.format("src/main/resources/env-properties/bod-%s.properties", env)));
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       System.err.println("Could not load the environment properties file for " + env);
-      // Ignoring/skipping test
       assumeNoException(e);
     }
     return environment;
@@ -134,7 +132,6 @@ public class TestHelper {
   public static void useTestEnv() {
     useEnv("test");
   }
-
   public static void useAccEnv() {
     useEnv("acc");
     dontUserLog4jMailAppender();
@@ -143,9 +140,12 @@ public class TestHelper {
     useEnv("netherlight");
     dontUserLog4jMailAppender();
   }
-
   public static void useProdEnv() {
     useEnv("prod");
+    dontUserLog4jMailAppender();
+  }
+  public static void useMtosiEnv() {
+    useEnv("mtosi");
     dontUserLog4jMailAppender();
   }
 
