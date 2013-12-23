@@ -64,7 +64,12 @@ you could start a local server with selenium settings.
 ## Running the integration tests ##
 
 For the integration tests access to the `bod-env-properties` git repo
-is needed. You can run them with
+is needed and an empty db.
+
+    createuser bod-integration_user -R -S -D
+    createdb -E 'UTF-8' -O bod-integration_user bod-integration
+
+You can run them with
 
     mvn verify -Pintegration
 
