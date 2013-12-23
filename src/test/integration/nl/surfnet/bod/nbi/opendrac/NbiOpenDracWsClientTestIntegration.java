@@ -59,7 +59,7 @@ public class NbiOpenDracWsClientTestIntegration {
 
   @BeforeClass
   public static void testEnvironment() {
-    TestHelper.useAccEnv();
+    TestHelper.useProdEnv();
   }
 
   @AfterClass

@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.opendrac;
 
-import static nl.surfnet.bod.util.TestHelper.accProperties;
 import static nl.surfnet.bod.util.TestHelper.czechLightProperties;
 import static nl.surfnet.bod.util.TestHelper.netherLightProperties;
 import static nl.surfnet.bod.util.TestHelper.productionProperties;
@@ -61,16 +60,7 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
   }
 
   @Test
-  public void smokeTestAcceptance() {
-    initAcceptance();
-
-    List<NbiPort> allPorts = subject.findAllPorts();
-
-    assertThat(allPorts, hasSize(greaterThan(0)));
-  }
-
-  @Test
-  public void smokeTestProducation() {
+  public void smokeTestProduction() {
     initProduction();
 
     List<NbiPort> allPorts = subject.findAllPorts();
@@ -93,10 +83,6 @@ public class NbiOpenDracWsClientSmokeTestIntegration {
 
   private void initCzechLight() {
     init(czechLightProperties());
-  }
-
-  private void initAcceptance() {
-    init(accProperties());
   }
 
   private void initProduction() {
