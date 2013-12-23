@@ -316,6 +316,10 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
     this.springEnvironment = environment;
   }
 
+  public void setTimeoutInSeconds(int timeoutInSeconds) {
+    this.timeoutInSeconds = timeoutInSeconds;
+  }
+
   public interface ServiceCheck {
     ServiceState healthy() throws Exception;
 

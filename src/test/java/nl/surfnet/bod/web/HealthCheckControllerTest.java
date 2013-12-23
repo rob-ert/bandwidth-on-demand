@@ -79,7 +79,8 @@ public class HealthCheckControllerTest {
   @Before
   public void before() throws Exception {
     springEnvironment = mock(org.springframework.core.env.Environment.class);
-    this.subject.setEnvironment(springEnvironment);
+    subject.setEnvironment(springEnvironment);
+    subject.setTimeoutInSeconds(20);
     subject.afterPropertiesSet();
   }
 
