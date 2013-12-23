@@ -126,6 +126,9 @@ public class Environment {
   @Value("${nbi.teardown.time}")
   private int nbiTeardownTime;
 
+  @Value("${healthcheck.timeout.seconds}")
+  private int healthcheckTimeoutInSeconds;
+
   public Environment() {
   }
 
@@ -311,5 +314,9 @@ public class Environment {
 
   public int getNbiTeardownTime() {
     return nbiTeardownTime;
+  }
+
+  public int getHealthcheckTimeoutInSeconds() {
+    return healthcheckTimeoutInSeconds;
   }
 }

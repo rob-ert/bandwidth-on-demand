@@ -80,7 +80,6 @@ public class HealthCheckControllerTest {
   public void before() throws Exception {
     springEnvironment = mock(org.springframework.core.env.Environment.class);
     subject.setEnvironment(springEnvironment);
-    subject.setTimeoutInSeconds(20);
     subject.afterPropertiesSet();
   }
 
@@ -96,6 +95,7 @@ public class HealthCheckControllerTest {
 
     when(check.getName()).thenReturn("mock check");
     when(check.healthy()).thenReturn(ServiceState.SUCCEEDED);
+    when(bodEnvironment.getHealthcheckTimeoutInSeconds()).thenReturn(20);
 
     subject.index(model, httpServletResponse);
 

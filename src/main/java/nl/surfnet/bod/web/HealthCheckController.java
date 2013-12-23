@@ -83,9 +83,6 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
   @Autowired(required = false)
   private NotificationSubscriber notificationSubscriber; // only when in onecontrol mode
 
-  @Value("${healthcheck.timeout.seconds}")
-  private int timeoutInSeconds;
-
   private org.springframework.core.env.Environment springEnvironment;
   private List<ServiceCheck> checks;
 
@@ -223,7 +220,7 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
     ExecutorService threadPool = Executors.newFixedThreadPool(tasks.size());
     List<ServiceCheckResult> systems = new ArrayList<>();
     try {
-      List<Future<ServiceCheckResult>> futures = threadPool.invokeAll(tasks, timeoutInSeconds, TimeUnit.SECONDS);
+      List<Future<ServiceCheckResult>> futures = threadPool.invokeAll(tasks, environment.getHealthcheckTimeoutInSeconds(), TimeUnit.SECONDS);
       for (int i = 0; i < futures.size(); ++i) {
         systems.add(toState(checks.get(i).getName(), futures.get(i)));
       }
@@ -314,10 +311,6 @@ public class HealthCheckController implements InitializingBean, EnvironmentAware
   @Override
   public void setEnvironment(org.springframework.core.env.Environment environment) {
     this.springEnvironment = environment;
-  }
-
-  public void setTimeoutInSeconds(int timeoutInSeconds) {
-    this.timeoutInSeconds = timeoutInSeconds;
   }
 
   public interface ServiceCheck {
