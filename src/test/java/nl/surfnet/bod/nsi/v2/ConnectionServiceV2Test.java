@@ -34,10 +34,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
-
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -48,7 +47,6 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -139,6 +137,41 @@ public class ConnectionServiceV2Test {
     }
 
     verify(connectionRepoMock, never()).save(any(ConnectionV2.class));
+  }
+
+  @Test
+  public void reserveAbort_held_reservation_should_terminate_connection() {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(ReservationStateEnumType.RESERVE_HELD).create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    when(connectionRepoMock.findByConnectionId(connection.getConnectionId())).thenReturn(connection);
+
+    subject.asyncReserveAbort(connection.getConnectionId(), requestDetails, userDetails);
+
+    assertThat(connection.getReservationState(), is(ReservationStateEnumType.RESERVE_ABORTING));
+    verify(reservationServiceMock).cancelWithReason(eq(connection.getReservation()), any(String.class), eq(userDetails));
+  }
+
+  @Test
+  public void reserveAbort_failed_reservation_should_confirm_reserve_abort() {
+    reserveAbortWithState(ReservationStateEnumType.RESERVE_FAILED);
+  }
+
+  @Test
+  public void reserveAbort_timed_out_reservation_should_confirm_reserve_abort() {
+    reserveAbortWithState(ReservationStateEnumType.RESERVE_TIMEOUT);
+  }
+
+  private void reserveAbortWithState(ReservationStateEnumType reservationState) {
+    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(reservationState).create();
+    NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    when(connectionRepoMock.findByConnectionId(connection.getConnectionId())).thenReturn(connection);
+
+    subject.asyncReserveAbort(connection.getConnectionId(), requestDetails, userDetails);
+
+    assertThat(connection.getReservationState(), is(ReservationStateEnumType.RESERVE_START));
+    verify(connectionServiceRequesterMock).reserveAbortConfirmed(connection.getId(), requestDetails);
   }
 
   @Test

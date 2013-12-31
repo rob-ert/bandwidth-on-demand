@@ -131,10 +131,22 @@ public class ConnectionServiceV2 {
     ConnectionV2 connection = connectionRepo.findByConnectionId(connectionId);
 
     connection.setLastReservationRequestDetails(requestDetails);
-    connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
-    connectionRepo.save(connection);
-
-    terminate(connection, requestDetails, user);
+    switch (connection.getReservationState()) {
+    case RESERVE_HELD:
+      // Must terminate current reservation in NBI before confirming to requester.
+      connection.setReservationState(ReservationStateEnumType.RESERVE_ABORTING);
+      connectionRepo.save(connection);
+      terminate(connection, requestDetails, user);
+      break;
+    case RESERVE_FAILED:
+    case RESERVE_TIMEOUT:
+      connection.setReservationState(ReservationStateEnumType.RESERVE_START);
+      connectionRepo.save(connection);
+      connectionServiceRequester.reserveAbortConfirmed(connection.getId(), requestDetails);
+      break;
+    default:
+      throw new IllegalStateException("cannot abort reservation '" + connectionId + "' in " + connection.getReservationState() + " state");
+    }
   }
 
   @Async

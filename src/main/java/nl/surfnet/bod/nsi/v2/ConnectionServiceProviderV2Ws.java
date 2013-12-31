@@ -199,11 +199,15 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     log.info("Received Reserve Abort for connection: {}", connectionId);
 
     ConnectionV2 connection = getConnectionOrFail(connectionId);
-    if (connection.getReservationState() != ReservationStateEnumType.RESERVE_HELD) {
+    switch (connection.getReservationState()) {
+    case RESERVE_HELD:
+    case RESERVE_FAILED:
+    case RESERVE_TIMEOUT:
+      connectionService.asyncReserveAbort(connectionId, requestDetails, Security.getUserDetails());
+      break;
+    default:
       throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
-
-    connectionService.asyncReserveAbort(connectionId, requestDetails, Security.getUserDetails());
   }
 
   @Override

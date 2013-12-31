@@ -39,18 +39,17 @@ import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumT
 import static org.ogf.schemas.nsi._2013._07.connection.types.LifecycleStateEnumType.TERMINATED;
 import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.PROVISIONED;
 import static org.ogf.schemas.nsi._2013._07.connection.types.ProvisionStateEnumType.RELEASED;
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_FAILED;
 import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_HELD;
 import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_START;
-
+import static org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType.RESERVE_TIMEOUT;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-
 import javax.xml.ws.Holder;
-
+import org.ogf.schemas.nsi._2013._07.connection.types.ReservationStateEnumType;
 import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.oauth.NsiScope;
@@ -60,7 +59,6 @@ import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -283,21 +281,30 @@ public class ConnectionServiceProviderV2WsTest {
   }
 
   @Test
-  public void should_only_abort_when_reserve_held() {
-    try {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).create());
+  public void should_abort_when_reserve_held() throws Exception {
+    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_HELD).create());
 
-      subject.reserveAbort("connectionId", headerHolder);
+    subject.reserveAbort("connectionId", headerHolder);
 
-      fail("ServiceException expected");
-    } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
-    }
+    ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
+    verify(connectionService).asyncReserveAbort(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
+    assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 
   @Test
-  public void should_abort_when_reserve_held() throws Exception {
-    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_HELD).create());
+  public void should_abort_when_reserve_failed() throws Exception {
+    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_FAILED).create());
+
+    subject.reserveAbort("connectionId", headerHolder);
+
+    ArgumentCaptor<NsiV2RequestDetails> requestDetails = ArgumentCaptor.forClass(NsiV2RequestDetails.class);
+    verify(connectionService).asyncReserveAbort(eq("connectionId"), requestDetails.capture(), eq(Security.getUserDetails()));
+    assertThat(requestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
+  }
+
+  @Test
+  public void should_abort_when_reserve_timeout() throws Exception {
+    when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_TIMEOUT).create());
 
     subject.reserveAbort("connectionId", headerHolder);
 
