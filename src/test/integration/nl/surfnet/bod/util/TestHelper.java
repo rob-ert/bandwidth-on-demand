@@ -51,11 +51,9 @@ public class TestHelper {
     try {
       DateTimeUtils.setCurrentMillisFixed(timeToRun.getMillis());
       return timeTraveller.apply();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new AssertionError(e);
-    }
-    finally {
+    } finally {
       DateTimeUtils.setCurrentMillisSystem();
     }
   }
@@ -78,10 +76,6 @@ public class TestHelper {
 
   public static PropertiesEnvironment netherLightProperties() {
     return loadProperties("netherlight");
-  }
-
-  public static PropertiesEnvironment czechLightProperties() {
-    return loadProperties("czechlight");
   }
 
   public static PropertiesEnvironment mtosiProperties() {
@@ -125,25 +119,25 @@ public class TestHelper {
     useEnv("dev");
   }
 
-  public static void useCzechLightEnv() {
-    useEnv("czechlight");
-  }
-
   public static void useTestEnv() {
     useEnv("test");
   }
+
   public static void useAccEnv() {
     useEnv("acc");
     dontUserLog4jMailAppender();
   }
+
   public static void useNetherLightEnv() {
     useEnv("netherlight");
     dontUserLog4jMailAppender();
   }
+
   public static void useProdEnv() {
     useEnv("prod");
     dontUserLog4jMailAppender();
   }
+
   public static void useMtosiEnv() {
     useEnv("mtosi");
     dontUserLog4jMailAppender();
