@@ -1058,17 +1058,17 @@
         <repository>
             <id>surfnet-public-releases</id>
             <name>surfnet-public-releases</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases</url>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/public-releases</url>
         </repository>
         <repository>
             <id>surfnet-releases</id>
             <name>surfnet-releases</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
         </repository>
         <repository>
             <id>surfnet-snapshots</id>
             <name>surfnet-snapshots</name>
-            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
         </repository>
     </repositories>
 
