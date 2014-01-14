@@ -110,16 +110,18 @@
                     <dd><c:out value="${item.inboundPeer}" /></dd>
                     <dt><spring:message code="label_physicalport_outbound_peer"/></dt>
                     <dd><c:out value="${item.outboundPeer}" /></dd>
+
                     <dt><spring:message code="label_virtualport_nsi1providerid"/></dt>
                     <dd><c:out value="${item.nsiProviderIdV1}"/></dd>
+
                     <dt><spring:message code="label_virtualport_nsi1stpid"/></dt>
                     <dd class="nsiV1StpId"><c:out value="${item.nsiStpIdV1}"/></dd>
+
                     <dt><spring:message code="label_virtualport_nsi2providerid"/></dt>
                     <dd><c:out value="${item.nsiProviderIdV2}"/></dd>
-                    <dt><spring:message code="label_virtualport_nsi2stpnetworkid"/></dt>
-                    <dd><c:out value="${item.nsiStpNetworkIdV2}"/></dd>
-                    <dt><spring:message code="label_virtualport_nsi2stplocalid"/></dt>
-                    <dd class="nsiV2StpId"><c:out value="${item.nsiStpLocalIdV2}"/></dd>
+
+                    <dt><spring:message code="label_virtualport_nsi2stpid"/></dt>
+                    <dd class="nsiV2StpId"><c:out value="${item.nsiStpIdV2}"/></dd>
                 </dl>
             </c:if>
           </table:rowDetailsColumn>

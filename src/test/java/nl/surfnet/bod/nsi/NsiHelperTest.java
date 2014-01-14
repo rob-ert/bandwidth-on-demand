@@ -22,11 +22,15 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static nl.surfnet.bod.nsi.NsiHelper.NURN_PATTERN_REGEXP;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import java.util.regex.Pattern;
+
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiVersion;
 
@@ -67,14 +71,14 @@ public class NsiHelperTest {
 
   @Test
   public void testNurnPattern() {
-    assertTrue(subject.isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
-    assertTrue(subject.isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
-    assertTrue(subject.isValidNurn("urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in?foo#bar"));
+    assertTrue(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertTrue(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertTrue(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:surfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in?foo#bar"));
 
-    assertFalse(subject.isValidNurn("urn:foo"));
-    assertFalse(subject.isValidNurn("urn:ogf:network:surfnet.nl:Asd001A_OME3T_ETH-1-1-4_10:in"));
-    assertFalse(subject.isValidNurn("urn:ogf:network:surfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
-    assertFalse(subject.isValidNurn("urn:ogf:network:žurfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(Pattern.matches(NURN_PATTERN_REGEXP, "urn:foo"));
+    assertFalse(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:surfnet.nl:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:surfnet.nl:a1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
+    assertFalse(Pattern.matches(NURN_PATTERN_REGEXP, "urn:ogf:network:žurfnet.nl:1990:Asd001A_OME3T_ETH-1-1-4_10:in"));
   }
 
   @Test

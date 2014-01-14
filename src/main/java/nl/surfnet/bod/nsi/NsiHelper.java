@@ -26,12 +26,10 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiVersion;
-import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +42,13 @@ public class NsiHelper {
   // Matches OPAQUE-PART of OGF URN (GFD.202, see https://www.gridforum.org/documents/GFD.202.pdf).
   private static final String GFD_202_OPAQUE_PART_PATTERN = "[a-zA-Z0-9+,\\-.:;=_!$()*@~&]*";
   public static final String NURN_PATTERN_REGEXP = "urn:ogf:network:[a-zA-Z0-9\\-.]+:[0-9]{4,8}:" + GFD_202_OPAQUE_PART_PATTERN + "(\\?" +  GFD_202_OPAQUE_PART_PATTERN + ")?" + "(#" +  GFD_202_OPAQUE_PART_PATTERN + ")?";
-  private static final Pattern NURN_PATTERN = Pattern.compile(NURN_PATTERN_REGEXP);
 
   private static final String URN_OGF = "urn:ogf:network";
   private static final Joiner URN_JOINER = Joiner.on(":");
 
   private final String networkIdV1;
   private final String networkIdV2;
+
   private final String urnGlobalReservationId;
   private final String urnStpV1;
   private final String urnStpV2;
@@ -59,6 +57,12 @@ public class NsiHelper {
 
   private final Pattern stpPatternV1;
   private final Pattern stpPatternV2;
+
+  // URN formats
+  // nsi1:      urn:ogf:network:stp:{networkIdV1}:{virtualPort.id}
+  // nsi2:      urn:ogf:{networkIdV2}:port:{topologyId}:{virtualPort.id | enniPort.bodPortId}
+  // networkId: urn:ogf:{networkIdV2}:topology:{topologyId}
+  // nsa:       urn:ogf:network:{networkIdV2}:nsa:{providerId}
 
   @Autowired
   public NsiHelper(
@@ -80,14 +84,6 @@ public class NsiHelper {
     this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
   }
 
-  public String getNetworkIdV1() {
-    return networkIdV1;
-  }
-
-  public String getNetworkIdV2() {
-    return networkIdV2;
-  }
-
   public String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
     Pattern pattern = nsiVersion == NsiVersion.ONE ? stpPatternV1 : stpPatternV2;
     Matcher matcher = pattern.matcher(stpId);
@@ -97,10 +93,6 @@ public class NsiHelper {
     }
 
     return matcher.group(1);
-  }
-
-  public boolean isValidNurn(final String candidate) {
-    return NURN_PATTERN.matcher(candidate).matches();
   }
 
   public String generateGlobalReservationId() {
@@ -123,22 +115,6 @@ public class NsiHelper {
     return join(urnStpV1, port.getBodPortId());
   }
 
-  public String getStpIdV1(ReservationEndPoint endPoint) {
-    return endPoint.getVirtualPort().transform(new Function<VirtualPort, String>() {
-      public String apply(VirtualPort port) {
-        return getStpIdV1(port);
-      }
-    }).or(getStpIdV1(endPoint.getEnniPort().get()));
-  }
-
-  public String getStpIdV2(ReservationEndPoint endPoint) {
-    return endPoint.getVirtualPort().transform(new Function<VirtualPort, String>() {
-      public String apply(VirtualPort port) {
-        return getStpIdV2(port);
-      }
-    }).or(getStpIdV2(endPoint.getEnniPort().get()));
-  }
-
   public static String generateConnectionId() {
     return UUID.randomUUID().toString();
   }
@@ -155,12 +131,12 @@ public class NsiHelper {
     return join(URN_OGF, "nsa", networkIdV1);
   }
 
-  public String getUrnStpV2() {
-    return urnStpV2;
-  }
-
   public String getUrnTopology() {
     return join(URN_OGF,  networkIdV2, "topology", topologyId);
+  }
+
+  public boolean isAcceptableStpIdV2(String stpId) {
+    return stpId.startsWith(urnStpV2);
   }
 
   private static String join(Object... parts) {

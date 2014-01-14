@@ -57,8 +57,7 @@ public class PhysicalPortView {
   private String nsiStpIdV1;
   private String nsiProviderIdV1;
   private String nsiProviderIdV2;
-  private String nsiStpNetworkIdV2;
-  private String nsiStpLocalIdV2;
+  private String nsiStpIdV2;
 
   public String getInterfaceType() {
     return interfaceType;
@@ -116,8 +115,7 @@ public class PhysicalPortView {
     this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(enniPort);
     this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
-    this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
-    this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(enniPort);
+    this.nsiStpIdV2 = nsiHelper.getStpIdV2(enniPort);
 
     this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();
@@ -260,12 +258,8 @@ public class PhysicalPortView {
     return nsiProviderIdV2;
   }
 
-  public String getNsiStpLocalIdV2() {
-    return nsiStpLocalIdV2;
-  }
-
-  public String getNsiStpNetworkIdV2() {
-    return nsiStpNetworkIdV2;
+  public String getNsiStpIdV2() {
+    return nsiStpIdV2;
   }
 
   @Override
