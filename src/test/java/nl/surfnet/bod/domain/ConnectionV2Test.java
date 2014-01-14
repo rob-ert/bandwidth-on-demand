@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -34,6 +36,7 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2.ReservationConfirmCriteriaTypeUserType;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
+import nl.surfnet.bod.support.ConnectionV2Factory;
 
 import org.junit.Test;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
@@ -66,6 +69,39 @@ public class ConnectionV2Test {
     ConnectionsV2.addPointToPointService(any, p2p);
     Element element = (Element) any.get(0);
     assertThat(element.getLocalName(), equalTo("p2ps"));
+  }
+
+  @Test
+  public void should_parse_vlan_id_from_stp_id() {
+    ConnectionV2 connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?vlan=234").create();
+    assertThat(connection.getSourceVlanId(), isPresent(234));
+
+    connection = new ConnectionV2Factory().setDestinationStpId("urn:network:some-port?vlan=234").create();
+    assertThat(connection.getDestinationVlanId(), isPresent(234));
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?master=true&vlan=234").create();
+    assertThat(connection.getSourceVlanId(), isPresent(234));
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?van=234").create();
+    assertThat(connection.getSourceVlanId(), isAbsent());
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?vlan=").create();
+    assertThat(connection.getSourceVlanId(), isAbsent());
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?vlan=asdf").create();
+    assertThat(connection.getSourceVlanId(), isAbsent());
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port").create();
+    assertThat(connection.getSourceVlanId(), isAbsent());
+  }
+
+  @Test
+  public void should_strip_off_the_args_of_stp_id() {
+    ConnectionV2 connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port?vlan=234").create();
+    assertThat(connection.getSourceStpId(), is("urn:network:some-port"));
+
+    connection = new ConnectionV2Factory().setSourceStpId("urn:network:some-port").create();
+    assertThat(connection.getSourceStpId(), is("urn:network:some-port"));
   }
 
 }

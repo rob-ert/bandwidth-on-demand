@@ -25,7 +25,10 @@ package nl.surfnet.bod.domain;
 import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -41,10 +44,12 @@ import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
 
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
@@ -77,13 +82,13 @@ public class ConnectionV2 extends AbstractConnection {
   @Field
   private LifecycleStateEnumType lifecycleState;
 
-  @Column(nullable = false)
+  @Column(name = "source_stp_id", nullable = false)
   @Field
-  private String sourceStpId;
+  private String sourceStpIdWithArgs;
 
-  @Column(nullable = false)
+  @Column(name = "destination_stp_id", nullable = false)
   @Field
-  private String destinationStpId;
+  private String destinationStpIdWithArgs;
 
   @NotNull
   @Type(type = "nl.surfnet.bod.domain.ConnectionV2$ReservationConfirmCriteriaTypeUserType")
@@ -172,11 +177,48 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public String getSourceStpId() {
-    return sourceStpId;
+    return getUriWithoutArgs(sourceStpIdWithArgs);
+  }
+
+  public Optional<Integer> getSourceVlanId() {
+    return getVlanId(sourceStpIdWithArgs);
   }
 
   public String getDestinationStpId() {
-    return destinationStpId;
+    return getUriWithoutArgs(destinationStpIdWithArgs);
+  }
+
+  public Optional<Integer> getDestinationVlanId() {
+    return getVlanId(destinationStpIdWithArgs);
+  }
+
+  private static final String getUriWithoutArgs(String stpIdWithArgs) {
+    return stpIdWithArgs.split("\\?")[0];
+  }
+
+  private static final Optional<Integer> getVlanId(String stpId) {
+    String vlanId = getStpArgs(stpId).get("vlan");
+    try {
+      return Optional.of(Integer.valueOf(vlanId));
+    } catch (NumberFormatException e) {
+      return Optional.absent();
+    }
+  }
+
+  private static final Map<String, String> getStpArgs(String stpId) {
+    List<String> parts = Splitter.on("?").splitToList(stpId);
+    if (parts.size() > 1) {
+      Map<String, String> args = new HashMap<>();
+      for (String arg : Splitter.on("&").splitToList(parts.get(1))) {
+        String[] nameValue = arg.split("=");
+        if (nameValue.length == 2) {
+          args.put(nameValue[0], nameValue[1]);
+        }
+      }
+      return args;
+    }
+
+    return Collections.emptyMap();
   }
 
   public NsiVersion getNsiVersion() {
@@ -264,8 +306,8 @@ public class ConnectionV2 extends AbstractConnection {
     this.criteria = criteria;
     Optional<P2PServiceBaseType> service = ConnectionsV2.findPointToPointService(criteria);
     if (service.isPresent()) {
-      this.sourceStpId = service.get().getSourceSTP();
-      this.destinationStpId = service.get().getDestSTP();
+      this.sourceStpIdWithArgs = service.get().getSourceSTP();
+      this.destinationStpIdWithArgs = service.get().getDestSTP();
     }
   }
 
@@ -389,14 +431,14 @@ public class ConnectionV2 extends AbstractConnection {
     builder.append("desiredBandwidth=");
     builder.append(desiredBandwidth);
     builder.append(", ");
-    if (sourceStpId != null) {
+    if (sourceStpIdWithArgs != null) {
       builder.append("sourceStpId=");
-      builder.append(sourceStpId);
+      builder.append(sourceStpIdWithArgs);
       builder.append(", ");
     }
-    if (destinationStpId != null) {
+    if (destinationStpIdWithArgs != null) {
       builder.append("destinationStpId=");
-      builder.append(destinationStpId);
+      builder.append(destinationStpIdWithArgs);
       builder.append(", ");
     }
     if (reservation != null) {
@@ -417,6 +459,7 @@ public class ConnectionV2 extends AbstractConnection {
       super(new QName("http://schemas.ogf.org/nsi/2013/12/connection/types", "notificationBaseType"), NotificationBaseType.class);
     }
   }
+
   public static class ReservationConfirmCriteriaTypeUserType extends NsiV2UserType<ReservationConfirmCriteriaType> {
     public ReservationConfirmCriteriaTypeUserType() {
       super(new QName("criteria"), ReservationConfirmCriteriaType.class);

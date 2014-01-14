@@ -55,7 +55,6 @@ import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
 import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -81,17 +80,14 @@ public class ConnectionServiceV2 {
     checkStartEndTime(connection.getStartTime(), connection.getEndTime());
 
     try {
-      P2PServiceBaseType service = ConnectionsV2.findPointToPointService(connection.getCriteria()).get();
-      Optional<Integer> sourceVlanId = Optional.absent();
-      Optional<Integer> destinationVlanId = Optional.absent();
       connection.setReservationState(ReservationStateEnumType.RESERVE_CHECKING);
       Reservation reservation = new Reservation();
       reservation.setConnectionV2(connection);
       reservation.setName(connection.getDescription());
       reservation.setStartDateTime(connection.getStartTime().orNull());
       reservation.setEndDateTime(connection.getEndTime().orNull());
-      reservation.setSourcePort(findEndPoint(service.getSourceSTP(), sourceVlanId, userDetails));
-      reservation.setDestinationPort(findEndPoint(service.getDestSTP(),  destinationVlanId, userDetails));
+      reservation.setSourcePort(findEndPoint(connection.getSourceStpId(), connection.getSourceVlanId(), userDetails));
+      reservation.setDestinationPort(findEndPoint(connection.getDestinationStpId(),  connection.getDestinationVlanId(), userDetails));
       reservation.setBandwidth(connection.getDesiredBandwidth());
       reservation.setUserCreated(userDetails.getNameId());
       reservation.setProtectionType(connection.getProtectionType());
