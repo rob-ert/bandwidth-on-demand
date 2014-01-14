@@ -35,11 +35,10 @@ public class VirtualPortView {
   private final String physicalPort;
   private final String nmsPortId;
   private final String userLabel;
-  private final String nsiStpIdV1;
   private final String nsiProviderIdV1;
-  private final String nsiStpLocalIdV2;
-  private final String nsiStpNetworkIdV2;
+  private final String nsiStpIdV1;
   private final String nsiProviderIdV2;
+  private final String nsiStpIdV2;
   private final long numberOfActiveReservations;
   private final boolean deleteAllowed;
 
@@ -54,11 +53,13 @@ public class VirtualPortView {
     this.physicalResourceGroup = port.getPhysicalResourceGroup().getName();
     this.physicalPort = port.getPhysicalPort().getManagerLabel();
     this.nmsPortId = port.getPhysicalPort().getNmsPortId();
-    this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
+
     this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
-    this.nsiStpLocalIdV2 = nsiHelper.getStpIdV2(port);
-    this.nsiStpNetworkIdV2 = nsiHelper.getUrnTopology();
+    this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
+
     this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
+    this.nsiStpIdV2 = nsiHelper.getStpIdV2(port);
+
     this.numberOfActiveReservations = numberOfActiveReservations;
     this.deleteAllowed = deleteAllowed;
   }
@@ -111,12 +112,8 @@ public class VirtualPortView {
     return nsiStpIdV1;
   }
 
-  public String getNsiStpLocalIdV2() {
-    return nsiStpLocalIdV2;
-  }
-
-  public String getNsiStpNetworkIdV2() {
-    return nsiStpNetworkIdV2;
+  public String getNsiStpIdV2() {
+    return nsiStpIdV2;
   }
 
   public String getNsiProviderIdV1() {
