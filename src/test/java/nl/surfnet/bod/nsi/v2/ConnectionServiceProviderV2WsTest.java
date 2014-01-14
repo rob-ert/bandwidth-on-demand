@@ -85,6 +85,8 @@ import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
 
+  private static final String DESTINATION_STP = "networkId:destination";
+  private static final String SOURCE_STP = "networkId:source";
   private static final String UNAUTHORIZED = "Unauthorized";
   private static final String SERVICE_TYPE = "ServiceType";
 
@@ -116,6 +118,9 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_create_connection_on_initial_reserve() throws Exception {
     Holder<String> connectionIdHolder = new Holder<>();
+
+    when(nsiHelper.isAcceptableStpIdV2(SOURCE_STP)).thenReturn(true);
+    when(nsiHelper.isAcceptableStpIdV2(DESTINATION_STP)).thenReturn(true);
 
     subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
@@ -496,8 +501,8 @@ public class ConnectionServiceProviderV2WsTest {
         .withVersion(3);
     ConnectionsV2.addPointToPointService(result.getAny(), new P2PServiceBaseType()
         .withCapacity(100)
-        .withSourceSTP("networkId:source")
-        .withDestSTP("networkId:dest"));
+        .withSourceSTP(SOURCE_STP)
+        .withDestSTP(DESTINATION_STP));
 
     return result;
   }
