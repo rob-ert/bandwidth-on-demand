@@ -57,9 +57,11 @@ import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.DOMException;
 
 @Component
+@Transactional
 class ConnectionServiceRequesterClient {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceRequesterClient.class);
@@ -78,7 +80,7 @@ class ConnectionServiceRequesterClient {
       .withGlobalReservationId(globalReservationId)
       .withDescription(description)
       .withCriteria(criteria);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveConfirmed", header, body, Converters.RESERVE_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveConfirmed", header, body, Converters.RESERVE_CONFIRMED_CONVERTER, connectionId);
   }
 
   public void replyReserveFailed(CommonHeaderType header, String connectionId, ConnectionStatesType connectionStates, ServiceExceptionType exception, Optional<URI> replyTo) {
@@ -86,7 +88,7 @@ class ConnectionServiceRequesterClient {
       .withConnectionId(connectionId)
       .withConnectionStates(connectionStates)
       .withServiceException(exception);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveFailed", header, body, Converters.RESERVE_FAILED_CONVERTER, connectionId);
   }
 
   public void notifyReserveTimeout(CommonHeaderType header, String connectionId, final long notificationId, int timeoutValue, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
@@ -97,27 +99,27 @@ class ConnectionServiceRequesterClient {
       .withNotificationId(notificationId)
       .withOriginatingNSA(header.getProviderNSA())
       .withOriginatingConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER, null);
   }
 
   public void replyReserveCommitConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveCommitConfirmed", header, body, Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveCommitConfirmed", header, body, Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER, connectionId);
   }
 
   public void replyReserveAbortConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveAbortConfirmed", header, body, Converters.RESERVE_ABORT_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "reserveAbortConfirmed", header, body, Converters.RESERVE_ABORT_CONFIRMED_CONVERTER, connectionId);
   }
 
   public void replyTerminateConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "terminateConfirmed", header, body, Converters.TERMINATE_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "terminateConfirmed", header, body, Converters.TERMINATE_CONFIRMED_CONVERTER, connectionId);
   }
 
   public void replyProvisionConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
     GenericConfirmedType body = new GenericConfirmedType().withConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "provisionConfirmed", header, body, Converters.PROVISION_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "provisionConfirmed", header, body, Converters.PROVISION_CONFIRMED_CONVERTER, connectionId);
   }
 
   public void notifyDataPlaneStateChange(CommonHeaderType header, String connectionId, final long notificationId, DataPlaneStatusType dataPlaneStatus, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
@@ -126,7 +128,7 @@ class ConnectionServiceRequesterClient {
       .withNotificationId(notificationId)
       .withDataPlaneStatus(dataPlaneStatus)
       .withTimeStamp(timeStamp);
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER, null);
   }
 
   public void notifyDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
@@ -148,38 +150,53 @@ class ConnectionServiceRequesterClient {
       .withTimeStamp(timeStamp)
       .withAdditionalInfo(notification.getAdditionalInfo())
       .withServiceException(notification.getServiceException());
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER, null);
   }
 
   public void replyQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, Optional<URI> replyTo) {
     QuerySummaryConfirmedType body = new QuerySummaryConfirmedType().withReservation(results);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "querySummaryConfirmed", header, body, Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "querySummaryConfirmed", header, body, Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER, null);
   }
 
   public void replyQueryRecursiveConfirmed(CommonHeaderType header, List<QueryRecursiveResultType> result, Optional<URI> replyTo) {
     QueryRecursiveConfirmedType body = new QueryRecursiveConfirmedType().withReservation(result);
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryRecursiveConfirmed", header, body, Converters.QUERY_RECURSIVE_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryRecursiveConfirmed", header, body, Converters.QUERY_RECURSIVE_CONFIRMED_CONVERTER, null);
   }
 
   public void replyQueryNotificationConfirmed(CommonHeaderType header, QueryNotificationConfirmedType queryNotificationConfirmed, Optional<URI> replyTo) {
-    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryNotificationConfirmed", header, queryNotificationConfirmed, Converters.QUERY_NOTIFICATION_CONFIRMED_CONVERTER);
+    sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryNotificationConfirmed", header, queryNotificationConfirmed, Converters.QUERY_NOTIFICATION_CONFIRMED_CONVERTER, null);
   }
 
-  private <T> void sendMessage(Type type, Optional<URI> replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter) {
+  private <T> void sendMessage(Type type, Optional<URI> replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter, String connectionId) {
     log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
       SOAPMessage message = Converters.createSoapMessage(header, body, bodyConverter);
-      saveMessage(type, soapAction(action), header, message);
+      saveMessage(type, soapAction(action), header, message, connectionId);
       asyncClient.asyncSend(replyTo, soapAction(action), message);
     } catch (SOAPException | DOMException | JAXBException | IOException e) {
       throw new RuntimeException("failed to send " + action + " message to " + header.getRequesterNSA() + " (" + replyTo + ")");
     }
   }
 
-  private void saveMessage(Type type, String soapAction, CommonHeaderType header, SOAPMessage message) throws SOAPException, IOException {
+  private void saveMessage(Type type, String soapAction, CommonHeaderType header, SOAPMessage message, String connectionId) throws SOAPException, IOException {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       message.writeTo(baos);
-      messageRepo.save(new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), type, soapAction, baos.toString("UTF-8")));
+
+      NsiV2Message nsiV2Message;
+
+      if (connectionId == null) {
+        nsiV2Message = new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), type, soapAction, baos.toString("UTF-8"));
+      } else {
+        log.debug("Saving message that must be querieable for connectionId {}", connectionId);
+
+        Long lastResultId = messageRepo.getMaxResultIdByConnectionId(connectionId);
+        Long resultId = 1L;
+        if (lastResultId != null) {
+          resultId = lastResultId + 1;
+        }
+        nsiV2Message = new NsiV2Message(header.getRequesterNSA(), header.getCorrelationId(), type, soapAction, baos.toString("UTF-8"), resultId, connectionId);
+      }
+      messageRepo.save(nsiV2Message);
     }
   }
 }

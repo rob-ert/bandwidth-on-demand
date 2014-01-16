@@ -56,7 +56,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional
 class ConnectionServiceRequesterV2 {
 
   @Resource private ConnectionV2Repo connectionRepo;
