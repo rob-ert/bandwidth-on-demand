@@ -78,9 +78,12 @@ public class NsiV2Message implements PersistableDomain {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String message;
 
-  protected NsiV2Message() {
-    createdAt = DateTime.now();
-  }
+  @Basic(optional = true)
+  private Long resultId;
+
+  @Basic(optional = true)
+  private String connectionId;
+
 
   public NsiV2Message(String requesterNsa, String correlationId, Type type, String soapAction, String message) {
     this();
@@ -89,6 +92,20 @@ public class NsiV2Message implements PersistableDomain {
     this.type = type;
     this.soapAction = soapAction;
     this.message = message;
+  }
+
+  /**
+   * For messages that we need to be bale to query from the database when responding to NSI "queryResult" soap requests
+   */
+  public NsiV2Message(String requesterNsa, String correlationId, Type type, String soapAction, String message, Long resultId, String connectionId) {
+    this();
+    this.requesterNsa = requesterNsa;
+    this.correlationId = correlationId;
+    this.type = type;
+    this.soapAction = soapAction;
+    this.message = message;
+    this.resultId = resultId;
+    this.connectionId = connectionId;
   }
 
   public static NsiV2Message fromSoapMessage(Type messageType, SOAPMessage message) throws SOAPException, JAXBException, IOException {
@@ -123,4 +140,12 @@ public class NsiV2Message implements PersistableDomain {
   public String getMessage() {
     return message;
   }
+
+  public DateTime getCreatedAt() { return createdAt; }
+
+  public Long getResultId() { return resultId; }
+
+  public String getConnectionId() { return connectionId; }
+
+  protected NsiV2Message() { createdAt = DateTime.now(); }
 }
