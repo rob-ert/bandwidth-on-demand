@@ -314,6 +314,19 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
+  @Override
+  public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header)
+          throws ServiceException {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public List<QueryResultResponseType> queryResultSync(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws Error {
+    return connectionService.syncQueryResult(connectionId, startResultId, endResultId);
+  }
+
+
   private Error toError(ServiceException e) {
     return new Error(e.getMessage(), new GenericErrorType().withServiceException(e.getFaultInfo()), e);
   }
@@ -421,16 +434,4 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
   }
 
-  @Override
-  public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header)
-      throws ServiceException {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public List<QueryResultResponseType> queryResultSync(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws Error {
-    // TODO Auto-generated method stub
-    return null;
-  }
 }
