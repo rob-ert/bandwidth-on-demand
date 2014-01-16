@@ -23,12 +23,18 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import nl.surfnet.bod.service.ReservationService;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import javax.annotation.Resource;
+
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -36,6 +42,7 @@ import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -51,6 +58,8 @@ public class NbiClientImpl implements NbiClient {
   @Resource private ServiceComponentActivationClient serviceComponentActivationClient;
   @Resource private ReservationRepo reservationRepo;
   @Resource private ReservationService reservationService;
+
+  private static final String RESERVATION_ID_FORMAT = "dlp-%1$tY%1$tm%1$td-%2$s";
 
   @Override
   public long getPhysicalPortsCount() {
@@ -68,11 +77,16 @@ public class NbiClientImpl implements NbiClient {
   @Override
   @Transactional(propagation=Propagation.NEVER)
   public void createReservation(Reservation reservation, boolean autoProvision) {
-    reservation.setReservationId(UUID.randomUUID().toString());
+    reservation.setReservationId(createReservationId());
     Reservation savedReservation = reservationRepo.save(reservation);
 
     UpdatedReservationStatus status = serviceComponentActivationClient.reserve(savedReservation);
     reservationService.updateStatus(savedReservation.getReservationId(), status);
+  }
+
+  @VisibleForTesting
+  String createReservationId() {
+    return String.format(RESERVATION_ID_FORMAT, new Date(), UUID.randomUUID().toString());
   }
 
   @Override
