@@ -52,9 +52,12 @@ import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.HttpUtils;
 
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -63,7 +66,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -107,27 +109,20 @@ public class OAuthServerService {
     httpGet.setConfig(config);
     httpGet.addHeader(HttpUtils.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
 
-    try {
-      HttpResponse response = httpClient.execute(httpGet);
+    try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
       final int statusCode = response.getStatusLine().getStatusCode();
-      HttpEntity entity = response.getEntity();
-
-      final String responseEntity = EntityUtils.toString(entity, Charsets.UTF_8);
-      EntityUtils.consume(entity); // will 'fully consume' the response and cause underlying network resources to be released
+      final String responseEntity = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
 
       if (statusCode == HttpStatus.SC_OK) {
         return readJsonToken(responseEntity);
-      }
-      else {
+      } else {
         logger.warn("Verify token response was {}, {}", statusCode, responseEntity);
         return Optional.absent();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.error("Could not verify access token", e);
       return Optional.absent();
     }
-
   }
 
   private Optional<VerifiedToken> readJsonToken(String jsonResponse) throws IOException {
@@ -141,8 +136,7 @@ public class OAuthServerService {
         }
       }).toList();
       return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
-    }
-    else {
+    } else {
       logger.error("Verify token response gave an error '{}'", token.getError());
       return Optional.absent();
     }
@@ -152,8 +146,7 @@ public class OAuthServerService {
     try {
       return new URIBuilder(env.getOauthServerUrl().concat("/v1/tokeninfo"))
           .addParameter("access_token", accessToken).build().toASCIIString();
-    }
-    catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
   }
@@ -163,10 +156,9 @@ public class OAuthServerService {
     checkArgument(account.getAuthorizationServerAccessToken().isPresent());
 
     HttpGet httpGet = new HttpGet(env.getOauthServerUrl().concat(URL_ADMIN_ACCESS_TOKEN));
-    try {
-      httpGet.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
+    httpGet.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
-      HttpResponse tokensResponse = httpClient.execute(httpGet);
+    try (CloseableHttpResponse tokensResponse = httpClient.execute(httpGet)) {
       StatusLine statusLine = tokensResponse.getStatusLine();
 
       if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
@@ -184,8 +176,7 @@ public class OAuthServerService {
 
       List<AccessToken> tokens = new ObjectMapper().readValue(
           EntityUtils.toString(tokensResponse.getEntity()),
-          new TypeReference<List<AccessToken>>() {
-          });
+          new TypeReference<List<AccessToken>>() { });
 
       return Collections2.filter(tokens, new Predicate<AccessToken>() {
         @Override
@@ -193,13 +184,9 @@ public class OAuthServerService {
           return token.getClientId().equals(env.getClientClientId());
         }
       });
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.error("Could not get access tokens for " + account.getNameId(), e);
       return Collections.emptyList();
-    }
-    finally {
-      httpGet.releaseConnection();
     }
   }
 
@@ -207,10 +194,9 @@ public class OAuthServerService {
     checkNotNull(account);
 
     HttpDelete delete = new HttpDelete(env.getOauthServerUrl().concat(URL_ADMIN_ACCESS_TOKEN).concat(tokenId));
-    try {
-      delete.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
-      HttpResponse response = httpClient.execute(delete);
+    delete.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
+    try (CloseableHttpResponse response = httpClient.execute(delete)) {
       int statusCode = response.getStatusLine().getStatusCode();
       delete.releaseConnection();
 
@@ -219,13 +205,9 @@ public class OAuthServerService {
       }
 
       return true;
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.error("Could not delete access token", e);
       return false;
-    }
-    finally {
-      delete.releaseConnection();
     }
   }
 
@@ -255,8 +237,7 @@ public class OAuthServerService {
       String responseJson = EntityUtils.toString(response.getEntity());
 
       return Optional.of(new ObjectMapper().readValue(responseJson, AccessTokenResponse.class));
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       post.releaseConnection();
       logger.error("Could not retreive access token", e);
       return Optional.absent();
