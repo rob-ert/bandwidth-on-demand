@@ -58,7 +58,7 @@ public class VirtualPortView {
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(port);
 
     this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
-    this.nsiStpIdV2 = nsiHelper.getStpIdV2(port);
+    this.nsiStpIdV2 = nsiHelper.getStpIdV2WithArguments(port);
 
     this.numberOfActiveReservations = numberOfActiveReservations;
     this.deleteAllowed = deleteAllowed;

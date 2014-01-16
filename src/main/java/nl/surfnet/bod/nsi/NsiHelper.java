@@ -104,7 +104,12 @@ public class NsiHelper {
   }
 
   public String getStpIdV2(VirtualPort vp) {
-    String stpId = join(urnStpV2, vp.getId());
+    return join(urnStpV2, vp.getId());
+  }
+
+  public String getStpIdV2WithArguments(VirtualPort vp) {
+    String stpId = getStpIdV2(vp);
+
     if (vp.getVlanId() != null) {
       return String.format("%s?vlan=%d", stpId, vp.getVlanId());
     }
@@ -114,6 +119,10 @@ public class NsiHelper {
 
   public String getStpIdV2(EnniPort port) {
     return join(urnStpV2, port.getBodPortId());
+  }
+
+  public String getStpIdV2WithArguments(EnniPort port) {
+    return getStpIdV2(port);
   }
 
   public String getStpIdV1(EnniPort port) {
