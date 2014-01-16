@@ -26,6 +26,8 @@ import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createComonObjectInfoTypeName;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -38,6 +40,8 @@ import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,6 +115,20 @@ public class NbiOneControlClientTest {
     Optional<ReservationStatus> status = subject.getReservationStatus(reservation.getReservationId());
 
     assertThat(status, isAbsent());
+  }
+
+  @Test
+  public void should_get_a_unique_resration_id_that_is_sortable() {
+    String dateString = DateTimeFormat.forPattern("yyyyMMdd").print(DateTime.now());
+    String idOne = subject.createReservationId();
+    String idTwo = subject.createReservationId();
+
+    assertThat(idOne, startsWith("dlp"));
+    assertThat(idTwo, startsWith("dlp"));
+    assertThat(idOne, containsString(dateString));
+    assertThat(idTwo, containsString(dateString));
+
+    assertThat(idOne, is(not(idTwo)));
   }
 
 }
