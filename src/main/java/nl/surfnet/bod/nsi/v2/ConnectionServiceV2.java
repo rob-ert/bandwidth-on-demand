@@ -34,10 +34,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
@@ -49,12 +55,10 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -73,6 +77,7 @@ public class ConnectionServiceV2 {
   @Resource private VirtualPortService virtualPortService;
   @Resource private PhysicalPortService physicalPortService;
   @Resource private ConnectionServiceRequesterV2 connectionServiceRequester;
+  @Resource private NsiV2MessageRepo nsiV2MessageRepo;
 
   public void reserve(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails userDetails) throws ReservationCreationException {
     checkConnectionId(connection.getConnectionId());
@@ -236,6 +241,31 @@ public class ConnectionServiceV2 {
   @Async
   public void asyncQueryNotification(String connectionId, Optional<Long> startNotificationId, Optional<Long> endNotificationId, NsiV2RequestDetails requestDetails) {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
+  }
+
+  public List<QueryResultResponseType> syncQueryResult(String connectionId, Long startResultId, Long endResultId) {
+    List<NsiV2Message> messages = nsiV2MessageRepo.findByConnectionIdAndResultIdBetweenOrderByResultIdAsc(connectionId, startResultId, endResultId);
+
+    List<QueryResultResponseType> responses = new ArrayList<>();
+    for (NsiV2Message message: messages) {
+      QueryResultResponseType response = new QueryResultResponseType().withResultId(message.getResultId())
+              .withTimeStamp(XmlUtils.toGregorianCalendar(message.getCreatedAt()))
+              .withCorrelationId(message.getCorrelationId());
+
+
+      try {
+        SOAPMessage soapMessage = Converters.deserializeMessage(message.getMessage());
+        log.debug("message = {}", soapMessage.toString());
+        // figure out which type of message it was. We care about:
+        // reserveConfirmed, reserveFailed, reserveCommitConfirmed, reserveCommitFailed, reserveAbortConfirmed,
+        // provisionConfirmed, releaseConfirmed, provisionConfirmed, terminateConfirmed
+      } catch (SOAPException | IOException e) {
+        log.error("Unable to de-serialize NsiV2Message.message, stored value was: {}", message.getMessage());
+        throw new RuntimeException(e);
+      }
+      responses.add(response);
+    }
+    return responses;
   }
 
   @Async
