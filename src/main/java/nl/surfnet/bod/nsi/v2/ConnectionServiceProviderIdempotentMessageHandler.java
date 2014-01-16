@@ -48,6 +48,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+/**
+ * Stores outgoing and incoming messages into a db-table that serves as a response cache, where the request-message is
+ * the key to the cache, more specifically the requesterNSA header value and the correlationId.
+ *
+ * Messages are stored in the database as xml
+ */
 @Component
 class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<SOAPMessageContext> {
 
