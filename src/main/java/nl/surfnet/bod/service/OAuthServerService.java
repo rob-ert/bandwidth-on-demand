@@ -52,12 +52,11 @@ import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.HttpUtils;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -72,6 +71,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,20 +89,31 @@ public class OAuthServerService {
   @Resource
   private BodAccountRepo bodAccountRepo;
 
-  private final CloseableHttpClient httpClient = HttpClients.createMinimal(new PoolingHttpClientConnectionManager());
+  @Value("${oauth.service.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${oauth.service.request.timeout}")
+  private int requestTimeout;
+
+  private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
   public Optional<VerifiedToken> getVerifiedToken(String accessToken) {
     if (Strings.isNullOrEmpty(accessToken)) {
       return Optional.absent();
     }
+    RequestConfig config = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(requestTimeout).build();
 
     HttpGet httpGet = new HttpGet(getVerifyTokenUri(accessToken));
+    httpGet.setConfig(config);
     httpGet.addHeader(HttpUtils.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
 
     try {
       HttpResponse response = httpClient.execute(httpGet);
       final int statusCode = response.getStatusLine().getStatusCode();
-      final String responseEntity = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
+      HttpEntity entity = response.getEntity();
+
+      final String responseEntity = EntityUtils.toString(entity, Charsets.UTF_8);
+      EntityUtils.consume(entity); // will 'fully consume' the response and cause underlying network resources to be released
 
       if (statusCode == HttpStatus.SC_OK) {
         return readJsonToken(responseEntity);
@@ -116,9 +127,7 @@ public class OAuthServerService {
       logger.error("Could not verify access token", e);
       return Optional.absent();
     }
-    finally {
-      httpGet.releaseConnection();
-    }
+
   }
 
   private Optional<VerifiedToken> readJsonToken(String jsonResponse) throws IOException {
