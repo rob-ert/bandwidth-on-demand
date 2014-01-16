@@ -54,7 +54,9 @@ import nl.surfnet.bod.util.HttpUtils;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -62,6 +64,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +101,13 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
   @Value("${sab.issuer}") private String sabIssuer;
   @Value("${sab.role}") private String sabRole;
 
+  @Value("${sab.service.connect.timeout}")
+  private int connectTimeout;
+
+  @Value("${sab.service.request.timeout}")
+  private int requestTimeout;
+
+
   @Resource private Environment bodEnvironment;
 
   @Override
@@ -109,13 +119,19 @@ public class SabEntitlementsHandler implements EntitlementsHandler {
 
     String messageId = UUID.randomUUID().toString();
 
+    RequestConfig config = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(requestTimeout).build();
     HttpPost httpPost = new HttpPost(sabEndPoint);
+    httpPost.setConfig(config);
+
     httpPost.addHeader(HttpUtils.getBasicAuthorizationHeader(sabUser, sabPassword));
     httpPost.setEntity(createRequest(messageId, sabIssuer, nameId));
 
     try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
       if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-        return getInstitutesWhichHaveBoDAdminEntitlement(messageId, response.getEntity().getContent());
+        final HttpEntity entity = response.getEntity();
+        List<String> institutesWhichHaveBoDAdminEntitlement = getInstitutesWhichHaveBoDAdminEntitlement(messageId, entity.getContent());
+        EntityUtils.consume(entity); // causes underlying resources to be cleaned up
+        return institutesWhichHaveBoDAdminEntitlement;
       } else {
         logger.warn("Consulting SaB Entitlements failed due '{}' ({})",
           response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode());
