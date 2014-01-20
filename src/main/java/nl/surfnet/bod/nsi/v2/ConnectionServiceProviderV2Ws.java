@@ -277,7 +277,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       log.info("Received a Query Summary Sync");
 
-      List<ConnectionV2> connections = connectionService.querySummarySync(connectionIds, globalReservationIds, header.value.getRequesterNSA());
+      List<ConnectionV2> connections = connectionService.querySummary(connectionIds, globalReservationIds, header.value.getRequesterNSA());
 
       return transform(connections, toQuerySummaryResultType);
     } catch (ServiceException e) {
