@@ -34,8 +34,8 @@ public class NbiPortFactory {
   private String nmsNeId;
   private String nmsSapName;
   private InterfaceType interfaceType = InterfaceType.UNI;
-  private String suggestedBodPortId;
-  private String suggestedNocLabel;
+  private String suggestedBodPortId = "suggestedId";
+  private String suggestedNocLabel = "suggestedNocLabel";
 
   public NbiPort create() {
     NbiPort port = new NbiPort();

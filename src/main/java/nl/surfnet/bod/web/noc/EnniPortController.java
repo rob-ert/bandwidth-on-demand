@@ -104,15 +104,7 @@ public class EnniPortController extends AbstractSearchableSortableListController
 
     EnniPort enniPort = (EnniPort) PhysicalPort.create(nbiPort.get());
 
-    if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
-      result.rejectValue("vlanRanges", "validation.not.empty");
-    }
-    if (physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-    if(!PhysicalPortController.containsLetters(command.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
+    validateCommand(enniPort, command, result);
 
     if (result.hasErrors()) {
       model.addAttribute("createPortCommand", command);
@@ -157,15 +149,7 @@ public class EnniPortController extends AbstractSearchableSortableListController
       return "redirect:";
     }
 
-    if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
-      result.rejectValue("vlanRanges", "validation.not.empty");
-    }
-    if (!enniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
-      result.rejectValue("bodPortId", "validation.not.unique");
-    }
-    if (!PhysicalPortController.containsLetters(command.getBodPortId())) {
-      result.rejectValue("bodPortId", "validation.should.contain.letter");
-    }
+    validateCommand(enniPort, command, result);
 
     if (result.hasErrors()) {
       model.addAttribute("updateEnniPortCommand", command);
@@ -187,6 +171,21 @@ public class EnniPortController extends AbstractSearchableSortableListController
     messageManager.addInfoFlashMessage(redirectAttributes, "info_physicalport_enni_updated", enniPort.getNocLabel());
 
     return "redirect:/noc/physicalports/enni";
+  }
+
+  private void validateCommand(EnniPort enniPort, CreateEnniPortCommand command, BindingResult result) {
+    if (enniPort.isVlanRequired() && StringUtils.isEmpty(command.getVlanRanges())) {
+      result.rejectValue("vlanRanges", "validation.not.empty");
+    }
+    if (!enniPort.getBodPortId().equals(command.getBodPortId()) && physicalPortService.findByBodPortId(command.getBodPortId()) != null) {
+      result.rejectValue("bodPortId", "validation.not.unique");
+    }
+    if (!PhysicalPortController.containsLetters(command.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.contain.letter");
+    }
+    if(!java.util.regex.Pattern.matches(NsiHelper.GFD_202_OPAQUE_PART_PATTERN, command.getBodPortId())) {
+      result.rejectValue("bodPortId", "validation.should.match.pattern", new String[] { NsiHelper.GFD_202_OPAQUE_PART_PATTERN }, "Did not match pattern");
+    }
   }
 
   @Override
