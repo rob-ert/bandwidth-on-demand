@@ -41,16 +41,7 @@ import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2UserType;
 
 import org.apache.commons.io.IOUtils;
-import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
@@ -69,6 +60,9 @@ class Converters {
   public static final JaxbUserType<GenericConfirmedType> RESERVE_ABORT_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createReserveAbortConfirmed(null));
   public static final JaxbUserType<GenericConfirmedType> TERMINATE_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createTerminateConfirmed(null));
   public static final JaxbUserType<GenericConfirmedType> PROVISION_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createProvisionConfirmed(null));
+  public static final JaxbUserType<GenericConfirmedType> RELEASE_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createReleaseConfirmed(null));
+  public static final JaxbUserType<GenericErrorType> ERROR_CONVERTER = new NsiV2UserType<>(BODY_OF.createError(null));
+
   public static final JaxbUserType<DataPlaneStateChangeRequestType> DATA_PLANE_STATE_CHANGE_CONVERTER = new NsiV2UserType<>(BODY_OF.createDataPlaneStateChange(null));
   public static final JaxbUserType<ErrorEventType> ERROR_EVENT_CONVERTER = new NsiV2UserType<>(BODY_OF.createErrorEvent(null));
   public static final JaxbUserType<QuerySummaryConfirmedType> QUERY_SUMMARY_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQuerySummaryConfirmed(null));
