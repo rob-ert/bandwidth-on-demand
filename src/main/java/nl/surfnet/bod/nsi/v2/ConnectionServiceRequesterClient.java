@@ -38,20 +38,7 @@ import com.google.common.base.Optional;
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 import nl.surfnet.bod.util.JaxbUserType;
 
-import org.ogf.schemas.nsi._2013._12.connection.types.ConnectionStatesType;
-import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.slf4j.Logger;
@@ -167,6 +154,11 @@ class ConnectionServiceRequesterClient {
     sendMessage(NsiV2Message.Type.ASYNC_REPLY, replyTo, "queryNotificationConfirmed", header, queryNotificationConfirmed, Converters.QUERY_NOTIFICATION_CONFIRMED_CONVERTER, null);
   }
 
+  public void replyQueryResultConfirmed(CommonHeaderType requesterReplyHeaders, List<QueryResultResponseType> result, Optional<URI> replyTo) {
+    QueryResultConfirmedType queryResultConfirmedType = new QueryResultConfirmedType().withResult(result);
+    sendMessage(Type.ASYNC_REPLY, replyTo, "queryResultConfirmed", requesterReplyHeaders, queryResultConfirmedType, Converters.QUERY_RESULT_CONFIRMED_CONVERTER, null);
+  }
+
   private <T> void sendMessage(Type type, Optional<URI> replyTo, String action, CommonHeaderType header, T body, JaxbUserType<T> bodyConverter, String connectionId) {
     log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
@@ -199,4 +191,5 @@ class ConnectionServiceRequesterClient {
       messageRepo.save(nsiV2Message);
     }
   }
+
 }

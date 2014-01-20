@@ -241,20 +241,21 @@ public class ConnectionServiceV2 {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
   }
 
+  @Async
+  public void asyncQueryResult(final String connectionId, final Long startResultId, final Long endResultId, NsiV2RequestDetails requestDetails){
+    List<QueryResultResponseType> result = queryResult(connectionId, startResultId, endResultId);
+    connectionServiceRequester.queryResultConfirmed(result, requestDetails);
+  }
 
-
-  public List<QueryResultResponseType> syncQueryResult(String connectionId, Long startResultId, Long endResultId) {
+  public List<QueryResultResponseType> queryResult(final String connectionId, final Long startResultId, final Long endResultId) {
     List<NsiV2Message> messages = nsiV2MessageRepo.findQueryResults(connectionId, startResultId, endResultId);
 
     List<QueryResultResponseType> responses = new ArrayList<>();
-
-
 
     for (NsiV2Message message: messages) {
       QueryResultResponseType response = new QueryResultResponseType().withResultId(message.getResultId())
               .withTimeStamp(XmlUtils.toGregorianCalendar(message.getCreatedAt()))
               .withCorrelationId(message.getCorrelationId());
-
 
       try {
         SOAPMessage soapMessage = Converters.deserializeMessage(message.getMessage());

@@ -291,7 +291,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     checkOAuthScope(NsiScope.QUERY);
 
-    log.info("Received a Query Notifcation async");
+    log.info("Received a Query Notification async");
 
     connectionService.asyncQueryNotification(connectionId, Optional.fromNullable(startNotificationId),
         Optional.fromNullable(endNotificationId), requestDetails);
@@ -310,20 +310,25 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
     } catch (ServiceException e) {
       throw toError(e);
-      //throw new QueryNotificationSyncFailed(e.getMessage(), new QueryFailedType().withServiceException(e.getFaultInfo()));
     }
   }
 
   @Override
   public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header)
           throws ServiceException {
-    // TODO Auto-generated method stub
-
+    checkOAuthScope(NsiScope.QUERY);
+    NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
+    connectionService.asyncQueryResult(connectionId, startResultId, endResultId, requestDetails);
   }
 
   @Override
   public List<QueryResultResponseType> queryResultSync(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws Error {
-    return connectionService.syncQueryResult(connectionId, startResultId, endResultId);
+    try {
+      checkOAuthScope(NsiScope.QUERY);
+      return connectionService.queryResult(connectionId, startResultId, endResultId);
+    } catch (ServiceException e) {
+      throw toError(e);
+    }
   }
 
 
