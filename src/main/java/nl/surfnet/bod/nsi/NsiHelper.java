@@ -122,7 +122,13 @@ public class NsiHelper {
   }
 
   public String getStpIdV2WithArguments(EnniPort port) {
-    return getStpIdV2(port);
+    String stpId = getStpIdV2(port);
+
+    if (port.isVlanRequired()) {
+      return String.format("%s?vlan=%s", stpId, port.getVlanRanges());
+    }
+
+    return stpId;
   }
 
   public String getStpIdV1(EnniPort port) {
