@@ -115,7 +115,7 @@ public class PhysicalPortView {
     this.nsiProviderIdV1 = nsiHelper.getProviderNsaV1();
     this.nsiStpIdV1 = nsiHelper.getStpIdV1(enniPort);
     this.nsiProviderIdV2 = nsiHelper.getProviderNsaV2();
-    this.nsiStpIdV2 = nsiHelper.getStpIdV2(enniPort);
+    this.nsiStpIdV2 = nsiHelper.getStpIdV2WithArguments(enniPort);
 
     this.nmsNeId = enniPort.getNbiPort().getNmsNeId();
     this.nmsPortSpeed = enniPort.getNbiPort().getNmsPortSpeed();
