@@ -396,7 +396,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void should_return_query_information_synchronously() throws Exception {
     ConnectionV2 connection = new ConnectionV2Factory().setRequesterNsa("requesterNSA").create();
-    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+    when(connectionService.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
 
     List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
 
@@ -409,7 +409,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void query_should_not_include_criteria_when_connection_has_not_been_committed() throws Exception {
     ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_START).create();
-    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+    when(connectionService.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
 
     List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
 
@@ -421,7 +421,7 @@ public class ConnectionServiceProviderV2WsTest {
   @Test
   public void query_should_include_criteria_for_committed_connection() throws Exception {
     ConnectionV2 connection = new ConnectionV2Factory().committed(3).setDesiredBandwidth(100).create();
-    when(connectionService.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
+    when(connectionService.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNSA")).thenReturn(Collections.singletonList(connection));
 
     List<QuerySummaryResultType> results = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), headerHolder);
 

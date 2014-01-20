@@ -53,8 +53,6 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.JaxbUserType;
-import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import org.joda.time.DateTime;
@@ -174,7 +172,7 @@ public class ConnectionServiceV2 {
 
   @Async
   public void asyncQuerySummary(List<String> connectionIds, List<String> globalReservationIds, NsiV2RequestDetails requestDetails) {
-    connectionServiceRequester.querySummaryConfirmed(querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
+    connectionServiceRequester.querySummaryConfirmed(querySummary(connectionIds, globalReservationIds, requestDetails.getRequesterNsa()), requestDetails);
   }
 
   /**
@@ -182,11 +180,11 @@ public class ConnectionServiceV2 {
    */
   @Async
   public void asyncQueryRecursive(List<String> connectionIds, List<String> globalReservationIds, NsiV2RequestDetails requestDetails) {
-    List<ConnectionV2> result = querySummarySync(connectionIds, globalReservationIds, requestDetails.getRequesterNsa());
+    List<ConnectionV2> result = querySummary(connectionIds, globalReservationIds, requestDetails.getRequesterNsa());
     connectionServiceRequester.queryRecursiveConfirmed(result, requestDetails);
   }
 
-  public List<ConnectionV2> querySummarySync(List<String> connectionIds, List<String> globalReservationIds, String requesterNsa) {
+  public List<ConnectionV2> querySummary(List<String> connectionIds, List<String> globalReservationIds, String requesterNsa) {
     List<ConnectionV2> connections;
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {

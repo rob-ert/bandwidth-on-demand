@@ -184,7 +184,7 @@ public class ConnectionServiceV2Test {
 
     when(connectionRepoMock.findByConnectionId(nonExistingConnectionId)).thenReturn(null);
 
-    List<ConnectionV2> connections = subject.querySummarySync(ImmutableList.of(nonExistingConnectionId), Collections.<String>emptyList(), "requesterNsa");
+    List<ConnectionV2> connections = subject.querySummary(ImmutableList.of(nonExistingConnectionId), Collections.<String>emptyList(), "requesterNsa");
 
     assertThat(connections, hasSize(0));
   }
@@ -194,7 +194,7 @@ public class ConnectionServiceV2Test {
     ConnectionV2 connection = new ConnectionV2Factory().create();
     when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(connection);
 
-    List<ConnectionV2> connections = subject.querySummarySync(ImmutableList.of("connectionId"), Collections.<String>emptyList(), "requesterNsa");
+    List<ConnectionV2> connections = subject.querySummary(ImmutableList.of("connectionId"), Collections.<String>emptyList(), "requesterNsa");
 
     assertThat(connections, contains(connection));
   }
@@ -204,7 +204,7 @@ public class ConnectionServiceV2Test {
     ConnectionV2 connection = new ConnectionV2Factory().create();
     when(connectionRepoMock.findByGlobalReservationId("globalReservationId")).thenReturn(connection);
 
-    List<ConnectionV2> connections = subject.querySummarySync(Collections.<String>emptyList(), ImmutableList.of("globalReservationId"), "requesterNsa");
+    List<ConnectionV2> connections = subject.querySummary(Collections.<String>emptyList(), ImmutableList.of("globalReservationId"), "requesterNsa");
 
     assertThat(connections, contains(connection));
   }
@@ -214,7 +214,7 @@ public class ConnectionServiceV2Test {
     ConnectionV2 connection = new ConnectionV2Factory().create();
     when(connectionRepoMock.findByRequesterNsa("requesterNsa")).thenReturn(ImmutableList.of(connection));
 
-    List<ConnectionV2> connections = subject.querySummarySync(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNsa");
+    List<ConnectionV2> connections = subject.querySummary(Collections.<String>emptyList(), Collections.<String>emptyList(), "requesterNsa");
 
     assertThat(connections, contains(connection));
   }
