@@ -36,9 +36,7 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
@@ -55,6 +53,8 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.JaxbUserType;
+import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import org.joda.time.DateTime;
@@ -243,10 +243,15 @@ public class ConnectionServiceV2 {
     connectionServiceRequester.queryNotificationConfirmed(queryNotification(connectionId, startNotificationId, endNotificationId, requestDetails), requestDetails);
   }
 
+
+
   public List<QueryResultResponseType> syncQueryResult(String connectionId, Long startResultId, Long endResultId) {
     List<NsiV2Message> messages = nsiV2MessageRepo.findQueryResults(connectionId, startResultId, endResultId);
 
     List<QueryResultResponseType> responses = new ArrayList<>();
+
+
+
     for (NsiV2Message message: messages) {
       QueryResultResponseType response = new QueryResultResponseType().withResultId(message.getResultId())
               .withTimeStamp(XmlUtils.toGregorianCalendar(message.getCreatedAt()))
@@ -256,10 +261,32 @@ public class ConnectionServiceV2 {
       try {
         SOAPMessage soapMessage = Converters.deserializeMessage(message.getMessage());
         log.debug("message = {}", soapMessage.toString());
+
         // figure out which type of message it was. We care about:
         // reserveConfirmed, reserveFailed, reserveCommitConfirmed, reserveCommitFailed, reserveAbortConfirmed,
-        // provisionConfirmed, releaseConfirmed, provisionConfirmed, terminateConfirmed
-      } catch (SOAPException | IOException e) {
+        // provisionConfirmed, releaseConfirmed,  terminateConfirmed and error.
+
+        if (message.getSoapAction().endsWith("reserveConfirmed")){
+          response.setReserveConfirmed(Converters.parseBody(Converters.RESERVE_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("reserveFailed")){
+          response.setReserveFailed(Converters.parseBody(Converters.RESERVE_FAILED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("reserveCommitConfirmed")){
+          response.setReserveCommitConfirmed(Converters.parseBody(Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("reserveCommitFailed")){
+          response.setReserveCommitFailed(Converters.parseBody(Converters.RESERVE_FAILED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("reserveAbortConfirmed")){
+          response.setReserveAbortConfirmed(Converters.parseBody(Converters.RESERVE_ABORT_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("provisionConfirmed")){
+          response.setProvisionConfirmed(Converters.parseBody(Converters.PROVISION_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("releaseConfirmed")){
+          response.setReleaseConfirmed(Converters.parseBody(Converters.RELEASE_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("terminateConfirmed")){
+          response.setTerminateConfirmed(Converters.parseBody(Converters.TERMINATE_CONFIRMED_CONVERTER, soapMessage));
+        } else if (message.getSoapAction().endsWith("error")){
+          response.setError(Converters.parseBody(Converters.ERROR_CONVERTER, soapMessage));
+        }
+
+      } catch (JAXBException| SOAPException | IOException e) {
         log.error("Unable to de-serialize NsiV2Message.message, stored value was: {}", message.getMessage());
         throw new RuntimeException(e);
       }
