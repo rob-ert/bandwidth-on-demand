@@ -60,7 +60,7 @@ public class NsiHelper {
 
   // URN formats
   // nsi1:      urn:ogf:network:stp:{networkIdV1}:{virtualPort.id}
-  // nsi2:      urn:ogf:{networkIdV2}:port:{topologyId}:{virtualPort.id | enniPort.bodPortId}
+  // nsi2:      urn:ogf:{networkIdV2}:{topologyId}:{virtualPort.id | enniPort.bodPortId}
   // networkId: urn:ogf:{networkIdV2}:topology:{topologyId}
   // nsa:       urn:ogf:network:{networkIdV2}:nsa:{providerId}
 
@@ -76,7 +76,7 @@ public class NsiHelper {
     this.networkIdV2 = networkIdV2;
     this.urnGlobalReservationId = urnGlobalReservationId;
     this.urnStpV1 = join(URN_OGF, "stp", networkIdV1);
-    this.urnStpV2 = join(URN_OGF,  networkIdV2, "port", topologyId);
+    this.urnStpV2 = join(URN_OGF,  networkIdV2, topologyId);
     this.providerId = providerId;
     this.topologyId = topologyId;
 
