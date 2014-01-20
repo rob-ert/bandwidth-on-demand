@@ -22,30 +22,22 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPFault;
-import javax.xml.soap.SOAPMessage;
-
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.NsiV2UserType;
-
 import org.apache.commons.io.IOUtils;
 import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.w3c.dom.Element;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
 
 class Converters {
   private static final org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory HEADER_OF = new org.ogf.schemas.nsi._2013._12.framework.headers.ObjectFactory();
@@ -68,6 +60,7 @@ class Converters {
   public static final JaxbUserType<QuerySummaryConfirmedType> QUERY_SUMMARY_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQuerySummaryConfirmed(null));
   public static final JaxbUserType<QueryRecursiveConfirmedType> QUERY_RECURSIVE_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQueryRecursiveConfirmed(null));
   public static final JaxbUserType<QueryNotificationConfirmedType> QUERY_NOTIFICATION_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQueryNotificationConfirmed(null));
+  public static final JaxbUserType<QueryResultConfirmedType> QUERY_RESULT_CONFIRMED_CONVERTER = new NsiV2UserType<>(BODY_OF.createQueryResultConfirmed(null));
   public static final JaxbUserType<ServiceExceptionType> SERVICE_EXCEPTION_CONVERTER = new NsiV2UserType<>(BODY_OF.createServiceException(null));
 
   public static CommonHeaderType parseNsiHeader(SOAPMessage message) throws SOAPException, JAXBException {

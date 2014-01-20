@@ -38,22 +38,9 @@ import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
-import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStatusType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
-import org.ogf.schemas.nsi._2013._12.connection.types.EventEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
-import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
-import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 class ConnectionServiceRequesterV2 {
@@ -209,6 +196,10 @@ class ConnectionServiceRequesterV2 {
     List<QuerySummaryResultType> results = transform(connections, toQuerySummaryResultType);
 
     client.replyQuerySummaryConfirmed(requestDetails.createRequesterReplyHeaders(), results, requestDetails.getReplyTo());
+  }
+
+  public void queryResultConfirmed(final List<QueryResultResponseType> result, NsiV2RequestDetails requestDetails) {
+    client.replyQueryResultConfirmed(requestDetails.createRequesterReplyHeaders(), result, requestDetails.getReplyTo());
   }
 
   public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiV2RequestDetails requestDetails){
