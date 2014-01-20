@@ -85,4 +85,5 @@ public class NsiHelperTest {
   public void should_derive_urn_topology() {
     assertThat(subject.getUrnTopology(), is("urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production"));
   }
+
 }

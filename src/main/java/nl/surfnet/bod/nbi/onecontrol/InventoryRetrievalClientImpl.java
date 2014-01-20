@@ -141,7 +141,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     port.setInterfaceType(interfaceType);
     port.setSignalingType("NA");
     port.setVlanRequired(isVlanRequired);
-    port.setSuggestedBodPortId(nmsSapName);
+    port.setSuggestedBodPortId(nmsSapName.replace('/', '-'));
     port.setSuggestedNocLabel(managedElement + "@" +  MtosiUtils.convertToShortPtP(ptp));
 
     logger.debug("Retrieved physicalport: {}", port);
