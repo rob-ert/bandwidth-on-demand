@@ -29,11 +29,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface NsiV2MessageRepo extends JpaRepository<NsiV2Message, Long> {
+public interface NsiV2MessageRepo extends JpaRepository<NsiV2Message, Long>, NsiV2MessageRepoCustom {
 
   NsiV2Message findByRequesterNsaAndCorrelationIdAndType(String requesterNsa, String correlationId, NsiV2Message.Type type);
-
-  List<NsiV2Message> findByConnectionIdAndResultIdBetweenOrderByResultIdAsc(String connectionId, Long resultIdStart, Long resultIdEnd);
 
   @Query("select max(m.resultId) from NsiV2Message m where connectionId = ?1")
   Long getMaxResultIdByConnectionId(String connectionId);
