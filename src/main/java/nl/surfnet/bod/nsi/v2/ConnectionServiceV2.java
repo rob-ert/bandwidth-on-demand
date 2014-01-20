@@ -244,7 +244,7 @@ public class ConnectionServiceV2 {
   }
 
   public List<QueryResultResponseType> syncQueryResult(String connectionId, Long startResultId, Long endResultId) {
-    List<NsiV2Message> messages = nsiV2MessageRepo.findByConnectionIdAndResultIdBetweenOrderByResultIdAsc(connectionId, startResultId, endResultId);
+    List<NsiV2Message> messages = nsiV2MessageRepo.findQueryResults(connectionId, startResultId, endResultId);
 
     List<QueryResultResponseType> responses = new ArrayList<>();
     for (NsiV2Message message: messages) {
