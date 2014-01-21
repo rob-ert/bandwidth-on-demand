@@ -163,7 +163,10 @@ class ConnectionServiceRequesterClient {
     log.info("sending {} {} message to {} for requester {} and correlation {}", type, action, replyTo, header.getRequesterNSA(), header.getCorrelationId());
     try {
       SOAPMessage message = Converters.createSoapMessage(header, body, bodyConverter);
-      saveMessage(type, soapAction(action), header, message, connectionId);
+      if (!action.startsWith("query")){
+        // queries are performed again at every request
+        saveMessage(type, soapAction(action), header, message, connectionId);
+      }
       asyncClient.asyncSend(replyTo, soapAction(action), message);
     } catch (SOAPException | DOMException | JAXBException | IOException e) {
       throw new RuntimeException("failed to send " + action + " message to " + header.getRequesterNSA() + " (" + replyTo + ")");
