@@ -302,6 +302,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     try {
       NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
 
+      checkOAuthScope(NsiScope.QUERY);
+
       List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
           Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
           Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
