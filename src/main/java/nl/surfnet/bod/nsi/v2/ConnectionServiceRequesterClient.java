@@ -86,7 +86,7 @@ class ConnectionServiceRequesterClient {
       .withNotificationId(notificationId)
       .withOriginatingNSA(header.getProviderNSA())
       .withOriginatingConnectionId(connectionId);
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER, null);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "reserveTimeout", header, body, Converters.RESERVE_TIMEOUT_CONVERTER, connectionId);
   }
 
   public void replyReserveCommitConfirmed(CommonHeaderType header, String connectionId, Optional<URI> replyTo) {
@@ -115,7 +115,7 @@ class ConnectionServiceRequesterClient {
       .withNotificationId(notificationId)
       .withDataPlaneStatus(dataPlaneStatus)
       .withTimeStamp(timeStamp);
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER, null);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "dataPlaneStateChange", header, body, Converters.DATA_PLANE_STATE_CHANGE_CONVERTER, connectionId);
   }
 
   public void notifyDataPlaneError(final ErrorEventType notification, CommonHeaderType header, String connectionId, XMLGregorianCalendar timeStamp, Optional<URI> replyTo) {
@@ -137,7 +137,7 @@ class ConnectionServiceRequesterClient {
       .withTimeStamp(timeStamp)
       .withAdditionalInfo(notification.getAdditionalInfo())
       .withServiceException(notification.getServiceException());
-    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER, null);
+    sendMessage(NsiV2Message.Type.NOTIFICATION, replyTo, "errorEvent", header, body, Converters.ERROR_EVENT_CONVERTER, connectionId);
   }
 
   public void replyQuerySummaryConfirmed(CommonHeaderType header, List<QuerySummaryResultType> results, Optional<URI> replyTo) {

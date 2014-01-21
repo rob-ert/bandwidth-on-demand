@@ -293,8 +293,11 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     log.info("Received a Query Notification async");
 
-    connectionService.asyncQueryNotification(connectionId, Optional.fromNullable(startNotificationId),
-        Optional.fromNullable(endNotificationId), requestDetails);
+    connectionService.asyncQueryNotification(
+      connectionId,
+      Optional.fromNullable(startNotificationId),
+      Optional.fromNullable(endNotificationId),
+      requestDetails);
   }
 
   @Override
@@ -316,18 +319,20 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   @Override
-  public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header)
-          throws ServiceException {
-    checkOAuthScope(NsiScope.QUERY);
+  public void queryResult(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws ServiceException {
     NsiV2RequestDetails requestDetails = createRequestDetails(header.value);
-    connectionService.asyncQueryResult(connectionId, startResultId, endResultId, requestDetails);
+
+    checkOAuthScope(NsiScope.QUERY);
+
+    connectionService.asyncQueryResult(connectionId, Optional.fromNullable(startResultId), Optional.fromNullable(endResultId), requestDetails);
   }
 
   @Override
   public List<QueryResultResponseType> queryResultSync(String connectionId, Long startResultId, Long endResultId, Holder<CommonHeaderType> header) throws Error {
     try {
       checkOAuthScope(NsiScope.QUERY);
-      return connectionService.queryResult(connectionId, startResultId, endResultId);
+
+      return connectionService.queryResult(connectionId, Optional.fromNullable(startResultId), Optional.fromNullable(endResultId));
     } catch (ServiceException e) {
       throw toError(e);
     }
@@ -354,7 +359,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private NsiV2RequestDetails createRequestDetails(CommonHeaderType header) throws ServiceException {
-    // The @SchemaValidation annotiation does not validate the headers, so we have to manually validate everything here.
+    // The @SchemaValidation annotation does not validate the headers, so we have to manually validate everything here.
     if (header.getProtocolVersion() == null) {
       throw missingParameter("protocolVersion");
     }

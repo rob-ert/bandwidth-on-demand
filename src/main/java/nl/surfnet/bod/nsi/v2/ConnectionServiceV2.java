@@ -242,12 +242,12 @@ public class ConnectionServiceV2 {
   }
 
   @Async
-  public void asyncQueryResult(final String connectionId, final Long startResultId, final Long endResultId, NsiV2RequestDetails requestDetails){
+  public void asyncQueryResult(final String connectionId, final Optional<Long> startResultId, final Optional<Long> endResultId, NsiV2RequestDetails requestDetails){
     List<QueryResultResponseType> result = queryResult(connectionId, startResultId, endResultId);
     connectionServiceRequester.queryResultConfirmed(result, requestDetails);
   }
 
-  public List<QueryResultResponseType> queryResult(final String connectionId, final Long startResultId, final Long endResultId) {
+  public List<QueryResultResponseType> queryResult(final String connectionId, final Optional<Long> startResultId, final Optional<Long> endResultId) {
     List<NsiV2Message> messages = nsiV2MessageRepo.findQueryResults(connectionId, startResultId, endResultId);
 
     List<QueryResultResponseType> responses = new ArrayList<>();
