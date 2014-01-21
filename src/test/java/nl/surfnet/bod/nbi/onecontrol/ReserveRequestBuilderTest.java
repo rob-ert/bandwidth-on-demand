@@ -79,7 +79,7 @@ public class ReserveRequestBuilderTest {
     assertThat("serviceState", rfs.getServiceState(), is(ServiceStateType.RESERVED));
     assertThat(rfs.getDescribedByList(), hasSize(3));
 
-    assertThat("protectionLevel", findSscValue("ProtectionLevel", rfs.getDescribedByList()), isPresent("Fully Protected"));
+    assertThat("protectionLevel", findSscValue("ProtectionLevel", rfs.getDescribedByList()), isPresent("PartiallyProtected"));
 
     String startDateTime = MtosiUtils.findSscValue("StartTime", rfs.getDescribedByList()).get();
     assertThat(getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
