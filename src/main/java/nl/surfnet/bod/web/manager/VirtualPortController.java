@@ -51,13 +51,10 @@ import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VlanRangesValidator;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.VirtualPortCreateRequestLinkRepo;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.base.AbstractVirtualPortController;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.base.MessageView;
@@ -79,18 +76,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
-public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
+public class VirtualPortController extends AbstractVirtualPortController {
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  @Resource private VirtualPortService virtualPortService;
   @Resource private VirtualPortValidator virtualPortValidator;
   @Resource private MessageManager messageManager;
   @Resource private MessageRetriever messageRetriever;
   @Resource private ReservationService reservationService;
   @Resource private VirtualPortCreateRequestLinkRepo virtualPortRequestLinkRepo;
-  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(method = RequestMethod.POST)
   public String createRequest(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -296,14 +291,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     return "managerLabel";
   }
 
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("physicalResourceGroup")) {
-      return ImmutableList.of("physicalPort.physicalResourceGroup");
-    }
-
-    return super.translateSortProperty(sortProperty);
-  }
 
   public static class VirtualPortCommand {
     @NotEmpty
@@ -478,11 +465,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     public void setVersion(Integer version) {
       this.version = version;
     }
-  }
-
-  @Override
-  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
-    return virtualPortService;
   }
 
   @Override

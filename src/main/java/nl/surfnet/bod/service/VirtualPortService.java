@@ -304,13 +304,13 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public VirtualPort findByNsiV1StpId(String stpId) {
-    String id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.ONE);
-    return findByLocalStpId(id);
+    Optional<String> id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.ONE);
+    return findByLocalStpId(id.orNull());
   }
 
   public VirtualPort findByNsiV2StpId(String stpId) {
-    String id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
-    return findByLocalStpId(id);
+    Optional<String> id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
+    return findByLocalStpId(id.orNull());
   }
 
   private VirtualPort findByLocalStpId(String id) {

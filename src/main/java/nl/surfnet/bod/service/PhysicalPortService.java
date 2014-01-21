@@ -169,8 +169,8 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public EnniPort findByNsiV2StpId(String stpId) {
-    String bodPortId = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
-    return physicalPortRepo.findEnniPortByBodPortId(bodPortId);
+    Optional<String> bodPortId = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
+    return physicalPortRepo.findEnniPortByBodPortId(bodPortId.orNull());
   }
 
   public PhysicalPort findByBodPortId(String bodPortId) {

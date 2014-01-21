@@ -33,16 +33,12 @@ import javax.annotation.Resource;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.base.AbstractVirtualPortController;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -58,19 +54,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller("nocVirtualPortController")
 @RequestMapping("/noc/virtualports")
-public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
+public class VirtualPortController extends AbstractVirtualPortController {
 
   public static final String PAGE_URL = "/noc/virtualports";
 
-  @Resource private VirtualPortService virtualPortService;
   @Resource private ReservationService reservationService;
   @Resource private MessageManager messageManager;
-  @Resource private NsiHelper nsiHelper;
-
-  @Override
-  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
-    return virtualPortService;
-  }
 
   @Override
   protected String listUrl() {
@@ -90,15 +79,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   protected String getDefaultSortProperty() {
     return "managerLabel";
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("physicalResourceGroup")) {
-      return ImmutableList.of("physicalPort.physicalResourceGroup");
-    }
-
-    return super.translateSortProperty(sortProperty);
   }
 
   @Override
