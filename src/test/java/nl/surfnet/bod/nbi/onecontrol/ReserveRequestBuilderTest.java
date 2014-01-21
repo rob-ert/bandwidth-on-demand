@@ -83,9 +83,10 @@ public class ReserveRequestBuilderTest {
     assertTrue("stateful", rfs.isIsStateful());
     assertThat("adminState", rfs.getAdminState(), is(AdminStateType.UNLOCKED));
     assertThat("serviceState", rfs.getServiceState(), is(ServiceStateType.RESERVED));
-    assertThat(rfs.getDescribedByList(), hasSize(3));
+    assertThat(rfs.getDescribedByList(), hasSize(4));
 
     assertThat("protectionLevel", findSscValue("ProtectionLevel", rfs.getDescribedByList()), isPresent("PartiallyProtected"));
+    assertThat("serviceType", findSscValue("ServiceType", rfs.getDescribedByList()), isPresent("EPL"));
 
     String startDateTime = MtosiUtils.findSscValue("StartTime", rfs.getDescribedByList()).get();
     assertThat(getDateTimeFromXml(startDateTime), is(reservation.getStartDateTime()));
@@ -100,7 +101,7 @@ public class ReserveRequestBuilderTest {
     assertThat(tmttt, is(TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
 
     List<ServiceCharacteristicValueType> sourceSSCList = sourceSapList.getDescribedByList();
-    assertThat(sourceSSCList, hasSize(7));
+    assertThat(sourceSSCList, hasSize(6));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingTableCount", ReserveRequestBuilder.TRAFFIC_MAPPING_TABLECOUNT)));
     assertThat(sourceSSCList, hasItem(serviceCharacteristic("TrafficMappingFrom_Table_Priority", ReserveRequestBuilder.TRAFFIC_MAPPING_FROM_TABLE_PRIORITY)));
   }
@@ -133,7 +134,6 @@ public class ReserveRequestBuilderTest {
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
-    assertThat(findSscValue("ServiceType", sap.getDescribedByList()), isPresent("EVPL"));
     assertThat(findSscValue("TrafficMappingFrom_Table_VID", sap.getDescribedByList()), isPresent("3"));
     assertThat(findSscValue("InterfaceType", sap.getDescribedByList()), isPresent("UNI"));
     assertThat(findSscValue("TrafficMappingTo_Table_IngressCIR", sap.getDescribedByList()), isPresent("1024"));
@@ -147,7 +147,6 @@ public class ReserveRequestBuilderTest {
 
     ServiceAccessPointType sap = ReserveRequestBuilder.getSap(reservation, port);
 
-    assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("ServiceType", "EPL")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingFrom_Table_VID", "all")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("InterfaceType", "UNI")));
     assertThat(sap.getDescribedByList(), hasItem(serviceCharacteristic("TrafficMappingTo_Table_IngressCIR", "1024")));

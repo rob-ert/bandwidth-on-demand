@@ -76,12 +76,9 @@ public final class ReserveRequestBuilder {
     describedByList.add(createSscValue("TrafficMappingFrom_Table_Priority", TRAFFIC_MAPPING_FROM_TABLE_PRIORITY));
     describedByList.add(createSscValue("TrafficMappingTo_Table_TrafficClass", TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS));
 
-    Integer vlanId = vlanIdOfEndPoint(endPoint);
-    if (vlanId != null) {
-      describedByList.add(createSscValue("ServiceType", "EVPL"));
-      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(vlanId)));
+    if (endPoint.getVlanId().isPresent()) {
+      describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", String.valueOf(endPoint.getVlanId().get())));
     } else {
-      describedByList.add(createSscValue("ServiceType", "EPL"));
       describedByList.add(createSscValue("TrafficMappingFrom_Table_VID", "all"));
     }
 
@@ -113,16 +110,6 @@ public final class ReserveRequestBuilder {
     throw new IllegalArgumentException("Unsupported protectionType (" + protectionType.name() + ")");
   }
 
-  private static Integer vlanIdOfEndPoint(ReservationEndPoint endPoint) {
-    if (endPoint.getEnniVlanId().isPresent()) {
-      return endPoint.getEnniVlanId().get();
-    } else if (endPoint.getVirtualPort().isPresent() && endPoint.getVirtualPort().get().getVlanId() != null) {
-      return endPoint.getVirtualPort().get().getVlanId();
-    } else {
-      return null;
-    }
-  }
-
   private static ReserveRequest createReserveRequest(DateTime endDateTime) {
     ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
 
@@ -135,18 +122,23 @@ public final class ReserveRequestBuilder {
 
   @VisibleForTesting
   static ResourceFacingServiceType createBasicRfsData(Reservation reservation) {
-    ResourceFacingServiceType rfsData = new ResourceFacingServiceType()
+    String serviceType =  isEVPL(reservation.getSourcePort()) || isEVPL(reservation.getDestinationPort()) ? "EVPL" : "EPL";
+
+    return new ResourceFacingServiceType()
       .withName(createComonObjectInfoTypeName("RFS", reservation.getReservationId()))
       .withIsMandatory(true)
       .withIsStateful(true)
       .withAdminState(AdminStateType.UNLOCKED)
       .withServiceState(ServiceStateType.RESERVED)
       .withDescribedByList(
+        createSscValue("ServiceType", serviceType),
         createSscValue("StartTime", convertToXml(reservation.getStartDateTime())),
         createSscValue("AdmissionControl", reservation.getBandwidth() <= 1000 ? "Loose" : "Strict"),
         createSscValue("ProtectionLevel", translate(reservation.getProtectionType())));
+  }
 
-    return rfsData;
+  private static boolean isEVPL(ReservationEndPoint endPoint) {
+    return endPoint.getVlanId().isPresent();
   }
 
   public static String convertToXml(DateTime timeStamp) {
