@@ -23,10 +23,7 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.nsi.NsiHelper.generateCorrelationId;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -39,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -49,16 +45,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
-
-import com.google.common.base.Optional;
-
-import nl.surfnet.bod.domain.NsiVersion;
-import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
-import nl.surfnet.bod.service.DatabaseTestHelper;
-import nl.surfnet.bod.support.BodWebDriver;
-import nl.surfnet.bod.support.SeleniumWithSingleSetup;
-import nl.surfnet.bod.util.XmlUtils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -76,6 +62,8 @@ import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionServiceProvid
 import org.ogf.schemas.nsi._2013._12.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._12.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryResultConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryResultResponseType;
 import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryConfirmedType;
 import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
@@ -88,6 +76,18 @@ import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Longs;
+
+import nl.surfnet.bod.domain.NsiVersion;
+import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
+import nl.surfnet.bod.service.DatabaseTestHelper;
+import nl.surfnet.bod.support.BodWebDriver;
+import nl.surfnet.bod.support.SeleniumWithSingleSetup;
+import nl.surfnet.bod.util.XmlUtils;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
@@ -217,6 +217,39 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     result = querySummaryConfirmed.body.getReservation();
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getConnectionStates().getProvisionState(), is(ProvisionStateEnumType.PROVISIONED));
+
+    // finally, query result and see that all the appropriate state changes appear
+    final String queryResultCorrelationId = generateCorrelationId();
+    connectionServiceProviderPort.queryResult(connectionId.value, null, null, createHeader(queryResultCorrelationId));
+
+    Message<QueryResultConfirmedType> queryResultConfirmedTypeMessage = soapReplyListener.getLastReply(Converters.QUERY_RESULT_CONFIRMED_CONVERTER);
+    final List<QueryResultResponseType> queryResults = queryResultConfirmedTypeMessage.body.getResult();
+
+    // sort the collection on resultId, because i'm not sure if we can rely on Jaxb ordering
+    Ordering<QueryResultResponseType> byResultIdOrdering = new Ordering<QueryResultResponseType>() {
+      public int compare(QueryResultResponseType left, QueryResultResponseType right) {
+        return Longs.compare(left.getResultId(), right.getResultId());
+      }
+    };
+    Collections.sort(queryResults, byResultIdOrdering);
+    // first result must be reserveConfirmed, second reserveCommitConfirmed and last provisionConfirmed
+    assertThat(queryResults, hasSize(3));
+
+    QueryResultResponseType reserveConfirmedEntry = queryResults.get(0);
+    assertThat(reserveConfirmedEntry.getResultId(), equalTo(1L));
+    QueryResultResponseType reserveCommitConfirmedEntry = queryResults.get(1);
+    assertThat(reserveCommitConfirmedEntry.getResultId(), equalTo(2L));
+    QueryResultResponseType provisionConfirmedEntry = queryResults.get(2);
+    assertThat(provisionConfirmedEntry.getResultId(), equalTo(3L));
+
+    assertThat(reserveConfirmedEntry.getReserveConfirmed(), notNullValue());
+    assertThat(reserveCommitConfirmedEntry.getReserveCommitConfirmed(), notNullValue());
+    assertThat(provisionConfirmedEntry.getProvisionConfirmed(), notNullValue());
+
+    // see that they all belong to the same Connection
+    assertThat(reserveConfirmedEntry.getReserveConfirmed().getConnectionId(), equalTo(reserveCommitConfirmedEntry.getReserveCommitConfirmed().getConnectionId()));
+    assertThat(provisionConfirmedEntry.getProvisionConfirmed().getConnectionId(), equalTo(reserveCommitConfirmedEntry.getReserveCommitConfirmed().getConnectionId()));
+
   }
 
   @Test
