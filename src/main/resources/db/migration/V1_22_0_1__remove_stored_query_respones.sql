@@ -1,0 +1,1 @@
+DELETE FROM nsi_v2_message where soap_action ilike '%query%';

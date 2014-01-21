@@ -29,16 +29,21 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.net.URI;
 
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPBodyElement;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import com.google.common.base.Optional;
 
@@ -54,6 +59,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderIdempotentMessageHandlerTest {
@@ -63,6 +71,9 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
   @Mock
   private ConnectionServiceRequesterAsyncClient client;
+
+  @Mock
+  private PlatformTransactionManager transactionManager;
 
   @InjectMocks
   private ConnectionServiceProviderIdempotentMessageHandler subject = new ConnectionServiceProviderIdempotentMessageHandler();
@@ -94,6 +105,20 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
     verify(messageRepo, times(1)).save(persistedMessage.capture());
     assertThat("proceed with further handling", proceed, is(true));
     assertThat(persistedMessage.getValue().getType(), is(Type.SYNC_ACK));
+  }
+
+  @Test
+  public void shouldNotCacheReadonlyOperations() throws Exception {
+
+    final SOAPMessage soapMessage = parseSoapMessage("/web/services/nsiv2/querySummary.xml");
+    final SOAPMessageContext soapMessageContext = mock(SOAPMessageContext.class);
+    when(soapMessageContext.getMessage()).thenReturn(soapMessage);
+    when(soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+    when(transactionManager.getTransaction(any(TransactionDefinition.class))).thenReturn(mock(TransactionStatus.class));
+
+    boolean proceed = subject.handleMessage(soapMessageContext);
+    assertThat("proceed with further handling", proceed, is(true));
+    verifyZeroInteractions(messageRepo);
   }
 
   @Test
