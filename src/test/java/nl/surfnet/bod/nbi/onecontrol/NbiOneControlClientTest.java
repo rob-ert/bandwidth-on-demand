@@ -119,7 +119,7 @@ public class NbiOneControlClientTest {
 
   @Test
   public void should_get_a_unique_resration_id_that_is_sortable() {
-    String dateString = DateTimeFormat.forPattern("yyyyMMdd").print(DateTime.now());
+    String dateString = DateTimeFormat.forPattern("yyyyMMddHHmmss").print(DateTime.now());
     String idOne = subject.createReservationId();
     String idTwo = subject.createReservationId();
 

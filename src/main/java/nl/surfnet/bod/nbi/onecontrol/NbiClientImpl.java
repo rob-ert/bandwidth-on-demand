@@ -59,7 +59,7 @@ public class NbiClientImpl implements NbiClient {
   @Resource private ReservationRepo reservationRepo;
   @Resource private ReservationService reservationService;
 
-  private static final String RESERVATION_ID_FORMAT = "dlp-%1$tY%1$tm%1$td-%2$s";
+  private static final String RESERVATION_ID_FORMAT = "dlp-%1$tY%1$tm%1$td%1$tH%1$tM%1$tS-%2$s";
 
   @Override
   public long getPhysicalPortsCount() {
