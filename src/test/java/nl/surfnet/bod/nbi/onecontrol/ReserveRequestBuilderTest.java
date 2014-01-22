@@ -34,10 +34,14 @@ import static nl.surfnet.bod.util.XmlUtils.toGregorianCalendar;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
 import java.util.List;
+
 import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationEndPoint;
@@ -46,6 +50,8 @@ import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
@@ -176,4 +182,27 @@ public class ReserveRequestBuilderTest {
     assertThat(findRdnValue("CTP", sap.getResourceRef()), isPresent("/eth=ReservationId"));
   }
 
+  @Test
+  public void should_create_reserve_request_without_end_time() {
+    Reservation reservation = new ReservationFactory().setEndDateTime(null).create();
+    reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsPortId("henk@1-1-1-1");
+    reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsPortId("joop@1-1-1-4");
+
+    ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
+
+    assertThat(reserveRequest.getExpiringTime(), is(nullValue()));
+  }
+
+  @Test
+  public void should_create_reserve_request_with_end_time() {
+    Reservation reservation = new ReservationFactory().setEndDateTime(new DateTime(2014, 1, 22, 12, 0)).create();
+    reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsPortId("henk@1-1-1-1");
+    reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsPortId("joop@1-1-1-4");
+
+    ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
+
+    assertThat(reserveRequest.getExpiringTime().getYear(), is(2014));
+    assertThat(reserveRequest.getExpiringTime().getMonth(), is(1));
+    assertThat(reserveRequest.getExpiringTime().getDay(), is(22));
+  }
 }

@@ -124,8 +124,11 @@ public class ReserveRequestBuilder {
   }
 
   private static ReserveRequest createReserveRequest(DateTime endDateTime) {
-    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest()
-      .withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
+    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
+
+    if (endDateTime != null) {
+      reserveRequest.withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
+    }
 
     return reserveRequest;
   }
