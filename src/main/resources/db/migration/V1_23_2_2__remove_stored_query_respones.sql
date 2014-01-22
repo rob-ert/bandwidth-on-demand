@@ -1,1 +1,1 @@
-DELETE FROM nsi_v2_message where soap_action ilike '%query%';
+-- noop, removed but keep file to not mess up current versions

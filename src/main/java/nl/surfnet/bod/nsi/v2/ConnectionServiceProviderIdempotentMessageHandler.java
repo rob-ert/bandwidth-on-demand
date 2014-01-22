@@ -71,13 +71,9 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
     try {
       SOAPMessage message = context.getMessage();
       boolean outbound = (boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-
       if (outbound) {
         return handleAcknowledgment(message);
-      }else if(isQueryRelated(message)) {
-        return true; // always let queries proceed, their results must not be stored
-      }
-      else {
+      } else {
         SOAPMessage faultOrOriginalAcknowledgment = handleRequest(message);
         if (faultOrOriginalAcknowledgment == null) {
           // Proceed with new request.
@@ -133,7 +129,6 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
 
   @VisibleForTesting
   boolean handleAcknowledgment(SOAPMessage message) throws IOException, SOAPException, JAXBException {
-    // TODO hans do not store acks for query-requests
     storeMessage(NsiV2Message.Type.SYNC_ACK, message);
     return true;
   }
@@ -144,9 +139,5 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
 
   private void storeMessage(Type messageType, SOAPMessage message) throws IOException, SOAPException, JAXBException {
     messageRepo.save(NsiV2Message.fromSoapMessage(messageType, message));
-  }
-
-  private boolean isQueryRelated(final SOAPMessage message) throws SOAPException{
-    return message.getSOAPBody().getChildNodes().item(1).getLocalName().startsWith("query");
   }
 }
