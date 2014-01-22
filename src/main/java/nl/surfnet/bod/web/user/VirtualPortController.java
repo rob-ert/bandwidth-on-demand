@@ -36,13 +36,10 @@ import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
-import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.VirtualPortDeleteRequestLinkRepo;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.base.AbstractVirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortView;
@@ -59,12 +56,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/virtualports")
-public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
+public class VirtualPortController extends AbstractVirtualPortController {
 
-  @Resource private VirtualPortService virtualPortService;
   @Resource private VirtualPortDeleteRequestLinkRepo virtualPortDeleteRequestLinkRepo;
   @Resource private ReservationService reservationService;
-  @Resource private NsiHelper nsiHelper;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
@@ -149,11 +144,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     }
 
     return super.translateSortProperty(sortProperty);
-  }
-
-  @Override
-  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
-    return virtualPortService;
   }
 
   @Override

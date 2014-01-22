@@ -22,9 +22,10 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static nl.surfnet.bod.nsi.NsiHelper.NURN_PATTERN_REGEXP;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -59,14 +60,15 @@ public class NsiHelperTest {
 
   @Test
   public void should_match_enni_port_id() {
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), is("Mock_Ut002A_OME01_ETH-1-1-4"));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:azAZ09+,-.:;=_!$()*@~&", NsiVersion.TWO), is("azAZ09+,-.:;=_!$()*@~&"));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:", NsiVersion.TWO), is(""));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:Mock_Ut002A_OME01_ETH-1-1-4", NsiVersion.TWO), isPresent("Mock_Ut002A_OME01_ETH-1-1-4"));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:azAZ09+,-.:;=_!$()*@~&", NsiVersion.TWO), isPresent("azAZ09+,-.:;=_!$()*@~&"));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:22?vlan=44", NsiVersion.TWO), isPresent("22"));
 
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:#", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:%33", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:'", NsiVersion.TWO), is(nullValue()));
-    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:<", NsiVersion.TWO), is(nullValue()));
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:", NsiVersion.TWO), isAbsent());
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:#", NsiVersion.TWO), isAbsent());
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:%33", NsiVersion.TWO), isAbsent());
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:'", NsiVersion.TWO), isAbsent());
+    assertThat(subject.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:production6:<", NsiVersion.TWO), isAbsent());
   }
 
   @Test

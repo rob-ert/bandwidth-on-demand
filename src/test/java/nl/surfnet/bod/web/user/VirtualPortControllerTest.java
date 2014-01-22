@@ -37,8 +37,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -61,15 +63,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortControllerTest {
 
-  @InjectMocks
-  private VirtualPortController subject;
+  @InjectMocks private VirtualPortController subject;
 
   @Mock private VirtualPortService virtualPortServiceMock;
+  @Mock private NsiHelper nsiHelper;
 
   private RichUserDetails user;
 
@@ -150,16 +153,15 @@ public class VirtualPortControllerTest {
     VirtualPort port = new VirtualPortFactory().create();
     List<VirtualPort> result = Lists.newArrayList(port);
 
-    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class)))
-        .thenReturn(result);
-
-    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class), any(Sort.class)))
-        .thenReturn(new ArrayList<Long>());
+    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class))).thenReturn(result);
+    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class), any(Sort.class))).thenReturn(new ArrayList<Long>());
 
     when(
         virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),
             eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), eq(user), anyList()))
         .thenReturn(new FullTextSearchResult<>(1, result));
+
+    when(nsiHelper.parseLocalNsiId(eq("virtualResourceGroup.name:\"some-team\""), any(NsiVersion.class))).thenReturn(Optional.<String>absent());
 
     String page = subject.search(0, "userLabel", null, "team:\"some-team\"", model);
 

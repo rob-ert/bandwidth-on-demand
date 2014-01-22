@@ -27,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NsiVersion;
@@ -79,18 +81,18 @@ public class NsiHelper {
     this.providerId = providerId;
 
     this.stpPatternV1 = Pattern.compile(urnStpV1 + ":([0-9]+)");
-    this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
+    this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")" + "(\\?" + GFD_202_OPAQUE_PART_PATTERN + ")?");
   }
 
-  public String parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
+  public Optional<String> parseLocalNsiId(String stpId, NsiVersion nsiVersion) {
     Pattern pattern = nsiVersion == NsiVersion.ONE ? stpPatternV1 : stpPatternV2;
     Matcher matcher = pattern.matcher(stpId);
 
     if (!matcher.matches()) {
-      return null;
+      return Optional.absent();
     }
 
-    return matcher.group(1);
+    return Optional.fromNullable(Strings.emptyToNull(matcher.group(1)));
   }
 
   public String generateGlobalReservationId() {

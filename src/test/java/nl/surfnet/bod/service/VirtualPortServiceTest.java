@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -252,7 +253,7 @@ public class VirtualPortServiceTest {
   public void findByNsiV1StpId() {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
-    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:25", NsiVersion.ONE)).thenReturn("25");
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:25", NsiVersion.ONE)).thenReturn(Optional.of("25"));
 
     VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:surfnet.nl:25");
 
@@ -262,7 +263,7 @@ public class VirtualPortServiceTest {
   public void findByNsiV2StpId() {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
-    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:25", NsiVersion.TWO)).thenReturn("25");
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:1990:25", NsiVersion.TWO)).thenReturn(Optional.of("25"));
 
     VirtualPort foundPort = subject.findByNsiV2StpId("urn:ogf:network:surfnet.nl:1990:25");
 
@@ -271,7 +272,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiV1StpIdWithWrongNetworkId() {
-    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:asdfasfasdf", NsiVersion.ONE)).thenReturn(null);
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:asdfasfasdf", NsiVersion.ONE)).thenReturn(Optional.<String>absent());
 
     VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:surfnet.nl:asdfasfasdf");
 
@@ -281,7 +282,9 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNsNetwork() {
-    VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:stp:zilverline.nl" + ":25");
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:stp:zilverline.nl:25", NsiVersion.ONE)).thenReturn(Optional.<String>absent());
+
+    VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:stp:zilverline.nl:25");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);

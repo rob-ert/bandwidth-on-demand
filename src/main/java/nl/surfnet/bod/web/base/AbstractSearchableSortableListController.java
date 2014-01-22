@@ -92,7 +92,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     Integer firstItem = calculateFirstPage(page);
     List<Long> listFromController = getIdsOfAllAllowedEntries(model, prepareSortOptions(sort, order, model));
 
-    String translatedSearchString = mapLabelToTechnicalName(search);
+    String translatedSearchString = searchTranslations(mapLabelToTechnicalName(search));
 
     try {
       FullTextSearchResult<ENTITY> searchResult = getFullTextSearchableService().searchForInFilteredList(
@@ -109,6 +109,10 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     }
 
     return listUrl();
+  }
+
+  protected String searchTranslations(String searchString) {
+    return searchString;
   }
 
   protected abstract List<? extends VIEW> transformToView(List<? extends ENTITY> entities, RichUserDetails user);
