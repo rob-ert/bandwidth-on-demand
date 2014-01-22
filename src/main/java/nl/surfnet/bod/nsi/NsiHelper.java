@@ -53,7 +53,6 @@ public class NsiHelper {
   private final String urnStpV1;
   private final String urnStpV2;
   private final String providerId;
-  private final String topologyId;
 
   private final Pattern stpPatternV1;
   private final Pattern stpPatternV2;
@@ -61,7 +60,7 @@ public class NsiHelper {
   // URN formats
   // nsi1:      urn:ogf:network:stp:{networkIdV1}:{virtualPort.id}
   // nsi2:      urn:ogf:{networkIdV2}:{topologyId}:{virtualPort.id | enniPort.bodPortId}
-  // networkId: urn:ogf:{networkIdV2}:topology:{topologyId}
+  // networkId: urn:ogf:{networkIdV2}:{topologyId}
   // nsa:       urn:ogf:network:{networkIdV2}:nsa:{providerId}
 
   @Autowired
@@ -78,7 +77,6 @@ public class NsiHelper {
     this.urnStpV1 = join(URN_OGF, "stp", networkIdV1);
     this.urnStpV2 = join(URN_OGF,  networkIdV2, topologyId);
     this.providerId = providerId;
-    this.topologyId = topologyId;
 
     this.stpPatternV1 = Pattern.compile(urnStpV1 + ":([0-9]+)");
     this.stpPatternV2 = Pattern.compile(urnStpV2 + ":(" + GFD_202_OPAQUE_PART_PATTERN + ")");
@@ -152,7 +150,7 @@ public class NsiHelper {
   }
 
   public String getUrnTopology() {
-    return join(URN_OGF,  networkIdV2, "topology", topologyId);
+    return urnStpV2;
   }
 
   public boolean isAcceptableStpIdV2(String stpId) {
