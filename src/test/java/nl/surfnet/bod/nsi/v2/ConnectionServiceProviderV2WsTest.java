@@ -55,10 +55,12 @@ import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
+import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
@@ -76,11 +78,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2013._12.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultCriteriaType;
 import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._12.services.types.TypeValueType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderV2WsTest {
@@ -121,6 +125,7 @@ public class ConnectionServiceProviderV2WsTest {
 
     when(nsiHelper.isAcceptableStpIdV2(SOURCE_STP)).thenReturn(true);
     when(nsiHelper.isAcceptableStpIdV2(DESTINATION_STP)).thenReturn(true);
+    when(bodEnvironmentMock.getDefaultProtectionType()).thenReturn(ProtectionType.PROTECTED);
 
     subject.reserve(connectionIdHolder, "globalReservationId", "description", initialReservationCriteria(), headerHolder);
 
@@ -489,6 +494,25 @@ public class ConnectionServiceProviderV2WsTest {
     }
   }
 
+  @Test
+  public void should_use_protection_parameter() throws Exception {
+    ReservationConfirmCriteriaType criteria = new ReservationConfirmCriteriaType()
+      .withSchedule(new ScheduleType())
+      .withServiceType(SERVICE_TYPE)
+      .withVersion(0);
+    ConnectionsV2.addPointToPointService(criteria.getAny(), new P2PServiceBaseType()
+        .withCapacity(100)
+        .withSourceSTP(SOURCE_STP)
+        .withDestSTP(DESTINATION_STP).withParameter(new TypeValueType().withType("protection").withValue("UNPROTECTED")));
+
+    when(nsiHelper.isAcceptableStpIdV2(SOURCE_STP)).thenReturn(true);
+    when(nsiHelper.isAcceptableStpIdV2(DESTINATION_STP)).thenReturn(true);
+    when(bodEnvironmentMock.getDefaultProtectionType()).thenReturn(ProtectionType.PROTECTED);
+
+    ConnectionV2 connection = subject.createConnection(Optional.<String>absent(), Optional.<String>absent(), new NsiV2RequestDetailsFactory().create(), "", "", criteria);
+
+    assertThat(connection.getProtectionType(), is(ProtectionType.UNPROTECTED));
+  }
 
   private CommonHeaderType headers() {
     return new CommonHeaderType().withProtocolVersion("protocolVersion").withCorrelationId("correlationId").withProviderNSA("providerNsa2").withRequesterNSA("requesterNSA").withReplyTo("replyTo");
