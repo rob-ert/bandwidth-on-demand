@@ -23,9 +23,11 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.nbi.onecontrol.HeaderBuilder.*;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.addHandlerToBinding;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRfs;
 import static nl.surfnet.bod.nbi.onecontrol.ReserveRequestBuilder.createReservationRequest;
 
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 
 import org.slf4j.Logger;
@@ -68,6 +70,9 @@ public class ServiceComponentActivationClient {
 
   @Value("${nbi.onecontrol.service.reserve.endpoint}")
   private String endpoint;
+
+  @Resource
+  private BackendSwitchListenerHandler backendSwitchListenerHandler;
 
   public UpdatedReservationStatus reserve(Reservation reservation) {
     ServiceComponentActivationInterface port = createPort();
@@ -124,6 +129,7 @@ public class ServiceComponentActivationClient {
   private ServiceComponentActivationInterface createPort() {
     ServiceComponentActivationInterface port = new ServiceComponentActivationInterfaceHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceComponentActivationInterfaceSoapHttp();
     BindingProvider bindingProvider = (BindingProvider) port;
+    addHandlerToBinding(backendSwitchListenerHandler, bindingProvider);
     bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);

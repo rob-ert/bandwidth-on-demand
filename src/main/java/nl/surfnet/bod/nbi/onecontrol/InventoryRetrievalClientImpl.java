@@ -26,6 +26,7 @@ import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.*;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -74,6 +75,9 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
 
   @Value("${nbi.onecontrol.inventory.retrieval.endpoint}")
   private String endpoint;
+
+  @Resource
+  private BackendSwitchListenerHandler backendSwitchListenerHandler;
 
   @Override
   public List<NbiPort> getPhysicalPorts() {
@@ -199,6 +203,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   private ServiceInventoryRetrievalRPC createPort() {
     ServiceInventoryRetrievalRPC port = new ServiceInventoryRetrievalHttp(this.getClass().getResource(WSDL_LOCATION)).getServiceInventoryRetrievalSoapHttp();
     BindingProvider bindingProvider = (BindingProvider) port;
+    addHandlerToBinding(backendSwitchListenerHandler, bindingProvider);
     bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
     bindingProvider.getRequestContext().put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
     bindingProvider.getRequestContext().put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
