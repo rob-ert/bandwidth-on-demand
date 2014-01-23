@@ -42,7 +42,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 public class InventoryRetrievalClientTest {
 
-  private final InventoryRetrievalClientImpl subject = new InventoryRetrievalClientImpl(new OneControlInstance(null, null));
+  private final InventoryRetrievalClientImpl subject = new InventoryRetrievalClientImpl();
 
   @Test
   public void shouldRequireVlanForEVPL() {

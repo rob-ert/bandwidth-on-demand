@@ -27,9 +27,6 @@ import static org.hamcrest.Matchers.is;
 
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.nbi.onecontrol.HeaderBuilder;
-import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -41,7 +38,7 @@ public class HeaderBuilderTest {
   public void reserveHeaderShouldFileHeaders() {
     final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildReserveHeader(new OneControlConfiguration("wrong", endpoint, "wrong"));
+    Holder<Header> holder = HeaderBuilder.buildReserveHeader(endpoint);
 
     Header header = holder.value;
 
@@ -54,7 +51,7 @@ public class HeaderBuilderTest {
   public void inventoryHeaderShouldFileHeaders() {
     final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildInventoryHeader(new OneControlConfiguration(endpoint, "wrong", "wrong"));
+    Holder<Header> holder = HeaderBuilder.buildInventoryHeader(endpoint);
 
     Header header = holder.value;
 
@@ -67,7 +64,7 @@ public class HeaderBuilderTest {
   public void notificationProducerHeader() {
     final String endpoint = "http://nonexisting.example.com/wsendpoint";
 
-    Holder<Header> holder = HeaderBuilder.buildSubscribeHeader(new OneControlConfiguration("wrong", "wrong", endpoint));
+    Holder<Header> holder = HeaderBuilder.buildSubscribeHeader(endpoint);
 
     Header header = holder.value;
 

@@ -132,3 +132,13 @@ needed. We use a the [apis][apis] server for this.
 [sos]: https://github.com/BandwidthOnDemand/sos-server
 [gatling]: http://gatling-tool.org
 [apis]: https://github.com/OpenConextApps/apis
+
+
+## Using Onecontrol
+By default, the application runs in 'opendrac-offline' mode. If you need to talk to a onecontrol server, you will need to install haproxy and configure it.
+This is easy to do. First, install haproxy:
+    brew install haproxy
+Then, have a look at ./haproxy.sample.cfg and save it somewhere outside the project. Modify if needed.
+
+Assuming you don't want to run haproxy as a daemon on your box, start haproxy as follows:
+    haproxy -f path/to/your/edited/haproxy.cfg
