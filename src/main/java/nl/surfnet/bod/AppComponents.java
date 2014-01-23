@@ -27,16 +27,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-
 import javax.sql.DataSource;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.googlecode.flyway.core.Flyway;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import nl.surfnet.bod.sab.EntitlementsHandler;
-import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
 import org.jasypt.util.text.StrongTextEncryptor;
@@ -66,12 +57,21 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.googlecode.flyway.core.Flyway;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import nl.surfnet.bod.sab.EntitlementsHandler;
+import nl.surfnet.bod.service.EmailSender;
+
 @Configuration
-@ComponentScan(basePackages = "nl.surfnet.bod", excludeFilters = { @Filter(Controller.class), @Filter(Configuration.class) })
+@ComponentScan(basePackages = "nl.surfnet.bod", excludeFilters = { @Filter(Controller.class), @Filter(Configuration.class), @Filter(Repository.class) })
 @ImportResource({ "classpath:spring/appCtx-security.xml", "classpath:spring/appCtx-ws.xml" })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
@@ -79,11 +79,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableAsync
 public class AppComponents implements AsyncConfigurer {
 
-  //static {
-    //System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-    //System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-    //System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-  //}
+//  static {
+//    System.setProperty("jaxb.formatted.output", "true");
+//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+//  }
 
   private static final Logger logger = LoggerFactory.getLogger(AppComponents.class);
 
