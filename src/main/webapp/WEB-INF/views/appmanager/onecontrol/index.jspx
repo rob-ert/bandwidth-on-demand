@@ -14,11 +14,6 @@
                 </div>
                 <dl class="dl">
                     <dt>
-                        <spring:url var="configuration_url" value="/appmanager/onecontrol/configuration" />
-                        <a href="${configuration_url}">Configuration</a>
-                    </dt>
-                    <dd>OneControl Configuration</dd>
-                    <dt>
                         <spring:url var="notifications_url" value="/appmanager/onecontrol/notifications" />
                         <a href="${notifications_url}">Notifications</a>
                     </dt>
