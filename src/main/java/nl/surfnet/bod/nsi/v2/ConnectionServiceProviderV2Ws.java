@@ -41,12 +41,14 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -76,6 +78,7 @@ import org.ogf.schemas.nsi._2013._12.framework.types.TypeValuePairType;
 import org.ogf.schemas.nsi._2013._12.framework.types.VariablesType;
 import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
+import org.ogf.schemas.nsi._2013._12.services.types.TypeValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -125,7 +128,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
   }
 
-  private ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiV2RequestDetails requestDetails,
+  @VisibleForTesting
+  protected ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiV2RequestDetails requestDetails,
       String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) throws ServiceException {
     Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
     Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(xmlCalendarToDateTime);
@@ -138,6 +142,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     validateStp(service.getSourceSTP(), "source");
     validateStp(service.getDestSTP(), "dest");
 
+    ProtectionType protection = findProtectionParameter(service.getParameter()).or(bodEnvironment.getDefaultProtectionType());
+
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());
     connection.setGlobalReservationId(globalReservationId.or(nsiHelper.generateGlobalReservationId()));
@@ -145,7 +151,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setStartTime(startTime.orNull());
     connection.setEndTime(endTime.orNull());
     connection.setDesiredBandwidth(service.getCapacity());
-    connection.setProtectionType(bodEnvironment.getDefaultProtectionType());
+    connection.setProtectionType(protection);
     connection.setProviderNsa(providerNsa);
     connection.setRequesterNsa(requesterNsa);
     connection.setInitialReserveRequestDetails(requestDetails);
@@ -156,6 +162,20 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
 
     return connection;
+  }
+
+  private Optional<ProtectionType> findProtectionParameter(List<TypeValueType> parameters) {
+    for (TypeValueType typeValue : parameters) {
+      if (typeValue.getType().equals("protection")) {
+        try {
+          return Optional.of(ProtectionType.valueOf(typeValue.getValue().toUpperCase()));
+        } catch (IllegalArgumentException e) {
+          log.info("Don't understand {} as protection level", typeValue.getValue());
+        }
+      }
+    }
+
+    return Optional.absent();
   }
 
   private void validateStp(String stpId, String sourceDest) throws ServiceException {
