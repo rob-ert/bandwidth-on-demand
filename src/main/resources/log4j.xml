@@ -46,8 +46,15 @@
   <logger name="nl.surfnet.bod.web.base">
    <level value="INFO" />
   </logger>
+  
+  <logger name="nl.surfnet.bod.nbi.onecontrol.BackendSwitchListenerHandler">
+   <level value="INFO"/> <!-- We want switches to appear in our logs -->
+  </logger>
 
 <!--
+  <logger name="nl.surfnet.bod.nbi.onecontrol.NotificationConsumerHttp">
+   <level value="DEBUG" />
+  </logger>
   <logger name="nl.surfnet.bod.web.csrf">
    <level value="DEBUG" />
   </logger>
