@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@Import({ AppComponents.class , AppOneControlConfiguration.class })
+@Import({ AppComponents.class })
 @EnableScheduling
 public class AppConfiguration {
 }

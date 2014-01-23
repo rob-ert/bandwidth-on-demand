@@ -34,7 +34,6 @@ import javax.xml.bind.Marshaller;
 import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
 import nl.surfnet.bod.util.TestHelper;
 import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
@@ -60,11 +59,8 @@ public class InventoryRetrievalClientTestIntegration {
   public void setup() {
     TestHelper.useMtosiEnv();
     PropertiesEnvironment testEnv = mtosiProperties();
-    OneControlConfiguration configuration = new OneControlConfiguration(
-        testEnv.getProperty("nbi.onecontrol.primary.inventory.retrieval.endpoint"),
-        testEnv.getProperty("nbi.onecontrol.primary.service.reserve.endpoint"),
-        testEnv.getProperty("nbi.onecontrol.primary.notification.producer.endpoint"));
-    subject = new InventoryRetrievalClientImpl(new OneControlInstance(configuration, null));
+    subject = new InventoryRetrievalClientImpl();
+    ((InventoryRetrievalClientImpl) subject).setEndpoint(testEnv.getProperty("nbi.onecontrol.service.inventory.endpoint"));
     ((InventoryRetrievalClientImpl) subject).setConnectTimeout(60000);
     ((InventoryRetrievalClientImpl) subject).setRequestTimeout(120000);
   }

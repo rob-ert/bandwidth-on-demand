@@ -24,14 +24,13 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.nbi.onecontrol.OneControlInstance.OneControlConfiguration;
-import nl.surfnet.bod.util.XmlUtils;
-
 import org.joda.time.DateTime;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
+
+import nl.surfnet.bod.util.XmlUtils;
 
 public final class HeaderBuilder {
 
@@ -54,27 +53,27 @@ public final class HeaderBuilder {
     return new Holder<>(header);
   }
 
-  public static Holder<Header> buildReserveHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getServiceReserveEndpoint(), "reserve", "reserveRequest");
+  public static Holder<Header> buildReserveHeader(final String reserveServiceEndpoint) {
+    return buildHeader(reserveServiceEndpoint, "reserve", "reserveRequest");
   }
 
-  public static Holder<Header> buildActivateHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getServiceReserveEndpoint(), "activate", "activateRequest");
+  public static Holder<Header> buildActivateHeader(final String reserveServiceEndpoint) {
+    return buildHeader(reserveServiceEndpoint, "activate", "activateRequest");
   }
 
-  public static Holder<Header> buildTerminateHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getServiceReserveEndpoint(), "terminate", "terminateRequest");
+  public static Holder<Header> buildTerminateHeader(final String reserveServiceEndpoint) {
+    return buildHeader(reserveServiceEndpoint, "terminate", "terminateRequest");
   }
 
-  public static Holder<Header> buildInventoryHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getInventoryRetrievalEndpoint(), "getServiceInventory", "getServiceInventoryRequest");
+  public static Holder<Header> buildInventoryHeader(final String inventoryServiceEndpoint) {
+    return buildHeader(inventoryServiceEndpoint, "getServiceInventory", "getServiceInventoryRequest");
   }
 
-  public static Holder<Header> buildSubscribeHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getNotificationProducerEndpoint(), "subscribe", "subscribeRequest");
+  public static Holder<Header> buildSubscribeHeader(final String notificationProducerEndpoint) {
+    return buildHeader(notificationProducerEndpoint, "subscribe", "subscribeRequest");
   }
 
-  public static Holder<Header> buildUnsubscribeHeader(OneControlConfiguration configuration) {
-    return buildHeader(configuration.getNotificationProducerEndpoint(), "unsubscribe", "unsubscribeRequest");
+  public static Holder<Header> buildUnsubscribeHeader(final String notificationProducerEndpoint) {
+    return buildHeader(notificationProducerEndpoint, "unsubscribe", "unsubscribeRequest");
   }
 }
