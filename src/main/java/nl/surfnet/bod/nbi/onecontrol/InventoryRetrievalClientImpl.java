@@ -104,9 +104,12 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
     return inventory.isPresent() ? inventory.get().getSap().size() : 0;
   }
 
-  @Scheduled(fixedDelay = 1000) // every second, attempt to talk to OneControl so that we detect backend switches quickly
+  /**
+   * After every 30 seconds, attempt to talk to OneControl so that we detect backend switches quickly
+   */
+  @Scheduled(fixedDelay = 30000)
   public void sayHi(){
-    Optional<SapList> inventory = getSapInventory();
+    getSapInventory();
   }
 
   @VisibleForTesting
