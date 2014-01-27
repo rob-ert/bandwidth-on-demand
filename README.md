@@ -135,10 +135,57 @@ needed. We use a the [apis][apis] server for this.
 
 
 ## Using Onecontrol
-By default, the application runs in 'opendrac-offline' mode. If you need to talk to a onecontrol server, you will need to install haproxy and configure it.
+By default, the application runs in 'opendrac-offline' mode. If you need to talk to a onecontrol server, you will need to install haproxy and configure it to run in Onecontrol
+mode
 This is easy to do. First, install haproxy:
     brew install haproxy
-Then, have a look at ./haproxy.sample.cfg and save it somewhere outside the project. Modify if needed.
+Then, create a file called haproxy.cfg with contents such as below:
+```
+global
+  maxconn 4096
+  #daemon
+
+  # you can use the stats socket to send interactive commands to a running haproxy instance: echo "show stat" | socat stdio unix-connect:/tmp/haproxy.sock
+  # to disable a server: echo "disable server onecontrol_backend/primary" | socat stdio unix-connect:/tmp/haproxy.sock
+
+  stats socket    /tmp/haproxy.sock level admin
+
+
+defaults
+  log global
+  log 127.0.0.1 local0
+  log 127.0.0.1 local1 notice
+  mode http
+  timeout connect 300000
+  timeout client 300000
+  timeout server 300000
+  maxconn 2000
+  option redispatch
+  retries 3
+  option httpclose
+
+frontend onecontrol_frontend
+  bind *:9100
+  default_backend onecontrol_backend
+  # Add a header to each response so that BoD may detect which server we are talking to (and we can unsubscribe), for example: X-Backend-Server: primary localhost:9001
+  rspadd X-Backend-Server:\ primary if { srv_id 1 }
+  rspadd X-Backend-Server:\ secondary if { srv_id 2 }
+
+backend onecontrol_backend
+  balance roundrobin
+  #replace the / below with the url for getting the wsdl
+  option httpchk GET /mtosi/msi/ServiceInventoryRetrieval?wsdl
+  # 145.145.64.78:9006 is primary
+  server primary 145.145.64.78:9006 check
+
+  #145.145.64.77:9006 is secondary
+  server secondary 145.145.64.77:9006 backup check
+
+
+listen haproxyapp_admin:9100 127.0.0.1:9101
+  mode http
+  stats uri /
+```
 
 Assuming you don't want to run haproxy as a daemon on your box, start haproxy as follows:
     haproxy -f path/to/your/edited/haproxy.cfg
