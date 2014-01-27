@@ -1,10 +1,15 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,11 +25,41 @@ public class BackendSwitchListenerHandlerTest {
   @InjectMocks
   private BackendSwitchListenerHandler subject = new BackendSwitchListenerHandler();
 
-  @Test
-  public void outoundmessagesAreIgnored() throws Exception {
-    fail();
+  @Mock
+  private SOAPMessageContext soapMessageContext;
+
+  private Map<String, List<String>> headers;
+
+  @Before
+  public void before(){
+    when(soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+    // default to primary
+    headers = new HashMap<>();
+    headers.put(BackendSwitchListenerHandler.BACKEND_SERVER_ID_HEADER, Arrays.asList("primary"));
+    when(soapMessageContext.get(MessageContext.HTTP_RESPONSE_HEADERS)).thenReturn(headers);
   }
 
-  // TODO hans add more tests
+  @Test
+  public void outboundMessagesHaveNoEffect() throws Exception {
+    when(soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)).thenReturn(true);
+    subject.handleMessage(soapMessageContext);
+    verifyZeroInteractions(notificationSubscriber);
+  }
+
+  @Test
+  public void firstInvocationHasNoEffectOnSubscription(){
+    subject.handleMessage(soapMessageContext);
+    verifyZeroInteractions(notificationSubscriber);
+  }
+
+  @Test
+  public void changeInConfiguredHeaderCausesSwitch(){
+    subject.handleMessage(soapMessageContext);
+    verifyZeroInteractions(notificationSubscriber);
+    headers.put(BackendSwitchListenerHandler.BACKEND_SERVER_ID_HEADER, Arrays.asList("secondary"));
+    subject.handleMessage(soapMessageContext);
+    verify(notificationSubscriber).unsubscribe();
+    verify(notificationSubscriber).subscribe();
+  }
 
 }
