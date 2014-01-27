@@ -164,8 +164,8 @@ public class ConnectionV2 extends AbstractConnection {
     this.lifecycleState = lifecycleState;
   }
 
-  public Optional<ProvisionStateEnumType> getProvisionState() {
-    return Optional.fromNullable(provisionState);
+  public ProvisionStateEnumType getProvisionState() {
+    return provisionState;
   }
 
   public void setProvisionState(ProvisionStateEnumType provisionState) {
@@ -319,7 +319,7 @@ public class ConnectionV2 extends AbstractConnection {
     return new ConnectionStatesType()
         .withReservationState(getReservationState())
         .withLifecycleState(getLifecycleState())
-        .withProvisionState(getProvisionState().orNull())
+        .withProvisionState(getProvisionState())
         .withDataPlaneStatus(getDataPlaneStatus());
   }
 

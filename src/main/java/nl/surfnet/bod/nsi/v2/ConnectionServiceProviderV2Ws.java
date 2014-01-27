@@ -160,6 +160,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     connection.setCriteria(criteria);
     connection.setReserveHeldTimeoutValue(bodEnvironment.getNsiReserveHeldTimeoutValueInSeconds());
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
+    connection.setProvisionState(ProvisionStateEnumType.RELEASED);
+    connection.setDataPlaneActive(false);
 
     return connection;
   }
@@ -240,7 +242,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   }
 
   private void checkProvisionAllowed(ConnectionV2 connection) throws ServiceException {
-    if (!(connection.getProvisionState().isPresent() && connection.getProvisionState().get() == ProvisionStateEnumType.RELEASED)) {
+    if (connection.getProvisionState() != ProvisionStateEnumType.RELEASED) {
       throw invalidTransition(connection.getLifecycleState(), connection.getReservationState(), connection.getProvisionState());
     }
   }
@@ -410,14 +412,11 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       createServiceExceptionType(MISSING_PARAMETER).withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(parameter))));
   }
 
-  private ServiceException invalidTransition(LifecycleStateEnumType lifecycleState, ReservationStateEnumType reservationState, Optional<ProvisionStateEnumType> provisionState) throws ServiceException {
+  private ServiceException invalidTransition(LifecycleStateEnumType lifecycleState, ReservationStateEnumType reservationState, ProvisionStateEnumType provisionState) throws ServiceException {
     VariablesType states = new VariablesType().withVariable(
       new TypeValuePairType().withType("reservationState").withValue(reservationState.name()),
-      new TypeValuePairType().withType("lifecycleState").withValue(lifecycleState.name()));
-
-    if (provisionState.isPresent()) {
-      states.withVariable(new TypeValuePairType().withType("provisionState").withValue(provisionState.get().name()));
-    }
+      new TypeValuePairType().withType("lifecycleState").withValue(lifecycleState.name()),
+      new TypeValuePairType().withType("provisionState").withValue(provisionState.name()));
 
     return new ServiceException("This operation is not applicable",
       createServiceExceptionType(INVALID_TRANSITION).withVariables(states)

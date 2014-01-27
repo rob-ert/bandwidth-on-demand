@@ -141,7 +141,7 @@ public class ConnectionServiceProviderV2WsTest {
     assertThat(connection.getValue().getCommittedVersion(), isAbsent());
     assertThat(connection.getValue().getDataPlaneActive(), is(false));
     assertThat(connection.getValue().getLifecycleState(), is(CREATED));
-    assertThat(connection.getValue().getProvisionState(), isAbsent());
+    assertThat(connection.getValue().getProvisionState(), is(RELEASED));
     assertThat(nsiRequestDetails.getValue().getReplyTo(), is(Optional.of(URI.create("replyTo"))));
   }
 
@@ -306,19 +306,6 @@ public class ConnectionServiceProviderV2WsTest {
   public void should_only_provision_when_released() {
     try {
       when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setProvisionState(PROVISIONED).create());
-
-      subject.provision("connectionId", headerHolder);
-
-      fail("ServiceException expected");
-    } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
-    }
-  }
-
-  @Test
-  public void should_not_provision_when_psm_does_not_exists() {
-    try {
-      when(connectionRepoMock.findByConnectionId("connectionId")).thenReturn(new ConnectionV2Factory().setReservationState(RESERVE_START).setProvisionState(null).create());
 
       subject.provision("connectionId", headerHolder);
 

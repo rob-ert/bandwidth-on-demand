@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
-import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -120,7 +118,7 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveFailed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_FAILED));
-    assertThat(connection.getProvisionState(), isAbsent());
+    assertThat(connection.getProvisionState(), is(RELEASED));
   }
 
   @Test
@@ -132,7 +130,7 @@ public class ConnectionServiceRequesterV2Test {
     subject.reserveAbortConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
-    assertThat(connection.getProvisionState(), isAbsent());
+    assertThat(connection.getProvisionState(), is(RELEASED));
     assertThat(connection.getDataPlaneActive(), is(false));
   }
 
@@ -146,7 +144,7 @@ public class ConnectionServiceRequesterV2Test {
 
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getLifecycleState(), is(CREATED));
-    assertThat(connection.getProvisionState(), isPresent(RELEASED));
+    assertThat(connection.getProvisionState(), is(RELEASED));
     assertThat(connection.getDataPlaneActive(), is(false));
   }
 
@@ -158,7 +156,7 @@ public class ConnectionServiceRequesterV2Test {
 
     subject.provisionConfirmed(1L, new NsiV2RequestDetailsFactory().create());
 
-    assertThat(connection.getProvisionState(), isPresent(PROVISIONED));
+    assertThat(connection.getProvisionState(), is(PROVISIONED));
   }
 
   @Test

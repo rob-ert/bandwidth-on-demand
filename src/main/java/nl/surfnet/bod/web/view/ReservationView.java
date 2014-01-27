@@ -34,7 +34,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
 
 public class ReservationView {
   private final Long id;
@@ -108,11 +107,7 @@ public class ReservationView {
       ConnectionV2 connectionV2 = reservation.getConnectionV2().get();
       connectionState = null;
       reservationState = connectionV2.getReservationState().value();
-      provisionState = connectionV2.getProvisionState().transform(new Function<ProvisionStateEnumType, String>() {
-        public String apply(ProvisionStateEnumType state) {
-          return state.value();
-        }
-      }).or("-");
+      provisionState = connectionV2.getProvisionState().value();
       lifeCycleState = connectionV2.getLifecycleState().value();
       dataPlaneActive = connectionV2.getDataPlaneActive() ? "Active" : "Inactive";
     } else {

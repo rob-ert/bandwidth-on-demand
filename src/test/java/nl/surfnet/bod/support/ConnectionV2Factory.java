@@ -55,7 +55,7 @@ public class ConnectionV2Factory {
   private P2PServiceBaseType path = new P2PServiceBaseType().withSourceSTP("networkId:source").withDestSTP("networkId:dest");
   private ReservationStateEnumType reservationState = ReservationStateEnumType.RESERVE_START;
   private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
-  private ProvisionStateEnumType provisionState;
+  private ProvisionStateEnumType provisionState = ProvisionStateEnumType.RELEASED;
   private boolean dataPlaneActive;
   private int reserveVersion = 0;
   private Optional<Integer> committedVersion = Optional.absent();
