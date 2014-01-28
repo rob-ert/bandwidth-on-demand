@@ -29,7 +29,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import java.util.List;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -37,6 +39,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 
 import nl.surfnet.bod.domain.ReservationStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmforum.mtop.fmw.xsd.msg.v1.BaseExceptionMessageType;
@@ -71,11 +74,13 @@ public final class MtosiUtils {
   private MtosiUtils() {
   }
 
-  public static void addHandlerToBinding(final Handler handler, final BindingProvider bindingProvider){
+  public static void addHandlerToBinding(final Handler<?> handler, final BindingProvider bindingProvider){
+    @SuppressWarnings("rawtypes")
     final List<Handler> handlerChain = bindingProvider.getBinding().getHandlerChain();
     handlerChain.add(handler);
     bindingProvider.getBinding().setHandlerChain(handlerChain);
   }
+
   public static String composeNmsPortId(String managedElement, String ptp) {
     checkArgument(!managedElement.contains("@"));
     checkArgument(!ptp.contains("@"));

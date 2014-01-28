@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
@@ -102,14 +101,6 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   public int getPhysicalPortCount() {
     Optional<SapList> inventory = getSapInventory();
     return inventory.isPresent() ? inventory.get().getSap().size() : 0;
-  }
-
-  /**
-   * After every 30 seconds, attempt to talk to OneControl so that we detect backend switches quickly
-   */
-  @Scheduled(fixedDelay = 30000)
-  public void sayHi(){
-    getSapInventory();
   }
 
   @VisibleForTesting
