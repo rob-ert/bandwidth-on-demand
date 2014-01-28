@@ -139,7 +139,11 @@ By default, the application runs in 'opendrac-offline' mode. If you need to talk
 mode
 This is easy to do. First, install haproxy:
     brew install haproxy
-Then, create a file called haproxy.cfg with contents such as below:
+Then, create a file called `haproxy.cfg` with contents such as below:
+
+To 'control' haproxy you need socat.
+    brew install socat
+
 ```
 global
   maxconn 4096
