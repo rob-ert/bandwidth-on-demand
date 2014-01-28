@@ -47,8 +47,10 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 
 public class EmailSenderOnline implements EmailSender {
@@ -79,6 +81,7 @@ public class EmailSenderOnline implements EmailSender {
     log.debug("Expecting BOD to be externally accessible from: {}", externalBodUrl);
   }
 
+  @Async
   @Override
   public void sendActivationMail(ActivationEmailLink activationEmailLink) {
     String bodyText = ActivationEmail.body(
@@ -91,6 +94,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Async
   @Override
   public void sendVirtualPortCreateRequestMail(RichUserDetails from, VirtualPortCreateRequestLink requestLink) {
     String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
@@ -109,6 +113,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Async
   @Override
   public void sendVirtualPortDeleteRequestMail(RichUserDetails from, VirtualPortDeleteRequestLink requestLink) {
     String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/delete/%s", requestLink.getUuid());
@@ -127,6 +132,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Async
   @Override
   public void sendVirtualPortCreateRequestApproveMail(VirtualPortCreateRequestLink link, VirtualPort port) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
@@ -136,6 +142,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Async
   @Override
   public void sendVirtualPortCreateRequestDeclineMail(VirtualPortCreateRequestLink link, String declineMessage) {
     SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
@@ -145,6 +152,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Async
   @Override
   public void sendVirtualPortDeleteRequestApproveMail(VirtualPortDeleteRequestLink link) {
     SimpleMailMessage mail = new MailMessageBuilder()
@@ -165,7 +173,11 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   protected void send(SimpleMailMessage mail) {
-    mailSender.send(mail);
+    try {
+      mailSender.send(mail);
+    } catch (MailException e) {
+      log.error(String.format("Could not send email to '%s' with subject '%s'", mail.getTo(), mail.getSubject()), e);
+    }
   }
 
   protected void setFromAddress(String fromAddress) {

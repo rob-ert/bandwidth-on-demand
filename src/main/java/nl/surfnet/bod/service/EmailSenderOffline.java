@@ -59,8 +59,8 @@ public class EmailSenderOffline extends EmailSenderOnline {
     logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage));
   }
 
+  @SuppressWarnings("serial")
   public class LoggableSimpleMailMessage extends SimpleMailMessage implements Loggable {
-    private static final long serialVersionUID = 1L;
 
     public LoggableSimpleMailMessage(SimpleMailMessage simpleMailMessage) {
       super(simpleMailMessage);
