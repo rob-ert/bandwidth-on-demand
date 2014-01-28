@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
@@ -62,36 +63,35 @@ public class BackendSwitchListenerHandler implements SOAPHandler<SOAPMessageCont
 
   @Override
   public boolean handleMessage(SOAPMessageContext context) {
-
     boolean outbound = (boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-    if (!outbound) { // only look at responses to queries made by our clients
-
-      @SuppressWarnings("unchecked") // the documentation states that we are returned this type
-      Map<String, List<String>> headers = (Map<String, List<String>>) context.get(MessageContext.HTTP_RESPONSE_HEADERS);
-
-      if (headers.containsKey(BACKEND_SERVER_ID_HEADER)) {
-        final List<String> backendServerValues = headers.get(BACKEND_SERVER_ID_HEADER);
-        final String currentBackendServer = backendServerValues.get(0);
-        if (lastKnownServer.get() == null) {
-          lastKnownServer.set(currentBackendServer); // it is the first request
-        } else if (!lastKnownServer.get().equals(currentBackendServer)){
-          // a switch has occured
-          LOG.info("Switch detected, switching notification subscription from {} to {}", lastKnownServer.get(), currentBackendServer);
-          performSwitchTo(currentBackendServer);
-        }
-        LOG.debug("Received reply from backend server: {}", currentBackendServer);
-      }
-
+    if (!outbound) {
+      detectIfBackendServerSwitched(context);
     }
 
     return true;
   }
 
-  private synchronized void performSwitchTo(String currentBackendServer) {
-    notificationSubscriber.unsubscribe(); // will it just work if we send our unsubscription to the new server?
-    notificationSubscriber.subscribe(); // this will go to the new backendserver automatically
-    lastKnownServer.set(currentBackendServer);
+  private void detectIfBackendServerSwitched(SOAPMessageContext context) {
+    @SuppressWarnings("unchecked") // the documentation states that we are returned this type
+    Map<String, List<String>> headers = (Map<String, List<String>>) context.get(MessageContext.HTTP_RESPONSE_HEADERS);
+
+    if (headers.containsKey(BACKEND_SERVER_ID_HEADER)) {
+      final String currentBackendServer = headers.get(BACKEND_SERVER_ID_HEADER).get(0);
+
+      String server = lastKnownServer.getAndSet(currentBackendServer);
+      if (server != null && !server.equals(currentBackendServer)) {
+        LOG.info("Switch detected, switching notification subscription from {} to {}", lastKnownServer.get(), currentBackendServer);
+        performSwitchTo(currentBackendServer);
+      }
+
+      LOG.debug("Received reply from backend server: {}", currentBackendServer);
+    }
+  }
+
+  private void performSwitchTo(String currentBackendServer) {
+    notificationSubscriber.unsubscribe();
+    notificationSubscriber.subscribe();
   }
 
   @Override
@@ -101,6 +101,5 @@ public class BackendSwitchListenerHandler implements SOAPHandler<SOAPMessageCont
 
   @Override
   public void close(MessageContext context) {
-
   }
 }
