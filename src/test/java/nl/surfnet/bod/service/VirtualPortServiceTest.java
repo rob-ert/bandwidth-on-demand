@@ -218,7 +218,7 @@ public class VirtualPortServiceTest {
 
     assertThat(link.getMessage(), is("I would like to have this port, now"));
     assertThat(link.getMinBandwidth(), is(1000L));
-    assertThat(link.getRequestorEmail(), is(user.getEmail().get()));
+    assertThat(link.getRequestorEmail(), is(user.getEmail().get().toUnicodeString()));
     assertThat(link.getRequestorName(), is(user.getDisplayName()));
     assertThat(link.getPhysicalResourceGroup(), is(prg));
     assertThat(link.getVirtualResourceGroup(), is(vrg));

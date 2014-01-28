@@ -88,7 +88,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     String displayName = getRequestHeaderOrImitate(request, ShibbolethConstants.DISPLAY_NAME, imitateDisplayName);
     String email = getRequestHeaderOrImitate(request, ShibbolethConstants.EMAIL, imitateEmail);
 
-    logger.debug("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new Object[] {nameId, displayName, email});
+    logger.info("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new Object[] {nameId, displayName, email});
 
     if (nameId.isEmpty() || displayName.isEmpty()) {
       return null;

@@ -172,7 +172,7 @@ public abstract class AbstractRequestLink implements Loggable {
   }
 
   public void setUser(RichUserDetails user) {
-    setRequestorEmail(user.getEmail().get());
+    setRequestorEmail(user.getEmail().get().toUnicodeString());
     setRequestorName(user.getDisplayName());
     setRequestorUrn(user.getUsername());
   }

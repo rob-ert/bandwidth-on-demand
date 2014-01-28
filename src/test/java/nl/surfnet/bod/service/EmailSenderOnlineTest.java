@@ -105,7 +105,7 @@ public class EmailSenderOnlineTest {
 
     SimpleMailMessage message = messageCaptor.getValue();
 
-    assertThat(message.getReplyTo(), is(user.getEmail().get()));
+    assertThat(message.getReplyTo(), is(user.getEmail().get().toUnicodeString()));
     assertThat(message.getTo()[0], is(pGroup.getManagerEmail()));
     assertThat(message.getSubject(), containsString(user.getDisplayName()));
     assertThat(message.getText(), containsString("Institute: " + pGroup.getInstitute().getName()));

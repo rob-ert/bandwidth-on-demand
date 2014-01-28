@@ -105,7 +105,7 @@ public class EmailSenderOnline implements EmailSender {
       .withBodyText(VirtualPortCreateRequestMail.body(from, requestLink, link)).create();
 
     if (from.getEmail().isPresent()) {
-      mail.setReplyTo(from.getEmail().get());
+      mail.setReplyTo(from.getEmail().get().toUnicodeString());
     } else {
       log.warn("User {} has no email address that can be used as the reply-to!", from);
     }
@@ -124,7 +124,7 @@ public class EmailSenderOnline implements EmailSender {
       .withBodyText(VirtualPortCreateRequestMail.body(from, requestLink, link)).create();
 
     if (from.getEmail().isPresent()) {
-      mail.setReplyTo(from.getEmail().get());
+      mail.setReplyTo(from.getEmail().get().toUnicodeString());
     } else {
       log.warn("User {} has no email address that can be used as the reply-to!", from);
     }

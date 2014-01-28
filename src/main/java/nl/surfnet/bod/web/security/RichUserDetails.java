@@ -28,6 +28,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
@@ -47,24 +50,49 @@ public class RichUserDetails implements UserDetails {
 
   private final String username;
   private final String displayName;
-  private final Optional<String> email;
+  private final Optional<InternetAddress> email;
+  private final String providedEmail;
   private final Collection<UserGroup> userGroups;
   private final List<BodRole> bodRoles;
   private final List<NsiScope> nsiScopes;
 
   private BodRole selectedRole;
 
-  public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups,
+  public RichUserDetails(String username, String displayName, String emailString, Collection<UserGroup> userGroups,
       Collection<BodRole> roles, Collection<NsiScope> nsiScopes) {
+    Preconditions.checkArgument(roles.size() > 0, "A user should at least have one role");
+
     this.username = username;
     this.displayName = displayName;
     this.userGroups = userGroups;
-    this.email = Optional.fromNullable(Strings.emptyToNull(email));
+    this.providedEmail = emailString;
+    this.email = validateEmail(emailString);
     this.nsiScopes = Lists.newArrayList(nsiScopes);
 
     bodRoles = Orderings.bodRoleOrdering().sortedCopy(roles);
 
     switchToRole(bodRoles.get(0));
+  }
+
+  private Optional<InternetAddress> validateEmail(String email) {
+    if (Strings.isNullOrEmpty(email)) {
+      return Optional.absent();
+    }
+
+    Optional<InternetAddress> emailOpt;
+    try {
+      InternetAddress[] addresses = InternetAddress.parse(email);
+
+      if (addresses.length == 1) {
+        emailOpt = Optional.of(addresses[0]);
+      } else {
+        emailOpt = Optional.absent();
+      }
+    } catch (AddressException e) {
+      emailOpt = Optional.absent();
+    }
+
+    return emailOpt;
   }
 
   @Override
@@ -89,8 +117,12 @@ public class RichUserDetails implements UserDetails {
     return userGroups;
   }
 
-  public Optional<String> getEmail() {
+  public Optional<InternetAddress> getEmail() {
     return email;
+  }
+
+  public String getProvidedEmail() {
+    return providedEmail;
   }
 
   public Collection<String> getUserGroupIds() {

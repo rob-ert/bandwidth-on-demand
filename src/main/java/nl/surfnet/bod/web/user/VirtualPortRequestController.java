@@ -119,7 +119,7 @@ public class VirtualPortRequestController {
 
   private String missingEmailAddress(Model model) {
     MessageView message = MessageView.createErrorMessage(messageRetriever, "error_label_no_email",
-        "error_content_no_email");
+        "error_content_no_email", Security.getUserDetails().getProvidedEmail());
 
     model.addAttribute(MessageView.MODEL_KEY, message);
 

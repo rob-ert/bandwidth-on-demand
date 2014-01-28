@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.service;
 
+import com.google.common.base.Functions;
+
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
@@ -73,7 +75,7 @@ public final class Emails {
     public static String body(RichUserDetails from, VirtualPortDeleteRequestLink requestLink, String link) {
       return String.format(DELETE_VIRTUAL_PORT_REQUEST_BODY,
         from.getDisplayName(),
-        from.getEmail().or("Unknown Email"),
+        from.getEmail().transform(Functions.toStringFunction()).or("Unknown Email"),
         requestLink.getVirtualPort().get().getUserLabel(),
         requestLink.getMessage(),
         link);
@@ -82,7 +84,7 @@ public final class Emails {
     public static String body(RichUserDetails from, VirtualPortCreateRequestLink requestLink, String link) {
       return String.format(NEW_VIRTUAL_PORT_REQUEST_BODY,
         from.getDisplayName(),
-        from.getEmail().or("Unknown Email"),
+        from.getEmail().transform(Functions.toStringFunction()).or("Unknown Email"),
         requestLink.getVirtualResourceGroup().getName(),
         requestLink.getUserLabel(),
         requestLink.getMinBandwidth(),
