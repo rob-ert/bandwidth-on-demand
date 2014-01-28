@@ -228,10 +228,9 @@ public class PhysicalResourceGroupController extends
 
     final List<VirtualPort> virtualPorts = new ArrayList<>();
     final List<Reservation> reservations = new ArrayList<>();
-    List<UniPort> physicalPorts = new ArrayList<>();
 
     for (final PhysicalResourceGroup physycalResourceGroup : physycalResourceGroups) {
-      physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup, MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
+      List <UniPort> physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup, MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
       for (final UniPort physicalPort : physicalPorts) {
         virtualPorts.addAll(virtualPortService.findAllForUniPort(physicalPort));
         reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));

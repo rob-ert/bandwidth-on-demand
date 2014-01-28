@@ -69,7 +69,7 @@ class NsiV1ReservationListener implements ReservationListener {
         requester.provisionSucceeded(connection);
         break;
       case FAILED:
-        handleReservationFailed(connection, event, requester);
+        handleReservationFailed(connection, requester);
         break;
       case NOT_ACCEPTED:
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
@@ -105,7 +105,7 @@ class NsiV1ReservationListener implements ReservationListener {
     }
   }
 
-  private void handleReservationFailed(ConnectionV1 connection, ReservationStatusChangeEvent event, ConnectionServiceRequesterV1 requester) {
+  private void handleReservationFailed(ConnectionV1 connection, ConnectionServiceRequesterV1 requester) {
     switch (connection.getCurrentState()) {
     case PROVISIONED:
     case RESERVED:

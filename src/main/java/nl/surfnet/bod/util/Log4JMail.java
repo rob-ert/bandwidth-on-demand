@@ -42,7 +42,7 @@ public class Log4JMail {
 
   private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-  public static String MAIL_LOGGER_NAME = "MAIL";
+  public static final String MAIL_LOGGER_NAME = "MAIL";
 
   @Value("${log4jmail.smtphost}")
   private String smpthost;

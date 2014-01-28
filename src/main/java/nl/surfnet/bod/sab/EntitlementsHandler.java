@@ -29,11 +29,11 @@ public interface EntitlementsHandler {
   /**
    * Checks for the given nameId for which institutes the user is entitled to
    * act as a BoD Manager.
-   * 
+   *
    * @param nameId
    *          The nameId of the user to check
    * @return List<String> of institute names for which the user is entitled.
    */
-  public List<String> checkInstitutes(String nameId);
+  List<String> checkInstitutes(String nameId);
 
 }

@@ -30,12 +30,12 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 public final class Emails {
 
   private static final String FOOTER = //
-      "\n\nKind regards,\n" //
+      "%n%nKind regards,%n" //
       + "The Bandwidth on Demand Application team";
 
   public static class ActivationEmail {
     private static final String ACTIVATION_BODY = //
-    "Dear BoD Administrator,\n\n" //
+    "Dear BoD Administrator,%n%n" //
         + "Please use the link below to verify the email address of the BoD administrators of institute: %s" //
         + FOOTER;
 
@@ -50,23 +50,23 @@ public final class Emails {
 
   public static class VirtualPortCreateRequestMail {
     private static final String NEW_VIRTUAL_PORT_REQUEST_BODY = //
-      "Dear BoD Administrator,\n\n" //
-        + "You have received a new Virtual Port Request.\n\n" //
-        + "From: %s (%s)\n" //
-        + "Team: %s\n" //
-        + "Preferred name: %s\n" //
-        + "Minimum Bandwidth: %d Mbit/s\n" //
-        + "Reason: %s\n" //
-        + "Institute: %s\n\n" //
+      "Dear BoD Administrator,%n%n" //
+        + "You have received a new Virtual Port Request.%n%n" //
+        + "From: %s (%s)%n" //
+        + "Team: %s%n" //
+        + "Preferred name: %s%n" //
+        + "Minimum Bandwidth: %d Mbit/s%n" //
+        + "Reason: %s%n" //
+        + "Institute: %s%n%n" //
         + "Click on the following link %s to create the virtual port." //
         + FOOTER;
 
     private static final String DELETE_VIRTUAL_PORT_REQUEST_BODY = //
-      "Dear BoD Administrator,\n\n" //
-        + "You have received a new delete Virtual Port Request.\n\n" //
-        + "From: %s (%s)\n" //
-        + "VirtualPort: %s\n" //
-        + "Reason: %s\n" //
+      "Dear BoD Administrator,%n%n" //
+        + "You have received a new delete Virtual Port Request.%n%n" //
+        + "From: %s (%s)%n" //
+        + "VirtualPort: %s%n" //
+        + "Reason: %s%n" //
         + "Click on the following link %s to delete the virtual port." //
         + FOOTER;
 
@@ -102,8 +102,8 @@ public final class Emails {
 
   public static final class VirtualPortCreateRequestApproveMail {
     private static final String BODY = //
-    "Dear %s,\n\n" //
-        + "Your Request for a Virtual Port from %s for your team %s has been approved.\n" //
+    "Dear %s,%n%n" //
+        + "Your Request for a Virtual Port from %s for your team %s has been approved.%n" //
         + "The Virtual Port is now available with the name '%s'. It has a max. bandwidth of %d Mbit/s." //
         + FOOTER;
 
@@ -119,9 +119,9 @@ public final class Emails {
 
   public static class VirtualPortCreateRequestDeclineMail {
     private static final String BODY = //
-        "Dear %s,\n\n" //
-        + "You Request for a Virtual Port from '%s' for your team '%s' has been declined.\n" //
-        + "The reason the BoD Administrator gave:\n%s"
+        "Dear %s,%n%n" //
+        + "You Request for a Virtual Port from '%s' for your team '%s' has been declined.%n" //
+        + "The reason the BoD Administrator gave:%n%s"
         + FOOTER;
 
     public static String subject() {
@@ -139,8 +139,8 @@ public final class Emails {
 
   public static class VirtualPortDeleteRequestApproveMail {
     private static final String BODY = //
-        "Dear %s,\n\n" //
-        + "You Request to delete Virtual Port '%s' from your team '%s' has been approved.\n" //
+        "Dear %s,%n%n" //
+        + "You Request to delete Virtual Port '%s' from your team '%s' has been approved.%n" //
         + "The Virtual Port has now been deleted from your team."
         + FOOTER;
 

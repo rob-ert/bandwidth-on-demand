@@ -46,7 +46,7 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
-public class ReserveRequestBuilder {
+public final class ReserveRequestBuilder {
 
   static final String MANAGING_DOMAIN = "CIENA/OneControl";
   static final String TRAFFIC_MAPPING_TABLECOUNT = "1";

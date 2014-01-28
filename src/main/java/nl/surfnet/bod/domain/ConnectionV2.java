@@ -192,11 +192,11 @@ public class ConnectionV2 extends AbstractConnection {
     return getVlanId(destinationStpIdWithArgs);
   }
 
-  private static final String getUriWithoutArgs(String stpIdWithArgs) {
+  private static String getUriWithoutArgs(String stpIdWithArgs) {
     return stpIdWithArgs.split("\\?")[0];
   }
 
-  private static final Optional<Integer> getVlanId(String stpId) {
+  private static Optional<Integer> getVlanId(String stpId) {
     String vlanId = getStpArgs(stpId).get("vlan");
     try {
       return Optional.of(Integer.valueOf(vlanId));

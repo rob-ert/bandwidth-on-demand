@@ -106,7 +106,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
 
   @Override
   public long getPhysicalPortsCount() {
-    return new Long(inventoryRetrievalClient.getPhysicalPortCount());
+    return Long.valueOf(inventoryRetrievalClient.getPhysicalPortCount());
   }
 
   @Override

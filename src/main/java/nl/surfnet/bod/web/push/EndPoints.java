@@ -78,7 +78,9 @@ public class EndPoints {
 
   @PostConstruct
   public synchronized void startMessageProcessor() {
-    if (running) throw new IllegalStateException("already running");
+    if (running) {
+      throw new IllegalStateException("already running");
+    }
 
     Thread processor = new Thread() {
       @Override

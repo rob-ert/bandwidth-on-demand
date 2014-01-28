@@ -334,7 +334,7 @@ public class ConnectionServiceV2 {
       return virtualPort;
     }
 
-    ReservationEndPoint enniPort = tryEnniPortAsEndPoint(stpId, vlanId, virtualPort);
+    ReservationEndPoint enniPort = tryEnniPortAsEndPoint(stpId, vlanId);
     if (enniPort != null) {
       return enniPort;
     }
@@ -362,7 +362,7 @@ public class ConnectionServiceV2 {
     return new ReservationEndPoint(virtualPort);
   }
 
-  private ReservationEndPoint tryEnniPortAsEndPoint(String stpId, Optional<Integer> vlanId, ReservationEndPoint virtualPort) throws ReservationCreationException {
+  private ReservationEndPoint tryEnniPortAsEndPoint(String stpId, Optional<Integer> vlanId) throws ReservationCreationException {
     EnniPort enniPort = physicalPortService.findByNsiV2StpId(stpId);
     if (enniPort == null) {
       return null;
