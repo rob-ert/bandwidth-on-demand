@@ -81,7 +81,7 @@ public class BackendSwitchListenerHandler implements SOAPHandler<SOAPMessageCont
 
       String server = lastKnownServer.getAndSet(currentBackendServer);
       if (server != null && !server.equals(currentBackendServer)) {
-        LOG.info("Switch detected, switching notification subscription from {} to {}", lastKnownServer.get(), currentBackendServer);
+        LOG.info("Switch detected, switching notification subscription from {} to {}", server, currentBackendServer);
         performSwitchTo(currentBackendServer);
       }
 
