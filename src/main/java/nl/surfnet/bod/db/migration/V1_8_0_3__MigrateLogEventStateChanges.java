@@ -56,15 +56,15 @@ public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigratio
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws SQLException {
 
-    final Connection connection = jdbcTemplate.getDataSource().getConnection();
+    try (final Connection connection = jdbcTemplate.getDataSource().getConnection();
 
-    try (PreparedStatement queryLogEvent = connection
-        .prepareStatement("select id, details from log_event where details like '%changed state from%'");
+         PreparedStatement queryLogEvent = connection
+           .prepareStatement("select id, details from log_event where details like '%changed state from%'");
 
-        PreparedStatement updateLogEvent = connection
-            .prepareStatement("update log_event set old_reservation_status = ?, new_reservation_status = ?, details = ? where id = ?");
+         PreparedStatement updateLogEvent = connection
+          .prepareStatement("update log_event set old_reservation_status = ?, new_reservation_status = ?, details = ? where id = ?");
 
-        ResultSet resultSet = queryLogEvent.executeQuery();) {
+         ResultSet resultSet = queryLogEvent.executeQuery();) {
 
       while (resultSet.next()) {
         String details = resultSet.getString("details");
@@ -87,8 +87,7 @@ public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigratio
           if (updatedRows != 1) {
             logger.warn("Unexpected amount of rows updated [{}] for row: {}", updatedRows, details);
           }
-        }
-        else {
+        } else {
           logger.warn("Unexpected content of details: " + details);
         }
       }
@@ -99,8 +98,7 @@ public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigratio
   String translate(String details) {
     if (StringUtils.hasText(details)) {
       return StringUtils.replace(details, "SCHEDULED", "AUTO_START");
-    }
-    else {
+    } else {
       return details;
     }
 
@@ -113,7 +111,7 @@ public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigratio
     if (StringUtils.hasText(details) && details.contains("changed state from")) {
       String[] tokens = StringUtils.tokenizeToStringArray(details, "[]");
 
-      if ((tokens != null) && (tokens.length == 4)) {
+      if (tokens != null && tokens.length == 4) {
         // Old state
         states.add(tokens[1]);
 
