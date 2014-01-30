@@ -165,7 +165,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives);
 
     reservationRepo.delete(reservations);
-    logEventService.logDeleteEvent(Security.getUserDetails(), "Canceled, archived and deleted", reservations);
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Cancelled, archived and deleted", reservations);
   }
 
   private void cancelActiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
