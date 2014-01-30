@@ -95,10 +95,16 @@ public class ReservationValidator implements Validator {
       errors.rejectValue("destinationPort", "validation.reservation.sameports", "Source and Destination port should be different");
     }
 
+    if (!reservation.hasDifferentPhysicalEndpoints()){
+      errors.rejectValue("sourcePort", "", "");
+      errors.rejectValue("destinationPort", "validation.reservation.samephysicalports", "Virtual ports may not map to the same physical port");
+    }
+
     if (!reservation.hasConsistentVirtualResourceGroups()) {
       errors.rejectValue("sourcePort", "", "");
       errors.rejectValue("destinationPort", "validation.reservation.security", "Ports are not in the same virtualResourceGroup");
     }
+
 
     if (reservation.getVirtualResourceGroup().isPresent() && !Security.getUserDetails().getUserGroupIds().contains(reservation.getVirtualResourceGroup().get().getAdminGroup())) {
       errors.reject("validation.reservation.security", "You can not select this port");

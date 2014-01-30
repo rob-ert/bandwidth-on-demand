@@ -283,7 +283,7 @@ public class ReservationValidatorTest {
   }
 
   @Test
-  public void noStartDateAndNoEdnDateShouldBeAllowed() {
+  public void noStartDateAndNoEndDateShouldBeAllowed() {
     Reservation reservation = new ReservationFactory().create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
@@ -295,6 +295,26 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertThat(errors.hasErrors(), is(false));
+  }
+
+  @Test
+  public void virtualPortsThatMapToSamePhysicalPortNotAllowed() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    VirtualPort src = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+    VirtualPort dest = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    src.setPhysicalPort(dest.getPhysicalPort());
+    Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
+            .setEndDateTime(tomorrowNoon.plusMinutes(16)).setSourcePort(src).setDestinationPort(dest).create();
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
+            reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertTrue(errors.hasErrors());
+    assertThat(errors.getFieldErrors("destinationPort").get(0).getCode(),
+            containsString("validation.reservation.samephysicalports"));
   }
 
   private Errors createErrorObject(Reservation reservation) {

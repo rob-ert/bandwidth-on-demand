@@ -386,6 +386,14 @@ public class Reservation implements Loggable, PersistableDomain {
     return creationDateTime;
   }
 
+  /**
+   * A Reservation can only be applied to two different physical endpoints
+   * @return
+   */
+  public boolean hasDifferentPhysicalEndpoints() {
+    return !sourcePort.getPhysicalPort().equals(destinationPort.getPhysicalPort());
+  }
+
   @Override
   public Collection<String> getAdminGroups() {
     Builder<String> builder = ImmutableSet.builder();
@@ -609,4 +617,5 @@ public class Reservation implements Loggable, PersistableDomain {
     }
     return true;
   }
+
 }
