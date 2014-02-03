@@ -1,0 +1,1 @@
+UPDATE connection_v2 set provision_state= 'RELEASED' where provision_state is null;
