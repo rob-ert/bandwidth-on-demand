@@ -94,6 +94,7 @@ public class ConnectionServiceV2 {
       reservation.setBandwidth(connection.getDesiredBandwidth());
       reservation.setUserCreated(userDetails.getNameId());
       reservation.setProtectionType(connection.getProtectionType());
+      checkPorts(reservation.getSourcePort(), reservation.getDestinationPort());
       connection.setReservation(reservation);
       connectionRepo.save(connection);
 
@@ -154,9 +155,9 @@ public class ConnectionServiceV2 {
 
   private void terminate(ConnectionV2 connection, NsiV2RequestDetails requestDetails, RichUserDetails user) {
     reservationService.cancelWithReason(
-        connection.getReservation(),
-        "NSIv2 terminate by " + user.getNameId(),
-        user);
+            connection.getReservation(),
+            "NSIv2 terminate by " + user.getNameId(),
+            user);
   }
 
   @Async
@@ -298,6 +299,15 @@ public class ConnectionServiceV2 {
   public void asyncReserveTimeout(DateTime timedOutAt, Long reservationId, Long connectionId) {
     reservationService.cancelDueToReserveTimeout(reservationId);
     connectionServiceRequester.reserveTimeout(connectionId, timedOutAt);
+  }
+
+  private void checkPorts(final ReservationEndPoint sourcePort, final ReservationEndPoint destinationPort) throws ReservationCreationException {
+    if (sourcePort.equals(destinationPort)) {
+      throw new ReservationCreationException(PAYLOAD_ERROR, "Endpoints may not be identical");
+    }
+    if (sourcePort.getPhysicalPort().equals(destinationPort.getPhysicalPort())) {
+      throw new ReservationCreationException(PAYLOAD_ERROR, "Endpoints may not map to the same physical port");
+    }
   }
 
   private void checkStartEndTime(Optional<DateTime> startTime, Optional<DateTime> endTime) throws ReservationCreationException {
