@@ -18,7 +18,7 @@ app.table = function(){
 
     var initRowDetails = function() {
 
-        $('.table').on('click', '.rowdetails td:first-child', function(event) {
+        $('.table').on('click', '.rowdetails td:first-child i', function(event) {
 
             var row = $(event.target).closest('.rowdetails');
             var details = row.find('.rowdetails-content');
