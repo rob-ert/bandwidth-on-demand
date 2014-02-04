@@ -23,8 +23,10 @@
 package nl.surfnet.bod.nsi.v2;
 
 import java.io.IOException;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBException;
@@ -57,7 +59,7 @@ public class SoapReplyListener implements Provider<SOAPMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(SoapReplyListener.class);
 
-  private BlockingQueue<SOAPMessage> responses = new ArrayBlockingQueue<>(1); // we can only deal with one response at a time
+  private Queue<SOAPMessage> responses = new ConcurrentLinkedDeque<>();
 
   public static class Message<T> {
     public CommonHeaderType header;
@@ -89,18 +91,9 @@ public class SoapReplyListener implements Provider<SOAPMessage> {
     }
   }
 
-  public <T> Message<T> getLastReply(JaxbUserType<T> converter) {
-    try {
-      SOAPMessage message = responses.poll(5000, TimeUnit.MILLISECONDS);
-      if (message == null) {
-        throw new RuntimeException("response did not arrive in time");
-      }
-      CommonHeaderType header = Converters.parseNsiHeader(message);
-      T body = Converters.parseBody(converter, message);
-      return new Message<>(header, body);
-    } catch (InterruptedException | SOAPException | JAXBException e) {
-      throw new RuntimeException("response did not arrive in time", e);
-    }
+  public SOAPMessage getNextMessage() {
+   return responses.poll();
+
   }
 
   @Override

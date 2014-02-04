@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static com.jayway.awaitility.Awaitility.await;
 import static nl.surfnet.bod.nsi.NsiHelper.generateCorrelationId;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -36,7 +37,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import javax.xml.XMLConstants;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -87,6 +90,7 @@ import nl.surfnet.bod.nsi.v2.SoapReplyListener.Message;
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
+import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.XmlUtils;
 
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
@@ -108,8 +112,13 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private List<String> virtualPortIds;
   private String sourceStp;
   private String destStp;
+  private Message<?> lastConvertedMessage;
 
   private NsiHelper nsiHelper = new NsiHelper("surfnet.nl", "surfnet.nl:1990", "bod-selenium", "surfnet6:testbed", "urn:nl:surfnet:diensten:bod");
+
+  public void before(){
+    lastConvertedMessage = null;
+  }
 
   @Override
   public void setupInitialData() {
@@ -181,39 +190,43 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     assertThat(connectionId.value, is(notNullValue()));
     assertThat(reserveHeader.value.getReplyTo(), is(nullValue()));
 
-    Message<ReserveConfirmedType> reserveConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    await().until(convertableMessageArrived(Converters.RESERVE_CONFIRMED_CONVERTER));
+    Message<ReserveConfirmedType> reserveConfirmed = (Message<ReserveConfirmedType>) lastConvertedMessage;
     assertThat("reserve confirmed correlation id", reserveConfirmed.header.getCorrelationId(), is(reserveCorrelationId));
     assertThat("connection id must match", reserveConfirmed.body.getConnectionId(), is(connectionId.value));
     assertThat("global reservation id must match", reserveConfirmed.body.getGlobalReservationId(), is(globalReservationId));
-
 
     // Reserve commit
     String reserveCommitCorrelationId = generateCorrelationId();
     connectionServiceProviderPort.reserveCommit(connectionId.value, createHeader(reserveCommitCorrelationId));
 
-    Message<GenericConfirmedType> reserveCommitConfirmed = soapReplyListener.getLastReply(Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER);
-    assertThat("reserve commit confirmed correlation id", reserveCommitConfirmed.header.getCorrelationId(), is(reserveCommitCorrelationId));
 
+    await().until(convertableMessageArrived(Converters.RESERVE_COMMIT_CONFIRMED_CONVERTER));
+    Message<GenericConfirmedType> reserveCommitConfirmed = (Message<GenericConfirmedType>) lastConvertedMessage;
+    assertThat("reserve commit confirmed correlation id", reserveCommitConfirmed.header.getCorrelationId(), is(reserveCommitCorrelationId));
 
     // perform query, assert that reservation_state == reserve_start
     connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(generateCorrelationId()));
-    Message<QuerySummaryConfirmedType> querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
 
+    await().until(convertableMessageArrived(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER));
+    Message<QuerySummaryConfirmedType> querySummaryConfirmed = (Message<QuerySummaryConfirmedType>) lastConvertedMessage;
     List<QuerySummaryResultType> result = querySummaryConfirmed.body.getReservation();
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getConnectionStates().getReservationState(), is(ReservationStateEnumType.RESERVE_START));
 
-
     // do a provision, assert that we receive a provisionConfirmed message
     String provisionCorrelationId = generateCorrelationId();
     connectionServiceProviderPort.provision(connectionId.value, createHeader(provisionCorrelationId));
-    Message<GenericConfirmedType> provisionConfirmed = soapReplyListener.getLastReply(Converters.PROVISION_CONFIRMED_CONVERTER);
-    assertThat("provision confirmed correlation id", provisionConfirmed.header.getCorrelationId(), is(provisionCorrelationId));
 
+    await().until(convertableMessageArrived(Converters.PROVISION_CONFIRMED_CONVERTER));
+    Message<GenericConfirmedType> provisionConfirmed = (Message<GenericConfirmedType>) lastConvertedMessage;
+    assertThat("provision confirmed correlation id", provisionConfirmed.header.getCorrelationId(), is(provisionCorrelationId));
 
     // query again, see that provisionState is now 'provisioned'
     connectionServiceProviderPort.querySummary(Arrays.asList(connectionId.value), Collections.<String>emptyList(), createHeader(generateCorrelationId()));
-    querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+
+    await().until(convertableMessageArrived(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER));
+    querySummaryConfirmed = (Message<QuerySummaryConfirmedType>) lastConvertedMessage;
     result = querySummaryConfirmed.body.getReservation();
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getConnectionStates().getProvisionState(), is(ProvisionStateEnumType.PROVISIONED));
@@ -222,7 +235,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     final String queryResultCorrelationId = generateCorrelationId();
     connectionServiceProviderPort.queryResult(connectionId.value, null, null, createHeader(queryResultCorrelationId));
 
-    Message<QueryResultConfirmedType> queryResultConfirmedTypeMessage = soapReplyListener.getLastReply(Converters.QUERY_RESULT_CONFIRMED_CONVERTER);
+    await().until(convertableMessageArrived(Converters.QUERY_RESULT_CONFIRMED_CONVERTER));
+    Message<QueryResultConfirmedType> queryResultConfirmedTypeMessage = (Message<QueryResultConfirmedType>) lastConvertedMessage;
     final List<QueryResultResponseType> queryResults = queryResultConfirmedTypeMessage.body.getResult();
 
     // sort the collection on resultId, because i'm not sure if we can rely on Jaxb ordering
@@ -273,7 +287,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     connectionServiceProviderPort.reserve(connectionId1, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
     assertThat(connectionId1.value, is(notNullValue()));
 
-    Message<ReserveConfirmedType> reserveConfirmed1 = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    await().until(convertableMessageArrived(Converters.RESERVE_CONFIRMED_CONVERTER));
+    Message<ReserveConfirmedType> reserveConfirmed1 = (Message<ReserveConfirmedType>) lastConvertedMessage;
     assertThat("reserve confirmed correlation id", reserveConfirmed1.header.getCorrelationId(), is(reserveCorrelationId));
 
     // Reserve with same content and correlation id.
@@ -281,7 +296,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     connectionServiceProviderPort.reserve(connectionId2, globalReservationId, description, criteria, createHeader(reserveCorrelationId));
     assertThat(connectionId2.value, is(notNullValue()));
 
-    Message<ReserveConfirmedType> reserveConfirmed2 = soapReplyListener.getLastReply(Converters.RESERVE_CONFIRMED_CONVERTER);
+    await().until(convertableMessageArrived(Converters.RESERVE_CONFIRMED_CONVERTER));
+    Message<ReserveConfirmedType> reserveConfirmed2 = (Message<ReserveConfirmedType>) lastConvertedMessage;
     assertThat("reserve confirmed correlation id", reserveConfirmed2.header.getCorrelationId(), is(reserveCorrelationId));
 
     assertThat(connectionId1.value, is(connectionId2.value));
@@ -289,7 +305,9 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     // perform query, assert that there is only a single reservation
     connectionServiceProviderPort.querySummary(null, Arrays.asList(globalReservationId), createHeader(generateCorrelationId()));
-    Message<QuerySummaryConfirmedType> querySummaryConfirmed = soapReplyListener.getLastReply(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER);
+
+    await().until(convertableMessageArrived(Converters.QUERY_SUMMARY_CONFIRMED_CONVERTER));
+    Message<QuerySummaryConfirmedType> querySummaryConfirmed = (Message<QuerySummaryConfirmedType>) lastConvertedMessage;
 
     List<QuerySummaryResultType> result = querySummaryConfirmed.body.getReservation();
     assertThat(result, hasSize(1));
@@ -350,6 +368,21 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     return port;
   }
 
+  private <T> Callable<Boolean> convertableMessageArrived(final JaxbUserType<T> converter) {
+    return new Callable<Boolean>() {
+      public Boolean call() throws Exception {
+        final SOAPMessage message = soapReplyListener.getNextMessage();
+        try{
+          CommonHeaderType header = Converters.parseNsiHeader(message);
+          T body = Converters.parseBody(converter, message);
+          lastConvertedMessage = new Message<>(header, body);
+          return true;
+        }catch (Exception e){
+          return false;
+        }
+      }
+    };
+  }
 
   private URL wsdlUrl() {
     try {
@@ -358,4 +391,5 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
       throw new RuntimeException("Could not find the requester wsdl", e);
     }
   }
+
 }
