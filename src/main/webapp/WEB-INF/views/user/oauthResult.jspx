@@ -27,7 +27,7 @@
                                 <spring:param name="_method" value="DELETE" />
                                 <spring:param name="tokenId" value="${accessToken.id}" />
                             </spring:url><br/>
-                            <a href="${revokeUrl}" data-form="true" class="btn btn-primary" style="margin-bottom: 20px;"><i class="icon-remove"><!--  --></i> Revoke Access Token</a>
+                            <a href="${revokeUrl}" data-form="true" data-reload="true" class="btn btn-primary" style="margin-bottom: 20px;"><i class="icon-remove"><!--  --></i> Revoke Access Token</a>
                             <h3>Scopes</h3>
                             <p>The token is valid for the scopes/NSI operations:</p>
                             <ul>
