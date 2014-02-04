@@ -74,7 +74,7 @@ public final class MtosiUtils {
   private MtosiUtils() {
   }
 
-  public static void addHandlerToBinding(final Handler<?> handler, final BindingProvider bindingProvider){
+  public static void addHandlerToBinding(final Handler<?> handler, final BindingProvider bindingProvider) {
     @SuppressWarnings("rawtypes")
     final List<Handler> handlerChain = bindingProvider.getBinding().getHandlerChain();
     handlerChain.add(handler);
