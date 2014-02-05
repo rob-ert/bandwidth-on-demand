@@ -27,6 +27,7 @@ import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -152,14 +153,27 @@ public class RichUserDetailsTest {
   }
 
   @Test
-  public void when_email_is_not_valid_email_should_be_absent() {
+  public void when_email_is_invalid_it_should_be_absent() {
+    Collection<String> invalidEmails = Lists.newArrayList("", "<>", "John john@example.com", ">asdf<", ">john@example.com<");
 
+    for (String invalidEmail : invalidEmails) {
+       RichUserDetails userDetails = new RichUserDetails("johns", "John Smith", invalidEmail,
+           Collections.<UserGroup> emptyList(),
+           Lists.newArrayList(BodRole.createAppManager()),
+           Collections.<NsiScope> emptyList());
+
+       assertThat(userDetails.getEmail(), isAbsent());
+    }
+  }
+
+  @Test
+  public void when_the_name_in_email_is_missing_quotes_try_to_parse_between_brackets() {
     RichUserDetails userDetails = new RichUserDetails("johns", "John Smith", "Smith, John <john@example.com>",
         Collections.<UserGroup> emptyList(),
         Lists.newArrayList(BodRole.createAppManager()),
         Collections.<NsiScope> emptyList());
 
-    assertThat(userDetails.getEmail(), isAbsent());
+    assertThat(userDetails.getEmail().transform(Functions.toStringFunction()), isPresent("john@example.com"));
   }
 
   @Test

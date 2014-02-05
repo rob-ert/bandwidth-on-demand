@@ -85,6 +85,8 @@ public class RichUserDetails implements UserDetails {
 
       if (addresses.length == 1) {
         emailOpt = Optional.of(addresses[0]);
+      } else if (email.contains("<") && email.contains(">")) {
+        return validateEmail(email.substring(email.indexOf('<') + 1, email.indexOf('>')));
       } else {
         emailOpt = Optional.absent();
       }
