@@ -22,10 +22,14 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
@@ -34,9 +38,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collection;
 
 import com.google.common.collect.Lists;
 
@@ -48,17 +49,14 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
-import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.user.VirtualPortRequestController.RequestCommand;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +65,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortRequestControllerTest {
@@ -82,21 +80,21 @@ public class VirtualPortRequestControllerTest {
 
   private RichUserDetails user;
 
+  private MockMvc mockMvc;
+
   @Before
-  public void login() {
+  public void setupAndLogin() {
+    mockMvc = standaloneSetup(subject).build();
+
     UserGroup group1 = new UserGroupFactory().setName("A").setId("urn:user-group").create();
     UserGroup group2 = new UserGroupFactory().setName("B").create();
     UserGroup group3 = new UserGroupFactory().setName("C").create();
-
     user = new RichUserDetailsFactory().addUserRole().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2).create();
     Security.setUserDetails(user);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void findAllGroupsShouldBeSorted() {
-    ModelStub model = new ModelStub();
-
+  public void find_all_groups_should_be_sorted() throws Exception {
     PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setInstitute(
         new InstituteFactory().setName("A").create()).create();
     PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setInstitute(
@@ -106,146 +104,138 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group3, group1, group2));
 
-    subject.selectInstitute("label", "urn", model);
-
-    assertThat(model.asMap(), hasKey("physicalResourceGroups"));
-    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")), contains(group1,
-        group2, group3));
+    mockMvc.perform(
+      get("/request")
+        .param("teamLabel", "label")
+        .param("teamUrn", "urn:group"))
+      .andExpect(model().attribute("physicalResourceGroups", contains(group1, group2, group3)));
   }
 
   @Test
-  public void shouldNotCreateFormIfPhysicalResourceGroupDoesNotExist() {
-    ModelStub model = new ModelStub();
-
+  public void should_not_create_form_if_physical_resource_group_does_not_exist() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    String page = subject.createRequestForm(1L, null, model, model);
-
-    assertThat(page, is("redirect:/virtualports/request"));
+    mockMvc.perform(
+      get("/request")
+        .param("id", "1")
+        .param("teamUrn", "urn:group"))
+      .andExpect(view().name("redirect:/virtualports/request"));
   }
 
   @Test
-  public void shouldNotCreateFormIfPhysicalResourceGroupIsNotActive() {
-    ModelStub model = new ModelStub();
-
+  public void should_not_create_form_if_physical_resource_group_is_not_active() throws Exception {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setActive(false).create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.createRequestForm(1L, null, model, model);
-
-    assertThat(page, is("redirect:/virtualports/request"));
+    mockMvc.perform(
+      get("/request")
+        .param("id", "1")
+        .param("teamUrn", "urn:group"))
+      .andExpect(view().name("redirect:/virtualports/request"));
   }
 
   @Test
-  public void shouldCreateFormIfPhysicalResourceGroupIsActive() {
-    ModelStub model = new ModelStub();
-
+  public void should_create_form_if_physical_resource_group_is_active() throws Exception {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setActive(true).create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.createRequestForm(1L, "urn:user-group", model, model);
-
-    assertThat(page, is("virtualports/requestform"));
-
-    assertThat(model.asMap(), hasKey("requestCommand"));
-    assertThat(model.asMap(), hasKey("user"));
-    assertThat(model.asMap(), hasKey("physicalResourceGroup"));
+    mockMvc.perform(
+      get("/request")
+        .param("id", "1")
+        .param("teamUrn", "urn:user-group"))
+      .andExpect(view().name("virtualports/requestform"))
+      .andExpect(model().attributeExists("requestCommand", "user", "physicalResourceGroup"));
   }
 
   @Test
-  public void whenThePhysicalGroupHasChangedDontMailAndRedirect() {
-    ModelStub model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
-    RequestCommand command = new RequestCommand(group);
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group");
-
+  public void when_the_physical_group_has_changed_dont_mail_and_redirect() throws Exception {
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(null);
 
-    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
-
-    assertThat(page, is("redirect:/virtualports/request"));
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group-wrong")
+        .param("bandwidth", "1000")
+        .param("userLabel", "new port")
+        .param("message", "message"))
+      .andExpect(view().name("redirect:/virtualports/request"));
 
     verifyNeverRequestNewVirtualPort();
   }
 
   @Test
-  public void whenTheUserIsNotMemberOfVirtualResourceGroupDontMailAndRedirect() {
-    ModelStub model = new ModelStub();
+  public void when_the_user_is_not_member_of_virtual_resource_group_dont_mail_and_redirect() throws Exception {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setActive(true).create();
-    RequestCommand command = new RequestCommand(group);
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group-wrong");
 
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(group);
 
-    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
-
-    assertThat(page, is("redirect:/virtualports/request"));
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group-wrong")
+        .param("bandwidth", "1000")
+        .param("userLabel", "new port")
+        .param("message", "message"))
+      .andExpect(view().name("redirect:/virtualports/request"));
 
     verifyNeverRequestNewVirtualPort();
   }
 
   @Test
-  public void whenThePhysicalResourceGroupIsNotActiveDontMailAndRedirect() {
-    ModelStub model = new ModelStub();
+  public void when_the_physical_resource_group_is_not_active_dont_mail_and_redirect() throws Exception {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setActive(false).create();
-    RequestCommand command = new RequestCommand(group);
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group");
 
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(group);
 
-    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
-
-    assertThat(page, is("redirect:/virtualports/request"));
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group")
+        .param("bandwidth", "1000")
+        .param("userLabel", "new port")
+        .param("message", "message"))
+      .andExpect(view().name("redirect:/virtualports/request"));
 
     verifyNeverRequestNewVirtualPort();
   }
 
   @Test
-  public void requestShouldSentAnEmail() {
-    ModelStub model = new ModelStub();
+  public void request_should_sent_an_email() throws Exception {
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
-
-    RequestCommand command = new RequestCommand(pGroup);
-    command.setUserLabel("new port");
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1000L);
-    command.setMessage("message");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(vGroup);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
-
-    assertThat(page, is("redirect:/user"));
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group")
+        .param("bandwidth", "1000")
+        .param("userLabel", "new port")
+        .param("message", "message"))
+      .andExpect(view().name("redirect:/user"));
 
     verify(virtualPortServiceMock).requestCreateVirtualPort(user, vGroup, pGroup, "new port", 1000L, "message");
   }
 
   @Test
-  public void whenVirtualResourceGroupDoesNotExistsItShouldBeCreated() {
-    ModelStub model = new ModelStub();
+  public void when_virtual_resource_group_does_not_exists_it_should_be_created() throws Exception {
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
-
-    RequestCommand command = new RequestCommand(pGroup);
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111L);
-    command.setUserLabel("new port");
-    command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    String page = subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
-
-    assertThat(page, is("redirect:/user"));
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group")
+        .param("bandwidth", "1111")
+        .param("userLabel", "new port")
+        .param("message", "I want!"))
+      .andExpect(view().name("redirect:/user"));
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
@@ -253,70 +243,62 @@ public class VirtualPortRequestControllerTest {
   }
 
   @Test
-  public void doNotSwitchRoleWhenUserHasSelectedRole() {
-
-    ModelStub model = new ModelStub();
+  public void do_not_switch_role_when_user_has_selected_role() throws Exception {
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
-
-    RequestCommand command = new RequestCommand(pGroup);
-    command.setUserLabel("new port");
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111L);
-    command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group")
+        .param("bandwidth", "1111")
+        .param("userLabel", "new port")
+        .param("message", "I want!"))
+      .andExpect(view().name("redirect:/user"));
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), notNullValue());
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
-        eq("new port"), eq(1111L), eq("I want!"));
+    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup), eq("new port"), eq(1111L), eq("I want!"));
   }
 
   @Test
-  public void doSwitchRoleWhenUserHasNoSelectedRole() {
-    user = new RichUserDetailsFactory().addBodRoles(BodRole.createNewUser()).addUserGroup(
-        new UserGroupFactory().setId("urn:user-group").create()).create();
+  public void do_switch_role_when_user_has_no_selected_role() throws Exception {
+    user = new RichUserDetailsFactory()
+      .addBodRoles(BodRole.createNewUser())
+      .addUserGroup(new UserGroupFactory().setId("urn:user-group").create()).create();
     Security.setUserDetails(user);
 
-    ModelStub model = new ModelStub();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
-
-    RequestCommand command = new RequestCommand(pGroup);
-    command.setPhysicalResourceGroupId(2L);
-    command.setUserLabel("port");
-    command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1111L);
-    command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    subject.createRequest(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    mockMvc.perform(
+      post("/request")
+        .param("physicalResourceGroupId", "2")
+        .param("userGroupId", "urn:user-group")
+        .param("bandwidth", "1111")
+        .param("userLabel", "port")
+        .param("message", "I want!"))
+      .andExpect(view().name("redirect:/user"));
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), nullValue());
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
-        eq("port"), eq(1111L), eq("I want!"));
+    verify(virtualPortServiceMock).requestCreateVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup), eq("port"), eq(1111L), eq("I want!"));
   }
 
   @Test
-  public void requestVirtualPortWithoutEmailShouldGiveErrorMessage() {
+  public void request_virtual_port_without_email_should_continue() throws Exception {
     RichUserDetails user = new RichUserDetailsFactory().setEmail("").create();
     Security.setUserDetails(user);
 
-    ModelStub model = new ModelStub();
-    when(messageRetriever.getMessage(anyString(), anyString())).thenReturn("test message");
-
-    String resultPage = subject.selectTeam(model);
-
-    assertThat(resultPage, is(MessageView.PAGE_URL));
-    assertThat(model.asMap().get(MessageView.MODEL_KEY), notNullValue());
+    mockMvc.perform(get("/request"))
+      .andExpect(model().attributeExists("userGroupViews"))
+      .andExpect(view().name("virtualports/selectTeam"));
   }
 
   private void verifyNeverRequestNewVirtualPort() {

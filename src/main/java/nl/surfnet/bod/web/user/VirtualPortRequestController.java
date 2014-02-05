@@ -41,7 +41,6 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
-import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.UserGroupView;
@@ -84,10 +83,6 @@ public class VirtualPortRequestController {
   public String selectTeam(Model model) {
     RichUserDetails user = Security.getUserDetails();
 
-    if (!user.getEmail().isPresent()) {
-      return missingEmailAddress(model);
-    }
-
     // Find related virtual resource groups
     Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(user);
     final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
@@ -99,8 +94,7 @@ public class VirtualPortRequestController {
         }));
 
     // Transform to view
-    Collection<UserGroupView> existingTeams = ImmutableList.copyOf(Collections2.transform(vrgs,
-        Functions.FROM_VRG_TO_USER_GROUP_VIEW));
+    Collection<UserGroupView> existingTeams = ImmutableList.copyOf(Collections2.transform(vrgs, Functions.FROM_VRG_TO_USER_GROUP_VIEW));
 
     // Filter new teams
     ImmutableList<UserGroupView> newTeams = FluentIterable.from(user.getUserGroups()).filter(
@@ -117,23 +111,8 @@ public class VirtualPortRequestController {
     return "virtualports/selectTeam";
   }
 
-  private String missingEmailAddress(Model model) {
-    MessageView message = MessageView.createErrorMessage(messageRetriever, "error_label_no_email",
-        "error_content_no_email", Security.getUserDetails().getProvidedEmail());
-
-    model.addAttribute(MessageView.MODEL_KEY, message);
-
-    return MessageView.PAGE_URL;
-  }
-
   @RequestMapping(method = RequestMethod.GET, params = { "teamLabel", "teamUrn" })
   public String selectInstitute(@RequestParam String teamLabel, @RequestParam String teamUrn, Model model) {
-    RichUserDetails user = Security.getUserDetails();
-
-    if (!user.getEmail().isPresent()) {
-      return missingEmailAddress(model);
-    }
-
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", prgNameOrdering().sortedCopy(groups));
@@ -225,9 +204,7 @@ public class VirtualPortRequestController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String createRequest(@Valid RequestCommand requestCommand, BindingResult result, Model model,
-      RedirectAttributes redirectAttributes) {
-
+  public String createRequest(@Valid RequestCommand requestCommand, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     PhysicalResourceGroup prg = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
     UserGroup userGroup = Security.getUserGroup(requestCommand.getUserGroupId());
 
@@ -257,11 +234,9 @@ public class VirtualPortRequestController {
     virtualPortService.requestCreateVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
         requestCommand.getBandwidth(), requestCommand.getMessage());
 
-    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_request_send", prg.getInstitute()
-        .getName());
+    messageManager.addInfoFlashMessage(redirectAttributes, "info_virtualport_request_send", prg.getInstitute().getName());
 
-    // in case a new vrg was created and the user has no user role, clear the
-    // security context
+    // in case a new vrg was created and the user has no user role, clear the security context
     // prevent switching to a different role when it is not needed
     if (shouldClearSecurityContext && !Security.hasUserRole()) {
       SecurityContextHolder.clearContext();

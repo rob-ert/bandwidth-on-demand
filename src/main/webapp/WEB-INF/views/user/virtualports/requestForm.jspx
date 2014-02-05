@@ -20,7 +20,7 @@
             <div class="control-group">
                 <label class="control-label"><spring:message code="label_request_vp_from" /></label>
                 <div class="controls">
-                    <output><c:out value="${user.displayName}" /> (<c:out value="${bodfn:getOr(user.email, 'Unknown')}" />)</output>
+                    <output><c:out value="${user.displayName}" /> (<c:out value="${bodfn:getOr(user.email, 'Email unknown, you will not get a reply')}" />)</output>
                 </div>
             </div>
 
