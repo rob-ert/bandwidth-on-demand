@@ -93,6 +93,7 @@ import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.XmlUtils;
 
+@SuppressWarnings("unchecked") // for when we cast this.lastConvertedMessage (which has already been successfully converted and thus can not fail)
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
   private static final Logger LOG = LoggerFactory.getLogger(NsiV2ReservationTestSelenium.class);
