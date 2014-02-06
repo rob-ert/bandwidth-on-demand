@@ -51,7 +51,6 @@ public class RichUserDetails implements UserDetails {
   private final String username;
   private final String displayName;
   private final Optional<InternetAddress> email;
-  private final String providedEmail;
   private final Collection<UserGroup> userGroups;
   private final List<BodRole> bodRoles;
   private final List<NsiScope> nsiScopes;
@@ -65,7 +64,6 @@ public class RichUserDetails implements UserDetails {
     this.username = username;
     this.displayName = displayName;
     this.userGroups = userGroups;
-    this.providedEmail = emailString;
     this.email = validateEmail(emailString);
     this.nsiScopes = Lists.newArrayList(nsiScopes);
 
@@ -121,10 +119,6 @@ public class RichUserDetails implements UserDetails {
 
   public Optional<InternetAddress> getEmail() {
     return email;
-  }
-
-  public String getProvidedEmail() {
-    return providedEmail;
   }
 
   public Collection<String> getUserGroupIds() {
