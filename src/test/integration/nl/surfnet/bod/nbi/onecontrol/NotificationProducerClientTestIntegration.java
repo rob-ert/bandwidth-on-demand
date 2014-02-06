@@ -23,7 +23,6 @@
 package nl.surfnet.bod.nbi.onecontrol;
 
 import static nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic.FAULT;
-import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -37,7 +36,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 import nl.surfnet.bod.nbi.onecontrol.NotificationProducerClient.NotificationTopic;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -59,7 +57,6 @@ public class NotificationProducerClientTestIntegration {
 
   @Before
   public void setup() throws IOException {
-    PropertiesEnvironment testEnv = mtosiProperties();
     notificationClient = new NotificationProducerClientImpl();
     Endpoint.publish("http://145.145.73.8:9999/ws/hello", new NotificationConsumerHttp());
   }

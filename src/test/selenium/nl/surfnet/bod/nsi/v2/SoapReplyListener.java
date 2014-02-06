@@ -24,12 +24,8 @@ package nl.surfnet.bod.nsi.v2;
 
 import java.io.IOException;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.TimeUnit;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -40,8 +36,6 @@ import javax.xml.ws.WebServiceProvider;
 
 import com.google.common.base.Objects;
 import com.sun.xml.ws.developer.SchemaValidation;
-
-import nl.surfnet.bod.util.JaxbUserType;
 
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.slf4j.Logger;

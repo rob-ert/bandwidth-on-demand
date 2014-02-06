@@ -22,9 +22,6 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-
-import static nl.surfnet.bod.util.TestHelper.mtosiProperties;
-
 import javax.xml.bind.Marshaller;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -33,7 +30,6 @@ import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.util.TestHelper.PropertiesEnvironment;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -46,7 +42,6 @@ public class ServiceComponentActivationClientTestIntegration {
 
   @Before
   public void setup() {
-    PropertiesEnvironment testEnv = mtosiProperties();
     subject = new ServiceComponentActivationClient();
   }
 
