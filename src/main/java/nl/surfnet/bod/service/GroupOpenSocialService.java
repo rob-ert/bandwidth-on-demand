@@ -73,12 +73,8 @@ public class GroupOpenSocialService implements GroupService {
         }
       }));
     }
-    catch (RequestException e) {
-      logger.error("Could not retreive groups from open social server", e);
-      return Collections.emptyList();
-    }
-    catch (IOException e) {
-      logger.error("Could not retreive groups from open social server", e);
+    catch (RequestException | IOException e) {
+      logger.error("Could not retrieve groups from open social server", e);
       return Collections.emptyList();
     }
   }
