@@ -214,8 +214,13 @@ public class Environment {
   public String getDefaultTimeZoneOffset() {
     final int offsetInMillis = DateTimeZone.getDefault().getOffset(null);
 
-    final int offsetHours = offsetInMillis / (60 * 60 * 1000);
-    final int offsetMinutes = offsetInMillis % offsetHours;
+    int offsetHours = 0;
+    int offsetMinutes = 0;
+
+    if (offsetInMillis != 0) {
+      offsetHours = offsetInMillis / (60 * 60 * 1000);
+      offsetMinutes = offsetInMillis % offsetHours;
+    }
 
     return String.format("UTC %0+3d:%02d", offsetHours, offsetMinutes);
   }
