@@ -33,7 +33,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
 public class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
 
   @Override
-  public String processAction(HttpServletRequest request, String action) {
+  public String processAction(HttpServletRequest request, String action, String httpMethod) {
     return action;
   }
 
