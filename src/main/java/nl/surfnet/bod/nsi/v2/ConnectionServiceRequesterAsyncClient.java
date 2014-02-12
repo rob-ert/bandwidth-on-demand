@@ -22,11 +22,15 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.BindingProvider;
@@ -39,10 +43,14 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 import org.ogf.schemas.nsi._2013._12.connection.requester.ConnectionServiceRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import nl.surfnet.bod.util.Environment;
 
 @Component
 class ConnectionServiceRequesterAsyncClient {
@@ -57,17 +65,43 @@ class ConnectionServiceRequesterAsyncClient {
   @Value("${connection.service.requester.v2.request.timeout}")
   private int requestTimeout;
 
+  @Resource
+  private Environment bodEnvironment;
+
+  @Autowired(required = false)
+  @Qualifier("stunnelTranslationMap")
+  private Optional<Map<String, String>> stunnelTranslationMap;
+
   @Async
+  /**
+   * Sends the reply to the endpoint, taking a detour via stunnel when required
+   */
   public void asyncSend(Optional<URI> replyTo, String soapAction, SOAPMessage message) {
     if (!replyTo.isPresent()) {
       return;
     }
 
+    final URI replyUri = replyTo.get();
     try {
       Dispatch<SOAPMessage> dispatch = createDispatcher();
 
       Map<String, Object> requestContext = dispatch.getRequestContext();
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyTo.get().toASCIIString());
+      String replyDestinationEndpoint = replyUri.toASCIIString();
+
+      final String hostAndPort = (replyUri.getHost() + ":" + replyUri.getPort()).toLowerCase();
+
+      if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies() &&
+              stunnelTranslationMap.get().containsKey(hostAndPort)) {
+        final String detour = stunnelTranslationMap.get().get(hostAndPort);
+        if (detour == null) {
+          LOGGER.error("stunnel translation map configured incorrectly for reply-to host&port {}, can not send async reply!", hostAndPort);
+          return;
+        }
+        LOGGER.debug("stunnel de-tour found for {} via {}", hostAndPort, detour);
+        replyDestinationEndpoint = replyDestinationEndpoint.replace(hostAndPort, detour);
+      }
+
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyDestinationEndpoint);
       requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
       requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
       requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
@@ -75,7 +109,7 @@ class ConnectionServiceRequesterAsyncClient {
 
       dispatch.invoke(message);
     } catch (Exception e) {
-      LOGGER.warn("Failed to send " + soapAction + " to " + replyTo.get() + ": " + e, e);
+      LOGGER.warn("Failed to send " + soapAction + " to " + replyUri + ": " + e, e);
     }
   }
 
@@ -88,6 +122,13 @@ class ConnectionServiceRequesterAsyncClient {
       return new ClassPathResource(WSDL_LOCATION).getURL();
     } catch (IOException e) {
       throw new RuntimeException("Could not find the requester wsdl", e);
+    }
+  }
+
+  @PostConstruct
+  public void checkConfig() {
+    if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies()) {
+      checkNotNull(stunnelTranslationMap.get(), "stunnelTranslationMap must be set while nsi.async.replies.ssl was true. ");
     }
   }
 

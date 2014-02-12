@@ -44,6 +44,7 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
 
   private String nbiMode = null;
   private String iddMode = null;
+  private boolean sslReplies = false;
 
   @Override
   protected ConfigurableEnvironment createEnvironment() {
@@ -73,6 +74,9 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
       throw new AssertionError("Could not set the IDD active profile. Configured IDD mode = '" + iddMode + "'");
     }
 
+    if (sslReplies) {
+      env.addActiveProfile("stunnel");
+    }
     logger.info("Starting with active profiles: {}", Joiner.on(",").join(env.getActiveProfiles()));
 
     return env;
@@ -86,6 +90,8 @@ public class AppConfigWebApplicationContext extends AnnotationConfigWebApplicati
       props.load(is);
       nbiMode = props.getProperty("nbi.mode", "");
       iddMode = props.getProperty("idd.mode", "");
+      sslReplies = Boolean.parseBoolean(props.getProperty("nsi.async.replies.ssl", "false"));
+
     } catch (IOException e) {
       throw new AssertionError("could not load configuration properties");
     }
