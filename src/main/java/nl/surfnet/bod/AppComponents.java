@@ -23,6 +23,8 @@
 package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -63,6 +66,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -157,7 +161,16 @@ public class AppComponents implements AsyncConfigurer {
    * original reply-to address)
    */
   public Optional<Map<String, String>> stunnelTranslationMap() {
-    return Optional.<Map<String, String>> of(ImmutableMap.of("localhost:9000", "localhost:6797"));
+    Yaml yaml = new Yaml();
+    Resource resource = new ClassPathResource("stunnel-port-mappings.yaml");
+
+    try {
+      Map<String, Map<String,String>> root = (Map<String, Map<String, String>>) yaml.load(resource.getInputStream());
+      logger.debug("Successfully read stunnel-port-mappings.yaml");
+      return Optional.<Map<String, String>> of(ImmutableMap.copyOf(root.get("stunnelmappings")));
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to read/parse stunnel-port-mappings.yaml. Is it present in jetty/resources?", e);
+    }
   }
 
   @Bean
