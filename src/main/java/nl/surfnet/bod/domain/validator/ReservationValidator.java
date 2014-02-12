@@ -39,7 +39,7 @@ import org.springframework.validation.Validator;
 public class ReservationValidator implements Validator {
 
   private static final Period MIN_PERIOD = Period.minutes(15);
-  private static final Period MAX_PERIOD = Period.years(1);
+//  private static final Period MAX_PERIOD = Period.years(1);
   private static final Period MAX_PERIOD_AWAY = Period.years(1);
   private static final PeriodFormatter PERIOD_FORMATTER = PeriodFormat.getDefault();
 
@@ -167,10 +167,10 @@ public class ReservationValidator implements Validator {
     DateTime endDateTime = endDate.toDateTime(endTime);
     Duration duration = new Duration(startDateTime, endDateTime);
 
-    if (duration.isLongerThan(MAX_PERIOD.toDurationFrom(startDateTime))) {
-      errors.reject("validation.reservation.duration.tooLong", new Object[] { MAX_PERIOD.toString(PERIOD_FORMATTER) },
-          "Reservation is too long");
-    }
+//    if (duration.isLongerThan(MAX_PERIOD.toDurationFrom(startDateTime))) {
+//      errors.reject("validation.reservation.duration.tooLong", new Object[] { MAX_PERIOD.toString(PERIOD_FORMATTER) },
+//          "Reservation is too long");
+//    }
     if (duration.isShorterThan(MIN_PERIOD.toDurationFrom(startDateTime))) {
       errors.reject("validation.reservation.duration.tooShort", new Object[] { MIN_PERIOD.toString(PERIOD_FORMATTER) },
           "Reservation is too short");
