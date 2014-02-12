@@ -110,10 +110,6 @@
                                 </label>
                             </span>
                         </div>
-                        <div class="help">
-                            <bod:env property="nbiSetupTime" var="setup_time" />
-                            <spring:message code="help_reservation_setup_time" arguments="${setup_time}" />
-                        </div>
                         <sform:errors cssClass="help-block" id="_end_error_id" path="startDate" delimiter=", " />
                         <sform:errors cssClass="help-block" id="_end_error_id" path="startTime" delimiter=", " />
                     </div>
@@ -139,10 +135,6 @@
                                 <spring:message code="label_reservation_forever"  />
                               </label>
                             </span>
-                        </div>
-                        <div class="help">
-                            <bod:env property="nbiTeardownTime" var="teardown_time" />
-                            <spring:message code="help_reservation_teardown_time" arguments="${teardown_time}" />
                         </div>
                         <sform:errors cssClass="help-block" id="_end_error_id" path="endDate" delimiter=", " />
                         <sform:errors cssClass="help-block" id="_end_error_id" path="endTime" delimiter=", " />
@@ -187,6 +179,9 @@
         </div>
         <div class="span4">
             <section>
+                <bod:env property="nbiSetupTime" var="setup_time" />
+                <bod:env property="nbiTeardownTime" var="teardown_time" />
+
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">
                     <h3>Source and Destination</h3>
@@ -194,7 +189,8 @@
                         you can select the virtual resource group to be used.</p>
                     <h3>Start and End Time</h3>
                     <p>Select the start and end date and time for your reservation, the time that it takes to setup and tear
-                        down your bandwidht on demand circuit falls within this period.</p>
+                        down your bandwidht on demand circuit falls within this period.<br/>
+                        <spring:message code="help_reservation_start_end_time" arguments="${setup_time}, ${teardown_time}" /></p>
                     <h3>Bandwidth</h3>
                     <p>Select the amount of bandwidth you want to reserve, you can use the quarter, half or full bandwidth
                         buttons or specify it with a 1Mbit/s granularity.</p>
