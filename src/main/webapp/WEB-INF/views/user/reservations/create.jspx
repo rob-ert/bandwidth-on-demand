@@ -165,7 +165,7 @@
                 <div class="control-group${error_bandwidth_css}" data-component="protection-type">
                     <label class="control-label"><spring:message code="label_reservation_otheroptions" /></label>
                     <div class="controls">
-                        <div class="input-append" style="padding-right: 185px;">
+                        <div class="input-append" style="padding-right: 180px;">
                             <label class="checkbox inline">
                                 <input type="checkbox" id="protected" style="padding-right: 20px;" />
                                 <spring:message code="label_reservation_protection" />
