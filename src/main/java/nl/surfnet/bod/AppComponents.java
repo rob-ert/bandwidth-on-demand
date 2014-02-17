@@ -23,8 +23,11 @@
 package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import javax.sql.DataSource;
@@ -43,9 +46,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -61,8 +66,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -144,6 +152,25 @@ public class AppComponents implements AsyncConfigurer {
     messageSource.setBasenames("WEB-INF/i18n/messages", "WEB-INF/i18n/application");
     messageSource.setUseCodeAsDefaultMessage(true);
     return messageSource;
+  }
+
+  @Bean(name = "stunnelTranslationMap")
+  @Profile("stunnel")
+  /**
+   * Maps the incoming 'reply-to' host+port to our local stunnel port (which in turn delivers the message at the
+   * original reply-to address)
+   */
+  public Optional<Map<String, String>> stunnelTranslationMap() {
+    Yaml yaml = new Yaml();
+    Resource resource = new ClassPathResource("stunnel-port-mappings.yaml");
+
+    try {
+      Map<String, Map<String,String>> root = (Map<String, Map<String, String>>) yaml.load(resource.getInputStream());
+      logger.debug("Successfully read stunnel-port-mappings.yaml");
+      return Optional.<Map<String, String>> of(ImmutableMap.copyOf(root.get("stunnelmappings")));
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to read/parse stunnel-port-mappings.yaml. Is it present in jetty/resources?", e);
+    }
   }
 
   @Bean

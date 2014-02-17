@@ -1,0 +1,5 @@
+---
+
+stunnelmappings:
+  "bar:9000": "localhost:6797"
+  "foo:9000": "localhost:6789"

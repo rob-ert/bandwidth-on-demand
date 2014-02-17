@@ -129,6 +129,9 @@ public class Environment {
   @Value("${healthcheck.timeout.seconds}")
   private int healthcheckTimeoutInSeconds;
 
+  @Value("${nsi.async.replies.ssl}")
+  private boolean useStunnelForNsiV2AsyncReplies;
+
   public Environment() {
   }
 
@@ -324,4 +327,7 @@ public class Environment {
   public int getHealthcheckTimeoutInSeconds() {
     return healthcheckTimeoutInSeconds;
   }
+
+  public boolean isUseStunnelForNsiV2AsyncReplies() { return useStunnelForNsiV2AsyncReplies; }
+
 }
