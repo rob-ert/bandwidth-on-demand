@@ -90,6 +90,9 @@ class ConnectionServiceRequesterAsyncClient {
 
       final String hostAndPort = (replyUri.getHost() + ":" + replyUri.getPort()).toLowerCase();
 
+      LOGGER.debug("Reply-to host and port: {}", hostAndPort);
+      LOGGER.debug("ssl replies configured? {}", bodEnvironment.isUseStunnelForNsiV2AsyncReplies());
+
       if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies() &&
               stunnelTranslationMap.get().containsKey(hostAndPort)) {
         final String detour = stunnelTranslationMap.get().get(hostAndPort);
