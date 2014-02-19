@@ -92,9 +92,9 @@ class ConnectionServiceRequesterAsyncClient {
 
       LOGGER.debug("Reply-to host and port: {}", hostAndPort);
       LOGGER.debug("ssl replies configured? {}", bodEnvironment.isUseStunnelForNsiV2AsyncReplies());
-
       if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies() &&
-              stunnelTranslationMap.get().containsKey(hostAndPort) && replyUri.getScheme() == "https") {
+              stunnelTranslationMap.get().containsKey(hostAndPort) && replyUri.getScheme().equalsIgnoreCase("https")) {
+        LOGGER.debug("reply-to host+port {} found in stunnelTranslationMap, redirecting through stunnel", hostAndPort);
         final String detour = stunnelTranslationMap.get().get(hostAndPort);
         if (detour == null) {
           LOGGER.error("stunnel translation map configured incorrectly for reply-to host&port {}, can not send async reply!", hostAndPort);
