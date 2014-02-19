@@ -94,14 +94,15 @@ class ConnectionServiceRequesterAsyncClient {
       LOGGER.debug("ssl replies configured? {}", bodEnvironment.isUseStunnelForNsiV2AsyncReplies());
 
       if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies() &&
-              stunnelTranslationMap.get().containsKey(hostAndPort)) {
+              stunnelTranslationMap.get().containsKey(hostAndPort) && replyUri.getScheme() == "https") {
         final String detour = stunnelTranslationMap.get().get(hostAndPort);
         if (detour == null) {
           LOGGER.error("stunnel translation map configured incorrectly for reply-to host&port {}, can not send async reply!", hostAndPort);
           return;
         }
         LOGGER.debug("stunnel de-tour found for {} via {}", hostAndPort, detour);
-        replyDestinationEndpoint = replyDestinationEndpoint.replace(hostAndPort, detour);
+        replyDestinationEndpoint = replyDestinationEndpoint.replace(hostAndPort, detour); // make the detour
+        replyDestinationEndpoint = replyDestinationEndpoint.replace("https", "http"); // via http
       }
 
       requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyDestinationEndpoint);
