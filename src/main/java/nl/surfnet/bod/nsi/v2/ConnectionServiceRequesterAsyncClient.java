@@ -37,6 +37,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
@@ -58,6 +59,8 @@ class ConnectionServiceRequesterAsyncClient {
   private static final String WSDL_LOCATION = "/wsdl/2.0/ogf_nsi_connection_requester_v2_0.wsdl";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceRequesterAsyncClient.class);
+
+  private static final int STANDARD_HTTPS_PORT = 443;
 
   @Value("${connection.service.requester.v2.connect.timeout}")
   private int connectTimeout;
@@ -86,26 +89,9 @@ class ConnectionServiceRequesterAsyncClient {
       Dispatch<SOAPMessage> dispatch = createDispatcher();
 
       Map<String, Object> requestContext = dispatch.getRequestContext();
-      String replyDestinationEndpoint = replyUri.toASCIIString();
+      Optional<URI> stunnelUri = this.findStunnelUri(replyUri);
 
-      final String hostAndPort = (replyUri.getHost() + ":" + replyUri.getPort()).toLowerCase();
-
-      LOGGER.debug("Reply-to host and port: {}", hostAndPort);
-      LOGGER.debug("ssl replies configured? {}", bodEnvironment.isUseStunnelForNsiV2AsyncReplies());
-      if (bodEnvironment.isUseStunnelForNsiV2AsyncReplies() &&
-              stunnelTranslationMap.get().containsKey(hostAndPort) && replyUri.getScheme().equalsIgnoreCase("https")) {
-        LOGGER.debug("reply-to host+port {} found in stunnelTranslationMap, redirecting through stunnel", hostAndPort);
-        final String detour = stunnelTranslationMap.get().get(hostAndPort);
-        if (detour == null) {
-          LOGGER.error("stunnel translation map configured incorrectly for reply-to host&port {}, can not send async reply!", hostAndPort);
-          return;
-        }
-        LOGGER.debug("stunnel de-tour found for {} via {}", hostAndPort, detour);
-        replyDestinationEndpoint = replyDestinationEndpoint.replace(hostAndPort, detour); // make the detour
-        replyDestinationEndpoint = replyDestinationEndpoint.replace("https", "http"); // via http
-      }
-
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, replyDestinationEndpoint);
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, stunnelUri.isPresent()? stunnelUri.get().toASCIIString() : replyTo);
       requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
       requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
       requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
@@ -115,6 +101,32 @@ class ConnectionServiceRequesterAsyncClient {
     } catch (Exception e) {
       LOGGER.warn("Failed to send " + soapAction + " to " + replyUri + ": " + e, e);
     }
+  }
+
+  @VisibleForTesting
+  Optional<URI> findStunnelUri(final URI originalReplyUri){
+
+    if (!stunnelTranslationMap.isPresent()) {
+      return Optional.absent();
+    }
+
+    if (!originalReplyUri.getScheme().equals("https")) {
+      return Optional.absent();
+    }
+
+    StringBuffer key = new StringBuffer(originalReplyUri.getHost());
+    if (originalReplyUri.getPort() != -1 && originalReplyUri.getPort() != STANDARD_HTTPS_PORT) {
+      key.append(":" + originalReplyUri.getPort());
+    }
+
+    if (!stunnelTranslationMap.get().containsKey(key.toString())) {
+      return Optional.absent();
+    }
+
+    String replacement = stunnelTranslationMap.get().get(key.toString());
+
+    String stunnelURI = originalReplyUri.toASCIIString().replace(key.toString(), replacement);
+    return Optional.of(URI.create(stunnelURI));
   }
 
   private Dispatch<SOAPMessage> createDispatcher() {
