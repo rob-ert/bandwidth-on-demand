@@ -90,8 +90,11 @@ class ConnectionServiceRequesterAsyncClient {
 
       Map<String, Object> requestContext = dispatch.getRequestContext();
       Optional<URI> stunnelUri = this.findStunnelUri(replyUri);
-
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, stunnelUri.isPresent()? stunnelUri.get().toASCIIString() : replyTo);
+      String endpointAddress = replyTo.get().toASCIIString();
+      if (stunnelUri.isPresent()){
+        endpointAddress = stunnelUri.get().toASCIIString();
+      }
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
       requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
       requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
       requestContext.put(Dispatch.SOAPACTION_USE_PROPERTY, true);
@@ -106,6 +109,9 @@ class ConnectionServiceRequesterAsyncClient {
   @VisibleForTesting
   Optional<URI> findStunnelUri(final URI originalReplyUri){
 
+    if (!bodEnvironment.isUseStunnelForNsiV2AsyncReplies()){
+      return Optional.absent();
+    }
     if (!stunnelTranslationMap.isPresent()) {
       return Optional.absent();
     }

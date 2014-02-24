@@ -59,6 +59,7 @@ public class ConnectionServiceRequesterAsyncClientTest {
     entries.put("foo.bar.com", "localhost:2000");
     entries.put("foo.bar.com:4443", "localhost:4000");
 
+    when(bodEnvironment.isUseStunnelForNsiV2AsyncReplies()).thenReturn(true);
     when(stunnelTranslationMap.isPresent()).thenReturn(true);
     when(stunnelTranslationMap.get()).thenReturn(entries);
 
@@ -107,6 +108,14 @@ public class ConnectionServiceRequesterAsyncClientTest {
   @Test
   public void noStunnelMapConfigured() throws Exception{
     when(stunnelTranslationMap.isPresent()).thenReturn(false);
+    final URI originalReplyUri = new URI("https://foo.bar.com/some/uri?it=true&stuff=1");
+    final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
+    assertFalse(stunnelUri.isPresent());
+  }
+
+  @Test
+  public void stunnelMapConfiguredButSslSwitchedOff() throws Exception{
+    when(bodEnvironment.isUseStunnelForNsiV2AsyncReplies()).thenReturn(false);
     final URI originalReplyUri = new URI("https://foo.bar.com/some/uri?it=true&stuff=1");
     final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
     assertFalse(stunnelUri.isPresent());
