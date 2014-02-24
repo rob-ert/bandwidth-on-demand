@@ -156,6 +156,7 @@ public class AppComponents implements AsyncConfigurer {
 
   @Bean(name = "stunnelTranslationMap")
   @Profile("stunnel")
+  @SuppressWarnings("unchecked")
   /**
    * Maps the incoming 'reply-to' host+port to our local stunnel port (which in turn delivers the message at the
    * original reply-to address)
