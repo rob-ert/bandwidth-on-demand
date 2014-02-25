@@ -9,6 +9,7 @@
 <bod:env var="environment" property="environment" />
 
 <div class="modal modal-relative">
+    test
     <div class="modal-header">
         <h3>
             <spring:message code="success_healthcheck_header" />
