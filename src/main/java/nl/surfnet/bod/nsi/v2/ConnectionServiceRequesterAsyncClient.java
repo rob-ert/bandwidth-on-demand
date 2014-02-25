@@ -26,6 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ class ConnectionServiceRequesterAsyncClient {
   /**
    * Sends the reply to the endpoint, taking a detour via stunnel when required
    */
-  public void asyncSend(Optional<URI> replyTo, String soapAction, SOAPMessage message) {
+  public void asyncSend(Optional<URI> replyTo, String soapAction, SOAPMessage message, String requesterNsaId) {
     if (!replyTo.isPresent()) {
       return;
     }
@@ -89,7 +90,7 @@ class ConnectionServiceRequesterAsyncClient {
       Dispatch<SOAPMessage> dispatch = createDispatcher();
 
       Map<String, Object> requestContext = dispatch.getRequestContext();
-      Optional<URI> stunnelUri = this.findStunnelUri(replyUri);
+      Optional<URI> stunnelUri = this.findStunnelUri(requesterNsaId, replyUri);
       String endpointAddress = replyTo.get().toASCIIString();
       if (stunnelUri.isPresent()){
         endpointAddress = stunnelUri.get().toASCIIString();
@@ -107,7 +108,7 @@ class ConnectionServiceRequesterAsyncClient {
   }
 
   @VisibleForTesting
-  Optional<URI> findStunnelUri(final URI originalReplyUri){
+  Optional<URI> findStunnelUri(final String requesterNsaId, final URI originalReplyTo) {
 
     if (!bodEnvironment.isUseStunnelForNsiV2AsyncReplies()){
       return Optional.absent();
@@ -116,23 +117,21 @@ class ConnectionServiceRequesterAsyncClient {
       return Optional.absent();
     }
 
-    if (!originalReplyUri.getScheme().equals("https")) {
+    if (!stunnelTranslationMap.get().containsKey(requesterNsaId)) {
       return Optional.absent();
     }
 
-    StringBuffer key = new StringBuffer(originalReplyUri.getHost());
-    if (originalReplyUri.getPort() != -1 && originalReplyUri.getPort() != STANDARD_HTTPS_PORT) {
-      key.append(":" + originalReplyUri.getPort());
+    String replacement = stunnelTranslationMap.get().get(requesterNsaId);
+
+    final String[] hostAndPort = replacement.split(":");
+    Integer port = Integer.parseInt(hostAndPort[1]);
+    URI stunnelURI = null;
+    try {
+      stunnelURI = new URI("http", "", hostAndPort[0], port, originalReplyTo.getPath(), originalReplyTo.getQuery(), originalReplyTo.getFragment() );
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
-
-    if (!stunnelTranslationMap.get().containsKey(key.toString())) {
-      return Optional.absent();
-    }
-
-    String replacement = stunnelTranslationMap.get().get(key.toString());
-
-    String stunnelURI = originalReplyUri.toASCIIString().replace(key.toString(), replacement);
-    return Optional.of(URI.create(stunnelURI));
+    return Optional.of(stunnelURI);
   }
 
   private Dispatch<SOAPMessage> createDispatcher() {

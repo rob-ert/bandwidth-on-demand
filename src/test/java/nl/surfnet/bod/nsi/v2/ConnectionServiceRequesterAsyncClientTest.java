@@ -53,11 +53,19 @@ public class ConnectionServiceRequesterAsyncClientTest {
   @InjectMocks
   private ConnectionServiceRequesterAsyncClient subject;
 
+  private final URI originalReplyUri;
+
+  final static String MATCHING_NSA = "urn:org:foobar:1990:ls";
+
+  public ConnectionServiceRequesterAsyncClientTest() {
+    originalReplyUri =  URI.create("https://hostandport.ignored:102/but/path?and_query=preserved#plusfragment");
+  }
+
   @Before
   public void before(){
     Map<String, String> entries = new HashMap<>();
-    entries.put("foo.bar.com", "localhost:2000");
-    entries.put("foo.bar.com:4443", "localhost:4000");
+
+    entries.put(MATCHING_NSA, "localhost:2000");
 
     when(bodEnvironment.isUseStunnelForNsiV2AsyncReplies()).thenReturn(true);
     when(stunnelTranslationMap.isPresent()).thenReturn(true);
@@ -68,56 +76,31 @@ public class ConnectionServiceRequesterAsyncClientTest {
   @Test
   public void basicMatch() throws Exception {
     // this should be a match, preserving fragment
-    final Optional<URI> stunnelUri = subject.findStunnelUri(new URI("https://foo.bar.com/some/uri?it=true&stuff=1"));
+    final Optional<URI> stunnelUri = subject.findStunnelUri(MATCHING_NSA, originalReplyUri);
     assertTrue(stunnelUri.get().toString().contains("localhost:2000"));
-    assertTrue(stunnelUri.get().toString().endsWith("it=true&stuff=1"));
-  }
+    assertTrue(stunnelUri.get().toString().contains(originalReplyUri.getPath()));
+    assertTrue(stunnelUri.get().toString().endsWith(originalReplyUri.getFragment()));
 
-  @Test
-  public void matchWithSuperfluousPortNumber() throws Exception {
-    // this should be a match, preserving fragment
-    final Optional<URI> stunnelUri = subject.findStunnelUri(new URI("https://foo.bar.com:443/some/uri?it=true&stuff=1"));
-    assertTrue(stunnelUri.get().toString().contains("localhost:2000"));
-    assertTrue(stunnelUri.get().toString().endsWith("it=true&stuff=1"));
   }
-
-  @Test
-  public void matchWithNonStandardPortNumber() throws Exception {
-    // this should be a match, preserving fragment
-    final Optional<URI> stunnelUri = subject.findStunnelUri(new URI("https://foo.bar.com:4443/some/uri?it=true&stuff=1"));
-    assertTrue(stunnelUri.get().toString().contains("localhost:4000"));
-    assertTrue(stunnelUri.get().toString().endsWith("it=true&stuff=1"));
-  }
-
 
   @Test
   public void basicNoMatch() throws Exception {
-    final URI originalReplyUri = new URI("https://some.host.nl/foo.bar.com");
-    final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
+    final Optional<URI> stunnelUri = subject.findStunnelUri("urn:ogf:noway", originalReplyUri);
     assertFalse(stunnelUri.isPresent());
   }
 
-  @Test
-  public void httpNeverMatches() throws Exception {
-    // this should be a match, preserving fragment
-    final URI originalReplyUri = new URI("http://foo.bar.com/some/uri?it=true&stuff=1");
-    final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
-    assertFalse(stunnelUri.isPresent());
-  }
 
   @Test
   public void noStunnelMapConfigured() throws Exception{
     when(stunnelTranslationMap.isPresent()).thenReturn(false);
-    final URI originalReplyUri = new URI("https://foo.bar.com/some/uri?it=true&stuff=1");
-    final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
+    final Optional<URI> stunnelUri = subject.findStunnelUri("urn:org:foobar:1990:ls", originalReplyUri);
     assertFalse(stunnelUri.isPresent());
   }
 
   @Test
   public void stunnelMapConfiguredButSslSwitchedOff() throws Exception{
     when(bodEnvironment.isUseStunnelForNsiV2AsyncReplies()).thenReturn(false);
-    final URI originalReplyUri = new URI("https://foo.bar.com/some/uri?it=true&stuff=1");
-    final Optional<URI> stunnelUri = subject.findStunnelUri(originalReplyUri);
+    final Optional<URI> stunnelUri = subject.findStunnelUri(MATCHING_NSA, originalReplyUri);
     assertFalse(stunnelUri.isPresent());
   }
 

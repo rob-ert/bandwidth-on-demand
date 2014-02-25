@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -117,7 +118,7 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
     assertThat(originalAcknowledgment, is(notNullValue()));
     verify(messageRepo, never()).save(any(NsiV2Message.class));
-    verify(client, never()).asyncSend(Matchers.<Optional<URI>>any(), any(String.class), any(SOAPMessage.class));
+    verify(client, never()).asyncSend(Matchers.<Optional<URI>>any(), any(String.class), any(SOAPMessage.class), anyString());
   }
 
   @Test
@@ -131,7 +132,7 @@ public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
     assertThat(originalAcknowledgment, is(notNullValue()));
     verify(messageRepo, never()).save(any(NsiV2Message.class));
-    verify(client, times(1)).asyncSend(eq(Optional.of(URI.create(header.getReplyTo()))), eq(reserveConfirmedEntity.getSoapAction()), any(SOAPMessage.class));
+    verify(client, times(1)).asyncSend(eq(Optional.of(URI.create(header.getReplyTo()))), eq(reserveConfirmedEntity.getSoapAction()), any(SOAPMessage.class), eq(header.getRequesterNSA()));
   }
 
   @Test

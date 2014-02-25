@@ -164,7 +164,7 @@ class ConnectionServiceRequesterClient {
     try {
       SOAPMessage message = Converters.createSoapMessage(header, body, bodyConverter);
       saveMessage(type, soapAction(action), header, message, connectionId);
-      asyncClient.asyncSend(replyTo, soapAction(action), message);
+      asyncClient.asyncSend(replyTo, soapAction(action), message, header.getRequesterNSA());
     } catch (SOAPException | DOMException | JAXBException | IOException e) {
       throw new RuntimeException("failed to send " + action + " message to " + header.getRequesterNSA() + " (" + replyTo + ")");
     }

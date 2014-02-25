@@ -40,6 +40,6 @@ public class AppComponentsTest {
 
     assertTrue(map.isPresent());
     assertTrue(map.get().keySet().size() == 2);
-    assertEquals(map.get().get("foo:9000"), "localhost:6789");
+    assertEquals(map.get().get("urn:org:other"), "localhost:6789");
   }
 }

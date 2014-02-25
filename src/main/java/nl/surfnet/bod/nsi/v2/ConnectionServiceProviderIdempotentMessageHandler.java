@@ -118,7 +118,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
       NsiV2Message asyncReply = messageRepo.findByRequesterNsaAndCorrelationIdAndType(header.getRequesterNSA(), header.getCorrelationId(), NsiV2Message.Type.ASYNC_REPLY);
       if (asyncReply != null) {
         SOAPMessage asyncReplySoap = Converters.deserializeMessage(asyncReply.getMessage());
-        client.asyncSend(Optional.of(URI.create(header.getReplyTo())), asyncReply.getSoapAction(), asyncReplySoap);
+        client.asyncSend(Optional.of(URI.create(header.getReplyTo())), asyncReply.getSoapAction(), asyncReplySoap, header.getRequesterNSA());
       }
     }
 
