@@ -27,6 +27,7 @@
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:${jetty.port}/bod</selenium.test.url>
         <sos.version>0.2.1</sos.version>
+        <typesafe.config.version>1.2.0</typesafe.config.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -269,11 +270,6 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.13</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
             <version>2.1</version>
@@ -333,7 +329,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>${typesafe.config.version}</version>
+        </dependency>
         <!-- Begin test libraries -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -23,12 +23,12 @@
 package nl.surfnet.bod;
 
 import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import javax.sql.DataSource;
 
@@ -66,7 +66,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -74,6 +73,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
 
 import nl.surfnet.bod.sab.EntitlementsHandler;
 import nl.surfnet.bod.service.EmailSender;
@@ -162,16 +165,20 @@ public class AppComponents implements AsyncConfigurer {
    * original reply-to address)
    */
   public Optional<Map<String, String>> stunnelTranslationMap() {
-    Yaml yaml = new Yaml();
-    Resource resource = new ClassPathResource("stunnel-port-mappings.yaml");
-
-    try {
-      Map<String, Map<String,String>> root = (Map<String, Map<String, String>>) yaml.load(resource.getInputStream());
-      logger.debug("Successfully read stunnel-port-mappings.yaml");
-      return Optional.<Map<String, String>> of(ImmutableMap.copyOf(root.get("stunnelmappings")));
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to read/parse stunnel-port-mappings.yaml. Is it present in jetty/resources?", e);
+    final Config configFile = ConfigFactory.load("stunnel-port-mappings");
+    if (!configFile.hasPath("nsi.tlsmap")) {
+      throw new IllegalStateException("stunnel port mappings config file does not contain required nsi.tlsmap entry");
     }
+    final ConfigObject stunnelConfig = configFile.getObject("nsi.tlsmap");
+    logger.debug("Successfully read stunnel-port-mappings.conf");
+
+    Map<String, String> entries = new HashMap<>();
+    for (Map.Entry<String,ConfigValue> entry: stunnelConfig.entrySet()) {
+      String value = (String) entry.getValue().unwrapped();
+      entries.put(entry.getKey(), value);
+    }
+    return Optional.<Map<String, String>> of(ImmutableMap.copyOf(entries));
+
   }
 
   @Bean

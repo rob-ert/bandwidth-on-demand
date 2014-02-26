@@ -1,5 +1,0 @@
----
-
-stunnelmappings:
-  "urn:org:some": "localhost:6797"
-  "urn:org:other": "localhost:6789"
