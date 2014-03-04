@@ -24,35 +24,35 @@ package nl.surfnet.bod.nsi;
 
 public enum ConnectionServiceProviderError {
 
-  PAYLOAD_ERROR("100", "PAYLOAD_ERROR", ""),
-  MISSING_PARAMETER("101", "MISSING_PARAMETER", "Invalid or missing parameter"),
-  UNSUPPORTED_PARAMETER("102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed"),
-  NOT_IMPLEMENTED("103", "NOT_IMPLEMENTED", "This operation is not implemented yet"),
-  VERSION_NOT_SUPPORTED("104", "VERSION_NOT_SUPPORTED", "The service version requested in NSI header is not supported"),
+  PAYLOAD_ERROR("00100", "PAYLOAD_ERROR", ""),
+  MISSING_PARAMETER("00101", "MISSING_PARAMETER", "Invalid or missing parameter"),
+  UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed"),
+  NOT_IMPLEMENTED("00103", "NOT_IMPLEMENTED", "This operation is not implemented yet"),
+  VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The service version requested in NSI header is not supported"),
 
-  CONNECTION_ERROR("200", "", ""),
-  INVALID_TRANSITION("201", "INVALID_TRANSITION", "Connection state machine is in invalid state for received message"),
-  CONNECTION_EXISTS("202", "CONNECTION_EXISTS", "Schedule already exists for connectionId"),
-  CONNECTION_NON_EXISTENT("203", "CONNECTION_NONEXISTENT", "Schedule does not exist for connectionId"),
-  CONNECTION_GONE("204", "CONNECTION_GONE", ""),
-  CONNECTION_CREATE_ERROR("205", "CONNECTION_CREATE_ERROR", "Failed to create connection (payload was ok, something went wrong)"),
+  CONNECTION_ERROR("00200", "", ""),
+  INVALID_TRANSITION("00201", "INVALID_TRANSITION", "Connection state machine is in invalid state for received message"),
+  CONNECTION_EXISTS("00202", "CONNECTION_EXISTS", "Schedule already exists for connectionId"),
+  CONNECTION_NON_EXISTENT("00203", "CONNECTION_NONEXISTENT", "Schedule does not exist for connectionId"),
+  CONNECTION_GONE("00204", "CONNECTION_GONE", ""),
+  CONNECTION_CREATE_ERROR("00205", "CONNECTION_CREATE_ERROR", "Failed to create connection (payload was ok, something went wrong)"),
 
-  SECURITY_ERROR("300", "SECURITY_ERROR", ""),
-  AUTHENTICATION_FAILURE("301", "AUTHENTICATION_FAILURE", ""),
-  UNAUTHORIZED("302", "UNAUTHORIZED", "Unauthorized"),
+  SECURITY_ERROR("00300", "SECURITY_ERROR", ""),
+  AUTHENTICATION_FAILURE("00301", "AUTHENTICATION_FAILURE", ""),
+  UNAUTHORIZED("00302", "UNAUTHORIZED", "Unauthorized"),
 
-  TOPOLOGY_ERROR("400", "TOPOLOGY_ERROR", ""),
-  UNKNOWN_STP("401", "UNKNOWN_STP", "Could not find STP in topology database"),
-  STP_RESOLUTION_ERROR("402", "STP_RESOLUTION_ERROR", "Could not resolve STP to a managing NSA"),
-  NO_PATH_FOUND("403", "NO_PATH_FOUND", "Path computation failed to resolve route for reservation"),
-  VLAN_ID_INTERCHANGE_NOT_SUPPORTED("404", "VLANID_INTERCHANGE_NOT_SUPPORTED", "VlanId interchange not supported for requested path"),
+  TOPOLOGY_ERROR("00400", "TOPOLOGY_ERROR", ""),
+  UNKNOWN_STP("00401", "UNKNOWN_STP", "Could not find STP in topology database"),
+  STP_RESOLUTION_ERROR("00402", "STP_RESOLUTION_ERROR", "Could not resolve STP to a managing NSA"),
+  NO_PATH_FOUND("00403", "NO_PATH_FOUND", "Path computation failed to resolve route for reservation"),
+  VLAN_ID_INTERCHANGE_NOT_SUPPORTED("00404", "VLANID_INTERCHANGE_NOT_SUPPORTED", "VlanId interchange not supported for requested path"),
 
-  INTERNAL_ERROR("500", "INTERNAL_ERROR", "An internal error has caused a message processing failure"),
-  INTERNAL_NRM_ERROR("501", "INTERNAL_NRM_ERROR", "An internal NRM error has caused a message processing failure"),
+  INTERNAL_ERROR("00500", "INTERNAL_ERROR", "An internal error has caused a message processing failure"),
+  INTERNAL_NRM_ERROR("00501", "INTERNAL_NRM_ERROR", "An internal NRM error has caused a message processing failure"),
 
-  RESOURCE_UNAVAILABLE("600", "RESOURCE_UNAVAILABLE", ""),
-  STP_UNAVAILABLE("601", "STP_UNAVAILABLE", "Specified STP already in use"),
-  BANDWIDTH_UNAVAILABLE("602", "BANDWIDTH_UNAVAILABLE", "Insufficient bandwdith available for reservation");
+  RESOURCE_UNAVAILABLE("00600", "RESOURCE_UNAVAILABLE", ""),
+  STP_UNAVAILABLE("00601", "STP_UNAVAILABLE", "Specified STP already in use"),
+  BANDWIDTH_UNAVAILABLE("00602", "BANDWIDTH_UNAVAILABLE", "Insufficient bandwdith available for reservation");
 
   private final String errorId;
   private final String code;
