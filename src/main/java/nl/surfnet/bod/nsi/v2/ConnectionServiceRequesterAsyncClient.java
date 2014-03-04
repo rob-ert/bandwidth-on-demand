@@ -61,8 +61,6 @@ class ConnectionServiceRequesterAsyncClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceRequesterAsyncClient.class);
 
-  private static final int STANDARD_HTTPS_PORT = 443;
-
   @Value("${connection.service.requester.v2.connect.timeout}")
   private int connectTimeout;
 
