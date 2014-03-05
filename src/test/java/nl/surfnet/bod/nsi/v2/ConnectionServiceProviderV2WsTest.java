@@ -23,6 +23,8 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.INVALID_TRANSITION;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.NOT_IMPLEMENTED;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -57,6 +59,7 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
@@ -216,7 +219,7 @@ public class ConnectionServiceProviderV2WsTest {
       subject.reserve(new Holder<>("connectionId"), null, null, initialReservationCriteria(), headerHolder);
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getErrorId(), is("103"));
+      assertThat(expected.getFaultInfo().getErrorId(), is(NOT_IMPLEMENTED.getErrorId()));
       assertThat(expected.getFaultInfo().getText(), is("This operation is not implemented yet"));
     }
   }
@@ -230,7 +233,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
+      assertThat(expected.getFaultInfo().getErrorId(), is(INVALID_TRANSITION.getErrorId()));
     }
   }
 
@@ -311,7 +314,7 @@ public class ConnectionServiceProviderV2WsTest {
 
       fail("ServiceException expected");
     } catch (ServiceException expected) {
-      assertThat(expected.getFaultInfo().getErrorId(), is("201"));
+      assertThat(expected.getFaultInfo().getErrorId(), is(INVALID_TRANSITION.getErrorId()));
     }
   }
 
@@ -346,7 +349,7 @@ public class ConnectionServiceProviderV2WsTest {
         subject.terminate("connectionId", headerHolder);
         fail("ServiceException expected");
       } catch (ServiceException expected) {
-        assertThat(expected.getFaultInfo().getErrorId(), is("201"));
+        assertThat(expected.getFaultInfo().getErrorId(), is(INVALID_TRANSITION.getErrorId()));
       }
   }
 
