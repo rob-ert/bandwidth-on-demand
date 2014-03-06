@@ -66,7 +66,7 @@ public class ReservationPoller {
    * The polling of reservations is scheduled every minute. This is because the
    * precision of reservations is in minutes.
    */
-  @Scheduled(fixedDelay = 10 * 1000)
+  @Scheduled(fixedDelay = 20 * 1000)
   public void pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged() {
     DateTime dateTime = DateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
