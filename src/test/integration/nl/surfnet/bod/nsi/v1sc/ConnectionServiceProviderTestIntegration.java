@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.jayway.awaitility.Awaitility;
 import nl.surfnet.bod.AppComponents;
 import nl.surfnet.bod.config.IntegrationDbConfiguration;
@@ -165,7 +165,7 @@ public class ConnectionServiceProviderTestIntegration {
 
   @Test
   public void shouldReserveProvisionTerminate() throws Exception {
-    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(DateTime.now().plusDays(1)), Optional.<DateTime> absent());
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(DateTime.now().plusDays(1)), Optional.empty());
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     // reserve
@@ -188,7 +188,7 @@ public class ConnectionServiceProviderTestIntegration {
   @Test
   public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
     DateTime start = DateTime.now().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
-    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.empty());
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
@@ -220,7 +220,7 @@ public class ConnectionServiceProviderTestIntegration {
     DateTime startNowPlusHour = new DateTime().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0)
       .withZoneRetainFields(DateTimeZone.forOffsetHours(offsetInHours));
 
-    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(startNowPlusHour), Optional.<DateTime> absent());
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(startNowPlusHour), Optional.empty());
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
     GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
@@ -360,7 +360,7 @@ public class ConnectionServiceProviderTestIntegration {
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
-    return createReserveRequest(Optional.<DateTime> absent(), Optional.<DateTime> absent());
+    return createReserveRequest(Optional.empty(), Optional.empty());
   }
 
   private ReserveRequestType createReserveRequest(Optional<DateTime> start, Optional<DateTime> end) {

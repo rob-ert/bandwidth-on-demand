@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.nsi;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.EnniPort;
@@ -89,10 +89,10 @@ public class NsiHelper {
     Matcher matcher = pattern.matcher(stpId);
 
     if (!matcher.matches()) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
-    return Optional.fromNullable(Strings.emptyToNull(matcher.group(1)));
+    return Optional.ofNullable(Strings.emptyToNull(matcher.group(1)));
   }
 
   public String generateGlobalReservationId() {

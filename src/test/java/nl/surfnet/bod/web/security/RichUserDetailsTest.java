@@ -25,13 +25,19 @@ package nl.surfnet.bod.web.security;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.base.Functions;
+import javax.mail.internet.InternetAddress;
+
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -173,7 +179,7 @@ public class RichUserDetailsTest {
         Lists.newArrayList(BodRole.createAppManager()),
         Collections.<NsiScope> emptyList());
 
-    assertThat(userDetails.getEmail().transform(Functions.toStringFunction()), isPresent("john@example.com"));
+    assertThat(userDetails.getEmail().map(InternetAddress::toString), isPresent("john@example.com"));
   }
 
   @Test
@@ -183,6 +189,6 @@ public class RichUserDetailsTest {
         Lists.newArrayList(BodRole.createAppManager()),
         Collections.<NsiScope> emptyList());
 
-    assertThat(userDetails.getEmail().transform(Functions.toStringFunction()), isPresent("\"Smith, John\" <john@example.com>"));
+    assertThat(userDetails.getEmail().map(InternetAddress::toString), isPresent("\"Smith, John\" <john@example.com>"));
   }
 }

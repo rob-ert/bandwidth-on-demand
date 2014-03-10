@@ -25,7 +25,7 @@ package nl.surfnet.bod.nsi.v2;
 import java.util.Collection;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.util.JaxbUserType;
@@ -75,7 +75,7 @@ public final class ConnectionsV2 {
         }
       }
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   public static Optional<P2PServiceBaseType> findPointToPointService(ReservationConfirmCriteriaType criteria) {

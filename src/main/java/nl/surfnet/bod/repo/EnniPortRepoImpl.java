@@ -23,6 +23,7 @@
 package nl.surfnet.bod.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -30,9 +31,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.google.common.base.Optional;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -47,7 +48,7 @@ public class EnniPortRepoImpl implements CustomRepo<EnniPort> {
 
   @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<EnniPort>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<EnniPort>> whereClause, Optional<Sort> sort) {

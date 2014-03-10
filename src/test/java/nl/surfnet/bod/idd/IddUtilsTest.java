@@ -22,20 +22,19 @@
  */
 package nl.surfnet.bod.idd;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.KlantenFactory;
 
 import org.junit.Test;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 
 public class IddUtilsTest {
@@ -69,8 +68,7 @@ public class IddUtilsTest {
 
   @Test
   public void transformKlantWithId() {
-    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1)
-        .create();
+    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1).create();
 
     Optional<Institute> institute = IddUtils.transformKlant(klant, true);
 
@@ -81,12 +79,10 @@ public class IddUtilsTest {
 
   @Test
   public void transformKlantenShouldLeaveOutNulls() {
-    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1)
-        .create();
-    Klanten klantWithNullValues = new KlantenFactory().setKlantnaam(null).setKlantafkorting(null).setKlantid(2)
-        .create();
+    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1).create();
+    Klanten klantWithNullValues = new KlantenFactory().setKlantnaam(null).setKlantafkorting(null).setKlantid(2).create();
 
-    Collection<Institute> klanten = IddUtils.transformKlanten(ImmutableList.of(klant, klantWithNullValues), true);
+    Collection<Institute> klanten = IddUtils.transformKlanten(asList(klant, klantWithNullValues), true);
 
     assertThat(klanten, hasSize(1));
   }

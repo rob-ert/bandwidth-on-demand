@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2.ReservationConfirmCriteriaTypeUserType;
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;

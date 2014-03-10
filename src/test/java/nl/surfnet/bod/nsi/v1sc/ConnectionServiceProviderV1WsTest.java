@@ -33,7 +33,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Throwables;
 
 import nl.surfnet.bod.domain.ConnectionV1;
@@ -93,7 +93,7 @@ public class ConnectionServiceProviderV1WsTest {
 
   @Test
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
-    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String> absent());
+    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.empty());
 
     ConnectionV1 connection = ConnectionServiceProviderFunctions.reserveRequestToConnection(dummyNsiHelper, ProtectionType.PROTECTED).apply(reserveRequestType);
 
@@ -166,7 +166,7 @@ public class ConnectionServiceProviderV1WsTest {
     ReservationInfoType reservation = new ReservationInfoType();
     reservation.setPath(path);
     reservation.setServiceParameters(serviceParameters);
-    reservation.setGlobalReservationId(globalReservationId.orNull());
+    reservation.setGlobalReservationId(globalReservationId.orElse(null));
 
     ReserveType reserve = new ReserveType();
     reserve.setReservation(reservation);

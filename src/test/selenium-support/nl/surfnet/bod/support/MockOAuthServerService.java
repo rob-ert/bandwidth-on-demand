@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.domain.oauth.AccessToken;
 import nl.surfnet.bod.domain.oauth.AccessTokenResponse;

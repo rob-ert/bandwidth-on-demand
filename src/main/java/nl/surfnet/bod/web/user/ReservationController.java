@@ -32,11 +32,11 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;

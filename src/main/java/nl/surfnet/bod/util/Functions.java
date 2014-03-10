@@ -24,8 +24,8 @@ package nl.surfnet.bod.util;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.EnniPort;
@@ -33,36 +33,17 @@ import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
-import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
-import nl.surfnet.bod.web.view.UserGroupView;
 
 public final class Functions {
 
   private Functions() {
   }
-
-  public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW =
-      new Function<UserGroup, UserGroupView>() {
-        @Override
-        public UserGroupView apply(UserGroup group) {
-          return new UserGroupView(group);
-        }
-      };
-
-  public static final Function<VirtualResourceGroup, UserGroupView> FROM_VRG_TO_USER_GROUP_VIEW =
-      new Function<VirtualResourceGroup, UserGroupView>() {
-        @Override
-        public UserGroupView apply(VirtualResourceGroup group) {
-          return new UserGroupView(group);
-        }
-      };
 
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to a {@link PhysicalPortView}
@@ -92,21 +73,11 @@ public final class Functions {
   }
 
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends EnniPort> ports, ReservationService reservationService, NsiHelper nsiHelper) {
-    List<PhysicalPortView> views = Lists.newArrayList();
-    for (EnniPort port : ports) {
-      views.add(transformAllocatedPhysicalPort(port, reservationService, nsiHelper));
-    }
-
-    return views;
+    return ports.stream().map(p -> transformAllocatedPhysicalPort(p, reservationService, nsiHelper)).collect(Collectors.toList());
   }
 
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<? extends UniPort> ports, VirtualPortService virtualPortService, ReservationService reservationService) {
-    List<PhysicalPortView> views = Lists.newArrayList();
-    for (UniPort port : ports) {
-      views.add(transformAllocatedPhysicalPort(port, virtualPortService, reservationService));
-    }
-
-    return views;
+    return ports.stream().map(p -> transformAllocatedPhysicalPort(p, virtualPortService, reservationService)).collect(Collectors.toList());
   }
 
   public static List<PhysicalPortView> transformUnalignedPhysicalPorts(
@@ -129,17 +100,8 @@ public final class Functions {
     return views;
   }
 
-  public static PhysicalPortView transformUnallocatedPhysicalPort(NbiPort unallocatedPort) {
-    return new PhysicalPortView(unallocatedPort);
-  }
-
   public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(Collection<NbiPort> unallocatedPorts) {
-    List<PhysicalPortView> transformers = Lists.newArrayList();
-    for (NbiPort port : unallocatedPorts) {
-      transformers.add(transformUnallocatedPhysicalPort(port));
-    }
-
-    return transformers;
+    return unallocatedPorts.stream().map(PhysicalPortView::new).collect(Collectors.toList());
   }
 
 }

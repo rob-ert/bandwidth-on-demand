@@ -36,7 +36,7 @@ import nl.surfnet.bod.domain.VirtualPort_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class VirtualPortRepoImpl implements CustomRepo<VirtualPort> {
 
@@ -48,7 +48,7 @@ public class VirtualPortRepoImpl implements CustomRepo<VirtualPort> {
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<VirtualPort>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<VirtualPort>> whereClause, Optional<Sort> sort) {

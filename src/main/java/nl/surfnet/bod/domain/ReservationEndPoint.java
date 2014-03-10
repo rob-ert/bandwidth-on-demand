@@ -29,7 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 import org.hibernate.search.annotations.Analyzer;
@@ -79,19 +79,19 @@ public class ReservationEndPoint {
     this.virtualPort = null;
     this.enniPort = Preconditions.checkNotNull(enniPort, "enniPort is required");
     Preconditions.checkArgument(enniPort.isVlanRequired() == vlanId.isPresent(), "E-NNI port {} and VLAN ID {} configuration must match", enniPort, vlanId);
-    this.enniVlanId = vlanId.orNull();
+    this.enniVlanId = vlanId.orElse(null);
   }
 
   public Optional<VirtualPort> getVirtualPort() {
-    return Optional.fromNullable(virtualPort);
+    return Optional.ofNullable(virtualPort);
   }
 
   public Optional<EnniPort> getEnniPort() {
-    return Optional.fromNullable(enniPort);
+    return Optional.ofNullable(enniPort);
   }
 
   public Optional<UniPort> getUniPort() {
-    return virtualPort != null ? Optional.of(virtualPort.getPhysicalPort()) : Optional.<UniPort>absent();
+    return virtualPort != null ? Optional.of(virtualPort.getPhysicalPort()) : Optional.empty();
   }
 
   public PhysicalPort getPhysicalPort() {
@@ -99,7 +99,7 @@ public class ReservationEndPoint {
   }
 
   public Optional<Integer> getEnniVlanId() {
-    return Optional.fromNullable(enniVlanId);
+    return Optional.ofNullable(enniVlanId);
   }
 
   public String getLabel() {
@@ -136,13 +136,13 @@ public class ReservationEndPoint {
     if (virtualPort != null) {
       return new ReservationEndPoint(virtualPort);
     } else {
-      return new ReservationEndPoint(enniPort, Optional.fromNullable(enniVlanId));
+      return new ReservationEndPoint(enniPort, Optional.ofNullable(enniVlanId));
     }
   }
 
   public Optional<Integer> getVlanId() {
     if (getVirtualPort().isPresent()) {
-      return Optional.fromNullable(getVirtualPort().get().getVlanId());
+      return Optional.ofNullable(getVirtualPort().get().getVlanId());
     } else {
       return getEnniVlanId();
     }

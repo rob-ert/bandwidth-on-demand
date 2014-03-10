@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain;
 
 import javax.persistence.*;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 
 @Entity
@@ -51,7 +51,7 @@ public class BodAccount {
   }
 
   public Optional<String> getAuthorizationServerAccessToken() {
-    return Optional.fromNullable(Strings.emptyToNull(authorizationServerAccessToken));
+    return Optional.ofNullable(Strings.emptyToNull(authorizationServerAccessToken));
   }
 
   public void setAuthorizationServerAccessToken(String authorizationServerAccessToken) {

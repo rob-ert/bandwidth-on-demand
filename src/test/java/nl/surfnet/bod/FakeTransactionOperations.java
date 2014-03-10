@@ -28,6 +28,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 public class FakeTransactionOperations implements TransactionOperations {
+
   @Override
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
     return action.doInTransaction(new SimpleTransactionStatus(true));

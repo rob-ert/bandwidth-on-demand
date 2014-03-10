@@ -34,7 +34,7 @@ import nl.surfnet.bod.event.LogEventType;
 import org.joda.time.DateTime;
 import org.springframework.util.ReflectionUtils;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class LogEventFactory {
 
@@ -55,9 +55,8 @@ public class LogEventFactory {
     if (domainObject != null) {
       this.adminGroups = domainObject.getAdminGroups();
     }
-    LogEvent logEvent = new LogEvent(userId, adminGroups, eventType, Optional.<Loggable> fromNullable(domainObject),
-        details, Optional.<ReservationStatus> fromNullable(oldReservationStatus), Optional
-            .<ReservationStatus> fromNullable(newReservationStatus));
+    LogEvent logEvent = new LogEvent(userId, adminGroups, eventType, Optional.ofNullable(domainObject),
+        details, Optional.ofNullable(oldReservationStatus), Optional.ofNullable(newReservationStatus));
 
     // Set immutable createdField
     Field createdField = ReflectionUtils.findField(LogEvent.class, "createdAt");

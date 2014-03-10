@@ -41,7 +41,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 
 /**
@@ -88,7 +88,7 @@ public class FullTextSearchContext<T> {
   public String[] findAllIndexedFields(Class<?> entity) {
     List<String> indexedFields = Lists.newArrayList();
 
-    indexedFields.addAll(getIndexedFields(entity, Optional.<String> absent()));
+    indexedFields.addAll(getIndexedFields(entity, Optional.empty()));
 
     return indexedFields.toArray(new String[indexedFields.size()]);
   }

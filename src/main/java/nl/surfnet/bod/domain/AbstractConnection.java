@@ -35,7 +35,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
@@ -161,7 +161,7 @@ public abstract class AbstractConnection implements Connection {
   }
 
   public Optional<DateTime> getStartTime() {
-    return Optional.fromNullable(startTime);
+    return Optional.ofNullable(startTime);
   }
 
   public void setStartTime(DateTime startTime) {
@@ -169,7 +169,7 @@ public abstract class AbstractConnection implements Connection {
   }
 
   public Optional<DateTime> getEndTime() {
-    return Optional.fromNullable(endTime);
+    return Optional.ofNullable(endTime);
   }
 
   public void setEndTime(DateTime endTime) {

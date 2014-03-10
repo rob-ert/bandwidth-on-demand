@@ -27,12 +27,11 @@ import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
@@ -154,17 +153,14 @@ public class VirtualPortController extends AbstractVirtualPortController {
 
   @Override
   protected List<? extends VirtualPortView> transformToView(List<? extends VirtualPort> entities, RichUserDetails user) {
-    return Lists.transform(entities, fromVirtualPortToVirtualPortView);
+    return entities.stream().map(this::fromVirtualPortToVirtualPortView).collect(Collectors.toList());
   }
 
-  private final Function<VirtualPort, VirtualPortView> fromVirtualPortToVirtualPortView = new Function<VirtualPort, VirtualPortView>() {
-    @Override
-    public VirtualPortView apply(VirtualPort port) {
-      long numberOfActiveReservations = reservationService.findActiveByVirtualPort(port).size();
-      VirtualPortDeleteRequestLink request = virtualPortDeleteRequestLinkRepo.findByVirtualPort(port);
-      return new VirtualPortView(port, nsiHelper, numberOfActiveReservations, numberOfActiveReservations == 0 && request == null);
-    }
-  };
+  private VirtualPortView fromVirtualPortToVirtualPortView(VirtualPort port) {
+    long numberOfActiveReservations = reservationService.findActiveByVirtualPort(port).size();
+    VirtualPortDeleteRequestLink request = virtualPortDeleteRequestLinkRepo.findByVirtualPort(port);
+    return new VirtualPortView(port, nsiHelper, numberOfActiveReservations, numberOfActiveReservations == 0 && request == null);
+  }
 
   public static class UpdateUserLabelCommand {
     private String userLabel;

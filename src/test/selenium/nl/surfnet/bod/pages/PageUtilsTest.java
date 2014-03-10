@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.*;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class PageUtilsTest {
 

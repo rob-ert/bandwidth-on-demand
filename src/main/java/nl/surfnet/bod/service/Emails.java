@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.service;
 
-import com.google.common.base.Functions;
-
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
 import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
+import javax.mail.internet.InternetAddress;
 
 public final class Emails {
 
@@ -75,7 +75,7 @@ public final class Emails {
     public static String body(RichUserDetails from, VirtualPortDeleteRequestLink requestLink, String link) {
       return String.format(DELETE_VIRTUAL_PORT_REQUEST_BODY,
         from.getDisplayName(),
-        from.getEmail().transform(Functions.toStringFunction()).or("Unknown Email"),
+        from.getEmail().map(InternetAddress::toString).orElse("Unknown Email"),
         requestLink.getVirtualPort().get().getUserLabel(),
         requestLink.getMessage(),
         link);
@@ -84,7 +84,7 @@ public final class Emails {
     public static String body(RichUserDetails from, VirtualPortCreateRequestLink requestLink, String link) {
       return String.format(NEW_VIRTUAL_PORT_REQUEST_BODY,
         from.getDisplayName(),
-        from.getEmail().transform(Functions.toStringFunction()).or("Unknown Email"),
+        from.getEmail().map(InternetAddress::toString).orElse("Unknown Email"),
         requestLink.getVirtualResourceGroup().getName(),
         requestLink.getUserLabel(),
         requestLink.getMinBandwidth(),

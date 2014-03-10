@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -97,7 +97,7 @@ public class VersReportingService {
 
       Collection<ErInsertReportDocument> reports = createAllReports(period, institute, reportView);
 
-      logger.info(String.format("Sending %d reports for institute '%s'", reports.size(), institute.or("Null/Not set")));
+      logger.info(String.format("Sending %d reports for institute '%s'", reports.size(), institute.orElse("Null/Not set")));
 
       submitReports(reports);
     }
@@ -280,7 +280,7 @@ public class VersReportingService {
       reportViews.put(orgName, report);
     }
 
-    reportViews.put(Optional.<String> absent(), reportingService.determineReportForNoc(period.toInterval()));
+    reportViews.put(Optional.empty(), reportingService.determineReportForNoc(period.toInterval()));
 
     return reportViews;
   }

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
@@ -51,7 +51,7 @@ public class VirtualPortDeleteRequestTestSelenium extends SeleniumWithSingleSetu
 
     getUserDriver().selectTeamInstituteAndRequest("Selenium users", GROUP_SURFNET, "PortToDelete", 1000, "Doe mijn een nieuw poort...");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("PhysicalPort One", "PortToDelete", Optional.of("PortToDelete"), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort("PhysicalPort One", "PortToDelete", Optional.of("PortToDelete"), Optional.empty());
     getManagerDriver().switchToUserRole();
 
     getUserDriver().requestDeleteVirtualPort("PortToDelete", "Port not needed anymore");

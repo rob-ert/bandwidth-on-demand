@@ -27,6 +27,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -42,7 +43,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.*;
 
 @SuppressWarnings("serial")
@@ -74,7 +79,7 @@ public class RichUserDetails implements UserDetails {
 
   private Optional<InternetAddress> validateEmail(String email) {
     if (Strings.isNullOrEmpty(email)) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     Optional<InternetAddress> emailOpt;
@@ -86,10 +91,10 @@ public class RichUserDetails implements UserDetails {
       } else if (email.contains("<") && email.contains(">")) {
         return validateEmail(email.substring(email.indexOf('<') + 1, email.indexOf('>')));
       } else {
-        emailOpt = Optional.absent();
+        emailOpt = Optional.empty();
       }
     } catch (AddressException e) {
-      emailOpt = Optional.absent();
+      emailOpt = Optional.empty();
     }
 
     return emailOpt;

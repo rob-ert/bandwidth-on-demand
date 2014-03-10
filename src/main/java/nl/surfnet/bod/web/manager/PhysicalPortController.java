@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -168,7 +168,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
     Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
     if (physicalResourceGroup.isPresent()) {
-      return physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.<Sort>fromNullable(sort));
+      return physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()), Optional.ofNullable(sort));
     } else {
       return new ArrayList<>();
     }
@@ -177,7 +177,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   private Optional<PhysicalResourceGroup> getCurrentPhysicalResourceGroup() {
     Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
     if (!groupId.isPresent()) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());

@@ -52,8 +52,7 @@ import java.util.ArrayList;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.google.common.base.Optional;
-
+import java.util.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;

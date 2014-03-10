@@ -22,11 +22,10 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Optional;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -42,7 +41,7 @@ public class VirtualPortDeleteRequestLink extends AbstractRequestLink implements
   private String message;
 
   public Optional<VirtualPort> getVirtualPort() {
-    return Optional.fromNullable(virtualPort);
+    return Optional.ofNullable(virtualPort);
   }
 
   public void setVirtualPort(VirtualPort virtualPort) {
@@ -66,12 +65,7 @@ public class VirtualPortDeleteRequestLink extends AbstractRequestLink implements
 
   @Override
   public String getLabel() {
-    return getVirtualPort().transform(new Function<VirtualPort, String>() {
-      @Override
-      public String apply(VirtualPort port) {
-        return port.getLabel();
-      }
-    }).or("<unknown>");
+    return getVirtualPort().map(VirtualPort::getLabel).orElse("<unknown>");
   }
 
   public void clearVirtualPort() {

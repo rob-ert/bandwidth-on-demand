@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.NsiVersion;
 import nl.surfnet.bod.domain.ReservationStatus;

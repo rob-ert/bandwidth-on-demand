@@ -30,7 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 import org.springframework.stereotype.Repository;
@@ -52,7 +52,7 @@ public class NsiV2MessageRepoImpl implements NsiV2MessageRepoCustom {
       hql.append(" AND resultId >= :resultIdStart");
       queryParams.put("resultIdStart", resultIdStart.get());
     }
-    if(resultIdEnd.isPresent()) {
+    if (resultIdEnd.isPresent()) {
       hql.append(" AND resultId <= :resultIdEnd");
       queryParams.put("resultIdEnd", resultIdEnd.get());
     }

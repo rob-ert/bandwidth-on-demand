@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.web.view;
 
-import com.google.common.base.Function;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -66,19 +64,14 @@ public class ReservationView {
 
   public ReservationView(Reservation reservation, ElementActionView deleteActionView, ElementActionView editActionView) {
     this.id = reservation.getId();
-    this.virtualResourceGroup = reservation.getVirtualResourceGroup()
-        .transform(new Function<VirtualResourceGroup, String>() {
-          public String apply(VirtualResourceGroup group) {
-            return group.getName();
-          }
-        }).or("-");
+    this.virtualResourceGroup = reservation.getVirtualResourceGroup().map(VirtualResourceGroup::getName).orElse("-");
     this.sourcePort = new PortView(reservation.getSourcePort());
     this.destinationPort = new PortView(reservation.getDestinationPort());
     this.status = reservation.getStatus();
     this.failedReason = reservation.getFailedReason();
     this.cancelReason = reservation.getCancelReason();
     this.startDateTime = reservation.getStartDateTime();
-    this.endDateTime = reservation.getEndDateTime().orNull();
+    this.endDateTime = reservation.getEndDateTime().orElse(null);
     this.bandwidth = reservation.getBandwidth();
     this.userCreated = reservation.getUserCreated();
     this.reservationId = reservation.getReservationId();
@@ -87,7 +80,7 @@ public class ReservationView {
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
     this.editActionView = editActionView;
-    Connection connection = reservation.getConnection().orNull();
+    Connection connection = reservation.getConnection().orElse(null);
     this.connectionId = connection == null ? null : connection.getConnectionId();
 
     if (!reservation.isNSICreated()) {

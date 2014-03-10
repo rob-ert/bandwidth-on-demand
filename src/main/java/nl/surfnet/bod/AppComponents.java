@@ -27,9 +27,24 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+
 import javax.sql.DataSource;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.googlecode.flyway.core.Flyway;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
+
+import nl.surfnet.bod.sab.EntitlementsHandler;
+import nl.surfnet.bod.service.EmailSender;
 
 import org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer;
 import org.jasypt.util.text.StrongTextEncryptor;
@@ -64,20 +79,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.googlecode.flyway.core.Flyway;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-
-import nl.surfnet.bod.sab.EntitlementsHandler;
-import nl.surfnet.bod.service.EmailSender;
 
 @Configuration
 @ComponentScan(basePackages = "nl.surfnet.bod", excludeFilters = { @Filter(Controller.class), @Filter(Configuration.class), @Filter(Repository.class) })
@@ -174,8 +175,8 @@ public class AppComponents implements AsyncConfigurer {
       String value = (String) entry.getValue().unwrapped();
       entries.put(entry.getKey(), value);
     }
-    return Optional.<Map<String, String>> of(ImmutableMap.copyOf(entries));
 
+    return Optional.of(ImmutableMap.copyOf(entries));
   }
 
   @Bean

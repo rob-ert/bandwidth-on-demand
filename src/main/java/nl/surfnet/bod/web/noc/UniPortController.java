@@ -34,7 +34,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -280,7 +280,7 @@ public class UniPortController extends AbstractSearchableSortableListController<
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findUniIds(Optional.<Sort> fromNullable(sort));
+    return physicalPortService.findUniIds(Optional.ofNullable(sort));
   }
 
   @Override

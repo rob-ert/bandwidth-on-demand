@@ -39,7 +39,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.ogf.schemas.nsi._2013._12.connection.requester.ConnectionServiceRequester;
@@ -111,11 +111,11 @@ class ConnectionServiceRequesterAsyncClient {
   @VisibleForTesting
   Optional<URI> findStunnelUri(final String requesterNsaId, final URI originalReplyTo) {
     if (!bodEnvironment.isUseStunnelForNsiV2AsyncReplies() || !stunnelTranslationMap.isPresent()) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     if (!stunnelTranslationMap.get().containsKey(requesterNsaId)) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     String replacement = stunnelTranslationMap.get().get(requesterNsaId);

@@ -27,10 +27,9 @@ import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
-
-import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -104,7 +103,7 @@ public class UnalignedPortController extends AbstractSearchableSortableListContr
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findUnalignedIds(Optional.<Sort> fromNullable(sort));
+    return physicalPortService.findUnalignedIds(Optional.ofNullable(sort));
   }
 
   @Override

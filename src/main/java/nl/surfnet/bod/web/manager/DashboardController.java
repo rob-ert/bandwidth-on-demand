@@ -29,7 +29,7 @@ import static nl.surfnet.bod.util.Orderings.REQUEST_LINK_ORDERING;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;

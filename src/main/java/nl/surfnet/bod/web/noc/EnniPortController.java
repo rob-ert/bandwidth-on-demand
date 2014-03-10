@@ -31,7 +31,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.EnniPort;
@@ -224,7 +224,7 @@ public class EnniPortController extends AbstractSearchableSortableListController
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return physicalPortService.findEnniIds(Optional.<Sort> fromNullable(sort));
+    return physicalPortService.findEnniIds(Optional.ofNullable(sort));
   }
 
   @Override

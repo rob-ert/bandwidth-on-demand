@@ -53,7 +53,7 @@ import java.util.List;
 
 import javax.xml.ws.Holder;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
@@ -498,7 +498,7 @@ public class ConnectionServiceProviderV2WsTest {
     when(nsiHelper.isAcceptableStpIdV2(DESTINATION_STP)).thenReturn(true);
     when(bodEnvironmentMock.getDefaultProtectionType()).thenReturn(ProtectionType.PROTECTED);
 
-    ConnectionV2 connection = subject.createConnection(Optional.<String>absent(), Optional.<String>absent(), new NsiV2RequestDetailsFactory().create(), "", "", criteria);
+    ConnectionV2 connection = subject.createConnection(Optional.empty(), Optional.empty(), new NsiV2RequestDetailsFactory().create(), "", "", criteria);
 
     assertThat(connection.getProtectionType(), is(ProtectionType.UNPROTECTED));
   }

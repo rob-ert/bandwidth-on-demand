@@ -36,7 +36,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class VirtualResourceGroupRepoImpl implements CustomRepo<VirtualResourceGroup> {
 
@@ -49,7 +49,7 @@ public class VirtualResourceGroupRepoImpl implements CustomRepo<VirtualResourceG
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<VirtualResourceGroup>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<VirtualResourceGroup>> whereClause, Optional<Sort> sort) {

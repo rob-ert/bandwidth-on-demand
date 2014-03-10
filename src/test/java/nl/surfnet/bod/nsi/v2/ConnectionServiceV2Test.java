@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.ConnectionV2;
@@ -230,7 +230,7 @@ public class ConnectionServiceV2Test {
     connection.addNotification(new DataPlaneStateChangeRequestType().withNotificationId(1));
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.empty(), Optional.empty(), requestDetails);
 
     assertThat(notifications, hasSize(2));
   }
@@ -249,7 +249,7 @@ public class ConnectionServiceV2Test {
     }
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(connection);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.empty(), Optional.empty(), requestDetails);
 
     assertThat(notifications, hasSize(4));
   }
@@ -281,7 +281,7 @@ public class ConnectionServiceV2Test {
     final NsiV2RequestDetails requestDetails = new NsiV2RequestDetailsFactory().create();
 
     when(connectionRepoMock.findByConnectionId(connectionId)).thenReturn(null);
-    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.<Long>absent(), Optional.<Long>absent(), requestDetails);
+    List<NotificationBaseType> notifications = subject.queryNotification(connectionId, Optional.empty(), Optional.empty(), requestDetails);
 
     assertThat(notifications, empty());
   }

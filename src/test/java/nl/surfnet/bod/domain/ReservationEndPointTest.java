@@ -25,7 +25,7 @@ package nl.surfnet.bod.domain;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.support.NbiPortFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -43,7 +43,7 @@ public class ReservationEndPointTest {
     ReservationEndPoint subject = new ReservationEndPoint(virtualPort);
 
     assertThat(subject.getVirtualPort(), is(Optional.of(virtualPort)));
-    assertThat(subject.getEnniPort(), is(Optional.<EnniPort>absent()));
+    assertThat(subject.getEnniPort(), is(Optional.empty()));
     assertThat(subject.getUniPort(), is(Optional.of(virtualPort.getPhysicalPort())));
     assertThat(subject.getPhysicalPort(), Matchers.<PhysicalPort>is(virtualPort.getPhysicalPort()));
   }
@@ -55,18 +55,18 @@ public class ReservationEndPointTest {
 
     assertThat(subject.getEnniPort(), is(Optional.of(enniPort)));
     assertThat(subject.getEnniVlanId(), is(Optional.of(2)));
-    assertThat(subject.getVirtualPort(), is(Optional.<VirtualPort>absent()));
+    assertThat(subject.getVirtualPort(), is(Optional.empty()));
     assertThat(subject.getPhysicalPort(), Matchers.<PhysicalPort>is(enniPort));
   }
 
   @Test
   public void should_support_enni_port_without_vlan_as_end_point() {
     EnniPort enniPort = new EnniPort(new NbiPortFactory().setVlanRequired(false).create());
-    ReservationEndPoint subject = new ReservationEndPoint(enniPort, Optional.<Integer>absent());
+    ReservationEndPoint subject = new ReservationEndPoint(enniPort, Optional.empty());
 
     assertThat(subject.getEnniPort(), is(Optional.of(enniPort)));
-    assertThat(subject.getEnniVlanId(), is(Optional.<Integer>absent()));
-    assertThat(subject.getVirtualPort(), is(Optional.<VirtualPort>absent()));
+    assertThat(subject.getEnniVlanId(), is(Optional.empty()));
+    assertThat(subject.getVirtualPort(), is(Optional.empty()));
   }
 
 }

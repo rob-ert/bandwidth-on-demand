@@ -33,7 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @Controller("userEventController")
 @RequestMapping(value = "/" + AbstractLogEventController.PAGE_URL)
@@ -46,7 +46,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model, Sort sort) {
-    return getLogEventService().findIdsForUser(Security.getUserDetails(), Optional.<Sort> fromNullable(sort));
+    return getLogEventService().findIdsForUser(Security.getUserDetails(), Optional.ofNullable(sort));
   }
 
   @Override

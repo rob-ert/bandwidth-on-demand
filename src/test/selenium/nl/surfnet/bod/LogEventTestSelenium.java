@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
@@ -130,14 +130,14 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort(PORT_LABEL_1, VP_LABEL_1, Optional.<String>absent(), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort(PORT_LABEL_1, VP_LABEL_1, Optional.empty(), Optional.empty());
   }
 
   private void createVPTwoForGroupTwo() {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort(PORT_LABEL_2, VP_LABEL_2, Optional.<String>absent(), Optional.of(23));
+    getManagerDriver().acceptVirtualPort(PORT_LABEL_2, VP_LABEL_2, Optional.empty(), Optional.of(23));
   }
 
 }

@@ -33,7 +33,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 import nl.surfnet.bod.util.JaxbUserType;

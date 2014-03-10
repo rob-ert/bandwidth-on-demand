@@ -35,10 +35,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 /**
  * Service interface to abstract full text search functionality
@@ -141,12 +139,7 @@ public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDo
   protected <T extends ENTITY> List<T> intersectFullTextResultAndFilterResult(List<T> searchResults, List<Long> filterResults) {
     List<T> sortedEntityList = new ArrayList<>();
     for (final Long id : filterResults) {
-      Optional<T> foundEntity = Iterables.tryFind(searchResults, new Predicate<T>() {
-        @Override
-        public boolean apply(T entity) {
-          return id.equals(entity.getId());
-        }
-      });
+      Optional<T> foundEntity = searchResults.stream().filter(e -> id.equals(e.getId())).findFirst();
 
       if (foundEntity.isPresent()) {
         sortedEntityList.add(foundEntity.get());

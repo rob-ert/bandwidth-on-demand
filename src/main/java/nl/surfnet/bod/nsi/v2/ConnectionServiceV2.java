@@ -29,7 +29,7 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.TOPOLOGY_ERROR;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNKNOWN_STP;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -87,7 +87,7 @@ public class ConnectionServiceV2 {
       Reservation reservation = new Reservation();
       reservation.setConnectionV2(connection);
       reservation.setName(connection.getDescription());
-      reservation.setStartDateTime(connection.getStartTime().orNull());
+      reservation.setStartDateTime(connection.getStartTime().orElse(null));
       reservation.setEndDateTime(connection.getEndTime());
       reservation.setSourcePort(findEndPoint(connection.getSourceStpId(), connection.getSourceVlanId(), userDetails));
       reservation.setDestinationPort(findEndPoint(connection.getDestinationStpId(),  connection.getDestinationVlanId(), userDetails));

@@ -23,6 +23,7 @@
 package nl.surfnet.bod.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -36,8 +37,6 @@ import nl.surfnet.bod.event.LogEvent_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
-
 public class LogEventRepoImpl implements LogEventRepoCustom {
 
   @PersistenceContext
@@ -50,12 +49,12 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
 
   @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<LogEvent>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   @Override
   public List<Long> findAllIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<LogEvent>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<LogEvent>> whereClause, Optional<Sort> sort) {

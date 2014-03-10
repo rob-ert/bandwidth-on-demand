@@ -36,7 +36,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class PhysicalResourceGroupRepoImpl implements CustomRepo<PhysicalResourceGroup> {
 
@@ -49,7 +49,7 @@ public class PhysicalResourceGroupRepoImpl implements CustomRepo<PhysicalResourc
 
   @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<PhysicalResourceGroup>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<PhysicalResourceGroup>> whereClause, Optional<Sort> sort) {

@@ -24,7 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.net.URI;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 

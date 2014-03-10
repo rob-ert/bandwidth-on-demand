@@ -22,13 +22,25 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.*;
+import static java.util.stream.Collectors.toList;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.addHandlerToBinding;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.findRdnValue;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.findSscValue;
+import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.getSapName;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.sun.xml.ws.developer.JAXWSProperties;
+
+import nl.surfnet.bod.domain.NbiPort;
+import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +60,6 @@ import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.sun.xml.ws.developer.JAXWSProperties;
-
-import nl.surfnet.bod.domain.NbiPort;
-import nl.surfnet.bod.domain.NbiPort.InterfaceType;
-
 @Profile("onecontrol")
 @Service
 public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
@@ -64,7 +67,6 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
   private static final String WSDL_LOCATION = "/mtosi/2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl";
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
-
 
   @Value("${onecontrol.inventory.client.connect.timeout}")
   private int connectTimeout;
@@ -86,15 +88,7 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
       return Collections.emptyList();
     }
 
-    return FluentIterable
-      .from(getSapInventory().get().getSap())
-      .transform(new Function<ServiceAccessPointType, NbiPort>() {
-        @Override
-        public NbiPort apply(ServiceAccessPointType sap) {
-          return translateToNbiPort(sap);
-        }
-      })
-      .toList();
+    return getSapInventory().get().getSap().stream().map(this::translateToNbiPort).collect(toList());
   }
 
   @Override
@@ -176,20 +170,20 @@ public class InventoryRetrievalClientImpl implements InventoryRetrievalClient {
 
   private Optional<SapList> getSapInventory() {
     try {
-      return Optional.fromNullable(getServiceInventoryWithSapFilter().getInventoryData().getSapList());
+      return Optional.ofNullable(getServiceInventoryWithSapFilter().getInventoryData().getSapList());
     } catch (GetServiceInventoryException e) {
       logger.warn("Could not load SAP inventory", e);
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
   @Override
   public Optional<RfsList> getRfsInventory() {
     try {
-      return Optional.fromNullable(getServiceInventoryWithRfsFilter().getInventoryData().getRfsList());
+      return Optional.ofNullable(getServiceInventoryWithRfsFilter().getInventoryData().getRfsList());
     } catch (GetServiceInventoryException e) {
       logger.warn("Could not load RFS inventory", e);
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
@@ -48,7 +48,7 @@ public class InventoryRetrievalOfflineClient implements InventoryRetrievalClient
       NbiPort physicalPort = new NbiPort();
       physicalPort.setNmsPortId(nbiPort.getId());
       physicalPort.setSuggestedBodPortId("Mock_" + nbiPort.getName());
-      physicalPort.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+      physicalPort.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().orElse(nbiPort.getName()));
       physicalPort.setVlanRequired(isVlanRequired(nbiPort.getName()));
       physicalPort.setInterfaceType(nbiPort.getInterfaceType());
 
@@ -102,7 +102,7 @@ public class InventoryRetrievalOfflineClient implements InventoryRetrievalClient
 
   @Override
   public Optional<ServiceInventoryDataType.RfsList> getRfsInventory() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
   private static final class MockNbiPort {
@@ -118,7 +118,7 @@ public class InventoryRetrievalOfflineClient implements InventoryRetrievalClient
     public MockNbiPort(String name, String id, String userLabel, InterfaceType interfaceType) {
       this.name = name;
       this.id = id;
-      this.userLabel = Optional.fromNullable(userLabel);
+      this.userLabel = Optional.ofNullable(userLabel);
       this.interfaceType = interfaceType;
     }
 

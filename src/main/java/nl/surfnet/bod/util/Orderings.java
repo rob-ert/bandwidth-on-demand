@@ -58,8 +58,8 @@ public final class Orderings {
   private static final Ordering<BodRole> ROLE_ORDERING = new Ordering<BodRole>() {
     @Override
     public int compare(BodRole role1, BodRole role2) {
-      return (role1.getRole().getSortOrder() + role1.getInstituteName().or("")).compareTo(role2.getRole().getSortOrder()
-          + role2.getInstituteName().or(""));
+      return (role1.getRole().getSortOrder() + role1.getInstituteName().orElse("")).compareTo(role2.getRole().getSortOrder()
+          + role2.getInstituteName().orElse(""));
     }
   };
 

@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import java.util.Collection;
 import java.util.Collections;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.NbiPort;
@@ -270,7 +270,7 @@ public class UniPortControllerTest {
   public void updateWithNonExistingPort() throws Exception {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(new PhysicalResourceGroupFactory().create());
     when(physicalPortServiceMock.findByNmsPortId("12")).thenReturn(null);
-    when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.<NbiPort> absent());
+    when(physicalPortServiceMock.findNbiPort("12")).thenReturn(Optional.empty());
 
     mockMvc.perform(put("/noc/physicalports/uni")
         .param("version", "0")

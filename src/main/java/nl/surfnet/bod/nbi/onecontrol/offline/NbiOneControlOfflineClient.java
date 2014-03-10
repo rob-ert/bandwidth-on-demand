@@ -35,7 +35,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
 import com.google.common.base.Preconditions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

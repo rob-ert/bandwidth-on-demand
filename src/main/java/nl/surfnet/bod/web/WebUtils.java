@@ -33,7 +33,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public final class WebUtils {
 
@@ -88,7 +88,7 @@ public final class WebUtils {
   }
 
   public static Optional<Long> getSelectedPhysicalResourceGroupId() {
-    return Security.getUserDetails().getSelectedRole() == null ? Optional.<Long> absent() : Security.getUserDetails()
+    return Security.getUserDetails().getSelectedRole() == null ? Optional.empty() : Security.getUserDetails()
         .getSelectedRole().getPhysicalResourceGroupId();
   }
 

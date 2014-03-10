@@ -27,9 +27,9 @@ import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createRdn;
 import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createSscValue;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
@@ -115,7 +115,7 @@ public final class ReserveRequestBuilder {
   private static ReserveRequest createReserveRequest(Optional<DateTime> endDateTime) {
     ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
 
-    reserveRequest.withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime.or(FOREVER_DATE_TIME)));
+    reserveRequest.withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime.orElse(FOREVER_DATE_TIME)));
 
     return reserveRequest;
   }

@@ -28,7 +28,7 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Represents a role so the user can switch between them. Note that only the
@@ -58,11 +58,11 @@ public final class BodRole {
     this.role = role;
     this.id = COUNTER.incrementAndGet();
 
-    this.instituteName = physicalResourceGroup == null ? Optional.<String> absent() : Optional.of(physicalResourceGroup
+    this.instituteName = physicalResourceGroup == null ? Optional.empty() : Optional.of(physicalResourceGroup
         .getName());
-    this.physicalResourceGroupId = physicalResourceGroup == null ? Optional.<Long> absent() : Optional
+    this.physicalResourceGroupId = physicalResourceGroup == null ? Optional.empty() : Optional
         .of(physicalResourceGroup.getId());
-    this.adminGroup = physicalResourceGroup == null ? Optional.<String> absent() : Optional.of(physicalResourceGroup
+    this.adminGroup = physicalResourceGroup == null ? Optional.empty() : Optional.of(physicalResourceGroup
         .getAdminGroup());
   }
 

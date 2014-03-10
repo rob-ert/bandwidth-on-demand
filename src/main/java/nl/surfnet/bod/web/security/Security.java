@@ -26,8 +26,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UniPort;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
@@ -35,12 +45,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 public final class Security {
 
@@ -72,15 +76,9 @@ public final class Security {
   }
 
   public static RichUserDetails getUserDetails() {
-    Optional<Authentication> authentication = Optional.fromNullable(SecurityContextHolder.getContext()
-        .getAuthentication());
+    Optional<Authentication> authentication = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
 
-    return authentication.transform(new Function<Authentication, RichUserDetails>() {
-      @Override
-      public RichUserDetails apply(Authentication input) {
-        return (RichUserDetails) input.getPrincipal();
-      }
-    }).orNull();
+    return authentication.map(a -> (RichUserDetails) a.getPrincipal()).orElse(null);
   }
 
   public static UserGroup getUserGroup(final String groupId) {

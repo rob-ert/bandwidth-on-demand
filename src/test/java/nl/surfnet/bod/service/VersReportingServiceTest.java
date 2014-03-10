@@ -51,7 +51,7 @@ import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
 import surfnet_er.InsertReportInput;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -104,7 +104,7 @@ public class VersReportingServiceTest {
 
   @Test
   public void createVersReportForMissingInstitution() {
-    ErInsertReportDocument versRequest = subject.getVersRequest("Reservation modified", 10L, YearMonth.now(), Optional.<String>absent(), "instance");
+    ErInsertReportDocument versRequest = subject.getVersRequest("Reservation modified", 10L, YearMonth.now(), Optional.empty(), "instance");
 
     InsertReportInput reportInput = versRequest.getErInsertReport().getParameters();
 

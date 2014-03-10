@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -494,8 +494,8 @@ public class ReservationServiceTest {
     RichUserDetails userDenied = new RichUserDetailsFactory().addUserRole().setUsername("some-other-name-id").create();
 
     Reservation reservation = new ReservationFactory()
-      .setSourcePort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.<Integer>absent()))
-      .setDestinationPort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.<Integer>absent()))
+      .setSourcePort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.empty()))
+      .setDestinationPort(new ReservationEndPoint(new PhysicalPortFactory().createEnni(), Optional.empty()))
       .setUserCreated("name-id").create();
 
     ElementActionView cancelAllowed = subject.isCancelAllowed(reservation, userAllowed);

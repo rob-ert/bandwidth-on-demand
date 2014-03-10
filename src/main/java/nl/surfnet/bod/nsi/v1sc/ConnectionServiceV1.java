@@ -33,7 +33,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -87,7 +87,7 @@ public class ConnectionServiceV1 {
     Reservation reservation = new Reservation();
     reservation.setConnectionV1(connection);
     reservation.setName(connection.getDescription());
-    reservation.setStartDateTime(connection.getStartTime().orNull());
+    reservation.setStartDateTime(connection.getStartTime().orElse(null));
     reservation.setEndDateTime(connection.getEndTime());
     reservation.setSourcePort(new ReservationEndPoint(sourcePort));
     reservation.setDestinationPort(new ReservationEndPoint(destinationPort));

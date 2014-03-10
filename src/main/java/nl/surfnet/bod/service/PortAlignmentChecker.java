@@ -25,7 +25,7 @@ package nl.surfnet.bod.service;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -42,7 +42,7 @@ class PortAlignmentChecker {
   public void updateAlignment(List<PhysicalPort> bodPorts, List<NbiPort> nbiPorts) {
     ImmutableMap<String, NbiPort> nbiPortsMap = buildNbiPortIdMap(nbiPorts);
     for (PhysicalPort bodPort : bodPorts) {
-      Optional<NbiPort> nbiPort = Optional.fromNullable(nbiPortsMap.get(bodPort.getNmsPortId()));
+      Optional<NbiPort> nbiPort = Optional.ofNullable(nbiPortsMap.get(bodPort.getNmsPortId()));
       NmsAlignmentStatus oldStatus = bodPort.getNmsAlignmentStatus();
       NmsAlignmentStatus newStatus = alignmentStatus(bodPort, nbiPort);
       if (oldStatus == NmsAlignmentStatus.ALIGNED && newStatus != NmsAlignmentStatus.ALIGNED) {

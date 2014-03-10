@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class UserGroup {
 
@@ -35,7 +35,7 @@ public class UserGroup {
     this.id = id;
     this.name = name;
     this.description = description;
-    this.instituteShortName = Optional.<String> absent();
+    this.instituteShortName = Optional.empty();
   }
 
   public String getId() {
