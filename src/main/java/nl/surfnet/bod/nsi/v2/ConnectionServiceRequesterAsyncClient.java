@@ -74,25 +74,28 @@ class ConnectionServiceRequesterAsyncClient {
   @Qualifier("stunnelTranslationMap")
   private Optional<Map<String, String>> stunnelTranslationMap;
 
-  @Async
   /**
    * Sends the reply to the endpoint, taking a detour via stunnel when required
    */
+  @Async
   public void asyncSend(Optional<URI> replyTo, String soapAction, SOAPMessage message, String requesterNsaId) {
     if (!replyTo.isPresent()) {
       return;
     }
 
     final URI replyUri = replyTo.get();
+    final Optional<URI> stunnelUri = findStunnelUri(requesterNsaId, replyUri);
+    String endpointAddress;
+    if (stunnelUri.isPresent()){
+      endpointAddress = stunnelUri.get().toASCIIString();
+    } else {
+      endpointAddress = replyUri.toASCIIString();
+    }
+
     try {
       Dispatch<SOAPMessage> dispatch = createDispatcher();
 
       Map<String, Object> requestContext = dispatch.getRequestContext();
-      Optional<URI> stunnelUri = this.findStunnelUri(requesterNsaId, replyUri);
-      String endpointAddress = replyTo.get().toASCIIString();
-      if (stunnelUri.isPresent()){
-        endpointAddress = stunnelUri.get().toASCIIString();
-      }
       requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
       requestContext.put(JAXWSProperties.CONNECT_TIMEOUT, connectTimeout);
       requestContext.put(JAXWSProperties.REQUEST_TIMEOUT, requestTimeout);
@@ -101,17 +104,13 @@ class ConnectionServiceRequesterAsyncClient {
 
       dispatch.invoke(message);
     } catch (Exception e) {
-      LOGGER.warn("Failed to send " + soapAction + " to " + replyUri + ": " + e, e);
+      LOGGER.warn("Failed to send {} to {} ({}): {}", soapAction, replyUri, stunnelUri, e);
     }
   }
 
   @VisibleForTesting
   Optional<URI> findStunnelUri(final String requesterNsaId, final URI originalReplyTo) {
-
-    if (!bodEnvironment.isUseStunnelForNsiV2AsyncReplies()){
-      return Optional.absent();
-    }
-    if (!stunnelTranslationMap.isPresent()) {
+    if (!bodEnvironment.isUseStunnelForNsiV2AsyncReplies() || !stunnelTranslationMap.isPresent()) {
       return Optional.absent();
     }
 
@@ -123,9 +122,9 @@ class ConnectionServiceRequesterAsyncClient {
 
     final String[] hostAndPort = replacement.split(":");
     Integer port = Integer.parseInt(hostAndPort[1]);
-    URI stunnelURI = null;
+    URI stunnelURI;
     try {
-      stunnelURI = new URI("http", "", hostAndPort[0], port, originalReplyTo.getPath(), originalReplyTo.getQuery(), originalReplyTo.getFragment() );
+      stunnelURI = new URI("http", "", hostAndPort[0], port, originalReplyTo.getPath(), originalReplyTo.getQuery(), originalReplyTo.getFragment());
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
