@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -382,7 +382,7 @@ public class PhysicalResourceGroupController extends
       PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
       List<VirtualPort> virtualPorts = new ArrayList<>();
       List<Long> reservations = new ArrayList<>();
-      List<Long> physicalPortIds = physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.of(physicalResourceGroup), Optional.<Sort> absent());
+      List<Long> physicalPortIds = physicalPortService.findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.of(physicalResourceGroup), Optional.empty());
 
       for (Long id : physicalPortIds) {
         UniPort physicalPort = physicalPortService.findUniPort(id);

@@ -24,6 +24,7 @@ package nl.surfnet.bod.event;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.persistence.*;
 
@@ -41,8 +42,6 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.bridge.builtin.impl.BuiltinIterableBridge;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
-
-import com.google.common.base.Optional;
 
 @Entity
 @Indexed
@@ -111,8 +110,7 @@ public class LogEvent implements PersistableDomain {
   }
 
   public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Loggable domainObject) {
-    this(userId, adminGroups, type, Optional.fromNullable(domainObject), "", Optional.<ReservationStatus> absent(),
-        Optional.<ReservationStatus> absent());
+    this(userId, adminGroups, type, Optional.ofNullable(domainObject), "", Optional.empty(), Optional.empty());
   }
 
   public LogEvent(String userId, Collection<String> adminGroups, LogEventType type, Optional<Loggable> domainObject,
@@ -130,16 +128,15 @@ public class LogEvent implements PersistableDomain {
       this.domainObjectClass = getDomainObjectName(domainObject.get().getClass());
       this.description = domainObject.get().getLabel();
       this.serializedObject = serializeObject(domainObject.get());
-    }
-    else {
+    } else {
       this.domainObjectId = null;
       this.description = "";
       this.domainObjectClass = null;
       this.serializedObject = null;
     }
 
-    oldReservationStatus = oldStatus.orNull();
-    newReservationStatus = newStatus.orNull();
+    oldReservationStatus = oldStatus.orElse(null);
+    newReservationStatus = newStatus.orElse(null);
   }
 
   public static String getDomainObjectName(Class<? extends Loggable> domainClass) {

@@ -39,7 +39,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Collections2;
 
 import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
@@ -305,12 +305,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   public VirtualPort findByNsiV1StpId(String stpId) {
     Optional<String> id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.ONE);
-    return findByLocalStpId(id.orNull());
+    return findByLocalStpId(id.orElse(null));
   }
 
   public VirtualPort findByNsiV2StpId(String stpId) {
     Optional<String> id = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
-    return findByLocalStpId(id.orNull());
+    return findByLocalStpId(id.orElse(null));
   }
 
   private VirtualPort findByLocalStpId(String id) {
@@ -333,11 +333,11 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     BodRole selectedRole = userDetails.getSelectedRole();
 
     if (selectedRole.isManagerRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(forManagerSpec(selectedRole), Optional.<Sort> fromNullable(sort));
+      return virtualPortRepo.findIdsWithWhereClause(forManagerSpec(selectedRole), Optional.ofNullable(sort));
     } else if (selectedRole.isNocRole()) {
-      return virtualPortRepo.findIds(Optional.<Sort> fromNullable(sort));
+      return virtualPortRepo.findIds(Optional.ofNullable(sort));
     } else if (selectedRole.isUserRole()) {
-      return virtualPortRepo.findIdsWithWhereClause(forUserSpec(userDetails), Optional.<Sort> fromNullable(sort));
+      return virtualPortRepo.findIdsWithWhereClause(forUserSpec(userDetails), Optional.ofNullable(sort));
     }
 
     return Collections.emptyList();

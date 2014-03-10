@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 @Service
@@ -206,7 +206,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   }
 
   public List<Long> findAllIds(Sort sort) {
-    return physicalResourceGroupRepo.findIds(Optional.<Sort> fromNullable(sort));
+    return physicalResourceGroupRepo.findIds(Optional.ofNullable(sort));
   }
 
   @Override

@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nbi.opendrac;
 
-import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
@@ -37,23 +36,22 @@ import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 import static org.joda.time.Minutes.minutes;
 import static org.joda.time.Minutes.minutesBetween;
 
-import nl.surfnet.bod.service.ReservationService;
-
 import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
+
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
@@ -67,6 +65,8 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.service.ReservationService;
+
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -341,30 +341,26 @@ public class NbiOpenDracWsClient implements NbiClient {
       log.error("Error querying reservation (" + reservationId + "): ", e);
     }
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(final String reservationId) {
     Optional<QueryReservationScheduleResponseDocument> responseDocument = queryReservation(reservationId);
 
-    return responseDocument.transform(new Function<QueryReservationScheduleResponseDocument, ReservationStatus>() {
-      @Override
-      public ReservationStatus apply(QueryReservationScheduleResponseDocument response) {
-        if (response.getQueryReservationScheduleResponse().getIsFound()) {
-          ReservationScheduleT schedule = response.getQueryReservationScheduleResponse().getReservationSchedule();
-          return OpenDracStatusTranslator.translate(schedule);
-        } else {
-          log.warn("No reservation found for reservationId: {}, returning FAILED", reservationId);
-          return FAILED;
-        }
+    return responseDocument.map(response -> {
+      if (response.getQueryReservationScheduleResponse().getIsFound()) {
+        ReservationScheduleT schedule = response.getQueryReservationScheduleResponse().getReservationSchedule();
+        return OpenDracStatusTranslator.translate(schedule);
+      } else {
+        log.warn("No reservation found for reservationId: {}, returning FAILED", reservationId);
+        return FAILED;
       }
     });
   }
 
   private QueryReservationScheduleRequestDocument createQueryReservationScheduleRequest(String reservationId) {
-    QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
-        .newInstance();
+    QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory.newInstance();
     requestDocument.addNewQueryReservationScheduleRequest();
     requestDocument.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
 
@@ -448,23 +444,18 @@ public class NbiOpenDracWsClient implements NbiClient {
   private Optional<String> findServiceId(String reservationId) {
     Optional<QueryReservationScheduleResponseDocument> responseDocument = queryReservation(reservationId);
 
-    Optional<Optional<String>> serviceId = responseDocument
-        .transform(new Function<QueryReservationScheduleResponseDocument, Optional<String>>() {
-          @Override
-          public Optional<String> apply(QueryReservationScheduleResponseDocument response) {
-            if (response.getQueryReservationScheduleResponse().getIsFound()) {
-              return Optional.of(response.getQueryReservationScheduleResponse().getReservationSchedule()
-                  .getOccurrenceIdArray(0));
-            }
-            return Optional.absent();
-          }
-        });
+    Optional<Optional<String>> serviceId = responseDocument.map(response -> {
+      if (response.getQueryReservationScheduleResponse().getIsFound()) {
+        return Optional.of(response.getQueryReservationScheduleResponse().getReservationSchedule().getOccurrenceIdArray(0));
+      }
+      return Optional.empty();
+    });
 
     return flatten(serviceId);
   }
 
   private static <T> Optional<T> flatten(Optional<Optional<T>> optional) {
-    return optional.isPresent() ? optional.get() : Optional.<T> absent();
+    return optional.isPresent() ? optional.get() : Optional.empty();
   }
 
   private UserInfoT createUser() {
@@ -550,7 +541,7 @@ public class NbiOpenDracWsClient implements NbiClient {
   }
 
   private String translateVlanId(ReservationEndPoint endPoint) {
-    return endPoint.getVlanId().transform(toStringFunction()).or(DEFAULT_VID);
+    return endPoint.getVlanId().map(v -> v.toString()).orElse(DEFAULT_VID);
   }
 
   private List<EndpointT> findAllEndPoints() {

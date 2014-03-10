@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 
@@ -46,7 +46,7 @@ public class PhysicalPortTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1000, "Doe mijn een nieuw poort...");
 
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort(managerLabel1, vpOne, Optional.<String>absent(), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort(managerLabel1, vpOne, Optional.empty(), Optional.empty());
   }
 
   @Test

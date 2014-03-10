@@ -54,7 +54,7 @@ import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
@@ -187,7 +187,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     log.info("Not allowed to cancel '{}' with state {}, because: {}", reservation.getName(), reservation.getStatus(), cancelAction.getReasonKey());
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   public void cancelDueToReserveTimeout(Long reservationId) {
@@ -371,15 +371,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager), Optional.ofNullable(sort));
   }
 
   public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter), Optional.ofNullable(sort));
   }
 
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter, Sort sort) {
-    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user), Optional.fromNullable(sort));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user), Optional.ofNullable(sort));
   }
 
   /**

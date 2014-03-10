@@ -22,13 +22,12 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.util.XmlUtils.dateTimeToXmlCalendar;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -43,12 +42,12 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 
 import nl.surfnet.bod.nsi.v2.ConnectionsV2;
 import nl.surfnet.bod.util.NsiV2UserType;
 import nl.surfnet.bod.util.TimeStampBridge;
+import nl.surfnet.bod.util.XmlUtils;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
@@ -57,7 +56,18 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._12.connection.types.*;
+import org.ogf.schemas.nsi._2013._12.connection.types.ConnectionStatesType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 
 @Entity
@@ -201,7 +211,7 @@ public class ConnectionV2 extends AbstractConnection {
     try {
       return Optional.of(Integer.valueOf(vlanId));
     } catch (NumberFormatException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -242,11 +252,11 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public void setCommittedVersion(Optional<Integer> committedVersion) {
-    this.committedVersion = committedVersion.orNull();
+    this.committedVersion = committedVersion.orElse(null);
   }
 
   public Optional<Integer> getCommittedVersion() {
-    return Optional.fromNullable(committedVersion);
+    return Optional.ofNullable(committedVersion);
   }
 
   public void setReserveHeldTimeoutValue(int reserveHeldTimeoutValue) {
@@ -258,11 +268,11 @@ public class ConnectionV2 extends AbstractConnection {
   }
 
   public void setReserveHeldTimeout(Optional<DateTime> reserveHeldTimeout) {
-    this.reserveHeldTimeout = reserveHeldTimeout.orNull();
+    this.reserveHeldTimeout = reserveHeldTimeout.orElse(null);
   }
 
   public Optional<DateTime> getReserveHeldTimeout() {
-    return Optional.fromNullable(reserveHeldTimeout);
+    return Optional.ofNullable(reserveHeldTimeout);
   }
 
   public QuerySummaryResultType getQuerySummaryResult() {
@@ -296,10 +306,13 @@ public class ConnectionV2 extends AbstractConnection {
         .withConnectionStates(getConnectionStates());
   }
 
+
+
+
   public ScheduleType getSchedule() {
     return new ScheduleType()
-        .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
-        .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
+        .withEndTime(getEndTime().map(XmlUtils::toGregorianCalendar).orElse(null))
+        .withStartTime(getStartTime().map(XmlUtils::toGregorianCalendar).orElse(null));
   }
 
   public void setCriteria(ReservationConfirmCriteriaType criteria) {

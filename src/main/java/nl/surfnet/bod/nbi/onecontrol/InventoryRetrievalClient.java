@@ -24,7 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
 

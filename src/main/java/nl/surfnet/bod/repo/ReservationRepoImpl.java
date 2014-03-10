@@ -37,7 +37,7 @@ import nl.surfnet.bod.domain.Reservation_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class ReservationRepoImpl implements CustomRepo<Reservation> {
 
@@ -51,7 +51,7 @@ public class ReservationRepoImpl implements CustomRepo<Reservation> {
 
   @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<Reservation>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<Reservation>> whereClause, Optional<Sort> sort) {

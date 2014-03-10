@@ -62,14 +62,9 @@ public class InstituteIddServiceTest {
   @InjectMocks
   private InstituteIddService subject;
 
-  @Mock
-  private IddClient iddClientMock;
-
-  @Mock
-  private InstituteRepo instituteRepoMock;
-
-  @Mock
-  private LogEventService logEventService;
+  @Mock private IddClient iddClientMock;
+  @Mock private InstituteRepo instituteRepoMock;
+  @Mock private LogEventService logEventService;
 
   private TransactionOperations transactionOperations = new FakeTransactionOperations();
 
@@ -133,8 +128,7 @@ public class InstituteIddServiceTest {
 
     subject.refreshInstitutes();
 
-    verify(instituteRepoMock).save(
-        argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create())));
+    verify(instituteRepoMock).save(argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create())));
     verify(instituteRepoMock).save(eq(Collections.<Institute> emptyList()));
 
     verify(instituteRepoMock).findByAlignedWithIDD(true);

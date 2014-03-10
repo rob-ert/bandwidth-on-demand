@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.pages.manager.*;
 

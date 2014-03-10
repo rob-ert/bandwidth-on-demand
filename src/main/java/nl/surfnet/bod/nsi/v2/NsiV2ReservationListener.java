@@ -24,7 +24,7 @@ package nl.surfnet.bod.nsi.v2;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.service.ReservationListener;

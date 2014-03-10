@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.TestExternalSupport;
@@ -50,13 +50,13 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.empty(), Optional.empty());
 
     getManagerDriver().switchToUserRole();
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SARA, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(23));
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.empty(), Optional.of(23));
 
     getManagerDriver().switchToUserRole();
     getUserDriver().createNewReservation("First reservation", LocalDateTime.now().plusDays(1),

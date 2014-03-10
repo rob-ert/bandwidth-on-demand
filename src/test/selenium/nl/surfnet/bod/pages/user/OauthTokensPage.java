@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import nl.surfnet.bod.pages.AbstractPage;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -47,7 +47,7 @@ public class OauthTokensPage extends AbstractPage {
     try{
       return Optional.of(nsiToken.getAttribute("value"));
     }catch (NoSuchElementException e){
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

@@ -41,12 +41,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -62,7 +62,6 @@ import nl.surfnet.bod.web.view.ReservationReportView;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
@@ -167,7 +166,7 @@ public class ReportingService {
     Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specReservationStartBeforeAndEndInOrAfter(start, end);
 
-    return reservationRepo.findIdsWithWhereClause(whereClause, Optional.<Sort> absent());
+    return reservationRepo.findIdsWithWhereClause(whereClause, Optional.empty());
   }
 
   @VisibleForTesting
@@ -357,6 +356,6 @@ public class ReportingService {
   List<Long> findReservationIdsBeforeOrOnInAdminGroupsWithState(DateTime before, Collection<String> adminGroups,
       ReservationStatus... states) {
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
-        .specForReservationBeforeInAdminGroupsWithStateIn(Optional.<Long> absent(), before, adminGroups, states));
+        .specForReservationBeforeInAdminGroupsWithStateIn(Optional.empty(), before, adminGroups, states));
   }
 }

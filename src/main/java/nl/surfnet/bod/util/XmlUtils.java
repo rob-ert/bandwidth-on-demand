@@ -33,24 +33,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
-import com.google.common.base.Function;
-
 public final class XmlUtils {
 
-  private static DateTimeFormatterFactory dateTimeFormatterFactory = new DateTimeFormatterFactory(
-      "yyyy-MM-dd'T'HH:mm:ssZ");
-
-  public static final Function<XMLGregorianCalendar, DateTime> xmlCalendarToDateTime = new Function<XMLGregorianCalendar, DateTime>() {
-    public DateTime apply(XMLGregorianCalendar calendar) {
-      return XmlUtils.toDateTime(calendar);
-    }
-  };
-
-  public static final Function<DateTime, XMLGregorianCalendar> dateTimeToXmlCalendar = new Function<DateTime, XMLGregorianCalendar>() {
-    public XMLGregorianCalendar apply(DateTime dateTime) {
-      return XmlUtils.toGregorianCalendar(dateTime);
-    }
-  };
+  private static DateTimeFormatterFactory dateTimeFormatterFactory = new DateTimeFormatterFactory("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private XmlUtils() {
   }

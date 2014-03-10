@@ -35,7 +35,7 @@ import javax.annotation.Resource;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
@@ -101,7 +101,7 @@ public class OAuthServerService {
 
   public Optional<VerifiedToken> getVerifiedToken(String accessToken) {
     if (Strings.isNullOrEmpty(accessToken)) {
-      return Optional.absent();
+      return Optional.empty();
     }
     RequestConfig config = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(requestTimeout).build();
 
@@ -117,11 +117,11 @@ public class OAuthServerService {
         return readJsonToken(responseEntity);
       } else {
         logger.warn("Verify token response was {}, {}", statusCode, responseEntity);
-        return Optional.absent();
+        return Optional.empty();
       }
     } catch (IOException e) {
       logger.error("Could not verify access token", e);
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -138,7 +138,7 @@ public class OAuthServerService {
       return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
     } else {
       logger.error("Verify token response gave an error '{}'", token.getError());
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -240,7 +240,7 @@ public class OAuthServerService {
     } catch (Exception e) {
       post.releaseConnection();
       logger.error("Could not retreive access token", e);
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

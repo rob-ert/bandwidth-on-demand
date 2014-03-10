@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 
@@ -41,11 +41,11 @@ public final class UpdatedReservationStatus {
   }
 
   public static UpdatedReservationStatus forNewStatus(ReservationStatus newStatus) {
-    return new UpdatedReservationStatus(newStatus, Optional.<String>absent(), Optional.<String>absent());
+    return new UpdatedReservationStatus(newStatus, Optional.empty(), Optional.empty());
   }
 
   public static UpdatedReservationStatus cancelling(String cancelReason) {
-    return new UpdatedReservationStatus(ReservationStatus.CANCELLING, Optional.of(cancelReason), Optional.<String>absent());
+    return new UpdatedReservationStatus(ReservationStatus.CANCELLING, Optional.of(cancelReason), Optional.empty());
   }
 
   public static UpdatedReservationStatus cancelFailed(String failedReason) {
@@ -62,7 +62,7 @@ public final class UpdatedReservationStatus {
 
   public static UpdatedReservationStatus error(ReservationStatus status, String failedReason) {
     Preconditions.checkArgument(status.isErrorState());
-    return new UpdatedReservationStatus(status, Optional.<String>absent(), Optional.of(failedReason));
+    return new UpdatedReservationStatus(status, Optional.empty(), Optional.of(failedReason));
   }
 
   public ReservationStatus getNewStatus() {

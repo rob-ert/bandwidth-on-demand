@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;

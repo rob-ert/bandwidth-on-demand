@@ -22,7 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_NON_EXISTENT;
@@ -32,7 +31,6 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.NOT_IMPLEMENTED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNSUPPORTED_PARAMETER;
 import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
-import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 
 import java.net.URI;
 import java.util.List;
@@ -42,7 +40,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
 
@@ -56,6 +54,7 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort;
@@ -108,8 +107,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     }
 
     ConnectionV2 connection = createConnection(
-        Optional.fromNullable(emptyToNull(globalReservationId)),
-        Optional.fromNullable(emptyToNull(description)),
+        Optional.ofNullable(emptyToNull(globalReservationId)),
+        Optional.ofNullable(emptyToNull(description)),
         requestDetails,
         header.value.getProviderNSA(),
         header.value.getRequesterNSA(),
@@ -131,8 +130,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
   @VisibleForTesting
   protected ConnectionV2 createConnection(Optional<String> globalReservationId, Optional<String> description, NsiV2RequestDetails requestDetails,
       String providerNsa, String requesterNsa, ReservationConfirmCriteriaType criteria) throws ServiceException {
-    Optional<DateTime> startTime = fromNullable(criteria.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
-    Optional<DateTime> endTime = fromNullable(criteria.getSchedule().getEndTime()).transform(xmlCalendarToDateTime);
+    Optional<DateTime> startTime = Optional.ofNullable(criteria.getSchedule().getStartTime()).map(XmlUtils::toDateTime);
+    Optional<DateTime> endTime = Optional.ofNullable(criteria.getSchedule().getEndTime()).map(XmlUtils::toDateTime);
 
     P2PServiceBaseType service = extractService(criteria);
     if (service.getDirectionality() == DirectionalityType.UNIDIRECTIONAL) {
@@ -142,14 +141,14 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     validateStp(service.getSourceSTP(), "source");
     validateStp(service.getDestSTP(), "dest");
 
-    ProtectionType protection = findProtectionParameter(service.getParameter()).or(bodEnvironment.getDefaultProtectionType());
+    ProtectionType protection = findProtectionParameter(service.getParameter()).orElse(bodEnvironment.getDefaultProtectionType());
 
     ConnectionV2 connection = new ConnectionV2();
     connection.setConnectionId(NsiHelper.generateConnectionId());
-    connection.setGlobalReservationId(globalReservationId.or(nsiHelper.generateGlobalReservationId()));
-    connection.setDescription(description.orNull());
-    connection.setStartTime(startTime.orNull());
-    connection.setEndTime(endTime.orNull());
+    connection.setGlobalReservationId(globalReservationId.orElse(nsiHelper.generateGlobalReservationId()));
+    connection.setDescription(description.orElse(null));
+    connection.setStartTime(startTime.orElse(null));
+    connection.setEndTime(endTime.orElse(null));
     connection.setDesiredBandwidth(service.getCapacity());
     connection.setProtectionType(protection);
     connection.setProviderNsa(providerNsa);
@@ -177,7 +176,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       }
     }
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   private void validateStp(String stpId, String sourceDest) throws ServiceException {
@@ -317,8 +316,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     connectionService.asyncQueryNotification(
       connectionId,
-      Optional.fromNullable(startNotificationId),
-      Optional.fromNullable(endNotificationId),
+      Optional.ofNullable(startNotificationId),
+      Optional.ofNullable(endNotificationId),
       requestDetails);
   }
 
@@ -330,8 +329,8 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       checkOAuthScope(NsiScope.QUERY);
 
       List<NotificationBaseType> notifications = connectionService.queryNotification(queryNotificationSync.getConnectionId(),
-          Optional.fromNullable(queryNotificationSync.getStartNotificationId()),
-          Optional.fromNullable(queryNotificationSync.getEndNotificationId()),
+          Optional.ofNullable(queryNotificationSync.getStartNotificationId()),
+          Optional.ofNullable(queryNotificationSync.getEndNotificationId()),
           requestDetails);
 
       return new QueryNotificationConfirmedType().withErrorEventOrReserveTimeoutOrDataPlaneStateChange(notifications);
@@ -346,7 +345,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     checkOAuthScope(NsiScope.QUERY);
 
-    connectionService.asyncQueryResult(connectionId, Optional.fromNullable(startResultId), Optional.fromNullable(endResultId), requestDetails);
+    connectionService.asyncQueryResult(connectionId, Optional.ofNullable(startResultId), Optional.ofNullable(endResultId), requestDetails);
   }
 
   @Override
@@ -354,7 +353,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     try {
       checkOAuthScope(NsiScope.QUERY);
 
-      return connectionService.queryResult(connectionId, Optional.fromNullable(startResultId), Optional.fromNullable(endResultId));
+      return connectionService.queryResult(connectionId, Optional.ofNullable(startResultId), Optional.ofNullable(endResultId));
     } catch (ServiceException e) {
       throw toError(e);
     }
@@ -400,7 +399,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
     Optional<URI> replyTo;
     if (header.getReplyTo() == null) {
-      replyTo = Optional.absent();
+      replyTo = Optional.empty();
     } else {
       replyTo = Optional.of(URI.create(header.getReplyTo()));
     }

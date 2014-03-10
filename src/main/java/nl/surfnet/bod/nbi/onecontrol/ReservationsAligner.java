@@ -24,7 +24,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -111,7 +111,7 @@ public class ReservationsAligner implements SmartLifecycle {
       if (reservationStatus.isPresent()) {
         updatedReservationStatus = Optional.of(UpdatedReservationStatus.forNewStatus(reservationStatus.get()));
       } else {
-        updatedReservationStatus = Optional.absent();
+        updatedReservationStatus = Optional.empty();
       }
     }
     return updatedReservationStatus;
@@ -150,7 +150,7 @@ public class ReservationsAligner implements SmartLifecycle {
     for (Reservation reservation : reservationsToPoll) {
       if (reservation.getReservationId() != null) {
         LOGGER.debug("Adding reservation {} to the alignment queue", reservation.getReservationId());
-        add(reservation.getReservationId(), Optional.<UpdatedReservationStatus>absent());
+        add(reservation.getReservationId(), Optional.empty());
       }
     }
   }

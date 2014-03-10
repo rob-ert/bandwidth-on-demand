@@ -30,7 +30,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
@@ -50,7 +50,7 @@ public class PhysicalPortRepoImpl implements CustomRepo<PhysicalPort> {
 
   @Override
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<PhysicalPort>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<PhysicalPort>> whereClause, Optional<Sort> sort) {

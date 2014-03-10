@@ -24,7 +24,7 @@ package nl.surfnet.bod.support;
 
 import java.util.UUID;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
@@ -58,10 +58,10 @@ public class ConnectionV2Factory {
   private ProvisionStateEnumType provisionState = ProvisionStateEnumType.RELEASED;
   private boolean dataPlaneActive;
   private int reserveVersion = 0;
-  private Optional<Integer> committedVersion = Optional.absent();
+  private Optional<Integer> committedVersion = Optional.empty();
   private NsiV2RequestDetails initialReserveRequestDetails = new NsiV2RequestDetailsFactory().create();
   private int reserveHeldTimeoutValue = 1200;
-  private Optional<DateTime> reserveHeldTimeout = Optional.absent();
+  private Optional<DateTime> reserveHeldTimeout = Optional.empty();
   private DateTime startTime;
   private DateTime endTime;
 

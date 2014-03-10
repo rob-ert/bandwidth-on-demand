@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -272,7 +272,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiV1StpIdWithWrongNetworkId() {
-    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:asdfasfasdf", NsiVersion.ONE)).thenReturn(Optional.<String>absent());
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:surfnet.nl:asdfasfasdf", NsiVersion.ONE)).thenReturn(Optional.empty());
 
     VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:surfnet.nl:asdfasfasdf");
 
@@ -282,7 +282,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNsNetwork() {
-    when(nsiHelper.parseLocalNsiId("urn:ogf:network:stp:zilverline.nl:25", NsiVersion.ONE)).thenReturn(Optional.<String>absent());
+    when(nsiHelper.parseLocalNsiId("urn:ogf:network:stp:zilverline.nl:25", NsiVersion.ONE)).thenReturn(Optional.empty());
 
     VirtualPort foundPort = subject.findByNsiV1StpId("urn:ogf:network:stp:zilverline.nl:25");
 

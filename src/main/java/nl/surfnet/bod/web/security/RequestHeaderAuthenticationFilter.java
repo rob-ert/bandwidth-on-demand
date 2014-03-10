@@ -38,7 +38,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -110,16 +110,11 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     Optional<VerifiedToken> verifiedToken = oAuthServerService.getVerifiedToken(accessToken);
     logger.debug("Found verifiedToken {}", verifiedToken);
 
-    return verifiedToken.transform(new Function<VerifiedToken, RichPrincipal>() {
-        @Override
-        public RichPrincipal apply(VerifiedToken token) {
-          return new RichPrincipal(
-              token.getPrincipal().getName(),
-              token.getPrincipal().getAttributes().get("displayName"),
-              token.getPrincipal().getAttributes().get("email"),
-              token.getScopes());
-        }
-    }).orNull();
+    return verifiedToken.map(token -> new RichPrincipal(
+      token.getPrincipal().getName(),
+      token.getPrincipal().getAttributes().get("displayName"),
+      token.getPrincipal().getAttributes().get("email"),
+      token.getScopes())).orElse(null);
   }
 
   private String getRequestHeaderOrImitate(

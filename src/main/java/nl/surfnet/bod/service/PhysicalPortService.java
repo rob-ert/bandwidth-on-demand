@@ -29,14 +29,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -118,12 +117,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public Collection<NbiPort> findUnallocatedUniPorts() {
-    return Collections2.filter(findUnallocated(), new Predicate<NbiPort>() {
-      @Override
-      public boolean apply(NbiPort input) {
-        return input.getInterfaceType() == InterfaceType.UNI;
-      }
-    });
+    return findUnallocated().stream().filter(port -> port.getInterfaceType() == InterfaceType.UNI).collect(Collectors.toList());
   }
 
   public Collection<NbiPort> findUnallocated() {
@@ -132,12 +126,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
     final ImmutableMap<String, PhysicalPort> repoPortMap = buildPhysicalPortIdMap(physicalPorts);
 
-    return Collections2.filter(nbiPorts, new Predicate<NbiPort>() {
-      @Override
-      public boolean apply(NbiPort input) {
-        return !repoPortMap.containsKey(input.getNmsPortId());
-      }
-    });
+    return nbiPorts.stream().filter(port -> !repoPortMap.containsKey(port.getNmsPortId())).collect(Collectors.toList());
   }
 
   public long countUniPorts() {
@@ -160,7 +149,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     try {
       return Optional.of(nbiClient.findPhysicalPortByNmsPortId(nmsPortId));
     } catch (PortNotAvailableException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -170,7 +159,8 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   public EnniPort findByNsiV2StpId(String stpId) {
     Optional<String> bodPortId = nsiHelper.parseLocalNsiId(stpId, NsiVersion.TWO);
-    return physicalPortRepo.findEnniPortByBodPortId(bodPortId.orNull());
+
+    return physicalPortRepo.findEnniPortByBodPortId(bodPortId.orElse(null));
   }
 
   public PhysicalPort findByBodPortId(String bodPortId) {
@@ -303,7 +293,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public List<Long> findUniIds(Optional<Sort> sort) {
-    return findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent(), sort);
+    return findUniIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.empty(), sort);
   }
 
   public List<Long> findEnniIds(Optional<Sort> sort) {

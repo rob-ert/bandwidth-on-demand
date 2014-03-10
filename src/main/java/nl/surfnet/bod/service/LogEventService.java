@@ -30,13 +30,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -139,12 +139,11 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
 
     return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), domainObject.getAdminGroups(), eventType,
-        Optional.fromNullable(domainObject), details, oldStatus, newStatus);
+        Optional.ofNullable(domainObject), details, oldStatus, newStatus);
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
-    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(), Optional
-        .<ReservationStatus> absent());
+    return createLogEvent(user, eventType, domainObject, details, Optional.empty(), Optional.empty());
   }
 
   private List<LogEvent> createLogEvents(RichUserDetails user, LogEventType logEventType, String details,
@@ -219,12 +218,12 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findAllIds(Sort sort) {
-    return logEventRepo.findAllIds(Optional.<Sort> fromNullable(sort));
+    return logEventRepo.findAllIds(Optional.ofNullable(sort));
   }
 
   public LogEvent findLatestStateChangeForReservationIdBeforeInAdminGroups(Long id, DateTime before, Collection<String> adminGroups) {
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specForReservationBeforeInAdminGroupsWithStateIn(Optional.fromNullable(id), before, adminGroups);
+        .specForReservationBeforeInAdminGroupsWithStateIn(Optional.ofNullable(id), before, adminGroups);
 
     Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
 

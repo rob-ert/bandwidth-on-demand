@@ -36,7 +36,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 
 public class V1_9_0_2__LogEventDomainIds implements SpringJdbcMigration {
@@ -88,7 +88,7 @@ public class V1_9_0_2__LogEventDomainIds implements SpringJdbcMigration {
                 });
             break;
           case "ReservationArchive":
-            id = Optional.absent();
+            id = Optional.empty();
             break;
           default:
             logger.error("Could not find patter: {}", serializedObject);
@@ -112,10 +112,10 @@ public class V1_9_0_2__LogEventDomainIds implements SpringJdbcMigration {
       } catch (IncorrectResultSizeDataAccessException e) {
         if (e.getActualSize() == 0) {
           logger.error("Object deleted for arg '{}' in {}", arg, serializedObject);
-          return Optional.absent();
+          return Optional.empty();
         } else {
           logger.error("Multiple results for arg '{}' in {}", arg, serializedObject);
-          return Optional.absent();
+          return Optional.empty();
         }
       }
     } else {

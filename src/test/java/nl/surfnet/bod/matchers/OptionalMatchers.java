@@ -26,7 +26,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class OptionalMatchers {
 

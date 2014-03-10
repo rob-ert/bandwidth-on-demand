@@ -51,7 +51,7 @@ public class ConnectionV2ReserveTimeoutPoller {
     logger.debug("Found {} timed out NSIv2 reservations", timedOut.size());
 
     for (ConnectionV2 connection : timedOut) {
-      logger.info("Cancelling NSIv2 connection {} due to RESERVE_HELD timeout {}", connection.getConnectionId(), connection.getReserveHeldTimeout().orNull());
+      logger.info("Cancelling NSIv2 connection {} due to RESERVE_HELD timeout {}", connection.getConnectionId(), connection.getReserveHeldTimeout().orElse(null));
       connectionServiceV2.asyncReserveTimeout(now, connection.getReservation().getId(), connection.getId());
     }
   }

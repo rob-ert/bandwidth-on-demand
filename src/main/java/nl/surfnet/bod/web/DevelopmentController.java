@@ -22,8 +22,17 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.base.MessageManager;
@@ -34,12 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 @Controller
 @RequestMapping("/" + DevelopmentController.PAGE_URL)
@@ -66,12 +69,10 @@ public class DevelopmentController {
       messageManager.addInfoFlashMessage(model, "info_dev_refresh", "Roles/User");
     }
 
-    RequestParameter[] parameters = Iterables.toArray(Optional.presentInstances(
-      ImmutableList.of(
+    List<RequestParameter> parameters = Arrays.asList(
         RequestParameter.unwrap("nameId", request),
         RequestParameter.unwrap("displayName", request),
-        RequestParameter.unwrap("email", request))),
-      RequestParameter.class);
+        RequestParameter.unwrap("email", request)).stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
     return getRedirect(request, parameters);
   }
@@ -81,11 +82,11 @@ public class DevelopmentController {
     logger.info("Refreshing roles");
   }
 
-  private String getRedirect(HttpServletRequest request, RequestParameter... parameters) {
+  private String getRedirect(HttpServletRequest request, Collection<RequestParameter> parameters) {
     StringBuilder redirectBuilder = new StringBuilder("redirect:");
     redirectBuilder.append(request.getHeader("Referer").split("\\?")[0]);
 
-    if (parameters.length > 0) {
+    if (!parameters.isEmpty()) {
       redirectBuilder.append("?");
       Joiner.on("&").appendTo(redirectBuilder, parameters);
     }
@@ -105,7 +106,7 @@ public class DevelopmentController {
       String value = Strings.nullToEmpty(request.getParameter(name));
 
       if (value.isEmpty()) {
-        return Optional.absent();
+        return Optional.empty();
       } else {
         return Optional.of(new RequestParameter(name, value));
       }

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.web.tag;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.springframework.util.StringUtils;
 
@@ -36,7 +36,7 @@ public final class Functions {
   }
 
   public static <T> String getOr(Optional<T> optional, T otherwise) {
-    return optional.or(otherwise).toString();
+    return optional.orElse(otherwise).toString();
   }
 
   public static <T> T get(Optional<T> optional) {
@@ -44,6 +44,6 @@ public final class Functions {
   }
 
   public static <T> T orNull(Optional<T> optional) {
-    return optional.orNull();
+    return optional.orElse(null);
   }
 }

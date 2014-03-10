@@ -23,13 +23,12 @@
 package nl.surfnet.bod.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import nl.surfnet.bod.event.LogEvent;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
-import com.google.common.base.Optional;
 
 public interface LogEventRepoCustom extends CustomRepo<LogEvent> {
 

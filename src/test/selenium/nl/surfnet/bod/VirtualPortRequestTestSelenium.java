@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.service.DatabaseTestHelper;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
@@ -80,7 +80,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
     getManagerDriver().verifyNewVirtualPortHasProperties(GROUP_SURFNET, "Mijn nieuwe poort", 1200);
 
-    getManagerDriver().acceptVirtualPort("Request a virtual port", "Your vport", Optional.of(""), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "Your vport", Optional.of(""), Optional.empty());
 
     getManagerDriver().verifyVirtualPortExists("Your vport", "Selenium users", "1200");
 
@@ -105,7 +105,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
     getNocDriver().verifyPhysicalResourceGroupExists(GROUP_SURFNET, "test@test.nl", "1");
 
     getNocDriver().switchToManagerRole("SURFnet");
-    getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, Optional.<Integer>absent());
+    getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, Optional.empty());
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "Selenium users");
 
@@ -130,7 +130,7 @@ public class VirtualPortRequestTestSelenium extends SeleniumWithSingleSetup {
 
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().acceptVirtualPort("Request a virtual port", "New VP", Optional.<String>absent(), Optional.<Integer>absent());
+    getManagerDriver().acceptVirtualPort("Request a virtual port", "New VP", Optional.empty(), Optional.empty());
 
     getManagerDriver().switchToUserRole();
 

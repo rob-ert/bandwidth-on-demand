@@ -34,7 +34,7 @@ import nl.surfnet.bod.sab.EntitlementsHandler;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 @Service("sabGroupService")

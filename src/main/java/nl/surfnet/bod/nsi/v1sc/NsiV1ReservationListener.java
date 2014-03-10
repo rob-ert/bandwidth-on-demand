@@ -22,11 +22,9 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static com.google.common.base.Optional.fromNullable;
-
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.ConnectionV1;
@@ -72,7 +70,7 @@ class NsiV1ReservationListener implements ReservationListener {
         handleReservationFailed(connection, requester);
         break;
       case NOT_ACCEPTED:
-        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
+        Optional<String> failedReason = Optional.ofNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
         requester.reserveFailed(connection, connection.getReserveRequestDetails(), failedReason);
         break;
       case PASSED_END_TIME:
@@ -84,10 +82,10 @@ class NsiV1ReservationListener implements ReservationListener {
       case CANCELLING:
         break;
       case CANCELLED:
-        requester.terminateConfirmed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
+        requester.terminateConfirmed(connection, Optional.ofNullable(connection.getTerminateRequestDetails()));
         break;
       case CANCEL_FAILED:
-        requester.terminateFailed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
+        requester.terminateFailed(connection, Optional.ofNullable(connection.getTerminateRequestDetails()));
         break;
       case SUCCEEDED:
         requester.executionSucceeded(connection);
@@ -113,10 +111,10 @@ class NsiV1ReservationListener implements ReservationListener {
       break;
     case RESERVING:
       requester.reserveFailed(
-        connection, connection.getReserveRequestDetails(), fromNullable(connection.getReservation().getFailedReason()));
+        connection, connection.getReserveRequestDetails(), Optional.ofNullable(connection.getReservation().getFailedReason()));
       break;
     case TERMINATING:
-      requester.terminateFailed(connection, Optional.fromNullable(connection.getTerminateRequestDetails()));
+      requester.terminateFailed(connection, Optional.ofNullable(connection.getTerminateRequestDetails()));
       break;
     case PROVISIONING:
     case AUTO_PROVISION:

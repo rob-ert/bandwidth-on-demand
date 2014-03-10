@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.nbi.onecontrol;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
@@ -119,9 +119,9 @@ public class NotificationConsumerHttp implements NotificationConsumer {
 
   private Optional<Reservation> maybeFindReservation(Optional<String> reservationId) {
     if (reservationId.isPresent()) {
-      return Optional.fromNullable(reservationService.findByReservationId(reservationId.get()));
+      return Optional.ofNullable(reservationService.findByReservationId(reservationId.get()));
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

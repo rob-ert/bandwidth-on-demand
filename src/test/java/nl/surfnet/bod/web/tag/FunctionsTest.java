@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class FunctionsTest {
 
@@ -47,7 +47,7 @@ public class FunctionsTest {
 
   @Test
   public void getOrWithAAbsentOptional() {
-    String result = Functions.getOr(Optional.absent(), "success");
+    String result = Functions.getOr(Optional.empty(), "success");
 
     assertThat(result, is("success"));
   }
@@ -61,7 +61,7 @@ public class FunctionsTest {
 
   @Test(expected = IllegalStateException.class)
   public void getFromAnAbsentOptionalShouldGiveAnException() {
-    Functions.get(Optional.absent());
+    Functions.get(Optional.empty());
   }
 
 }

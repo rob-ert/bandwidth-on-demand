@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 import org.joda.time.LocalDateTime;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.web.WebUtils;
 
@@ -39,7 +39,7 @@ public final class PageUtils {
   public static Optional<LocalDateTime> extractDateTime(String text) {
     Matcher matcher = Pattern.compile(".*(\\d{4}-\\d{2}-\\d{2} \\d{1,2}:\\d{2}:\\d{2}).*").matcher(text);
 
-    if (!matcher.matches()) return Optional.absent();
+    if (!matcher.matches()) return Optional.empty();
 
     return Optional.of(WebUtils.DEFAULT_DATE_TIME_FORMATTER.parseLocalDateTime(matcher.group(1)));
   }

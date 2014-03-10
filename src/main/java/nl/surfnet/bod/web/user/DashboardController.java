@@ -26,16 +26,10 @@ import static nl.surfnet.bod.util.Orderings.REQUEST_LINK_ORDERING;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -75,51 +69,25 @@ public class DashboardController {
     model.addAttribute("deleteRequests", REQUEST_LINK_ORDERING.sortedCopy(virtualPortService.findDeleteRequestsForLastMonth(userGroups)));
 
     model.addAttribute("teams", views);
-    model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
-      @Override
-      public boolean apply(TeamView input) {
-        return input.isExisting() && input.getNumberOfPorts() > 1;
-      }
-    }));
-
+    model.addAttribute("canCreateReservation", views.stream().anyMatch(team -> team.isExisting() && team.getNumberOfPorts() > 1));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     return "index";
   }
 
   private List<TeamView> getTeamViews(Collection<UserGroup> userGroups) {
-    Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+    final Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+    final Collection<String> existingIds = vrgs.stream().map(vrg -> vrg.getAdminGroup()).collect(Collectors.toList());
 
-    final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
-        new Function<VirtualResourceGroup, String>() {
-          @Override
-          public String apply(VirtualResourceGroup group) {
-            return group.getAdminGroup();
-          }
-        }));
-
-    Collection<TeamView> existingTeams = Collections2.transform(vrgs, new Function<VirtualResourceGroup, TeamView>() {
-      @Override
-      public TeamView apply(VirtualResourceGroup group) {
-        long active = reservationService.countActiveReservationsForGroup(group);
-        long coming = reservationService.countComingReservationsForGroup(group);
-        long elapsed = reservationService.countElapsedReservationsForGroup(group);
-        return new TeamView(group, active, coming, elapsed);
-      }
+    Stream<TeamView> existingTeams = vrgs.stream().map(vrg -> {
+        long active = reservationService.countActiveReservationsForGroup(vrg);
+        long coming = reservationService.countComingReservationsForGroup(vrg);
+        long elapsed = reservationService.countElapsedReservationsForGroup(vrg);
+        return new TeamView(vrg, active, coming, elapsed);
     });
 
-    Collection<TeamView> newTeams = FluentIterable.from(userGroups).filter(new Predicate<UserGroup>() {
-      @Override
-      public boolean apply(UserGroup group) {
-        return !existingIds.contains(group.getId());
-      }
-    }).transform(new Function<UserGroup, TeamView>() {
-      @Override
-      public TeamView apply(UserGroup group) {
-        return new TeamView(group);
-      }
-    }).toList();
+    Stream<TeamView> newTeams = userGroups.stream().filter(grp -> existingIds.contains(grp.getId())).map(TeamView::new);
 
-    return Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams));
+    return Stream.concat(existingTeams, newTeams).sorted().collect(Collectors.toList());
   }
 }

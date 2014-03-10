@@ -52,7 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
@@ -210,11 +210,11 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   }
 
   public List<Long> findAllTeamIds(Sort sort) {
-    return virtualResourceGroupRepo.findIds(Optional.<Sort> fromNullable(sort));
+    return virtualResourceGroupRepo.findIds(Optional.ofNullable(sort));
   }
 
   public List<Long> findTeamIdsForRole(BodRole bodRole, Sort sort) {
-    return virtualResourceGroupRepo.findIdsWithWhereClause(specificationForManager(bodRole), Optional.<Sort> fromNullable(sort));
+    return virtualResourceGroupRepo.findIdsWithWhereClause(specificationForManager(bodRole), Optional.ofNullable(sort));
   }
 
   @Override

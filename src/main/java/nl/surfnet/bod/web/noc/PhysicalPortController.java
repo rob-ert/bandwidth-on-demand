@@ -30,13 +30,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
@@ -140,12 +139,7 @@ public class PhysicalPortController {
       return "redirect:";
     }
 
-    Collection<NbiPort> unallocatedPorts = Collections2.filter(physicalPortService.findUnallocated(), new Predicate<NbiPort>() {
-      @Override
-      public boolean apply(NbiPort input) {
-        return input.isVlanRequired() == port.isVlanRequired() && input.getInterfaceType() == port.getNbiPort().getInterfaceType();
-      }
-    });
+    Collection<NbiPort> unallocatedPorts = physicalPortService.findUnallocated().stream().filter(p -> p.isVlanRequired() == port.isVlanRequired() && p.getInterfaceType() == port.getNbiPort().getInterfaceType()).collect(Collectors.toList());
 
     if (unallocatedPorts.isEmpty()) {
       messageManager.addInfoFlashMessage(redirectAttrs, "info_physicalport_nounallocated", port.isVlanRequired() ? "EVPL" : "EPL", port.getNbiPort().getInterfaceType().name());

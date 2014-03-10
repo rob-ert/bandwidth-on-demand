@@ -25,10 +25,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -116,49 +113,22 @@ public final class MtosiUtils {
   }
 
   public static Optional<String> findRdnValue(final String type, NamingAttributeType nat) {
-    return Iterables.tryFind(nat.getRdn(), new Predicate<RelativeDistinguishNameType>() {
-      @Override
-      public boolean apply(RelativeDistinguishNameType rdn) {
-        return rdn.getType().equals(type);
-      }
-    }).transform(new Function<RelativeDistinguishNameType, String>() {
-      @Override
-      public String apply(RelativeDistinguishNameType rdn) {
-        return rdn.getValue();
-      }
-    });
+    return nat.getRdn().stream().filter(rdn -> rdn.getType().equals(type)).findFirst().map(RelativeDistinguishNameType::getValue);
   }
 
   public static Optional<String> findSscValue(final String sscValue, List<ServiceCharacteristicValueType> characteristics) {
-    return Iterables.tryFind(characteristics, new Predicate<ServiceCharacteristicValueType>() {
-      @Override
-      public boolean apply(ServiceCharacteristicValueType scv) {
-        return findRdnValue("SSC", scv.getSscRef()).get().equals(sscValue);
-      }
-    }).transform(new Function<ServiceCharacteristicValueType, String>() {
-      @Override
-      public String apply(ServiceCharacteristicValueType ssc) {
-        return ssc.getValue();
-      }
-    });
+    return characteristics.stream().filter(scv -> findRdnValue("SSC", scv.getSscRef()).get().equals(sscValue)).findFirst().map(ServiceCharacteristicValueType::getValue);
   }
 
   public static Optional<RfsSecondaryState> findSecondaryState(ServiceAttributeValueChangeType event) {
-    Optional<ResourceFacingServiceType> rfs = findRfs(event);
+    Optional<Optional<RfsSecondaryState>> status = findRfs(event).map(MtosiUtils::findSecondaryState);
 
-    Optional<Optional<RfsSecondaryState>> status = rfs.transform(new Function<ResourceFacingServiceType, Optional<RfsSecondaryState>>() {
-      @Override
-      public Optional<RfsSecondaryState> apply(ResourceFacingServiceType service) {
-        return findSecondaryState(service);
-      }
-    });
-
-    return status.isPresent() ? status.get() : Optional.<RfsSecondaryState> absent();
+    return status.isPresent() ? status.get() : Optional.empty();
   }
 
   public static Optional<ResourceFacingServiceType> findRfs(ServiceAttributeValueChangeType event) {
     if (event.getAttributeList() == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     Object any = event.getAttributeList().getAny();
@@ -170,7 +140,7 @@ public final class MtosiUtils {
       }
     }
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   public static String convertToShortPtP(String ptp) {
@@ -230,7 +200,7 @@ public final class MtosiUtils {
    * allowed by the schema.
    */
   public static Optional<ReservationStatus> mapToReservationState(ResourceFacingServiceType rfs) {
-    RfsSecondaryState secondaryState = findSecondaryState(rfs).or(RfsSecondaryState.UNKNOWN);
+    RfsSecondaryState secondaryState = findSecondaryState(rfs).orElse(RfsSecondaryState.UNKNOWN);
     LOGGER.debug("MAPPING status {} {}", rfs.getServiceState(), secondaryState);
     switch (secondaryState) {
     case RESERVING:
@@ -242,32 +212,28 @@ public final class MtosiUtils {
     case PROVISIONING:
       return Optional.of(ReservationStatus.AUTO_START);
     case ACTIVATING:
-      return Optional.absent();
+      return Optional.empty();
     case ACTIVATED:
       return Optional.of(ReservationStatus.RUNNING);
     case TERMINATING:
-      return Optional.absent();
+      return Optional.empty();
     case TERMINATED:
       return Optional.of(ReservationStatus.SUCCEEDED);
     case UNKNOWN:
-      return Optional.absent();
+      return Optional.empty();
     }
 
     throw new IllegalArgumentException("unrecognized reservation state <" + rfs.getServiceState() + ", " + secondaryState + "> for RFS " + rfs);
   }
 
   static Optional<RfsSecondaryState> findSecondaryState(ResourceFacingServiceType service) {
-    return findSscValue("SecondaryState", service.getDescribedByList()).transform(
-      new Function<String, RfsSecondaryState>() {
-        @Override
-        public RfsSecondaryState apply(String input) {
-          try {
-            return RfsSecondaryState.valueOf(input);
-          } catch (IllegalArgumentException e) {
-            LOGGER.warn("Unrecognized MTOSI secondary state " + input);
-            return RfsSecondaryState.UNKNOWN;
-          }
-        }
-      });
+    return findSscValue("SecondaryState", service.getDescribedByList()).map(str -> {
+      try {
+        return RfsSecondaryState.valueOf(str);
+      } catch (IllegalArgumentException e) {
+        LOGGER.warn("Unrecognized MTOSI secondary state " + str);
+        return RfsSecondaryState.UNKNOWN;
+      }
+    });
   }
 }

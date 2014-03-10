@@ -24,7 +24,7 @@ package nl.surfnet.bod.domain;
 
 import org.joda.time.DateTime;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface Connection extends Loggable, PersistableDomain {
 

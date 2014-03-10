@@ -32,7 +32,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -78,7 +78,7 @@ public class NsiV2RequestDetails {
   }
 
   public NsiV2RequestDetails(Optional<URI> replyTo, String correlationId, String requesterNsa, String providerNsa) {
-    this.replyTo = replyTo.orNull();
+    this.replyTo = replyTo.orElse(null);
     this.correlationId = correlationId;
     this.requesterNsa = Preconditions.checkNotNull(requesterNsa, "requesterNsa is required");
     this.providerNsa = Preconditions.checkNotNull(providerNsa, "providerNsa is required");
@@ -97,7 +97,7 @@ public class NsiV2RequestDetails {
   }
 
   public Optional<URI> getReplyTo() {
-    return Optional.fromNullable(replyTo);
+    return Optional.ofNullable(replyTo);
   }
 
   public String getCorrelationId() {

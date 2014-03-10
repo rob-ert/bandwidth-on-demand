@@ -47,7 +47,7 @@ import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 import org.tmforum.mtop.sa.xsd.scai.v1.TerminateRequest;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -103,7 +103,7 @@ public class ServiceComponentActivationClient {
       port.activate(buildActivateHeader(endpoint), activateRequest);
       // TODO something with the response..
       //response.getRfsNameOrRfsCreationOrRfsStateChange()
-      return Optional.absent();
+      return Optional.empty();
     } catch (ActivateException e) {
       BaseExceptionMessageType baseExceptionMessage = MtosiUtils.getBaseExceptionMessage(e);
       String message = "Could not activate reservation " + reservation + " because " + baseExceptionMessage.getReason();
@@ -119,7 +119,7 @@ public class ServiceComponentActivationClient {
       .withRfsName(createRfs(reservation.getReservationId()));
     try {
       port.terminate(buildTerminateHeader(endpoint), terminateRequest);
-      return Optional.absent();
+      return Optional.empty();
     } catch (TerminateException e) {
       logger.info("Terminate failed: " + e, e);
       return Optional.of(e.toString());

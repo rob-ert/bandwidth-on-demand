@@ -35,7 +35,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
 import com.google.common.base.Preconditions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -201,7 +201,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
     private OfflineReservation(ReservationStatus status, DateTime startDateTime, DateTime endDateTime) {
       this.status = status;
       this.startDateTime = startDateTime;
-      this.endDateTime = Optional.fromNullable(endDateTime);
+      this.endDateTime = Optional.ofNullable(endDateTime);
     }
 
     public ReservationStatus getStatus() {
@@ -217,7 +217,7 @@ public class NbiOneControlOfflineClient implements NbiClient {
     }
 
     public OfflineReservation withStatus(ReservationStatus newStatus) {
-      return new OfflineReservation(newStatus, startDateTime, endDateTime.orNull());
+      return new OfflineReservation(newStatus, startDateTime, endDateTime.orElse(null));
     }
   }
 }

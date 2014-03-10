@@ -35,7 +35,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
@@ -146,7 +146,7 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   public Optional<VirtualResourceGroup> getVirtualResourceGroup() {
-    return Optional.fromNullable(virtualResourceGroup);
+    return Optional.ofNullable(virtualResourceGroup);
   }
 
   public ReservationStatus getStatus() {
@@ -443,20 +443,20 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   public Optional<ConnectionV1> getConnectionV1() {
-    return Optional.<ConnectionV1>fromNullable(connectionV1);
+    return Optional.ofNullable(connectionV1);
   }
 
   public Optional<ConnectionV2> getConnectionV2() {
-    return Optional.<ConnectionV2>fromNullable(connectionV2);
+    return Optional.ofNullable(connectionV2);
   }
 
   public Optional<Connection> getConnection() {
     if (connectionV1 != null) {
-      return Optional.<Connection>fromNullable(connectionV1);
+      return Optional.ofNullable(connectionV1);
     } else if (connectionV2 != null) {
-      return Optional.<Connection>fromNullable(connectionV2);
+      return Optional.ofNullable(connectionV2);
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
@@ -54,13 +54,21 @@ public abstract class AbstractVirtualPortController extends AbstractSearchableSo
   @Override
   protected String searchTranslations(String searchQuery) {
     for (String part : Splitter.on(" ").splitToList(searchQuery)) {
-      Optional<String> localId = nsiHelper.parseLocalNsiId(part, NsiVersion.ONE).or(nsiHelper.parseLocalNsiId(part, NsiVersion.TWO));
+      Optional<String> localId = optionalOrFlat(nsiHelper.parseLocalNsiId(part, NsiVersion.ONE), nsiHelper.parseLocalNsiId(part, NsiVersion.TWO));
       if (localId.isPresent()) {
         searchQuery = searchQuery.replace(part, "id:" + localId.get());
       }
     }
 
     return searchQuery;
+  }
+
+  private static<T> Optional<T> optionalOrFlat(Optional<T> first, Optional<T> second) {
+    if (first.isPresent()) {
+      return first;
+    } else {
+      return second;
+    }
   }
 
   @Override

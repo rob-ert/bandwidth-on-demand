@@ -47,7 +47,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequestHeaderAuthenticationFilterTest {
@@ -172,7 +172,7 @@ public class RequestHeaderAuthenticationFilterTest {
     HttpServletRequest requestMock = getOAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
-    when(oAuthServerServiceMock.getVerifiedToken(token)).thenReturn(Optional.<VerifiedToken>absent());
+    when(oAuthServerServiceMock.getVerifiedToken(token)).thenReturn(Optional.empty());
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 

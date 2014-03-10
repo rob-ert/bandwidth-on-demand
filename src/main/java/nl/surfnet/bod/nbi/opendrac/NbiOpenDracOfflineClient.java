@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.nbi.opendrac;
 
+import static java.util.stream.Collectors.toList;
 import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
@@ -33,24 +34,22 @@ import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
 
-import nl.surfnet.bod.service.ReservationService;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
+
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
+
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
 import nl.surfnet.bod.domain.Reservation;
@@ -59,6 +58,8 @@ import nl.surfnet.bod.domain.UpdatedReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.nbi.PortNotAvailableException;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.service.ReservationService;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -76,10 +77,9 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       NbiPort port = new NbiPort();
       port.setNmsPortId(nbiPort.getId());
       port.setSuggestedBodPortId("Mock_" + nbiPort.getName());
-      port.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
+      port.setSuggestedNocLabel("Mock_" + nbiPort.getUserLabel().orElse(nbiPort.getName()));
       port.setVlanRequired(isVlanRequired(nbiPort.getName()));
       port.setInterfaceType(nbiPort.getInterfaceType());
-
       return port;
     }
 
@@ -138,7 +138,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
 
   @Override
   public List<NbiPort> findAllPorts() {
-    return Lists.newArrayList(Lists.transform(ports, TRANSFORM_FUNCTION));
+    return ports.stream().map(TRANSFORM_FUNCTION).collect(toList());
   }
 
   @Override
@@ -258,12 +258,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     Preconditions.checkNotNull(Strings.emptyToNull(nmsPortId));
 
     try {
-      return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<MockNbiPort>() {
-        @Override
-        public boolean apply(MockNbiPort nbiPort) {
-          return nbiPort.getId().equals(nmsPortId);
-        }
-      }), TRANSFORM_FUNCTION));
+      return ports.stream().filter(port -> port.getId().equals(nmsPortId)).map(TRANSFORM_FUNCTION).findFirst().get();
     } catch (NoSuchElementException e) {
       throw new PortNotAvailableException(nmsPortId);
     }
@@ -287,7 +282,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       this.name = name;
       this.id = id;
       this.interfaceType = interfaceType;
-      this.userLabel = Optional.fromNullable(userLabel);
+      this.userLabel = Optional.ofNullable(userLabel);
     }
 
     public InterfaceType getInterfaceType() {
@@ -319,7 +314,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     private OfflineReservation(ReservationStatus status, DateTime startDateTime, DateTime endDateTime) {
       this.status = status;
       this.startDateTime = startDateTime;
-      this.endDateTime = Optional.fromNullable(endDateTime);
+      this.endDateTime = Optional.ofNullable(endDateTime);
     }
 
     public ReservationStatus getStatus() {
@@ -335,7 +330,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     }
 
     public OfflineReservation withStatus(ReservationStatus newStatus) {
-      return new OfflineReservation(newStatus, startDateTime, endDateTime.orNull());
+      return new OfflineReservation(newStatus, startDateTime, endDateTime.orElse(null));
     }
 
   }

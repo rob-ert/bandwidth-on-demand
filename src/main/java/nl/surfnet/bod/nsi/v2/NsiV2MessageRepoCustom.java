@@ -24,7 +24,7 @@ package nl.surfnet.bod.nsi.v2;
 
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface NsiV2MessageRepoCustom {
 

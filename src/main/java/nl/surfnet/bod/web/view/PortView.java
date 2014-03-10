@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.web.view;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ReservationEndPoint;
 import nl.surfnet.bod.domain.VirtualPort;

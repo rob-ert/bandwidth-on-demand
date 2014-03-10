@@ -31,7 +31,7 @@ import java.util.List;
 
 import javax.xml.bind.Marshaller;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.util.TestHelper;

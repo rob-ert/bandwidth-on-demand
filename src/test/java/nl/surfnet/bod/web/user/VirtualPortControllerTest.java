@@ -63,7 +63,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -161,7 +161,7 @@ public class VirtualPortControllerTest {
             eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), eq(user), anyList()))
         .thenReturn(new FullTextSearchResult<>(1, result));
 
-    when(nsiHelper.parseLocalNsiId(eq("virtualResourceGroup.name:\"some-team\""), any(NsiVersion.class))).thenReturn(Optional.<String>absent());
+    when(nsiHelper.parseLocalNsiId(eq("virtualResourceGroup.name:\"some-team\""), any(NsiVersion.class))).thenReturn(Optional.empty());
 
     String page = subject.search(0, "userLabel", null, "team:\"some-team\"", model);
 

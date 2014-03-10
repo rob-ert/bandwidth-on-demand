@@ -25,9 +25,7 @@ package nl.surfnet.bod.nbi.onecontrol;
 import nl.surfnet.bod.service.ReservationService;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.Optional;
 
 import java.util.Date;
 import java.util.List;
@@ -94,19 +92,14 @@ public class NbiClientImpl implements NbiClient {
     Optional<RfsList> rfsInventory = inventoryRetrievalClient.getRfsInventory();
 
     if (rfsInventory.isPresent()) {
-      Optional<ResourceFacingServiceType> rfs = Iterables.tryFind(rfsInventory.get().getRfs(),
-          new Predicate<ResourceFacingServiceType>() {
-            public boolean apply(ResourceFacingServiceType rfs) {
-              return MtosiUtils.getRfsName(rfs).equals(reservationId);
-            }
-          });
+      Optional<ResourceFacingServiceType> rfs = rfsInventory.get().getRfs().stream().filter(r -> MtosiUtils.getRfsName(r).equals(reservationId)).findFirst();
 
       if (rfs.isPresent()) {
         return MtosiUtils.mapToReservationState(rfs.get());
       }
     }
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -128,12 +121,7 @@ public class NbiClientImpl implements NbiClient {
   public NbiPort findPhysicalPortByNmsPortId(final String nmsPortId) throws PortNotAvailableException {
     List<NbiPort> portList = inventoryRetrievalClient.getPhysicalPorts();
 
-    Optional<NbiPort> port = Iterables.tryFind(portList, new Predicate<NbiPort>() {
-      @Override
-      public boolean apply(NbiPort physicalPort) {
-        return nmsPortId.equals(physicalPort.getNmsPortId());
-      }
-    });
+    Optional<NbiPort> port = portList.stream().filter(p -> nmsPortId.equals(p.getNmsPortId())).findFirst();
 
     if (port.isPresent()) {
       return port.get();

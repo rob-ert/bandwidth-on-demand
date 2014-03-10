@@ -26,7 +26,7 @@ import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.CONNECT
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.NsiV1RequestDetails;
@@ -89,7 +89,7 @@ public class ConnectionServiceRequesterV1 {
 
     ServiceExceptionType serviceException = new ServiceExceptionType();
     serviceException.setErrorId("00600");
-    serviceException.setText(failedReason.or("Unknown reason"));
+    serviceException.setText(failedReason.orElse("Unknown reason"));
     AttributeStatementType values = new AttributeStatementType();
     serviceException.setVariables(values);
 

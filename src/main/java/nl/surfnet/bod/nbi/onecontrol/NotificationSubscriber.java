@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
 
@@ -139,14 +139,14 @@ public class NotificationSubscriber {
       logger.warn("Could not determine OneControl InetAddress", e);
     }
 
-    return Optional.absent();
+    return Optional.empty();
   }
 
   private final class TopicSubscription {
     private final NotificationTopic topic;
     private final String consumerEndpoint;
 
-    private Optional<String> subscriptionId = Optional.absent();
+    private Optional<String> subscriptionId = Optional.empty();
 
     public TopicSubscription(NotificationTopic topic, String consumerEndpoint) {
       this.topic = topic;
@@ -161,7 +161,7 @@ public class NotificationSubscriber {
       try {
         notificationClient.unsubscribe(topic, subscriptionId.get());
         logger.info("Successfully un-subscribed from {} topic with id {}", topic, subscriptionId.get());
-        subscriptionId = Optional.absent();
+        subscriptionId = Optional.empty();
       } catch (UnsubscribeException e) {
         logger.warn("Un-subscribe to {} topic with id {} has failed: {}", topic, subscriptionId.get(), e);
       }

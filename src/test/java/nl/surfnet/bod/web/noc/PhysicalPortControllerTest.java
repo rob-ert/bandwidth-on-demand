@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.Collections;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
@@ -108,7 +108,7 @@ public class PhysicalPortControllerTest {
   public void create_no_nbi_found() throws Exception {
     final String nmsId = "foo";
 
-    when(physicalPortServiceMock.findNbiPort(nmsId)).thenReturn(Optional.<NbiPort>absent());
+    when(physicalPortServiceMock.findNbiPort(nmsId)).thenReturn(Optional.empty());
 
     mockMvc.perform(get("/noc/physicalports/create").param(ID_KEY, nmsId))
         .andExpect(status().isMovedTemporarily())

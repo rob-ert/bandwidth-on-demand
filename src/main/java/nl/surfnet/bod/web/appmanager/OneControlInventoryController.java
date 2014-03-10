@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.nbi.onecontrol.InventoryRetrievalClient;
 import nl.surfnet.bod.nbi.onecontrol.MtosiUtils;

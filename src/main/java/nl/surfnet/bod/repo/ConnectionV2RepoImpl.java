@@ -25,6 +25,7 @@ package nl.surfnet.bod.repo;
 import static nl.surfnet.bod.repo.CustomRepoHelper.addSortClause;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -38,8 +39,6 @@ import nl.surfnet.bod.domain.ConnectionV2_;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
-
 public class ConnectionV2RepoImpl implements CustomRepo<ConnectionV2> {
 
   @PersistenceContext
@@ -51,7 +50,7 @@ public class ConnectionV2RepoImpl implements CustomRepo<ConnectionV2> {
   }
 
   public List<Long> findIds(Optional<Sort> sort) {
-    return findIds(Optional.<Specification<ConnectionV2>> absent(), sort);
+    return findIds(Optional.empty(), sort);
   }
 
   private List<Long> findIds(Optional<Specification<ConnectionV2>> whereClause, Optional<Sort> sort) {

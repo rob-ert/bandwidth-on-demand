@@ -23,11 +23,10 @@
 package nl.surfnet.bod.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
-import com.google.common.base.Optional;
 
 public interface CustomRepo<T> {
 

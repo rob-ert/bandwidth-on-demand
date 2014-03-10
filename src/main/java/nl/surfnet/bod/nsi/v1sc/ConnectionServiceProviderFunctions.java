@@ -22,8 +22,6 @@
  */
 package nl.surfnet.bod.nsi.v1sc;
 
-import static com.google.common.base.Optional.fromNullable;
-import static nl.surfnet.bod.util.XmlUtils.xmlCalendarToDateTime;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.util.Date;
@@ -33,7 +31,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import nl.surfnet.bod.domain.ConnectionV1;
 import nl.surfnet.bod.domain.ProtectionType;
@@ -76,14 +74,14 @@ public final class ConnectionServiceProviderFunctions {
 
         ServiceParametersType serviceParameters = reservation.getServiceParameters();
 
-        Optional<DateTime> startTime = fromNullable(serviceParameters.getSchedule().getStartTime()).transform(xmlCalendarToDateTime);
-        connection.setStartTime(startTime.orNull());
+        Optional<DateTime> startTime = Optional.ofNullable(serviceParameters.getSchedule().getStartTime()).map(XmlUtils::toDateTime);
+        connection.setStartTime(startTime.orElse(null));
 
         Optional<DateTime> endTime = calculateEndTime(
           serviceParameters.getSchedule().getEndTime(),
           serviceParameters.getSchedule().getDuration(),
           startTime);
-        connection.setEndTime(endTime.orNull());
+        connection.setEndTime(endTime.orElse(null));
 
         // Ignoring the max. and min. bandwidth attributes...
         connection.setDesiredBandwidth(serviceParameters.getBandwidth().getDesired());
@@ -144,7 +142,7 @@ public final class ConnectionServiceProviderFunctions {
           return Optional.of(new DateTime(endTime, startTime.get().getZone()));
         }
 
-        return Optional.absent();
+        return Optional.empty();
       }
 
     };

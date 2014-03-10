@@ -80,7 +80,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Longs;
 
@@ -132,12 +132,12 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.<String>absent(), Optional.of(VLAN_ID));
+    getManagerDriver().acceptVirtualPort("First port", "First port", Optional.empty(), Optional.of(VLAN_ID));
 
     getUserDriver().requestVirtualPort("Selenium users");
     getUserDriver().selectInstituteAndRequest(GROUP_SURFNET, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.<String>absent(), Optional.of(VLAN_ID));
+    getManagerDriver().acceptVirtualPort("Second port", "Second port", Optional.empty(), Optional.of(VLAN_ID));
   }
 
   @Before

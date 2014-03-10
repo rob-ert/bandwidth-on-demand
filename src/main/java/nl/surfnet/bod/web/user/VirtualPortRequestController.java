@@ -26,6 +26,8 @@ import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -38,7 +40,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.base.MessageManager;
 import nl.surfnet.bod.web.base.MessageRetriever;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -58,8 +59,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 
@@ -83,30 +82,18 @@ public class VirtualPortRequestController {
   public String selectTeam(Model model) {
     RichUserDetails user = Security.getUserDetails();
 
-    // Find related virtual resource groups
     Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(user);
-    final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
-        new Function<VirtualResourceGroup, String>() {
-          @Override
-          public String apply(VirtualResourceGroup group) {
-            return group.getAdminGroup();
-          }
-        }));
 
-    // Transform to view
-    Collection<UserGroupView> existingTeams = ImmutableList.copyOf(Collections2.transform(vrgs, Functions.FROM_VRG_TO_USER_GROUP_VIEW));
+    Collection<String> existingIds = vrgs.stream().map(vrg -> vrg.getAdminGroup()).collect(Collectors.toList());
 
-    // Filter new teams
-    ImmutableList<UserGroupView> newTeams = FluentIterable.from(user.getUserGroups()).filter(
-        new Predicate<UserGroup>() {
-          @Override
-          public boolean apply(UserGroup group) {
-            return !existingIds.contains(group.getId());
-          }
-        }).transform(Functions.FROM_USER_GROUP_TO_USER_GROUP_VIEW).toList();
+    Stream<UserGroupView> existingTeams = vrgs.stream().map(UserGroupView::new);
+
+    Stream<UserGroupView> newTeams = user.getUserGroups().stream().filter(grp -> existingIds.contains(grp.getId())).map(UserGroupView::new);
+
+    Collection<UserGroupView> allTeams = Stream.concat(existingTeams, newTeams).collect(Collectors.toList());
 
     // Put result sorted on model
-    model.addAttribute("userGroupViews", Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams)));
+    model.addAttribute("userGroupViews", Ordering.natural().sortedCopy(allTeams));
 
     return "virtualports/selectTeam";
   }

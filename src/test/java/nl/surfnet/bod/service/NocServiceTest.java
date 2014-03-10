@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.FakeTransactionOperations;

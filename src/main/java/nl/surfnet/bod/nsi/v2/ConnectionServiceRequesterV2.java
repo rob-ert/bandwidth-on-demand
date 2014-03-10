@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
