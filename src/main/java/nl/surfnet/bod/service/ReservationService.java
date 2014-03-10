@@ -497,7 +497,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
 
-    reservation.setEndDateTime(reservation.getEndDateTime().map(i -> i.withSecondOfMinute(0).withMillisOfSecond(0)));
+    reservation.setEndDateTime(reservation.getEndDateTime().map(dt -> dt.withSecondOfMinute(0).withMillisOfSecond(0)));
   }
 
   @VisibleForTesting

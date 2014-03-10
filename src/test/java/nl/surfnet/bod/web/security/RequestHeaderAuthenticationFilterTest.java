@@ -171,7 +171,7 @@ public class RequestHeaderAuthenticationFilterTest {
     oAuthPrincipal.setAttributes(Collections.<String, String>emptyMap());
     VerifiedToken verifiedToken = new VerifiedToken(oAuthPrincipal, EnumSet.of(NsiScope.RELEASE));
 
-    when(oAuthServerServiceMock.getVerifiedToken(expectedInvalidToken)).thenReturn(Optional.<VerifiedToken>absent());
+    when(oAuthServerServiceMock.getVerifiedToken(expectedInvalidToken)).thenReturn(Optional.empty());
     when(oAuthServerServiceMock.getVerifiedToken(expectedValidToken)).thenReturn(Optional.of(verifiedToken));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);

@@ -57,6 +57,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< HEAD
+=======
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import java.util.Optional;
+import com.google.common.base.Preconditions;
+
+>>>>>>> caebf1e... Starting to use Java 8
 @Service
 @Transactional
 public class PhysicalResourceGroupService extends AbstractFullTextSearchService<PhysicalResourceGroup> {

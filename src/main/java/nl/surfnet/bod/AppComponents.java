@@ -34,7 +34,6 @@ import java.util.concurrent.Executor;
 import javax.sql.DataSource;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.googlecode.flyway.core.Flyway;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -176,7 +175,7 @@ public class AppComponents implements AsyncConfigurer {
       entries.put(entry.getKey(), value);
     }
 
-    return Optional.of(ImmutableMap.copyOf(entries));
+    return Optional.of(entries);
   }
 
   @Bean

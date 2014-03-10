@@ -40,6 +40,13 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+<<<<<<< HEAD
+=======
+import com.google.common.base.Function;
+import java.util.Optional;
+import com.google.common.collect.Collections2;
+
+>>>>>>> caebf1e... Starting to use Java 8
 import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NsiVersion;

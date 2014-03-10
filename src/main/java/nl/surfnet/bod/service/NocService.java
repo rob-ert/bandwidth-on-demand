@@ -35,6 +35,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
+<<<<<<< HEAD
+=======
+import com.google.common.base.Function;
+import java.util.Optional;
+>>>>>>> caebf1e... Starting to use Java 8
 import com.google.common.base.Preconditions;
 
 import nl.surfnet.bod.domain.EnniPort;

@@ -66,6 +66,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< HEAD
+=======
+import com.google.common.base.Function;
+import java.util.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+>>>>>>> caebf1e... Starting to use Java 8
 @Service
 @Transactional
 public class VirtualResourceGroupService extends AbstractFullTextSearchService<VirtualResourceGroup> {

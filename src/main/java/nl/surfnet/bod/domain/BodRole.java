@@ -58,12 +58,9 @@ public final class BodRole {
     this.role = role;
     this.id = COUNTER.incrementAndGet();
 
-    this.instituteName = physicalResourceGroup == null ? Optional.empty() : Optional.of(physicalResourceGroup
-        .getName());
-    this.physicalResourceGroupId = physicalResourceGroup == null ? Optional.empty() : Optional
-        .of(physicalResourceGroup.getId());
-    this.adminGroup = physicalResourceGroup == null ? Optional.empty() : Optional.of(physicalResourceGroup
-        .getAdminGroup());
+    this.instituteName = Optional.ofNullable(physicalResourceGroup).map(prg -> prg.getName());
+    this.physicalResourceGroupId = Optional.ofNullable(physicalResourceGroup).map(prg -> prg.getId());
+    this.adminGroup = Optional.ofNullable(physicalResourceGroup).map(prg -> prg.getAdminGroup());
   }
 
   public static BodRole createNewUser() {
