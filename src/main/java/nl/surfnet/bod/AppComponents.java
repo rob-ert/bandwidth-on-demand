@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import javax.sql.DataSource;
 
@@ -50,7 +49,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -157,13 +155,12 @@ public class AppComponents implements AsyncConfigurer {
     return messageSource;
   }
 
-  @Bean(name = "stunnelTranslationMap")
-  @Profile("stunnel")
-  @SuppressWarnings("unchecked")
   /**
    * Maps the incoming 'reply-to' host+port to our local stunnel port (which in turn delivers the message at the
    * original reply-to address)
    */
+  @Bean(name = "stunnelTranslationMap")
+  @Profile("stunnel")
   public Optional<Map<String, String>> stunnelTranslationMap() {
     final Config configFile = ConfigFactory.load("stunnel-port-mappings");
     if (!configFile.hasPath("nsi.tlsmap")) {
