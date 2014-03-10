@@ -44,11 +44,8 @@ import nl.surfnet.bod.util.Environment;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceRequesterAsyncClientTest {
 
-  @Mock
-  private Environment bodEnvironment;
-
-  @Mock
-  private Optional<Map<String, String>> stunnelTranslationMap;
+  @Mock private Environment bodEnvironment;
+  @Mock private Optional<Map<String, String>> stunnelTranslationMap;
 
   @InjectMocks
   private ConnectionServiceRequesterAsyncClient subject;
@@ -77,7 +74,7 @@ public class ConnectionServiceRequesterAsyncClientTest {
   public void basicMatch() throws Exception {
     // this should be a match, preserving fragment
     final Optional<URI> stunnelUri = subject.findStunnelUri(MATCHING_NSA, originalReplyUri);
-    assertTrue(stunnelUri.get().toString().contains("localhost:2000"));
+    assertTrue(stunnelUri.get().toString().contains("http://localhost:2000"));
     assertTrue(stunnelUri.get().toString().contains(originalReplyUri.getPath()));
     assertTrue(stunnelUri.get().toString().endsWith(originalReplyUri.getFragment()));
 

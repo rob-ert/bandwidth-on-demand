@@ -124,7 +124,7 @@ class ConnectionServiceRequesterAsyncClient {
     Integer port = Integer.parseInt(hostAndPort[1]);
     URI stunnelURI;
     try {
-      stunnelURI = new URI("http", "", hostAndPort[0], port, originalReplyTo.getPath(), originalReplyTo.getQuery(), originalReplyTo.getFragment());
+      stunnelURI = new URI("http", null, hostAndPort[0], port, originalReplyTo.getPath(), originalReplyTo.getQuery(), originalReplyTo.getFragment());
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
