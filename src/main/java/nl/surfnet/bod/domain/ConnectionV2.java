@@ -293,7 +293,7 @@ public class ConnectionV2 extends AbstractConnection {
             .withAny(criteria.getAny())
             .withSchedule(criteria.getSchedule())
             .withServiceType(criteria.getServiceType())
-            .withVersion(1)) // FIXME: committed version?
+            .withVersion(getCommittedOrReserveVersion()))
         .withRequesterNSA(getRequesterNsa())
         .withConnectionStates(getConnectionStates());
   }
@@ -325,11 +325,15 @@ public class ConnectionV2 extends AbstractConnection {
       .withDataPlaneStatus(getDataPlaneStatus());
   }
 
+  private Integer getCommittedOrReserveVersion() {
+    return committedVersion == null ? reserveVersion : committedVersion;
+  }
+
   private DataPlaneStatusType getDataPlaneStatus() {
     return new DataPlaneStatusType()
       .withActive(dataPlaneActive)
       .withVersionConsistent(true)
-      .withVersion(committedVersion != null ? committedVersion : reserveVersion);
+      .withVersion(getCommittedOrReserveVersion());
   }
 
   public NsiV2RequestDetails getInitialReserveRequestDetails() {
