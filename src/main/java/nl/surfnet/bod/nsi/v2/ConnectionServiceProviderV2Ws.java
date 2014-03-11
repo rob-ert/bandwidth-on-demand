@@ -88,6 +88,8 @@ import org.springframework.stereotype.Service;
 @SchemaValidation // NOTE This does not validate headers, see #createRequestDetails for additional header validation.
 public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
+  private static final int DEFAULT_INITIAL_CRITERIA_VERSION = 1;
+
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderV2Ws.class);
 
   @Resource private ConnectionServiceV2 connectionService;
@@ -462,7 +464,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       .withAny(criteria.getAny())
       .withSchedule(criteria.getSchedule())
       .withServiceType(criteria.getServiceType())
-      .withVersion(criteria.getVersion() == null ? 0 : criteria.getVersion());
+      .withVersion(criteria.getVersion() == null ? DEFAULT_INITIAL_CRITERIA_VERSION : criteria.getVersion());
   }
 
 }
