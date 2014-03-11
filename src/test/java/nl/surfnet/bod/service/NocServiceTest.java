@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -112,7 +113,7 @@ public class NocServiceTest {
     assertThat(newReservation.getBandwidth(), is(150L));
     assertThat(newReservation.getName(), is("My first reservation"));
     assertThat(newReservation.getStartDateTime(), is(start));
-    assertThat(newReservation.getEndDateTime(), is(end));
+    assertThat(newReservation.getEndDateTime(), isPresent(end));
   }
 
   @Test

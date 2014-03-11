@@ -431,8 +431,8 @@ public class NbiOpenDracWsClient implements NbiClient {
     ValidReservationScheduleTypeT.Enum type = autoProvision ? ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC
         : ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL;
     Calendar startTime = reservation.getStartDateTime().toCalendar(Locale.getDefault());
-    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION
-        : minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime());
+
+    Minutes duration = reservation.getEndDateTime().isPresent()? minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime().get()) : MAX_DURATION;
 
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(type);

@@ -504,7 +504,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldVerifyActiveReservationsNeverProvisioned() {
-    reservationAfterStartAndOnEndPeriodNSI = updateStatus(reservationAfterStartAndOnEndPeriodNSI.getEndDateTime(), reservationAfterStartAndOnEndPeriodNSI, ReservationStatus.PASSED_END_TIME);
+    reservationAfterStartAndOnEndPeriodNSI = updateStatus(reservationAfterStartAndOnEndPeriodNSI.getEndDateTime().get(), reservationAfterStartAndOnEndPeriodNSI, ReservationStatus.PASSED_END_TIME);
     assertThat(reservationAfterStartAndOnEndPeriodNSI.getStatus(), is(ReservationStatus.PASSED_END_TIME));
 
     ReservationReportView reservationReport = new ReservationReportView(periodStart, periodEnd);

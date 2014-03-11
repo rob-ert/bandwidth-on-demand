@@ -81,13 +81,13 @@ public class ReservationPoller {
         executor.submit(new Runnable() {
           @Override
           public void run() {
-            logger.debug("Checking status update for: '{}' (try {})", reservation.getId());
+            logger.debug("Checking status update for: '{}'", reservation.getId());
 
             Optional<ReservationStatus> currentStatus = nbiClient.getReservationStatus(reservation.getReservationId());
             logger.debug("Got back status {}", currentStatus);
 
             if (currentStatus.isPresent() && currentStatus.get() != reservation.getStatus()) {
-              logger.info("Status change detected {} -> {} for reservation {}", new Object[] { reservation.getStatus(), currentStatus.get(), reservation.getReservationId() });
+              logger.info("Status change detected {} -> {} for reservation {}", reservation.getStatus(), currentStatus.get(), reservation.getReservationId());
               try {
                 reservationService.updateStatus(reservation.getReservationId(), UpdatedReservationStatus.forNewStatus(currentStatus.get()));
               } catch (EmptyResultDataAccessException e) {

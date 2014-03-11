@@ -29,6 +29,7 @@ import static nl.surfnet.bod.nbi.onecontrol.MtosiUtils.createSscValue;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
@@ -54,6 +55,7 @@ public final class ReserveRequestBuilder {
   static final String TRAFFIC_MAPPING_TO_TABLE_TRAFFICCLASS = "5";
 
   private static final String CTP_PREFIX = "/eth=";
+  private static final DateTime FOREVER_DATE_TIME = new DateTime(2029, 12, 31, 23, 59);
 
   private ReserveRequestBuilder() {
   }
@@ -110,12 +112,10 @@ public final class ReserveRequestBuilder {
     throw new IllegalArgumentException("Unsupported protectionType (" + protectionType.name() + ")");
   }
 
-  private static ReserveRequest createReserveRequest(DateTime endDateTime) {
+  private static ReserveRequest createReserveRequest(Optional<DateTime> endDateTime) {
     ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
 
-    if (endDateTime != null) {
-      reserveRequest.withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime));
-    }
+    reserveRequest.withExpiringTime(XmlUtils.toGregorianCalendar(endDateTime.or(FOREVER_DATE_TIME)));
 
     return reserveRequest;
   }

@@ -23,6 +23,7 @@
 package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -61,6 +62,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
@@ -471,7 +473,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     assertThat(reservation.getStartDateTime(), is(startDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
-    assertThat(reservation.getEndDateTime(), is(endDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
+    assertThat(reservation.getEndDateTime(), isPresent(endDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
   }
 
   @Test

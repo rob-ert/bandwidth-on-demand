@@ -157,7 +157,7 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setBandwidth(originalReservation.getBandwidth());
     reservation.setDestinationPort(originalReservation.getDestinationPort());
     reservation.setEndDate(originalReservation.getEndDate());
-    reservation.setEndDateTime(originalReservation.getEndDateTime());
+    reservation.setEndDateTime(originalReservation.getEndDateTime().orNull());
     reservation.setName(originalReservation.getName());
     reservation.setProtectionType(originalReservation.getProtectionType());
     reservation.setSourcePort(originalReservation.getSourcePort().copy());

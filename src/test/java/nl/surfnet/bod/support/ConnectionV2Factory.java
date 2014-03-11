@@ -81,7 +81,7 @@ public class ConnectionV2Factory {
         .withVersion(reserveVersion)
         .withSchedule(new ScheduleType()
             .withStartTime(XmlUtils.toGregorianCalendar(reservation.getStartDateTime()))
-            .withEndTime(XmlUtils.toGregorianCalendar(reservation.getEndDateTime())));
+            .withEndTime(XmlUtils.toGregorianCalendar(reservation.getEndDateTime().get())));
     ConnectionsV2.addPointToPointService(criteria.getAny(), path);
     connection.setCriteria(criteria);
 

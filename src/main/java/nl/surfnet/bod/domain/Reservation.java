@@ -350,8 +350,8 @@ public class Reservation implements Loggable, PersistableDomain {
     }
   }
 
-  public DateTime getEndDateTime() {
-    return endDateTime;
+  public Optional<DateTime> getEndDateTime() {
+    return Optional.fromNullable(endDateTime);
   }
 
   public void setEndDateTime(DateTime endDateTime) {

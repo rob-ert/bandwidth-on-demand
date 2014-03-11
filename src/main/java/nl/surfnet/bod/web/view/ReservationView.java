@@ -78,7 +78,7 @@ public class ReservationView {
     this.failedReason = reservation.getFailedReason();
     this.cancelReason = reservation.getCancelReason();
     this.startDateTime = reservation.getStartDateTime();
-    this.endDateTime = reservation.getEndDateTime();
+    this.endDateTime = reservation.getEndDateTime().orNull();
     this.bandwidth = reservation.getBandwidth();
     this.userCreated = reservation.getUserCreated();
     this.reservationId = reservation.getReservationId();

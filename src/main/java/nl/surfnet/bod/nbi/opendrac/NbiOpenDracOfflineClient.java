@@ -316,10 +316,10 @@ public class NbiOpenDracOfflineClient implements NbiClient {
       this(reservation.getStatus(), reservation.getStartDateTime(), reservation.getEndDateTime());
     }
 
-    private OfflineReservation(ReservationStatus status, DateTime startDateTime, DateTime endDateTime) {
+    private OfflineReservation(ReservationStatus status, DateTime startDateTime, Optional<DateTime> endDateTime) {
       this.status = status;
       this.startDateTime = startDateTime;
-      this.endDateTime = Optional.fromNullable(endDateTime);
+      this.endDateTime = endDateTime;
     }
 
     public ReservationStatus getStatus() {
@@ -335,9 +335,7 @@ public class NbiOpenDracOfflineClient implements NbiClient {
     }
 
     public OfflineReservation withStatus(ReservationStatus newStatus) {
-      return new OfflineReservation(newStatus, startDateTime, endDateTime.orNull());
+      return new OfflineReservation(newStatus, startDateTime, endDateTime);
     }
-
   }
-
 }

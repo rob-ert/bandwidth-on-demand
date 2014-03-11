@@ -149,7 +149,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     if (reservation.isNSICreated()) {
       Connection connection = reservation.getConnection().get();
       connection.setStartTime(reservation.getStartDateTime());
-      connection.setEndTime(reservation.getEndDateTime());
+      connection.setEndTime(reservation.getEndDateTime().orNull());
     }
   }
 
@@ -511,8 +511,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     if (reservation.getStartDateTime() != null) {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
-    if (reservation.getEndDateTime() != null) {
-      reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    if (reservation.getEndDateTime().isPresent()) {
+      reservation.setEndDateTime(reservation.getEndDateTime().get().withSecondOfMinute(0).withMillisOfSecond(0));
     }
   }
 
@@ -562,7 +562,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private UpdatedReservationStatus handleSpecialCasesForSucceededTransition(Reservation reservation, UpdatedReservationStatus newStatus) {
     if (newStatus.getNewStatus().isEndState() && !newStatus.getNewStatus().isErrorState()) {
       ReservationStatus oldStatus = reservation.getStatus();
-      boolean passedEndTime = reservation.getEndDateTime() != null && reservation.getEndDateTime().minusMinutes(environment.getNbiTeardownTime()).isBeforeNow();
+      boolean passedEndTime = reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().minusMinutes(environment.getNbiTeardownTime()).isBeforeNow();
 
       if (oldStatus == ReservationStatus.CANCELLING) {
         return UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED);
@@ -598,7 +598,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     } else if (reservation.getStatus() == ReservationStatus.CANCELLING) {
       doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.CANCELLED));
     } else if (reservation.getStatus().isTransitionState()) {
-      if (reservation.getEndDateTime() != null && reservation.getEndDateTime().plus(LOST_RESERVATION_GRACE_PERIOD).isBeforeNow()) {
+      if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().plus(LOST_RESERVATION_GRACE_PERIOD).isBeforeNow()) {
         doUpdateStatus(reservation, UpdatedReservationStatus.forNewStatus(ReservationStatus.SUCCEEDED));
       }
     }

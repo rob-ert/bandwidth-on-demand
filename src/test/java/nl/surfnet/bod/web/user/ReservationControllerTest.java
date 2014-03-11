@@ -140,8 +140,7 @@ public class ReservationControllerTest {
 
     Reservation reservation = (Reservation) model.asMap().get(ReservationController.MODEL_KEY);
 
-    Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().toDate()
-        .getTime());
+    Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().get().toDate().getTime());
 
     assertThat(period.get(DurationFieldType.minutes()), is(WebUtils.DEFAULT_RESERVATON_DURATION.get(DurationFieldType
         .minutes())));

@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -85,7 +87,7 @@ public class ReservationTest {
     reservation.setEndTime(now.toLocalTime());
     reservation.setEndDate(now.toLocalDate());
 
-    assertThat(reservation.getEndDateTime(), is(now));
+    assertThat(reservation.getEndDateTime(), isPresent(now));
   }
 
   @Test
@@ -97,7 +99,7 @@ public class ReservationTest {
     reservation.setEndDate(now.toLocalDate());
     reservation.setEndTime(now.toLocalTime());
 
-    assertThat(reservation.getEndDateTime(), is(now));
+    assertThat(reservation.getEndDateTime(), isPresent(now));
   }
 
   @Test
@@ -136,7 +138,7 @@ public class ReservationTest {
 
     assertThat(subject.getEndDate(), nullValue());
     assertThat(subject.getEndTime(), nullValue());
-    assertThat(subject.getEndDateTime(), nullValue());
+    assertThat(subject.getEndDateTime(), isAbsent());
 
     assertThat(subject.getStartDate(), notNullValue());
     assertThat(subject.getStartTime(), notNullValue());
@@ -149,7 +151,7 @@ public class ReservationTest {
 
     assertThat(subject.getEndDate(), nullValue());
     assertThat(subject.getEndTime(), nullValue());
-    assertThat(subject.getEndDateTime(), nullValue());
+    assertThat(subject.getEndDateTime(), isAbsent());
 
     assertThat(subject.getStartDate(), notNullValue());
     assertThat(subject.getStartTime(), notNullValue());

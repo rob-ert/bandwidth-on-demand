@@ -40,6 +40,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.NbiPort;
@@ -74,7 +77,7 @@ public class ReserveRequestBuilderTest {
 
     ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
 
-    assertThat(reserveRequest.getExpiringTime(), is(toGregorianCalendar(reservation.getEndDateTime())));
+    assertThat(reserveRequest.getExpiringTime(), is(toGregorianCalendar(reservation.getEndDateTime().get())));
 
     ResourceFacingServiceType rfs = reserveRequest.getRfsCreateData();
 
@@ -182,14 +185,14 @@ public class ReserveRequestBuilderTest {
   }
 
   @Test
-  public void should_create_reserve_request_without_end_time() {
+  public void should_create_reserve_request_without_end_time() throws DatatypeConfigurationException {
     Reservation reservation = new ReservationFactory().setEndDateTime(null).create();
     reservation.getSourcePort().getPhysicalPort().getNbiPort().setNmsPortId("henk@1-1-1-1");
     reservation.getDestinationPort().getPhysicalPort().getNbiPort().setNmsPortId("joop@1-1-1-4");
 
     ReserveRequest reserveRequest = ReserveRequestBuilder.createReservationRequest(reservation);
 
-    assertThat(reserveRequest.getExpiringTime(), is(nullValue()));
+    assertThat(reserveRequest.getExpiringTime().getYear(), is(2029));
   }
 
   @Test
