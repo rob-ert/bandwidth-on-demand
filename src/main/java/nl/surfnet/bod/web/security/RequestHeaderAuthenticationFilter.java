@@ -27,11 +27,6 @@ import static com.google.common.base.Strings.nullToEmpty;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.domain.oauth.VerifiedToken;
-import nl.surfnet.bod.service.OAuthServerService;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.ShibbolethConstants;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -39,6 +34,11 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+
+import nl.surfnet.bod.domain.oauth.VerifiedToken;
+import nl.surfnet.bod.service.OAuthServerService;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.ShibbolethConstants;
 
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -76,11 +76,14 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-    return isNsiRequest(request) ? getPrincipalFromOauth2Header(request) : getPrincipalFromHeaders(request);
+    if (isNsiV1Request(request)) {
+      return getPrincipalFromOauth2Header(request);
+    }
+    return getPrincipalFromHeaders(request);
   }
 
-  private boolean isNsiRequest(HttpServletRequest request) {
-    return request.getServletPath().equals("/nsi");
+  private boolean isNsiV1Request(HttpServletRequest request) {
+    return request.getRequestURI().contains("/nsi/v1_sc");
   }
 
   private Object getPrincipalFromHeaders(HttpServletRequest request) {
@@ -107,6 +110,10 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
     String accessToken = authorizationHeader.split(" ")[1];
 
+    return getRichPrincipalByToken(accessToken);
+  }
+
+  private RichPrincipal getRichPrincipalByToken(String accessToken) {
     Optional<VerifiedToken> verifiedToken = oAuthServerService.getVerifiedToken(accessToken);
     logger.debug("Found verifiedToken {}", verifiedToken);
 
@@ -139,5 +146,4 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
   protected void setEnvironment(Environment environment) {
     this.env = environment;
   }
-
 }
