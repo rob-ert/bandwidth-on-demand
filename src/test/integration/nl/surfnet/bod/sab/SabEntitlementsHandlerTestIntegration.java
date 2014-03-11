@@ -47,7 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppComponents.class, IntegrationDbConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-@ActiveProfiles({"opendrac-offline", "idd-offline"})
+@ActiveProfiles({"opendrac-offline", "idd-offline", "stunnel"})
 public class SabEntitlementsHandlerTestIntegration {
 
   @Resource private EntitlementsHandler subject;
