@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
@@ -203,7 +204,7 @@ public class ConnectionServiceProviderTestIntegration {
     assertThat(reservation.getStartDateTime(), is(start));
     assertThat(connection.getStartTime().get(), is(start));
 
-    assertThat(reservation.getEndDateTime(), nullValue());
+    assertFalse(reservation.getEndDateTime().isPresent());
     assertFalse(connection.getEndTime().isPresent());
   }
 
