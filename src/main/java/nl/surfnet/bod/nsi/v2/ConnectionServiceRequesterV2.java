@@ -113,6 +113,7 @@ class ConnectionServiceRequesterV2 {
     connection.setProvisionState(ProvisionStateEnumType.RELEASED);
     connection.setLifecycleState(LifecycleStateEnumType.CREATED);
     connection.setDataPlaneActive(false);
+    connection.setCommittedVersion(Optional.of(connection.getReserveVersion()));
 
     client.replyReserveCommitConfirmed(requestDetails.createRequesterReplyHeaders(), connection.getConnectionId(), requestDetails.getReplyTo());
   }

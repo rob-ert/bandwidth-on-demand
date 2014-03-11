@@ -57,7 +57,7 @@ public class ConnectionV2Factory {
   private LifecycleStateEnumType lifecycleState = LifecycleStateEnumType.CREATED;
   private ProvisionStateEnumType provisionState = ProvisionStateEnumType.RELEASED;
   private boolean dataPlaneActive;
-  private int reserveVersion = 0;
+  private int reserveVersion = 1;
   private Optional<Integer> committedVersion = Optional.absent();
   private NsiV2RequestDetails initialReserveRequestDetails = new NsiV2RequestDetailsFactory().create();
   private int reserveHeldTimeoutValue = 1200;

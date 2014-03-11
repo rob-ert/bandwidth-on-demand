@@ -267,18 +267,20 @@ public class ConnectionV2 extends AbstractConnection {
 
   public QuerySummaryResultType getQuerySummaryResult() {
     QuerySummaryResultType result = new QuerySummaryResultType()
-        .withConnectionId(getConnectionId())
-        .withGlobalReservationId(getGlobalReservationId())
-        .withDescription(getDescription())
-        .withRequesterNSA(getRequesterNsa())
-        .withConnectionStates(getConnectionStates());
+      .withConnectionId(getConnectionId())
+      .withGlobalReservationId(getGlobalReservationId())
+      .withDescription(getDescription())
+      .withRequesterNSA(getRequesterNsa())
+      .withConnectionStates(getConnectionStates());
+
     if (committedVersion != null) {
       result.withCriteria(new QuerySummaryResultCriteriaType()
-          .withAny(criteria.getAny())
-          .withSchedule(criteria.getSchedule())
-          .withServiceType(criteria.getServiceType())
-          .withVersion(committedVersion));
+        .withAny(criteria.getAny())
+        .withSchedule(criteria.getSchedule())
+        .withServiceType(criteria.getServiceType())
+        .withVersion(committedVersion));
     }
+
     return result;
   }
 
@@ -291,15 +293,15 @@ public class ConnectionV2 extends AbstractConnection {
             .withAny(criteria.getAny())
             .withSchedule(criteria.getSchedule())
             .withServiceType(criteria.getServiceType())
-            .withVersion(0)) // FIXME: committed version?
+            .withVersion(1)) // FIXME: committed version?
         .withRequesterNSA(getRequesterNsa())
         .withConnectionStates(getConnectionStates());
   }
 
   public ScheduleType getSchedule() {
     return new ScheduleType()
-        .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
-        .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
+      .withEndTime(getEndTime().transform(dateTimeToXmlCalendar).orNull())
+      .withStartTime(getStartTime().transform(dateTimeToXmlCalendar).orNull());
   }
 
   public void setCriteria(ReservationConfirmCriteriaType criteria) {
@@ -317,10 +319,10 @@ public class ConnectionV2 extends AbstractConnection {
 
   public ConnectionStatesType getConnectionStates() {
     return new ConnectionStatesType()
-        .withReservationState(getReservationState())
-        .withLifecycleState(getLifecycleState())
-        .withProvisionState(getProvisionState())
-        .withDataPlaneStatus(getDataPlaneStatus());
+      .withReservationState(getReservationState())
+      .withLifecycleState(getLifecycleState())
+      .withProvisionState(getProvisionState())
+      .withDataPlaneStatus(getDataPlaneStatus());
   }
 
   private DataPlaneStatusType getDataPlaneStatus() {

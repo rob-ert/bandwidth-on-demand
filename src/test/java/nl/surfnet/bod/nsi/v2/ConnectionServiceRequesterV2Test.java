@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
+import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
+import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -51,12 +53,14 @@ import java.util.ArrayList;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.support.ConnectionV2Factory;
 import nl.surfnet.bod.support.NsiV2RequestDetailsFactory;
 import nl.surfnet.bod.util.XmlUtils;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
@@ -132,11 +136,12 @@ public class ConnectionServiceRequesterV2Test {
     assertThat(connection.getReservationState(), is(RESERVE_START));
     assertThat(connection.getProvisionState(), is(RELEASED));
     assertThat(connection.getDataPlaneActive(), is(false));
+    assertThat(connection.getCommittedVersion(), isAbsent());
   }
 
   @Test
   public void should_goto_reserve_start_when_sending_reserve_commit_confirm() {
-    ConnectionV2 connection = new ConnectionV2Factory().setReservationState(RESERVE_COMMITTING).create();
+    ConnectionV2 connection = new ConnectionV2Factory().setReserveVersion(1).setReservationState(RESERVE_COMMITTING).create();
 
     when(connectionRepMock.findOne(1L)).thenReturn(connection);
 
@@ -146,6 +151,7 @@ public class ConnectionServiceRequesterV2Test {
     assertThat(connection.getLifecycleState(), is(CREATED));
     assertThat(connection.getProvisionState(), is(RELEASED));
     assertThat(connection.getDataPlaneActive(), is(false));
+    assertThat(connection.getCommittedVersion(), isPresent(1));
   }
 
   @Test
