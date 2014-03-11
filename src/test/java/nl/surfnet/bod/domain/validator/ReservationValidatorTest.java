@@ -28,6 +28,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -290,7 +293,7 @@ public class ReservationValidatorTest {
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().get().getAdminGroup()).create());
     reservation.setStartDateTime(null);
-    reservation.setEndDateTime(null);
+    reservation.setEndDateTime(Optional.<DateTime>absent());
 
     Errors errors = createErrorObject(reservation);
 

@@ -36,6 +36,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
@@ -157,7 +158,7 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setBandwidth(originalReservation.getBandwidth());
     reservation.setDestinationPort(originalReservation.getDestinationPort());
     reservation.setEndDate(originalReservation.getEndDate());
-    reservation.setEndDateTime(originalReservation.getEndDateTime().orNull());
+    reservation.setEndDateTime(originalReservation.getEndDateTime());
     reservation.setName(originalReservation.getName());
     reservation.setProtectionType(originalReservation.getProtectionType());
     reservation.setSourcePort(originalReservation.getSourcePort().copy());
@@ -212,7 +213,7 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setStartDateTime(inFifteenMinutes);
 
     DateTime reservationEnd = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
-    reservation.setEndDateTime(reservationEnd);
+    reservation.setEndDateTime(Optional.of(reservationEnd));
 
     VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
     VirtualPort destPort = Iterables.get(vrg.getVirtualPorts(), 1, null);

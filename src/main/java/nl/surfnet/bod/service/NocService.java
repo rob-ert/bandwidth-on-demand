@@ -127,7 +127,7 @@ public class NocService {
       public Reservation apply(Reservation oldRes) {
         Reservation newRes = new Reservation();
         newRes.setStartDateTime(oldRes.getStartDateTime());
-        newRes.setEndDateTime(oldRes.getEndDateTime().orNull());
+        newRes.setEndDateTime(oldRes.getEndDateTime());
         newRes.setSourcePort(newReservationEndPoint(oldRes.getSourcePort()));
         newRes.setDestinationPort(newReservationEndPoint(oldRes.getDestinationPort()));
         newRes.setName(oldRes.getName());

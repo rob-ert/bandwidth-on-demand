@@ -88,7 +88,7 @@ public class ConnectionServiceV2 {
       reservation.setConnectionV2(connection);
       reservation.setName(connection.getDescription());
       reservation.setStartDateTime(connection.getStartTime().orNull());
-      reservation.setEndDateTime(connection.getEndTime().orNull());
+      reservation.setEndDateTime(connection.getEndTime());
       reservation.setSourcePort(findEndPoint(connection.getSourceStpId(), connection.getSourceVlanId(), userDetails));
       reservation.setDestinationPort(findEndPoint(connection.getDestinationStpId(),  connection.getDestinationVlanId(), userDetails));
       reservation.setBandwidth(connection.getDesiredBandwidth());

@@ -26,6 +26,8 @@ import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -68,7 +70,7 @@ public class ReservationFactory {
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setStartDateTime(startDateTime);
-    reservation.setEndDateTime(endDateTime);
+    reservation.setEndDateTime(Optional.fromNullable(endDateTime));
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);

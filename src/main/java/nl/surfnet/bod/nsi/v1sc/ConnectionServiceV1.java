@@ -88,7 +88,7 @@ public class ConnectionServiceV1 {
     reservation.setConnectionV1(connection);
     reservation.setName(connection.getDescription());
     reservation.setStartDateTime(connection.getStartTime().orNull());
-    reservation.setEndDateTime(connection.getEndTime().orNull());
+    reservation.setEndDateTime(connection.getEndTime());
     reservation.setSourcePort(new ReservationEndPoint(sourcePort));
     reservation.setDestinationPort(new ReservationEndPoint(destinationPort));
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
