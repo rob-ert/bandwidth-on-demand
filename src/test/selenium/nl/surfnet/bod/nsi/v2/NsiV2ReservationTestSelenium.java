@@ -47,7 +47,6 @@ import javax.xml.validation.Validator;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
-import javax.xml.ws.handler.MessageContext;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -74,6 +73,7 @@ import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
+import org.ogf.schemas.nsi._2013._12.framework.headers.SessionSecurityAttrType;
 import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
 import org.ogf.schemas.nsi._2013._12.services.types.DirectionalityType;
 import org.slf4j.Logger;
@@ -92,6 +92,7 @@ import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.SeleniumWithSingleSetup;
 import nl.surfnet.bod.util.JaxbUserType;
 import nl.surfnet.bod.util.XmlUtils;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 @SuppressWarnings("unchecked") // for when we cast this.lastConvertedMessage (which has already been successfully converted and thus can not fail)
 public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
@@ -104,6 +105,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
   private static final int REPLY_SERVER_PORT = 31337;
   private static final String REPLY_ADDRESS = "http://localhost:" + REPLY_SERVER_PORT + "/requester";
   private static final int VLAN_ID = 23;
+
+  private static final String AUTH_TOKEN = "f00f";
 
   private SoapReplyListener soapReplyListener;
   private Endpoint soapReplyListenerEndpoint;
@@ -147,9 +150,8 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
 
     startTime = DateTime.now();
     endTime = DateTime.now().plusHours(1);
-    String oauthToken = "f00f";
 
-    connectionServiceProviderPort = createPort(oauthToken);
+    connectionServiceProviderPort = createPort();
     virtualPortIds = getUserDriver().getVirtualPortIds(NsiVersion.TWO);
 
     assertTrue("We need at least two portDefinitions to be able to continue", virtualPortIds.size() >= 2);
@@ -358,14 +360,20 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withProviderNSA(nsiHelper.getProviderNsaV2())
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
+        .withSessionSecurityAttr(new SessionSecurityAttrType()
+          .withName("token")
+          .withAttributeOrEncryptedAttribute(new AttributeType()
+                  .withName("token")
+                  .withAttributeValue(AUTH_TOKEN)
+          )
+        )
     );
   }
 
-  private ConnectionProviderPort createPort(String oauthToken) {
+  private ConnectionProviderPort createPort() {
     ConnectionProviderPort port = new ConnectionServiceProvider(wsdlUrl()).getConnectionServiceProviderPort();
     Map<String,Object> requestContext = ((BindingProvider) port).getRequestContext();
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ENDPOINT);
-    requestContext.put(MessageContext.HTTP_REQUEST_HEADERS, Collections.singletonMap("Authorization", Collections.singletonList("bearer " + oauthToken)));
     return port;
   }
 
