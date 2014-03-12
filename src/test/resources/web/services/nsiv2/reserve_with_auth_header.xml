@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Header>
+        <ns7:nsiHeader xmlns:ns2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ns3="http://www.w3.org/2001/04/xmlenc#"
+                       xmlns:ns4="http://www.w3.org/2000/09/xmldsig#"
+                       xmlns:ns5="http://schemas.ogf.org/nsi/2013/12/connection/types"
+                       xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/framework/types"
+                       xmlns:ns7="http://schemas.ogf.org/nsi/2013/12/framework/headers">
+            <protocolVersion>2.0</protocolVersion>
+            <correlationId>urn:uuid:2c1e8445-d60d-4768-8b14-58fc2c3601f5</correlationId>
+            <requesterNSA>urn:ogf:network:nsa:foo</requesterNSA>
+            <providerNSA>urn:ogf:network:surfnet.nl:1990:nsa:bod-selenium</providerNSA>
+            <replyTo>http://localhost:31337/requester</replyTo>
+            <sessionSecurityAttr name="token">
+                <ns2:Attribute Name="token">
+                    <ns2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                        xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">f00f
+                    </ns2:AttributeValue>
+                </ns2:Attribute>
+            </sessionSecurityAttr>
+        </ns7:nsiHeader>
+    </S:Header>
+    <S:Body>
+        <ns5:reserve xmlns:ns2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ns3="http://www.w3.org/2001/04/xmlenc#"
+                     xmlns:ns4="http://www.w3.org/2000/09/xmldsig#"
+                     xmlns:ns5="http://schemas.ogf.org/nsi/2013/12/connection/types"
+                     xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/framework/types"
+                     xmlns:ns7="http://schemas.ogf.org/nsi/2013/12/framework/headers">
+            <globalReservationId>urn:nl:surfnet:diensten:bod:fa3e6192-5dac-4002-8ca6-cc3f6c39b3be</globalReservationId>
+            <description>NSI v2 Reservation</description>
+            <criteria>
+                <schedule>
+                    <startTime>2014-03-12T13:03:28+01:00</startTime>
+                    <endTime>2014-03-12T14:03:28+01:00</endTime>
+                </schedule>
+                <serviceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</serviceType>
+                <ns2:p2ps xmlns:ns2="http://schemas.ogf.org/nsi/2013/12/services/point2point">
+                    <capacity>100</capacity>
+                    <directionality>Bidirectional</directionality>
+                    <sourceSTP>urn:ogf:network:surfnet.nl:1990:testbed:2333?vlan=23</sourceSTP>
+                    <destSTP>urn:ogf:network:surfnet.nl:1990:testbed:2338?vlan=23</destSTP>
+                </ns2:p2ps>
+            </criteria>
+        </ns5:reserve>
+    </S:Body>
+</S:Envelope>
