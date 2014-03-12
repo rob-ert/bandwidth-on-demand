@@ -24,7 +24,6 @@ package nl.surfnet.bod.web.security;
 
 import java.io.IOException;
 import java.util.Set;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +68,7 @@ public class BodAuthenticationEntryPoint implements AuthenticationEntryPoint {
     LOG.debug("Request for {} matches machine path: {}", requestedPath, isMachinePath);
 
     if (isMachinePath) {
-      response.sendError(HttpServletResponse.SC_FORBIDDEN, "You did not include an oAuth token in your request headers");
+      response.sendError(HttpServletResponse.SC_FORBIDDEN, "You did not include a valid oAuth token in your request");
     } else { // redirect to splash page
       response.sendRedirect( request.getContextPath() + splashPath);
     }

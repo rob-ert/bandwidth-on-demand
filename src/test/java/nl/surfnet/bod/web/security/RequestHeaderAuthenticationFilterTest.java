@@ -26,12 +26,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.EnumSet;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
@@ -41,6 +45,7 @@ import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -147,11 +152,39 @@ public class RequestHeaderAuthenticationFilterTest {
   }
 
   @Test
+  public void shouldFindPrincipalFromSoapMessage() throws Exception {
+    HttpServletRequest requestMock = mock(HttpServletRequest.class);
+    when(requestMock.getRequestURI()).thenReturn("/nsi/v2/provider");
+
+    final InputStream reserveInputStream = getClass().getResourceAsStream("/web/services/nsiv2/reserve_with_auth_header.xml");
+    ServletInputStream inputStream = new ServletInputStream() {
+      public int read () throws IOException {
+        return reserveInputStream.read();
+      }
+    };
+    when(requestMock.getInputStream()).thenReturn(inputStream);
+
+    String nameId = "urn:nl:surfguest:henk";
+    String expectedValidToken = "f00f";
+    AuthenticatedPrincipal oAuthPrincipal = new AuthenticatedPrincipal();
+    oAuthPrincipal.setName(nameId);
+    oAuthPrincipal.setAttributes(Collections.<String, String>emptyMap());
+    VerifiedToken verifiedToken = new VerifiedToken(oAuthPrincipal, EnumSet.of(NsiScope.RELEASE));
+
+    when(oAuthServerServiceMock.getVerifiedToken(expectedValidToken)).thenReturn(Optional.of(verifiedToken));
+
+    Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
+
+    assertNotNull(principal);
+    assertThat(((RichPrincipal) principal).getNameId(), is(nameId));
+  }
+
+  @Test
   public void shouldFindPrincipalFromOAuthHeader() {
     String nameId = "urn:nl:surfguest:henk";
     String token = "1234-1234-abc";
 
-    HttpServletRequest requestMock = getOAuth2RequestMock();
+    HttpServletRequest requestMock = getNSIv1OAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
     AuthenticatedPrincipal oAuthPrincipal = new AuthenticatedPrincipal();
@@ -169,7 +202,7 @@ public class RequestHeaderAuthenticationFilterTest {
   @Test
   public void shouldFailToVerifyToken() {
     String token = "1234-1234-abc";
-    HttpServletRequest requestMock = getOAuth2RequestMock();
+    HttpServletRequest requestMock = getNSIv1OAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
     when(oAuthServerServiceMock.getVerifiedToken(token)).thenReturn(Optional.empty());
@@ -181,14 +214,14 @@ public class RequestHeaderAuthenticationFilterTest {
 
   private HttpServletRequest getNonOAuth2RequestMock() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    when(requestMock.getServletPath()).thenReturn("/user");
+    when(requestMock.getRequestURI()).thenReturn("/user");
 
     return requestMock;
   }
 
-  private HttpServletRequest getOAuth2RequestMock() {
+  private HttpServletRequest getNSIv1OAuth2RequestMock() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    when(requestMock.getServletPath()).thenReturn("/nsi");
+    when(requestMock.getRequestURI()).thenReturn("/nsi/v1_sc");
 
     return requestMock;
   }
