@@ -138,7 +138,8 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       XPathFactory xPathfactory = XPathFactory.newInstance();
       XPath xpath = xPathfactory.newXPath();
 
-      XPathExpression expr = xpath.compile("//*[local-name()='nsiHeader']/*[local-name()='sessionSecurityAttr'][@name='token']/*[local-name()='Attribute']/*[local-name()='AttributeValue']/text()");
+      final String query = "//*[local-name()='nsiHeader']/*[local-name()='sessionSecurityAttr']/*[local-name()='Attribute'][@Name='token']/*[local-name()='AttributeValue']/text()";
+      XPathExpression expr = xpath.compile(query);
       NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
       final ArrayList<String> result = new ArrayList<>();
       for (int i = 0; i < nodes.getLength(); i++) {

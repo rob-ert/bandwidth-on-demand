@@ -361,7 +361,6 @@ public class NsiV2ReservationTestSelenium extends SeleniumWithSingleSetup {
         .withReplyTo(REPLY_ADDRESS)
         .withCorrelationId(correlationId)
         .withSessionSecurityAttr(new SessionSecurityAttrType()
-          .withName("token")
           .withAttributeOrEncryptedAttribute(new AttributeType()
                   .withName("token")
                   .withAttributeValue(AUTH_TOKEN)
