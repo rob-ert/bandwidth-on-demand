@@ -166,11 +166,13 @@ public class RequestHeaderAuthenticationFilterTest {
 
     String nameId = "urn:nl:surfguest:henk";
     String expectedValidToken = "f00f";
+    String expectedInvalidToken = "0000";
     AuthenticatedPrincipal oAuthPrincipal = new AuthenticatedPrincipal();
     oAuthPrincipal.setName(nameId);
     oAuthPrincipal.setAttributes(Collections.<String, String>emptyMap());
     VerifiedToken verifiedToken = new VerifiedToken(oAuthPrincipal, EnumSet.of(NsiScope.RELEASE));
 
+    when(oAuthServerServiceMock.getVerifiedToken(expectedInvalidToken)).thenReturn(Optional.<VerifiedToken>absent());
     when(oAuthServerServiceMock.getVerifiedToken(expectedValidToken)).thenReturn(Optional.of(verifiedToken));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);

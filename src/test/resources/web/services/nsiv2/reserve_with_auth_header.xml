@@ -11,8 +11,11 @@
             <requesterNSA>urn:ogf:network:nsa:foo</requesterNSA>
             <providerNSA>urn:ogf:network:surfnet.nl:1990:nsa:bod-selenium</providerNSA>
             <replyTo>http://localhost:31337/requester</replyTo>
-            <sessionSecurityAttr name="token">
+            <sessionSecurityAttr>
                 <ns2:Attribute Name="token">
+                    <ns2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                        xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">0000
+                    </ns2:AttributeValue>
                     <ns2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                         xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">f00f
                     </ns2:AttributeValue>
