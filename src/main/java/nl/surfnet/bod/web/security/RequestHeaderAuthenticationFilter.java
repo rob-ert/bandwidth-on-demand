@@ -148,9 +148,8 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       }
       return result;
     } catch (Exception e) {
-      throw new RuntimeException("Unable to find authorization tokens in soap headers", e);
+      throw new IllegalArgumentException("Unable to find authorization tokens in soap headers", e);
     }
-
   }
 
   private boolean isNsiV2Request(HttpServletRequest request) {
