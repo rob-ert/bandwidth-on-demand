@@ -602,7 +602,7 @@ public class NbiOpenDracWsClient implements NbiClient {
 
       return endpointFound;
     } catch (NetworkMonitoringServiceFault | RemoteException e) {
-      log.warn("Can query openDrac for end point by tna", e);
+      log.warn("Can not query openDrac for end point by tna", e);
       throw new RuntimeException(e);
     }
   }
