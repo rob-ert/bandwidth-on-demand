@@ -30,13 +30,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
-<<<<<<< HEAD
 
 import com.google.common.base.Preconditions;
 
-=======
-import java.util.Optional;
->>>>>>> caebf1e... Starting to use Java 8
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
