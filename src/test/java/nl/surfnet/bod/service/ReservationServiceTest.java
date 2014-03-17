@@ -36,12 +36,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import java.util.Optional;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -483,9 +484,9 @@ public class ReservationServiceTest {
       reservations.add(new ReservationFactory().create());
     }
 
-    final Collection<ReservationArchive> flattenedReservations = subject.transformToReservationArchives(reservations);
+    final Stream<ReservationArchive> flattenedReservations = subject.transformToReservationArchives(reservations);
 
-    assertThat(flattenedReservations, hasSize(10));
+    assertThat(flattenedReservations.collect(Collectors.counting()), is(10));
   }
 
   @Test

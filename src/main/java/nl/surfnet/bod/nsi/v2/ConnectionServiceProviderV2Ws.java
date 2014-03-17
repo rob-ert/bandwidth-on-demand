@@ -32,16 +32,14 @@ import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNSUPPORTED_PARA
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
 
@@ -53,9 +51,9 @@ import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.XmlUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._12.connection.provider.ConnectionProviderPort;

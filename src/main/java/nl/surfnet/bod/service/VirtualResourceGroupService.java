@@ -223,7 +223,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return entityManager;
   }
 
-  public static Collection<VirtualResourceGroupView> toViews(List<? extends VirtualResourceGroup> vrgs) {
+  public static List<VirtualResourceGroupView> toViews(List<? extends VirtualResourceGroup> vrgs) {
     return vrgs.stream().map(vrg -> new VirtualResourceGroupView(vrg, vrg.getVirtualPortCount())).collect(toList());
   }
 

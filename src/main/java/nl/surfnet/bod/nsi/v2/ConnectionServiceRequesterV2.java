@@ -24,15 +24,14 @@ package nl.surfnet.bod.nsi.v2;
 
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.RESOURCE_UNAVAILABLE;
 
-import com.google.common.base.Preconditions;
-
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
 
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
@@ -40,7 +39,20 @@ import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
 
 import org.joda.time.DateTime;
-import org.ogf.schemas.nsi._2013._12.connection.types.*;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStateChangeRequestType;
+import org.ogf.schemas.nsi._2013._12.connection.types.DataPlaneStatusType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ErrorEventType;
+import org.ogf.schemas.nsi._2013._12.connection.types.EventEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.LifecycleStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.NotificationBaseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ProvisionStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryNotificationConfirmedType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryRecursiveResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QueryResultResponseType;
+import org.ogf.schemas.nsi._2013._12.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteriaType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
+import org.ogf.schemas.nsi._2013._12.connection.types.ReserveTimeoutRequestType;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.springframework.stereotype.Component;
 

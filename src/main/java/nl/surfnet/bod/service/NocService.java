@@ -25,6 +25,7 @@ package nl.surfnet.bod.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
@@ -34,9 +35,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import java.util.Optional;
-
 import com.google.common.base.Preconditions;
 
 import nl.surfnet.bod.domain.EnniPort;
