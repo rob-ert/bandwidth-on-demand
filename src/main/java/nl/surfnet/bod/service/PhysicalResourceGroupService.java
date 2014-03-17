@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -37,7 +37,14 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+
+import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -49,11 +56,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import java.util.Optional;
-import com.google.common.base.Preconditions;
 
 @Service
 @Transactional
@@ -140,12 +142,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
       return Collections.emptyList();
     }
 
-    Collection<String> groupIds = newArrayList(transform(groups, new Function<UserGroup, String>() {
-      @Override
-      public String apply(UserGroup group) {
-        return group.getId();
-      }
-    }));
+    Collection<String> groupIds = groups.stream().map(UserGroup::getId).collect(toList());
 
     return physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
   }

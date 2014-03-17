@@ -75,7 +75,7 @@ public class VirtualResourceGroupController extends
 
   @Override
   protected List<? extends VirtualResourceGroupView> transformToView(List<? extends VirtualResourceGroup> entities, RichUserDetails user) {
-    return Lists.transform(entities, VirtualResourceGroupService.TO_VIEW);
+    return VirtualResourceGroupService.toViews(entities);
   }
 
 }

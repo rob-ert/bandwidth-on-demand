@@ -27,16 +27,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
+
 import java.util.Optional;
+
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
 
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.NbiPort;
@@ -92,13 +93,11 @@ public class NocService {
         physicalPortService.save(newPort);
         physicalPortService.delete(oldPort.getId());
 
-        Collection<Reservation> newReservations = makeNewReservations(reservations);
-
         Collection<Reservation> newReservationsWithId = new ArrayList<>();
-        for (Reservation newReservation : newReservations) {
-          reservationService.create(newReservation);
-          newReservationsWithId.add(newReservation);
-        }
+        makeNewReservations(reservations).forEach(newRes -> {
+          reservationService.create(newRes);
+          newReservationsWithId.add(newRes);
+        });
 
         return newReservationsWithId;
       }
@@ -121,22 +120,19 @@ public class NocService {
     });
   }
 
-  private Collection<Reservation> makeNewReservations(Collection<Reservation> reservations) {
-    return Collections2.transform(reservations, new Function<Reservation, Reservation>() {
-      @Override
-      public Reservation apply(Reservation oldRes) {
-        Reservation newRes = new Reservation();
-        newRes.setStartDateTime(oldRes.getStartDateTime());
-        newRes.setEndDateTime(oldRes.getEndDateTime());
-        newRes.setSourcePort(newReservationEndPoint(oldRes.getSourcePort()));
-        newRes.setDestinationPort(newReservationEndPoint(oldRes.getDestinationPort()));
-        newRes.setName(oldRes.getName());
-        newRes.setBandwidth(oldRes.getBandwidth());
-        newRes.setUserCreated(oldRes.getUserCreated());
-        newRes.setProtectionType(oldRes.getProtectionType());
+  private Stream<Reservation> makeNewReservations(Collection<Reservation> reservations) {
+    return reservations.stream().map(oldRes -> {
+      Reservation newRes = new Reservation();
+      newRes.setStartDateTime(oldRes.getStartDateTime());
+      newRes.setEndDateTime(oldRes.getEndDateTime());
+      newRes.setSourcePort(newReservationEndPoint(oldRes.getSourcePort()));
+      newRes.setDestinationPort(newReservationEndPoint(oldRes.getDestinationPort()));
+      newRes.setName(oldRes.getName());
+      newRes.setBandwidth(oldRes.getBandwidth());
+      newRes.setUserCreated(oldRes.getUserCreated());
+      newRes.setProtectionType(oldRes.getProtectionType());
 
-        return newRes;
-      }
+      return newRes;
     });
   }
 

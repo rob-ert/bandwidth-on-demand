@@ -23,14 +23,12 @@
 package nl.surfnet.bod.nsi.v2;
 
 import static com.google.common.base.Strings.emptyToNull;
-import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.CONNECTION_NON_EXISTENT;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.INVALID_TRANSITION;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.MISSING_PARAMETER;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.NOT_IMPLEMENTED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNAUTHORIZED;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.UNSUPPORTED_PARAMETER;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 
 import java.net.URI;
 import java.util.List;
@@ -40,7 +38,10 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import com.sun.xml.ws.developer.SchemaValidation;
 
@@ -302,7 +303,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
       List<ConnectionV2> connections = connectionService.querySummary(connectionIds, globalReservationIds, header.value.getRequesterNSA());
 
-      return transform(connections, toQuerySummaryResultType);
+      return connections.stream().map(ConnectionV2::getQuerySummaryResult).collect(Collectors.toList());
     } catch (ServiceException e) {
       throw toError(e);
     }

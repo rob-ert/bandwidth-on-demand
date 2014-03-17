@@ -24,22 +24,20 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import java.util.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.BodAccount;
@@ -129,12 +127,8 @@ public class OAuthServerService {
     VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
 
     if (token.getPrincipal() != null) {
-      Collection<NsiScope> scopes = FluentIterable.from(token.getScopes()).transform(new Function<String, NsiScope>() {
-        @Override
-        public NsiScope apply(String scope) {
-          return NsiScope.valueOf(scope.toUpperCase());
-        }
-      }).toList();
+      Collection<NsiScope> scopes = token.getScopes().stream().map(scope -> NsiScope.valueOf(scope.toUpperCase())).collect(Collectors.toList());
+
       return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
     } else {
       logger.error("Verify token response gave an error '{}'", token.getError());
@@ -178,12 +172,7 @@ public class OAuthServerService {
           EntityUtils.toString(tokensResponse.getEntity()),
           new TypeReference<List<AccessToken>>() { });
 
-      return Collections2.filter(tokens, new Predicate<AccessToken>() {
-        @Override
-        public boolean apply(AccessToken token) {
-          return token.getClientId().equals(env.getClientClientId());
-        }
-      });
+      return tokens.stream().filter(token -> token.getClientId().equals(env.getClientClientId())).collect(toList());
     } catch (IOException e) {
       logger.error("Could not get access tokens for " + account.getNameId(), e);
       return Collections.emptyList();

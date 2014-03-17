@@ -25,10 +25,12 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -38,7 +40,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import nl.surfnet.bod.domain.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UniPort_;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -50,13 +65,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Function;
-import java.util.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 
 @Service
 @Transactional
@@ -76,13 +84,6 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
       }).size();
 
       return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
-    }
-  };
-
-  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-    @Override
-    public VirtualResourceGroupView apply(VirtualResourceGroup input) {
-      return new VirtualResourceGroupView(input, input.getVirtualPortCount());
     }
   };
 
@@ -220,6 +221,10 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
+  }
+
+  public static Collection<VirtualResourceGroupView> toViews(List<? extends VirtualResourceGroup> vrgs) {
+    return vrgs.stream().map(vrg -> new VirtualResourceGroupView(vrg, vrg.getVirtualPortCount())).collect(toList());
   }
 
 }

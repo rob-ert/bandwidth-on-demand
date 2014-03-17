@@ -25,6 +25,7 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
@@ -45,22 +46,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import java.util.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -82,6 +79,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -160,7 +158,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public void cancelAndArchiveReservations(Collection<Reservation> reservations, RichUserDetails user) {
     cancelActiveReservations(reservations, user);
 
-    Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
+    Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations).collect(toList());
     reservationArchiveRepo.save(reservationArchives);
     logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives);
 
@@ -396,12 +394,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservations.addAll(reservationRepo.findAll(specReservationsThatAreTimedOutAndTransitionally(dateTime)));
     reservations.addAll(findReservationWithStatus(RUNNING));
 
-    return Collections2.filter(reservations, new Predicate<Reservation>() {
-      @Override
-      public boolean apply(Reservation input) {
-        return StringUtils.hasText(input.getReservationId());
-      }
-    });
+    return reservations.stream().filter(r -> StringUtils.hasText(r.getReservationId())).collect(toList());
   }
 
   public Collection<Reservation> findTransitionableReservations() {
@@ -420,15 +413,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull()).transform(
-        new Function<Double, Integer>() {
-          @Override
-          public Integer apply(Double d) {
-            return d.intValue();
-          }
-        }).toList();
-
-    return Ordering.natural().sortedCopy(years);
+    return dbYears.stream().filter(y -> y != null).map(Double::intValue).sorted().collect(Collectors.toList());
   }
 
   @Override
@@ -516,8 +501,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   @VisibleForTesting
-  Collection<ReservationArchive> transformToReservationArchives(Collection<Reservation> reservations) {
-    return Collections2.transform(reservations, toReservationArchive);
+  Stream<ReservationArchive> transformToReservationArchives(Collection<Reservation> reservations) {
+    return reservations.stream().map(toReservationArchive);
   }
 
   /**

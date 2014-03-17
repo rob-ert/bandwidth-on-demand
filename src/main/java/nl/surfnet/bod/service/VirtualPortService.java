@@ -24,23 +24,21 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.deleteRequestsByGroupIdInLastMonthSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.createRequestsByGroupIdInLastMonthSpec;
+import static java.util.stream.Collectors.toList;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byUniPortSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.createRequestsByGroupIdInLastMonthSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.deleteRequestsByGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import com.google.common.base.Function;
-import java.util.Optional;
-import com.google.common.collect.Collections2;
 
 import nl.surfnet.bod.domain.AbstractRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.BodRole;
@@ -50,13 +48,13 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UniPort;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.domain.VirtualPortCreateRequestLink;
+import nl.surfnet.bod.domain.VirtualPortDeleteRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.repo.VirtualPortCreateRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualPortDeleteRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortCreateRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -295,12 +293,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   private Collection<String> toIds(Collection<UserGroup> userGroups) {
-    return Collections2.transform(userGroups, new Function<UserGroup, String>() {
-      @Override
-      public String apply(UserGroup group) {
-        return group.getId();
-      }
-    });
+    return userGroups.stream().map(UserGroup::getId).collect(toList());
   }
 
   public VirtualPort findByNsiV1StpId(String stpId) {

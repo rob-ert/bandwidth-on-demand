@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
 
 import javax.persistence.*;
@@ -33,8 +35,6 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -147,12 +147,7 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
   }
 
   public Collection<VirtualPortCreateRequestLink> getPendingVirtualPortCreateRequestLinks() {
-    return Collections2.filter(getVirtualPortCreateRequestLinks(), new Predicate<VirtualPortCreateRequestLink>() {
-      @Override
-      public boolean apply(VirtualPortCreateRequestLink input) {
-        return input.isPending();
-      }
-    });
+    return getVirtualPortCreateRequestLinks().stream().filter(vprl -> vprl.isPending()).collect(toList());
   }
 
   public void setVirtualPortCreateRequestLinks(Collection<VirtualPortCreateRequestLink> virtualPortCreateRequestLinks) {

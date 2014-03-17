@@ -22,21 +22,23 @@
  */
 package nl.surfnet.bod.nsi.v2;
 
-import static com.google.common.collect.Lists.transform;
 import static nl.surfnet.bod.nsi.ConnectionServiceProviderError.RESOURCE_UNAVAILABLE;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQueryRecursiveResultType;
-import static nl.surfnet.bod.nsi.v2.ConnectionsV2.toQuerySummaryResultType;
 
 import com.google.common.base.Preconditions;
 
 import java.util.List;
+
 import javax.annotation.Resource;
 import javax.xml.datatype.XMLGregorianCalendar;
+
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.XmlUtils;
+
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2013._12.connection.types.*;
 import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
@@ -194,7 +196,7 @@ class ConnectionServiceRequesterV2 {
   }
 
   public void querySummaryConfirmed(List<ConnectionV2> connections, NsiV2RequestDetails requestDetails) {
-    List<QuerySummaryResultType> results = transform(connections, toQuerySummaryResultType);
+    List<QuerySummaryResultType> results = connections.stream().map(c -> c.getQuerySummaryResult()).collect(Collectors.toList());
 
     client.replyQuerySummaryConfirmed(requestDetails.createRequesterReplyHeaders(), results, requestDetails.getReplyTo());
   }
@@ -204,7 +206,7 @@ class ConnectionServiceRequesterV2 {
   }
 
   public void queryRecursiveConfirmed(List<ConnectionV2> connections, NsiV2RequestDetails requestDetails){
-    List<QueryRecursiveResultType> result = transform(connections, toQueryRecursiveResultType);
+    List<QueryRecursiveResultType> result = connections.stream().map(con -> con.getQueryRecursiveResult()).collect(Collectors.toList());
 
     client.replyQueryRecursiveConfirmed(requestDetails.createRequesterReplyHeaders(), result, requestDetails.getReplyTo());
   }

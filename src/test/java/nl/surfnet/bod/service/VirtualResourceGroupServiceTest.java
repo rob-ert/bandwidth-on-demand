@@ -61,11 +61,8 @@ public class VirtualResourceGroupServiceTest {
   @InjectMocks
   private VirtualResourceGroupService subject;
 
-  @Mock
-  private VirtualResourceGroupRepo groupRepoMock;
-
-  @Mock
-  private LogEventService logEventService;
+  @Mock private VirtualResourceGroupRepo groupRepoMock;
+  @Mock private LogEventService logEventService;
 
   @Test
   public void findVirtualResourceGroupsForUser() {

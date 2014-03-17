@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.nbi.onecontrol.offline;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.base.Function;
 import java.util.Optional;
-import com.google.common.collect.Lists;
+import java.util.function.Function;
 
 import nl.surfnet.bod.domain.NbiPort;
 import nl.surfnet.bod.domain.NbiPort.InterfaceType;
@@ -92,7 +92,7 @@ public class InventoryRetrievalOfflineClient implements InventoryRetrievalClient
 
   @Override
   public List<NbiPort> getPhysicalPorts() {
-    return Lists.newArrayList(Lists.transform(ports, TRANSFORM_FUNCTION));
+    return ports.stream().map(TRANSFORM_FUNCTION).collect(toList());
   }
 
   @Override

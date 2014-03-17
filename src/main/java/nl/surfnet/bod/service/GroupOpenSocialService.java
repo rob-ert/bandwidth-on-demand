@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -47,9 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 /**
  * More information about the OpenConext-api {@linkplain https://wiki.surfnetlabs.nl/display/conextdocumentation/REST+interface}
  */
@@ -66,14 +64,8 @@ public class GroupOpenSocialService implements GroupService {
     try {
       List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups(nameId)).getEntries();
 
-      return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
-        @Override
-        public UserGroup apply(Group input) {
-          return new UserGroup(input.getId(), input.getTitle(), input.getDescription());
-        }
-      }));
-    }
-    catch (RequestException | IOException e) {
+      return osGroups.stream().map(g -> new UserGroup(g.getId(), g.getTitle(), g.getDescription())).collect(toList());
+    } catch (RequestException | IOException e) {
       logger.error("Could not retrieve groups from open social server", e);
       return Collections.emptyList();
     }
