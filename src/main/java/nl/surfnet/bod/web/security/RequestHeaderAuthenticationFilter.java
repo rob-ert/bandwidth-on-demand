@@ -27,7 +27,6 @@ import static com.google.common.base.Strings.nullToEmpty;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
@@ -37,7 +36,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -100,8 +98,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
     if (isNsiV1Request(request)) {
       return getPrincipalFromOauth2Header(request);
-    }
-    else if(isNsiV2Request(request)) {
+    } else if(isNsiV2Request(request)) {
       return getPrincipalFromSoapHeader(request);
     }
     return getPrincipalFromHeaders(request);
@@ -116,9 +113,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     super.doFilter(new CustomHttpServletRequestWrapper((HttpServletRequest) request), response, chain);
   }
 
-
   private Object getPrincipalFromSoapHeader(HttpServletRequest request) {
-
     final List<String> tokensFromSoapHeader = getTokensFromSoapHeader(request);
     for (String candidate: tokensFromSoapHeader) {
       final RichPrincipal richPrincipal = getRichPrincipalByToken(candidate);
@@ -155,6 +150,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
   private boolean isNsiV2Request(HttpServletRequest request) {
     return request.getRequestURI().contains("/nsi/v2");
   }
+
   private boolean isNsiV1Request(HttpServletRequest request) {
     return request.getRequestURI().contains("/nsi/v1_sc");
   }
