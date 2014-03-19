@@ -22,23 +22,25 @@
  */
 package nl.surfnet.bod.web;
 
-import java.util.Enumeration;
-
-import com.google.common.net.HttpHeaders;
 import java.util.Date;
+import java.util.Enumeration;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import nl.surfnet.bod.service.TopologyService;
+
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
-import org.ogf.schemas.nsi._2013._09.topology.NSAType;
+import org.ogf.schemas.nml._2013._05.base.TopologyType;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.common.net.HttpHeaders;
+
+import nl.surfnet.bod.service.TopologyService;
 
 @Controller
 @RequestMapping("/nsi-topology")
@@ -49,7 +51,7 @@ public class NsiTopologyController {
   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
   @ResponseBody
   public String topology(HttpServletRequest request, HttpServletResponse response) throws JAXBException, DateParseException {
-    NSAType topology = topologyService.nsiTopology();
+    TopologyType topology = topologyService.nsiTopology();
     Date lastModified = topology.getVersion().toGregorianCalendar().getTime();
 
     Enumeration<String> ifModifiedSinceValues = request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE);

@@ -22,7 +22,7 @@
  */
 package nl.surfnet.bod.service;
 
-import nl.surfnet.bod.util.NsaTopologyUserType;
+import nl.surfnet.bod.util.TopologyUserType;
 
 import ietf.params.xml.ns.vcard4_0.FormattedNameType;
 import ietf.params.xml.ns.vcard4_0.NameType;
@@ -80,13 +80,14 @@ public class TopologyService {
 
   @PostConstruct
   protected void initTopology() {
+
     cachedTopology = topology();
     cacheTime = DateTime.now();
   }
 
-  public static final JaxbUserType<NSAType> NSA_TOPOLOGY_CONVERTER = new NsaTopologyUserType();
+  public static final JaxbUserType<TopologyType> NSA_TOPOLOGY_CONVERTER = new TopologyUserType();
 
-  public NSAType nsiTopology() {
+  public TopologyType nsiTopology() {
     TopologyType newerTopology = topology();
     synchronized (cachedTopology) {
       if (!newerTopology.equals(cachedTopology)) {
@@ -95,18 +96,7 @@ public class TopologyService {
       }
     }
 
-    return nsaTopology(cachedTopology, cacheTime);
-  }
-
-  private NSAType nsaTopology(TopologyType topology, DateTime version) {
-    return new NSAType()
-      .withId(nsiHelper.getProviderNsaV2())
-      .withName(providerName)
-      .withVersion(XmlUtils.toGregorianCalendar(version))
-      .withLocation(location())
-      .withService(service())
-      .withRelation(adminContact())
-      .withTopology(topology);
+    return cachedTopology.withVersion(XmlUtils.toGregorianCalendar(cacheTime));
   }
 
   private NsiServiceType service() {

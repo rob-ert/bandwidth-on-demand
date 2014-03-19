@@ -39,6 +39,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nml._2013._05.base.TopologyType;
 import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -57,7 +58,7 @@ public class NsiTopologyControllerTest {
 
   private MockHttpServletResponse response = new MockHttpServletResponse();
 
-  private NSAType topology = new NSAType().withVersion(XmlUtils.toGregorianCalendar(TIMESTAMP));
+  private TopologyType topology = new TopologyType().withVersion(XmlUtils.toGregorianCalendar(TIMESTAMP));
 
   @Before
   public void setUp() {
