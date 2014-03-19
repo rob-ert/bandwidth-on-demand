@@ -22,21 +22,10 @@
  */
 package nl.surfnet.bod.service;
 
-import nl.surfnet.bod.util.TopologyUserType;
-
-import ietf.params.xml.ns.vcard4_0.FormattedNameType;
-import ietf.params.xml.ns.vcard4_0.NameType;
-import ietf.params.xml.ns.vcard4_0.OrganizationType;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import nl.surfnet.bod.domain.EnniPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.NsiHelper;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.JaxbUserType;
-import nl.surfnet.bod.util.Orderings;
-import nl.surfnet.bod.util.XmlUtils;
+
 import org.joda.time.DateTime;
 import org.ogf.schemas.nml._2013._05.base.BidirectionalPortType;
 import org.ogf.schemas.nml._2013._05.base.LabelGroupType;
@@ -53,8 +42,21 @@ import org.ogf.schemas.nsi._2013._09.topology.NsiServiceType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import ietf.params.xml.ns.vcard4_0.FormattedNameType;
+import ietf.params.xml.ns.vcard4_0.NameType;
+import ietf.params.xml.ns.vcard4_0.OrganizationType;
+import nl.surfnet.bod.domain.EnniPort;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.NsiHelper;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.JaxbUserType;
+import nl.surfnet.bod.util.NSAUserType;
+import nl.surfnet.bod.util.Orderings;
+import nl.surfnet.bod.util.TopologyUserType;
+import nl.surfnet.bod.util.XmlUtils;
+
 @Service
-public class TopologyService {
+public class NsiInfraDocumentsService {
 
   private static final String PROTOCOL_VERSION = "application/vnd.org.ogf.nsi.cs.v2+soap";
   private static final String HAS_OUTBOUND_PORT_TYPE = "http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort";
@@ -76,27 +78,56 @@ public class TopologyService {
   @Value("${nsi.provider.name}") private String providerName;
 
   private volatile TopologyType cachedTopology;
-  private volatile DateTime cacheTime;
+  private volatile DateTime topologyCacheTime;
+
+  private volatile NSAType cachedNSAType;
+  private volatile DateTime nsaCacheTime;
 
   @PostConstruct
-  protected void initTopology() {
+  protected void init() {
 
     cachedTopology = topology();
-    cacheTime = DateTime.now();
+    topologyCacheTime = DateTime.now();
+
+    cachedNSAType = nsa();
+    nsaCacheTime = DateTime.now();
   }
 
-  public static final JaxbUserType<TopologyType> NSA_TOPOLOGY_CONVERTER = new TopologyUserType();
+  public static final JaxbUserType<TopologyType> TOPOLOGY_CONVERTER = new TopologyUserType();
+  public static final JaxbUserType<NSAType> NSA_CONVERTER = new NSAUserType();
+
+
+  public NSAType nsiDiscovery(){
+    NSAType newerNsa = nsa();
+    synchronized (cachedNSAType) {
+      if (!newerNsa.equals(cachedNSAType)) {
+        cachedNSAType = newerNsa;
+        nsaCacheTime = DateTime.now();
+      }
+    }
+
+    return cachedNSAType.withVersion(XmlUtils.toGregorianCalendar(nsaCacheTime));
+  }
+
+  private NSAType nsa(){
+    return new NSAType()
+            .withId(nsiHelper.getProviderNsaV2())
+            .withName(providerName)
+            .withLocation(location())
+            .withService(service())
+            .withRelation(adminContact());
+  }
 
   public TopologyType nsiTopology() {
     TopologyType newerTopology = topology();
     synchronized (cachedTopology) {
       if (!newerTopology.equals(cachedTopology)) {
         cachedTopology = newerTopology;
-        cacheTime = DateTime.now();
+        topologyCacheTime = DateTime.now();
       }
     }
 
-    return cachedTopology.withVersion(XmlUtils.toGregorianCalendar(cacheTime));
+    return cachedTopology.withVersion(XmlUtils.toGregorianCalendar(topologyCacheTime));
   }
 
   private NsiServiceType service() {

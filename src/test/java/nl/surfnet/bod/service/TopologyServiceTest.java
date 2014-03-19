@@ -46,7 +46,7 @@ import org.ogf.schemas.nml._2013._05.base.TopologyType;
 @RunWith(MockitoJUnitRunner.class)
 public class TopologyServiceTest {
 
-  @InjectMocks private TopologyService subject;
+  @InjectMocks private NsiInfraDocumentsService subject;
 
   @Mock private VirtualPortService virtualPortServiceMock;
   @Mock private PhysicalPortService physicalPortServiceMock;

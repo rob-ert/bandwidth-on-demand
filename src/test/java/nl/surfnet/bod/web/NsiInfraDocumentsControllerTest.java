@@ -28,7 +28,7 @@ import org.junit.Before;
 
 import com.google.common.net.HttpHeaders;
 import javax.servlet.http.HttpServletResponse;
-import nl.surfnet.bod.service.TopologyService;
+import nl.surfnet.bod.service.NsiInfraDocumentsService;
 import nl.surfnet.bod.util.XmlUtils;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
@@ -40,17 +40,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nml._2013._05.base.TopologyType;
-import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class NsiTopologyControllerTest {
+public class NsiInfraDocumentsControllerTest {
 
-  @Mock private TopologyService topologyService;
+  @Mock private NsiInfraDocumentsService infraService;
 
-  @InjectMocks private NsiTopologyController subject = new NsiTopologyController();
+  @InjectMocks private NsiInfraDocumentsController subject = new NsiInfraDocumentsController();
 
   private static final DateTime TIMESTAMP = new DateTime(2013, 11, 4, 15, 10, 7, DateTimeZone.UTC);
 
@@ -62,7 +61,7 @@ public class NsiTopologyControllerTest {
 
   @Before
   public void setUp() {
-    Mockito.when(topologyService.nsiTopology()).thenReturn(topology);
+    Mockito.when(infraService.nsiTopology()).thenReturn(topology);
   }
 
   @Test
@@ -74,7 +73,7 @@ public class NsiTopologyControllerTest {
   }
 
   @Test
-  public void should_send_new_content_if_last_modified_does_not_match() throws Exception {
+  public void should_send_new_topology_content_if_last_modified_does_not_match() throws Exception {
     request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, "Mon, 04 Nov 2013 15:00:07 GMT");
 
     subject.topology(request, response);
@@ -84,7 +83,7 @@ public class NsiTopologyControllerTest {
   }
 
   @Test
-  public void should_respond_with_not_modified_if_last_modified_since_matches() throws Exception {
+  public void should_respond_with_not_modified_topology_if_last_modified_since_matches() throws Exception {
     request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, "Mon, 04 Nov 2013 15:10:07 GMT");
 
     subject.topology(request, response);
