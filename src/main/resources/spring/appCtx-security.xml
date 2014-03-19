@@ -34,6 +34,7 @@
     <http security="none" pattern="/healthcheck" />
     <http security="none" pattern="/healthcheck/alive" />
     <http security="none" pattern="/nsi-topology" />
+    <http security="none" pattern="/nsi-discovery" />
     <http security="none" pattern="/mtosi/**" />
     <http request-matcher="regex" security="none" pattern="\/nsi\/v2\/provider\?wsdl$" />
 

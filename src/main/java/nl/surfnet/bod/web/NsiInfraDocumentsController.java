@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.ogf.schemas.nml._2013._05.base.TopologyType;
+import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,31 +41,52 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.net.HttpHeaders;
 
-import nl.surfnet.bod.service.TopologyService;
+import nl.surfnet.bod.service.NsiInfraDocumentsService;
 
 @Controller
-@RequestMapping("/nsi-topology")
-public class NsiTopologyController {
+public class NsiInfraDocumentsController {
 
-  @Resource private TopologyService topologyService;
+  @Resource private NsiInfraDocumentsService nsiInfraDocumentsService;
 
-  @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+  @RequestMapping(value = "/nsi-topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
   @ResponseBody
   public String topology(HttpServletRequest request, HttpServletResponse response) throws JAXBException, DateParseException {
-    TopologyType topology = topologyService.nsiTopology();
+    TopologyType topology = nsiInfraDocumentsService.nsiTopology();
     Date lastModified = topology.getVersion().toGregorianCalendar().getTime();
 
-    Enumeration<String> ifModifiedSinceValues = request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE);
-    if (ifModifiedSinceValues.hasMoreElements()) {
-      Date ifModifiedSince = DateUtil.parseDate(ifModifiedSinceValues.nextElement());
-      if (ifModifiedSince.equals(lastModified)) {
-        response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-        return null;
-      }
+    if (!isModifiedSince(request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE), lastModified)) {
+      response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+      return null;
     }
 
     response.addHeader(HttpHeaders.LAST_MODIFIED, DateUtil.formatDate(lastModified));
-    return TopologyService.NSA_TOPOLOGY_CONVERTER.toXmlString(topology);
+    return nsiInfraDocumentsService.TOPOLOGY_CONVERTER.toXmlString(topology);
   }
 
+  @RequestMapping(value = "/nsi-discovery", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+  @ResponseBody
+  public String nsa(HttpServletRequest request, HttpServletResponse response) throws JAXBException, DateParseException {
+
+    NSAType nsaType = nsiInfraDocumentsService.nsiDiscovery();
+    Date lastModified = nsaType.getVersion().toGregorianCalendar().getTime();
+
+    if (!isModifiedSince(request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE), lastModified)) {
+      response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+      return null;
+    }
+    response.addHeader(HttpHeaders.LAST_MODIFIED, DateUtil.formatDate(lastModified));
+
+    return NsiInfraDocumentsService.NSA_CONVERTER.toXmlString(nsaType);
+  }
+
+  private boolean isModifiedSince (final Enumeration<String> ifModifiedSinceValues, final Date lastModified) throws DateParseException {
+
+    if (ifModifiedSinceValues.hasMoreElements()) {
+      Date ifModifiedSince = DateUtil.parseDate(ifModifiedSinceValues.nextElement());
+      if (ifModifiedSince.equals(lastModified)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
