@@ -25,8 +25,8 @@
         <wss:service>
             <ws:service bean="#connectionServiceProviderWs_v2">
                 <ws:handlers>
-                    <ref bean="updateNsiHeadersForAckHandler" />
                     <ref bean="connectionServiceProviderIdempotentMessageHandler" />
+                    <ref bean="updateNsiHeadersForAckHandler" /> <!-- Must appear after idempotent handler, so ack headers are mutated before they are saved -->
                     <ref bean="transactionSoapHandler" /> <!-- Must appear as last item to ensure transaction is started first! -->
                 </ws:handlers>
             </ws:service>
