@@ -38,6 +38,8 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,10 +111,16 @@ public class UpdateNsiHeadersForAckHandler implements SOAPHandler<SOAPMessageCon
       return true;
     }
 
-    headers.setReplyTo(null);
+    updateAcknowledgmentHeaders(headers);
     updateSoapNsiHeaders(context.getMessage().getSOAPHeader(), headers);
 
     return true;
+  }
+
+  @VisibleForTesting
+  protected static void updateAcknowledgmentHeaders(CommonHeaderType headers) {
+    headers.setReplyTo(null);
+    headers.getSessionSecurityAttr().removeAll(headers.getSessionSecurityAttr());
   }
 
   private void updateSoapNsiHeaders(SOAPHeader soapHeader, CommonHeaderType headers) {

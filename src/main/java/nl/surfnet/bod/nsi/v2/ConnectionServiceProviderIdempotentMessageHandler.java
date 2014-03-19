@@ -110,7 +110,8 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
       String request = Converters.serializeMessage(message);
       if (!request.equals(originalMessage.getMessage())) {
         ServiceExceptionType detail = new ServiceExceptionType().withErrorId("100").withText("PAYLOAD_ERROR").withNsaId(header.getProviderNSA());
-        return Converters.createSoapFault(header.withReplyTo(null), "request with existing correlation id does not match the original request", detail);
+        UpdateNsiHeadersForAckHandler.updateAcknowledgmentHeaders(header);
+        return Converters.createSoapFault(header, "request with existing correlation id does not match the original request", detail);
       }
     }
 
