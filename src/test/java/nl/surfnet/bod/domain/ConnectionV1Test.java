@@ -22,9 +22,9 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.domain.ConnectionV1.PathTypeUserType;
 import nl.surfnet.bod.domain.ConnectionV1.ServiceParametersTypeUserType;
@@ -71,7 +71,6 @@ public class ConnectionV1Test {
   public void should_deserialize_path_type_from_xml_string() {
     PathType result = new PathTypeUserType().fromXmlString(PATH_TYPE_XML);
 
-    assertNotNull(result);
     assertThat(result.getDirectionality(), is(DirectionalityType.BIDIRECTIONAL));
     assertThat(result.getDestSTP().getStpId(), is("stp-id"));
   }
@@ -86,7 +85,7 @@ public class ConnectionV1Test {
 
     String string = new PathTypeUserType().toXmlString(path);
 
-    assertThat(string, is(PATH_TYPE_XML));
+    assertThat(string, containsString("<directionality>Bidirectional</directionality><destSTP><stpId>stp-id</stpId></destSTP>"));
   }
 
   private static final String SERVICE_PARAMTERS_TYPE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -100,7 +99,6 @@ public class ConnectionV1Test {
   public void should_deserialize_service_parameters_from_xml_string() {
     ServiceParametersType result = new ServiceParametersTypeUserType().fromXmlString(SERVICE_PARAMTERS_TYPE_XML);
 
-    assertNotNull(result);
     assertThat(result.getBandwidth().getDesired(), is(100));
   }
 
@@ -113,7 +111,7 @@ public class ConnectionV1Test {
 
     String xml = new ServiceParametersTypeUserType().toXmlString(parameters);
 
-    assertThat(xml, is(SERVICE_PARAMTERS_TYPE_XML));
+    assertThat(xml, containsString("<bandwidth><desired>100</desired></bandwidth>"));
   }
 
 }
