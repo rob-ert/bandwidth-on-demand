@@ -23,22 +23,23 @@
 package nl.surfnet.bod.util;
 
 import javax.xml.bind.JAXBContext;
-import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 
-public class NsaTopologyUserType extends JaxbUserType<NSAType> {
+import org.ogf.schemas.nml._2013._05.base.TopologyType;
+
+public class TopologyUserType extends JaxbUserType<TopologyType> {
 
   private static final JAXBContext JAXB_CONTEXT;
 
   static {
     try {
-      JAXB_CONTEXT = JAXBContext.newInstance("org.ogf.schemas.nsi._2013._09.topology:ietf.params.xml.ns.vcard4_0");
+      JAXB_CONTEXT = JAXBContext.newInstance("org.ogf.schemas.nml._2013._05.base");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
 
-  public NsaTopologyUserType() {
-    super(JAXB_CONTEXT, new org.ogf.schemas.nsi._2013._09.topology.ObjectFactory().createNSA(null));
+  public TopologyUserType() {
+    super(JAXB_CONTEXT, new org.ogf.schemas.nml._2013._05.base.ObjectFactory().createTopology(null));
   }
 }
