@@ -39,6 +39,7 @@ import org.ogf.schemas.nsi._2013._09.topology.NSARelationType;
 import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.ogf.schemas.nsi._2013._09.topology.NsiServiceRelationType;
 import org.ogf.schemas.nsi._2013._09.topology.NsiServiceType;
+import org.ogf.schemas.nsi._2014._02.discovery.nsa.NsaType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.JaxbUserType;
-import nl.surfnet.bod.util.NSAUserType;
+import nl.surfnet.bod.util.NsaUserType;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.util.TopologyUserType;
 import nl.surfnet.bod.util.XmlUtils;
@@ -80,7 +81,7 @@ public class NsiInfraDocumentsService {
   private volatile TopologyType cachedTopology;
   private volatile DateTime topologyCacheTime;
 
-  private volatile NSAType cachedNSAType;
+  private volatile NsaType cachedNsaType;
   private volatile DateTime nsaCacheTime;
 
   @PostConstruct
@@ -89,33 +90,31 @@ public class NsiInfraDocumentsService {
     cachedTopology = topology();
     topologyCacheTime = DateTime.now();
 
-    cachedNSAType = nsa();
+    cachedNsaType = nsa();
     nsaCacheTime = DateTime.now();
   }
 
   public static final JaxbUserType<TopologyType> TOPOLOGY_CONVERTER = new TopologyUserType();
-  public static final JaxbUserType<NSAType> NSA_CONVERTER = new NSAUserType();
+  public static final JaxbUserType<NsaType> NSA_CONVERTER = new NsaUserType();
 
 
-  public NSAType nsiDiscovery(){
-    NSAType newerNsa = nsa();
-    synchronized (cachedNSAType) {
-      if (!newerNsa.equals(cachedNSAType)) {
-        cachedNSAType = newerNsa;
+  public NsaType nsiDiscovery(){
+    NsaType newerNsa = nsa();
+    synchronized (cachedNsaType) {
+      if (!newerNsa.equals(cachedNsaType)) {
+        cachedNsaType = newerNsa;
         nsaCacheTime = DateTime.now();
       }
     }
 
-    return cachedNSAType.withVersion(XmlUtils.toGregorianCalendar(nsaCacheTime));
+    return cachedNsaType.withVersion(XmlUtils.toGregorianCalendar(nsaCacheTime));
   }
 
-  private NSAType nsa(){
-    return new NSAType()
-            .withId(nsiHelper.getProviderNsaV2())
-            .withName(providerName)
-            .withLocation(location())
-            .withService(service())
-            .withRelation(adminContact());
+  private NsaType nsa() {
+    return new NsaType().
+      withNetworkId(nsiHelper.getProviderNsaV2()).
+      withName(providerName);
+    // TODO hans add more!
   }
 
   public TopologyType nsiTopology() {
@@ -130,15 +129,7 @@ public class NsiInfraDocumentsService {
     return cachedTopology.withVersion(XmlUtils.toGregorianCalendar(topologyCacheTime));
   }
 
-  private NsiServiceType service() {
-    return new NsiServiceType()
-      .withId(nsiHelper.getProviderNsaV2() + ":connection-service")
-      .withLink(getNsi2ConnectionProviderUrl())
-      .withType(PROTOCOL_VERSION)
-      .withRelation(new NsiServiceRelationType()
-        .withType(PROVIDED_BY_TYPE)
-        .withNSA(new NSAType().withId(nsiHelper.getProviderNsaV2())));
-  }
+
 
   protected TopologyType topology() {
     TopologyType topology = new TopologyType()

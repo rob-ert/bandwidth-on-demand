@@ -33,6 +33,7 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.ogf.schemas.nml._2013._05.base.TopologyType;
 import org.ogf.schemas.nsi._2013._09.topology.NSAType;
+import org.ogf.schemas.nsi._2014._02.discovery.nsa.NsaType;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,7 +68,7 @@ public class NsiInfraDocumentsController {
   @ResponseBody
   public String nsa(HttpServletRequest request, HttpServletResponse response) throws JAXBException, DateParseException {
 
-    NSAType nsaType = nsiInfraDocumentsService.nsiDiscovery();
+    NsaType nsaType = nsiInfraDocumentsService.nsiDiscovery();
     Date lastModified = nsaType.getVersion().toGregorianCalendar().getTime();
 
     if (!isModifiedSince(request.getHeaders(HttpHeaders.IF_MODIFIED_SINCE), lastModified)) {
