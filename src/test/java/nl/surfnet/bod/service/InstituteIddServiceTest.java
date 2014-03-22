@@ -45,6 +45,8 @@ import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Instant;
 import org.junit.After;
@@ -79,7 +81,7 @@ public class InstituteIddServiceTest {
   }
 
   @Test
-  public void whenAllInstituesEqualDontUpdate() {
+  public void whenAllInstitutesEqualDontUpdate() {
     List<Institute> institutes = ImmutableList.of(
         new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
         new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
@@ -93,7 +95,7 @@ public class InstituteIddServiceTest {
   }
 
   @Test
-  public void whenAKlantHasChangedUpdateIt() {
+  public void whenAnInstituteHasChangedItMustBeUpdated() {
     Institute oldZilverline = new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create();
     Institute newZilverline = new InstituteFactory().setId(2L).setName("Zilverline BV").setShortName("Z").create();
     Institute surfnet = new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create();
@@ -106,15 +108,18 @@ public class InstituteIddServiceTest {
 
     subject.refreshInstitutes();
 
-    verify(instituteRepoMock).save(argThat(contains(oldZilverline)));
-    verify(instituteRepoMock).save(argThat(contains(newZilverline)));
+    final Matcher containsOld = Matchers.contains(oldZilverline);
+    verify(instituteRepoMock).save(org.mockito.Matchers.<List<Institute>>argThat(containsOld));
+
+    final Matcher containsNew = Matchers.contains(newZilverline);
+    verify(instituteRepoMock).save(org.mockito.Matchers.<List<Institute>>argThat(containsNew));
 
     verify(instituteRepoMock).findByAlignedWithIDD(true);
     verifyNoMoreInteractions(instituteRepoMock);
   }
 
   @Test
-  public void whenAKlantIsRemovedFromIddItShouldBeUnAlligned() {
+  public void whenAKlantIsRemovedFromIddItShouldBeUnAligned() {
     Institute surfnet = new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").setAlignedWithIDD(true).create();
 
     List<Institute> institutes = ImmutableList.of(
@@ -128,7 +133,8 @@ public class InstituteIddServiceTest {
 
     subject.refreshInstitutes();
 
-    verify(instituteRepoMock).save(argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create())));
+    final Matcher equalsUnaligned = Matchers.equalTo(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").setAlignedWithIDD(false).create());
+    verify(instituteRepoMock).save(org.mockito.Matchers.<List<Institute>>argThat(contains(equalsUnaligned)));
     verify(instituteRepoMock).save(eq(Collections.<Institute> emptyList()));
 
     verify(instituteRepoMock).findByAlignedWithIDD(true);
@@ -138,7 +144,7 @@ public class InstituteIddServiceTest {
   }
 
   @Test
-  public void whenAnUnalignedInstituteReappearsAgainInIDDItShouldBeAligned() {
+  public void whenAnUnalignedInstituteReappearsInIDDItShouldBeAligned() {
     List<Institute> institutes = ImmutableList.of(
         new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").setAlignedWithIDD(true).create());
 
@@ -153,9 +159,8 @@ public class InstituteIddServiceTest {
 
     verify(instituteRepoMock).save(eq(Collections.<Institute> emptyList()));
 
-    verify(instituteRepoMock).save(
-        argThat(contains(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z")
-            .setAlignedWithIDD(true).create())));
+    final Matcher equalsAligned = Matchers.equalTo(new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").setAlignedWithIDD(true).create());
+    verify(instituteRepoMock).save(org.mockito.Matchers.<List<Institute>>argThat(contains(equalsAligned)));
 
     verify(instituteRepoMock).findByAlignedWithIDD(true);
     verifyNoMoreInteractions(instituteRepoMock);
