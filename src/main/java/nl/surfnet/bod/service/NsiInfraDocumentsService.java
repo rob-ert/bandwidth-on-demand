@@ -27,25 +27,28 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.ogf.schemas.nml._2013._05.base.BidirectionalPortType;
 import org.ogf.schemas.nml._2013._05.base.LabelGroupType;
-import org.ogf.schemas.nml._2013._05.base.LocationType;
 import org.ogf.schemas.nml._2013._05.base.ObjectFactory;
 import org.ogf.schemas.nml._2013._05.base.PortGroupRelationType;
 import org.ogf.schemas.nml._2013._05.base.PortGroupType;
 import org.ogf.schemas.nml._2013._05.base.TopologyRelationType;
 import org.ogf.schemas.nml._2013._05.base.TopologyType;
-import org.ogf.schemas.nsi._2013._09.topology.NSARelationType;
-import org.ogf.schemas.nsi._2013._09.topology.NSAType;
-import org.ogf.schemas.nsi._2013._09.topology.NsiServiceRelationType;
-import org.ogf.schemas.nsi._2013._09.topology.NsiServiceType;
+import org.ogf.schemas.nsi._2014._02.discovery.nsa.FeatureType;
+import org.ogf.schemas.nsi._2014._02.discovery.nsa.InterfaceType;
+import org.ogf.schemas.nsi._2014._02.discovery.nsa.LocationType;
 import org.ogf.schemas.nsi._2014._02.discovery.nsa.NsaType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import ietf.params.xml.ns.vcard4_0.FormattedNameType;
-import ietf.params.xml.ns.vcard4_0.NameType;
-import ietf.params.xml.ns.vcard4_0.OrganizationType;
+import ietf.params.xml.ns.vcard_4.FnPropType;
+import ietf.params.xml.ns.vcard_4.KindPropType;
+import ietf.params.xml.ns.vcard_4.NPropType;
+import ietf.params.xml.ns.vcard_4.ProdidPropType;
+import ietf.params.xml.ns.vcard_4.RevPropType;
+import ietf.params.xml.ns.vcard_4.UidPropType;
+import ietf.params.xml.ns.vcard_4.VcardsType;
 import nl.surfnet.bod.domain.EnniPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.NsiHelper;
@@ -62,19 +65,16 @@ public class NsiInfraDocumentsService {
   private static final String PROTOCOL_VERSION = "application/vnd.org.ogf.nsi.cs.v2+soap";
   private static final String HAS_OUTBOUND_PORT_TYPE = "http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort";
   private static final String HAS_INBOUND_PORT_TYPE = "http://schemas.ogf.org/nml/2013/05/base#hasInboundPort";
-  private static final String PROVIDED_BY_TYPE = "http://schemas.ogf.org/nsi/2013/09/topology#providedBy";
   private static final String IS_ALIAS_TYPE = "http://schemas.ogf.org/nml/2013/05/base#isAlias";
-  private static final String ADMIN_CONTACT_TYPE = "http://schemas.ogf.org/nsi/2013/09/topology#adminContact";
 
   @Resource private Environment bodEnvironment;
   @Resource private NsiHelper nsiHelper;
   @Resource private VirtualPortService virtualPortService;
   @Resource private PhysicalPortService physicalPortService;
 
-  @Value("${nsi.topology.lat}") private Float latitude;
-  @Value("${nsi.topology.lng}") private Float longitude;
-  @Value("${nsi.topology.admin.contact}") private String adminContact;
-  @Value("${nsi.topology.admin.organization}") private String adminOrganization;
+  @Value("${nsi.discovery.lat}") private Float latitude;
+  @Value("${nsi.discovery.lng}") private Float longitude;
+  @Value("${nsi.discovery.admin.contact}") private String adminContact;
   @Value("${nsi.network.name}") private String networkName;
   @Value("${nsi.provider.name}") private String providerName;
 
@@ -83,6 +83,8 @@ public class NsiInfraDocumentsService {
 
   private volatile NsaType cachedNsaType;
   private volatile DateTime nsaCacheTime;
+
+  private static DateTime startUpTime = DateTime.now();
 
   @PostConstruct
   protected void init() {
@@ -112,9 +114,19 @@ public class NsiInfraDocumentsService {
 
   private NsaType nsa() {
     return new NsaType().
-      withNetworkId(nsiHelper.getProviderNsaV2()).
-      withName(providerName);
-    // TODO hans add more!
+      withId(nsiHelper.getProviderNsaV2()).
+      withNetworkId(nsiHelper.getUrnTopology()).
+      withName(providerName).
+      withSoftwareVersion(bodEnvironment.getVersion()).
+      withStartTime(XmlUtils.toGregorianCalendar(startUpTime)).
+      withLocation(location()).
+      withAdminContact(adminContact()).
+      withInterface(
+        new InterfaceType().withType("application/vnd.ogf.nsi.topology.v2+xml").withHref(bodEnvironment.getExternalBodUrl() + "/nsi-topology"),
+        new InterfaceType().withType(PROTOCOL_VERSION).withHref(getNsi2ConnectionProviderUrl())
+      ).
+      withFeature(new FeatureType().withType("vnd.ogf.nsi.cs.v2.role.uPA")
+    );
   }
 
   public TopologyType nsiTopology() {
@@ -243,18 +255,21 @@ public class NsiInfraDocumentsService {
 
   private LocationType location() {
     return new LocationType()
-      .withId(nsiHelper.getProviderNsaV2() + ":location")
-      .withLat(latitude)
-      .withLong(longitude);
+      .withLatitude(latitude)
+      .withLongitude(longitude);
   }
 
-  private NSARelationType adminContact() {
+  private VcardsType adminContact() {
     String[] nameTokens = adminContact.split(" ");
-
-    return new NSARelationType().withType(ADMIN_CONTACT_TYPE).withAny(new Object[] {
-      new FormattedNameType().withText(adminContact),
-      new NameType().withGiven(nameTokens[0]).withSurname(nameTokens[1]),
-      new OrganizationType().withText(adminOrganization) });
+    final VcardsType vcardsType = new VcardsType().withVcard(new VcardsType.Vcard().
+                    withRev(new RevPropType().withTimestamp(DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss'Z'").print(DateTime.now()))).
+                    withProdid(new ProdidPropType().withText("surfnet-" + bodEnvironment.getEnvironment())).
+                    withKind(new KindPropType().withText("individual")).
+                    withFn(new FnPropType().withText(adminContact)).
+                    withN(new NPropType().withGiven(nameTokens[0]).withSurname(nameTokens[1]))
+    );
+    vcardsType.getVcard().withUid(new UidPropType().withUri(getNsi2ConnectionProviderUrl() + "#adminContact"));
+    return vcardsType;
   }
 
   private String getNsi2ConnectionProviderUrl() {
