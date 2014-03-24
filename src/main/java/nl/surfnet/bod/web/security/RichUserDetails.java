@@ -22,12 +22,12 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -43,12 +43,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -127,12 +125,7 @@ public class RichUserDetails implements UserDetails {
   }
 
   public Collection<String> getUserGroupIds() {
-    return newArrayList(transform(getUserGroups(), new Function<UserGroup, String>() {
-      @Override
-      public String apply(UserGroup group) {
-        return group.getId();
-      }
-    }));
+    return getUserGroups().stream().map(grp -> grp.getId()).collect(toList());
   }
 
   @Override
@@ -156,12 +149,7 @@ public class RichUserDetails implements UserDetails {
   }
 
   public List<BodRole> getSelectableRoles() {
-    return Lists.newArrayList(Iterables.filter(bodRoles, new Predicate<BodRole>() {
-      @Override
-      public boolean apply(BodRole role) {
-        return !role.equals(selectedRole);
-      }
-    }));
+    return bodRoles.stream().filter(role -> !role.equals(selectedRole)).collect(toList());
   }
 
   public List<BodRole> getBodRoles() {
@@ -169,12 +157,7 @@ public class RichUserDetails implements UserDetails {
   }
 
   public List<BodRole> getManagerRoles() {
-    return FluentIterable.from(getBodRoles()).filter(new Predicate<BodRole>() {
-      @Override
-      public boolean apply(BodRole bodRole) {
-        return bodRole.getRole() == RoleEnum.ICT_MANAGER;
-      }
-    }).toList();
+    return getBodRoles().stream().filter(r -> r.getRole() == RoleEnum.ICT_MANAGER).collect(toList());
   }
 
   public BodRole getSelectedRole() {
@@ -183,33 +166,17 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public Collection<GrantedAuthority> getAuthorities() {
-    return Sets.newHashSet(Collections2.transform(bodRoles, new Function<BodRole, GrantedAuthority>() {
-      @Override
-      public GrantedAuthority apply(BodRole role) {
-        if (role.getRole() == RoleEnum.NEW_USER) {
-          return new SimpleGrantedAuthority(RoleEnum.USER.name());
-        }
-        return new SimpleGrantedAuthority(role.getRoleName());
-      }
-    }));
+    return bodRoles.stream().map(role -> {
+      return role.getRole() == RoleEnum.NEW_USER ? new SimpleGrantedAuthority(RoleEnum.USER.name()) : new SimpleGrantedAuthority(role.getRoleName());
+    }).collect(Collectors.toSet());
   }
 
   private BodRole findBodRoleById(final Long bodRoleId) {
-    return Iterables.find(bodRoles, new Predicate<BodRole>() {
-      @Override
-      public boolean apply(BodRole bodRole) {
-        return bodRole.getId().equals(bodRoleId);
-      }
-    });
+    return bodRoles.stream().filter(role -> role.getId().equals(bodRoleId)).findFirst().get();
   }
 
   private BodRole findFirstBodRoleByRole(final RoleEnum role) {
-    return Iterables.find(bodRoles, new Predicate<BodRole>() {
-      @Override
-      public boolean apply(BodRole bodRole) {
-        return bodRole.getRole() == role;
-      }
-    }, null);
+    return bodRoles.stream().filter(r -> r.getRole() == role).findFirst().orElse(null);
   }
 
   public boolean isSelectedUserRole() {

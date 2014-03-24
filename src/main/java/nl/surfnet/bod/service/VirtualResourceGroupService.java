@@ -23,14 +23,14 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -40,20 +40,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UniPort_;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -70,21 +57,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class VirtualResourceGroupService extends AbstractFullTextSearchService<VirtualResourceGroup> {
 
-  public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
-    new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
-    @Override
-    public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
-      final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
-
-      Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
-        @Override
-        public boolean apply(VirtualPort port) {
-          return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
-        }
-      }).size();
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = group -> {
+      Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
+      Integer count = group.getVirtualPorts().stream().filter(p -> p.getPhysicalResourceGroup().getId().equals(managersPrgId.get())).collect(reducing(0, e -> 1, Integer::sum));
 
       return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
-    }
   };
 
   @Resource private VirtualResourceGroupRepo virtualResourceGroupRepo;
@@ -180,26 +157,11 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   }
 
   public Collection<VirtualResourceGroup> findByUserGroups(Collection<UserGroup> groups) {
-    if (groups.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return findBySurfconextGroupId(newArrayList(transform(groups, new Function<UserGroup, String>() {
-      @Override
-      public String apply(UserGroup group) {
-        return group.getId();
-      }
-    })));
+    return findBySurfconextGroupId(groups.stream().map(grp -> grp.getId()).collect(toList()));
   }
 
   public List<String> determineAdminGroupsForUser(RichUserDetails user) {
-
-    return ImmutableList.copyOf(Collections2.filter(user.getUserGroupIds(), new Predicate<String>() {
-      @Override
-      public boolean apply(String groupId) {
-        return findByAdminGroup(groupId) != null;
-      }
-    }));
+    return user.getUserGroupIds().stream().filter(id -> findByAdminGroup(id) != null).collect(toList());
   }
 
   private Collection<VirtualResourceGroup> findBySurfconextGroupId(Collection<String> groupIds) {

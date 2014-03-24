@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.util;
 
+import java.util.Comparator;
+
 import nl.surfnet.bod.domain.*;
 
 import com.google.common.collect.Ordering;
@@ -41,12 +43,7 @@ public final class Orderings {
     }
   };
 
-  private static final Ordering<VirtualResourceGroup> VRG_ORDERING = new Ordering<VirtualResourceGroup>() {
-    @Override
-    public int compare(VirtualResourceGroup left, VirtualResourceGroup right) {
-      return left.getName().compareTo(right.getName());
-    }
-  };
+  public static final Comparator<VirtualResourceGroup> VRG_ORDERING = (a, b) -> a.getName().compareTo(b.getName());
 
   private static final Ordering<PhysicalResourceGroup> PRG_ORDERING = new Ordering<PhysicalResourceGroup>() {
     @Override
@@ -75,10 +72,6 @@ public final class Orderings {
 
   public static Ordering<VirtualPort> vpUserLabelOrdering() {
     return VP_ORDERING;
-  }
-
-  public static Ordering<VirtualResourceGroup> vrgNameOrdering() {
-    return VRG_ORDERING;
   }
 
   public static Ordering<PhysicalResourceGroup> prgNameOrdering() {

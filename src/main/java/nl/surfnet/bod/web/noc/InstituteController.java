@@ -23,18 +23,13 @@
 package nl.surfnet.bod.web.noc;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 
 import java.util.Collection;
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
@@ -45,9 +40,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 
 @RequestMapping(InstituteController.PAGE_URL)
 @Controller
@@ -70,27 +62,18 @@ public class InstituteController {
     final Collection<String> existingInstitutes = getExistingInstituteNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
-    return filter(instituteService.findAlignedWithIDD(), new Predicate<Institute>() {
-      @Override
-      public boolean apply(Institute input) {
-        String instituteName = nullToEmpty(input.getName()).toLowerCase();
+    return instituteService.findAlignedWithIDD().stream().filter(i -> {
+      String instituteName = nullToEmpty(i.getName()).toLowerCase();
 
-        return !existingInstitutes.contains(instituteName) && !instituteName.isEmpty() && instituteName.contains(query);
-      }
-    });
+      return !existingInstitutes.contains(instituteName) && !instituteName.isEmpty() && instituteName.contains(query);
+    }).collect(toList());
   }
 
   private Collection<String> getExistingInstituteNames() {
-    List<PhysicalResourceGroup> groups = physicalResourceGroupService.findAll();
-
-    return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
-      @Override
-      public String apply(PhysicalResourceGroup input) {
-        String instituteName = input.getInstitute() == null ? "" : nullToEmpty(input.getInstitute().getName());
-
-        return instituteName.toLowerCase();
-      }
-    }));
+    return physicalResourceGroupService.findAll().stream().map(prg -> {
+      String instituteName = prg.getInstitute() == null ? "" : nullToEmpty(prg.getInstitute().getName());
+      return instituteName.toLowerCase();
+    }).collect(toList());
   }
 
 }

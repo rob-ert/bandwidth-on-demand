@@ -22,8 +22,9 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static java.util.stream.Collectors.toList;
+import static nl.surfnet.bod.util.Orderings.VRG_ORDERING;
 import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
-import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
 import static nl.surfnet.bod.web.WebUtils.CREATE;
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
@@ -37,8 +38,6 @@ import java.util.Optional;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -125,7 +124,7 @@ public class ReservationController extends AbstractFilteredReservationController
     }
 
     if (defaultReservation == null) {
-      defaultReservation = createDefaultReservation(Iterables.get(vrgs, 0));
+      defaultReservation = createDefaultReservation(vrgs.stream().findFirst().get());
     }
 
     model.addAttribute(MODEL_KEY, defaultReservation);
@@ -197,13 +196,7 @@ public class ReservationController extends AbstractFilteredReservationController
   private List<VirtualResourceGroup> findVirtualResourceGroups() {
     RichUserDetails user = Security.getUserDetails();
 
-    return vrgNameOrdering().sortedCopy(
-        Collections2.filter(virtualResourceGroupService.findAllForUser(user), new Predicate<VirtualResourceGroup>() {
-          @Override
-          public boolean apply(VirtualResourceGroup group) {
-            return group.getVirtualPorts().size() > 1;
-          }
-        }));
+    return virtualResourceGroupService.findAllForUser(user).stream().filter(grp -> grp.getVirtualPorts().size() > 1).sorted(VRG_ORDERING).collect(toList());
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {
@@ -215,7 +208,7 @@ public class ReservationController extends AbstractFilteredReservationController
     DateTime reservationEnd = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
     reservation.setEndDateTime(Optional.of(reservationEnd));
 
-    VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
+    VirtualPort sourcePort = vrg.getVirtualPorts().stream().findFirst().orElse(null);;
     VirtualPort destPort = Iterables.get(vrg.getVirtualPorts(), 1, null);
 
     reservation.setSourcePort(new ReservationEndPoint(sourcePort));

@@ -22,9 +22,12 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static java.util.stream.Collectors.joining;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -44,12 +47,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/oauth2")
@@ -76,8 +73,7 @@ public class OAuthTokenController {
     }
 
     Collection<AccessToken> tokens = oAuthServerService.getAllAccessTokensForUser(account);
-
-    model.addAttribute("accessToken", Iterables.getFirst(tokens, null));
+    model.addAttribute("accessToken", tokens.stream().findFirst().orElse(null));
 
     return "oauthResult";
   }
@@ -86,7 +82,7 @@ public class OAuthTokenController {
     String uri = buildAuthorizeUri(
         env.getAdminClientId(),
         adminRedirectUri(),
-        Lists.newArrayList("read", "write"));
+        Stream.of("read", "write"));
 
     return "redirect:".concat(uri);
   }
@@ -102,12 +98,7 @@ public class OAuthTokenController {
 
   @RequestMapping("/token")
   public String retrieveToken(Model model) throws URISyntaxException {
-    Collection<String> scopes = Collections2.transform(EnumSet.allOf(NsiScope.class), new Function<NsiScope, String>() {
-      @Override
-      public String apply(NsiScope scope) {
-        return scope.name().toLowerCase();
-      }
-    });
+    Stream<String> scopes = EnumSet.allOf(NsiScope.class).stream().map(scope -> scope.name().toLowerCase());
 
     String uri = buildAuthorizeUri(
         env.getClientClientId(),
@@ -117,12 +108,12 @@ public class OAuthTokenController {
     return "redirect:".concat(uri);
   }
 
-  private String buildAuthorizeUri(String clientId, String redirectUri, Collection<String> scopes) throws URISyntaxException {
+  private String buildAuthorizeUri(String clientId, String redirectUri, Stream<String> scopes) throws URISyntaxException {
     return new URIBuilder(env.getOauthServerUrl().concat("/oauth2/authorize"))
       .addParameter("response_type", "code")
       .addParameter("client_id", clientId)
       .addParameter("redirect_uri", redirectUri)
-      .addParameter("scope", Joiner.on(',').join(scopes)).build().toASCIIString();
+      .addParameter("scope", scopes.collect(joining(","))).build().toASCIIString();
   }
 
   @RequestMapping(ADMIN_REDIRECT)

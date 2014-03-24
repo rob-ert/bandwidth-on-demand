@@ -24,10 +24,12 @@ package nl.surfnet.bod.web.security;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
@@ -45,8 +47,9 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService<Authentication> {
 
@@ -106,7 +109,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
    * @return List<BodRole> List with roles sorted on the roleName
    */
   Collection<BodRole> determineRoles(Collection<UserGroup> userGroups) {
-    Collection<BodRole> roles = Lists.newArrayList();
+    Collection<BodRole> roles = new ArrayList<>();
 
     roles.addAll(determineAppManagerRole(userGroups));
     roles.addAll(determineNocRole(userGroups));
@@ -117,31 +120,24 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   }
 
   private Collection<BodRole> determineAppManagerRole(Collection<UserGroup> userGroups) {
-    return isAppManagerGroup(userGroups) ? ImmutableList.of(BodRole.createAppManager()) : Collections
-        .<BodRole> emptyList();
+    return isAppManagerGroup(userGroups) ? ImmutableList.of(BodRole.createAppManager()) : Collections.emptyList();
   }
 
   private Collection<BodRole> determineNocRole(Collection<UserGroup> userGroups) {
-    return isNocEngineerGroup(userGroups) ? ImmutableList.of(BodRole.createNocEngineer()) : Collections
-        .<BodRole> emptyList();
+    return isNocEngineerGroup(userGroups) ? ImmutableList.of(BodRole.createNocEngineer()) : Collections.emptyList();
   }
 
   private Collection<BodRole> determineManagerRoles(Collection<UserGroup> userGroups) {
-    Collection<UserGroup> managerUserGroups = Collections2.filter(userGroups, new Predicate<UserGroup>() {
-      @Override
-      public boolean apply(UserGroup userGroup) {
-        return isIctManager(userGroup);
-      }
-    });
+    Stream<UserGroup> managerUserGroups = userGroups.stream().filter(u -> isIctManager(u));
 
     Collection<BodRole> roles = Lists.newArrayList();
 
-    for (UserGroup userGroup : managerUserGroups) {
+    managerUserGroups.forEach(userGroup -> {
       List<PhysicalResourceGroup> prgs = physicalResourceGroupService.findByAdminGroup(userGroup.getId());
       for (PhysicalResourceGroup prg : prgs) {
         roles.add(BodRole.createManager(prg));
       }
-    }
+    });
 
     return roles;
   }
@@ -190,12 +186,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
   }
 
   public boolean hasGroup(final String groupId, final Collection<UserGroup> groups) {
-    return Iterables.any(groups, new Predicate<UserGroup>() {
-      @Override
-      public boolean apply(UserGroup group) {
-        return groupId.equals(group.getId());
-      }
-    });
+    return groups.stream().anyMatch(g -> groupId.equals(g.getId()));
   }
 
   @VisibleForTesting

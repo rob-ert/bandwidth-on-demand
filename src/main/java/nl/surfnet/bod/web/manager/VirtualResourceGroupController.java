@@ -22,6 +22,7 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static java.util.stream.Collectors.toList;
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.LIST;
@@ -46,8 +47,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.google.common.collect.Lists;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
@@ -107,7 +106,7 @@ public class VirtualResourceGroupController extends
 
   @Override
   protected List<? extends VirtualResourceGroupView> transformToView(List<? extends VirtualResourceGroup> entities, RichUserDetails user) {
-      return Lists.transform(entities, VirtualResourceGroupService.TO_MANAGER_VIEW);
+    return entities.stream().map(VirtualResourceGroupService.TO_MANAGER_VIEW).collect(toList());
   }
 
   public static class VirtualResourceGroupView {
