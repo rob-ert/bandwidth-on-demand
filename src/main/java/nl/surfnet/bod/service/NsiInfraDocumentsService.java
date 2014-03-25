@@ -97,7 +97,7 @@ public class NsiInfraDocumentsService {
   }
 
   public static final JaxbUserType<TopologyType> TOPOLOGY_CONVERTER = new TopologyUserType();
-  public static final JaxbUserType<NsaType> NSA_CONVERTER = new NsaUserType();
+  public static final JaxbUserType<NsaType> DISCOVERY_CONVERTER = new NsaUserType();
 
 
   public NsaType nsiDiscovery(){
@@ -125,8 +125,7 @@ public class NsiInfraDocumentsService {
         new InterfaceType().withType("application/vnd.ogf.nsi.topology.v2+xml").withHref(bodEnvironment.getExternalBodUrl() + "/nsi-topology"),
         new InterfaceType().withType(PROTOCOL_VERSION).withHref(getNsi2ConnectionProviderUrl())
       ).
-      withFeature(new FeatureType().withType("vnd.ogf.nsi.cs.v2.role.uPA")
-    );
+      withFeature(new FeatureType().withType("vnd.ogf.nsi.cs.v2.role.uPA"));
   }
 
   public TopologyType nsiTopology() {

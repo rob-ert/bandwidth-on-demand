@@ -32,7 +32,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.ogf.schemas.nml._2013._05.base.TopologyType;
-import org.ogf.schemas.nsi._2013._09.topology.NSAType;
 import org.ogf.schemas.nsi._2014._02.discovery.nsa.NsaType;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -77,7 +76,7 @@ public class NsiInfraDocumentsController {
     }
     response.addHeader(HttpHeaders.LAST_MODIFIED, DateUtil.formatDate(lastModified));
 
-    return NsiInfraDocumentsService.NSA_CONVERTER.toXmlString(nsaType);
+    return NsiInfraDocumentsService.DISCOVERY_CONVERTER.toXmlString(nsaType);
   }
 
   private boolean isModifiedSince (final Enumeration<String> ifModifiedSinceValues, final Date lastModified) throws DateParseException {
