@@ -43,6 +43,7 @@ import javax.xml.soap.SOAPMessage;
 
 import com.google.common.base.Optional;
 
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
 import org.apache.commons.io.IOUtils;
@@ -59,11 +60,9 @@ import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderIdempotentMessageHandlerTest {
 
-  @Mock
-  private NsiV2MessageRepo messageRepo;
-
-  @Mock
-  private ConnectionServiceRequesterAsyncClient client;
+  @Mock private NsiV2MessageRepo messageRepo;
+  @Mock private ConnectionServiceRequesterAsyncClient client;
+  @Mock private NsiHelper nsiHelper;
 
   @InjectMocks
   private ConnectionServiceProviderIdempotentMessageHandler subject = new ConnectionServiceProviderIdempotentMessageHandler();

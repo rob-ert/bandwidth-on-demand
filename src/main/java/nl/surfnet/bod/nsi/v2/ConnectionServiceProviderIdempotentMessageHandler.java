@@ -39,6 +39,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
+import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
+import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.nsi.v2.NsiV2Message.Type;
 
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
@@ -60,6 +62,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
   @Resource private NsiV2MessageRepo messageRepo;
   @Resource private ConnectionServiceRequesterAsyncClient client;
   @Resource private PlatformTransactionManager transactionManager;
+  @Resource private NsiHelper nsiHelper;
 
   public Set<QName> getHeaders() {
     return Collections.emptySet();
@@ -109,7 +112,7 @@ class ConnectionServiceProviderIdempotentMessageHandler implements SOAPHandler<S
     } else {
       String request = Converters.serializeMessage(message);
       if (!request.equals(originalMessage.getMessage())) {
-        ServiceExceptionType detail = new ServiceExceptionType().withErrorId("100").withText("PAYLOAD_ERROR").withNsaId(header.getProviderNSA());
+        ServiceExceptionType detail = ConnectionServiceProviderError.PAYLOAD_ERROR.toServiceExceptionType(nsiHelper.getProviderNsaV2());
         UpdateNsiHeadersForAckHandler.updateAcknowledgmentHeaders(header);
         return Converters.createSoapFault(header, "request with existing correlation id does not match the original request", detail);
       }

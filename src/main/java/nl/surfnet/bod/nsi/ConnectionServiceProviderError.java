@@ -22,6 +22,8 @@
  */
 package nl.surfnet.bod.nsi;
 
+import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
+
 public enum ConnectionServiceProviderError {
 
   PAYLOAD_ERROR("00100", "PAYLOAD_ERROR", ""),
@@ -74,6 +76,10 @@ public enum ConnectionServiceProviderError {
 
   public String getMessage() {
     return message;
+  }
+
+  public ServiceExceptionType toServiceExceptionType(String providerNsa) {
+    return new ServiceExceptionType().withNsaId(providerNsa).withText(this.getMessage()).withErrorId(this.getErrorId());
   }
 
 }

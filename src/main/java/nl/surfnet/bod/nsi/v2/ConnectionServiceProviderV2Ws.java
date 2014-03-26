@@ -50,7 +50,6 @@ import nl.surfnet.bod.domain.ConnectionV2;
 import nl.surfnet.bod.domain.NsiV2RequestDetails;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ConnectionServiceProviderError;
 import nl.surfnet.bod.nsi.NsiHelper;
 import nl.surfnet.bod.repo.ConnectionV2Repo;
 import nl.surfnet.bod.util.Environment;
@@ -73,7 +72,6 @@ import org.ogf.schemas.nsi._2013._12.connection.types.ReservationConfirmCriteria
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationRequestCriteriaType;
 import org.ogf.schemas.nsi._2013._12.connection.types.ReservationStateEnumType;
 import org.ogf.schemas.nsi._2013._12.framework.headers.CommonHeaderType;
-import org.ogf.schemas.nsi._2013._12.framework.types.ServiceExceptionType;
 import org.ogf.schemas.nsi._2013._12.framework.types.TypeValuePairType;
 import org.ogf.schemas.nsi._2013._12.framework.types.VariablesType;
 import org.ogf.schemas.nsi._2013._12.services.point2point.P2PServiceBaseType;
@@ -126,7 +124,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
     try {
       connectionService.reserve(connection, requestDetails, richUserDetails);
     } catch (ConnectionServiceV2.ReservationCreationException e) {
-      throw new ServiceException(e.getMessage(), createServiceExceptionType(e.getErrorCode()));
+      throw new ServiceException(e.getMessage(), e.getErrorCode().toServiceExceptionType(nsiHelper.getProviderNsaV2()));
     }
   }
 
@@ -411,7 +409,7 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
 
   private ServiceException missingParameter(String parameter) throws ServiceException {
     return new ServiceException("Missing parameter '" + parameter + "'",
-      createServiceExceptionType(MISSING_PARAMETER).withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(parameter))));
+      MISSING_PARAMETER.toServiceExceptionType(nsiHelper.getProviderNsaV2()).withVariables(new VariablesType().withVariable(new TypeValuePairType().withValue(parameter))));
   }
 
   private ServiceException invalidTransition(LifecycleStateEnumType lifecycleState, ReservationStateEnumType reservationState, ProvisionStateEnumType provisionState) throws ServiceException {
@@ -421,32 +419,28 @@ public class ConnectionServiceProviderV2Ws implements ConnectionProviderPort {
       new TypeValuePairType().withType("provisionState").withValue(provisionState.name()));
 
     return new ServiceException("This operation is not applicable",
-      createServiceExceptionType(INVALID_TRANSITION).withVariables(states)
+      INVALID_TRANSITION.toServiceExceptionType(nsiHelper.getProviderNsaV2()).withVariables(states)
     );
   }
 
   private ServiceException unsupportedParameter(String attribute, Object value) {
     return new ServiceException(String.format("The attribute '%s' with value '%s' is not supported by this provider", attribute, value),
-      createServiceExceptionType(UNSUPPORTED_PARAMETER)
+      UNSUPPORTED_PARAMETER.toServiceExceptionType(nsiHelper.getProviderNsaV2())
         .withVariables(new VariablesType().withVariable(new TypeValuePairType().withType(attribute).withValue(value.toString())))
     );
   }
 
   private ServiceException notImplemented() {
-    return new ServiceException("This operation is not supported by this provider", createServiceExceptionType(NOT_IMPLEMENTED));
+    return new ServiceException("This operation is not supported by this provider", NOT_IMPLEMENTED.toServiceExceptionType(nsiHelper.getProviderNsaV2()));
   }
 
   private ServiceException connectionNotFoundServiceException(String connectionId) {
     return new ServiceException("Client asked for non-existing connection: " + connectionId,
-      createServiceExceptionType(CONNECTION_NON_EXISTENT).withConnectionId(connectionId));
+      CONNECTION_NON_EXISTENT.toServiceExceptionType(nsiHelper.getProviderNsaV2()).withConnectionId(connectionId));
   }
 
   private ServiceException unAuthorizedServiceException() {
-    return new ServiceException("Unauthorized", createServiceExceptionType(UNAUTHORIZED));
-  }
-
-  private ServiceExceptionType createServiceExceptionType(ConnectionServiceProviderError error) {
-    return new ServiceExceptionType().withNsaId(nsiHelper.getProviderNsaV2()).withText(error.getMessage()).withErrorId(error.getErrorId());
+    return new ServiceException("Unauthorized", UNAUTHORIZED.toServiceExceptionType(nsiHelper.getProviderNsaV2()));
   }
 
   private ReservationConfirmCriteriaType convertInitialRequestCriteria(ReservationRequestCriteriaType criteria) throws ServiceException {
