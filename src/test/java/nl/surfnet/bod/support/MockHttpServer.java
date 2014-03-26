@@ -81,8 +81,7 @@ public class MockHttpServer extends AbstractHandler {
   public void startServer() throws Exception {
     if (username == null && password == null) {
       server.setHandler(this);
-    }
-    else {
+    } else {
       server.setHandler(getSecurityHandler());
     }
     server.start();
@@ -128,8 +127,7 @@ public class MockHttpServer extends AbstractHandler {
         response.setStatus(mockResponse.getStatus().value());
         ByteStreams.copy(mockResponse.getBody().getInputStream(), outputStream);
       }
-    }
-    else {
+    } else {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
   }
@@ -172,8 +170,7 @@ public class MockHttpServer extends AbstractHandler {
         throw new AssertionError("Failed to retrieve the request");
       }
       return request;
-    }
-    catch (InterruptedException e) {
+    } catch (InterruptedException e) {
       log.error("Error: ", e);
       throw new RuntimeException(e);
     }
