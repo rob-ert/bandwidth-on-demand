@@ -13,7 +13,7 @@
     </parent>
 
     <properties>
-        <spring.version>4.0.2.RELEASE</spring.version>
+        <spring.version>4.0.3.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <!-- Upgrading breaks async support. https://bugs.eclipse.org/bugs/show_bug.cgi?id=410893 -->
         <jetty.version>8.1.13.v20130916</jetty.version>
